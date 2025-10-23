@@ -1,10 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { cloudflare } from "@cloudflare/vite-plugin";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react(), cloudflare()],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -17,6 +16,6 @@ export default defineConfig({
     minify: 'terser'
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router', '@getmocha/users-service']
+    include: ['react', 'react-dom', 'react-router']
   }
 });
