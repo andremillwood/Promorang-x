@@ -1,1 +1,0 @@
-ALTER TABLE content_pieces DROP COLUMN creator_username;

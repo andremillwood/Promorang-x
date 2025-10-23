@@ -11,11 +11,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: false,
-    minify: 'terser'
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router']
+    assetsDir: 'assets'
   }
 });

@@ -1,0 +1,18 @@
+{
+  "node_modules/stripe/esm/stripe.esm.worker.js": {
+    "file": "assets/stripe.esm.worker-B4f3yCBp.js",
+    "name": "stripe.esm.worker",
+    "src": "node_modules/stripe/esm/stripe.esm.worker.js",
+    "isDynamicEntry": true
+  },
+  "virtual:cloudflare/worker-entry": {
+    "file": "index.js",
+    "name": "index",
+    "src": "virtual:cloudflare/worker-entry",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/stripe/esm/stripe.esm.worker.js",
+      "node_modules/stripe/esm/stripe.esm.worker.js"
+    ]
+  }
+}
