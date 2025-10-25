@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { useNavigate } from 'react-router';
 import { 
   ArrowRight, 
@@ -24,10 +24,10 @@ export default function Home() {
     earnings: 12
   });
 
+  // Only redirect if user explicitly wants to go to authenticated area
+  // Don't automatically redirect authenticated users to /home
   useEffect(() => {
-    if (!isPending && user) {
-      navigate('/home');
-    }
+    // No automatic redirect - let users choose to sign in or go to dashboard
   }, [user, isPending, navigate]);
 
   // Animate stats on load
@@ -73,36 +73,67 @@ export default function Home() {
               <a href="#success-stories" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Success Stories</a>
             </div>
             <div className="flex items-center space-x-4">
-              <button
-                onClick={async () => {
-                  console.log('Sign In clicked');
-                  try {
-                    console.log('Calling redirectToLogin...');
-                    await redirectToLogin();
-                    console.log('redirectToLogin completed');
-                  } catch (error) {
-                    console.error('redirectToLogin error:', error);
-                  }
-                }}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={async () => {
-                  console.log('Start Earning clicked');
-                  try {
-                    console.log('Calling redirectToLogin...');
-                    await redirectToLogin();
-                    console.log('redirectToLogin completed');
-                  } catch (error) {
-                    console.error('redirectToLogin error:', error);
-                  }
-                }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Start Earning
-              </button>
+              {user ? (
+                // Authenticated user - show dashboard link and logout
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => navigate('/home')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Go to Dashboard
+                  </button>
+                  {/* Development logout button */}
+                  <button
+                    onClick={async () => {
+                      const { useAuth } = await import('../App');
+                      const { logout } = useAuth();
+                      await logout();
+                    }}
+                    className="text-red-600 hover:text-red-800 font-medium transition-colors px-3 py-2 border border-red-200 rounded-lg hover:bg-red-50"
+                    title="Development logout (for testing)"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              ) : (
+                // Unauthenticated user - show sign in options
+                <>
+                  <button
+                    onClick={async () => {
+                      console.log('Sign In clicked');
+                      try {
+                        console.log('Calling redirectToLogin...');
+                        const { useAuth } = await import('../App');
+                        const { redirectToLogin } = useAuth();
+                        await redirectToLogin();
+                        console.log('redirectToLogin completed');
+                      } catch (error) {
+                        console.error('redirectToLogin error:', error);
+                      }
+                    }}
+                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={async () => {
+                      console.log('Start Earning clicked');
+                      try {
+                        console.log('Calling redirectToLogin...');
+                        const { useAuth } = await import('../App');
+                        const { redirectToLogin } = useAuth();
+                        await redirectToLogin();
+                        console.log('redirectToLogin completed');
+                      } catch (error) {
+                        console.error('redirectToLogin error:', error);
+                      }
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Start Earning
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -155,16 +186,30 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <button
-                onClick={() => {
-                  console.log('Start Earning Today clicked');
-                  redirectToLogin();
-                }}
-                className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
-              >
-                Start Earning Today
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              {user ? (
+                // Authenticated user - show dashboard button
+                <button
+                  onClick={() => navigate('/home')}
+                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
+                >
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              ) : (
+                // Unauthenticated user - show sign up button
+                <button
+                  onClick={async () => {
+                    console.log('Start Earning Today clicked');
+                    const { useAuth } = await import('../App');
+                    const { redirectToLogin } = useAuth();
+                    await redirectToLogin();
+                  }}
+                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
+                >
+                  Start Earning Today
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
               <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center hover:bg-gray-50">
                 <Play className="mr-2 w-5 h-5" />
                 See How it Works
@@ -207,13 +252,19 @@ export default function Home() {
                 </div>
               </div>
               <button
-                onClick={() => {
+                onClick={async () => {
                   console.log('Start Advertising clicked');
-                  redirectToLogin();
+                  if (user) {
+                    navigate('/advertiser/onboarding');
+                  } else {
+                    const { useAuth } = await import('../App');
+                    const { redirectToLogin } = useAuth();
+                    await redirectToLogin();
+                  }
                 }}
                 className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Start Advertising
+                {user ? 'Go to Advertising' : 'Start Advertising'}
               </button>
             </div>
             <div className="lg:w-1/2">
@@ -485,13 +536,19 @@ export default function Home() {
           </p>
           
           <button
-            onClick={() => {
+            onClick={async () => {
               console.log('Final CTA clicked');
-              redirectToLogin();
+              if (user) {
+                navigate('/home');
+              } else {
+                const { useAuth } = await import('../App');
+                const { redirectToLogin } = useAuth();
+                await redirectToLogin();
+              }
             }}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center"
           >
-            Start Earning Today
+            {user ? 'Go to Dashboard' : 'Start Earning Today'}
             <ChevronRight className="ml-2 w-5 h-5" />
           </button>
 

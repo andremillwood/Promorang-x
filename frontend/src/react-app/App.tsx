@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { useNavigate } from 'react-router';
 import HomePage from "@/react-app/pages/Home";
 import AuthCallbackPage from "@/react-app/pages/AuthCallback";
 import HomeFeedPage from "@/react-app/pages/HomeFeed";
@@ -17,20 +18,72 @@ import ErrorPage from "@/react-app/pages/ErrorPage";
 import Layout from "@/react-app/components/Layout";
 import ErrorBoundary from "@/react-app/components/ErrorBoundary";
 
+// Debug logging
+console.log("🚀 App.tsx: Starting to load...");
+
 // Mock auth for development
-const mockUser = { id: 'dev-user', email: 'dev@example.com' };
+const mockUser = {
+  id: 'dev-user',
+  email: 'dev@example.com',
+  google_user_data: {
+    given_name: 'Demo',
+    family_name: 'User',
+    email: 'dev@example.com',
+    picture: 'https://via.placeholder.com/150',
+    name: 'Demo User'
+  },
+  display_name: 'Demo User',
+  gems_balance: 1250,
+  xp_points: 15420,
+  level: 12
+};
+
+console.log("✅ App.tsx: Mock user created:", mockUser);
 
 // Simple auth hook replacement
-function useAuth() {
-  return {
-    user: mockUser,
+let currentUser: typeof mockUser | null = mockUser; // Track current user state
+
+export function useAuth() {
+  const navigate = useNavigate();
+
+  const authFunctions = {
+    user: currentUser,
     isPending: false,
     signIn: async () => ({ error: null }),
     signUp: async () => ({ error: null }),
     signInWithOAuth: async () => ({ error: null }),
-    signOut: async () => ({ error: null }),
+    signOut: async () => {
+      // Clear user session and redirect to home
+      currentUser = null;
+      navigate('/', { replace: true });
+      return { error: null };
+    },
+    logout: async () => {
+      // Alias for signOut for compatibility
+      currentUser = null;
+      navigate('/', { replace: true });
+      return { error: null };
+    },
+    redirectToLogin: async () => {
+      // In a real app, this would redirect to auth provider
+      // For demo, redirect to authenticated area if user exists, else stay on landing
+      if (currentUser) {
+        navigate('/home');
+      } else {
+        // User is not authenticated, stay on landing page
+        navigate('/');
+      }
+    },
   };
+
+  return authFunctions;
 }
+
+// Export logout function for development testing
+export const logout = async () => {
+  const { logout: logoutFn } = useAuth();
+  return await logoutFn();
+};
 
 
 
@@ -60,7 +113,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 // Public route wrapper for authenticated users (redirects to /home)
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, isPending } = useAuth();
-  
+
   // Show loading while auth state is being determined
   if (isPending) {
     return (
@@ -72,15 +125,19 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  
+
   if (user) {
-    return <Navigate to="/home" replace />;
+    // If user is authenticated, they can still access the landing page
+    // Don't redirect to /home - let them choose
+    return <Layout>{children}</Layout>;
   }
-  
+
   return <>{children}</>;
 }
 
 export default function App() {
+  console.log("🎯 App.tsx: App component starting to render...");
+
   return (
     <ErrorBoundary>
       <Router>
@@ -113,7 +170,7 @@ export default function App() {
           <Route path="/main" element={<Navigate to="/home" replace />} />
 
           {/* Catch-all route for 404 */}
-          <Route path="*" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </ErrorBoundary>
