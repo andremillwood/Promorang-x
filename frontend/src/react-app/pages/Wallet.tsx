@@ -324,7 +324,7 @@ export default function Wallet() {
       console.log('User is authenticated, fetching user data...');
       
       // Fetch user data from database with error handling
-      const userResponse = await fetch('/api/app/users/me', { credentials: 'include' });
+      const userResponse = await fetch('/api/users/me', { credentials: 'include' });
       console.log('User data response status:', userResponse.status);
       
       let userData = null;

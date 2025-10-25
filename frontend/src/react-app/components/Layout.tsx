@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { 
   Home, 
   DollarSign, 
@@ -99,7 +99,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/app/users/me', { credentials: 'include' });
+      const response = await fetch('/api/users/me', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         // Handle both direct user data and null responses
@@ -176,9 +176,9 @@ export default function Layout({ children }: LayoutProps) {
       
       // Call our backend logout endpoint to clear server-side session
       try {
-        await fetch('/api/logout', { 
+        await fetch('/api/auth/logout', {
           method: 'POST',
-          credentials: 'include' 
+          credentials: 'include'
         });
       } catch (backendError) {
         console.error('Backend logout failed:', backendError);
