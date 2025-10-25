@@ -100,7 +100,7 @@ export default function ContentDetail() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/app/users/me', { credentials: 'include' });
+      const response = await fetch('/api/users/me', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setUserData(data);

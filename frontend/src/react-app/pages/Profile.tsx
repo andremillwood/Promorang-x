@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { Link, useParams } from 'react-router';
 import { 
   Edit3, 
@@ -168,7 +168,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch('/api/app/users/me', {
+      const response = await fetch('/api/users/me', {
         credentials: 'include'
       });
       const userData = await response.json();

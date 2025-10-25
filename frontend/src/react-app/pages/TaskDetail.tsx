@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { 
   ArrowLeft,
   Clock,

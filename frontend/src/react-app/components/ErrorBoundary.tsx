@@ -1,6 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { handleCriticalError } from '@/react-app/utils/errorEncoder';
 
 interface Props {
   children: ReactNode;
@@ -22,13 +21,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('🔥 Error caught by boundary:', error);
+    console.error('📍 Error location:', errorInfo);
+    console.error('🏷️ Component stack:', errorInfo.componentStack);
     this.setState({ error, errorInfo });
-    
-    // For critical React errors, redirect to error page after a short delay
-    setTimeout(() => {
-      handleCriticalError(error, 'React', 'component_render');
-    }, 100);
+
+    // Don't redirect to error page for debugging - show the error instead
+    // handleCriticalError(error, 'React', 'component_render');
   }
 
   private handleRefresh = () => {
@@ -77,12 +76,28 @@ export default class ErrorBoundary extends Component<Props, State> {
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-6 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  Technical Details
+                  🔍 Technical Details (Development Only)
                 </summary>
-                <pre className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded border overflow-auto">
-                  {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
-                </pre>
+                <div className="mt-2 space-y-2">
+                  <div>
+                    <strong className="text-red-600">Error:</strong>
+                    <pre className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded border overflow-auto">
+                      {this.state.error.toString()}
+                    </pre>
+                  </div>
+                  <div>
+                    <strong className="text-red-600">Stack Trace:</strong>
+                    <pre className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded border overflow-auto max-h-40">
+                      {this.state.error.stack}
+                    </pre>
+                  </div>
+                  <div>
+                    <strong className="text-red-600">Component Stack:</strong>
+                    <pre className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded border overflow-auto max-h-40">
+                      {this.state.errorInfo?.componentStack}
+                    </pre>
+                  </div>
+                </div>
               </details>
             )}
           </div>

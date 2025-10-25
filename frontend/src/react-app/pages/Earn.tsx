@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { 
   Plus, 
   Search, 
@@ -48,7 +48,7 @@ export default function Earn() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/app/users/me', { credentials: 'include' });
+      const response = await fetch('/api/users/me', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setUserData(data);

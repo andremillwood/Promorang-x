@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { 
   BarChart3, 
   Users, 
@@ -108,7 +108,7 @@ export default function AdvertiserDashboard() {
   const fetchUserData = async () => {
     try {
       // Use the app user endpoint for database user data
-      const response = await fetch('/api/app/users/me', { credentials: 'include' });
+      const response = await fetch('/api/users/me', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setUserData(data);

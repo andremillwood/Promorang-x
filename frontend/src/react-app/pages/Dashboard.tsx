@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -24,7 +24,6 @@ import {
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
-  const [user, setUser] = useState<UserType | null>(null);
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [recentTasks, setRecentTasks] = useState<TaskType[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<TransactionType[]>([]);
@@ -33,31 +32,24 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch user data
-        const userResponse = await fetch('/api/app/users/me', {
-          credentials: 'include'
-        });
-        const userData = await userResponse.json();
-        setUser(userData);
-
         // Fetch wallets
         const walletsResponse = await fetch('/api/users/wallets', {
           credentials: 'include'
         });
         const walletsData = await walletsResponse.json();
-        setWallets(walletsData);
+        setWallets(Array.isArray(walletsData) ? walletsData : []);
 
         // Fetch recent tasks
         const tasksResponse = await fetch('/api/tasks?limit=5');
         const tasksData = await tasksResponse.json();
-        setRecentTasks(tasksData.slice(0, 5));
+        setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
 
         // Fetch recent transactions
         const transactionsResponse = await fetch('/api/users/transactions?limit=5', {
           credentials: 'include'
         });
         const transactionsData = await transactionsResponse.json();
-        setRecentTransactions(transactionsData.slice(0, 5));
+        setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
 
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -66,10 +58,8 @@ export default function Dashboard() {
       }
     };
 
-    if (authUser) {
-      fetchDashboardData();
-    }
-  }, [authUser]);
+    fetchDashboardData();
+  }, []);
 
   const usdWallet = wallets.find(w => w.currency_type === 'USD');
 
@@ -119,7 +109,7 @@ export default function Dashboard() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-8 text-white">
         <h1 className="text-3xl font-bold mb-2">
-          Welcome back, {user?.display_name || authUser?.google_user_data?.given_name}!
+          Welcome back, {authUser?.display_name || authUser?.google_user_data?.given_name || 'User'}!
         </h1>
         <p className="text-orange-100">
           Ready to earn more today? Check out the latest opportunities below.
@@ -139,7 +129,7 @@ export default function Dashboard() {
         
         <KPICard
           title="PromoGems"
-          value={(user?.gems_balance || 0).toFixed(0)}
+          value={(authUser?.gems_balance || 0).toFixed(0)}
           change={8.3}
           changeType="increase"
           icon={<Diamond className="w-5 h-5" />}
@@ -148,7 +138,7 @@ export default function Dashboard() {
         
         <KPICard
           title="XP Points"
-          value={(user?.xp_points || 0).toLocaleString()}
+          value={(authUser?.xp_points || 0).toLocaleString()}
           change={15.7}
           changeType="increase"
           icon={<TrendingUp className="w-5 h-5" />}
@@ -157,7 +147,7 @@ export default function Dashboard() {
         
         <KPICard
           title="Current Level"
-          value={user?.level || 1}
+          value={authUser?.level || 1}
           change={0}
           changeType="increase"
           icon={<Award className="w-5 h-5" />}
