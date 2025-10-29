@@ -39,7 +39,7 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
 
   const fetchUserWallet = async () => {
     try {
-      const response = await fetch('/api/users/wallets');
+      const response = await fetch('/api/users/me/wallets');
       if (response.ok) {
         const wallets = await response.json();
         const usdWallet = wallets.find((w: any) => w.currency_type === 'USD');

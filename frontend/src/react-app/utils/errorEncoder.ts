@@ -1,5 +1,4 @@
 // Error encoding utilities for user-friendly error codes
-import { encode as base64Encode, decode as base64Decode } from 'js-base64';
 
 export interface ErrorInfo {
   message: string;
@@ -16,7 +15,7 @@ export interface ErrorInfo {
 export function generateErrorCode(errorInfo: ErrorInfo): string {
   // Create a unique identifier based on error info
   const data = `${errorInfo.message}|${errorInfo.timestamp}|${errorInfo.url}`;
-  
+
   // Use a simple hash to create a shorter code
   let hash = 0;
   for (let i = 0; i < data.length; i++) {
@@ -24,19 +23,17 @@ export function generateErrorCode(errorInfo: ErrorInfo): string {
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
-  
+
   // Convert to positive number and format as 8-digit hex
   const positiveHash = Math.abs(hash);
   const shortCode = positiveHash.toString(16).toUpperCase().slice(-8).padStart(8, '0');
-  
+
   return `ERR-${shortCode}`;
 }
-
-// Encode error information into a base64 string for URL
 export function encodeErrorInfo(errorInfo: ErrorInfo): string {
   try {
     const jsonString = JSON.stringify(errorInfo);
-    return base64Encode(jsonString);
+    return btoa(jsonString);
   } catch (e) {
     console.error('Failed to encode error info:', e);
     return '';
@@ -46,7 +43,7 @@ export function encodeErrorInfo(errorInfo: ErrorInfo): string {
 // Decode error information from base64 string
 export function decodeErrorInfo(encoded: string): ErrorInfo | null {
   try {
-    const jsonString = base64Decode(encoded);
+    const jsonString = atob(encoded);
     return JSON.parse(jsonString) as ErrorInfo;
   } catch (e) {
     console.error('Failed to decode error info:', e);

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../App';
 import { 
   Plus, 
@@ -10,17 +10,37 @@ import {
   Star,
   Calendar,
   Key,
-  Diamond,
-  Upload,
-  X,
-  Link as LinkIcon,
-  Image as ImageIcon
+  Diamond
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
-import { DropType, CreateDropRequestType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
+import { DropType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
+import { buildAuthHeaders } from '@/react-app/utils/api';
+
+interface CreateDropRequestType {
+  title: string;
+  description: string;
+  drop_type: string;
+  difficulty: string;
+  key_cost: number;
+  gem_reward_base: number;
+  gem_pool_total: number;
+  follower_threshold: number;
+  time_commitment: string;
+  requirements: string;
+  deliverables: string;
+  deadline_at: string;
+  max_participants?: number;
+  platform: string;
+  content_url: string;
+  is_proof_drop: boolean;
+  is_paid_drop: boolean;
+  move_cost_points: number;
+  key_reward_amount: number;
+  move_actions: any[];
+}
 
 export default function Earn() {
-  const { user: authUser } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const [drops, setDrops] = useState<DropType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -32,10 +52,10 @@ export default function Earn() {
 
   useEffect(() => {
     fetchDrops();
-    if (authUser) {
+    if (user) {
       fetchUserData();
     }
-  }, [authUser]);
+  }, [user]);
 
   // Check URL parameters to auto-open create modal
   useEffect(() => {
@@ -48,7 +68,11 @@ export default function Earn() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/users/me', { credentials: 'include' });
+      const headers = buildAuthHeaders();
+      const response = await fetch('/api/users/me', {
+        credentials: 'include',
+        headers
+      });
       if (response.ok) {
         const data = await response.json();
         setUserData(data);
@@ -183,6 +207,8 @@ export default function Earn() {
 }
 
 function DropCard({ drop }: { drop: DropType }) {
+  const navigate = useNavigate();
+  
   const getDropTypeImage = (dropType: string) => {
     // Use the drop's content_url if available, otherwise fallback to default images
     if (drop?.content_url) {
@@ -200,14 +226,9 @@ function DropCard({ drop }: { drop: DropType }) {
     }
   };
 
-  const handleApply = async () => {
-    // TODO: Implement drop application
-    console.log('Apply to drop:', drop.id);
-  };
-
   const handleDropClick = () => {
     // Use React Router navigation instead of window.location
-    window.location.href = `/drops/${drop.id}`;
+    navigate(`/drops/${drop.id}`);
   };
 
   // Check if this is demo content
@@ -215,10 +236,29 @@ function DropCard({ drop }: { drop: DropType }) {
                  drop.title?.toLowerCase().includes('demo') ||
                  drop.description?.toLowerCase().includes('demo');
 
+  const getDropTypeIcon = (dropType: string) => {
+    switch (dropType) {
+      case 'content_clipping': return '✂️';
+      case 'reviews': return '⭐';
+      case 'ugc_creation': return '🎨';
+      case 'affiliate_referral': return '🔗';
+      case 'surveys': return '📊';
+      case 'challenges_events': return '🏆';
+      default: return '📝';
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'text-green-600 bg-green-100';
+      case 'medium': return 'text-yellow-600 bg-yellow-100';
+      case 'hard': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
   return (
-    <div className={`bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-md transition-shadow ${
-      isDemo ? 'border-orange-300 bg-orange-50/30' : 'border-gray-200'
-    }`}>
+    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
       {/* Demo Banner */}
       {isDemo && (
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
@@ -358,12 +398,6 @@ function DropCard({ drop }: { drop: DropType }) {
             >
               View Details
             </button>
-            <button
-              onClick={handleApply}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-            >
-              Apply Now
-            </button>
           </div>
         </div>
       </div>
@@ -371,60 +405,109 @@ function DropCard({ drop }: { drop: DropType }) {
   );
 }
 
-function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+interface CreateDropModalProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+// CreateDropRequestType is imported from shared/types
+
+const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess }) => {
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const createParam = urlParams.get('create');
   
   // Determine initial drop type based on URL parameter
-  const getInitialDropType = () => {
+  const getInitialDropType = (): 'proof' | 'paid' | 'move' => {
     if (createParam === 'paid') return 'paid';
+    if (createParam === 'move') return 'move';
     return 'proof'; // Default to proof drop
   };
-
-  const [formData, setFormData] = useState<CreateDropRequestType>({
-    title: '',
-    description: '',
-    drop_type: 'content_clipping',
-    difficulty: 'easy',
-    key_cost: createParam === 'paid' ? 1 : 0,
-    gem_reward_base: createParam === 'paid' ? 50 : 0,
-    gem_pool_total: 0,
-    follower_threshold: 0,
-    time_commitment: '',
-    requirements: '',
-    deliverables: '',
-    deadline_at: '',
-    max_participants: undefined,
-    platform: '',
-    content_url: '',
-    is_proof_drop: createParam !== 'paid',
-    is_paid_drop: createParam === 'paid',
-    move_cost_points: 0,
-    key_reward_amount: 0,
-  });
-  const [dropType, setDropType] = useState<'proof' | 'paid' | 'move'>(getInitialDropType());
-  const [loading, setLoading] = useState(false);
   
-  // Image upload states  
-  const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
+  const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [dropImageUrl, setDropImageUrl] = useState<string>('');
+  const [uploadMode, setUploadMode] = useState<'upload' | 'link'>('upload');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // These states are used in the component
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [dropType, setDropType] = useState<'proof' | 'paid' | 'move'>(getInitialDropType());
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Initialize form data based on drop type
+  const getInitialFormData = (type: 'proof' | 'paid' | 'move'): CreateDropRequestType => {
+    return {
+      title: '',
+      description: '',
+      drop_type: 'content_clipping',
+      difficulty: 'easy',
+      key_cost: type === 'paid' ? 1 : 0,
+      gem_reward_base: type === 'paid' ? 50 : 0,
+      gem_pool_total: 0,
+      follower_threshold: 0,
+      time_commitment: '',
+      requirements: '',
+      deliverables: '',
+      deadline_at: '',
+      max_participants: undefined,
+      platform: '',
+      content_url: '',
+      is_proof_drop: type === 'proof',
+      is_paid_drop: type === 'paid',
+      move_cost_points: 0,
+      key_reward_amount: 0,
+      move_actions: []
+    };
+  };
+  
+  const [formData, setFormData] = useState<CreateDropRequestType>(() => getInitialFormData(getInitialDropType()));
+
+  // Update form data when drop type changes
+  useEffect(() => {
+    setFormData(prevData => ({
+      ...prevData,
+      is_proof_drop: dropType === 'proof',
+      is_paid_drop: dropType === 'paid',
+      key_cost: dropType === 'paid' ? 1 : 0,
+      gem_reward_base: dropType === 'paid' ? 50 : 0,
+    }));
+  }, [dropType]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setUploadedFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setPreviewUrl(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeUploadedFile = () => {
+    setUploadedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const uploadImageToStorage = async (file: File): Promise<string> => {
     try {
       setUploadingFile(true);
       
       // Convert file to base64 for transmission
-      const base64 = await new Promise<string>((resolve) => {
+      const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const result = reader.result as string;
           resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
         };
+        reader.onerror = reject;
         reader.readAsDataURL(file);
       });
 
@@ -436,642 +519,276 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
         },
         credentials: 'include',
         body: JSON.stringify({
-          fileName: file.name,
-          fileType: file.type,
-          fileData: base64
-        }),
+          image: base64,
+          filename: file.name,
+          contentType: file.type,
+          description: formData.title || 'Marketing drop',
+          platform: formData.platform || 'general'
+        })
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error('Failed to upload image');
       }
 
-      const result = await response.json();
-      
-      // Check if a fallback was used
-      if (result.fallback) {
-        console.warn('Upload fallback used:', result.fallbackReason);
-        // Show user that fallback was used
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-lg z-50';
-        notification.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span>⚠️</span>
-            <div>
-              <div class="font-semibold">Image Upload Notice</div>
-              <div class="text-xs opacity-90">${result.fallbackReason || 'Using fallback image'}</div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(notification);
-        setTimeout(() => {
-          if (document.body.contains(notification)) {
-            document.body.removeChild(notification);
-          }
-        }, 5000);
-      }
-      
-      return result.imageUrl;
+      const data = await response.json();
+      return data.url;
     } catch (error) {
       console.error('Error uploading image:', error);
-      
-      // Fallback: generate a placeholder image using AI
-      try {
-        const fallbackResponse = await fetch('/api/content/generate-placeholder', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            description: formData.title || 'Marketing drop',
-            platform: formData.platform || 'general'
-          }),
-        });
-
-        if (fallbackResponse.ok) {
-          const fallbackResult = await fallbackResponse.json();
-          return fallbackResult.imageUrl;
-        }
-      } catch (fallbackError) {
-        console.error('Fallback image generation failed:', fallbackError);
-      }
-      
-      // Last resort: use a generic placeholder
-      return `https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?w=800&h=600&fit=crop&crop=center`;
+      // Fallback to a placeholder image if upload fails
+      return 'https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?w=800&h=600&fit=crop&crop=center';
     } finally {
       setUploadingFile(false);
-    }
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image file (JPG, PNG, GIF, WEBP).');
-        return;
-      }
-
-      // Validate file size (more lenient check - server will provide detailed error)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB. Please compress your image or use a URL instead.');
-        return;
-      }
-
-      setUploadedFile(file);
-      
-      // Create preview URL
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      
-      // Upload the file and get the real URL
-      try {
-        const uploadedUrl = await uploadImageToStorage(file);
-        setDropImageUrl(uploadedUrl);
-      } catch (error) {
-        console.error('File upload failed:', error);
-        alert('Failed to upload image. Please try again or use a URL instead.');
-        removeUploadedFile();
-      }
-    }
-  };
-
-  const removeUploadedFile = () => {
-    setUploadedFile(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl('');
-    }
-    setDropImageUrl('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const validateImageUrl = async (url: string): Promise<boolean> => {
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-      const contentType = response.headers.get('content-type');
-      return response.ok && contentType?.startsWith('image/') || false;
-    } catch {
-      return false;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      // Validate image URL if provided
-      if (dropImageUrl && uploadMode === 'url') {
-        const isValidImage = await validateImageUrl(dropImageUrl);
-        if (!isValidImage) {
-          alert('The provided image URL is not accessible. Please check the URL or upload an image file instead.');
-          setLoading(false);
+      // Handle file upload if in upload mode and file is selected
+      let imageUrl = formData.content_url;
+      
+      if (uploadMode === 'upload' && uploadedFile) {
+        try {
+          imageUrl = await uploadImageToStorage(uploadedFile);
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+          return;
+        }
+      } else if (uploadMode === 'link' && formData.content_url) {
+        // Validate URL if in link mode
+        try {
+          const response = await fetch(formData.content_url, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error('Invalid image URL');
+          }
+        } catch (error) {
+          alert('Please provide a valid image URL');
           return;
         }
       }
-
-      // Create the drop data including the image URL
-      const dropDataWithImage = {
-        ...formData,
-        content_url: dropImageUrl || formData.content_url || '', // Use image URL as content URL if available
-      };
-
+      
+      // Submit the form data
       const response = await fetch('/api/drops', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
-        body: JSON.stringify(dropDataWithImage),
+        body: JSON.stringify({
+          ...formData,
+          content_url: imageUrl,
+          drop_type: dropType === 'proof' ? 'content_clipping' : 
+                    dropType === 'paid' ? 'paid_content' : 'action_required',
+          difficulty: formData.difficulty || 'easy',
+          deadline_at: formData.deadline_at || null,
+          max_participants: formData.max_participants || null,
+          key_cost: dropType === 'paid' ? formData.key_cost || 1 : 0,
+          gem_reward_base: dropType === 'paid' ? formData.gem_reward_base || 50 : 0,
+          is_proof_drop: dropType === 'proof',
+          is_paid_drop: dropType === 'paid',
+          move_cost_points: dropType === 'move' ? formData.move_cost_points || 0 : 0,
+          key_reward_amount: dropType === 'move' ? formData.key_reward_amount || 0 : 0,
+        }),
       });
-
-      if (response.ok) {
-        await response.json();
-        
-        // Reset form
-        setFormData({
-          title: '',
-          description: '',
-          drop_type: 'content_clipping',
-          difficulty: 'easy',
-          key_cost: createParam === 'paid' ? 1 : 0,
-          gem_reward_base: createParam === 'paid' ? 50 : 0,
-          gem_pool_total: 0,
-          follower_threshold: 0,
-          time_commitment: '',
-          requirements: '',
-          deliverables: '',
-          deadline_at: '',
-          max_participants: undefined,
-          platform: '',
-          content_url: '',
-          is_proof_drop: createParam !== 'paid',
-          is_paid_drop: createParam === 'paid',
-          move_cost_points: 0,
-          key_reward_amount: 0,
-        });
-        removeUploadedFile();
-        setUploadMode('url');
-        setDropImageUrl('');
-        
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-bounce';
-        notification.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span class="text-lg">🎯</span>
-            <div>
-              <div class="font-semibold">Drop Created!</div>
-              <div class="text-xs opacity-90">Redirecting to drops page...</div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(notification);
-        
-        // Clear URL parameters and close modal
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, '', newUrl);
-        onSuccess();
-        
-        // Remove notification after delay
-        setTimeout(() => {
-          if (document.body.contains(notification)) {
-            document.body.removeChild(notification);
-          }
-        }, 3000);
-      } else {
-        const error = await response.json();
-        console.error('Failed to create drop:', error);
-        alert(error.error || 'Failed to create drop. Please try again.');
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create drop');
       }
+      
+      onSuccess();
+      onClose();
     } catch (error) {
-      console.error('Failed to create drop:', error);
-      alert('Failed to create drop. Please try again.');
+      console.error('Error creating drop:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create drop');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleClose = () => {
-    // Clear URL parameters when closing modal
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, '', newUrl);
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Drop</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Create New Drop</h2>
+          <button 
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
         </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Show helper text for advertiser-initiated creation */}
-          {createParam && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-sm">💡</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-blue-900">
-                    {createParam === 'paid' ? 'Creating Paid Drop' : 'Creating Proof Drop'}
-                  </h3>
-                  <p className="text-xs text-blue-700">
-                    {createParam === 'paid' 
-                      ? 'This will use your paid drop inventory and require keys from applicants.'
-                      : 'This will use your proof drop inventory and help users with their Master Key activation.'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Drop Type Selection */}
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Drop Type</label>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setDropType('proof');
-                  setFormData({ ...formData, is_proof_drop: true, is_paid_drop: false, key_cost: 0, gem_reward_base: 0 });
-                }}
-                className={`p-4 border rounded-lg text-center transition-all ${
-                  dropType === 'proof'
-                    ? 'border-green-500 bg-green-50 text-green-700'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                <div className="w-8 h-8 bg-green-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
-                <span className="text-sm font-medium">Proof Drop</span>
-                <p className="text-xs text-gray-500 mt-1">Helps users get Master Key</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setDropType('paid');
-                  setFormData({ ...formData, is_proof_drop: false, is_paid_drop: true, key_cost: 1, gem_reward_base: 50 });
-                }}
-                className={`p-4 border rounded-lg text-center transition-all ${
-                  dropType === 'paid'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                <div className="w-8 h-8 bg-purple-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">$</span>
-                </div>
-                <span className="text-sm font-medium">Paid Drop</span>
-                <p className="text-xs text-gray-500 mt-1">Costs keys, rewards gems</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setDropType('move');
-                  setFormData({ ...formData, is_proof_drop: false, is_paid_drop: false, key_cost: 0, gem_reward_base: 0, move_cost_points: 5, key_reward_amount: 2 });
-                }}
-                className={`p-4 border rounded-lg text-center transition-all ${
-                  dropType === 'move'
-                    ? 'border-orange-500 bg-orange-50 text-orange-700'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                <div className="w-8 h-8 bg-orange-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">M</span>
-                </div>
-                <span className="text-sm font-medium">Move Drop</span>
-                <p className="text-xs text-gray-500 mt-1">Social actions for keys</p>
-              </button>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Drop Type
+            </label>
+            <div className="flex space-x-4">
+              {(['proof', 'paid', 'move'] as const).map((type) => (
+                <label key={type} className="flex items-center">
+                  <input
+                    type="radio"
+                    className="h-4 w-4 text-orange-500"
+                    checked={dropType === type}
+                    onChange={() => setDropType(type)}
+                  />
+                  <span className="ml-2 capitalize">{type}</span>
+                </label>
+              ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Title
+            </label>
             <input
               type="text"
-              required
+              className="w-full p-2 border rounded"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="e.g., Create TikTok Video for Brand Campaign"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
               required
-              rows={4}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="Describe what needs to be done..."
             />
           </div>
 
-          {/* Image Upload Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Drop Image (Optional)</label>
-            
-            {/* Upload Mode Toggle */}
-            <div className="flex space-x-4 mb-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadMode('url');
-                  removeUploadedFile();
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  uploadMode === 'url'
-                    ? 'bg-orange-100 text-orange-700 border border-orange-300'
-                    : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200'
-                }`}
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              className="w-full p-2 border rounded"
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              required
+            />
+          </div>
+
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Difficulty
+              </label>
+              <select
+                className="w-full p-2 border rounded"
+                value={formData.difficulty}
+                onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
               >
-                <LinkIcon className="w-4 h-4 inline mr-2" />
-                Use URL
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setUploadMode('file');
-                  setDropImageUrl('');
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  uploadMode === 'file'
-                    ? 'bg-orange-100 text-orange-700 border border-orange-300'
-                    : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200'
-                }`}
-              >
-                <Upload className="w-4 h-4 inline mr-2" />
-                Upload File
-              </button>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
             </div>
 
-            {uploadMode === 'url' ? (
-              <div>
+            {dropType === 'paid' && (
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Key Cost
+                </label>
                 <input
-                  type="url"
-                  value={dropImageUrl}
-                  onChange={(e) => setDropImageUrl(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Direct link to image..."
+                  type="number"
+                  min="1"
+                  className="w-full p-2 border rounded"
+                  value={formData.key_cost}
+                  onChange={(e) => setFormData({...formData, key_cost: Number(e.target.value)})}
+                  required={dropType === 'paid'}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Add an image to make your drop more appealing to participants
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {!uploadedFile ? (
-                  <div 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all"
-                  >
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-2">Click to upload or drag and drop</p>
-                    <p className="text-sm text-gray-500">
-                      Images (JPG, PNG, GIF, WEBP) • Max 10 MB
-                    </p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </div>
-                ) : (
-                  <div className="border border-gray-300 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{uploadedFile?.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {uploadedFile ? (uploadedFile.size / 1024 / 1024).toFixed(2) : 0} MB
-                          </p>
-                          {uploadingFile && (
-                            <p className="text-xs text-blue-600">Uploading...</p>
-                          )}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={removeUploadedFile}
-                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                        disabled={uploadingFile}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                    
-                    {/* Image Preview */}
-                    {previewUrl && (
-                      <div className="relative">
-                        <img
-                          src={previewUrl}
-                          alt="Preview"
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        {uploadingFile && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                            <div className="text-white text-center">
-                              <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-                              <p className="text-sm">Processing image...</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Drop Type</label>
-              <select
-                value={formData.drop_type}
-                onChange={(e) => setFormData({ ...formData, drop_type: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                {DropTypeSchema.options.map(dropType => (
-                  <option key={dropType} value={dropType}>
-                    {dropType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </option>
-                ))}
-              </select>
+          <div>
+            <div className="flex items-center space-x-4 mb-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  className="h-4 w-4 text-orange-500"
+                  checked={uploadMode === 'upload'}
+                  onChange={() => setUploadMode('upload')}
+                />
+                <span className="ml-2">Upload Image</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  className="h-4 w-4 text-orange-500"
+                  checked={uploadMode === 'link'}
+                  onChange={() => setUploadMode('link')}
+                />
+                <span className="ml-2">Image URL</span>
+              </label>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
-              <select
-                value={formData.difficulty}
-                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                {DropDifficultySchema.options.map(difficulty => (
-                  <option key={difficulty} value={difficulty} className="capitalize">{difficulty}</option>
-                ))}
-              </select>
-            </div>
+            {uploadMode === 'upload' ? (
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-orange-500 hover:text-orange-500 transition-colors"
+                >
+                  {uploadingFile ? 'Uploading...' : 'Choose an image'}
+                </button>
+                {previewUrl && (
+                  <div className="mt-2 relative">
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview" 
+                      className="max-h-40 rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeUploadedFile}
+                      className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-75"
+                      aria-label="Remove image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <input
+                type="url"
+                className="w-full p-2 border rounded"
+                placeholder="https://example.com/image.jpg"
+                value={formData.content_url}
+                onChange={(e) => setFormData({...formData, content_url: e.target.value})}
+                required
+              />
+            )}
           </div>
 
-          {/* Drop-specific fields */}
-          {dropType === 'proof' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Proof Drop Settings</h3>
-              <p className="text-sm text-green-700 mb-4">
-                Proof drops help users activate their Master Key. They're free to apply and don't reward gems.
-              </p>
-              <div>
-                <label className="block text-sm font-medium text-green-700 mb-2">Max Participants</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.max_participants || ''}
-                  onChange={(e) => setFormData({ ...formData, max_participants: Number(e.target.value) })}
-                  className="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., 50"
-                />
-              </div>
-            </div>
-          )}
-
-          {dropType === 'paid' && (
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-purple-900 mb-2">Paid Drop Settings</h3>
-              <p className="text-sm text-purple-700 mb-4">
-                Paid drops cost keys to apply and reward gems upon completion.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Key Cost</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={formData.key_cost}
-                    onChange={(e) => setFormData({ ...formData, key_cost: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Gem Reward</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={formData.gem_reward_base}
-                    onChange={(e) => setFormData({ ...formData, gem_reward_base: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Total Gem Pool</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.gem_pool_total}
-                    onChange={(e) => setFormData({ ...formData, gem_pool_total: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {dropType === 'move' && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-orange-900 mb-2">Move Drop Settings</h3>
-              <p className="text-sm text-orange-700 mb-4">
-                Move drops define social actions that cost points and reward keys.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-orange-700 mb-2">Points Cost</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={formData.move_cost_points}
-                    onChange={(e) => setFormData({ ...formData, move_cost_points: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-orange-700 mb-2">Keys Reward</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={formData.key_reward_amount}
-                    onChange={(e) => setFormData({ ...formData, key_reward_amount: Number(e.target.value) })}
-                    className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex space-x-4">
+          <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
-              onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={onClose}
+              className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50"
               disabled={loading || uploadingFile}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
             >
-              {loading ? 'Creating...' : uploadingFile ? 'Processing Image...' : 'Create Drop'}
+              {loading ? 'Creating...' : 'Create Drop'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
-
-function getDropTypeIcon(dropType: string) {
-  switch (dropType) {
-    case 'content_clipping': return '✂️';
-    case 'reviews': return '⭐';
-    case 'ugc_creation': return '🎨';
-    case 'affiliate_referral': return '🔗';
-    case 'surveys': return '📊';
-    case 'challenges_events': return '🏆';
-    default: return '📝';
-  }
-}
-
-function getDifficultyColor(difficulty: string) {
-  switch (difficulty) {
-    case 'easy': return 'text-green-600 bg-green-100';
-    case 'medium': return 'text-yellow-600 bg-yellow-100';
-    case 'hard': return 'text-red-600 bg-red-100';
-    default: return 'text-gray-600 bg-gray-100';
-  }
-}
+};

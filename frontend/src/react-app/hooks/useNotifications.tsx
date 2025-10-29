@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@getmocha/users-service/react';
+import { useAuth } from '../App';
 
 interface NotificationHook {
   unreadCount: number;

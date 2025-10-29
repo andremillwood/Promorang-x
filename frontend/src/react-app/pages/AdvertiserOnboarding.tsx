@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function AdvertiserOnboarding() {
-  const { user } = useAuth();
+  const { user, demoLogin } = useAuth();
   const navigate = useNavigate();
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,14 +33,24 @@ export default function AdvertiserOnboarding() {
     try {
       const response = await fetch('/api/users/become-advertiser', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+        },
         credentials: 'include'
       });
 
       if (response.ok) {
-        // Signal conversion to other tabs/windows
+        const data = await response.json();
+
+        if (data.token && data.user) {
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('advertiser_conversion', 'true');
+          window.location.href = '/advertiser#converted';
+          return;
+        }
+
         localStorage.setItem('advertiser_conversion', 'true');
-        // Navigate with hash to indicate fresh conversion
         window.location.href = '/advertiser#converted';
       } else {
         const errorData = await response.json();

@@ -318,7 +318,7 @@ export function KPICard({ title, value, change, changeType, icon, trend }: KPICa
   const changeIcon = changeType === 'increase' ? '↗' : '↘';
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm min-w-0">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           {icon && <div className="text-gray-600">{icon}</div>}
@@ -337,8 +337,8 @@ export function KPICard({ title, value, change, changeType, icon, trend }: KPICa
       </div>
 
       {trend && trend.length > 0 && (
-        <div className="h-16">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-16 w-full min-w-[120px]">
+          <ResponsiveContainer width="100%" height={64}>
             <LineChart data={trend}>
               <Line
                 type="monotone"

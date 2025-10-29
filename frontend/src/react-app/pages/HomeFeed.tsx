@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useAuth } from '../App';
-import { 
-  Heart, 
-  MessageCircle, 
-  Share2, 
+import {
   TrendingUp,
-  Eye,
   DollarSign,
-  Clock,
   Star,
   Zap,
   Crown,
   Bookmark,
-  Gift,
   Coins,
   Diamond,
   Target,
@@ -20,25 +15,31 @@ import {
   ArrowRight,
   Plus,
   Activity,
-  X
+  User,
+  Home,
+  BarChart3,
+  Wallet,
+  Settings,
+  LogOut
 } from 'lucide-react';
-import UserLink from '@/react-app/components/UserLink';
-import Tooltip from '@/react-app/components/Tooltip';
-import { ContentPieceType, DropType, WalletType, UserType } from '@/shared/types';
 import BuySharesModal from '@/react-app/components/BuySharesModal';
 import ShareContentModal from '@/react-app/components/ShareContentModal';
 import ExternalMoveModal from '@/react-app/components/ExternalMoveModal';
-import PlaceForecastModal from '@/react-app/components/PlaceForecastModal';
-import ContentFundingModal from '@/react-app/components/ContentFundingModal';
 import EditContentModal from '@/react-app/components/EditContentModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import ShareModal from '@/react-app/components/ShareModal';
 import SavedContentModal from '@/react-app/components/SavedContentModal';
-import CommentSystem from '@/react-app/components/CommentSystem';
+import ContentCard from '@/react-app/components/ContentCard';
+import EnhancedDropCard from '@/react-app/components/EnhancedDropCard';
 import PersonalizedEmptyState from '@/react-app/components/PersonalizedEmptyState';
+import PlaceForecastModal from '@/react-app/components/PlaceForecastModal';
+import TipModal from '@/react-app/components/TipModal';
+
+import { ContentPieceType, DropType, WalletType, UserType } from '@/shared/types';
 
 export default function HomeFeed() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [contentFeed, setContentFeed] = useState<ContentPieceType[]>([]);
   const [dropFeed, setDropFeed] = useState<DropType[]>([]);
   const [wallets, setWallets] = useState<WalletType[]>([]);
@@ -50,12 +51,9 @@ export default function HomeFeed() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [externalMoveModalOpen, setExternalMoveModalOpen] = useState(false);
   const [forecastModalOpen, setForecastModalOpen] = useState(false);
-  const [fundingModalOpen, setFundingModalOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<ContentPieceType | null>(null);
-  const [selectedForecast, setSelectedForecast] = useState<any | null>(null);
   const [shareContentData, setShareContentData] = useState<{ id: number; title: string } | null>(null);
   const [externalMoveContentData, setExternalMoveContentData] = useState<{ id: number; title: string; platform: string; url: string } | null>(null);
-  const [fundingContentData, setFundingContentData] = useState<ContentPieceType | null>(null);
   const [editContentModalOpen, setEditContentModalOpen] = useState(false);
   const [editContentData, setEditContentData] = useState<ContentPieceType | null>(null);
   const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -63,32 +61,71 @@ export default function HomeFeed() {
   const [contentShareModalOpen, setContentShareModalOpen] = useState(false);
   const [shareModalContent, setShareModalContent] = useState<{ id: number; title: string } | null>(null);
   const [savedContentModalOpen, setSavedContentModalOpen] = useState(false);
-  const [commentModalOpen, setCommentModalOpen] = useState(false);
-  const [commentModalContent, setCommentModalContent] = useState<ContentPieceType | null>(null);
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [tipContent, setTipContent] = useState<ContentPieceType | null>(null);
+  const [predictModalOpen, setPredictModalOpen] = useState(false);
+  const [predictContent, setPredictContent] = useState<ContentPieceType | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     fetchFeeds();
     fetchUserData();
-  }, []);
 
-  // Add a refresh function to re-fetch data when needed
-  const refreshFeeds = () => {
-    fetchFeeds();
-    fetchUserData();
+    // Close user menu when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showUserMenu && !(event.target as Element).closest('.user-menu')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
+
+  const openContentDetail = (content: ContentPieceType) => {
+    navigate(`/content/${content.id}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      if (authToken) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('authToken');
+      navigate('/auth');
+    }
   };
 
   const fetchFeeds = async () => {
     try {
+      const authToken = localStorage.getItem('authToken');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const [contentResponse, dropsResponse, walletsResponse, sponsoredResponse] = await Promise.all([
-        fetch('/api/content'),
-        fetch('/api/drops?limit=10'),
-        fetch('/api/users/wallets', { credentials: 'include' }),
-        fetch('/api/content/sponsored', { credentials: 'include' })
+        fetch('/api/content', { headers }),
+        fetch('/api/drops?limit=10', { headers }),
+        fetch('/api/users/me/wallets', { headers, credentials: 'include' }),
+        fetch('/api/content/sponsored', { headers, credentials: 'include' })
       ]);
 
       if (contentResponse.ok) {
         const contentData = await contentResponse.json();
-        // Make sure we have an array
         if (Array.isArray(contentData)) {
           setContentFeed(contentData);
         } else {
@@ -136,14 +173,39 @@ export default function HomeFeed() {
   };
 
   const fetchUserData = async () => {
+    if (!user) {
+      console.log('No authenticated user, skipping user data fetch');
+      return;
+    }
+
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      console.log('No auth token found, redirecting to login');
+      window.location.href = '/auth';
+      return;
+    }
+
     try {
-      const response = await fetch('/api/users/me', { credentials: 'include' });
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+      };
+
+      const response = await fetch('/api/auth/profile', { headers, credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
-        setUserData(data);
+        setUserData(data.user);
+      } else {
+        console.error('Failed to fetch user data:', response.status, response.statusText);
+        // If authentication fails, redirect to login
+        if (response.status === 401 || response.status === 500) {
+          localStorage.removeItem('authToken');
+          window.location.href = '/auth';
+        }
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
+      // On network error, don't redirect but log the error
     }
   };
 
@@ -187,13 +249,13 @@ export default function HomeFeed() {
     }, 3000);
   };
 
-  const handleBuyShares = async (contentId: number, sharesCount: number) => {
+  const handleBuyShares = async (content: ContentPieceType, sharesCount: number) => {
     try {
       const response = await fetch('/api/content/buy-shares', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ content_id: contentId, shares_count: sharesCount })
+        body: JSON.stringify({ content_id: content.id, shares_count: sharesCount })
       });
 
       if (response.ok) {
@@ -203,6 +265,45 @@ export default function HomeFeed() {
       }
     } catch (error) {
       console.error('Failed to buy shares:', error);
+      throw error;
+    }
+  };
+
+  const handleTip = async (content: ContentPieceType, amount: number) => {
+    try {
+      const response = await fetch('/api/content/tip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ content_id: content.id, tip_amount: amount })
+      });
+
+      if (response.ok) {
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-purple-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-bounce';
+        notification.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span class="text-lg">💎</span>
+            <div>
+              <div class="font-semibold">Tip sent!</div>
+              <div class="text-xs opacity-90">Tipped ${amount} gems to ${content.creator_name || content.creator_username || 'creator'}</div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 4000);
+
+        fetchUserData(); // Refresh user balance
+      } else {
+        throw new Error('Tip failed');
+      }
+    } catch (error) {
+      console.error('Failed to send tip:', error);
       throw error;
     }
   };
@@ -217,28 +318,23 @@ export default function HomeFeed() {
     setContentShareModalOpen(true);
   };
 
-  const openCommentModal = (content: ContentPieceType) => {
-    setCommentModalContent(content);
-    setCommentModalOpen(true);
-  };
-
   const openSavedContentModal = () => {
     setSavedContentModalOpen(true);
   };
 
   const openExternalMoveModal = (content: ContentPieceType) => {
-    setExternalMoveContentData({ 
-      id: content.id, 
-      title: content.title, 
+    setExternalMoveContentData({
+      id: content.id,
+      title: content.title,
       platform: content.platform,
-      url: content.platform_url 
+      url: content.platform_url
     });
     setExternalMoveModalOpen(true);
   };
 
-  const openFundingModal = (content: ContentPieceType) => {
-    setFundingContentData(content);
-    setFundingModalOpen(true);
+  const openTipModal = (content: ContentPieceType) => {
+    setTipContent(content);
+    setTipModalOpen(true);
   };
 
   const openEditModal = (content: ContentPieceType) => {
@@ -246,19 +342,14 @@ export default function HomeFeed() {
     setEditContentModalOpen(true);
   };
 
+  const openPredictModal = (content: ContentPieceType) => {
+    setPredictContent(content);
+    setPredictModalOpen(true);
+  };
+
   const openDeleteConfirm = (content: ContentPieceType) => {
     setContentToDelete(content);
     setDeleteConfirmModalOpen(true);
-  };
-
-  const handleEditSuccess = (updatedContent: ContentPieceType) => {
-    setEditContentModalOpen(false);
-    setEditContentData(null);
-    
-    // Update content in the local state
-    setContentFeed(prev => prev.map(item => 
-      item.id === updatedContent.id ? updatedContent : item
-    ));
   };
 
   const handleDeleteConfirm = async () => {
@@ -285,25 +376,6 @@ export default function HomeFeed() {
     }
   };
 
-  const handleFundingSuccess = (newRevenue: number, newSharePrice: number) => {
-    setFundingModalOpen(false);
-    // Update the content in the local state
-    if (fundingContentData) {
-      const updatedContent = { 
-        ...fundingContentData, 
-        current_revenue: newRevenue, 
-        share_price: newSharePrice 
-      };
-      
-      // Update content array
-      setContentFeed(prev => prev.map(item => 
-        item.id === fundingContentData.id ? updatedContent : item
-      ));
-    }
-    setFundingContentData(null);
-    fetchUserData(); // Refresh user data to show updated balance
-  };
-
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'super': return <Crown className="w-4 h-4 text-yellow-600" />;
@@ -318,14 +390,6 @@ export default function HomeFeed() {
       case 'premium': return 1.5;
       default: return 1.0;
     }
-  };
-
-  const getPointsForAction = (action: string) => {
-    // In-app actions now give 1/10th the points of external moves
-    const basePoints = { like: 0.1, comment: 0.3, save: 0.5, share: 1 };
-    const base = basePoints[action as keyof typeof basePoints] || 0;
-    const multiplier = userData ? getTierMultiplier(userData.user_tier) : 1.0;
-    return Math.floor(base * multiplier * 10) / 10; // Allow decimals for small amounts
   };
 
   const getSmartCTA = () => {
@@ -374,126 +438,294 @@ export default function HomeFeed() {
   const getForYouFeed = () => {
     // Mix content and drops in a personalized order
     const mixedFeed = [];
-    
+
     // Add sponsored content first (highest priority)
     sponsoredContent.forEach(content => {
       mixedFeed.push({ type: 'content', data: content, isSponsored: true });
     });
-    
+
     // Add high-value opportunities
     const highValueDrops = dropFeed.filter(drop => drop.gem_reward_base >= 50);
-    const trendingContent = contentFeed.filter(content => 
-      content.available_shares > 0 && 
+    const trendingContent = contentFeed.filter(content =>
+      content.available_shares > 0 &&
       !sponsoredContent.some(sponsored => sponsored.id === content.id)
     );
-    
+
+    const prioritizedContent = trendingContent.length > 0 ? trendingContent : contentFeed;
+    const prioritizedDrops = highValueDrops.length > 0 ? highValueDrops : dropFeed;
+
     // Interleave content and drops
-    for (let i = 0; i < Math.max(trendingContent.length, highValueDrops.length); i++) {
-      if (trendingContent[i]) mixedFeed.push({ type: 'content', data: trendingContent[i] });
-      if (highValueDrops[i]) mixedFeed.push({ type: 'drop', data: highValueDrops[i] });
+    for (let i = 0; i < Math.max(prioritizedContent.length, prioritizedDrops.length); i++) {
+      if (prioritizedContent[i]) {
+        mixedFeed.push({ type: 'content', data: prioritizedContent[i] });
+      }
+      if (prioritizedDrops[i]) {
+        mixedFeed.push({ type: 'drop', data: prioritizedDrops[i] });
+      }
     }
-    
+
+    if (mixedFeed.length === 0) {
+      return [
+        ...sponsoredContent.map(content => ({ type: 'content', data: content, isSponsored: true })),
+        ...contentFeed.slice(0, 5).map(content => ({ type: 'content', data: content })),
+        ...dropFeed.slice(0, 5).map(drop => ({ type: 'drop', data: drop })),
+      ].slice(0, 10);
+    }
+
     return mixedFeed.slice(0, 10); // Limit to 10 items for better UX
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-3 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your personalized feed...</p>
-        </div>
-      </div>
-    );
-  }
 
   const smartCTA = getSmartCTA();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Personalized Dashboard Header */}
-      <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.05'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20z'/%3E%3C/g%3E%3C/svg%3E")`,
-          opacity: 0.3
-        }}></div>
-        
-        <div className="relative">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-                Welcome back, {user?.google_user_data?.given_name}! 👋
-              </h1>
-              <p className="text-orange-100 text-sm sm:text-base">
-                Ready to turn your influence into income?
-              </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Header */}
+      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <button
+                onClick={() => navigate('/home')}
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
+                  alt="Promorang"
+                  className="h-8 w-auto"
+                />
+              </button>
             </div>
-            {userData && (
-              <div className="text-right">
-                <div className="flex items-center space-x-2 justify-end mb-1">
-                  {getTierIcon(userData.user_tier)}
-                  <span className="text-sm font-semibold capitalize">
-                    {userData.user_tier}
+
+            {/* Main Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              <button
+                onClick={() => navigate('/home')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+              >
+                <Home className="w-4 h-4" />
+                <span className="font-medium">Dashboard</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/earn')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+              >
+                <DollarSign className="w-4 h-4" />
+                <span className="font-medium">Earn</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/invest/portfolio')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="font-medium">Invest</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/wallet')}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+              >
+                <Wallet className="w-4 h-4" />
+                <span className="font-medium">Wallet</span>
+              </button>
+            </div>
+
+            {/* User Menu */}
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="user-menu flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    {(userData?.display_name || userData?.username || user?.email || 'U')[0].toUpperCase()}
+                  </div>
+                  <span className="hidden md:block text-sm font-medium text-gray-700">
+                    {userData?.display_name || userData?.username || 'User'}
                   </span>
-                </div>
-                <div className="text-xs text-orange-200">
-                  {getTierMultiplier(userData.user_tier)}x multiplier
-                </div>
-                {userData.points_streak_days > 0 && (
-                  <div className="flex items-center justify-end space-x-1 mt-1">
-                    <Flame className="w-3 h-3 text-orange-300" />
-                    <span className="text-xs text-orange-200">
-                      {userData.points_streak_days} day streak
-                    </span>
+                  <ArrowRight className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-90' : ''}`} />
+                </button>
+
+                {/* User Dropdown Menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        navigate('/profile');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Profile</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate('/growth-hub');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      <span>Growth Hub</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate('/advertiser');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Advertiser</span>
+                    </button>
+
+                    <hr className="my-1 border-gray-200" />
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden border-t border-gray-200">
+          <div className="px-4 py-3 flex justify-around">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-xs">Dashboard</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/earn')}
+              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+            >
+              <DollarSign className="w-5 h-5" />
+              <span className="text-xs">Earn</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/invest/portfolio')}
+              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span className="text-xs">Invest</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/wallet')}
+              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
+            >
+              <Wallet className="w-5 h-5" />
+              <span className="text-xs">Wallet</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Dashboard Content */}
+      <div className="max-w-4xl mx-auto space-y-6 p-4">
+        {/* Personalized Dashboard Header */}
+        <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.1'%3E%3Cpath d='M30 30c0 16.569-13.431 30-30 30v-60c16.569 0 30 13.431 30 30z'/%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+
+          <div className="relative z-10">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold mb-2 leading-tight">
+                  Welcome back, {user?.google_user_data?.given_name || 'Creator'}! 👋
+                </h1>
+                <p className="text-orange-100 text-base">
+                  Ready to turn your influence into income?
+                </p>
+              </div>
+              {userData && (
+                <div className="text-right">
+                  <div className="flex items-center space-x-2 justify-end mb-1">
+                    {getTierIcon(userData.user_tier)}
+                    <span className="text-base font-semibold capitalize">
+                      {userData.user_tier}
+                    </span>
+                  </div>
+                  <div className="text-sm text-orange-200">
+                    {getTierMultiplier(userData.user_tier)}x multiplier
+                  </div>
+                  {userData.points_streak_days > 0 && (
+                    <div className="flex items-center justify-end space-x-1 mt-1">
+                      <Flame className="w-4 h-4 text-orange-300" />
+                      <span className="text-sm text-orange-200">
+                        {userData.points_streak_days} day streak
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Stats Grid */}
+            {userData && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {[
+                  { value: (userData.points_balance || 0).toLocaleString(), label: 'Points', icon: <Coins className="w-5 h-5" />, color: 'text-blue-200' },
+                  { value: userData.keys_balance || 0, label: 'Keys', icon: <Target className="w-5 h-5" />, color: 'text-orange-200' },
+                  { value: (userData.gems_balance || 0).toFixed(1), label: 'Gems', icon: <Diamond className="w-5 h-5" />, color: 'text-purple-200' },
+                  { value: 'View', label: 'Saved', icon: <Bookmark className="w-5 h-5" />, color: 'text-green-200', action: openSavedContentModal }
+                ].map((stat, index) => (
+                  <div
+                    key={index}
+                    className={`bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all duration-200 cursor-pointer hover:-translate-y-1 ${stat.action ? 'cursor-pointer' : ''}`}
+                    onClick={stat.action || undefined}
+                  >
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <span className={stat.color}>{stat.icon}</span>
+                      <span className="text-sm text-white/90 font-medium">{stat.label}</span>
+                    </div>
+                    <p className="text-xl font-bold text-white">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Smart CTA */}
+            {smartCTA && (
+              <button
+                onClick={smartCTA.action}
+                className={`w-full bg-gradient-to-r ${smartCTA.color} hover:shadow-xl text-white rounded-xl p-5 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02]`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <div className="flex items-center space-x-3 mb-2">
+                      {smartCTA.icon}
+                      <span className="font-semibold text-lg">{smartCTA.text}</span>
+                    </div>
+                    <p className="text-white/90 text-base">{smartCTA.subtext}</p>
+                  </div>
+                  <ArrowRight className="w-6 h-6 opacity-75" />
+                </div>
+              </button>
             )}
           </div>
-
-          {/* Quick Stats Grid */}
-          {userData && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-              {[
-                { value: (userData.points_balance || 0).toLocaleString(), label: 'Points', icon: <Coins className="w-4 h-4" />, color: 'text-blue-200' },
-                { value: userData.keys_balance || 0, label: 'Keys', icon: <Target className="w-4 h-4" />, color: 'text-orange-200' },
-                { value: (userData.gems_balance || 0).toFixed(1), label: 'Gems', icon: <Diamond className="w-4 h-4" />, color: 'text-purple-200' },
-                { value: 'View', label: 'Saved', icon: <Bookmark className="w-4 h-4" />, color: 'text-green-200', action: openSavedContentModal }
-              ].map((stat, index) => (
-                <div 
-                  key={index} 
-                  className={`bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center ${(stat as any).action ? 'cursor-pointer hover:bg-white/20 transition-colors' : ''}`}
-                  onClick={(stat as any).action || undefined}
-                >
-                  <div className="flex items-center justify-center space-x-1 mb-1">
-                    <span className={stat.color}>{stat.icon}</span>
-                    <span className="text-xs text-white/80">{stat.label}</span>
-                  </div>
-                  <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Smart CTA */}
-          {smartCTA && (
-            <button
-              onClick={smartCTA.action}
-              className={`w-full bg-gradient-to-r ${smartCTA.color} hover:shadow-lg text-white rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-left">
-                  <div className="flex items-center space-x-2 mb-1">
-                    {smartCTA.icon}
-                    <span className="font-semibold">{smartCTA.text}</span>
-                  </div>
-                  <p className="text-white/90 text-sm">{smartCTA.subtext}</p>
-                </div>
-                <ArrowRight className="w-5 h-5 opacity-75" />
-              </div>
-            </button>
-          )}
         </div>
       </div>
 
@@ -502,16 +734,16 @@ export default function HomeFeed() {
         <div className="border-b border-gray-200">
           <nav className="flex">
             {[
-              { key: 'for-you', label: 'For You', icon: <Star className="w-4 h-4" /> },
-              { key: 'social', label: 'Social Feed', icon: <Activity className="w-4 h-4" /> },
-              { key: 'drops', label: 'Opportunities', icon: <DollarSign className="w-4 h-4" /> }
+              { key: 'for-you', label: 'For You', icon: <Star className="w-5 h-5" /> },
+              { key: 'social', label: 'Social Feed', icon: <Activity className="w-5 h-5" /> },
+              { key: 'drops', label: 'Opportunities', icon: <DollarSign className="w-5 h-5" /> }
             ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-sm transition-colors ${
+                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-base transition-all duration-200 ${
                   activeTab === tab.key
-                    ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
+                    ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -535,19 +767,17 @@ export default function HomeFeed() {
                   {getForYouFeed().map((item, index) => (
                     <div key={index}>
                       {item.type === 'content' ? (
-                        <ContentCard 
+                        <ContentCard
                           content={item.data as ContentPieceType}
                           onBuyShares={openBuyModal}
                           onShare={openShareModal}
-                          onExternalMove={openExternalMoveModal}
-                          onFunding={openFundingModal}
                           onSocialAction={handleSocialAction}
-                          getPointsForAction={getPointsForAction}
-                          isPersonalized={true}
+                          onTip={openTipModal}
+                          onNavigate={openContentDetail}
+                          onPredict={openPredictModal}
                           currentUser={userData}
                           onEdit={openEditModal}
                           onDelete={openDeleteConfirm}
-                          onComment={openCommentModal}
                           isSponsored={(item as any).isSponsored}
                         />
                       ) : (
@@ -570,50 +800,47 @@ export default function HomeFeed() {
                 <div className="text-sm text-blue-700">
                   Showing {contentFeed.length} content pieces
                 </div>
-                <button 
-                  onClick={refreshFeeds}
+                <button
+                  onClick={fetchFeeds}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   Refresh Feed
                 </button>
               </div>
-              
               {contentFeed.length > 0 ? (
                 // Show sponsored content first, then regular content
                 [
                   ...sponsoredContent.map((content) => (
-                    <ContentCard 
+                    <ContentCard
                       key={`sponsored-${content.id}`}
-                      content={content} 
+                      content={content}
                       onBuyShares={openBuyModal}
                       onShare={openShareModal}
-                      onExternalMove={openExternalMoveModal}
-                      onFunding={openFundingModal}
                       onSocialAction={handleSocialAction}
-                      getPointsForAction={getPointsForAction}
+                      onTip={openTipModal}
+                      onNavigate={openContentDetail}
+                      onPredict={openPredictModal}
                       currentUser={userData}
                       onEdit={openEditModal}
                       onDelete={openDeleteConfirm}
-                      onComment={openCommentModal}
                       isSponsored={true}
                     />
                   )),
                   ...contentFeed
                     .filter(content => !sponsoredContent.some(sponsored => sponsored.id === content.id))
                     .map((content) => (
-                      <ContentCard 
-                        key={content.id} 
-                        content={content} 
+                      <ContentCard
+                        key={content.id}
+                        content={content}
                         onBuyShares={openBuyModal}
                         onShare={openShareModal}
-                        onExternalMove={openExternalMoveModal}
-                        onFunding={openFundingModal}
                         onSocialAction={handleSocialAction}
-                        getPointsForAction={getPointsForAction}
+                        onTip={openTipModal}
+                        onNavigate={openContentDetail}
+                        onPredict={openPredictModal}
                         currentUser={userData}
                         onEdit={openEditModal}
                         onDelete={openDeleteConfirm}
-                        onComment={openCommentModal}
                       />
                     ))
                 ]
@@ -625,15 +852,15 @@ export default function HomeFeed() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No content yet</h3>
                   <p className="text-gray-600 mb-4">Be the first to create and share content!</p>
                   <div className="space-y-3">
-                    <button 
+                    <button
                       onClick={() => window.location.href = '/create'}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 mx-auto"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Create Content</span>
                     </button>
-                    <button 
-                      onClick={refreshFeeds}
+                    <button
+                      onClick={fetchFeeds}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                     >
                       Check for new content
@@ -658,7 +885,7 @@ export default function HomeFeed() {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No opportunities available</h3>
                   <p className="text-gray-600 mb-4">Check back later for new earning opportunities!</p>
-                  <button 
+                  <button
                     onClick={() => window.location.href = '/earn'}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200"
                   >
@@ -675,29 +902,13 @@ export default function HomeFeed() {
       {selectedContent && (
         <BuySharesModal
           content={selectedContent}
-          wallet={wallets.find(w => w.currency_type === 'USD')}
+          wallet={wallets?.find(w => w.currency_type === 'USD')}
           isOpen={buyModalOpen}
           onClose={() => {
             setBuyModalOpen(false);
             setSelectedContent(null);
           }}
           onPurchase={handleBuyShares}
-        />
-      )}
-
-      {selectedForecast && (
-        <PlaceForecastModal
-          forecast={selectedForecast}
-          isOpen={forecastModalOpen}
-          onClose={() => {
-            setForecastModalOpen(false);
-            setSelectedForecast(null);
-          }}
-          onPredictionPlaced={() => {
-            setForecastModalOpen(false);
-            setSelectedForecast(null);
-            fetchUserData(); // Refresh user data to update balance
-          }}
         />
       )}
 
@@ -731,21 +942,6 @@ export default function HomeFeed() {
           fetchUserData();
           fetchFeeds();
         }}
-      />
-
-      <ContentFundingModal
-        isOpen={fundingModalOpen}
-        onClose={() => {
-          setFundingModalOpen(false);
-          setFundingContentData(null);
-        }}
-        contentId={fundingContentData?.id || 0}
-        contentTitle={fundingContentData?.title || ''}
-        isOwner={false}
-        currentRevenue={fundingContentData?.current_revenue || 0}
-        sharePrice={fundingContentData?.share_price || 0}
-        totalShares={fundingContentData?.total_shares || 0}
-        onSuccess={handleFundingSuccess}
       />
 
       {editContentData && (
@@ -794,32 +990,49 @@ export default function HomeFeed() {
         user={userData}
       />
 
-      {/* Comment Modal */}
-      {commentModalOpen && commentModalContent ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Comments</h2>
-              <button
-                onClick={() => {
-                  setCommentModalOpen(false);
-                  setCommentModalContent(null);
-                }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              <CommentSystem
-                contentId={commentModalContent.id}
-                currentUser={userData}
-                isOwner={userData?.id === commentModalContent.creator_id}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Tip Modal */}
+      {tipContent && (
+        <TipModal
+          content={tipContent}
+          isOpen={tipModalOpen}
+          onClose={() => {
+            setTipModalOpen(false);
+            setTipContent(null);
+          }}
+          onTip={handleTip}
+        />
+      )}
+
+      {/* Prediction Modal */}
+      {predictContent && (
+        <PlaceForecastModal
+          forecast={{
+            id: predictContent.id,
+            creator_name: predictContent.creator_name || predictContent.creator_username || 'Unknown',
+            platform: predictContent.platform || 'Unknown',
+            content_url: predictContent.platform_url || '',
+            content_title: predictContent.title,
+            forecast_type: 'engagement',
+            target_value: 1000,
+            current_value: 500,
+            odds: 2.5,
+            pool_size: 250.00,
+            creator_initial_amount: 100.00,
+            creator_side: 'over',
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          }}
+          isOpen={predictModalOpen}
+          onClose={() => {
+            setPredictModalOpen(false);
+            setPredictContent(null);
+          }}
+          onPredictionPlaced={() => {
+            setPredictModalOpen(false);
+            setPredictContent(null);
+            fetchFeeds(); // Refresh feeds to show new prediction
+          }}
+        />
+      )}
     </div>
   );
 }

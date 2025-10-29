@@ -2,10 +2,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@/react-app/index.css";
 import App from "@/react-app/App.tsx";
-import { setupGlobalErrorHandlers } from "./utils/errorHandler";
 
-// Setup global error handlers
-setupGlobalErrorHandlers();
+console.log("🚀 main.tsx: Starting application...");
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

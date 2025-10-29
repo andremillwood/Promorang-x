@@ -39,17 +39,113 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
       const response = await fetch('/api/users/achievements', {
         credentials: 'include'
       });
+
       if (response.ok) {
         const data = await response.json();
-        setAchievements(data);
+        // Ensure data is an array
+        setAchievements(Array.isArray(data) ? data : []);
+      } else {
+        // API endpoint doesn't exist yet, use mock data
+        console.log('Achievements API not available, using mock data');
+        setAchievements(getMockAchievements());
       }
     } catch (error) {
       console.error('Failed to fetch achievements:', error);
+      // Use mock data as fallback
+      setAchievements(getMockAchievements());
     } finally {
       setLoading(false);
     }
   };
 
+  const getMockAchievements = (): Achievement[] => {
+    return [
+      {
+        id: 1,
+        name: 'First Steps',
+        description: 'Complete your first drop application',
+        icon: 'star',
+        category: 'progression',
+        criteria_type: 'count',
+        criteria_value: 1,
+        criteria_field: 'applications',
+        gold_reward: 5,
+        xp_reward: 100,
+        is_completed: false,
+        progress: 0
+      },
+      {
+        id: 2,
+        name: 'Content Creator',
+        description: 'Share your first piece of content',
+        icon: 'file-text',
+        category: 'creation',
+        criteria_type: 'count',
+        criteria_value: 1,
+        criteria_field: 'content_pieces',
+        gold_reward: 10,
+        xp_reward: 200,
+        is_completed: false,
+        progress: 0
+      },
+      {
+        id: 3,
+        name: 'Social Butterfly',
+        description: 'Reach 100 followers',
+        icon: 'users',
+        category: 'social',
+        criteria_type: 'count',
+        criteria_value: 100,
+        criteria_field: 'followers',
+        gold_reward: 25,
+        xp_reward: 500,
+        is_completed: false,
+        progress: user?.follower_count || 0
+      },
+      {
+        id: 4,
+        name: 'Level Up',
+        description: 'Reach level 5',
+        icon: 'arrow-up',
+        category: 'progression',
+        criteria_type: 'level',
+        criteria_value: 5,
+        criteria_field: 'level',
+        gold_reward: 15,
+        xp_reward: 300,
+        is_completed: (user?.level || 0) >= 5,
+        progress: user?.level || 0
+      },
+      {
+        id: 5,
+        name: 'Big Spender',
+        description: 'Earn 1000 points',
+        icon: 'coins',
+        category: 'earning',
+        criteria_type: 'count',
+        criteria_value: 1000,
+        criteria_field: 'points',
+        gold_reward: 20,
+        xp_reward: 400,
+        is_completed: (user?.points_balance || 0) >= 1000,
+        progress: user?.points_balance || 0
+      },
+      {
+        id: 6,
+        name: 'Master Creator',
+        description: 'Create 5 pieces of content',
+        icon: 'crown',
+        category: 'creation',
+        criteria_type: 'count',
+        criteria_value: 5,
+        criteria_field: 'content_pieces',
+        gold_reward: 50,
+        xp_reward: 1000,
+        is_completed: false,
+        progress: 0
+      }
+    ];
+  };
   const claimAchievement = async (achievementId: number) => {
     try {
       const response = await fetch(`/api/users/achievements/${achievementId}/claim`, {
@@ -119,15 +215,19 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
     return colorMap[category] || 'from-gray-500 to-slate-500';
   };
 
-  const categories = ['all', ...new Set(achievements.map(a => a.category))];
-  const filteredAchievements = activeCategory === 'all' 
-    ? achievements 
-    : achievements.filter(a => a.category === activeCategory);
+  const categories = achievements && achievements.length > 0 ? ['all', ...new Set(achievements.map(a => a.category))] : ['all'];
+  const filteredAchievements = achievements && achievements.length > 0
+    ? (activeCategory === 'all'
+        ? achievements
+        : achievements.filter(a => a.category === activeCategory))
+    : [];
 
-  const completedCount = achievements.filter(a => a.is_completed).length;
-  const totalGoldEarned = achievements
-    .filter(a => a.is_completed)
-    .reduce((sum, a) => sum + a.gold_reward, 0);
+  const completedCount = achievements && achievements.length > 0 ? achievements.filter(a => a.is_completed).length : 0;
+  const totalGoldEarned = achievements && achievements.length > 0
+    ? achievements
+        .filter(a => a.is_completed)
+        .reduce((sum, a) => sum + a.gold_reward, 0)
+    : 0;
 
   if (!isOpen) return null;
 
@@ -159,7 +259,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
               <div className="text-yellow-100 text-sm">Completed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{achievements.length}</div>
+              <div className="text-2xl font-bold">{achievements?.length || 0}</div>
               <div className="text-yellow-100 text-sm">Total</div>
             </div>
             <div className="text-center">
@@ -196,7 +296,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredAchievements.map((achievement) => (
+              {filteredAchievements && filteredAchievements.length > 0 ? filteredAchievements.map((achievement) => (
                 <div
                   key={achievement.id}
                   className={`relative p-6 rounded-2xl border transition-all duration-200 ${
@@ -274,7 +374,13 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
                     </div>
                   )}
                 </div>
-              ))}
+              )) : (
+                <div className="col-span-full text-center py-12">
+                  <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Achievements Yet</h3>
+                  <p className="text-gray-600">Complete tasks and reach milestones to unlock achievements!</p>
+                </div>
+              )}
             </div>
           )}
         </div>

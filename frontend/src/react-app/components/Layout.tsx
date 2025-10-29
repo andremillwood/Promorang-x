@@ -35,6 +35,7 @@ import SearchModal from '@/react-app/components/SearchModal';
 import GoldShopModal from '@/react-app/components/GoldShopModal';
 import AchievementsModal from '@/react-app/components/AchievementsModal';
 import { useNotifications } from '@/react-app/hooks/useNotifications';
+import { buildAuthHeaders } from '@/react-app/utils/api';
 
 interface LayoutProps {
   children: ReactNode;
@@ -99,7 +100,11 @@ export default function Layout({ children }: LayoutProps) {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/users/me', { credentials: 'include' });
+      const headers = buildAuthHeaders();
+      const response = await fetch('/api/users/me', {
+        credentials: 'include',
+        headers
+      });
       if (response.ok) {
         const data = await response.json();
         // Handle both direct user data and null responses
@@ -151,10 +156,13 @@ export default function Layout({ children }: LayoutProps) {
         setShowCurrencyModal(true);
         break;
       case 'leaderboard':
-        window.location.href = '/leaderboard';
+        navigate('/leaderboard');
+        break;
+      case 'growthhub':
+        navigate('/growth-hub');
         break;
       case 'wallet':
-        window.location.href = '/wallet';
+        navigate('/wallet');
         break;
       case 'goldshop':
         setShowGoldShopModal(true);
@@ -208,7 +216,7 @@ export default function Layout({ children }: LayoutProps) {
     setShowUserMenu(false);
     switch (action) {
       case 'profile':
-        window.location.href = '/profile';
+        navigate('/profile');
         break;
       case 'upgrade':
         setShowUpgradeModal(true);
@@ -363,6 +371,15 @@ export default function Layout({ children }: LayoutProps) {
                           >
                             <Wallet className="w-4 h-4 text-blue-600" />
                             <span className="text-sm text-gray-700">View Full Wallet</span>
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Put your gems to work" position="left" compact={true}>
+                          <button
+                            onClick={() => handleWalletAction('growthhub')}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-3"
+                          >
+                            <Rocket className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm text-gray-700">Explore Growth Hub</span>
                           </button>
                         </Tooltip>
                         <Tooltip content="View rankings" position="left" compact={true}>

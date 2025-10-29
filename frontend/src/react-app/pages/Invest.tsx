@@ -132,6 +132,20 @@ export default function Invest() {
     fetchData();
   };
 
+  const formatNumber = (value: number | null | undefined, options?: Intl.NumberFormatOptions) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '—';
+    }
+    return value.toLocaleString(undefined, options);
+  };
+
+  const formatCurrency = (value: number | null | undefined) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '—';
+    }
+    return value.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   const formatTimeRemaining = (expiresAt: string) => {
     const now = new Date();
     const expires = new Date(expiresAt);
@@ -203,12 +217,12 @@ export default function Invest() {
             <div className="flex items-center space-x-2">
               <Target className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium">
-                {forecast.forecast_type} {forecast.target_value.toLocaleString()}
+                {forecast.forecast_type} {formatNumber(forecast.target_value)}
               </span>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600">Pool</p>
-              <p className="font-semibold text-green-600">${forecast.pool_size.toFixed(2)}</p>
+              <p className="font-semibold text-green-600">{formatCurrency(forecast.pool_size)}</p>
             </div>
           </div>
 
@@ -221,7 +235,9 @@ export default function Invest() {
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600">Odds</p>
-              <p className="font-semibold text-blue-600">{forecast.odds}x</p>
+              <p className="font-semibold text-blue-600">
+                {typeof forecast.odds === 'number' && !Number.isNaN(forecast.odds) ? `${forecast.odds}x` : '—'}
+              </p>
             </div>
           </div>
 
@@ -229,7 +245,7 @@ export default function Invest() {
             <div className="bg-blue-50 rounded-lg p-3">
               <p className="text-xs text-gray-600 mb-1">Creator's Prediction</p>
               <p className="text-sm font-medium text-blue-600">
-                {forecast.creator_side.toUpperCase()} • ${forecast.creator_initial_amount.toFixed(2)} staked
+                {forecast.creator_side.toUpperCase()} • {formatCurrency(forecast.creator_initial_amount)} staked
               </p>
             </div>
           )}

@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react';
 import { X, Star, Crown, Zap, Coins, Gem, ArrowRight, CheckCircle } from 'lucide-react';
 import { UserType } from '@/shared/types';
 
+const DEFAULT_UPGRADE_COSTS: Record<string, Record<string, { points: number; gems: number }>> = {
+  free: {
+    premium: { points: 7500, gems: 200 },
+    super: { points: 15000, gems: 450 }
+  },
+  premium: {
+    super: { points: 9000, gems: 275 }
+  },
+  super: {}
+};
+
 interface UserTierUpgradeModalProps {
   user: UserType | null;
   isOpen: boolean;
@@ -10,11 +21,12 @@ interface UserTierUpgradeModalProps {
 }
 
 export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess }: UserTierUpgradeModalProps) {
-  const [upgradeCosts, setUpgradeCosts] = useState<any>(null);
+  const [upgradeCosts, setUpgradeCosts] = useState(DEFAULT_UPGRADE_COSTS);
   const [selectedTier, setSelectedTier] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'points' | 'gems'>('points');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingCosts, setIsLoadingCosts] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -22,22 +34,52 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
     }
   }, [isOpen]);
 
+  const normalizeCosts = (rawCosts: Record<string, Record<string, { points: number; gems: number }>>) => {
+    const merged = { ...DEFAULT_UPGRADE_COSTS, ...(rawCosts || {}) };
+    return Object.fromEntries(
+      Object.entries(merged).map(([tier, upgrades]) => [
+        tier.toLowerCase(),
+        Object.fromEntries(
+          Object.entries(upgrades).map(([targetTier, costs]) => [targetTier.toLowerCase(), costs])
+        )
+      ])
+    );
+  };
+
   const fetchUpgradeCosts = async () => {
     try {
-      const response = await fetch('/api/users/upgrade-costs', { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        setUpgradeCosts(data);
+      setIsLoadingCosts(true);
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch('/api/users/upgrade-costs', {
+        credentials: 'include',
+        headers: authToken
+          ? {
+              Authorization: `Bearer ${authToken}`
+            }
+          : undefined
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to load upgrade costs: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        setUpgradeCosts(normalizeCosts(data));
+      } else {
+        setUpgradeCosts(normalizeCosts(DEFAULT_UPGRADE_COSTS));
       }
     } catch (error) {
       console.error('Failed to fetch upgrade costs:', error);
+      setUpgradeCosts(normalizeCosts(DEFAULT_UPGRADE_COSTS));
     }
+    setIsLoadingCosts(false);
   };
 
-  if (!isOpen || !user || !upgradeCosts) return null;
+  if (!isOpen || !user) return null;
 
-  const currentTier = user.user_tier;
-  const availableUpgrades = upgradeCosts[currentTier] || {};
+  const normalizedTier = (user.user_tier || 'free').toLowerCase();
+  const availableUpgrades = upgradeCosts[normalizedTier] || {};
+  const hasAvailableUpgrades = Object.keys(availableUpgrades).length > 0;
 
   const getTierInfo = (tier: string) => {
     switch (tier) {
@@ -96,9 +138,13 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
     setError(null);
 
     try {
+      const authToken = localStorage.getItem('authToken');
       const response = await fetch('/api/users/upgrade-tier', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+        },
         credentials: 'include',
         body: JSON.stringify({
           target_tier: selectedTier,
@@ -130,7 +176,7 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
     return balance >= cost;
   };
 
-  const currentTierInfo = getTierInfo(currentTier);
+  const currentTierInfo = getTierInfo(normalizedTier);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -168,26 +214,39 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Available Upgrades</h3>
           
+          {!hasAvailableUpgrades && !isLoadingCosts && (
+            <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
+              No higher tiers available right now. Check back later for new membership levels.
+            </div>
+          )}
+
+          {isLoadingCosts && (
+            <div className="border border-gray-200 rounded-lg p-6 text-center text-sm text-gray-500">
+              Loading upgrade options...
+            </div>
+          )}
+
           {Object.keys(availableUpgrades).map((tier) => {
-            const tierInfo = getTierInfo(tier);
+            const normalizedTarget = tier.toLowerCase();
+            const tierInfo = getTierInfo(normalizedTarget);
             const cost = availableUpgrades[tier];
             
             return (
               <div
                 key={tier}
                 className={`border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
-                  selectedTier === tier
+                  selectedTier === normalizedTarget
                     ? `${tierInfo.borderColor} ${tierInfo.bgColor}`
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
-                onClick={() => setSelectedTier(tier)}
+                onClick={() => setSelectedTier(normalizedTarget)}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-3">
                       <tierInfo.icon className={`w-8 h-8 ${tierInfo.color}`} />
                       <div>
-                        <h4 className={`text-lg font-semibold ${selectedTier === tier ? tierInfo.color : 'text-gray-900'}`}>
+                        <h4 className={`text-lg font-semibold ${selectedTier === normalizedTarget ? tierInfo.color : 'text-gray-900'}`}>
                           {tierInfo.name}
                         </h4>
                         <div className="flex items-center space-x-4 text-sm">
@@ -214,7 +273,7 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
                     </div>
                   </div>
                   
-                  {selectedTier === tier && (
+                  {selectedTier === normalizedTarget && (
                     <div className="ml-4">
                       <ArrowRight className={`w-6 h-6 ${tierInfo.color}`} />
                     </div>

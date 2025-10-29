@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../App';
 import { AlertTriangle, CheckCircle, RefreshCw, LogIn } from 'lucide-react';
+import { buildAuthHeaders } from '@/react-app/utils/api';
 
 export default function AuthDebugger() {
   const { user, redirectToLogin } = useAuth();
@@ -18,7 +19,11 @@ export default function AuthDebugger() {
       const hasSessionToken = cookies.includes('mocha_session_token');
       
       // Test 2: Test Mocha auth endpoint
-      const mochaAuthResponse = await fetch('/api/users/me', { credentials: 'include' });
+      const authHeaders = buildAuthHeaders();
+      const mochaAuthResponse = await fetch('/api/users/me', {
+        credentials: 'include',
+        headers: authHeaders
+      });
       const mochaAuthText = await mochaAuthResponse.text();
       let mochaAuthData = null;
       try {
@@ -33,7 +38,10 @@ export default function AuthDebugger() {
       });
       
       // Test 3: Test app user endpoint
-      const appUserResponse = await fetch('/api/app/users/me', { credentials: 'include' });
+      const appUserResponse = await fetch('/api/app/users/me', {
+        credentials: 'include',
+        headers: authHeaders
+      });
       const appUserText = await appUserResponse.text();
       let appUserData = null;
       try {

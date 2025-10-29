@@ -10,8 +10,14 @@ interface SocialShieldPolicy {
   maxCoverage: number;
   deductible: number;
   minFollowers: number;
-  coverageDetails: any;
-  supportedPlatforms: string[];
+  coverage: {
+    platformBan: boolean;
+    algorithmChange: boolean;
+    contentStrike: boolean;
+    monetizationLoss: boolean;
+    followerLoss: boolean;
+  };
+  platforms: string[];
 }
 
 interface SocialShieldModalProps {
@@ -19,9 +25,10 @@ interface SocialShieldModalProps {
   onClose: () => void;
   user: UserType | null;
   onSuccess: () => void;
+  policies: SocialShieldPolicy[];
 }
 
-export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: SocialShieldModalProps) {
+export default function SocialShieldModal({ isOpen, onClose, user, onSuccess, policies }: SocialShieldModalProps) {
   const [selectedPolicy, setSelectedPolicy] = useState<string>('pro');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,63 +36,14 @@ export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: 
 
   if (!isOpen) return null;
 
-  const policies: SocialShieldPolicy[] = [
-    {
-      id: 'basic',
-      name: 'Basic Shield',
-      description: 'Essential protection for growing creators',
-      monthlyPremium: 29,
-      maxCoverage: 1000,
-      deductible: 50,
-      minFollowers: 1000,
-      coverageDetails: {
-        platformBan: false,
-        algorithmChange: true,
-        contentStrike: true,
-        monetizationLoss: false,
-        followerLoss: false
-      },
-      supportedPlatforms: ['Instagram', 'TikTok']
-    },
-    {
-      id: 'pro',
-      name: 'Pro Shield',
-      description: 'Comprehensive protection for established creators',
-      monthlyPremium: 79,
-      maxCoverage: 5000,
-      deductible: 100,
-      minFollowers: 5000,
-      coverageDetails: {
-        platformBan: true,
-        algorithmChange: true,
-        contentStrike: true,
-        monetizationLoss: true,
-        followerLoss: false
-      },
-      supportedPlatforms: ['Instagram', 'TikTok', 'YouTube', 'Twitter']
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise Shield',
-      description: 'Maximum protection for professional creators',
-      monthlyPremium: 199,
-      maxCoverage: 25000,
-      deductible: 250,
-      minFollowers: 25000,
-      coverageDetails: {
-        platformBan: true,
-        algorithmChange: true,
-        contentStrike: true,
-        monetizationLoss: true,
-        followerLoss: true
-      },
-      supportedPlatforms: ['Instagram', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn', 'Twitch']
-    }
-  ];
-
-  const selectedPolicyData = policies.find(p => p.id === selectedPolicy);
-  const userMeetsRequirements = (user?.follower_count || 0) >= (selectedPolicyData?.minFollowers || 0);
-  const userCanAfford = (user?.gems_balance || 0) >= (selectedPolicyData?.monthlyPremium || 0);
+  const availablePolicies = Array.isArray(policies) ? policies : [];
+  const selectedPolicyData = availablePolicies.find(p => p.id === selectedPolicy) || availablePolicies[0] || null;
+  const userMeetsRequirements = selectedPolicyData
+    ? (user?.follower_count || 0) >= (selectedPolicyData.minFollowers || 0)
+    : false;
+  const userCanAfford = selectedPolicyData
+    ? (user?.gems_balance || 0) >= (selectedPolicyData.monthlyPremium || 0)
+    : false;
 
   const handleSubscribe = async () => {
     if (!selectedPolicyData || !userMeetsRequirements || !userCanAfford) return;
@@ -94,7 +52,7 @@ export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: 
     setError('');
 
     try {
-      const response = await fetch('/api/users/shield-subscribe', {
+      const response = await fetch('/api/growth/shield/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +131,12 @@ export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: 
 
               {/* Policy Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {policies.map((policy) => {
+                {availablePolicies.length === 0 && (
+                  <div className="col-span-full bg-gray-50 border border-dashed border-gray-200 rounded-lg p-6 text-center text-sm text-gray-500">
+                    No policies available right now. Check back soon!
+                  </div>
+                )}
+                {availablePolicies.map((policy) => {
                   const isSelected = selectedPolicy === policy.id;
                   const meetsRequirements = (user?.follower_count || 0) >= policy.minFollowers;
                   
@@ -212,7 +175,7 @@ export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: 
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-2">Coverage:</h4>
                             <ul className="space-y-1">
-                              {Object.entries(policy.coverageDetails).map(([key, covered]) => (
+                              {Object.entries(policy.coverage).map(([key, covered]) => (
                                 <li key={key} className="flex items-center space-x-2">
                                   {getCoverageIcon(covered as boolean)}
                                   <span className={`text-xs ${covered ? 'text-gray-700' : 'text-gray-400'}`}>
@@ -226,7 +189,7 @@ export default function SocialShieldModal({ isOpen, onClose, user, onSuccess }: 
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-2">Platforms:</h4>
                             <div className="flex flex-wrap gap-1">
-                              {policy.supportedPlatforms.map((platform) => (
+                              {policy.platforms.map((platform) => (
                                 <span key={platform} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
                                   {platform}
                                 </span>

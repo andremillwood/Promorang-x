@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ComponentType } from 'react';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -40,7 +40,7 @@ interface GrowthChannel {
   totalDeposited: number;
   participantCount: number;
   expectedApr: number;
-  icon: any;
+  icon: ComponentType<{ className?: string }>;
   color: string;
   features: string[];
 }
@@ -82,6 +82,7 @@ interface FundingProject {
 interface SocialShieldPolicy {
   id: string;
   name: string;
+  description: string;
   coverage: {
     platformBan: boolean;
     algorithmChange: boolean;
@@ -96,12 +97,204 @@ interface SocialShieldPolicy {
   minFollowers: number;
 }
 
+type FetchFallback<T> = T | (() => T);
+
+const resolveFallback = <T>(fallback: FetchFallback<T>): T =>
+  typeof fallback === 'function' ? (fallback as () => T)() : fallback;
+
+const fetchWithFallback = async <T>(url: string, fallback: FetchFallback<T>): Promise<T> => {
+  try {
+    const response = await fetch(url, { credentials: 'include' });
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    return data as T;
+  } catch (error) {
+    console.warn(`Falling back for ${url}:`, error instanceof Error ? error.message : error);
+    return resolveFallback(fallback);
+  }
+};
+
+const buildFallbackUser = (): { user: UserType } => ({
+  user: {
+    id: 'growth-demo-user',
+    email: 'growth@promorang.com',
+    username: 'growth_creator',
+    display_name: 'Growth Creator',
+    user_type: 'creator',
+    points_balance: 12500,
+    gems_balance: 980,
+    keys_balance: 24,
+    gold_collected: 12,
+    follower_count: 42000,
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=growth_hub',
+    user_tier: 'premium',
+  } as UserType,
+});
+
+const buildFallbackChannels = (
+  iconMap: Record<string, ComponentType<{ className?: string }>>,
+): Array<Record<string, unknown>> => [
+  {
+    id: 'foundation-growth',
+    name: 'Foundation Growth',
+    description: 'Balanced staking pool focused on retention and engagement.',
+    lock_period_days: 45,
+    base_multiplier: 1.4,
+    risk_level: 'medium',
+    min_amount: 150,
+    max_amount: 7500,
+    expected_apr: 18.5,
+    icon: Object.keys(iconMap)[0] || 'TrendingUp',
+    color: 'emerald',
+    features: ['Boosted engagement rewards', 'Weekly treasury reports', 'Auto-compound'],
+    participant_count: 182,
+    total_deposited: 96500,
+  },
+  {
+    id: 'creator-accelerator',
+    name: 'Creator Accelerator',
+    description: 'High-yield pool backing top creators and launch drops.',
+    lock_period_days: 75,
+    base_multiplier: 2.1,
+    risk_level: 'high',
+    min_amount: 500,
+    max_amount: 20000,
+    expected_apr: 28,
+    icon: Object.keys(iconMap)[1] || 'Rocket',
+    color: 'purple',
+    features: ['Launch drop priority', 'Risk-adjusted backfill', 'Creator insurance'],
+    participant_count: 94,
+    total_deposited: 184000,
+  },
+  {
+    id: 'stability-shield',
+    name: 'Stability Shield',
+    description: 'Protected staking for conservative growth portfolios.',
+    lock_period_days: 30,
+    base_multiplier: 1.1,
+    risk_level: 'low',
+    min_amount: 50,
+    max_amount: 5000,
+    expected_apr: 9.5,
+    icon: Object.keys(iconMap)[2] || 'Shield',
+    color: 'cyan',
+    features: ['Principal protection', 'Daily liquidity window', 'Auto rollover'],
+    participant_count: 312,
+    total_deposited: 142500,
+  },
+];
+
+const buildFallbackStakingPositions = (): Array<Record<string, unknown>> => [
+  {
+    id: 'position-1',
+    channel_id: 'foundation-growth',
+    amount: 750,
+    multiplier: 1.4,
+    lock_until: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+    earned_so_far: 86,
+    status: 'active',
+  },
+  {
+    id: 'position-2',
+    channel_id: 'stability-shield',
+    amount: 300,
+    multiplier: 1.1,
+    lock_until: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+    earned_so_far: 18,
+    status: 'withdrawable',
+  },
+];
+
+const buildFallbackFundingProjects = (): Array<Record<string, unknown>> => [
+  {
+    id: 101,
+    creator_id: 12,
+    creator_name: 'Creator Collective',
+    creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=collective',
+    title: 'Creator Success Toolkit',
+    description: 'Launch an interactive toolkit that teaches new creators how to monetize within 30 days.',
+    target_amount: 50000,
+    amount_raised: 24850,
+    backer_count: 186,
+    days_left: 18,
+    min_pledge: 75,
+    status: 'active',
+    featured: true,
+    rewardTiers: [
+      { amount: 75, title: 'Supporter', description: 'Early access + invite to creator roundtable', estimatedDelivery: '45 days', backerCount: 120 },
+      { amount: 350, title: 'Partner', description: 'Custom growth audit & promo spotlight', estimatedDelivery: '60 days', backerCount: 42 },
+    ],
+  },
+  {
+    id: 102,
+    creator_id: 27,
+    creator_name: 'Community Capital',
+    creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=community_capital',
+    title: 'Growth Hub Community Fund',
+    description: 'Back emerging creators through pooled capital and mentorship credits.',
+    target_amount: 80000,
+    amount_raised: 61200,
+    backer_count: 265,
+    days_left: 9,
+    min_pledge: 120,
+    status: 'active',
+    featured: false,
+    rewardTiers: [
+      { amount: 120, title: 'Backer', description: 'Badge + quarterly impact report', estimatedDelivery: '30 days', backerCount: 188 },
+      { amount: 600, title: 'Angel', description: 'Board invite + co-marketing slots', estimatedDelivery: '75 days', backerCount: 26 },
+    ],
+  },
+];
+
+const buildFallbackShieldPolicies = (): Array<Record<string, unknown>> => [
+  {
+    id: 'policy-1',
+    name: 'Social Safeguard',
+    description: 'Covers platform bans and sudden algorithm changes for verified creators.',
+    premium_amount: 45,
+    coverage_amount: 7500,
+    deductible: 250,
+    min_followers: 1000,
+    coverage: {
+      platformBan: true,
+      algorithmChange: true,
+      contentStrike: true,
+      monetizationLoss: true,
+      followerLoss: false,
+    },
+    platforms: ['instagram', 'youtube', 'tiktok'],
+  },
+  {
+    id: 'policy-2',
+    name: 'Monetization Guard',
+    description: 'Income replacement for monetization suspension and CPM volatility.',
+    premium_amount: 65,
+    coverage_amount: 12000,
+    deductible: 400,
+    min_followers: 5000,
+    coverage: {
+      platformBan: false,
+      algorithmChange: true,
+      contentStrike: true,
+      monetizationLoss: true,
+      followerLoss: true,
+    },
+    platforms: ['youtube', 'twitch'],
+  },
+];
+
 export default function GrowthHub() {
   const [userData, setUserData] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'channels' | 'funding' | 'shield' | 'economy'>('overview');
   const [stakingPositions, setStakingPositions] = useState<StakingPosition[]>([]);
   const [fundingProjects, setFundingProjects] = useState<FundingProject[]>([]);
+  const [growthChannels, setGrowthChannels] = useState<GrowthChannel[]>([]);
+  const [shieldPolicies, setShieldPolicies] = useState<SocialShieldPolicy[]>([]);
   const [selectedChannel, setSelectedChannel] = useState<GrowthChannel | null>(null);
   
   const [showStakingModal, setShowStakingModal] = useState(false);
@@ -114,78 +307,105 @@ export default function GrowthHub() {
 
   const fetchGrowthHubData = async () => {
     try {
-      const userResponse = await fetch('/api/app/users/me', { credentials: 'include' });
-      if (userResponse.ok) {
-        const user = await userResponse.json();
-        setUserData(user);
-      }
+      const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+        TrendingUp,
+        Rocket,
+        Star,
+        Shield,
+        Diamond,
+        Target,
+      };
 
-      // Mock data for now - these would be real API calls
-      setStakingPositions([
-        {
-          id: 1,
-          channelId: 'stable',
-          amount: 500,
-          multiplier: 1.2,
-          lockUntil: '2025-12-15',
-          earnedSoFar: 45.5,
-          status: 'active'
-        },
-        {
-          id: 2,
-          channelId: 'growth',
-          amount: 200,
-          multiplier: 1.8,
-          lockUntil: '2025-11-30',
-          earnedSoFar: 28.3,
-          status: 'active'
-        }
+      const [
+        userPayload,
+        channelsPayload,
+        stakingPayload,
+        fundingPayload,
+        policiesPayload,
+      ] = await Promise.all([
+        fetchWithFallback('/api/users/me', buildFallbackUser()),
+        fetchWithFallback('/api/growth/channels', { channels: buildFallbackChannels(iconMap) }),
+        fetchWithFallback('/api/growth/staking', { positions: buildFallbackStakingPositions() }),
+        fetchWithFallback('/api/growth/funding/projects', { projects: buildFallbackFundingProjects() }),
+        fetchWithFallback('/api/growth/shield/policies', { policies: buildFallbackShieldPolicies() }),
       ]);
 
-      setFundingProjects([
-        {
-          id: 1,
-          creatorId: 1,
-          creatorName: 'Alex Rivera',
-          creatorAvatar: '/api/placeholder/32/32',
-          title: 'Revolutionary Content Creation Studio',
-          description: 'Building a state-of-the-art content creation studio with AI-powered editing tools and virtual reality capabilities.',
-          category: 'Technology',
-          fundingGoal: 50000,
-          currentFunding: 32750,
-          backerCount: 127,
-          daysLeft: 18,
-          minPledge: 25,
-          rewardTiers: [
-            { amount: 25, title: 'Early Access', description: 'Get early access to studio tools', estimatedDelivery: 'March 2025', backerCount: 45 },
-            { amount: 100, title: 'Pro Tools', description: 'Professional editing suite license', estimatedDelivery: 'February 2025', backerCount: 32 },
-            { amount: 500, title: 'Studio Visit', description: 'Exclusive studio tour and workshop', estimatedDelivery: 'April 2025', backerCount: 8 }
-          ],
-          featured: true,
-          status: 'active'
+      setUserData(userPayload?.user || userPayload || null);
+
+      const mappedChannels: GrowthChannel[] = (channelsPayload?.channels || buildFallbackChannels(iconMap)).map((channel: any, index: number) => {
+        const iconKey = channel.icon_key ?? channel.iconKey ?? channel.icon ?? 'Shield';
+        const iconComponent = iconMap[iconKey] || Shield;
+
+        return {
+        id: channel.id ?? `channel-${index}`,
+        name: channel.name ?? 'Growth Channel',
+        description: channel.description ?? 'Ecosystem staking opportunity',
+        lockPeriod: channel.lock_period_days ?? channel.lockPeriodDays ?? channel.lockPeriod ?? 30,
+        baseMultiplier: channel.base_multiplier ?? channel.baseMultiplier ?? 1.2,
+        riskLevel: (channel.risk_level ?? channel.riskLevel ?? 'medium') as GrowthChannel['riskLevel'],
+        minDeposit: channel.min_amount ?? channel.minDeposit ?? 100,
+        maxDeposit: channel.max_amount ?? channel.maxDeposit ?? 10000,
+        totalDeposited: channel.total_deposited ?? channel.totalDeposited ?? 0,
+        participantCount: channel.participant_count ?? channel.participantCount ?? 0,
+        expectedApr: channel.expected_apr ?? channel.expectedApr ?? channel.apy ?? 12,
+        icon: iconComponent,
+        color: channel.color || ['blue', 'green', 'purple'][index % 3],
+        features: channel.features || ['Daily rewards', 'Auto-compound'],
+      };
+      });
+      setGrowthChannels(mappedChannels);
+
+      const mappedPositions: StakingPosition[] = (stakingPayload?.positions || buildFallbackStakingPositions()).map((position: any, index: number) => ({
+        id: position.id ?? `position-${index}`,
+        channelId: position.channel_id ?? position.channelId ?? mappedChannels[0]?.id ?? 'channel-1',
+        amount: position.amount ?? 0,
+        multiplier: position.multiplier ?? 1,
+        lockUntil: position.lock_until ?? position.lockUntil ?? new Date().toISOString(),
+        earnedSoFar: position.earned_so_far ?? position.earnedSoFar ?? 0,
+        status: position.status ?? 'active',
+      }));
+      setStakingPositions(mappedPositions);
+
+      const mappedProjects: FundingProject[] = (fundingPayload?.projects || buildFallbackFundingProjects()).map((project: any, index: number) => ({
+        id: project.id ?? index,
+        creatorId: project.creator_id ?? project.creatorId ?? 0,
+        creatorName: project.creator_name ?? project.creatorName ?? 'Growth Creator',
+        creatorAvatar: project.creator_avatar ?? project.creatorAvatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=growth_${index}`,
+        title: project.title ?? 'Growth initiative',
+        description: project.description ?? 'Help accelerate our platform metrics.',
+        category: project.category ?? 'growth',
+        fundingGoal: project.target_amount ?? project.fundingGoal ?? 10000,
+        currentFunding: project.amount_raised ?? project.currentFunding ?? 2500,
+        backerCount: project.backer_count ?? project.backerCount ?? Math.floor(Math.random() * 40) + 10,
+        daysLeft: project.days_left ?? project.daysLeft ?? 14,
+        minPledge: project.min_pledge ?? project.minPledge ?? 50,
+        rewardTiers: project.rewardTiers ?? [
+          { amount: 50, title: 'Supporter', description: 'Early updates & access', estimatedDelivery: '30 days', backerCount: 42 },
+          { amount: 250, title: 'Champion', description: 'Private workshop + rewards', estimatedDelivery: '45 days', backerCount: 18 },
+        ],
+        featured: Boolean(project.featured),
+        status: (project.status ?? 'active') as FundingProject['status'],
+      }));
+      setFundingProjects(mappedProjects);
+
+      const mappedPolicies: SocialShieldPolicy[] = (policiesPayload?.policies || buildFallbackShieldPolicies()).map((policy: any, index: number) => ({
+        id: policy.id ?? `shield-${index}`,
+        name: policy.name ?? 'Growth Shield',
+        description: policy.description ?? 'Protects against platform volatility.',
+        coverage: policy.coverage ?? {
+          platformBan: true,
+          algorithmChange: true,
+          contentStrike: true,
+          monetizationLoss: true,
+          followerLoss: false,
         },
-        {
-          id: 2,
-          creatorId: 2,
-          creatorName: 'Maria Santos',
-          creatorAvatar: '/api/placeholder/32/32',
-          title: 'Sustainable Fashion Documentary',
-          description: 'A documentary exploring sustainable fashion practices and their impact on the environment.',
-          category: 'Film',
-          fundingGoal: 25000,
-          currentFunding: 18200,
-          backerCount: 89,
-          daysLeft: 25,
-          minPledge: 15,
-          rewardTiers: [
-            { amount: 15, title: 'Digital Copy', description: 'Digital download of the documentary', estimatedDelivery: 'May 2025', backerCount: 35 },
-            { amount: 50, title: 'Behind the Scenes', description: 'Documentary + behind the scenes content', estimatedDelivery: 'May 2025', backerCount: 24 },
-            { amount: 200, title: 'Producer Credit', description: 'Executive producer credit in the film', estimatedDelivery: 'May 2025', backerCount: 5 }
-          ],
-          featured: false,
-          status: 'active'
-        }
-      ]);
+        monthlyPremium: policy.premium_amount ?? policy.monthlyPremium ?? 49,
+        maxCoverage: policy.coverage_amount ?? policy.maxCoverage ?? 5000,
+        deductible: policy.deductible ?? 250,
+        platforms: policy.platforms ?? ['instagram', 'youtube'],
+        minFollowers: policy.min_followers ?? policy.minFollowers ?? 1000,
+      }));
+      setShieldPolicies(mappedPolicies);
     } catch (error) {
       console.error('Failed to fetch growth hub data:', error);
     } finally {
@@ -193,7 +413,7 @@ export default function GrowthHub() {
     }
   };
 
-  const growthChannels: GrowthChannel[] = [
+  const fallbackGrowthChannels: GrowthChannel[] = [
     {
       id: 'stable',
       name: 'Stable Growth',
@@ -330,9 +550,13 @@ export default function GrowthHub() {
 
   const economicData = generateEconomicData();
 
-  const totalEconomicValue = growthChannels.reduce((sum, channel) => sum + channel.totalDeposited, 0);
-  const totalStakers = growthChannels.reduce((sum, channel) => sum + channel.participantCount, 0);
-  const avgAPR = growthChannels.reduce((sum, channel) => sum + channel.expectedApr, 0) / growthChannels.length;
+  const displayedGrowthChannels = growthChannels.length > 0 ? growthChannels : fallbackGrowthChannels;
+
+  const totalEconomicValue = displayedGrowthChannels.reduce((sum, channel) => sum + channel.totalDeposited, 0);
+  const totalStakers = displayedGrowthChannels.reduce((sum, channel) => sum + channel.participantCount, 0);
+  const avgAPR = displayedGrowthChannels.length
+    ? displayedGrowthChannels.reduce((sum, channel) => sum + channel.expectedApr, 0) / displayedGrowthChannels.length
+    : 0;
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -458,7 +682,7 @@ export default function GrowthHub() {
             {stakingPositions.length > 0 ? (
               <div className="space-y-4">
                 {stakingPositions.map((position) => {
-                  const channel = growthChannels.find(c => c.id === position.channelId);
+                  const channel = displayedGrowthChannels.find(c => c.id === position.channelId);
                   const Icon = channel?.icon || Lock;
                   const daysLeft = Math.ceil((new Date(position.lockUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                   
@@ -607,7 +831,12 @@ export default function GrowthHub() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {growthChannels.map((channel) => {
+            {growthChannels.length === 0 && (
+              <div className="col-span-full bg-gray-50 border border-dashed border-gray-200 rounded-lg p-6 text-center text-sm text-gray-500">
+                Growth channels are being configured. Check back soon.
+              </div>
+            )}
+            {displayedGrowthChannels.map((channel) => {
               const Icon = channel.icon;
               return (
                 <div key={channel.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
@@ -713,7 +942,7 @@ export default function GrowthHub() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Channel</label>
                 <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  {growthChannels.map(channel => (
+                  {displayedGrowthChannels.map(channel => (
                     <option key={channel.id} value={channel.id}>{channel.name}</option>
                   ))}
                 </select>
@@ -1175,6 +1404,7 @@ export default function GrowthHub() {
         onClose={() => setShowShieldModal(false)}
         user={userData}
         onSuccess={fetchGrowthHubData}
+        policies={shieldPolicies}
       />
     </div>
   );

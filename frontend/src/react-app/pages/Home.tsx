@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../App';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../App';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { user, isPending, redirectToLogin } = useAuth();
+  const { user, demoLogin, logout } = useAuth();
   const navigate = useNavigate();
   const [activeStats, setActiveStats] = useState({
     earners: 127,
@@ -28,12 +28,12 @@ export default function Home() {
   // Don't automatically redirect authenticated users to /home
   useEffect(() => {
     // No automatic redirect - let users choose to sign in or go to dashboard
-  }, [user, isPending, navigate]);
+  }, [user, navigate]);
 
   // Animate stats on load
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveStats(prev => ({
+      setActiveStats((prev: typeof activeStats) => ({
         earners: prev.earners + Math.floor(Math.random() * 5),
         payout: prev.payout + (Math.random() * 0.1),
         earnings: prev.earnings + Math.floor(Math.random() * 3)
@@ -42,17 +42,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
-
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-3 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading Promorang...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -84,11 +73,7 @@ export default function Home() {
                   </button>
                   {/* Development logout button */}
                   <button
-                    onClick={async () => {
-                      const { useAuth } = await import('../App');
-                      const { logout } = useAuth();
-                      await logout();
-                    }}
+                    onClick={() => logout()}
                     className="text-red-600 hover:text-red-800 font-medium transition-colors px-3 py-2 border border-red-200 rounded-lg hover:bg-red-50"
                     title="Development logout (for testing)"
                   >
@@ -99,34 +84,18 @@ export default function Home() {
                 // Unauthenticated user - show sign in options
                 <>
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       console.log('Sign In clicked');
-                      try {
-                        console.log('Calling redirectToLogin...');
-                        const { useAuth } = await import('../App');
-                        const { redirectToLogin } = useAuth();
-                        await redirectToLogin();
-                        console.log('redirectToLogin completed');
-                      } catch (error) {
-                        console.error('redirectToLogin error:', error);
-                      }
+                      navigate('/auth');
                     }}
                     className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
                   >
                     Sign In
                   </button>
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       console.log('Start Earning clicked');
-                      try {
-                        console.log('Calling redirectToLogin...');
-                        const { useAuth } = await import('../App');
-                        const { redirectToLogin } = useAuth();
-                        await redirectToLogin();
-                        console.log('redirectToLogin completed');
-                      } catch (error) {
-                        console.error('redirectToLogin error:', error);
-                      }
+                      navigate('/auth');
                     }}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
@@ -138,8 +107,36 @@ export default function Home() {
           </div>
         </div>
       </nav>
-
-      {/* Streamlined Hero Section */}
+      {/* Demo Login Section - Only show when not authenticated */}
+      {!user && (
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6">
+              <span className="text-sm text-gray-600 font-medium">Quick Demo:</span>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => demoLogin.creator()}
+                  className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Creator Demo
+                </button>
+                <button
+                  onClick={() => demoLogin.investor()}
+                  className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Investor Demo
+                </button>
+                <button
+                  onClick={() => demoLogin.advertiser()}
+                  className="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Advertiser Demo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 lg:py-24 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0" style={{
@@ -198,11 +195,9 @@ export default function Home() {
               ) : (
                 // Unauthenticated user - show sign up button
                 <button
-                  onClick={async () => {
+                  onClick={() => {
                     console.log('Start Earning Today clicked');
-                    const { useAuth } = await import('../App');
-                    const { redirectToLogin } = useAuth();
-                    await redirectToLogin();
+                    navigate('/auth');
                   }}
                   className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
                 >
@@ -252,14 +247,12 @@ export default function Home() {
                 </div>
               </div>
               <button
-                onClick={async () => {
+                onClick={() => {
                   console.log('Start Advertising clicked');
                   if (user) {
                     navigate('/advertiser/onboarding');
                   } else {
-                    const { useAuth } = await import('../App');
-                    const { redirectToLogin } = useAuth();
-                    await redirectToLogin();
+                    navigate('/auth');
                   }
                 }}
                 className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -536,14 +529,12 @@ export default function Home() {
           </p>
           
           <button
-            onClick={async () => {
+            onClick={() => {
               console.log('Final CTA clicked');
               if (user) {
                 navigate('/home');
               } else {
-                const { useAuth } = await import('../App');
-                const { redirectToLogin } = useAuth();
-                await redirectToLogin();
+                navigate('/auth');
               }
             }}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center"

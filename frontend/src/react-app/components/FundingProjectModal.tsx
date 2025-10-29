@@ -82,7 +82,7 @@ export default function FundingProjectModal({ isOpen, onClose, onSuccess }: Fund
     setError('');
 
     try {
-      const response = await fetch('/api/funding-projects', {
+      const response = await fetch('/api/growth/funding/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

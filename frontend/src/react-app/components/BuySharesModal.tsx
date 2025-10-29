@@ -7,7 +7,7 @@ interface BuySharesModalProps {
   wallet: WalletType | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onPurchase: (contentId: number, sharesCount: number) => Promise<void>;
+  onPurchase: (content: ContentPieceType, sharesCount: number) => Promise<void>;
 }
 
 export default function BuySharesModal({ content, wallet, isOpen, onClose, onPurchase }: BuySharesModalProps) {
@@ -28,7 +28,7 @@ export default function BuySharesModal({ content, wallet, isOpen, onClose, onPur
     
     setLoading(true);
     try {
-      await onPurchase(content.id, sharesCount);
+      await onPurchase(content, sharesCount);
       onClose();
     } catch (error) {
       console.error('Purchase failed:', error);

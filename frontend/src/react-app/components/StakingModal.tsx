@@ -32,17 +32,27 @@ export default function StakingModal({ isOpen, onClose, channel, user, onSuccess
 
   if (!isOpen || !channel) return null;
 
-  const getChannelIcon = () => {
-    switch (channel.icon) {
-      case 'Shield': return Shield;
-      case 'TrendingUp': return TrendingUp;
-      case 'Rocket': return Rocket;
-      case 'Star': return Star;
-      default: return Lock;
+  const resolveChannelIcon = () => {
+    if (typeof channel.icon === 'function') {
+      return channel.icon;
+    }
+
+    const iconKey = (channel as any).iconKey || channel.icon;
+    switch (iconKey) {
+      case 'Shield':
+        return Shield;
+      case 'Rocket':
+        return Rocket;
+      case 'Star':
+        return Star;
+      case 'TrendingUp':
+        return TrendingUp;
+      default:
+        return Lock;
     }
   };
 
-  const Icon = getChannelIcon();
+  const Icon = resolveChannelIcon();
 
   const getChannelColor = () => {
     const colors = {
@@ -92,7 +102,7 @@ export default function StakingModal({ isOpen, onClose, channel, user, onSuccess
     setError('');
 
     try {
-      const response = await fetch('/api/users/stake', {
+      const response = await fetch('/api/growth/staking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

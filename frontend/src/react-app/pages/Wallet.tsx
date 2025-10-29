@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, 
   DollarSign, 
@@ -14,7 +15,7 @@ import {
   Activity,
   Target
 } from 'lucide-react';
-import { WalletType, TransactionType, UserType } from '@/shared/types';
+import { WalletType, TransactionType, UserType, ContentHolding, ShareListing, ShareOffer } from '@/shared/types';
 import CurrencyConversionModal from '@/react-app/components/CurrencyConversionModal';
 import MasterKeyModal from '@/react-app/components/MasterKeyModal';
 import GoldShopModal from '@/react-app/components/GoldShopModal';
@@ -23,6 +24,10 @@ import PaymentPreferencesModal from '@/react-app/components/PaymentPreferencesMo
 import GemStoreModal from '@/react-app/components/GemStoreModal';
 import AchievementsModal from '@/react-app/components/AchievementsModal';
 import AuthDebugger from '@/react-app/components/AuthDebugger';
+import { buildAuthHeaders } from '@/react-app/utils/api';
+import ListShareModal from '@/react-app/components/ListShareModal';
+import { getPortfolioHoldings } from '@/react-app/services/portfolioService';
+import { fetchShareListings, fetchShareOffers, acceptShareOffer } from '@/react-app/services/sharesService';
 import { 
   EarningsChart, 
   PerformanceMetrics, 
@@ -33,6 +38,7 @@ import {
 
 // Wallet Analytics Component
 function WalletAnalyticsOverview({ userData }: { userData: UserType | null; transactions: TransactionType[] }) {
+  const navigate = useNavigate();
   // Generate mock earnings data for the last 30 days
   const generateEarningsData = () => {
     const last30Days = Array.from({ length: 30 }, (_, i) => {
@@ -67,6 +73,22 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
 
   return (
     <div className="space-y-6">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 rounded-xl p-6 text-white shadow">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="text-sm uppercase tracking-wide text-white/80">New</div>
+            <h3 className="text-2xl font-semibold">Growth Hub is live</h3>
+            <p className="text-sm text-white/80 mt-1">Stake gems, fund creators, and unlock higher returns on your balance.</p>
+          </div>
+          <button
+            onClick={() => navigate('/growth-hub')}
+            className="inline-flex items-center justify-center px-4 py-2 bg-white text-blue-600 font-medium rounded-lg shadow-sm hover:bg-blue-50 transition"
+          >
+            Explore Growth Hub
+            <ArrowUpRight className="w-4 h-4 ml-2" />
+          </button>
+        </div>
+      </div>
       {/* Enhanced KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
@@ -248,10 +270,330 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
   );
 }
 
+function PortfolioHoldingsSection({
+  holdings,
+  loading,
+  onList,
+  onView,
+}: {
+  holdings: ContentHolding[];
+  loading: boolean;
+  onList: (holding: ContentHolding) => void;
+  onView: (holding: ContentHolding) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Content Portfolio</h3>
+        <p className="text-sm text-gray-500">Loading holdings…</p>
+      </div>
+    );
+  }
+
+  if (!holdings.length) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-dashed border-gray-300 text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Start building your portfolio</h3>
+        <p className="text-gray-600 mb-4">
+          Invest in creator content to earn returns and unlock secondary market trading.
+        </p>
+        <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
+          Discover Opportunities
+        </button>
+      </div>
+    );
+  }
+
+  const totals = holdings.reduce(
+    (
+      acc,
+      holding,
+    ) => {
+      acc.value += holding.market_value;
+      acc.gain += holding.unrealized_gain;
+      return acc;
+    },
+    { value: 0, gain: 0 },
+  );
+
+  return (
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Content Portfolio</h3>
+          <p className="text-sm text-gray-500">Track your holdings, performance, and resale opportunities.</p>
+        </div>
+        <div className="flex items-center space-x-6 text-sm">
+          <div>
+            <p className="text-gray-500">Portfolio Value</p>
+            <p className="text-lg font-semibold text-gray-900">${totals.value.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Unrealized Gain</p>
+            <p className={`text-lg font-semibold ${totals.gain >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+              {totals.gain >= 0 ? '+' : ''}${totals.gain.toFixed(2)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Asset
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Shares
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Avg. Cost
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Market Value
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Unrealized
+              </th>
+              <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Day
+              </th>
+              <th scope="col" className="px-4 py-3" />
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {holdings.map((holding) => (
+              <tr key={holding.content_id} className="hover:bg-gray-50">
+                <td className="px-4 py-4">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={holding.content_thumbnail}
+                      alt={holding.content_title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900">{holding.content_title}</p>
+                      <p className="text-sm text-gray-500">
+                        {holding.creator_name} • {holding.platform.toUpperCase()}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <div className="font-semibold text-gray-900">{holding.owned_shares}</div>
+                  <div className="text-xs text-gray-500">{holding.available_to_sell} sellable</div>
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <div className="text-gray-900">${holding.avg_cost.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">Now ${holding.current_price.toFixed(2)}</div>
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <div className="text-gray-900">${holding.market_value.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">Weekly {holding.week_change_pct.toFixed(1)}%</div>
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <div className={`font-semibold ${holding.unrealized_gain >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {holding.unrealized_gain >= 0 ? '+' : ''}${holding.unrealized_gain.toFixed(2)}
+                  </div>
+                </td>
+                <td className="px-4 py-4 text-right">
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                    holding.day_change_pct >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                  }`}>
+                    {holding.day_change_pct >= 0 ? '+' : ''}{holding.day_change_pct.toFixed(2)}%
+                  </span>
+                </td>
+                <td className="px-4 py-4 text-right space-x-2">
+                  <button
+                    onClick={() => onView(holding)}
+                    className="px-3 py-1.5 text-sm font-medium border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-100"
+                  >
+                    View details
+                  </button>
+                  {holding.available_to_sell > 0 ? (
+                    <button
+                      onClick={() => onList(holding)}
+                      className="px-3 py-1.5 text-sm font-medium border border-orange-200 text-orange-600 rounded-lg hover:bg-orange-50"
+                    >
+                      List for resale
+                    </button>
+                  ) : (
+                    <span className="text-xs text-gray-400">All shares listed</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ActiveListingsSection({ listings, loading }: { listings: ShareListing[]; loading: boolean }) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">My Listings</h3>
+        <p className="text-sm text-gray-500">Loading listings…</p>
+      </div>
+    );
+  }
+
+  if (!listings.length) {
+    return null;
+  }
+
+  return (
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">My Listings</h3>
+          <p className="text-sm text-gray-500">Active resale listings awaiting buyers.</p>
+        </div>
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+          {listings.length} active
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {listings.map((listing) => (
+          <div key={listing.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <img
+                src={listing.content_thumbnail}
+                alt={listing.content_title}
+                className="w-12 h-12 rounded-lg object-cover"
+              />
+              <div>
+                <p className="font-medium text-gray-900">{listing.content_title}</p>
+                <p className="text-sm text-gray-500">
+                  {listing.remaining_quantity}/{listing.quantity} shares available
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500">Ask price</p>
+              <p className="text-lg font-semibold text-gray-900">${listing.ask_price.toFixed(2)}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Created {new Date(listing.created_at).toLocaleDateString()} • {listing.status}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OffersSection({
+  incoming,
+  outgoing,
+  loading,
+  onAccept,
+}: {
+  incoming: ShareOffer[];
+  outgoing: ShareOffer[];
+  loading: boolean;
+  onAccept: (offerId: string) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Offers</h3>
+        <p className="text-sm text-gray-500">Loading offers…</p>
+      </div>
+    );
+  }
+
+  if (!incoming.length && !outgoing.length) {
+    return null;
+  }
+
+  return (
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Offers</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-800">Incoming</h4>
+            <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700">
+              {incoming.length}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {incoming.map((offer) => (
+              <div key={offer.id} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {offer.quantity} shares @ ${offer.bid_price.toFixed(2)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {offer.content_title || offer.content_id}
+                    </p>
+                    {offer.message && (
+                      <p className="text-xs text-gray-500 mt-1">“{offer.message}”</p>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => onAccept(offer.id)}
+                      className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Accept
+                    </button>
+                    <button className="px-3 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-100">
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!incoming.length && <p className="text-sm text-gray-500">No incoming offers.</p>}
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-800">Outgoing</h4>
+            <span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700">
+              {outgoing.length}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {outgoing.map((offer) => (
+              <div key={offer.id} className="bg-gray-50 rounded-lg p-4">
+                <p className="font-semibold text-gray-900">
+                  {offer.quantity} shares @ ${offer.bid_price.toFixed(2)}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {offer.content_title || offer.content_id}
+                </p>
+                <p className="text-xs text-gray-500 mt-1 capitalize">Status: {offer.status}</p>
+              </div>
+            ))}
+            {!outgoing.length && <p className="text-sm text-gray-500">No outgoing offers.</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Wallet() {
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
+  const [holdings, setHoldings] = useState<ContentHolding[]>([]);
+  const [holdingsLoading, setHoldingsLoading] = useState(true);
+  const [listings, setListings] = useState<ShareListing[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [incomingOffers, setIncomingOffers] = useState<ShareOffer[]>([]);
+  const [outgoingOffers, setOutgoingOffers] = useState<ShareOffer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(true);
+  const [selectedHolding, setSelectedHolding] = useState<ContentHolding | null>(null);
+  const [listModalOpen, setListModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions'>('overview');
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
@@ -273,6 +615,12 @@ export default function Wallet() {
     fetchWalletData();
   }, []);
 
+  useEffect(() => {
+    loadHoldings();
+    loadListings();
+    loadOffers();
+  }, []);
+
   const fetchWalletData = async () => {
     try {
       console.log('=== fetchWalletData Debug ===');
@@ -282,7 +630,11 @@ export default function Wallet() {
       console.log('Checking authentication with Mocha service...');
       console.log('Current cookies:', document.cookie);
       
-      const authResponse = await fetch('/api/users/me', { credentials: 'include' });
+      const authHeaders = buildAuthHeaders();
+      const authResponse = await fetch('/api/users/me', {
+        credentials: 'include',
+        headers: authHeaders
+      });
       console.log('Auth response:', {
         status: authResponse.status,
         statusText: authResponse.statusText,
@@ -324,12 +676,15 @@ export default function Wallet() {
       console.log('User is authenticated, fetching user data...');
       
       // Fetch user data from database with error handling
-      const userResponse = await fetch('/api/users/me', { credentials: 'include' });
-      console.log('User data response status:', userResponse.status);
+      const response = await fetch('/api/users/me/wallets', {
+        credentials: 'include',
+        headers: buildAuthHeaders()
+      });
+      console.log('User data response status:', response.status);
       
       let userData = null;
       try {
-        userData = await userResponse.json();
+        userData = await response.json();
         console.log('User data parsed:', {
           isNull: userData === null,
           hasError: !!(userData?.error),
@@ -384,7 +739,7 @@ export default function Wallet() {
           master_key_activated_at: undefined,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        };
+  };
         console.log('Using temporary user data:', tempUser);
         setUserData(tempUser);
       } else {
@@ -398,20 +753,41 @@ export default function Wallet() {
       
       // Fetch wallets and transactions with error handling
       try {
+        const sharedHeaders = buildAuthHeaders();
         const [walletsResponse, transactionsResponse] = await Promise.all([
-          fetch('/api/users/wallets', { credentials: 'include' }),
-          fetch('/api/users/transactions', { credentials: 'include' })
+          fetch('/api/users/wallets', { credentials: 'include', headers: sharedHeaders }),
+          fetch('/api/users/transactions', { credentials: 'include', headers: sharedHeaders })
         ]);
 
-        const walletsData = walletsResponse.ok ? await walletsResponse.json() : [];
-        const transactionsData = transactionsResponse.ok ? await transactionsResponse.json() : [];
-        
+        let walletsData = [];
+        let transactionsData = [];
+
+        if (walletsResponse.ok) {
+          const walletsJson = await walletsResponse.json();
+          // Handle both direct array and object with wallets property
+          if (Array.isArray(walletsJson)) {
+            walletsData = walletsJson;
+          } else if (walletsJson && Array.isArray(walletsJson.wallets)) {
+            walletsData = walletsJson.wallets;
+          }
+        }
+
+        if (transactionsResponse.ok) {
+          const transactionsJson = await transactionsResponse.json();
+          // Handle both direct array and object with transactions property
+          if (Array.isArray(transactionsJson)) {
+            transactionsData = transactionsJson;
+          } else if (transactionsJson && Array.isArray(transactionsJson.transactions)) {
+            transactionsData = transactionsJson.transactions;
+          }
+        }
+
         setWallets(walletsData || []);
         setTransactions(transactionsData || []);
-        
+
         console.log('Fetched additional data:', {
-          wallets: (walletsData || []).length,
-          transactions: (transactionsData || []).length
+          wallets: walletsData.length,
+          transactions: transactionsData.length
         });
       } catch (additionalDataError) {
         console.error('Error fetching wallets/transactions:', additionalDataError);
@@ -435,7 +811,53 @@ export default function Wallet() {
     }
   };
 
-  const usdWallet = wallets.find(w => w.currency_type === 'USD');
+  const loadHoldings = async () => {
+    setHoldingsLoading(true);
+    const data = await getPortfolioHoldings();
+    setHoldings(data);
+    setHoldingsLoading(false);
+  };
+
+  const loadListings = async () => {
+    setListingsLoading(true);
+    const data = await fetchShareListings(true);
+    setListings(data);
+    setListingsLoading(false);
+  };
+
+  const loadOffers = async () => {
+    setOffersLoading(true);
+    const [sellerOffers, buyerOffers] = await Promise.all([
+      fetchShareOffers('seller'),
+      fetchShareOffers('buyer'),
+    ]);
+    setIncomingOffers(sellerOffers);
+    setOutgoingOffers(buyerOffers);
+    setOffersLoading(false);
+  };
+
+  const openListModal = (holding: ContentHolding) => {
+    setSelectedHolding(holding);
+    setListModalOpen(true);
+  };
+
+  const handleListingSuccess = () => {
+    loadHoldings();
+    loadListings();
+    loadOffers();
+  };
+
+  const handleAcceptOffer = async (offerId: string) => {
+    try {
+      await acceptShareOffer(offerId);
+      await Promise.all([loadHoldings(), loadListings(), loadOffers()]);
+    } catch (error) {
+      console.error('Failed to accept offer:', error);
+      alert(error instanceof Error ? error.message : 'Failed to accept offer');
+    }
+  };
+
+  const usdWallet = wallets && wallets.length > 0 ? wallets.find(w => w.currency_type === 'USD') : null;
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -726,6 +1148,19 @@ export default function Wallet() {
             <div className="space-y-6">
               {/* Enhanced Analytics Overview */}
               <WalletAnalyticsOverview userData={userData} transactions={transactions} />
+              <PortfolioHoldingsSection
+                holdings={holdings}
+                loading={holdingsLoading}
+                onList={openListModal}
+                onView={(holding) => navigate(`/portfolio/holdings/${holding.content_id}`)}
+              />
+              <ActiveListingsSection listings={listings} loading={listingsLoading} />
+              <OffersSection
+                incoming={incomingOffers}
+                outgoing={outgoingOffers}
+                loading={offersLoading}
+                onAccept={handleAcceptOffer}
+              />
             </div>
           )}
 
@@ -777,98 +1212,6 @@ export default function Wallet() {
         </div>
       </div>
 
-      {/* Enhanced Debug section for comprehensive troubleshooting */}
-      <div className="bg-gray-100 rounded-lg p-4 space-y-2">
-        <h4 className="font-medium text-gray-900">Debug Info:</h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <h5 className="font-semibold text-gray-800">Modal States:</h5>
-            <p className="text-gray-600">showGemStoreModal: {showGemStoreModal.toString()}</p>
-            <p className="text-gray-600">showCurrencyModal: {showCurrencyModal.toString()}</p>
-            <p className="text-gray-600">showWithdrawalModal: {showWithdrawalModal.toString()}</p>
-          </div>
-          <div>
-            <h5 className="font-semibold text-gray-800">User Data:</h5>
-            <p className="text-gray-600">userData: {userData ? 'loaded' : 'null'}</p>
-            <p className="text-gray-600">email: {userData?.email || 'none'}</p>
-            <p className="text-gray-600">gems: {userData?.gems_balance || 0}</p>
-            <p className="text-gray-600">points: {userData?.points_balance || 0}</p>
-            <p className="text-gray-600">keys: {userData?.keys_balance || 0}</p>
-          </div>
-        </div>
-        <div>
-          <h5 className="font-semibold text-gray-800">System State:</h5>
-          <p className="text-gray-600">loading: {loading.toString()}</p>
-          <p className="text-gray-600">cookies: {document.cookie ? `${document.cookie.split(';').length} cookies` : 'none'}</p>
-          <p className="text-gray-600">session_token: {document.cookie.includes('mocha_session_token') ? 'present' : 'missing'}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button 
-            onClick={handleBuyMoreGems}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm"
-          >
-            Test Buy More Button
-          </button>
-          <button 
-            onClick={() => {
-              console.log('Manual refresh clicked');
-              setLoading(true);
-              fetchWalletData();
-            }}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm"
-          >
-            Refresh User Data
-          </button>
-          <button 
-            onClick={() => {
-              console.log('Force close all modals');
-              setShowGemStoreModal(false);
-              setShowCurrencyModal(false);
-              setShowWithdrawalModal(false);
-            }}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm"
-          >
-            Close All Modals
-          </button>
-          <button 
-            onClick={() => {
-              console.log('Clearing session and redirecting to login...');
-              // Clear local storage and cookies
-              localStorage.clear();
-              sessionStorage.clear();
-              document.cookie = document.cookie.split(";").map(c => c.split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/").join("");
-              // Redirect to home for re-authentication
-              window.location.href = '/';
-            }}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm"
-          >
-            Force Re-Login
-          </button>
-          <button 
-            onClick={async () => {
-              console.log('Testing auth endpoints...');
-              try {
-                const authTest = await fetch('/api/users/me', { credentials: 'include' });
-                const authData = await authTest.json();
-                console.log('Auth test result:', authData);
-                
-                const userTest = await fetch('/api/app/users/me', { credentials: 'include' });
-                const userData = await userTest.json();
-                console.log('User test result:', userData);
-                
-                alert(`Auth: ${authData ? 'OK' : 'FAIL'}, User: ${userData ? 'OK' : 'FAIL'}`);
-              } catch (e) {
-                console.error('Test failed:', e);
-                alert('Test failed - check console');
-              }
-            }}
-            className="px-4 py-2 bg-purple-500 text-white rounded-lg text-sm"
-          >
-            Test Auth
-          </button>
-        </div>
-      </div>
-
       {/* Auth Debugger - shown when user data is null */}
       {!userData && <AuthDebugger />}
 
@@ -899,6 +1242,13 @@ export default function Wallet() {
         isOpen={showWithdrawalModal}
         onClose={handleCloseWithdrawalModal}
         onSuccess={fetchWalletData}
+      />
+
+      <ListShareModal
+        isOpen={listModalOpen}
+        onClose={() => setListModalOpen(false)}
+        holding={selectedHolding}
+        onSuccess={handleListingSuccess}
       />
       
       <PaymentPreferencesModal

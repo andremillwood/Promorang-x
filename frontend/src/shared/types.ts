@@ -242,6 +242,7 @@ export interface DropType {
   status: string;
   platform?: string;
   content_url?: string;
+  preview_image?: string;
   move_cost_points: number;
   key_reward_amount: number;
   is_proof_drop: boolean;
@@ -252,8 +253,8 @@ export interface DropType {
 
 export interface DropApplicationType {
   id: number;
-  drop_id: number;
-  user_id: number;
+  drop_id: string | number;
+  user_id: string | number;
   status: string;
   application_message?: string;
   submission_url?: string;
@@ -265,6 +266,107 @@ export interface DropApplicationType {
   paid_at?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ContentHolding {
+  content_id: string;
+  content_title: string;
+  content_thumbnail: string;
+  creator_id: string;
+  creator_name: string;
+  creator_avatar: string;
+  platform: string;
+  owned_shares: number;
+  available_to_sell: number;
+  avg_cost: number;
+  current_price: number;
+  market_value: number;
+  unrealized_gain: number;
+  day_change_pct: number;
+  week_change_pct: number;
+  month_change_pct: number;
+  last_trade_at?: string;
+  is_listed: boolean;
+  listing_id?: string;
+  visibility?: 'public' | 'private';
+}
+
+export interface ShareListing {
+  id: string;
+  content_id: string;
+  content_title: string;
+  content_thumbnail: string;
+  owner_id: string;
+  owner_name: string;
+  quantity: number;
+  remaining_quantity: number;
+  ask_price: number;
+  market_price: number;
+  status: 'active' | 'filled' | 'cancelled' | 'expired';
+  created_at: string;
+  expires_at?: string;
+}
+
+export interface ShareOffer {
+  id: string;
+  content_id: string;
+  content_title?: string;
+  buyer_id: string;
+  seller_id?: string;
+  quantity: number;
+  bid_price: number;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  message?: string;
+  created_at: string;
+  expires_at?: string;
+}
+
+export interface PredictionSummary {
+  id: string;
+  forecast_id: string;
+  content_title: string;
+  platform: string;
+  prediction_side: string;
+  amount: number;
+  potential_payout: number;
+  status: string;
+  result?: string;
+  created_at: string;
+  resolved_at?: string;
+}
+
+export interface ContentHoldingDetail {
+  holding: ContentHolding;
+  content: {
+    description: string;
+    genres: string[];
+    tags: string[];
+    published_at: string;
+    total_views: number;
+    engagement_rate: number;
+    earnings_to_date: number;
+  };
+  performance: {
+    history: Array<{ date: string; price: number; volume: number }>;
+    ledger: Array<{ id: string; type: string; quantity: number; price: number; timestamp: string }>;
+  };
+  marketplace: {
+    listings: Array<{ id: string; quantity: number; ask_price: number; status: string; filled_at?: string }>;
+    offers: Array<{ id: string; quantity: number; bid_price: number; status: string; buyer_name: string; message?: string }>;
+  };
+}
+
+export interface PredictionDetail {
+  prediction: PredictionSummary;
+  forecast: {
+    metric: string;
+    target: string;
+    odds: number;
+    expires_at: string;
+    creator_projection: string;
+  };
+  trajectory: Array<{ date: string; actual: number; expected: number }>;
+  participants: Array<{ username: string; amount: number; side: string; status: string }>;
 }
 
 export interface ContentPieceType {
@@ -285,6 +387,12 @@ export interface ContentPieceType {
   share_price: number;
   current_revenue: number;
   performance_metrics?: string;
+  views_count?: number;
+  likes_count?: number;
+  comments_count?: number;
+  reposts_count?: number;
+  is_demo?: boolean;
+  is_sponsored?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -391,4 +499,23 @@ export const ApplyToTaskRequestSchema = z.object({
   application_message: z.string(),
 });
 
-export type ApplyToTaskRequest = z.infer<typeof ApplyToTaskRequestSchema>;
+export interface ForecastType {
+  id: number;
+  content_id?: number;
+  creator_id: number;
+  creator_name: string;
+  platform: string;
+  content_url: string;
+  content_title?: string;
+  forecast_type: string;
+  target_value: number;
+  current_value: number;
+  odds: number;
+  pool_size: number;
+  creator_initial_amount: number;
+  creator_side: string;
+  expires_at: string;
+  created_at: string;
+  participants: number;
+  status: string;
+}

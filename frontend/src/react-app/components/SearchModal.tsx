@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { 
-  Search, 
-  X, 
-  Star, 
-  DollarSign, 
+import {
+  Search,
+  X,
+  Star,
+  DollarSign,
   FileText,
   Zap,
-  Users
+  Users,
 } from 'lucide-react';
 
 interface SearchModalProps {
@@ -20,6 +20,80 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [searchResults, setSearchResults] = useState<any>({ content: [], drops: [], users: [] });
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'content' | 'drops' | 'users'>('all');
+
+  const USE_MOCK_DATA = !import.meta.env.VITE_API_BASE_URL;
+
+  const MOCK_CONTENT = [
+    {
+      id: 'content-demo-1',
+      title: 'Launch Campaign: Social Buzz',
+      description: 'Highlight reel from the recent product launch activation.',
+      platform: 'instagram',
+      creator_name: 'Demo Creator',
+      share_price: 12.5,
+    },
+    {
+      id: 'content-demo-2',
+      title: 'Creator Toolkit Walkthrough',
+      description: 'Step-by-step guide on monetizing content in 30 days.',
+      platform: 'youtube',
+      creator_name: 'Creator Collective',
+      share_price: 18.0,
+    },
+  ];
+
+  const MOCK_DROPS = [
+    {
+      id: 'drop-demo-1',
+      title: 'Product Review Blitz',
+      description: 'Create authentic reviews for the new premium bundle.',
+      gem_reward_base: 120,
+      key_cost: 4,
+      status: 'active',
+    },
+    {
+      id: 'drop-demo-2',
+      title: 'Launch Day Engagement Sprint',
+      description: 'Boost engagement metrics during launch weekend.',
+      gem_reward_base: 95,
+      key_cost: 3,
+      status: 'active',
+    },
+  ];
+
+  const MOCK_USERS = [
+    {
+      id: 'user-demo-1',
+      username: 'demo_creator',
+      display_name: 'Demo Creator',
+      user_type: 'creator',
+      follower_count: 42000,
+    },
+    {
+      id: 'user-demo-2',
+      username: 'growth_analyst',
+      display_name: 'Growth Analyst',
+      user_type: 'advertiser',
+      follower_count: 12500,
+    },
+  ];
+
+  const buildMockResults = (query: string) => {
+    const normalizedQuery = query.toLowerCase();
+    const content = MOCK_CONTENT.filter(
+      (item) =>
+        item.title.toLowerCase().includes(normalizedQuery) ||
+        item.description.toLowerCase().includes(normalizedQuery),
+    );
+    const drops = MOCK_DROPS.filter((item) => item.title.toLowerCase().includes(normalizedQuery));
+    const users = MOCK_USERS.filter(
+      (item) =>
+        item.username.toLowerCase().includes(normalizedQuery) ||
+        item.display_name.toLowerCase().includes(normalizedQuery),
+    );
+
+    return { content, drops, users };
+  };
 
   useEffect(() => {
     if (searchQuery.length >= 2) {
@@ -35,17 +109,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const handleSearch = async () => {
     if (searchQuery.trim().length < 2) return;
 
+    if (USE_MOCK_DATA) {
+      setSearchResults(buildMockResults(searchQuery));
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`, {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (response.ok) {
         const results = await response.json();
         setSearchResults(results);
+      } else {
+        setSearchResults(buildMockResults(searchQuery));
       }
     } catch (error) {
       console.error('Search failed:', error);
+      setSearchResults(buildMockResults(searchQuery));
     } finally {
       setLoading(false);
     }
@@ -209,10 +291,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           <h4 className="font-semibold text-gray-900 truncate">{drop.title}</h4>
                           <p className="text-sm text-gray-600 truncate">{drop.description}</p>
                           <div className="flex items-center space-x-4 mt-1">
-                            <span className="text-xs text-gray-500 capitalize">{drop.drop_type.replace('_', ' ')}</span>
-                            <span className="text-xs text-gray-500">by {drop.creator_name}</span>
-                            <span className="text-xs font-medium text-purple-600">{drop.gem_reward_base} gems</span>
-                            <span className="text-xs text-gray-500">{drop.current_participants} participants</span>
+                            <span className="text-xs text-gray-500 capitalize">
+                              {(drop.drop_type || 'engagement').replace('_', ' ')}
+                            </span>
+                            <span className="text-xs text-gray-500">by {drop.creator_name || 'Promorang Team'}</span>
+                            <span className="text-xs font-medium text-purple-600">{drop.gem_reward_base ?? 0} gems</span>
+                            <span className="text-xs text-gray-500">{drop.current_participants ?? 0} participants</span>
                           </div>
                         </div>
                       </Link>

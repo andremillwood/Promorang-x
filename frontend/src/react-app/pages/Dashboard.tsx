@@ -33,10 +33,10 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         // Fetch wallets
-        const walletsResponse = await fetch('/api/users/wallets', {
+        const response = await fetch('/api/users/me/wallets', {
           credentials: 'include'
         });
-        const walletsData = await walletsResponse.json();
+        const walletsData = await response.json();
         setWallets(Array.isArray(walletsData) ? walletsData : []);
 
         // Fetch recent tasks
