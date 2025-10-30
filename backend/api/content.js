@@ -3,6 +3,34 @@ const crypto = require('crypto');
 const router = express.Router();
 const supabase = require('../lib/supabase');
 
+const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
+const cacheStore = new Map();
+
+const getCachedValue = async (key, fetcher, ttl = DEFAULT_CACHE_TTL_MS) => {
+  const now = Date.now();
+  const cached = cacheStore.get(key);
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
+  const value = await fetcher();
+  if (value !== undefined) {
+    cacheStore.set(key, {
+      value,
+      expiresAt: now + ttl
+    });
+  }
+  return value;
+};
+
+const invalidateCache = (prefix) => {
+  for (const key of cacheStore.keys()) {
+    if (key.startsWith(prefix)) {
+      cacheStore.delete(key);
+    }
+  }
+};
+
 // Demo media assets used when the CDN is unavailable locally
 const DEMO_MEDIA = [
   'https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=1080&q=80',
@@ -294,46 +322,56 @@ router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 20, type } = req.query;
     const offset = (page - 1) * limit;
+    const cacheKey = `content:list:${page}:${limit}:${type || 'all'}`;
 
-    if (!supabase) {
-      const placeholder = Array.from({ length: limit }, (_, i) => ({
-        id: `${i + 1}`,
-        title: `Demo Content ${i + 1}`,
-        description: `This is a demo content item ${i + 1}.`,
-        platform: ['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin'][Math.floor(Math.random() * 5)],
-        media_url: i % 2 === 0 ? `https://picsum.photos/seed/${i}/800/450` : null,
-        impressions: 1000 + i * 150,
-        clicks: 200 + i * 20,
-        engagements: 300 + i * 25,
-        shares: 50 + i * 5,
-        conversions: 10 + i,
-        engagement_rate: 0.045 + i * 0.001,
-        creator_name: `Demo Creator ${i + 1}`,
-        creator_username: `demo_creator_${i + 1}`,
-        status: i % 3 === 0 ? 'sponsored' : 'published',
-        posted_at: new Date(Date.now() - i * 86400000).toISOString()
-      }));
-      return res.json(buildContentResponse(placeholder));
-    }
+    const responsePayload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        const placeholder = Array.from({ length: limit }, (_, i) => ({
+          id: `${i + 1}`,
+          title: `Demo Content ${i + 1}`,
+          description: `This is a demo content item ${i + 1}.`,
+          platform: ['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin'][Math.floor(Math.random() * 5)],
+          media_url: i % 2 === 0 ? `https://picsum.photos/seed/${i}/800/450` : null,
+          impressions: 1000 + i * 150,
+          clicks: 200 + i * 20,
+          engagements: 300 + i * 25,
+          shares: 50 + i * 5,
+          conversions: 10 + i,
+          engagement_rate: 0.045 + i * 0.001,
+          creator_name: `Demo Creator ${i + 1}`,
+          creator_username: `demo_creator_${i + 1}`,
+          status: i % 3 === 0 ? 'sponsored' : 'published',
+          posted_at: new Date(Date.now() - i * 86400000).toISOString()
+        }));
+        return buildContentResponse(placeholder);
+      }
 
-    let query = supabase
-      .from('content_items')
-      .select('*')
-      .order('posted_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      const queryStart = Date.now();
+      let query = supabase
+        .from('content_items')
+        .select('*')
+        .order('posted_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (type) {
-      query = query.eq('platform', type);
-    }
+      if (type) {
+        query = query.eq('platform', type);
+      }
 
-    const { data: rows, error } = await query;
+      const { data: rows, error } = await query;
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[content:list] Supabase query took ${durationMs}ms`);
+      }
 
-    if (error) {
-      console.error('Database error fetching content:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch content' });
-    }
+      if (error) {
+        console.error('Database error fetching content:', error);
+        throw new Error('Failed to fetch content');
+      }
 
-    res.json(buildContentResponse(rows || []));
+      return buildContentResponse(rows || []);
+    });
+
+    res.json(responsePayload);
   } catch (error) {
     console.error('Error fetching content:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch content' });
@@ -343,42 +381,51 @@ router.get('/', async (req, res) => {
 // Sponsored content feed
 router.get('/sponsored', async (req, res) => {
   try {
-    if (!supabase) {
-      const sponsored = buildContentResponse([
-        {
-          id: 'sponsored-demo-1',
-          title: 'Sponsored Demo Content',
-          description: 'Showcase of a sponsored activation on Promorang.',
-          platform: 'instagram',
-          media_url: 'https://picsum.photos/seed/sponsored/800/450',
-          impressions: 22000,
-          clicks: 1800,
-          engagements: 5400,
-          shares: 720,
-          conversions: 260,
-          engagement_rate: 0.062,
-          creator_name: 'Promorang Creator',
-          creator_username: 'promorang_creator',
-          status: 'sponsored',
-          posted_at: new Date(Date.now() - 2 * 86400000).toISOString()
-        }
-      ]);
-      return res.json(sponsored);
-    }
+    const cacheKey = 'content:sponsored';
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        return buildContentResponse([
+          {
+            id: 'sponsored-demo-1',
+            title: 'Sponsored Demo Content',
+            description: 'Showcase of a sponsored activation on Promorang.',
+            platform: 'instagram',
+            media_url: 'https://picsum.photos/seed/sponsored/800/450',
+            impressions: 22000,
+            clicks: 1800,
+            engagements: 5400,
+            shares: 720,
+            conversions: 260,
+            engagement_rate: 0.062,
+            creator_name: 'Promorang Creator',
+            creator_username: 'promorang_creator',
+            status: 'sponsored',
+            posted_at: new Date(Date.now() - 2 * 86400000).toISOString()
+          }
+        ]);
+      }
 
-    const { data: rows, error } = await supabase
-      .from('content_items')
-      .select('*')
-      .eq('status', 'sponsored')
-      .order('posted_at', { ascending: false })
-      .limit(10);
+      const queryStart = Date.now();
+      const { data: rows, error } = await supabase
+        .from('content_items')
+        .select('*')
+        .eq('status', 'sponsored')
+        .order('posted_at', { ascending: false })
+        .limit(10);
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[content:sponsored] Supabase query took ${durationMs}ms`);
+      }
 
-    if (error) {
-      console.error('Database error fetching sponsored content:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch sponsored content' });
-    }
+      if (error) {
+        console.error('Database error fetching sponsored content:', error);
+        throw new Error('Failed to fetch sponsored content');
+      }
 
-    res.json(buildContentResponse(rows || []));
+      return buildContentResponse(rows || []);
+    });
+
+    res.json(payload);
   } catch (error) {
     console.error('Error fetching sponsored content:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch sponsored content' });
@@ -390,56 +437,65 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!supabase) {
-      // Mock content fallback
-      const content = {
-        id: parseInt(id),
-        title: `Content Item ${id}`,
-        description: `This is the full description for content item ${id}`,
-        type: 'post',
-        author: {
-          id: 'user_1',
-          username: 'sample_user',
-          avatar: 'https://via.placeholder.com/40'
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likes: Math.floor(Math.random() * 100),
-        comments: Math.floor(Math.random() * 50),
-        media: ['https://via.placeholder.com/600x400'],
-        tags: ['sample', 'content', 'api']
-      };
+    const cacheKey = `content:item:${id}`;
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        const content = {
+          id: parseInt(id),
+          title: `Content Item ${id}`,
+          description: `This is the full description for content item ${id}`,
+          type: 'post',
+          author: {
+            id: 'user_1',
+            username: 'sample_user',
+            avatar: 'https://via.placeholder.com/40'
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          likes: Math.floor(Math.random() * 100),
+          comments: Math.floor(Math.random() * 50),
+          media: ['https://via.placeholder.com/600x400'],
+          tags: ['sample', 'content', 'api']
+        };
 
-      return res.json({ success: true, content });
-    }
-
-    const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
-
-    let query = supabase
-      .from('content_items')
-      .select('*');
-
-    if (isUuid) {
-      query = query.eq('id', id).single();
-    } else {
-      const numericId = Number(id);
-      if (!Number.isNaN(numericId) && numericId > 0) {
-        query = query.order('posted_at', { ascending: false }).range(numericId - 1, numericId - 1).limit(1);
-      } else {
-        return res.status(400).json({ success: false, error: 'Invalid content identifier' });
+        return { success: true, content };
       }
-    }
 
-    const { data: contentRows, error } = await query;
+      const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
 
-    const content = Array.isArray(contentRows) ? contentRows[0] : contentRows;
+      let query = supabase
+        .from('content_items')
+        .select('*');
 
-    if (error || !content) {
-      console.error('Database error fetching content:', error || 'No content row');
-      return res.status(404).json({ success: false, error: 'Content not found' });
-    }
+      if (isUuid) {
+        query = query.eq('id', id).single();
+      } else {
+        const numericId = Number(id);
+        if (!Number.isNaN(numericId) && numericId > 0) {
+          query = query.order('posted_at', { ascending: false }).range(numericId - 1, numericId - 1).limit(1);
+        } else {
+          throw new Error('Invalid content identifier');
+        }
+      }
 
-    res.json({ success: true, content: buildContentResponse([content])[0] });
+      const queryStart = Date.now();
+      const { data: contentRows, error } = await query;
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[content:item:${id}] Supabase query took ${durationMs}ms`);
+      }
+
+      const content = Array.isArray(contentRows) ? contentRows[0] : contentRows;
+
+      if (error || !content) {
+        console.error('Database error fetching content:', error || 'No content row');
+        throw new Error('Content not found');
+      }
+
+      return { success: true, content: buildContentResponse([content])[0] };
+    }, DEFAULT_CACHE_TTL_MS);
+
+    res.json(payload);
   } catch (error) {
     console.error('Error fetching content item:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch content item' });
@@ -451,40 +507,46 @@ router.get('/:id/metrics', async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!supabase) {
-      // Mock metrics fallback
-      return res.json({
-        likes: Math.floor(Math.random() * 5000) + 100,
-        comments: Math.floor(Math.random() * 500) + 10,
-        shares: Math.floor(Math.random() * 200) + 5,
+    const cacheKey = `content:metrics:${id}`;
+    const metrics = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        return {
+          likes: Math.floor(Math.random() * 5000) + 100,
+          comments: Math.floor(Math.random() * 500) + 10,
+          shares: Math.floor(Math.random() * 200) + 5,
+          views: Math.floor(Math.random() * 50000) + 1000,
+          internal_moves: Math.floor(Math.random() * 100) + 5,
+          external_moves: Math.floor(Math.random() * 50) + 2,
+          total_engagement: Math.floor(Math.random() * 10000) + 500
+        };
+      }
+
+      const queryStart = Date.now();
+      const { data: actions, error } = await supabase
+        .from('social_actions')
+        .select('action_type, points_earned')
+        .eq('reference_id', id)
+        .eq('reference_type', 'content');
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[content:metrics:${id}] Supabase query took ${durationMs}ms`);
+      }
+
+      if (error) {
+        console.error('Database error fetching metrics:', error);
+        throw new Error('Failed to fetch metrics');
+      }
+
+      return {
+        likes: actions?.filter(a => a.action_type === 'like').length || 0,
+        comments: actions?.filter(a => a.action_type === 'comment').length || 0,
+        shares: actions?.filter(a => a.action_type === 'share').length || 0,
         views: Math.floor(Math.random() * 50000) + 1000,
         internal_moves: Math.floor(Math.random() * 100) + 5,
         external_moves: Math.floor(Math.random() * 50) + 2,
-        total_engagement: Math.floor(Math.random() * 10000) + 500
-      });
-    }
-
-    // Get social actions for this content
-    const { data: actions, error } = await supabase
-      .from('social_actions')
-      .select('action_type, points_earned')
-      .eq('reference_id', id)
-      .eq('reference_type', 'content');
-
-    if (error) {
-      console.error('Database error fetching metrics:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch metrics' });
-    }
-
-    const metrics = {
-      likes: actions?.filter(a => a.action_type === 'like').length || 0,
-      comments: actions?.filter(a => a.action_type === 'comment').length || 0,
-      shares: actions?.filter(a => a.action_type === 'share').length || 0,
-      views: Math.floor(Math.random() * 50000) + 1000, // Mock views since not tracked
-      internal_moves: Math.floor(Math.random() * 100) + 5,
-      external_moves: Math.floor(Math.random() * 50) + 2,
-      total_engagement: actions?.length || 0
-    };
+        total_engagement: actions?.length || 0
+      };
+    }, DEFAULT_CACHE_TTL_MS);
 
     res.json(metrics);
   } catch (error) {
@@ -1059,6 +1121,11 @@ router.post('/', async (req, res) => {
       userId
     });
 
+    invalidateCache('content:list');
+    invalidateCache('content:item');
+    invalidateCache('content:metrics');
+    invalidateCache('content:sponsored');
+
     return res.status(201).json({
       success: true,
       content: {
@@ -1084,6 +1151,11 @@ router.put('/:id', async (req, res) => {
     const updates = req.body || {};
 
     if (!supabase) {
+      invalidateCache('content:list');
+      invalidateCache('content:item');
+      invalidateCache('content:metrics');
+      invalidateCache('content:sponsored');
+
       return res.json({
         success: true,
         content: { id: parseInt(id), ...updates, updated_at: new Date().toISOString() },
@@ -1215,6 +1287,11 @@ router.put('/:id', async (req, res) => {
       conversions: updatedRecord.conversions
     }])[0];
 
+    invalidateCache('content:list');
+    invalidateCache('content:item');
+    invalidateCache('content:metrics');
+    invalidateCache('content:sponsored');
+
     res.json({
       success: true,
       content: {
@@ -1237,6 +1314,11 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     if (!supabase) {
+      invalidateCache('content:list');
+      invalidateCache('content:item');
+      invalidateCache('content:metrics');
+      invalidateCache('content:sponsored');
+
       return res.json({
         success: true,
         message: `Content ${id} deleted successfully`
@@ -1270,6 +1352,11 @@ router.delete('/:id', async (req, res) => {
       }
       return res.status(404).json({ success: false, error: 'Content not found' });
     }
+
+    invalidateCache('content:list');
+    invalidateCache('content:item');
+    invalidateCache('content:metrics');
+    invalidateCache('content:sponsored');
 
     res.json({ success: true, message: `Content ${id} deleted successfully` });
   } catch (error) {

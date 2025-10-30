@@ -29,7 +29,7 @@ export default function AuthCallback() {
 
           // Redirect to home after a short delay
           setTimeout(() => {
-            navigate('/home', { replace: true });
+            navigate('/dashboard', { replace: true });
           }, 1500);
 
         } catch (error) {
@@ -103,7 +103,7 @@ export default function AuthCallback() {
 
         <div className="space-y-3">
           <button
-            onClick={() => navigate('/home', { replace: true })}
+            onClick={() => navigate('/dashboard', { replace: true })}
             className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
           >
             Continue to App

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
+import { useAsyncData } from '../hooks/useAsyncData';
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -12,36 +13,199 @@ import {
   ChevronRight,
   Play,
   Sparkles,
-  Shield
+  Shield,
+  Share2,
+  Heart,
+  Clock,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
+
+// Components
+import { Button } from '../../components/ui/button';
+import { CardActionBar } from '../../components/ui/CardActionBar';
+import { FeatureCard } from '../components/FeatureCard';
+import { PageLoading } from '../components/PageLoading';
+import { SkeletonCard, SkeletonText, Skeleton } from '../components/Skeleton';
+
+// Types
+type StatsData = {
+  earners: number;
+  payout: number;
+  earnings: number;
+  activeCampaigns: number;
+  totalPayouts: number;
+};
+
+type Feature = {
+  id: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  payout: string;
+  bgColorClass: string;
+  textColorClass: string;
+};
+
+// Mock data fetch functions
+const fetchStats = async (): Promise<StatsData> => {
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    earners: 127 + Math.floor(Math.random() * 50),
+    payout: 0.3 + Math.random() * 0.5,
+    earnings: 12 + Math.floor(Math.random() * 10),
+    activeCampaigns: 24 + Math.floor(Math.random() * 10),
+    totalPayouts: 125000 + Math.floor(Math.random() * 50000)
+  };
+};
+
+const fetchFeatures = async (): Promise<Feature[]> => {
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  return [
+    {
+      id: 'tasks',
+      icon: <Zap className="w-8 h-8 text-blue-600" />,
+      title: "Complete Tasks",
+      description: "Micro-tasks and content creation",
+      payout: "$25 avg",
+      bgColorClass: "bg-blue-100",
+      textColorClass: "text-blue-600"
+    },
+    {
+      id: 'invest',
+      icon: <TrendingUp className="w-8 h-8 text-green-600" />,
+      title: "Invest in Content",
+      description: "Own shares of viral content",
+      payout: "12.5% ROI",
+      bgColorClass: "bg-green-100",
+      textColorClass: "text-green-600"
+    },
+    {
+      id: 'predictions',
+      icon: <Target className="w-8 h-8 text-purple-600" />,
+      title: "Social Predictions",
+      description: "Predict content performance",
+      payout: "87% win rate",
+      bgColorClass: "bg-purple-100",
+      textColorClass: "text-purple-600"
+    },
+    {
+      id: 'brands',
+      icon: <Users className="w-8 h-8 text-orange-600" />,
+      title: "Brand Partnerships",
+      description: "Collaborate with 500+ brands",
+      payout: "Fair compensation",
+      bgColorClass: "bg-orange-100",
+      textColorClass: "text-orange-600"
+    }
+  ];
+};
+
+// Error boundary component for the home page sections
+const HomeSection = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <section className={`py-16 ${className}`}>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {children}
+    </div>
+  </section>
+);
+
+// Loading state component for the stats counter
+const StatsLoading = () => (
+  <div className="flex flex-wrap justify-center gap-6 my-8">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg w-64">
+        <Skeleton className="h-6 w-3/4 mb-2" />
+        <Skeleton className="h-8 w-1/2" />
+      </div>
+    ))}
+  </div>
+);
+
+// Error state component
+const ErrorState = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
+  <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg my-6">
+    <div className="flex">
+      <div className="flex-shrink-0">
+        <AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" />
+      </div>
+      <div className="ml-3">
+        <p className="text-sm text-red-700">
+          Failed to load data: {error.message}
+        </p>
+        <div className="mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<RefreshCw className="w-4 h-4" />}
+            onClick={onRetry}
+            className="text-sm"
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function Home() {
   const { user, demoLogin, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeStats, setActiveStats] = useState({
-    earners: 127,
-    payout: 0.3,
-    earnings: 12
+  const [activeStats, setActiveStats] = useState<StatsData>({
+    earners: 0,
+    payout: 0,
+    earnings: 0,
+    activeCampaigns: 0,
+    totalPayouts: 0
   });
-
-  // Only redirect if user explicitly wants to go to authenticated area
-  // Don't automatically redirect authenticated users to /home
+  
+  // Fetch stats data with loading and error states
+  const {
+    data: stats,
+    loading: loadingStats,
+    error: statsError,
+    execute: refetchStats
+  } = useAsyncData(fetchStats, null, true);
+  
+  // Fetch features with loading and error states
+  const {
+    data: features,
+    loading: loadingFeatures,
+    error: featuresError,
+    execute: refetchFeatures
+  } = useAsyncData(fetchFeatures, null, true);
+  
+  // Animate stats counter when data loads
   useEffect(() => {
-    // No automatic redirect - let users choose to sign in or go to dashboard
-  }, [user, navigate]);
+    if (stats) {
+      setActiveStats(stats);
+    }
+  }, [stats]);
 
-  // Animate stats on load
   useEffect(() => {
+    if (!stats) return;
+
     const interval = setInterval(() => {
-      setActiveStats((prev: typeof activeStats) => ({
-        earners: prev.earners + Math.floor(Math.random() * 5),
-        payout: prev.payout + (Math.random() * 0.1),
-        earnings: prev.earnings + Math.floor(Math.random() * 3)
-      }));
-    }, 3000);
+      refetchStats().catch(console.error);
+    }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [stats, refetchStats]);
+  
+  // Handle demo login with loading state
+  const handleDemoLogin = useCallback(async (type: 'creator' | 'investor' | 'advertiser') => {
+    try {
+      await demoLogin[type]();
+    } catch (error) {
+      console.error('Demo login failed:', error);
+      // In a real app, you'd show an error toast/message here
+    }
+  }, [demoLogin]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -65,42 +229,43 @@ export default function Home() {
               {user ? (
                 // Authenticated user - show dashboard link and logout
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => navigate('/home')}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  <Button 
+                    onClick={() => navigate('/dashboard')}
+                    variant="primary"
+                    size="md"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
                   >
                     Go to Dashboard
-                  </button>
+                  </Button>
                   {/* Development logout button */}
-                  <button
+                  <Button
                     onClick={() => logout()}
-                    className="text-red-600 hover:text-red-800 font-medium transition-colors px-3 py-2 border border-red-200 rounded-lg hover:bg-red-50"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
                     title="Development logout (for testing)"
                   >
                     🚪 Logout
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 // Unauthenticated user - show sign in options
                 <>
-                  <button
-                    onClick={() => {
-                      console.log('Sign In clicked');
-                      navigate('/auth');
-                    }}
-                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                  <Button
+                    onClick={() => navigate('/auth')}
+                    variant="ghost"
+                    size="md"
                   >
                     Sign In
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log('Start Earning clicked');
-                      navigate('/auth');
-                    }}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  </Button>
+                  <Button
+                    onClick={() => navigate('/auth')}
+                    variant="primary"
+                    size="md"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
                   >
                     Start Earning
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -113,25 +278,37 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6">
               <span className="text-sm text-gray-600 font-medium">Quick Demo:</span>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => demoLogin.creator()}
-                  className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  onClick={() => handleDemoLogin('creator')}
+                  variant="outline"
+                  size="sm"
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                  isLoading={demoLogin.loading === 'creator'}
+                  loadingText="Loading..."
                 >
                   Creator Demo
-                </button>
-                <button
-                  onClick={() => demoLogin.investor()}
-                  className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-sm font-medium transition-colors"
+                </Button>
+                <Button
+                  onClick={() => handleDemoLogin('investor')}
+                  variant="outline"
+                  size="sm"
+                  className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+                  isLoading={demoLogin.loading === 'investor'}
+                  loadingText="Loading..."
                 >
                   Investor Demo
-                </button>
-                <button
-                  onClick={() => demoLogin.advertiser()}
-                  className="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg text-sm font-medium transition-colors"
+                </Button>
+                <Button
+                  onClick={() => handleDemoLogin('advertiser')}
+                  variant="outline"
+                  size="sm"
+                  className="bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
+                  isLoading={demoLogin.loading === 'advertiser'}
+                  loadingText="Loading..."
                 >
                   Advertiser Demo
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -185,30 +362,34 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               {user ? (
                 // Authenticated user - show dashboard button
-                <button
-                  onClick={() => navigate('/home')}
-                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  variant="primary"
+                  size="lg"
+                  rightIcon={<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                  className="group"
                 >
                   Go to Dashboard
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Button>
               ) : (
                 // Unauthenticated user - show sign up button
-                <button
-                  onClick={() => {
-                    console.log('Start Earning Today clicked');
-                    navigate('/auth');
-                  }}
-                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
+                <Button
+                  onClick={() => navigate('/auth')}
+                  variant="primary"
+                  size="lg"
+                  rightIcon={<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                  className="group"
                 >
                   Start Earning Today
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Button>
               )}
-              <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center hover:bg-gray-50">
-                <Play className="mr-2 w-5 h-5" />
+              <Button
+                variant="outline"
+                size="lg"
+                leftIcon={<Play className="w-5 h-5" />}
+              >
                 See How it Works
-              </button>
+              </Button>
             </div>
 
             {/* Live Earnings Ticker */}
@@ -329,54 +510,34 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Simplified Feature Cards */}
-            {[
-              {
-                icon: <Zap className="w-8 h-8 text-blue-600" />,
-                title: "Complete Tasks",
-                description: "Micro-tasks and content creation",
-                payout: "$25 avg",
-                bgColorClass: "bg-blue-100",
-                textColorClass: "text-blue-600"
-              },
-              {
-                icon: <TrendingUp className="w-8 h-8 text-green-600" />,
-                title: "Invest in Content",
-                description: "Own shares of viral content",
-                payout: "12.5% ROI",
-                bgColorClass: "bg-green-100",
-                textColorClass: "text-green-600"
-              },
-              {
-                icon: <Target className="w-8 h-8 text-purple-600" />,
-                title: "Social Predictions",
-                description: "Predict content performance",
-                payout: "87% win rate",
-                bgColorClass: "bg-purple-100",
-                textColorClass: "text-purple-600"
-              },
-              {
-                icon: <Users className="w-8 h-8 text-orange-600" />,
-                title: "Brand Partnerships",
-                description: "Collaborate with 500+ brands",
-                payout: "Fair compensation",
-                bgColorClass: "bg-orange-100",
-                textColorClass: "text-orange-600"
-              }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-                <div className={`${feature.bgColorClass} rounded-xl p-3 w-fit mb-4`}>
-                  {feature.icon}
+          {loadingFeatures ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <Skeleton className="w-12 h-12 rounded-xl mb-4" />
+                  <Skeleton className="h-6 w-3/4 mb-3" />
+                  <Skeleton className="h-4 w-full mb-4" />
+                  <Skeleton className="h-4 w-1/2" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 mb-4">{feature.description}</p>
-                <div className={`${feature.textColorClass} font-semibold text-sm`}>
-                  {feature.payout}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : featuresError ? (
+            <ErrorState error={featuresError} onRetry={refetchFeatures} />
+          ) : features ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature) => (
+                <FeatureCard
+                  key={feature.id}
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                  payout={feature.payout}
+                  bgColorClass={feature.bgColorClass}
+                  textColorClass={feature.textColorClass}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -532,7 +693,7 @@ export default function Home() {
             onClick={() => {
               console.log('Final CTA clicked');
               if (user) {
-                navigate('/home');
+                navigate('/dashboard');
               } else {
                 navigate('/auth');
               }

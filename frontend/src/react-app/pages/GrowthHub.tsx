@@ -99,10 +99,10 @@ interface SocialShieldPolicy {
 
 type FetchFallback<T> = T | (() => T);
 
-const resolveFallback = <T>(fallback: FetchFallback<T>): T =>
+const resolveFallback = <T,>(fallback: FetchFallback<T>): T =>
   typeof fallback === 'function' ? (fallback as () => T)() : fallback;
 
-const fetchWithFallback = async <T>(url: string, fallback: FetchFallback<T>): Promise<T> => {
+const fetchWithFallback = async <T,>(url: string, fallback: FetchFallback<T>): Promise<T> => {
   try {
     const response = await fetch(url, { credentials: 'include' });
     if (!response.ok) {

@@ -20,7 +20,7 @@ export default function ErrorPage() {
   }, [encodedData]);
 
   const handleGoHome = () => {
-    navigate('/home');
+    navigate('/dashboard');
   };
 
   const handleRefresh = () => {

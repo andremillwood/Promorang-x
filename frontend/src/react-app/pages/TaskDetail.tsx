@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { useAuth } from '../App';
 import { 
   ArrowLeft,
   Clock,
@@ -23,12 +22,18 @@ import UserLink from '@/react-app/components/UserLink';
 import EditDropModal from '@/react-app/components/EditDropModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import { DropType, DropApplicationType, UserType } from '@/shared/types';
-import { buildAuthHeaders } from '@/react-app/utils/api';
+import { buildAuthHeaders, apiFetch } from '@/react-app/utils/api';
 
 export default function TaskDetail() {
-  const { id } = useParams();
+  const { id, taskId, dropId } = useParams<{ id?: string; taskId?: string; dropId?: string }>();
+  const dropIdParam = dropId ?? taskId ?? id ?? null;
   const navigate = useNavigate();
-  const { } = useAuth();
+  const formatLabel = (value?: string | null, fallback = 'General') => {
+    const label = value && value.trim().length > 0 ? value : fallback;
+    return label
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
   const [drop, setDrop] = useState<DropType | null>(null);
   const [application, setApplication] = useState<DropApplicationType | null>(null);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -41,7 +46,7 @@ export default function TaskDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const USE_MOCK_DATA = !import.meta.env.VITE_API_BASE_URL;
+  const USE_MOCK_DATA = !import.meta.env.VITE_API_URL;
 
   const buildFallbackMasterKeyStatus = () => ({
     is_activated: true,
@@ -52,7 +57,7 @@ export default function TaskDetail() {
 
   const buildFallbackApplications = (): DropApplicationType[] => {
     const fallbackUserId = userData?.id ?? 'demo-user';
-    const dropIdKey = String(drop?.id ?? id ?? 'demo-drop');
+    const dropIdKey = String(drop?.id ?? dropIdParam ?? 'demo-drop');
     return [
       {
         id: 1,
@@ -80,13 +85,16 @@ export default function TaskDetail() {
                  drop?.description?.toLowerCase().includes('demo');
 
   useEffect(() => {
-    if (id) {
+    if (dropIdParam) {
       fetchDropDetail();
       checkApplication();
       fetchUserData();
       fetchMasterKeyStatus();
+    } else {
+      setLoading(false);
     }
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dropIdParam]);
 
   // Update creator status when both drop and userData are available
   useEffect(() => {
@@ -102,9 +110,14 @@ export default function TaskDetail() {
   }, [drop, userData]);
 
   const fetchDropDetail = async () => {
+    if (!dropIdParam) {
+      console.warn('No drop ID provided for TaskDetail route');
+      setLoading(false);
+      return;
+    }
     try {
-      console.log('Fetching drop detail for ID:', id);
-      const response = await fetch(`/api/drops/${id}`);
+      console.log('Fetching drop detail for ID:', dropIdParam);
+      const response = await apiFetch(`/api/drops/${dropIdParam}`);
       console.log('Drop detail response status:', response.status);
       
       if (response.ok) {
@@ -129,7 +142,7 @@ export default function TaskDetail() {
     try {
       const headers = buildAuthHeaders();
       // Fetch the database user data which contains the correct ID to match with creator_id
-      const response = await fetch('/api/users/me', {
+      const response = await apiFetch('/api/users/me', {
         credentials: 'include',
         headers
       });
@@ -152,7 +165,7 @@ export default function TaskDetail() {
 
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/master-key-status', {
+      const response = await apiFetch('/api/users/master-key-status', {
         credentials: 'include',
         headers,
       });
@@ -171,7 +184,7 @@ export default function TaskDetail() {
 
   const checkApplication = async () => {
     if (USE_MOCK_DATA) {
-      const dropIdKey = String(drop?.id ?? id ?? 'demo-drop');
+      const dropIdKey = String(drop?.id ?? dropIdParam ?? 'demo-drop');
       const fallbackApps = buildFallbackApplications();
       const existingApp = fallbackApps.find((app) => String(app.drop_id) === dropIdKey);
       setApplication(existingApp || null);
@@ -180,12 +193,12 @@ export default function TaskDetail() {
 
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/drop-applications', {
+      const response = await apiFetch('/api/users/drop-applications', {
         credentials: 'include',
         headers,
       });
 
-      const dropIdKey = String(drop?.id ?? id ?? '');
+      const dropIdKey = String(drop?.id ?? dropIdParam ?? '');
 
       if (response.ok) {
         const applications = await response.json();
@@ -204,7 +217,7 @@ export default function TaskDetail() {
       }
     } catch (error) {
       console.error('Failed to check application:', error);
-      const dropIdKey = String(drop?.id ?? id ?? '');
+      const dropIdKey = String(drop?.id ?? dropIdParam ?? '');
       const fallbackApps = buildFallbackApplications();
       const existingApp = fallbackApps.find((app) => String(app.drop_id) === dropIdKey);
       setApplication(existingApp || null);
@@ -217,7 +230,7 @@ export default function TaskDetail() {
 
     setApplying(true);
     try {
-      const response = await fetch(`/api/drops/${drop.id}/apply`, {
+      const response = await apiFetch(`/api/drops/${drop?.id ?? dropIdParam}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -300,7 +313,7 @@ export default function TaskDetail() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const response = await fetch(`/api/drops/${drop!.id}`, {
+      const response = await apiFetch(`/api/drops/${drop!.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -437,7 +450,7 @@ export default function TaskDetail() {
                 <div className="flex items-center space-x-3 mb-2">
                   <span className="text-3xl">{getDropTypeIcon(drop.drop_type)}</span>
                   <span className="text-white bg-black bg-opacity-30 px-3 py-1 rounded-full text-sm font-medium">
-                    {drop.drop_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    {formatLabel(drop.drop_type)}
                   </span>
                 </div>
                 <h1 className="text-3xl font-bold text-white drop-shadow-lg mb-1">{drop.title}</h1>

@@ -14,7 +14,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { PlatformSchema } from '@/shared/types';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 
 import { createErrorHandler } from '@/react-app/utils/errorHandler';
 

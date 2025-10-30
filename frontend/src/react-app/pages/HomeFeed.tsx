@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
+import { API_BASE_URL } from '../config';
 import {
   TrendingUp,
   DollarSign,
@@ -67,6 +68,18 @@ export default function HomeFeed() {
   const [predictContent, setPredictContent] = useState<ContentPieceType | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
+  const apiBase = useMemo(() => API_BASE_URL || '', []);
+  const withApiBase = (path: string) => `${apiBase}${path}`;
+
+  const profileSlug =
+    userData?.username ||
+    (userData?.email ? userData.email.split('@')[0] : undefined) ||
+    (user?.username ? String(user.username) : undefined) ||
+    (user?.email ? user.email.split('@')[0] : undefined) ||
+    'me';
+
+  const profilePath = `/profile/${encodeURIComponent(profileSlug)}`;
+
   useEffect(() => {
     fetchFeeds();
     fetchUserData();
@@ -90,7 +103,7 @@ export default function HomeFeed() {
     try {
       const authToken = localStorage.getItem('authToken');
       if (authToken) {
-        await fetch('/api/auth/logout', {
+        await fetch(withApiBase('/api/auth/logout'), {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${authToken}`,
@@ -118,10 +131,10 @@ export default function HomeFeed() {
       }
 
       const [contentResponse, dropsResponse, walletsResponse, sponsoredResponse] = await Promise.all([
-        fetch('/api/content', { headers }),
-        fetch('/api/drops?limit=10', { headers }),
-        fetch('/api/users/me/wallets', { headers, credentials: 'include' }),
-        fetch('/api/content/sponsored', { headers, credentials: 'include' })
+        fetch(withApiBase('/api/content'), { headers, credentials: 'include' }),
+        fetch(withApiBase('/api/drops?limit=10'), { headers, credentials: 'include' }),
+        fetch(withApiBase('/api/users/me/wallets'), { headers, credentials: 'include' }),
+        fetch(withApiBase('/api/content/sponsored'), { headers, credentials: 'include' })
       ]);
 
       if (contentResponse.ok) {
@@ -191,7 +204,7 @@ export default function HomeFeed() {
         'Authorization': `Bearer ${authToken}`,
       };
 
-      const response = await fetch('/api/auth/profile', { headers, credentials: 'include' });
+      const response = await fetch(withApiBase('/api/auth/profile'), { headers, credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setUserData(data.user);
@@ -486,7 +499,7 @@ export default function HomeFeed() {
             {/* Logo */}
             <div className="flex items-center">
               <button
-                onClick={() => navigate('/home')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
               >
                 <img
@@ -500,7 +513,7 @@ export default function HomeFeed() {
             {/* Main Navigation */}
             <div className="hidden md:flex items-center space-x-1">
               <button
-                onClick={() => navigate('/home')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
               >
                 <Home className="w-4 h-4" />
@@ -553,7 +566,7 @@ export default function HomeFeed() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <button
                       onClick={() => {
-                        navigate('/profile');
+                    navigate(profilePath);
                         setShowUserMenu(false);
                       }}
                       className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
@@ -607,7 +620,7 @@ export default function HomeFeed() {
         <div className="md:hidden border-t border-gray-200">
           <div className="px-4 py-3 flex justify-around">
             <button
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/dashboard')}
               className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
             >
               <Home className="w-5 h-5" />

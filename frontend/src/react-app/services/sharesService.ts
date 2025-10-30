@@ -1,6 +1,7 @@
 import { ShareListing, ShareOffer } from '@/shared/types';
+import { apiFetch } from '@/react-app/utils/api';
 
-const USE_MOCK_DATA = !import.meta.env.VITE_API_BASE_URL;
+const USE_MOCK_DATA = !import.meta.env.VITE_API_URL;
 
 const mockListings = (): ShareListing[] => [
   {
@@ -30,7 +31,7 @@ export const fetchShareListings = async (ownerOnly = false): Promise<ShareListin
 
   try {
     const query = ownerOnly ? '?owner=true' : '';
-    const response = await fetch(`/api/shares/listings${query}`, { credentials: 'include' });
+    const response = await apiFetch(`/api/shares/listings${query}`, { credentials: 'include' });
     if (!response.ok) {
       return mockListings();
     }
@@ -69,7 +70,7 @@ export const createShareListing = async (payload: CreateListingPayload) => {
     };
   }
 
-  const response = await fetch('/api/shares/listings', {
+  const response = await apiFetch('/api/shares/listings', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -110,7 +111,7 @@ export const createShareOffer = async (payload: CreateOfferPayload) => {
     };
   }
 
-  const response = await fetch('/api/shares/offers', {
+  const response = await apiFetch('/api/shares/offers', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -167,7 +168,7 @@ export const fetchShareOffers = async (role: 'seller' | 'buyer'): Promise<ShareO
   }
 
   try {
-    const response = await fetch(`/api/shares/offers?role=${role}`, { credentials: 'include' });
+    const response = await apiFetch(`/api/shares/offers?role=${role}`, { credentials: 'include' });
     if (!response.ok) {
       return mockOffers();
     }
@@ -184,7 +185,7 @@ export const acceptShareOffer = async (offerId: string) => {
     return { success: true, offer_id: offerId, message: 'Offer accepted (mock)' };
   }
 
-  const response = await fetch(`/api/shares/offers/${offerId}/accept`, {
+  const response = await apiFetch(`/api/shares/offers/${offerId}/accept`, {
     method: 'POST',
     credentials: 'include',
   });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
+import { API_BASE_URL } from '../config';
 import { Link, useNavigate, useParams } from 'react-router';
 import { 
   Edit3, 
@@ -43,6 +44,8 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const { user: authUser } = useAuth();
   const { username: urlUsername, id: urlUserId } = useParams();
   const navigate = useNavigate();
+  const apiBase = API_BASE_URL || '';
+  const withApiBase = (path: string) => `${apiBase}${path}`;
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -121,16 +124,16 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     if (!urlUsername && !urlUserId) return;
     
     try {
-      let apiUrl;
+      let apiPath;
       if (useUserId && urlUserId) {
-        apiUrl = `/api/users/public/id/${urlUserId}`;
+        apiPath = `/api/users/public/id/${urlUserId}`;
       } else if (urlUsername) {
-        apiUrl = `/api/users/public/${urlUsername}`;
+        apiPath = `/api/users/public/${urlUsername}`;
       } else {
         throw new Error('No user identifier provided');
       }
       
-      const response = await fetch(apiUrl);
+      const response = await fetch(withApiBase(apiPath));
       if (!response.ok) {
         throw new Error('User not found');
       }
@@ -175,7 +178,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     if (!contentToDelete) return;
 
     try {
-      const response = await fetch(`/api/content/${contentToDelete.id}`, {
+      const response = await fetch(withApiBase(`/api/content/${contentToDelete.id}`), {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -215,7 +218,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
         headers['Authorization'] = `Bearer ${authToken}`;
       }
 
-      const response = await fetch('/api/auth/profile', { headers, credentials: 'include' });
+      const response = await fetch(withApiBase('/api/auth/profile'), { headers, credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -249,7 +252,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setContentLoading(true);
     try {
-      const response = await fetch(`/api/users/${user.id}/content`, {
+      const response = await fetch(withApiBase(`/api/users/${user.id}/content`), {
         credentials: 'include'
       });
       if (response.ok) {
@@ -286,7 +289,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setDropsLoading(true);
     try {
-      const response = await fetch(`/api/users/${user.id}/drops`, {
+      const response = await fetch(withApiBase(`/api/users/${user.id}/drops`), {
         credentials: 'include'
       });
       if (response.ok) {
@@ -323,7 +326,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setApplicationsLoading(true);
     try {
-      const response = await fetch('/api/users/drop-applications', {
+      const response = await fetch(withApiBase('/api/users/drop-applications'), {
         credentials: 'include'
       });
       if (response.ok) {
@@ -353,7 +356,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     }
 
     try {
-      const response = await fetch(`/api/users/${userId}/leaderboard-position`, {
+      const response = await fetch(withApiBase(`/api/users/${userId}/leaderboard-position`), {
         credentials: 'include'
       });
       if (response.ok) {

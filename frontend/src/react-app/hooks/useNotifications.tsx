@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from './useAuth';
 
 interface NotificationHook {
   unreadCount: number;

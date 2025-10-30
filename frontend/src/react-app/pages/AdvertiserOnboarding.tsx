@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import { 
   Megaphone, 

@@ -1,6 +1,7 @@
 import { ContentHolding, PredictionSummary, ContentHoldingDetail, PredictionDetail } from '@/shared/types';
+import { apiFetch } from '@/react-app/utils/api';
 
-const USE_MOCK_DATA = !import.meta.env.VITE_API_BASE_URL;
+const USE_MOCK_DATA = !import.meta.env.VITE_API_URL;
 
 const fallbackHoldings = (): ContentHolding[] => [
   {
@@ -191,7 +192,7 @@ export const getPortfolioHoldings = async (userId?: string): Promise<ContentHold
 
   try {
     const params = userId ? `?userId=${encodeURIComponent(userId)}` : '';
-    const response = await fetch(`/api/portfolio/holdings${params}`, { credentials: 'include' });
+    const response = await apiFetch(`/api/portfolio/holdings${params}`, { credentials: 'include' });
     if (!response.ok) {
       return fallbackHoldings();
     }
@@ -210,7 +211,7 @@ export const getPortfolioPredictions = async (userId?: string): Promise<Predicti
 
   try {
     const params = userId ? `?userId=${encodeURIComponent(userId)}` : '';
-    const response = await fetch(`/api/portfolio/predictions${params}`, { credentials: 'include' });
+    const response = await apiFetch(`/api/portfolio/predictions${params}`, { credentials: 'include' });
     if (!response.ok) {
       return fallbackPredictions();
     }
@@ -229,7 +230,7 @@ export const getHoldingDetail = async (contentId: string, userId?: string): Prom
 
   try {
     const params = userId ? `?userId=${encodeURIComponent(userId)}` : '';
-    const response = await fetch(`/api/portfolio/holdings/${contentId}${params}`, {
+    const response = await apiFetch(`/api/portfolio/holdings/${contentId}${params}`, {
       credentials: 'include',
     });
     if (!response.ok) {
@@ -248,7 +249,7 @@ export const getPredictionDetail = async (predictionId: string): Promise<Predict
   }
 
   try {
-    const response = await fetch(`/api/portfolio/predictions/${predictionId}`, {
+    const response = await apiFetch(`/api/portfolio/predictions/${predictionId}`, {
       credentials: 'include',
     });
     if (!response.ok) {

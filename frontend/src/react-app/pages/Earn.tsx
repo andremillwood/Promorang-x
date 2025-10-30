@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 import { 
   Plus, 
   Search, 
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import { DropType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
-import { buildAuthHeaders } from '@/react-app/utils/api';
+import { buildAuthHeaders, apiFetch } from '@/react-app/utils/api';
 
 interface CreateDropRequestType {
   title: string;
@@ -69,7 +69,7 @@ export default function Earn() {
   const fetchUserData = async () => {
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/me', {
+      const response = await apiFetch('/api/users/me', {
         credentials: 'include',
         headers
       });
@@ -84,7 +84,7 @@ export default function Earn() {
 
   const fetchDrops = async () => {
     try {
-      const response = await fetch('/api/drops');
+      const response = await apiFetch('/api/drops');
       const data = await response.json();
       setDrops(data);
     } catch (error) {
@@ -95,10 +95,17 @@ export default function Earn() {
   };
 
   const filteredDrops = drops.filter(drop => {
-    const matchesSearch = drop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         drop.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDropType = !selectedDropType || drop.drop_type === selectedDropType;
-    const matchesDifficulty = !selectedDifficulty || drop.difficulty === selectedDifficulty;
+    const title = drop.title || '';
+    const description = drop.description || '';
+    const dropType = drop.drop_type || '';
+    const difficulty = drop.difficulty || '';
+
+    const matchesSearch =
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDropType = !selectedDropType || dropType === selectedDropType;
+    const matchesDifficulty = !selectedDifficulty || difficulty === selectedDifficulty;
     
     return matchesSearch && matchesDropType && matchesDifficulty;
   });
@@ -206,16 +213,23 @@ export default function Earn() {
   );
 }
 
+const formatLabel = (value?: string | null, fallback = 'General') => {
+  const label = value && value.trim().length > 0 ? value : fallback;
+  return label
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 function DropCard({ drop }: { drop: DropType }) {
   const navigate = useNavigate();
   
-  const getDropTypeImage = (dropType: string) => {
+  const getDropTypeImage = (dropType?: string | null) => {
     // Use the drop's content_url if available, otherwise fallback to default images
     if (drop?.content_url) {
       return drop.content_url;
     }
-    
-    switch (dropType) {
+    const type = (dropType || '').toLowerCase();
+    switch (type) {
       case 'content_clipping': return 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop';
       case 'reviews': return 'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=400&h=250&fit=crop';
       case 'ugc_creation': return 'https://images.unsplash.com/photo-1558403194-611308249627?w=400&h=250&fit=crop';
@@ -236,8 +250,8 @@ function DropCard({ drop }: { drop: DropType }) {
                  drop.title?.toLowerCase().includes('demo') ||
                  drop.description?.toLowerCase().includes('demo');
 
-  const getDropTypeIcon = (dropType: string) => {
-    switch (dropType) {
+  const getDropTypeIcon = (dropType?: string | null) => {
+    switch (dropType || '') {
       case 'content_clipping': return '✂️';
       case 'reviews': return '⭐';
       case 'ugc_creation': return '🎨';
@@ -248,8 +262,8 @@ function DropCard({ drop }: { drop: DropType }) {
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
+  const getDifficultyColor = (difficulty?: string | null) => {
+    switch ((difficulty || '').toLowerCase()) {
       case 'easy': return 'text-green-600 bg-green-100';
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'hard': return 'text-red-600 bg-red-100';
@@ -340,7 +354,7 @@ function DropCard({ drop }: { drop: DropType }) {
         <h3 className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-orange-600 transition-colors" onClick={handleDropClick}>
           {drop.title}
         </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{drop.description}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{drop.description || 'No description available.'}</p>
 
         <div className="mb-4">
           <UserLink 
@@ -382,14 +396,14 @@ function DropCard({ drop }: { drop: DropType }) {
           {drop.gem_pool_total > 0 && (
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <Diamond className="w-4 h-4" />
-              <span>{drop.gem_pool_remaining} gems remaining in pool</span>
+            <span>{drop.gem_pool_remaining ?? drop.gem_pool_total} gems remaining in pool</span>
             </div>
           )}
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            {drop.drop_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          <span className={`text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full ${getDifficultyColor(drop.difficulty)}`}>
+            {formatLabel(drop.drop_type)}
           </span>
           <div className="flex space-x-2">
             <button
@@ -512,7 +526,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       });
 
       // Upload to backend
-      const response = await fetch('/api/content/upload-image', {
+      const response = await apiFetch('/api/content/upload-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -572,7 +586,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       }
       
       // Submit the form data
-      const response = await fetch('/api/drops', {
+      const response = await apiFetch('/api/drops', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

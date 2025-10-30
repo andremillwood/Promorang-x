@@ -2,6 +2,34 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../lib/supabase');
 
+const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
+const cacheStore = new Map();
+
+const getCachedValue = async (key, fetcher, ttl = DEFAULT_CACHE_TTL_MS) => {
+  const now = Date.now();
+  const cached = cacheStore.get(key);
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
+  const value = await fetcher();
+  if (value !== undefined) {
+    cacheStore.set(key, {
+      value,
+      expiresAt: now + ttl
+    });
+  }
+  return value;
+};
+
+const invalidateCache = (prefix) => {
+  for (const key of cacheStore.keys()) {
+    if (key.startsWith(prefix)) {
+      cacheStore.delete(key);
+    }
+  }
+};
+
 // Mock auth middleware
 const authMiddleware = (req, res, next) => {
   req.user = { id: 'mock-user-id', email: 'user@example.com' };
@@ -15,15 +43,16 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
   try {
     const { limit = 10, type } = req.query;
+    const cacheKey = `drops:list:${limit}:${type || 'all'}`;
 
-    if (!supabase) {
-      // Fallback to mock data
-      const drops = Array.from({ length: parseInt(limit) }, (_, i) => ({
-        id: i + 1,
-        creator_id: Math.floor(Math.random() * 100) + 1,
-        creator_name: `Drop Creator ${i + 1}`,
-        creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${i + 1}`,
-        title: `Earn ${Math.floor(Math.random() * 100) + 10} Gems - ${['Instagram Post', 'TikTok Video', 'YouTube Review', 'Twitter Thread'][Math.floor(Math.random() * 4)]}`,
+    const drops = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        return Array.from({ length: parseInt(limit) }, (_, i) => ({
+          id: i + 1,
+          creator_id: Math.floor(Math.random() * 100) + 1,
+          creator_name: `Drop Creator ${i + 1}`,
+          creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${i + 1}`,
+          title: `Earn ${Math.floor(Math.random() * 100) + 10} Gems - ${['Instagram Post', 'TikTok Video', 'YouTube Review', 'Twitter Thread'][Math.floor(Math.random() * 4)]}`,
         description: `Complete this task to earn gems and boost your profile. ${['Share your experience', 'Create engaging content', 'Review a product', 'Participate in discussion'][Math.floor(Math.random() * 4)]} and get rewarded!`,
         drop_type: ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral'][Math.floor(Math.random() * 4)],
         difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)],
@@ -49,30 +78,36 @@ router.get('/', async (req, res) => {
         is_paid_drop: Math.random() > 0.5,
         created_at: new Date(Date.now() - i * 3600000).toISOString(),
         updated_at: new Date(Date.now() - i * 3600000).toISOString()
-      }));
+        }));
+      }
 
-      return res.json(drops);
-    }
+      let query = supabase
+        .from('drops')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(parseInt(limit));
 
-    let query = supabase
-      .from('drops')
-      .select('*')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(parseInt(limit));
+      if (type) {
+        query = query.eq('drop_type', type);
+      }
 
-    if (type) {
-      query = query.eq('drop_type', type);
-    }
+      const queryStart = Date.now();
+      const { data: rows, error } = await query;
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[drops:list] Supabase query took ${durationMs}ms`);
+      }
 
-    const { data: drops, error } = await query;
+      if (error) {
+        console.error('Database error fetching drops:', error);
+        throw new Error('Failed to fetch drops');
+      }
 
-    if (error) {
-      console.error('Database error fetching drops:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch drops' });
-    }
+      return rows || [];
+    });
 
-    res.json(drops || []);
+    res.json(drops);
   } catch (error) {
     console.error('Error fetching drops:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch drops' });
@@ -84,56 +119,63 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!supabase) {
-      // Mock single drop data
-      const drop = {
-        id: parseInt(id),
-        creator_id: Math.floor(Math.random() * 100) + 1,
-        creator_name: `Drop Creator ${id}`,
-        creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${id}`,
-        title: `Special Drop #${id}`,
-        description: `This is a detailed description of drop ${id}. Complete this task to earn rewards!`,
-        drop_type: 'content_clipping',
-        difficulty: 'medium',
-        key_cost: 5,
-        gem_reward_base: 25,
-        gem_pool_total: 250,
-        gem_pool_remaining: 150,
-        reward_logic: 'completion_based',
-        follower_threshold: 100,
-        time_commitment: '30 minutes',
-        requirements: 'Complete the task and submit proof',
-        deliverables: 'Screenshot or link',
-        deadline_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        max_participants: 20,
-        current_participants: 8,
-        status: 'active',
-        platform: 'instagram',
-        content_url: `https://example.com/drop/${id}`,
-        preview_image: `https://images.unsplash.com/photo-${1503376780200 + parseInt(id, 10)}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=drop-${id}`,
-        move_cost_points: 2,
-        key_reward_amount: 3,
-        is_proof_drop: false,
-        is_paid_drop: true,
-        created_at: new Date(Date.now() - parseInt(id) * 3600000).toISOString(),
-        updated_at: new Date(Date.now() - parseInt(id) * 3600000).toISOString()
-      };
+    const cacheKey = `drops:item:${id}`;
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        return {
+          id: parseInt(id),
+          creator_id: Math.floor(Math.random() * 100) + 1,
+          creator_name: `Drop Creator ${id}`,
+          creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${id}`,
+          title: `Special Drop #${id}`,
+          description: `This is a detailed description of drop ${id}. Complete this task to earn rewards!`,
+          drop_type: 'content_clipping',
+          difficulty: 'medium',
+          key_cost: 5,
+          gem_reward_base: 25,
+          gem_pool_total: 250,
+          gem_pool_remaining: 150,
+          reward_logic: 'completion_based',
+          follower_threshold: 100,
+          time_commitment: '30 minutes',
+          requirements: 'Complete the task and submit proof',
+          deliverables: 'Screenshot or link',
+          deadline_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+          max_participants: 20,
+          current_participants: 8,
+          status: 'active',
+          platform: 'instagram',
+          content_url: `https://example.com/drop/${id}`,
+          preview_image: `https://images.unsplash.com/photo-${1503376780200 + parseInt(id, 10)}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=drop-${id}`,
+          move_cost_points: 2,
+          key_reward_amount: 3,
+          is_proof_drop: false,
+          is_paid_drop: true,
+          created_at: new Date(Date.now() - parseInt(id) * 3600000).toISOString(),
+          updated_at: new Date(Date.now() - parseInt(id) * 3600000).toISOString()
+        };
+      }
 
-      return res.json(drop);
-    }
+      const queryStart = Date.now();
+      const { data: drop, error } = await supabase
+        .from('drops')
+        .select('*')
+        .eq('id', id)
+        .single();
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[drops:item:${id}] Supabase query took ${durationMs}ms`);
+      }
 
-    const { data: drop, error } = await supabase
-      .from('drops')
-      .select('*')
-      .eq('id', id)
-      .single();
+      if (error) {
+        console.error('Database error fetching drop:', error);
+        throw new Error('Drop not found');
+      }
 
-    if (error) {
-      console.error('Database error fetching drop:', error);
-      return res.status(404).json({ success: false, error: 'Drop not found' });
-    }
+      return drop;
+    });
 
-    res.json(drop);
+    res.json(payload);
   } catch (error) {
     console.error('Error fetching drop:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch drop' });
@@ -241,6 +283,9 @@ router.post('/:id/apply', async (req, res) => {
       console.error('Database error updating participant count:', updateError);
     }
 
+    invalidateCache('drops:list');
+    invalidateCache(`drops:item:${id}`);
+
     res.json({
       success: true,
       application,
@@ -285,6 +330,9 @@ router.post('/', async (req, res) => {
     }
 
     if (!supabase) {
+      invalidateCache('drops:list');
+      invalidateCache('drops:item');
+
       return res.status(201).json({
         success: true,
         drop: {
@@ -342,6 +390,9 @@ router.post('/', async (req, res) => {
       console.error('Database error creating drop:', error);
       return res.status(500).json({ success: false, error: 'Failed to create drop' });
     }
+
+    invalidateCache('drops:list');
+    invalidateCache('drops:item');
 
     res.status(201).json({
       success: true,

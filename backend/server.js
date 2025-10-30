@@ -1,17 +1,70 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
+// Security middleware
+app.use(helmet());
+
+// CORS middleware with preflight handling
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ];
+  
+  const origin = req.headers.origin;
+  
+  // Always set CORS headers
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'unknown origin'}`);
+  next();
+});
+
+// Parse JSON bodies with error handling
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    try {
+      req.rawBody = buf.toString();
+    } catch (e) {
+      console.error('Error parsing JSON body:', e);
+    }
+  }
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+
+// Parse URL-encoded bodies with error handling
+app.use(express.urlencoded({
+  extended: true,
+  limit: '10mb',
+  parameterLimit: 1000000
+}));
+
+// Log request body for debugging
+app.use((req, res, next) => {
+  console.log('Request body:', req.body);
+  next();
+});
 
 // Mock supabase for development
 global.supabase = null;
@@ -28,6 +81,9 @@ app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/shares', require('./api/shares'));
 app.use('/api/placeholder', require('./api/placeholder'));
 
+// Demo login endpoint (bypasses default body parser)
+app.use('/api/demo', require('./api/demo-login'));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -35,6 +91,53 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'promorang-api-dev'
   });
+});
+
+// Simple demo login endpoint
+app.post('/api/demo-login', (req, res) => {
+  try {
+    console.log('Demo login request received');
+    
+    // Create a demo user response
+    const demoUser = {
+      id: 'demo-creator-id',
+      email: 'creator@demo.com',
+      username: 'demo_creator',
+      display_name: 'Demo Creator',
+      user_type: 'creator',
+      points_balance: 1000,
+      keys_balance: 50,
+      gems_balance: 100,
+      gold_collected: 0,
+      user_tier: 'free'
+    };
+    
+    // Generate JWT token
+    const jwt = require('jsonwebtoken');
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+    const token = jwt.sign(
+      {
+        id: demoUser.id,
+        email: demoUser.email,
+        username: demoUser.username,
+        user_type: demoUser.user_type
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      success: true,
+      user: demoUser,
+      token
+    });
+  } catch (error) {
+    console.error('Error in demo login:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to process demo login'
+    });
+  }
 });
 
 // 404 handler
@@ -54,7 +157,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = 3001; // Hardcoded to ensure it runs on 3001
 app.listen(PORT, () => {
   console.log(`🚀 Promorang API development server running on port ${PORT}`);
   console.log(`📡 Frontend URL: http://localhost:5173`);

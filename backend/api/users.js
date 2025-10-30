@@ -3,6 +3,34 @@ const router = express.Router();
 const supabase = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
 
+const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
+const cacheStore = new Map();
+
+const getCachedValue = async (key, fetcher, ttl = DEFAULT_CACHE_TTL_MS) => {
+  const now = Date.now();
+  const cached = cacheStore.get(key);
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
+  const value = await fetcher();
+  if (value !== undefined) {
+    cacheStore.set(key, {
+      value,
+      expiresAt: now + ttl
+    });
+  }
+  return value;
+};
+
+const invalidateCache = (prefix) => {
+  for (const key of cacheStore.keys()) {
+    if (key.startsWith(prefix)) {
+      cacheStore.delete(key);
+    }
+  }
+};
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 const createDemoWallet = (userId, balance = 0) => ({
@@ -91,26 +119,33 @@ const fetchWalletsForUser = async (userId) => {
     return [createDemoWallet('demo', 0)];
   }
 
-  if (!supabase) {
-    return [createDemoWallet(userId, 250.75)];
-  }
+  return getCachedValue(`users:${userId}:wallets`, async () => {
+    if (!supabase || process.env.USE_DEMO_WALLETS === 'true') {
+      return [createDemoWallet(userId, 250.75)];
+    }
 
-  const { data, error } = await supabase
-    .from('wallets')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    const queryStart = Date.now();
+    const { data, error } = await supabase
+      .from('wallets')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    const durationMs = Date.now() - queryStart;
+    if (durationMs > 250) {
+      console.log(`[users:wallets:${userId}] Supabase query took ${durationMs}ms`);
+    }
 
-  if (error) {
-    console.error('Database error fetching wallets:', error);
-    return [createDemoWallet(userId, 250.75)];
-  }
+    if (error) {
+      console.error('Database error fetching wallets:', error);
+      return [createDemoWallet(userId, 250.75)];
+    }
 
-  if (!data || data.length === 0) {
-    return [createDemoWallet(userId, 0)];
-  }
+    if (!data || data.length === 0) {
+      return [createDemoWallet(userId, 0)];
+    }
 
-  return data;
+    return data;
+  });
 };
 
 const fetchTransactionsForUser = async (userId) => {
@@ -118,23 +153,30 @@ const fetchTransactionsForUser = async (userId) => {
     return [createDemoTransaction('demo')];
   }
 
-  if (!supabase) {
-    return [createDemoTransaction(userId, { amount: 50 })];
-  }
+  return getCachedValue(`users:${userId}:transactions`, async () => {
+    if (!supabase || process.env.USE_DEMO_TRANSACTIONS === 'true') {
+      return [createDemoTransaction(userId, { amount: 50 })];
+    }
 
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(20);
+    const queryStart = Date.now();
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    const durationMs = Date.now() - queryStart;
+    if (durationMs > 250) {
+      console.log(`[users:transactions:${userId}] Supabase query took ${durationMs}ms`);
+    }
 
-  if (error) {
-    console.error('Database error fetching transactions:', error);
-    return [createDemoTransaction(userId)];
-  }
+    if (error) {
+      console.error('Database error fetching transactions:', error);
+      return [createDemoTransaction(userId)];
+    }
 
-  return data || [];
+    return data || [];
+  });
 };
 
 const generateToken = (user) => {
@@ -299,38 +341,46 @@ router.get('/me', async (req, res) => {
       return res.json(profile);
     }
 
-    // Query user from database
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', req.user.id)
-      .single();
-
-    if (error || !user) {
-      if (error) {
-        console.error('Database error fetching user:', error);
+    const cacheKey = `users:profile:${req.user.id}`;
+    const profile = await getCachedValue(cacheKey, async () => {
+      // Query user from database
+      const queryStart = Date.now();
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', req.user.id)
+        .single();
+      const durationMs = Date.now() - queryStart;
+      if (durationMs > 250) {
+        console.log(`[users:profile:${req.user.id}] Supabase query took ${durationMs}ms`);
       }
 
-      const fallbackUser = {
-        id: req.user.id,
-        email: req.user.email,
-        username: req.user.username,
-        display_name: req.user.display_name || req.user.username || 'Demo User',
-        user_type: req.user.user_type || 'creator',
-        points_balance: req.user.points_balance ?? 0,
-        keys_balance: req.user.keys_balance ?? 0,
-        gems_balance: req.user.gems_balance ?? 0,
-        gold_collected: req.user.gold_collected ?? 0,
-        user_tier: req.user.user_tier || 'free',
-        avatar_url: req.user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      if (error || !user) {
+        if (error) {
+          console.error('Database error fetching user:', error);
+        }
 
-      return res.json(fallbackUser);
-    }
+        return {
+          id: req.user.id,
+          email: req.user.email,
+          username: req.user.username,
+          display_name: req.user.display_name || req.user.username || 'Demo User',
+          user_type: req.user.user_type || 'creator',
+          points_balance: req.user.points_balance ?? 0,
+          keys_balance: req.user.keys_balance ?? 0,
+          gems_balance: req.user.gems_balance ?? 0,
+          gold_collected: req.user.gold_collected ?? 0,
+          user_tier: req.user.user_tier || 'free',
+          avatar_url: req.user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      }
 
-    res.json(user);
+      return user;
+    });
+
+    res.json(profile);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch user data' });
@@ -352,6 +402,132 @@ router.get('/me/wallets', async (req, res) => {
   } catch (error) {
     console.error('Error fetching wallets:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch wallet data' });
+  }
+});
+
+router.get('/master-key-status', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    if (!supabase || process.env.USE_DEMO_MASTER_KEYS === 'true') {
+      return res.json({
+        success: true,
+        status: {
+          has_master_key: true,
+          last_issued_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+          expires_at: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
+          remaining_daily_uses: 3,
+          total_daily_uses: 5
+        }
+      });
+    }
+
+    const queryStart = Date.now();
+    const { data, error } = await supabase
+      .from('master_keys')
+      .select('*')
+      .eq('user_id', userId)
+      .order('issued_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const durationMs = Date.now() - queryStart;
+    if (durationMs > 250) {
+      console.log(`[users:master-key-status:${userId}] Supabase query took ${durationMs}ms`);
+    }
+
+    if (error) {
+      console.error('Database error fetching master key status:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch master key status' });
+    }
+
+    if (!data) {
+      return res.json({
+        success: true,
+        status: {
+          has_master_key: false,
+          last_issued_at: null,
+          expires_at: null,
+          remaining_daily_uses: 0,
+          total_daily_uses: 0
+        }
+      });
+    }
+
+    const remainingDailyUses = Math.max((data.daily_limit || 5) - (data.uses_today || 0), 0);
+
+    res.json({
+      success: true,
+      status: {
+        has_master_key: true,
+        last_issued_at: data.issued_at,
+        expires_at: data.expires_at,
+        remaining_daily_uses: remainingDailyUses,
+        total_daily_uses: data.daily_limit || 5
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching master key status:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch master key status' });
+  }
+});
+
+router.get('/:id/leaderboard-position', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!supabase || process.env.USE_DEMO_LEADERBOARD === 'true') {
+      return res.json({
+        success: true,
+        leaderboard_position: {
+          user_id: id,
+          daily_rank: Math.floor(Math.random() * 100) + 1,
+          weekly_rank: Math.floor(Math.random() * 120) + 1,
+          monthly_rank: Math.floor(Math.random() * 150) + 1,
+          composite_score: Number((Math.random() * 100).toFixed(1)),
+          points_earned: Math.floor(Math.random() * 5000),
+          gems_earned: Math.floor(Math.random() * 500),
+          keys_used: Math.floor(Math.random() * 40),
+          gold_collected: Math.floor(Math.random() * 200),
+        },
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('leaderboard_positions')
+      .select('*')
+      .eq('user_id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Database error fetching leaderboard position:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch leaderboard position' });
+    }
+
+    if (!data) {
+      return res.json({
+        success: true,
+        leaderboard_position: {
+          user_id: id,
+          daily_rank: null,
+          weekly_rank: null,
+          monthly_rank: null,
+          composite_score: 0,
+          points_earned: 0,
+          gems_earned: 0,
+          keys_used: 0,
+          gold_collected: 0,
+        },
+      });
+    }
+
+    res.json({ success: true, leaderboard_position: data });
+  } catch (error) {
+    console.error('Error fetching leaderboard position:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch leaderboard position' });
   }
 });
 

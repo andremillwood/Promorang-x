@@ -2,6 +2,28 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
+const { Readable } = require('stream');
+
+// Custom body parser middleware to handle raw body
+const rawBodyMiddleware = (req, res, next) => {
+  let data = '';
+  req.on('data', chunk => {
+    data += chunk;
+  });
+  req.on('end', () => {
+    try {
+      if (data) {
+        req.rawBody = data;
+        req.body = data ? JSON.parse(data) : {};
+      }
+      next();
+    } catch (error) {
+      console.error('Error parsing request body:', error);
+      req.body = {};
+      next();
+    }
+  });
+};
 
 // JWT secret - in production, this should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -435,11 +457,31 @@ router.get('/oauth/google/url', async (req, res) => {
 });
 
 // Demo login endpoints for easy testing
-router.post('/demo/creator', async (req, res) => {
+router.post('/demo/creator', rawBodyMiddleware, async (req, res) => {
   try {
+    // Log the request body for debugging
+    console.log('Demo creator login request received');
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      process.env.FRONTEND_URL,
+      process.env.LOCAL_DEV_URL
+    ].filter(Boolean);
+
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
+    const demoAccount = DEMO_ACCOUNTS[0];
+
     if (!supabase) {
-      // Fallback when Supabase is not available
-      const demoAccount = DEMO_ACCOUNTS[0];
       const token = generateToken({
         id: 'demo-creator-id',
         email: demoAccount.email,
@@ -453,7 +495,14 @@ router.post('/demo/creator', async (req, res) => {
         user_tier: 'free'
       });
 
-      return res.json({
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return res.status(200).json({
         success: true,
         user: {
           id: 'demo-creator-id',
@@ -470,8 +519,6 @@ router.post('/demo/creator', async (req, res) => {
         token
       });
     }
-
-    const demoAccount = DEMO_ACCOUNTS[0];
 
     let { data: user, error: userError } = await supabase
       .from('users')
@@ -541,7 +588,7 @@ router.post('/demo/investor', async (req, res) => {
     if (!supabase) {
       // Fallback when Supabase is not available
       const demoAccount = DEMO_ACCOUNTS[1];
-      const token = generateToken({
+      const demoToken = generateToken({
         id: 'demo-investor-id',
         email: demoAccount.email,
         username: demoAccount.username,
@@ -552,6 +599,13 @@ router.post('/demo/investor', async (req, res) => {
         gems_balance: 500,
         gold_collected: 25,
         user_tier: 'premium'
+      });
+
+      res.cookie('auth_token', demoToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
       });
 
       return res.json({
@@ -568,7 +622,7 @@ router.post('/demo/investor', async (req, res) => {
           gold_collected: 25,
           user_tier: 'premium'
         },
-        token
+        token: demoToken
       });
     }
 
@@ -642,7 +696,7 @@ router.post('/demo/advertiser', async (req, res) => {
     if (!supabase) {
       // Fallback when Supabase is not available
       const demoAccount = DEMO_ACCOUNTS[2];
-      const token = generateToken({
+      const demoToken = generateToken({
         id: 'demo-advertiser-id',
         email: demoAccount.email,
         username: demoAccount.username,
@@ -653,6 +707,13 @@ router.post('/demo/advertiser', async (req, res) => {
         gems_balance: 2000,
         gold_collected: 100,
         user_tier: 'super'
+      });
+
+      res.cookie('auth_token', demoToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
       });
 
       return res.json({
@@ -669,7 +730,7 @@ router.post('/demo/advertiser', async (req, res) => {
           gold_collected: 100,
           user_tier: 'super'
         },
-        token
+        token: demoToken
       });
     }
 
@@ -790,6 +851,99 @@ router.post('/logout', (req, res) => {
     success: true,
     message: 'Logged out successfully'
   });
+});
+
+// Get current user's profile
+router.get('/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'No token provided' 
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // If this is one of our demo accounts, return the seeded profile without touching Supabase.
+    const demoAccount = DEMO_ACCOUNTS.find(account => account.email === decoded.email);
+    if (demoAccount) {
+      return res.json({
+        success: true,
+        user: {
+          id: decoded.id || `demo-${demoAccount.user_type}-id`,
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: decoded.points_balance || 1000,
+          keys_balance: decoded.keys_balance || 50,
+          gems_balance: decoded.gems_balance || 100,
+          gold_collected: decoded.gold_collected || 0,
+          user_tier: decoded.user_tier || 'free',
+          avatar_url: decoded.avatar_url || null
+        }
+      });
+    }
+
+    if (!supabase) {
+      // Return mock user data in development if Supabase isn't available
+      return res.json({
+        success: true,
+        user: {
+          id: decoded.id || 'demo-user-id',
+          email: decoded.email || 'demo@example.com',
+          username: 'demo_user',
+          display_name: 'Demo User',
+          user_type: 'demo',
+          points_balance: 1000,
+          keys_balance: 50,
+          gems_balance: 100,
+          gold_collected: 0,
+          user_tier: 'free',
+          avatar_url: null
+        }
+      });
+    }
+
+    // Get user from Supabase
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', decoded.id)
+      .single();
+
+    if (error || !user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
+    }
+
+    // Return user data without sensitive information
+    const { password, ...userWithoutPassword } = user;
+    
+    res.json({
+      success: true,
+      user: userWithoutPassword
+    });
+
+  } catch (error) {
+    console.error('Me endpoint error:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid token' 
+      });
+    }
+    res.status(500).json({ 
+      success: false, 
+      error: 'Server error' 
+    });
+  }
 });
 
 module.exports = router;

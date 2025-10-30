@@ -1,15 +1,86 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL || 'your-supabase-url';
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 'your-supabase-service-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const hasSupabaseConfig = Boolean(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY));
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = hasSupabaseConfig ? createClient(supabaseUrl, supabaseKey) : null;
+
+const demoChannels = () => ([
+  {
+    id: 'channel-growth-1',
+    name: 'Creator Accelerator',
+    base_apr: 18,
+    lock_period_days: 30,
+    min_stake: 50,
+    max_stake: 500,
+    total_staked: 4200,
+    reward_pool: 1250,
+    status: 'active'
+  },
+  {
+    id: 'channel-growth-2',
+    name: 'Audience Booster',
+    base_apr: 12,
+    lock_period_days: 14,
+    min_stake: 25,
+    max_stake: null,
+    total_staked: 9800,
+    reward_pool: 2150,
+    status: 'active'
+  }
+]);
+
+const demoPositions = (userId) => ([
+  {
+    id: 'position-1',
+    user_id: userId,
+    channel_id: 'channel-growth-1',
+    amount: 150,
+    multiplier: 1.2,
+    lock_until: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    staking_channels: {
+      id: 'channel-growth-1',
+      name: 'Creator Accelerator',
+      base_apr: 18,
+      lock_period_days: 30
+    }
+  }
+]);
+
+const demoFundingProjects = () => ({
+  projects: [
+    {
+      id: 'project-1',
+      title: 'Creator Studio Upgrade',
+      description: 'Help fund a new streaming setup for higher quality content.',
+      target_amount: 5000,
+      pledged_amount: 3200,
+      status: 'active',
+      creator_id: 'demo_creator',
+      supporters_count: 42,
+      rewards: [
+        { tier: 'Supporter', amount: 25, reward: 'Shoutout in next stream' },
+        { tier: 'Champion', amount: 100, reward: 'Exclusive behind-the-scenes access' }
+      ],
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ],
+  total: 1,
+  limit: 10,
+  offset: 0
+});
 
 /**
  * Get all active staking channels
  * @returns {Promise<Array>} List of staking channels
  */
 const getStakingChannels = async () => {
+  if (!supabase) {
+    return demoChannels();
+  }
+
   const { data, error } = await supabase
     .from('staking_channels')
     .select('*')
@@ -29,6 +100,10 @@ const getStakingChannels = async () => {
  * @returns {Promise<Array>} List of user's staking positions
  */
 const getUserStakingPositions = async (userId) => {
+  if (!supabase) {
+    return demoPositions(userId);
+  }
+
   const { data, error } = await supabase
     .from('staking_positions')
     .select(`
@@ -54,6 +129,19 @@ const getUserStakingPositions = async (userId) => {
  * @returns {Promise<Object>} Created staking position
  */
 const createStakingPosition = async (userId, channelId, amount) => {
+  if (!supabase) {
+    return {
+      id: `demo-position-${Date.now()}`,
+      user_id: userId,
+      channel_id: channelId,
+      amount,
+      multiplier: 1.0,
+      lock_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active',
+      created_at: new Date().toISOString()
+    };
+  }
+
   // Start a transaction
   const { data: channel, error: channelError } = await supabase
     .from('staking_channels')
@@ -143,6 +231,20 @@ const createStakingPosition = async (userId, channelId, amount) => {
  * @returns {Promise<Object>} Result with rewards claimed
  */
 const claimStakingRewards = async (userId, positionId) => {
+  if (!supabase) {
+    return {
+      position: {
+        id: positionId,
+        user_id: userId,
+        amount: 100,
+        earned_so_far: 15,
+        last_claimed_at: new Date().toISOString(),
+        status: 'active'
+      },
+      rewards: 5
+    };
+  }
+
   // In a real implementation, this would calculate and distribute rewards
   // For now, we'll mark it as claimed and return a success response
   
@@ -226,6 +328,10 @@ const claimStakingRewards = async (userId, positionId) => {
  * @returns {Promise<Object>} Paginated list of funding projects
  */
 const getFundingProjects = async ({ limit = 10, offset = 0, status = 'active' } = {}) => {
+  if (!supabase) {
+    return demoFundingProjects();
+  }
+
   const query = supabase
     .from('funding_projects')
     .select('*', { count: 'exact' })
@@ -261,6 +367,21 @@ const createFundingProject = async (creatorId, projectData) => {
     throw new Error('Missing required fields');
   }
 
+  if (!supabase) {
+    return {
+      id: `demo-project-${Date.now()}`,
+      creator_id: creatorId,
+      title,
+      description,
+      target_amount,
+      amount_raised: 0,
+      status: 'active',
+      start_date: new Date().toISOString(),
+      end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      rewards: rewards || { tiers: [] },
+    };
+  }
+
   const { data: project, error } = await supabase
     .from('funding_projects')
     .insert({
@@ -294,6 +415,21 @@ const createFundingProject = async (creatorId, projectData) => {
  * @returns {Promise<Object>} Result of the pledge
  */
 const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
+  if (!supabase) {
+    return {
+      success: true,
+      pledge: {
+        id: `demo-pledge-${Date.now()}`,
+        project_id: projectId,
+        backer_id: backerId,
+        amount,
+        reward_tier: rewardTier,
+        status: 'pledged',
+        created_at: new Date().toISOString()
+      }
+    };
+  }
+
   // In a real implementation, you would:
   // 1. Verify the project exists and is active
   // 2. Check if the backer has sufficient balance
@@ -354,6 +490,20 @@ const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
  * @returns {Promise<Array>} List of creator rewards
  */
 const getCreatorRewards = async (userId, { status } = {}) => {
+  if (!supabase) {
+    return [
+      {
+        id: 'demo-reward-1',
+        creator_id: userId,
+        reward_type: 'staking_bonus',
+        amount: 45,
+        currency: 'gems',
+        status: 'pending',
+        created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+  }
+
   const query = supabase
     .from('creator_rewards')
     .select('*')
@@ -381,6 +531,27 @@ const getCreatorRewards = async (userId, { status } = {}) => {
  * @returns {Promise<Object>} Paginated list of ledger entries
  */
 const getUserLedger = async (userId, { limit = 20, offset = 0 } = {}) => {
+  if (!supabase) {
+    return {
+      entries: [
+        {
+          id: 'demo-ledger-1',
+          user_id: userId,
+          source_type: 'staking_claim',
+          source_id: 'position-1',
+          amount: 12,
+          currency: 'gems',
+          status: 'completed',
+          created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+          metadata: { note: 'Demo ledger entry' },
+        },
+      ],
+      total: 1,
+      limit,
+      offset,
+    };
+  }
+
   const { data, count, error } = await supabase
     .from('growth_ledger')
     .select('*', { count: 'exact' })

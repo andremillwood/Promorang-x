@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 import { AlertTriangle, CheckCircle, RefreshCw, LogIn } from 'lucide-react';
 import { buildAuthHeaders } from '@/react-app/utils/api';
 

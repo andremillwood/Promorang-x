@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
+import { API_BASE_URL } from '../config';
 import { 
   Home, 
   DollarSign, 
@@ -58,6 +59,8 @@ export default function Layout({ children }: LayoutProps) {
   const [showGoldShopModal, setShowGoldShopModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const { unreadCount } = useNotifications();
+  const apiBase = API_BASE_URL || '';
+  const withApiBase = (path: string) => `${apiBase}${path}`;
 
   useEffect(() => {
     if (user) {
@@ -101,7 +104,7 @@ export default function Layout({ children }: LayoutProps) {
   const fetchUserData = async () => {
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/me', {
+      const response = await fetch(withApiBase('/api/users/me'), {
         credentials: 'include',
         headers
       });
@@ -119,7 +122,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const getNavigation = () => {
     const baseNav = [
-      { name: 'Home', href: '/home', icon: Home },
+      { name: 'Home', href: '/dashboard', icon: Home },
       { name: 'Earn', href: '/earn', icon: DollarSign },
       { name: 'Create', href: '/create', icon: Plus },
       { name: 'Invest', href: '/invest', icon: TrendingUp },
@@ -142,6 +145,15 @@ export default function Layout({ children }: LayoutProps) {
     if (!userData) return 0;
     return (userData.points_balance || 0) + (userData.keys_balance || 0) + (userData.gems_balance || 0) + (userData.gold_collected || 0);
   };
+
+  const profileSlug =
+    userData?.username ||
+    (userData?.email ? userData.email.split('@')[0] : undefined) ||
+    (user?.username ? String(user.username) : undefined) ||
+    (user?.email ? user.email.split('@')[0] : undefined) ||
+    'me';
+
+  const profilePath = `/profile/${encodeURIComponent(profileSlug)}`;
 
   const handleWalletAction = (action: string) => {
     setShowWalletMenu(false);
@@ -184,7 +196,7 @@ export default function Layout({ children }: LayoutProps) {
       
       // Call our backend logout endpoint to clear server-side session
       try {
-        await fetch('/api/auth/logout', {
+        await fetch(withApiBase('/api/auth/logout'), {
           method: 'POST',
           credentials: 'include'
         });
@@ -216,7 +228,7 @@ export default function Layout({ children }: LayoutProps) {
     setShowUserMenu(false);
     switch (action) {
       case 'profile':
-        navigate('/profile');
+        navigate(profilePath);
         break;
       case 'upgrade':
         setShowUpgradeModal(true);
@@ -242,7 +254,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Left Side - Logo & Search */}
             <div className="flex items-center space-x-4">
-              <Link to="/home" className="flex items-center space-x-3 group">
+              <Link to="/dashboard" className="flex items-center space-x-3 group">
                 <img 
                   src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
                   alt="Promorang"
@@ -769,7 +781,7 @@ export default function Layout({ children }: LayoutProps) {
           <Link
             to="/home"
             className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              isActive('/home') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+              isActive('/dashboard') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <Home className="w-5 h-5" />

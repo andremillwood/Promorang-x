@@ -7,8 +7,14 @@ interface EnhancedDropCardProps {
 }
 
 export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProps) {
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
+  const formatLabel = (value?: string | null, fallback = 'Unknown') => {
+    const label = value && value.trim().length > 0 ? value : fallback;
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  };
+
+  const getDifficultyColor = (difficulty?: string | null) => {
+    const level = (difficulty || '').toLowerCase();
+    switch (level) {
       case 'easy': return 'bg-green-100 text-green-800 border-green-200';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'hard': return 'bg-red-100 text-red-800 border-red-200';
@@ -16,8 +22,9 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (status?: string | null) => {
+    const state = (status || '').toLowerCase();
+    switch (state) {
       case 'active': return 'bg-green-100 text-green-800 border-green-200';
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'completed': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -127,9 +134,9 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(drop.status)}`}>
           {drop.status.charAt(0).toUpperCase() + drop.status.slice(1)}
         </span>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(drop.difficulty)}`}>
-          {drop.difficulty.charAt(0).toUpperCase() + drop.difficulty.slice(1)}
-        </span>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(drop.difficulty)}`}>
+              {formatLabel(drop.difficulty)}
+            </span>
         {drop.is_proof_drop && (
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
             Proof Drop
@@ -210,13 +217,13 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
             onApply?.(drop);
           }}
           className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-            drop.status === 'active'
+            drop.status?.toLowerCase() === 'active'
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white hover:shadow-lg hover:-translate-y-0.5'
               : 'bg-gray-100 text-gray-500 cursor-not-allowed'
           }`}
-          disabled={drop.status !== 'active'}
+          disabled={drop.status?.toLowerCase() !== 'active'}
         >
-          {drop.status === 'active' ? (
+          {drop.status?.toLowerCase() === 'active' ? (
             <>
               <span>Apply Now</span>
               <Target className="w-4 h-4" />

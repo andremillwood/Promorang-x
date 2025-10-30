@@ -1,6 +1,6 @@
 // React hook for consistent error handling across components
 import { useCallback } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from './useAuth';
 import { createErrorHandler } from '@/react-app/utils/errorHandler';
 import { useNotifications } from './useNotifications';
 

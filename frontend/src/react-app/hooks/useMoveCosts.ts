@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/react-app/App';
+import { useAuth } from '@/react-app/hooks/useAuth';
 import { apiFetch } from '@/lib/api';
 
 interface MoveCostBreakdown {

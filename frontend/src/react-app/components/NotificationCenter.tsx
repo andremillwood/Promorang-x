@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info } from 'lucide-react';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 
 interface Notification {
   id: string;

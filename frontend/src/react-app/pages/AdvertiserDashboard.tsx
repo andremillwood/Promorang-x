@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 import {
   BarChart3,
   Users,

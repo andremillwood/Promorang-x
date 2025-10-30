@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../App';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Chrome } from 'lucide-react';
 
@@ -25,9 +25,12 @@ export default function AuthPage() {
         setError('Please fill in all required fields');
         return;
       }
-      const result = await signUp(formData.email, formData.password, formData.username, formData.display_name);
+      const result = await signUp(formData.email, formData.password);
       if (result.error) {
         setError(result.error);
+      } else {
+        // Redirect to dashboard or home page after successful signup
+        navigate('/dashboard');
       }
     } else {
       if (!formData.email || !formData.password) {
@@ -37,6 +40,9 @@ export default function AuthPage() {
       const result = await signIn(formData.email, formData.password);
       if (result.error) {
         setError(result.error);
+      } else {
+        // Redirect to dashboard or home page after successful login
+        navigate('/dashboard');
       }
     }
   };
@@ -46,13 +52,16 @@ export default function AuthPage() {
     const result = await demoLogin[type]();
     if (result.error) {
       setError(result.error);
+    } else {
+      // Redirect to dashboard after successful demo login
+      navigate('/dashboard');
     }
   };
 
   const handleOAuthLogin = async () => {
     setError('');
-    const result = await signInWithOAuth();
-    if (result.error) {
+    const result = await signInWithOAuth('google');
+    if (result?.error) {
       setError(result.error);
     }
   };

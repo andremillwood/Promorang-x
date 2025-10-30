@@ -34,6 +34,7 @@ import CommentSystem from '@/react-app/components/CommentSystem';
 import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import TipModal from '@/react-app/components/TipModal';
 import { buildAuthHeaders } from '@/react-app/utils/api';
+import { API_BASE_URL } from '../config';
 
 const fallbackImages = [
   'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80&sat=-10',
@@ -145,6 +146,8 @@ const fallbackMetrics = (seed: number) => ({
 export default function ContentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const apiBase = API_BASE_URL || '';
+  const withApiBase = (path: string) => `${apiBase}${path}`;
   const [content, setContent] = useState<ContentPieceType | null>(null);
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -174,38 +177,62 @@ export default function ContentDetail() {
   );
 
   useEffect(() => {
-    if (id) {
-      fetchContentDetail();
-      fetchWallets();
-      fetchUserData();
-      fetchMetrics();
-      fetchSponsorshipData();
-    }
+    let isMounted = true;
+
+    const load = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchContentDetail(isMounted),
+          fetchWallets(isMounted),
+          fetchUserData(isMounted),
+          fetchMetrics(isMounted),
+          fetchSponsorshipData(isMounted)
+        ]);
+      } catch (error) {
+        console.error('ContentDetail initial load failed:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
-  const fetchContentDetail = async () => {
+  const fetchContentDetail = async (isMounted = true) => {
     const seed = Number(id ?? Date.now());
 
     try {
-      const response = await fetch(`/api/content/${id}`);
+      const response = await fetch(withApiBase(`/api/content/${id}`));
       if (response.ok) {
         const data = await response.json();
-        setContent(normalizeContent(data?.content ?? data, seed));
+        if (isMounted) {
+          setContent(normalizeContent(data?.content ?? data, seed));
+        }
       } else {
-        setContent(normalizeContent(null, seed));
+        if (isMounted) {
+          setContent(normalizeContent(null, seed));
+        }
       }
     } catch (error) {
       console.error('Failed to fetch content:', error);
-      setContent(normalizeContent(null, seed));
-    } finally {
-      setLoading(false);
+      if (isMounted) {
+        setContent(normalizeContent(null, seed));
+      }
     }
   };
 
   const fetchWallets = async () => {
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/me/wallets', {
+      const response = await fetch(withApiBase('/api/users/me/wallets'), {
         credentials: 'include',
         headers
       });
@@ -221,7 +248,7 @@ export default function ContentDetail() {
   const fetchUserData = async () => {
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/me', {
+      const response = await fetch(withApiBase('/api/users/me'), {
         credentials: 'include',
         headers
       });
@@ -237,7 +264,7 @@ export default function ContentDetail() {
   const fetchMetrics = async () => {
     const seed = Number(id ?? Date.now());
     try {
-      const response = await fetch(`/api/content/${id}/metrics`);
+      const response = await fetch(withApiBase(`/api/content/${id}/metrics`));
       if (response.ok) {
         const data = await response.json();
         setMetrics(data);
@@ -255,7 +282,7 @@ export default function ContentDetail() {
 
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch(`/api/content/${id}/user-status`, {
+      const response = await fetch(withApiBase(`/api/content/${id}/user-status`), {
         credentials: 'include',
         headers
       });
@@ -273,7 +300,7 @@ export default function ContentDetail() {
 
     try {
       const headers = buildAuthHeaders();
-      const response = await fetch(`/api/content/${id}/sponsorship`, {
+      const response = await fetch(withApiBase(`/api/content/${id}/sponsorship`), {
         credentials: 'include',
         headers
       });
@@ -288,7 +315,7 @@ export default function ContentDetail() {
 
   const handleBuyShares = async (content: ContentPieceType, sharesCount: number) => {
     try {
-      const response = await fetch('/api/content/buy-shares', {
+      const response = await fetch(withApiBase('/api/content/buy-shares'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -329,7 +356,7 @@ export default function ContentDetail() {
         return;
       }
 
-      const response = await fetch('/api/users/social-action', {
+      const response = await fetch(withApiBase('/api/users/social-action'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -380,7 +407,7 @@ export default function ContentDetail() {
 
   const handleTip = async (content: ContentPieceType, amount: number) => {
     try {
-      const response = await fetch('/api/content/tip', {
+      const response = await fetch(withApiBase('/api/content/tip'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -443,7 +470,7 @@ export default function ContentDetail() {
     if (!content) return;
 
     try {
-      const response = await fetch(`/api/content/${content.id}`, {
+      const response = await fetch(withApiBase(`/api/content/${content.id}`), {
         method: 'DELETE',
         credentials: 'include',
         headers: buildAuthHeaders()
@@ -451,7 +478,7 @@ export default function ContentDetail() {
 
       if (response.ok) {
         // Redirect to home after successful deletion
-        navigate('/home');
+        navigate('/dashboard');
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to delete content');
@@ -466,7 +493,7 @@ export default function ContentDetail() {
     if (!content) return;
 
     try {
-      const response = await fetch(`/api/content/${content.id}/sponsor`, {
+      const response = await fetch(withApiBase(`/api/content/${content.id}/sponsor`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -557,7 +584,7 @@ export default function ContentDetail() {
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Content not found</h2>
         <button
-          onClick={() => navigate('/home')}
+          onClick={() => navigate('/dashboard')}
           className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
         >
           Go Back Home
@@ -588,7 +615,7 @@ export default function ContentDetail() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate('/dashboard')}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-gray-600" />
