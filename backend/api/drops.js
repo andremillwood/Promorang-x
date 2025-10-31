@@ -122,8 +122,13 @@ router.get('/:id', async (req, res) => {
     const cacheKey = `drops:item:${id}`;
     const payload = await getCachedValue(cacheKey, async () => {
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        // Handle both numeric and UUID format IDs
+        const numericId = isNaN(parseInt(id, 10)) ? 
+          parseInt(id.replace(/[^0-9]/g, '').substring(0, 4), 10) || 1 : 
+          parseInt(id, 10);
+          
         return {
-          id: parseInt(id),
+          id: id, // Keep the original ID for consistency
           creator_id: Math.floor(Math.random() * 100) + 1,
           creator_name: `Drop Creator ${id}`,
           creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${id}`,
@@ -175,10 +180,30 @@ router.get('/:id', async (req, res) => {
       return drop;
     });
 
+    if (!payload) {
+      console.log(`Drop not found for ID: ${id}`);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Drop not found',
+        code: 'DROP_NOT_FOUND'
+      });
+    }
+
     res.json(payload);
   } catch (error) {
     console.error('Error fetching drop:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch drop' });
+    if (error.message === 'Drop not found') {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Drop not found',
+        code: 'DROP_NOT_FOUND'
+      });
+    }
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch drop',
+      code: 'SERVER_ERROR'
+    });
   }
 });
 

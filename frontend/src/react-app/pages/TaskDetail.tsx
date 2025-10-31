@@ -113,67 +113,93 @@ export default function TaskDetail() {
     if (!dropIdParam) {
       console.warn("No drop ID provided for TaskDetail route");
       setLoading(false);
+      navigate("/not-found", {
+        state: {
+          title: "Invalid Drop ID",
+          message: "No drop ID was provided in the URL. Please check the link and try again.",
+        },
+      });
+      return;
+    }
+
+    // Validate UUID format if needed
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(dropIdParam) && isNaN(parseInt(dropIdParam, 10))) {
+      console.warn("Invalid drop ID format:", dropIdParam);
+      navigate("/not-found", {
+        state: {
+          title: "Invalid Drop ID",
+          message: "The drop ID in the URL is not in a valid format. Please check the link and try again.",
+        },
+      });
       return;
     }
 
     try {
       console.log("Fetching drop detail for ID:", dropIdParam);
       const response = await apiFetch(`/api/drops/${dropIdParam}`);
-
       console.log("Drop detail response status:", response.status);
 
+      const responseData = await response.json().catch(() => ({}));
+      
       if (response.ok) {
-        const data = await response.json();
-        console.log("Drop data received:", data);
-
-        if (!data || !data.id) {
-          console.warn("Malformed drop data, redirecting to not-found");
-          navigate("/not-found", {
-            state: {
-              title: "Drop Data Invalid",
-              message:
-                "The requested drop data could not be processed. It may have been removed or corrupted.",
-            },
-          });
-          return;
+        if (!responseData || !responseData.id) {
+          console.warn("Malformed drop data received:", responseData);
+          throw new Error("Invalid drop data format");
         }
-
-        setDrop(data);
-      } else if (response.status === 404) {
-        console.warn(`Drop not found: ${dropIdParam}`);
-        navigate("/not-found", {
-          state: {
-            title: "Drop Not Found",
-            message:
-              "The requested drop could not be found. It may have been removed or the link might be incorrect.",
-          },
-        });
+        console.log("Drop data received:", responseData);
+        setDrop(responseData);
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Drop fetch failed:", response.status, errorData);
+        // Handle different error statuses
+        const errorCode = responseData.code || 'UNKNOWN_ERROR';
+        const errorMessage = responseData.error || 'An unknown error occurred';
         
-        // Log the error to the server if needed
+        console.warn(`Drop fetch error (${response.status}):`, errorCode, errorMessage);
+        
+        // Log the error to the server
         try {
           await apiFetch("/api/logs/client-error", {
             method: "POST",
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               source: "TaskDetail",
-              error: `Drop fetch failed: ${response.status}`,
+              error: `Drop fetch error: ${errorCode} (${response.status})`,
               dropId: dropIdParam,
+              responseStatus: response.status,
+              errorDetails: errorMessage,
               timestamp: new Date().toISOString(),
             }),
           });
         } catch (logError) {
           console.error("Failed to log error:", logError);
         }
-        
-        navigate("/error", {
-          state: {
-            title: "Error Loading Drop",
-            message:
-              "There was an error loading the drop. Please try again later.",
-          },
-        });
+
+        // Handle specific error cases
+        if (response.status === 404 || errorCode === 'DROP_NOT_FOUND') {
+          navigate("/not-found", {
+            state: {
+              title: "Drop Not Found",
+              message: "The requested drop could not be found. It may have been removed or the link might be incorrect.",
+              code: 'DROP_NOT_FOUND',
+            },
+          });
+        } else if (response.status >= 500) {
+          navigate("/error", {
+            state: {
+              title: "Server Error",
+              message: "We're having trouble loading this drop. Our team has been notified. Please try again later.",
+              code: 'SERVER_ERROR',
+            },
+          });
+        } else {
+          navigate("/error", {
+            state: {
+              title: "Error Loading Drop",
+              message: errorMessage || "There was an error loading the drop. Please try again later.",
+              code: errorCode,
+            },
+          });
+        }
       }
     } catch (error) {
       console.error("Failed to fetch drop:", error);
