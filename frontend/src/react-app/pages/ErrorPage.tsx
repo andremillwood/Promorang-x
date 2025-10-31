@@ -1,21 +1,36 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
-import { AlertTriangle, Home, RefreshCw, Copy, CheckCircle } from 'lucide-react';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { AlertTriangle, Home, RefreshCw, Copy, CheckCircle, ArrowLeft } from 'lucide-react';
 import { decodeErrorInfo, type ErrorInfo } from '@/react-app/utils/errorEncoder';
 
-export default function ErrorPage() {
+type ErrorPageProps = {
+  title?: string;
+  message?: string;
+};
+
+export default function ErrorPage({ title: propTitle, message: propMessage }: ErrorPageProps = {}) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
   const [copied, setCopied] = useState(false);
   
   const errorCode = searchParams.get('code') || 'ERR-UNKNOWN';
   const encodedData = searchParams.get('data');
+  
+  // Get error details from location state or props
+  const state = location.state as { title?: string; message?: string } | null;
+  const title = propTitle || state?.title || 'Something Went Wrong';
+  const message = propMessage || state?.message || 'An unexpected error occurred. Please try again later.';
 
   useEffect(() => {
     if (encodedData) {
-      const decoded = decodeErrorInfo(encodedData);
-      setErrorInfo(decoded);
+      try {
+        const decoded = decodeErrorInfo(encodedData);
+        setErrorInfo(decoded);
+      } catch (error) {
+        console.error('Failed to decode error info:', error);
+      }
     }
   }, [encodedData]);
 

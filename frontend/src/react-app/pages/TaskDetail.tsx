@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft,
   Clock,
@@ -111,28 +111,95 @@ export default function TaskDetail() {
 
   const fetchDropDetail = async () => {
     if (!dropIdParam) {
-      console.warn('No drop ID provided for TaskDetail route');
+      console.warn("No drop ID provided for TaskDetail route");
       setLoading(false);
       return;
     }
+
     try {
-      console.log('Fetching drop detail for ID:', dropIdParam);
+      console.log("Fetching drop detail for ID:", dropIdParam);
       const response = await apiFetch(`/api/drops/${dropIdParam}`);
-      console.log('Drop detail response status:', response.status);
-      
+
+      console.log("Drop detail response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Drop data received:', data);
-        console.log('Drop creator_id:', data.creator_id);
+        console.log("Drop data received:", data);
+
+        if (!data || !data.id) {
+          console.warn("Malformed drop data, redirecting to not-found");
+          navigate("/not-found", {
+            state: {
+              title: "Drop Data Invalid",
+              message:
+                "The requested drop data could not be processed. It may have been removed or corrupted.",
+            },
+          });
+          return;
+        }
+
         setDrop(data);
+      } else if (response.status === 404) {
+        console.warn(`Drop not found: ${dropIdParam}`);
+        navigate("/not-found", {
+          state: {
+            title: "Drop Not Found",
+            message:
+              "The requested drop could not be found. It may have been removed or the link might be incorrect.",
+          },
+        });
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Drop fetch failed:', response.status, errorData);
-        navigate('/earn');
+        console.error("Drop fetch failed:", response.status, errorData);
+        
+        // Log the error to the server if needed
+        try {
+          await apiFetch("/api/logs/client-error", {
+            method: "POST",
+            body: JSON.stringify({
+              source: "TaskDetail",
+              error: `Drop fetch failed: ${response.status}`,
+              dropId: dropIdParam,
+              timestamp: new Date().toISOString(),
+            }),
+          });
+        } catch (logError) {
+          console.error("Failed to log error:", logError);
+        }
+        
+        navigate("/error", {
+          state: {
+            title: "Error Loading Drop",
+            message:
+              "There was an error loading the drop. Please try again later.",
+          },
+        });
       }
     } catch (error) {
-      console.error('Failed to fetch drop:', error);
-      navigate('/earn');
+      console.error("Failed to fetch drop:", error);
+      
+      // Log the error to the server if needed
+      try {
+        await apiFetch("/api/logs/client-error", {
+          method: "POST",
+          body: JSON.stringify({
+            source: "TaskDetail",
+            error: `Network error: ${error}`,
+            dropId: dropIdParam,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (logError) {
+        console.error("Failed to log error:", logError);
+      }
+      
+      navigate("/error", {
+        state: {
+          title: "Connection Error",
+          message:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        },
+      });
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { 
   Edit3, 
   Star, 

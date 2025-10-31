@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, LineChart, Activity, Users } from 'lucide-react';
 import { PredictionDetail } from '@/shared/types';
 import { getPredictionDetail } from '@/react-app/services/portfolioService';

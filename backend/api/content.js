@@ -504,54 +504,91 @@ router.get('/:id', async (req, res) => {
 
 // Get content metrics
 router.get('/:id/metrics', async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
+  
+  // Input validation
+  if (!id) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Content ID is required' 
+    });
+  }
 
+  try {
     const cacheKey = `content:metrics:${id}`;
+    
     const metrics = await getCachedValue(cacheKey, async () => {
+      // Demo data fallback
       if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
         return {
-          likes: Math.floor(Math.random() * 5000) + 100,
-          comments: Math.floor(Math.random() * 500) + 10,
-          shares: Math.floor(Math.random() * 200) + 5,
-          views: Math.floor(Math.random() * 50000) + 1000,
-          internal_moves: Math.floor(Math.random() * 100) + 5,
-          external_moves: Math.floor(Math.random() * 50) + 2,
-          total_engagement: Math.floor(Math.random() * 10000) + 500
+          success: true,
+          data: {
+            likes: Math.floor(Math.random() * 5000) + 100,
+            comments: Math.floor(Math.random() * 500) + 10,
+            shares: Math.floor(Math.random() * 200) + 5,
+            views: Math.floor(Math.random() * 50000) + 1000,
+            internal_moves: Math.floor(Math.random() * 100) + 5,
+            external_moves: Math.floor(Math.random() * 50) + 2,
+            total_engagement: Math.floor(Math.random() * 10000) + 500
+          }
         };
       }
 
-      const queryStart = Date.now();
-      const { data: actions, error } = await supabase
-        .from('social_actions')
-        .select('action_type, points_earned')
-        .eq('reference_id', id)
-        .eq('reference_type', 'content');
-      const durationMs = Date.now() - queryStart;
-      if (durationMs > 250) {
-        console.log(`[content:metrics:${id}] Supabase query took ${durationMs}ms`);
-      }
+      try {
+        const queryStart = Date.now();
+        const { data: actions, error } = await supabase
+          .from('social_actions')
+          .select('action_type, points_earned')
+          .eq('reference_id', id)
+          .eq('reference_type', 'content');
+          
+        const durationMs = Date.now() - queryStart;
+        if (durationMs > 250) {
+          console.log(`[content:metrics:${id}] Supabase query took ${durationMs}ms`);
+        }
 
-      if (error) {
-        console.error('Database error fetching metrics:', error);
-        throw new Error('Failed to fetch metrics');
-      }
+        if (error) {
+          console.error(`Database error fetching metrics for content ${id}:`, error);
+          throw new Error('Failed to fetch metrics from database');
+        }
 
-      return {
-        likes: actions?.filter(a => a.action_type === 'like').length || 0,
-        comments: actions?.filter(a => a.action_type === 'comment').length || 0,
-        shares: actions?.filter(a => a.action_type === 'share').length || 0,
-        views: Math.floor(Math.random() * 50000) + 1000,
-        internal_moves: Math.floor(Math.random() * 100) + 5,
-        external_moves: Math.floor(Math.random() * 50) + 2,
-        total_engagement: actions?.length || 0
-      };
+        return {
+          success: true,
+          data: {
+            likes: actions?.filter(a => a.action_type === 'like').length || 0,
+            comments: actions?.filter(a => a.action_type === 'comment').length || 0,
+            shares: actions?.filter(a => a.action_type === 'share').length || 0,
+            views: Math.floor(Math.random() * 50000) + 1000,
+            internal_moves: Math.floor(Math.random() * 100) + 5,
+            external_moves: Math.floor(Math.random() * 50) + 2,
+            total_engagement: actions?.length || 0
+          }
+        };
+      } catch (dbError) {
+        console.error(`Error in metrics cache function for content ${id}:`, dbError);
+        throw dbError; // Re-throw to be caught by the outer catch
+      }
     }, DEFAULT_CACHE_TTL_MS);
 
-    res.json(metrics);
+    // If we got a successful response from cache or DB, return it
+    if (metrics && metrics.success) {
+      return res.json(metrics.data);
+    }
+    
+    // If we got here, there was an issue with the data
+    throw new Error('Failed to process metrics data');
+    
   } catch (error) {
-    console.error('Error fetching content metrics:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch content metrics' });
+    console.error(`Error in /api/content/${id}/metrics:`, error);
+    
+    // Return appropriate status code based on error type
+    const statusCode = error.message.includes('not found') ? 404 : 500;
+    
+    res.status(statusCode).json({ 
+      success: false, 
+      error: error.message || 'Failed to fetch content metrics',
+      code: statusCode === 404 ? 'NOT_FOUND' : 'INTERNAL_SERVER_ERROR'
+    });
   }
 });
 
@@ -594,51 +631,114 @@ router.get('/:id/user-status', async (req, res) => {
 
 // Get content sponsorship data
 router.get('/:id/sponsorship', async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
+  
+  // Input validation
+  if (!id) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Content ID is required',
+      code: 'MISSING_CONTENT_ID'
+    });
+  }
 
+  try {
+    // Demo data fallback when not connected to Supabase
     if (!supabase) {
       return res.json({
-        sponsor_count: Math.floor(Math.random() * 3) + 1,
-        total_boost_multiplier: parseFloat((Math.random() * 2 + 1).toFixed(1)),
-        total_gems_allocated: Math.floor(Math.random() * 5000) + 1000,
-        sponsor_names: ['Demo Brand', 'Sample Sponsor'],
-        primary_sponsor: 'Demo Brand',
-        gems_allocated: Math.floor(Math.random() * 1000) + 500,
-        boost_multiplier: parseFloat((Math.random() * 2 + 1).toFixed(1))
+        success: true,
+        data: {
+          sponsor_count: Math.floor(Math.random() * 3) + 1,
+          total_boost_multiplier: parseFloat((Math.random() * 2 + 1).toFixed(1)),
+          total_gems_allocated: Math.floor(Math.random() * 5000) + 1000,
+          sponsor_names: ['Demo Brand', 'Sample Sponsor'],
+          primary_sponsor: 'Demo Brand',
+          gems_allocated: Math.floor(Math.random() * 1000) + 500,
+          boost_multiplier: parseFloat((Math.random() * 2 + 1).toFixed(1))
+        }
       });
     }
 
+    // Check if content exists first
+    const { data: content, error: contentError } = await supabase
+      .from('content')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (contentError || !content) {
+      console.error(`Content not found: ${id}`, contentError);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Content not found',
+        code: 'CONTENT_NOT_FOUND'
+      });
+    }
+
+    // Fetch active sponsorships
     const { data: sponsorships, error } = await supabase
       .from('sponsorships')
       .select('*')
       .eq('content_id', id)
-      .eq('status', 'active');
+      .eq('status', 'active')
+      .order('created_at', { ascending: false }); // Get most recent first
 
     if (error) {
-      console.error('Database error fetching sponsorships:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch sponsorship data' });
+      console.error(`Database error fetching sponsorships for content ${id}:`, error);
+      throw new Error('Failed to fetch sponsorship data from database');
     }
 
+    // Return null if no sponsorships found
     if (!sponsorships || sponsorships.length === 0) {
-      return res.json(null);
+      return res.status(200).json({
+        success: true,
+        data: null,
+        message: 'No active sponsorships found for this content'
+      });
     }
 
-    const totalGems = sponsorships.reduce((sum, s) => sum + s.gems_allocated, 0);
-    const avgBoost = sponsorships.reduce((sum, s) => sum + s.boost_multiplier, 0) / sponsorships.length;
+    // Calculate aggregated metrics
+    const totalGems = sponsorships.reduce((sum, s) => sum + (s.gems_allocated || 0), 0);
+    const avgBoost = sponsorships.length > 0 
+      ? sponsorships.reduce((sum, s) => sum + (s.boost_multiplier || 0), 0) / sponsorships.length 
+      : 0;
 
-    res.json({
-      sponsor_count: sponsorships.length,
-      total_boost_multiplier: parseFloat(avgBoost.toFixed(1)),
-      total_gems_allocated: totalGems,
-      sponsor_names: sponsorships.map(s => s.advertiser_name),
-      primary_sponsor: sponsorships[0].advertiser_name,
-      gems_allocated: sponsorships[0].gems_allocated,
-      boost_multiplier: sponsorships[0].boost_multiplier
-    });
+    // Prepare response
+    const response = {
+      success: true,
+      data: {
+        sponsor_count: sponsorships.length,
+        total_boost_multiplier: parseFloat(avgBoost.toFixed(1)),
+        total_gems_allocated: totalGems,
+        sponsor_names: sponsorships.map(s => s.advertiser_name).filter(Boolean),
+        primary_sponsor: sponsorships[0]?.advertiser_name || null,
+        gems_allocated: sponsorships[0]?.gems_allocated || 0,
+        boost_multiplier: sponsorships[0]?.boost_multiplier || 0,
+        sponsorships: sponsorships.map(s => ({
+          id: s.id,
+          advertiser_name: s.advertiser_name,
+          gems_allocated: s.gems_allocated,
+          boost_multiplier: s.boost_multiplier,
+          start_date: s.start_date,
+          end_date: s.end_date,
+          status: s.status
+        }))
+      }
+    };
+
+    res.json(response.data);
+    
   } catch (error) {
-    console.error('Error fetching sponsorship data:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch sponsorship data' });
+    console.error(`Error in /api/content/${id}/sponsorship:`, error);
+    
+    // Determine appropriate status code
+    const statusCode = error.message.includes('not found') ? 404 : 500;
+    
+    res.status(statusCode).json({ 
+      success: false, 
+      error: error.message || 'Failed to fetch sponsorship data',
+      code: statusCode === 404 ? 'NOT_FOUND' : 'INTERNAL_SERVER_ERROR'
+    });
   }
 });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, TrendingUp, DollarSign, Clock, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { ContentHoldingDetail } from '@/shared/types';
 import { getHoldingDetail } from '@/react-app/services/portfolioService';

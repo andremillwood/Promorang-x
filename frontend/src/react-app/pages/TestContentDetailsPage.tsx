@@ -24,7 +24,7 @@ const TestContentDetailsPage = () => {
     });
 
     // Set API base URL from environment
-    setApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:3002');
+    setApiBaseUrl(import.meta.env.VITE_API_URL || 'http://localhost:3001');
 
     const fetchContent = async () => {
       if (!id) {
@@ -37,7 +37,7 @@ const TestContentDetailsPage = () => {
       
       try {
         // Test direct fetch first
-        const testUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/content/${id}`;
+        const testUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/content/${id}`;
         console.log('Testing direct fetch to:', testUrl);
         
         // First try with the content service
@@ -52,7 +52,7 @@ const TestContentDetailsPage = () => {
         try {
           console.log('Falling back to direct fetch...');
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:3002'}/api/content/${id}`,
+            `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/content/${id}`,
             {
               credentials: 'include',
               headers: {

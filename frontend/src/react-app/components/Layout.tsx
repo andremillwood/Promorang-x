@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
 import { 

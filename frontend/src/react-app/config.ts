@@ -1,5 +1,5 @@
 // API Configuration
-const LOCAL_API_URL = 'http://localhost:3002';
+const LOCAL_API_URL = 'http://localhost:3001';
 
 // Use VITE_API_URL from environment, fallback to local development URL
 const DEFAULT_API_BASE = import.meta.env.VITE_API_URL || LOCAL_API_URL;

@@ -16,7 +16,16 @@
     "type": "git",
     "url": "git+https://github.com/andremillwood/Promorang-x.git"
   },
-  "keywords": ["react", "vite", "vercel", "api", "fullstack"],
+  "keywords": [
+    "react",
+    "vite",
+    "vercel",
+    "api",
+    "fullstack"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }

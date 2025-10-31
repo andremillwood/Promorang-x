@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function AuthCallback() {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { 

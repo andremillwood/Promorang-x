@@ -1,27 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
-import {
+import { 
+  Settings,
+  LogOut,
+  User,
+  ArrowRight,
   TrendingUp,
   DollarSign,
   Star,
   Zap,
   Crown,
-  Bookmark,
+  Activity,
   Coins,
   Diamond,
+  Bookmark,
   Target,
-  Flame,
-  ArrowRight,
-  Plus,
-  Activity,
-  User,
-  Home,
-  BarChart3,
-  Wallet,
-  Settings,
-  LogOut
+  Flame
 } from 'lucide-react';
 import BuySharesModal from '@/react-app/components/BuySharesModal';
 import ShareContentModal from '@/react-app/components/ShareContentModal';
@@ -39,19 +35,19 @@ import TipModal from '@/react-app/components/TipModal';
 import { ContentPieceType, DropType, WalletType, UserType } from '@/shared/types';
 
 export default function HomeFeed() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [contentFeed, setContentFeed] = useState<ContentPieceType[]>([]);
   const [dropFeed, setDropFeed] = useState<DropType[]>([]);
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'for-you' | 'social' | 'drops'>('for-you');
   const [sponsoredContent, setSponsoredContent] = useState<any[]>([]);
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [externalMoveModalOpen, setExternalMoveModalOpen] = useState(false);
-  const [forecastModalOpen, setForecastModalOpen] = useState(false);
+  const [, setForecastModalOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<ContentPieceType | null>(null);
   const [shareContentData, setShareContentData] = useState<{ id: number; title: string } | null>(null);
   const [externalMoveContentData, setExternalMoveContentData] = useState<{ id: number; title: string; platform: string; url: string } | null>(null);
@@ -68,8 +64,7 @@ export default function HomeFeed() {
   const [predictContent, setPredictContent] = useState<ContentPieceType | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const apiBase = useMemo(() => API_BASE_URL || '', []);
-  const withApiBase = (path: string) => `${apiBase}${path}`;
+  const withApiBase = (path: string) => `${API_BASE_URL}${path}`;
 
   const profileSlug =
     userData?.username ||
@@ -492,167 +487,74 @@ export default function HomeFeed() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
+      {/* Top spacing to account for fixed header */}
+      <div className="h-16"></div>
+      
+      {/* User dropdown (moved from nav bar) */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="relative">
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="user-menu flex items-center space-x-2 p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-all"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              {(userData?.display_name || userData?.username || user?.email || 'U')[0].toUpperCase()}
+            </div>
+            <ArrowRight className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${showUserMenu ? 'rotate-90' : ''}`} />
+          </button>
+
+          {/* User Dropdown Menu */}
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
               <button
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                onClick={() => {
+                  navigate(profilePath);
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
               >
-                <img
-                  src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
-                  alt="Promorang"
-                  className="h-8 w-auto"
-                />
+                <User className="w-4 h-4" />
+                <span>Profile</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate('/growth-hub');
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span>Growth Hub</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate('/advertiser');
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Advertiser</span>
+              </button>
+
+              <hr className="my-1 border-gray-200" />
+
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
               </button>
             </div>
-
-            {/* Main Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-              >
-                <Home className="w-4 h-4" />
-                <span className="font-medium">Dashboard</span>
-              </button>
-
-              <button
-                onClick={() => navigate('/earn')}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-              >
-                <DollarSign className="w-4 h-4" />
-                <span className="font-medium">Earn</span>
-              </button>
-
-              <button
-                onClick={() => navigate('/invest/portfolio')}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span className="font-medium">Invest</span>
-              </button>
-
-              <button
-                onClick={() => navigate('/wallet')}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-              >
-                <Wallet className="w-4 h-4" />
-                <span className="font-medium">Wallet</span>
-              </button>
-            </div>
-
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="user-menu flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {(userData?.display_name || userData?.username || user?.email || 'U')[0].toUpperCase()}
-                  </div>
-                  <span className="hidden md:block text-sm font-medium text-gray-700">
-                    {userData?.display_name || userData?.username || 'User'}
-                  </span>
-                  <ArrowRight className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-90' : ''}`} />
-                </button>
-
-                {/* User Dropdown Menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <button
-                      onClick={() => {
-                    navigate(profilePath);
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>Profile</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        navigate('/growth-hub');
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <TrendingUp className="w-4 h-4" />
-                      <span>Growth Hub</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        navigate('/advertiser');
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span>Advertiser</span>
-                    </button>
-
-                    <hr className="my-1 border-gray-200" />
-
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          )}
         </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-gray-200">
-          <div className="px-4 py-3 flex justify-around">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-            >
-              <Home className="w-5 h-5" />
-              <span className="text-xs">Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/earn')}
-              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-            >
-              <DollarSign className="w-5 h-5" />
-              <span className="text-xs">Earn</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/invest/portfolio')}
-              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-            >
-              <BarChart3 className="w-5 h-5" />
-              <span className="text-xs">Invest</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/wallet')}
-              className="flex flex-col items-center space-y-1 p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
-            >
-              <Wallet className="w-5 h-5" />
-              <span className="text-xs">Wallet</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+      </div>
 
       {/* Main Dashboard Content */}
       <div className="max-w-4xl mx-auto space-y-6 p-4">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from "react-router-dom";
 import { Plus, BarChart2, Calendar, Users, DollarSign, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 

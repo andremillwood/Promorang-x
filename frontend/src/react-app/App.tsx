@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import ErrorPage from "@/react-app/pages/ErrorPage";
 import LeaderboardPage from "@/react-app/pages/Leaderboard";
 import Layout from "@/react-app/components/Layout";
@@ -22,6 +22,7 @@ import AdvertiserOnboarding from "@/react-app/pages/AdvertiserOnboarding";
 import CampaignDetail from "@/react-app/pages/CampaignDetail";
 import NewCampaign from "@/react-app/pages/NewCampaign";
 import TestContentDetailsPage from "@/react-app/pages/TestContentDetailsPage";
+import NotFound from "@/react-app/pages/NotFound";
 import { AuthProvider, useAuth } from '@/react-app/hooks/useAuth';
 
 // Debug logging
@@ -179,9 +180,22 @@ export default function App() {
             } />
             <Route path="/home" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Fallback route */}
+            {/* Error and not found routes */}
+            <Route path="/not-found" element={
+              <PublicRoute redirectAuthenticated={false}>
+                <NotFound />
+              </PublicRoute>
+            } />
+            <Route path="/error" element={
+              <PublicRoute redirectAuthenticated={false}>
+                <ErrorPage />
+              </PublicRoute>
+            } />
+            {/* Catch-all route */}
             <Route path="*" element={
-              <ErrorPage message="Page not found" />
+              <PublicRoute redirectAuthenticated={false}>
+                <NotFound />
+              </PublicRoute>
             } />
           </Routes>
         </AuthProvider>
