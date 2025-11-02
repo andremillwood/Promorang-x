@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Instagram, CheckCircle, Copy, Check, TrendingUp } from 'lucide-react';
 import { UserType } from '@/shared/types';
+import { Routes as RoutePaths } from '@/react-app/utils/url';
 
 interface InstagramVerificationModalProps {
   user: UserType | null;
@@ -17,6 +18,11 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen || !user) return null;
+
+  const profileSlug =
+    user.username ||
+    (user.email ? user.email.split('@')[0] : undefined) ||
+    'me';
 
   const handleRegisterInstagram = async () => {
     if (!instagramUsername.trim()) {
@@ -180,7 +186,7 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
                   onClick={() => {
                     onClose(); // Close the current modal
                     // Navigate to profile with query param to open Influence Rewards
-                    window.location.href = '/profile?openInfluenceRewards=true';
+                    window.location.href = RoutePaths.profile(profileSlug, { openInfluenceRewards: 'true' });
                   }}
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
                 >
@@ -281,7 +287,7 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
                 onClick={() => {
                   onClose(); // Close the current modal
                   // Navigate to profile with query param to open Influence Rewards
-                  window.location.href = '/profile?openInfluenceRewards=true';
+                  window.location.href = RoutePaths.profile(profileSlug, { openInfluenceRewards: 'true' });
                 }}
                 className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
               >

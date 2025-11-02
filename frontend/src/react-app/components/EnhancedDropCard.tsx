@@ -1,5 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import { DropType } from '@/shared/types';
 import { Clock, Users, Target, Star, TrendingUp, Calendar, Award } from 'lucide-react';
+import { Routes as RoutePaths } from '@/react-app/utils/url';
 
 interface EnhancedDropCardProps {
   drop: DropType;
@@ -7,6 +9,7 @@ interface EnhancedDropCardProps {
 }
 
 export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProps) {
+  const navigate = useNavigate();
   const formatLabel = (value?: string | null, fallback = 'Unknown') => {
     const label = value && value.trim().length > 0 ? value : fallback;
     return label.charAt(0).toUpperCase() + label.slice(1);
@@ -56,8 +59,7 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
   };
 
   const handleCardClick = () => {
-    // Navigate to drop detail page
-    window.location.href = `/drops/${drop.id}`;
+    navigate(RoutePaths.drop(String(drop.id)));
   };
 
   const previewImage = drop.preview_image || drop.content_url || `https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1200&q=80&sat=-15&sig=${drop.id}`;

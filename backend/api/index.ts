@@ -3,7 +3,11 @@ import helmet from 'helmet';
 import { corsMw, corsPreflightHandler } from './_core/cors';
 import { requireAuth } from './_core/auth';
 import { supabaseAdmin } from './_core/supabase';
+import { handleError, AuthenticatedRequest } from './_core/apiUtils';
 import jwt from 'jsonwebtoken';
+import contentRoutes from './routes/content';
+import dropsRoutes from './routes/drops';
+import usersRoutes from './routes/users';
 
 const app = express();
 
@@ -80,27 +84,37 @@ app.post('/api/auth/demo/:role', async (req, res) => {
         ...data.user.user_metadata,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Demo login error:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Failed to create demo account',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? error?.message : undefined,
     });
   }
 });
 
-// Protected route example
-app.get('/api/users/me', requireAuth, (req, res) => {
+// API Routes
+app.use('/api/content', contentRoutes);
+app.use('/api/drops', dropsRoutes);
+app.use('/api/users', usersRoutes);
+
+// Auth profile endpoint (legacy, will be removed in future versions)
+app.get('/api/auth/profile', requireAuth, (req: AuthenticatedRequest, res) => {
   res.json({
     success: true,
     user: {
       id: req.user?.id,
       email: req.user?.email,
-      role: req.user?.role,
-      // Add other user properties as needed
+      ...req.user?.user_metadata
     },
   });
+});
+
+// Telemetry endpoint
+app.post('/api/telemetry', (req, res) => {
+  // Just acknowledge receipt of telemetry data
+  res.json({ success: true });
 });
 
 // 404 handler
@@ -113,14 +127,7 @@ app.use((req: Request, res: Response) => {
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Unhandled error:', err);
-  
-  res.status(500).json({
-    success: false,
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message,
-  });
+  handleError(res, err, 'Unhandled error');
 });
 
 // Start server

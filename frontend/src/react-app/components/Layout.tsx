@@ -37,6 +37,7 @@ import GoldShopModal from '@/react-app/components/GoldShopModal';
 import AchievementsModal from '@/react-app/components/AchievementsModal';
 import { useNotifications } from '@/react-app/hooks/useNotifications';
 import { buildAuthHeaders } from '@/react-app/utils/api';
+import { Routes as RoutePaths } from '@/react-app/utils/url';
 
 interface LayoutProps {
   children: ReactNode;
@@ -153,7 +154,7 @@ export default function Layout({ children }: LayoutProps) {
     (user?.email ? user.email.split('@')[0] : undefined) ||
     'me';
 
-  const profilePath = `/profile/${encodeURIComponent(profileSlug)}`;
+  const profilePath = RoutePaths.profile(profileSlug);
 
   const handleWalletAction = (action: string) => {
     setShowWalletMenu(false);

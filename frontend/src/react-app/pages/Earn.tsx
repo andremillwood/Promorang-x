@@ -15,6 +15,7 @@ import {
 import UserLink from '@/react-app/components/UserLink';
 import { DropType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
 import { buildAuthHeaders, apiFetch } from '@/react-app/utils/api';
+import { Routes as RoutePaths } from '@/react-app/utils/url';
 
 interface CreateDropRequestType {
   title: string;
@@ -241,8 +242,7 @@ function DropCard({ drop }: { drop: DropType }) {
   };
 
   const handleDropClick = () => {
-    // Use React Router navigation instead of window.location
-    navigate(`/drops/${drop.id}`);
+    navigate(RoutePaths.drop(String(drop.id)));
   };
 
   // Check if this is demo content

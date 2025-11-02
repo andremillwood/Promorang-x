@@ -197,3 +197,51 @@ export const acceptShareOffer = async (offerId: string) => {
 
   return response.json();
 };
+
+interface CreateShareLinkOptions {
+  userId: string;
+  targetUrl: string;
+  campaignId?: string;
+  contentId?: number | string;
+}
+
+interface ShareLinkResponse {
+  id: string;
+  url: string;
+  signature: string;
+  task?: {
+    type: string;
+    reward: {
+      points: number;
+      gems: number;
+    };
+    contentId?: number | string | null;
+  };
+}
+
+export const createShareLink = async (options: CreateShareLinkOptions): Promise<ShareLinkResponse> => {
+  try {
+    const response = await apiFetch('/api/shares/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: options.userId,
+        target_url: options.targetUrl,
+        campaign_id: options.campaignId,
+        content_id: options.contentId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Unable to create share link');
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Failed to create share link:', error);
+    throw error instanceof Error ? error : new Error('Failed to create share link');
+  }
+};

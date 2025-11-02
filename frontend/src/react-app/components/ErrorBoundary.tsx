@@ -1,8 +1,12 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
+type FallbackRender = ReactNode | ((error?: Error, reset?: () => void) => ReactNode);
+
 interface Props {
   children: ReactNode;
+  fallback?: FallbackRender;
+  name?: string;
 }
 
 interface State {
@@ -30,7 +34,8 @@ export default class ErrorBoundary extends Component<Props, State> {
     // handleCriticalError(error, 'React', 'component_render');
   }
 
-  private handleRefresh = () => {
+  private handleReset = () => {
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
     window.location.reload();
   };
 
@@ -40,6 +45,14 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
+      if (this.props.fallback) {
+        const renderFallback = this.props.fallback;
+        if (typeof renderFallback === 'function') {
+          return renderFallback(this.state.error, this.handleReset);
+        }
+        return renderFallback;
+      }
+
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
           <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
@@ -57,7 +70,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             
             <div className="space-y-3">
               <button
-                onClick={this.handleRefresh}
+                onClick={this.handleReset}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
               >
                 <RefreshCw className="w-4 h-4" />

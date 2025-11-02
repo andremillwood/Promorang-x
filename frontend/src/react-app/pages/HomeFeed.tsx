@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { API_BASE_URL } from '../config';
 import { 
   Settings,
   LogOut,
@@ -33,6 +32,9 @@ import PlaceForecastModal from '@/react-app/components/PlaceForecastModal';
 import TipModal from '@/react-app/components/TipModal';
 
 import { ContentPieceType, DropType, WalletType, UserType } from '@/shared/types';
+import { Routes as RoutePaths } from '@/react-app/utils/url';
+import { logEvent } from '@/react-app/services/telemetry';
+import { apiFetch } from '@/react-app/utils/api';
 
 export default function HomeFeed() {
   const { user, logout } = useAuth();
@@ -64,8 +66,6 @@ export default function HomeFeed() {
   const [predictContent, setPredictContent] = useState<ContentPieceType | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const withApiBase = (path: string) => `${API_BASE_URL}${path}`;
-
   const profileSlug =
     userData?.username ||
     (userData?.email ? userData.email.split('@')[0] : undefined) ||
@@ -73,7 +73,7 @@ export default function HomeFeed() {
     (user?.email ? user.email.split('@')[0] : undefined) ||
     'me';
 
-  const profilePath = `/profile/${encodeURIComponent(profileSlug)}`;
+  const profilePath = RoutePaths.profile(profileSlug);
 
   useEffect(() => {
     fetchFeeds();
@@ -90,46 +90,40 @@ export default function HomeFeed() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showUserMenu]);
 
+  useEffect(() => {
+    logEvent('growth_feed_view', {
+      source: 'home_feed',
+    }, { userId: user?.id || userData?.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleTabChange = (tab: 'for-you' | 'social' | 'drops') => {
+    setActiveTab(tab);
+    logEvent('growth_tab_selected', {
+      tab,
+    }, { userId: user?.id || userData?.id });
+  };
+
   const openContentDetail = (content: ContentPieceType) => {
+    logEvent('growth_content_open', {
+      contentId: content.id,
+      source: activeTab,
+    }, { userId: user?.id || userData?.id });
     navigate(`/content/${content.id}`);
   };
 
   const handleLogout = async () => {
-    try {
-      const authToken = localStorage.getItem('authToken');
-      if (authToken) {
-        await fetch(withApiBase('/api/auth/logout'), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('authToken');
-      navigate('/auth');
-    }
+    await logout();
+    navigate('/auth');
   };
 
   const fetchFeeds = async () => {
     try {
-      const authToken = localStorage.getItem('authToken');
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-
       const [contentResponse, dropsResponse, walletsResponse, sponsoredResponse] = await Promise.all([
-        fetch(withApiBase('/api/content'), { headers, credentials: 'include' }),
-        fetch(withApiBase('/api/drops?limit=10'), { headers, credentials: 'include' }),
-        fetch(withApiBase('/api/users/me/wallets'), { headers, credentials: 'include' }),
-        fetch(withApiBase('/api/content/sponsored'), { headers, credentials: 'include' })
+        apiFetch('/api/content'),
+        apiFetch('/api/drops?limit=10'),
+        apiFetch('/api/users/me/wallets'),
+        apiFetch('/api/content/sponsored')
       ]);
 
       if (contentResponse.ok) {
@@ -181,35 +175,16 @@ export default function HomeFeed() {
   };
 
   const fetchUserData = async () => {
-    if (!user) {
-      console.log('No authenticated user, skipping user data fetch');
-      return;
-    }
-
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      console.log('No auth token found, redirecting to login');
-      window.location.href = '/auth';
-      return;
-    }
-
     try {
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-      };
-
-      const response = await fetch(withApiBase('/api/auth/profile'), { headers, credentials: 'include' });
+      const response = await apiFetch('/api/auth/profile');
       if (response.ok) {
         const data = await response.json();
         setUserData(data.user);
+      } else if (response.status === 401) {
+        await logout();
+        navigate('/auth?expired=1');
       } else {
         console.error('Failed to fetch user data:', response.status, response.statusText);
-        // If authentication fails, redirect to login
-        if (response.status === 401 || response.status === 500) {
-          localStorage.removeItem('authToken');
-          window.location.href = '/auth';
-        }
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
@@ -219,10 +194,9 @@ export default function HomeFeed() {
 
   const handleSocialAction = async (action: string, contentId?: number) => {
     try {
-      const response = await fetch('/api/users/social-action', {
+      const response = await apiFetch('/api/users/social-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           action_type: action,
           reference_id: contentId,
@@ -259,10 +233,9 @@ export default function HomeFeed() {
 
   const handleBuyShares = async (content: ContentPieceType, sharesCount: number) => {
     try {
-      const response = await fetch('/api/content/buy-shares', {
+      const response = await apiFetch('/api/content/buy-shares', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ content_id: content.id, shares_count: sharesCount })
       });
 
@@ -279,10 +252,9 @@ export default function HomeFeed() {
 
   const handleTip = async (content: ContentPieceType, amount: number) => {
     try {
-      const response = await fetch('/api/content/tip', {
+      const response = await apiFetch('/api/content/tip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ content_id: content.id, tip_amount: amount })
       });
 
@@ -364,9 +336,8 @@ export default function HomeFeed() {
     if (!contentToDelete) return;
 
     try {
-      const response = await fetch(`/api/content/${contentToDelete.id}`, {
+      const response = await apiFetch(`/api/content/${contentToDelete.id}`, {
         method: 'DELETE',
-        credentials: 'include'
       });
 
       if (response.ok) {
@@ -655,7 +626,7 @@ export default function HomeFeed() {
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
+                onClick={() => handleTabChange(tab.key as any)}
                 className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-base transition-all duration-200 ${
                   activeTab === tab.key
                     ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50 shadow-sm'

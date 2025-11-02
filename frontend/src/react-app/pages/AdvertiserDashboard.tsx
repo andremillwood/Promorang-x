@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
-import {
+import { 
   BarChart3,
   Users,
   Diamond,
@@ -20,7 +20,11 @@ import {
   Settings,
   Edit,
   LayoutDashboard,
-  PlusCircle
+  PlusCircle,
+  TicketPercent,
+  Crown,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -35,7 +39,19 @@ import {
 import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import BrandProfileModal from '@/react-app/components/BrandProfileModal';
 import Campaigns from './Campaigns';
-import { buildAuthHeaders } from '@/react-app/utils/api';
+import { apiFetch } from '@/react-app/utils/api';
+import advertiserService, { AdvertiserPlan, CouponListPayload } from '@/react-app/services/advertiser';
+import UpgradePlanModal from '@/react-app/components/UpgradePlanModal';
+import CouponManager from '@/react-app/components/CouponManager';
+import ErrorBoundary from '@/react-app/components/ErrorBoundary';
+import paymentsService, { PaymentProviderSummary, PaymentProvider } from '@/react-app/services/payments';
+import { PAYMENT_CONFIG } from '@/react-app/config';
+
+const CouponManagerFallback = () => (
+  <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+    Unable to load incentive tools right now. Please refresh or try again later.
+  </div>
+);
 
 export default function AdvertiserDashboard() {
   const { user } = useAuth();
@@ -58,6 +74,20 @@ export default function AdvertiserDashboard() {
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [savingBrand, setSavingBrand] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'campaigns'>('dashboard');
+  const [plans, setPlans] = useState<AdvertiserPlan[]>([]);
+  const [currentPlanId, setCurrentPlanId] = useState<string>('free');
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradingPlan, setUpgradingPlan] = useState(false);
+  const [couponData, setCouponData] = useState<CouponListPayload>({
+    coupons: [],
+    redemptions: [],
+  });
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
+  const [paymentProviders, setPaymentProviders] = useState<PaymentProviderSummary[]>([]);
+  const [defaultPaymentProvider, setDefaultPaymentProvider] = useState<PaymentProvider>('mock');
+  const [loadingProviders, setLoadingProviders] = useState(false);
+  const [paymentProviderError, setPaymentProviderError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -69,6 +99,7 @@ export default function AdvertiserDashboard() {
     if (userData) {
       fetchDashboardData();
       fetchSuggestedContent();
+      fetchCoupons();
     }
   }, [userData]);
 
@@ -110,13 +141,16 @@ export default function AdvertiserDashboard() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user) {
+      fetchPlans();
+      fetchPaymentProviders();
+    }
+  }, [user]);
+
   const fetchUserData = async () => {
     try {
-      const headers = buildAuthHeaders();
-      const response = await fetch('/api/users/me', {
-        credentials: 'include',
-        headers
-      });
+      const response = await apiFetch('/api/users/me');
 
       if (response.ok) {
         const data = await response.json();
@@ -133,15 +167,20 @@ export default function AdvertiserDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const headers = buildAuthHeaders();
-      const response = await fetch('/api/advertisers/dashboard', {
-        credentials: 'include',
-        headers
-      });
+      const response = await apiFetch('/api/advertisers/dashboard');
 
       if (response.ok) {
         const data = await response.json();
-        setDashboardData(data);
+        if (data?.status === 'success') {
+          setDashboardData(data.data);
+        } else {
+          setDashboardData({
+            drops: [],
+            analytics: [],
+            user_tier: (userData as any)?.user_tier || 'free'
+          });
+          console.error('Dashboard payload error:', data?.message);
+        }
       } else {
         setDashboardData({
           drops: [],
@@ -163,15 +202,16 @@ export default function AdvertiserDashboard() {
 
   const fetchSuggestedContent = async () => {
     try {
-      const headers = buildAuthHeaders();
-      const response = await fetch('/api/advertisers/suggested-content', {
-        credentials: 'include',
-        headers
-      });
+      const response = await apiFetch('/api/advertisers/suggested-content');
 
       if (response.ok) {
         const data = await response.json();
-        setSuggestedContent(Array.isArray(data) ? data : []);
+        if (data?.status === 'success') {
+          setSuggestedContent(Array.isArray(data.data) ? data.data : []);
+        } else {
+          setSuggestedContent([]);
+          console.error('Suggested content payload error:', data?.message);
+        }
       } else {
         setSuggestedContent([]);
       }
@@ -180,6 +220,100 @@ export default function AdvertiserDashboard() {
       setSuggestedContent([]);
     } finally {
       setLoadingSuggestions(false);
+    }
+  };
+
+  const fetchPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const data = await advertiserService.getPlans();
+      setPlans(data.plans);
+      setCurrentPlanId(data.currentTier || 'free');
+    } catch (err) {
+      console.error('Failed to fetch plans', err);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const fetchPaymentProviders = async () => {
+    if (!PAYMENT_CONFIG.enabled) {
+      setPaymentProviders([]);
+      setDefaultPaymentProvider('mock');
+      return;
+    }
+
+    setLoadingProviders(true);
+    setPaymentProviderError(null);
+
+    try {
+      const summary = await paymentsService.listProviders();
+      setPaymentProviders(summary.providers);
+      setDefaultPaymentProvider(summary.defaultProvider);
+    } catch (err) {
+      console.error('Failed to fetch payment providers', err);
+      setPaymentProviders([]);
+      setPaymentProviderError('Unable to reach payment providers right now.');
+    } finally {
+      setLoadingProviders(false);
+    }
+  };
+
+  const fetchCoupons = async () => {
+    setLoadingCoupons(true);
+    try {
+      const data = await advertiserService.listCoupons();
+      setCouponData({
+        coupons: data.coupons || [],
+        redemptions: data.redemptions || [],
+      });
+    } catch (err) {
+      console.error('Failed to fetch coupons', err);
+      setCouponData({ coupons: [], redemptions: [] });
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
+  const handleUpgradePlan = async (planId: string) => {
+    setUpgradingPlan(true);
+    try {
+      const selectedPlan = plans.find((plan) => plan.id === planId);
+      const readyProvider =
+        paymentProviders.find((provider) => provider.enabled && provider.ready)?.provider ||
+        defaultPaymentProvider;
+
+      if (PAYMENT_CONFIG.enabled && readyProvider && readyProvider !== 'mock') {
+        const checkout = await paymentsService.startCheckout({
+          planId,
+          provider: readyProvider,
+          successUrl: `${window.location.origin}/advertiser?upgrade=success&plan=${planId}`,
+          cancelUrl: `${window.location.origin}/advertiser?upgrade=cancelled`,
+          metadata: {
+            planName: selectedPlan?.name,
+          },
+        });
+
+        if (checkout?.url && checkout.status !== 'mock') {
+          setShowUpgradeModal(false);
+          setUpgradingPlan(false);
+          window.location.href = checkout.url;
+          return;
+        }
+      }
+
+      const response = await advertiserService.upgrade(planId);
+      setCurrentPlanId(response?.plan?.id || planId);
+      if (response?.message) {
+        alert(response.message);
+      }
+      fetchPlans();
+    } catch (err) {
+      console.error('Failed to upgrade plan', err);
+      alert('Unable to upgrade plan right now. Please try again later.');
+    } finally {
+      setUpgradingPlan(false);
+      setShowUpgradeModal(false);
     }
   };
 
@@ -274,6 +408,23 @@ export default function AdvertiserDashboard() {
 
   const tierInfo = getTierBenefits(dashboardData?.user_tier || 'free');
   const totals = calculateTotals();
+  const paymentProviderName = (provider: PaymentProvider) => {
+    switch (provider) {
+      case 'stripe':
+        return 'Stripe';
+      case 'coinbase':
+        return 'Coinbase Commerce';
+      default:
+        return 'Mock';
+    }
+  };
+
+  const paymentProviderStatus = (provider: PaymentProviderSummary) => {
+    if (!provider.enabled) {
+      return 'Disabled';
+    }
+    return provider.ready ? 'Ready' : 'Configured';
+  };
 
   const handleSponsorContent = (content: any) => setSelectedContentForSponsorship(content);
 
@@ -502,6 +653,137 @@ export default function AdvertiserDashboard() {
               >
                 <Settings className="w-5 h-5" />
               </button>
+            </div>
+          </div>
+
+          {/* Subscription Overview */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-6 shadow-sm">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center space-x-2 text-sm font-medium text-blue-600">
+                    <Crown className="h-4 w-4" />
+                    <span>Advertiser Plan</span>
+                  </div>
+                  <h3 className="mt-1 text-2xl font-semibold text-gray-900 capitalize">
+                    {currentPlanId}
+                  </h3>
+                  <p className="mt-2 text-sm text-blue-700">
+                    Unlock larger incentive budgets, deeper analytics, and leaderboards targeting with Premium plans.
+                  </p>
+                </div>
+                <div className="text-right text-sm text-blue-700">
+                  {loadingPlans ? (
+                    <div className="flex items-center space-x-1 text-xs text-blue-500">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <span>Loading plans…</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:from-blue-600 hover:to-purple-600"
+                    >
+                      Upgrade Plan
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {plans.length > 0 && (
+                <ul className="mt-4 grid gap-2 text-sm text-blue-800 md:grid-cols-2">
+                  {plans
+                    .find((plan) => plan.id === currentPlanId)?.features
+                    ?.slice(0, 4)
+                    .map((feature) => (
+                      <li key={feature} className="flex items-center space-x-2">
+                        <CheckCircle2 className="h-4 w-4 text-blue-500" />
+                        <span>{feature}</span>
+                      </li>
+                    )) || (
+                      <li className="text-sm text-blue-700">
+                        Compare plans to see everything you unlock.
+                      </li>
+                    )}
+                </ul>
+              )}
+
+              <div className="mt-6 rounded-xl border border-blue-100 bg-white/70 p-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-blue-700">
+                  <span>Payment Providers</span>
+                  {loadingProviders ? (
+                    <span className="flex items-center space-x-1 text-blue-500">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <span>Checking…</span>
+                    </span>
+                  ) : null}
+                </div>
+
+                {!PAYMENT_CONFIG.enabled ? (
+                  <p className="mt-3 text-sm text-blue-600">
+                    Payments are currently disabled. Our team will process upgrades manually.
+                  </p>
+                ) : paymentProviderError ? (
+                  <p className="mt-3 text-sm text-red-600">{paymentProviderError}</p>
+                ) : paymentProviders.length === 0 ? (
+                  <p className="mt-3 text-sm text-blue-600">No payment providers configured yet.</p>
+                ) : (
+                  <ul className="mt-3 space-y-2">
+                    {paymentProviders.map((provider) => (
+                      <li
+                        key={provider.provider}
+                        className="flex items-center justify-between rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700"
+                      >
+                        <div>
+                          <span className="font-semibold">{paymentProviderName(provider.provider)}</span>
+                          {defaultPaymentProvider === provider.provider && (
+                            <span className="ml-2 rounded-full bg-blue-200 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                              Default
+                            </span>
+                          )}
+                          {provider.publishableKey && (
+                            <span className="block text-xs text-blue-500">
+                              Key • {provider.publishableKey.slice(0, 12)}…
+                            </span>
+                          )}
+                        </div>
+                        <span
+                          className={`text-xs font-semibold ${
+                            provider.enabled ? 'text-emerald-600' : 'text-gray-500'
+                          }`}
+                        >
+                          {paymentProviderStatus(provider)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-purple-200 bg-white p-6 shadow-sm">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center space-x-2 text-sm font-medium text-purple-600">
+                    <TicketPercent className="h-4 w-4" />
+                    <span>Giveaways & Coupons</span>
+                  </div>
+                  <h3 className="mt-1 text-xl font-semibold text-gray-900">Incentive Highlights</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Design rewards for top leaderboard performers or attach coupons directly to high-value drops.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 text-sm text-gray-600 md:grid-cols-2">
+                <div className="rounded-lg bg-purple-50 px-3 py-2">
+                  <p className="font-medium text-purple-700">Leaderboard Incentives</p>
+                  <p>Deliver exclusive rewards automatically to top ranked creators.</p>
+                </div>
+                <div className="rounded-lg bg-purple-50 px-3 py-2">
+                  <p className="font-medium text-purple-700">Drop Attachments</p>
+                  <p>Motivate applicants with coupons and giveaways baked into campaign briefs.</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -761,6 +1043,24 @@ export default function AdvertiserDashboard() {
             </div>
           </div>
 
+          {loadingCoupons ? (
+            <div className="flex items-center justify-center rounded-2xl border border-dashed border-purple-200 bg-purple-50/40 p-12">
+              <div className="flex flex-col items-center space-y-3 text-purple-600">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <p className="text-sm font-medium">Loading incentive toolkit…</p>
+              </div>
+            </div>
+          ) : (
+            <ErrorBoundary fallback={<CouponManagerFallback />}>
+              <CouponManager
+                coupons={couponData.coupons}
+                redemptions={couponData.redemptions}
+                drops={dashboardData.drops}
+                onRefresh={fetchCoupons}
+              />
+            </ErrorBoundary>
+          )}
+
           {/* Real-time Metrics */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Real-time Campaign Metrics</h3>
@@ -968,6 +1268,15 @@ export default function AdvertiserDashboard() {
           userGems={(userData as any)?.gems_balance || 0}
         />
       )}
+
+      <UpgradePlanModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        plans={plans}
+        currentTier={currentPlanId}
+        onSelect={handleUpgradePlan}
+        isSubmitting={upgradingPlan}
+      />
 
       <BrandProfileModal
         isOpen={showBrandModal}

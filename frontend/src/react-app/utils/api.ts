@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../config';
+import supabaseClient from '@/react-app/lib/supabaseClient';
 
 export const buildAuthHeaders = (headers: Record<string, string> = {}) => {
   if (typeof window === 'undefined') {
@@ -32,8 +33,27 @@ export const resolveApiUrl = (path: string) => {
   return `${base}${normalisedPath}`;
 };
 
-export const apiFetch = (path: string, options?: RequestInit) => {
-  return fetch(resolveApiUrl(path), options);
+export const apiFetch = async (path: string, options: RequestInit = {}) => {
+  const headers = new Headers(options.headers || {});
+  const supabase = supabaseClient;
+
+  if (supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+    } catch (error) {
+      console.warn('[apiFetch] failed to attach auth token', error);
+    }
+  }
+
+  return fetch(resolveApiUrl(path), {
+    ...options,
+    headers,
+    credentials: options.credentials ?? 'include',
+  });
 };
 
 if (typeof window !== 'undefined' && !(window as any).__PROMORANG_FETCH_PATCHED__) {

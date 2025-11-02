@@ -1,9 +1,126 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const supabase = require('../lib/supabase');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+const advertiserCoupons = [];
+const couponAssignments = [];
+const couponRedemptions = [];
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+const sendSuccess = (res, data = {}, message) => {
+  return res.json({ status: 'success', data, message });
+};
+
+const sendError = (res, statusCode, message, code) => {
+  return res.status(statusCode).json({ status: 'error', message, code });
+};
+
+const availablePlans = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    billingInterval: 'monthly',
+    features: [
+      '50 moves / month',
+      '5 proof drops',
+      'Basic analytics',
+    ],
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    price: 249,
+    billingInterval: 'monthly',
+    features: [
+      '200 moves / week',
+      '15 proof drops',
+      '8 paid drops',
+      'Advanced analytics',
+      'Audience targeting tools',
+    ],
+  },
+  {
+    id: 'super',
+    name: 'Super',
+    price: 799,
+    billingInterval: 'monthly',
+    features: [
+      '500 moves / week',
+      '25 proof drops',
+      '15 paid drops',
+      'Premium analytics + reporting',
+      'Dedicated success manager',
+      'Leaderboard incentive targeting',
+    ],
+  },
+];
+
+const getUserTier = (user = {}) => user?.advertiser_tier || user?.user_tier || 'free';
+
+const ensureDemoCoupons = (advertiserId = 'demo-advertiser-id') => {
+  if (isProduction || advertiserCoupons.length > 0) {
+    return;
+  }
+
+  const now = new Date();
+  advertiserCoupons.push(
+    {
+      id: 'coupon-1',
+      advertiser_id: advertiserId,
+      title: '50% Off Premium Subscription',
+      description: 'Reward top performers with a 50% discount on their next purchase.',
+      reward_type: 'coupon',
+      value: 50,
+      value_unit: 'percentage',
+      quantity_total: 25,
+      quantity_remaining: 25,
+      start_date: now.toISOString(),
+      end_date: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active',
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      conditions: {
+        leaderboard_position_min: 1,
+        leaderboard_position_max: 25,
+      },
+      assignments: [],
+    },
+    {
+      id: 'coupon-2',
+      advertiser_id: advertiserId,
+      title: 'Creator Merch Pack Giveaway',
+      description: 'Send custom merch to the first 10 creators who complete the drop.',
+      reward_type: 'giveaway',
+      value: 1,
+      value_unit: 'item',
+      quantity_total: 10,
+      quantity_remaining: 10,
+      start_date: now.toISOString(),
+      end_date: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active',
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+      conditions: {
+        drop_ids: ['drop-1'],
+      },
+      assignments: [
+        {
+          id: 'assign-1',
+          coupon_id: 'coupon-2',
+          target_type: 'drop',
+          target_id: 'drop-1',
+          target_label: 'Launch Campaign: Social Buzz',
+          assigned_at: now.toISOString(),
+          status: 'active',
+        },
+      ],
+    },
+  );
+};
 
 const decodeToken = (token) => {
   try {
@@ -21,11 +138,10 @@ router.use((req, res, next) => {
     const decoded = decodeToken(authHeader.substring(7));
     if (decoded) {
       req.user = decoded;
-      return next();
     }
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (!req.user && process.env.NODE_ENV === 'development') {
     req.user = {
       id: 'demo-advertiser-id',
       email: 'advertiser@demo.com',
@@ -37,14 +153,49 @@ router.use((req, res, next) => {
       gems_balance: 2000,
       keys_balance: 500,
     };
-    return next();
   }
 
-  return res.status(401).json({ success: false, error: 'Unauthorized' });
+  if (!req.user) {
+    return sendError(res, 401, 'Unauthorized', 'UNAUTHENTICATED');
+  }
+
+  if ((req.user.user_type || req.user.role) !== 'advertiser') {
+    return sendError(res, 403, 'Advertiser privileges required', 'NOT_ADVERTISER');
+  }
+
+  return next();
+});
+
+router.get('/subscription/plans', (req, res) => {
+  return sendSuccess(res, {
+    plans: availablePlans,
+    current_tier: getUserTier(req.user),
+  });
+});
+
+router.post('/subscription/upgrade', (req, res) => {
+  const { planId } = req.body || {};
+  const plan = availablePlans.find((entry) => entry.id === planId);
+
+  if (!plan) {
+    return sendError(res, 422, 'Invalid plan selection', 'INVALID_PLAN');
+  }
+
+  const now = new Date().toISOString();
+
+  return sendSuccess(res, {
+    plan: {
+      ...plan,
+      activated_at: now,
+      renews_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  }, `Subscription upgraded to ${plan.name}`);
 });
 
 router.get('/dashboard', async (req, res) => {
-  const userTier = req.user?.advertiser_tier || req.user?.user_tier || 'free';
+  const userTier = getUserTier(req.user);
+
+  ensureDemoCoupons(req.user?.id);
 
   const mockDrops = [
     {
@@ -134,7 +285,16 @@ router.get('/dashboard', async (req, res) => {
 
   const tierInventory = inventory[userTier] || inventory.free;
 
-  res.json({
+  if (isProduction) {
+    return sendSuccess(res, {
+      drops: [],
+      analytics: [],
+      user_tier: userTier,
+      ...tierInventory
+    });
+  }
+
+  return sendSuccess(res, {
     drops: mockDrops,
     analytics: mockAnalytics,
     user_tier: userTier,
@@ -197,7 +357,140 @@ router.get('/suggested-content', (req, res) => {
     }
   ];
 
-  res.json(mockContent);
+  if (isProduction) {
+    return sendSuccess(res, []);
+  }
+
+  return sendSuccess(res, mockContent);
+});
+
+router.get('/coupons', (req, res) => {
+  ensureDemoCoupons(req.user?.id);
+
+  const coupons = advertiserCoupons.filter((coupon) => coupon.advertiser_id === (req.user?.id || 'demo-advertiser-id'))
+    .map((coupon) => ({
+      ...coupon,
+      assignments: couponAssignments.filter((assignment) => assignment.coupon_id === coupon.id),
+    }));
+
+  const redemptions = couponRedemptions.filter((entry) => coupons.some((coupon) => coupon.id === entry.coupon_id));
+
+  if (isProduction) {
+    return sendSuccess(res, { coupons: [], redemptions: [] });
+  }
+
+  return sendSuccess(res, {
+    coupons,
+    redemptions,
+  });
+});
+
+router.post('/coupons', (req, res) => {
+  const advertiserId = req.user?.id || 'demo-advertiser-id';
+  const {
+    title,
+    description,
+    reward_type = 'coupon',
+    value = 0,
+    value_unit = 'usd',
+    quantity_total = 0,
+    start_date,
+    end_date,
+    conditions = {},
+  } = req.body || {};
+
+  if (!title || !quantity_total) {
+    return sendError(res, 422, 'Title and quantity are required', 'VALIDATION_ERROR');
+  }
+
+  const now = new Date().toISOString();
+  const id = `coupon-${Date.now()}`;
+
+  const coupon = {
+    id,
+    advertiser_id: advertiserId,
+    title,
+    description,
+    reward_type,
+    value,
+    value_unit,
+    quantity_total,
+    quantity_remaining: quantity_total,
+    start_date: start_date || now,
+    end_date: end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    created_at: now,
+    updated_at: now,
+    conditions,
+  };
+
+  if (!isProduction) {
+    advertiserCoupons.push(coupon);
+  }
+
+  return res.status(201).json({ status: 'success', data: { coupon }, message: 'Coupon created successfully' });
+});
+
+router.post('/coupons/:couponId/assign', (req, res) => {
+  ensureDemoCoupons(req.user?.id);
+  const { couponId } = req.params;
+  const { target_type, target_id, target_label } = req.body || {};
+
+  if (!target_type || !target_id) {
+    return sendError(res, 422, 'Target type and ID are required', 'VALIDATION_ERROR');
+  }
+
+  const coupon = advertiserCoupons.find((entry) => entry.id === couponId);
+  if (!coupon) {
+    return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+  }
+
+  const assignment = {
+    id: `assign-${Date.now()}`,
+    coupon_id: couponId,
+    target_type,
+    target_id,
+    target_label: target_label || target_id,
+    assigned_at: new Date().toISOString(),
+    status: 'active',
+  };
+
+  couponAssignments.push(assignment);
+  coupon.assignments = [...(coupon.assignments || []), assignment];
+
+  return sendSuccess(res, { assignment }, 'Coupon assignment saved');
+});
+
+router.post('/coupons/:couponId/redeem', (req, res) => {
+  ensureDemoCoupons(req.user?.id);
+  const { couponId } = req.params;
+  const { user_id, user_name } = req.body || {};
+
+  const coupon = advertiserCoupons.find((entry) => entry.id === couponId);
+  if (!coupon) {
+    return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+  }
+
+  if (coupon.quantity_remaining <= 0) {
+    return sendError(res, 422, 'No remaining quantity', 'COUPON_DEPLETED');
+  }
+
+  const redemption = {
+    id: `redeem-${Date.now()}`,
+    coupon_id: couponId,
+    user_id: user_id || 'demo-user',
+    user_name: user_name || 'Demo User',
+    redeemed_at: new Date().toISOString(),
+    reward_value: coupon.value,
+    reward_unit: coupon.value_unit,
+    status: 'completed',
+  };
+
+  coupon.quantity_remaining = Math.max(0, coupon.quantity_remaining - 1);
+  coupon.updated_at = new Date().toISOString();
+  couponRedemptions.push(redemption);
+
+  return sendSuccess(res, { redemption, coupon }, 'Coupon redemption recorded');
 });
 
 module.exports = router;

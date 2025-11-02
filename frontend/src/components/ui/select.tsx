@@ -1,4 +1,15 @@
-import * as React from 'react';
+import { 
+  createContext, 
+  useContext, 
+  useState, 
+  useEffect, 
+  useRef, 
+  useCallback,
+  forwardRef,
+  type ReactNode,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes
+} from 'react';
 
 type SelectContextValue = {
   value: string | undefined;
@@ -14,10 +25,10 @@ type SelectItemRecord = {
   label: React.ReactNode;
 };
 
-const SelectContext = React.createContext<SelectContextValue | null>(null);
+const SelectContext = createContext<SelectContextValue | null>(null);
 
 const useSelectContext = () => {
-  const ctx = React.useContext<SelectContextValue | null>(SelectContext);
+  const ctx = useContext<SelectContextValue | null>(SelectContext);
   if (!ctx) {
     throw new Error('Select components must be used within a Select');
   }
@@ -80,7 +91,7 @@ export function Select({ value, defaultValue, onValueChange, children }: SelectP
 
 export type SelectTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
+export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className = '', children, ...props }, ref) => {
     const { setOpen, open } = useSelectContext();
     return (
@@ -150,7 +161,7 @@ export type SelectItemProps = React.LiHTMLAttributes<HTMLDivElement> & {
   value: string;
 };
 
-export const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
+export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
   ({ className = '', children, value, ...props }, ref) => {
     const { value: selectedValue, onValueChange, setOpen, registerItem } = useSelectContext();
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../lib/supabase');
+const { requireAuth } = require('../middleware/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -30,14 +31,7 @@ const invalidateCache = (prefix) => {
   }
 };
 
-// Mock auth middleware
-const authMiddleware = (req, res, next) => {
-  req.user = { id: 'mock-user-id', email: 'user@example.com' };
-  next();
-};
-
-// Apply auth to protected routes
-router.use(authMiddleware);
+router.use(requireAuth);
 
 // Get all drops
 router.get('/', async (req, res) => {

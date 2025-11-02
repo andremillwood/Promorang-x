@@ -4,10 +4,13 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 // https://vitejs.dev/config/
+// This configuration ensures proper React deduplication and optimization
+// to prevent multiple React instances in production
 export default defineConfig({
   plugins: [react()],
-  root: '.', // ensure root is current dir
-  base: '/', // important for Vercel
+  root: '.',
+  base: '/',
+  // React and dependency configuration
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -63,7 +66,16 @@ export default defineConfig({
     }
   },
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: [
+      {
+        find: 'react',
+        replacement: 'react'
+      },
+      {
+        find: 'react-dom',
+        replacement: 'react-dom'
+      },
       {
         find: '@',
         replacement: resolve(dirname(fileURLToPath(import.meta.url)), 'src')
@@ -77,5 +89,16 @@ export default defineConfig({
         replacement: resolve(dirname(fileURLToPath(import.meta.url)), 'src/shared')
       }
     ]
-  }
+  },
+  optimizeDeps: {
+    force: true,
+    include: ['react', 'react-dom', 'react/jsx-runtime']
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      extensions: ['.js', '.cjs'],
+      transformMixedEsModules: true
+    }
+  },
 });

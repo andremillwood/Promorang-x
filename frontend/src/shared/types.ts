@@ -251,6 +251,52 @@ export interface DropType {
   updated_at: string;
 }
 
+export interface CouponType {
+  id: string;
+  advertiser_id: string;
+  title: string;
+  description?: string;
+  reward_type: 'coupon' | 'giveaway' | 'credit';
+  value: number;
+  value_unit: 'usd' | 'gems' | 'keys' | 'percentage' | 'item';
+  quantity_total: number;
+  quantity_remaining: number;
+  start_date?: string;
+  end_date?: string;
+  status: 'draft' | 'active' | 'expired' | 'redeemed' | 'scheduled';
+  created_at: string;
+  updated_at: string;
+  conditions?: {
+    leaderboard_position_min?: number;
+    leaderboard_position_max?: number;
+    drop_ids?: string[];
+    tags?: string[];
+    min_engagement?: number;
+  };
+  assignments?: CouponAssignmentType[];
+}
+
+export interface CouponAssignmentType {
+  id: string;
+  coupon_id: string;
+  target_type: 'drop' | 'leaderboard';
+  target_id: string;
+  target_label: string;
+  assigned_at: string;
+  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
+}
+
+export interface CouponRedemptionType {
+  id: string;
+  coupon_id: string;
+  user_id: string;
+  user_name: string;
+  redeemed_at: string;
+  reward_value: number;
+  reward_unit: CouponType['value_unit'];
+  status: 'pending' | 'completed' | 'cancelled';
+}
+
 export interface DropApplicationType {
   id: number;
   drop_id: string | number;

@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const router = express.Router();
 const supabase = require('../lib/supabase');
+const { requireAuth } = require('../middleware/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -44,14 +45,7 @@ const DEMO_MEDIA = [
 const CONTENT_STORAGE_BUCKET = process.env.SUPABASE_CONTENT_BUCKET || 'content-media';
 const STORAGE_PREFIX = process.env.CONTENT_UPLOAD_PREFIX || 'uploads';
 
-// Mock auth middleware
-const authMiddleware = (req, res, next) => {
-  req.user = { id: 'mock-user-id', email: 'user@example.com' };
-  next();
-};
-
-// Apply auth to protected routes
-router.use(authMiddleware);
+router.use(requireAuth);
 
 const normalizeMediaUrl = (url, index = 0) => {
   if (!url || typeof url !== 'string') {

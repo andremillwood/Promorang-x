@@ -11,12 +11,20 @@ console.log('VITE_API_URL from env:', import.meta.env.VITE_API_URL);
 console.log('Using API Base URL:', DEFAULT_API_BASE);
 console.groupEnd();
 
+const PAYMENT_CONFIG = {
+  defaultProvider: import.meta.env.VITE_PAYMENT_PROVIDER || 'mock',
+  stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
+  coinbaseCommerceKey: import.meta.env.VITE_COINBASE_COMMERCE_KEY || '',
+  enabled: import.meta.env.VITE_PAYMENTS_ENABLED !== 'false',
+};
+
 // Add to global scope for debugging in browser console
 if (typeof window !== 'undefined') {
   (window as any).__API_CONFIG = {
     env: import.meta.env.MODE,
     viteApiUrl: import.meta.env.VITE_API_URL,
     apiBase: DEFAULT_API_BASE,
+    payments: PAYMENT_CONFIG,
     timestamp: new Date().toISOString()
   };
 }
@@ -46,3 +54,5 @@ export const API_ENDPOINTS = {
   },
   // Add other API endpoints as needed
 };
+
+export { PAYMENT_CONFIG };
