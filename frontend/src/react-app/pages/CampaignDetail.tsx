@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useToast } from "@/react-app/components/ui/use-toast";
+import advertiserService from '@/react-app/services/advertiser';
 import { 
   ArrowLeft, 
   BarChart2, 
@@ -22,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { AddFundsModal } from '@/react-app/components/AddFundsModal';
+import { AddContentModal } from '@/react-app/components/AddContentModal';
 
 type CampaignStatus = 'active' | 'paused' | 'draft' | 'completed';
 
@@ -74,83 +78,68 @@ const statusStyles: Record<CampaignStatus, string> = {
 };
 
 export default function CampaignDetail() {
-  const { id } = useParams<{ id: string }>();
+  const { id, campaignId } = useParams<{ id?: string; campaignId?: string }>();
+  const resolvedId = id ?? campaignId;
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [content, setContent] = useState<CampaignContent[]>([]);
+  const [drops, setDrops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const fetchCampaign = async () => {
+      if (!resolvedId) {
+        setError('No campaign ID provided');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        // TODO: Replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const data = await advertiserService.getCampaign(resolvedId);
         
-        // Mock data
-        const mockCampaign: Campaign = {
-          id: id || '1',
-          name: 'Summer Collection Launch',
-          status: 'active',
-          objective: 'engagement',
-          description: 'Promoting our new summer collection to drive engagement and sales.',
-          startDate: '2025-06-01',
-          endDate: '2025-08-31',
-          budget: 5000,
-          spent: 1250,
-          dailyBudget: 100,
-          impressions: 125000,
-          clicks: 2500,
-          ctr: 2.0,
-          cpc: 0.5,
-          drops: 12,
-          participants: 2450,
+        if (!data || !data.campaign) {
+          setError('Campaign not found');
+          return;
+        }
+
+        // Map backend data to frontend Campaign type
+        const mappedCampaign: Campaign = {
+          id: data.campaign.id,
+          name: data.campaign.name,
+          status: data.campaign.status as CampaignStatus,
+          objective: data.campaign.objective || '',
+          description: '',
+          startDate: data.campaign.start_date,
+          endDate: data.campaign.end_date || '',
+          budget: data.campaign.total_budget,
+          spent: data.campaign.budget_spent,
+          dailyBudget: 0,
+          impressions: data.campaign.performance?.impressions || 0,
+          clicks: data.campaign.performance?.clicks || 0,
+          ctr: data.campaign.performance?.impressions > 0 
+            ? (data.campaign.performance.clicks / data.campaign.performance.impressions) * 100 
+            : 0,
+          cpc: data.campaign.performance?.clicks > 0
+            ? data.campaign.performance.spend / data.campaign.performance.clicks
+            : 0,
+          drops: 0,
+          participants: 0,
           bidStrategy: 'lowest_cost',
-          bidAmount: 5,
+          bidAmount: 0,
           targetCtr: 2.0,
           targetCpc: 0.5,
-          createdAt: '2025-05-15T10:30:00Z',
-          updatedAt: '2025-06-15T14:45:00Z',
+          createdAt: data.campaign.created_at,
+          updatedAt: data.campaign.updated_at,
         };
         
-        const mockContent: CampaignContent[] = [
-          {
-            id: 'c1',
-            title: 'Summer Lookbook',
-            platform: 'Instagram',
-            creator: 'fashion_influencer',
-            status: 'live',
-            budget: 1000,
-            spent: 450,
-            impressions: 50000,
-            clicks: 1200,
-            ctr: 2.4,
-            cpc: 0.38,
-            startDate: '2025-06-01',
-            endDate: '2025-06-30',
-          },
-          {
-            id: 'c2',
-            title: 'Beachwear Showcase',
-            platform: 'TikTok',
-            creator: 'beachvibes',
-            status: 'live',
-            budget: 1500,
-            spent: 800,
-            impressions: 75000,
-            clicks: 1300,
-            ctr: 1.7,
-            cpc: 0.62,
-            startDate: '2025-06-05',
-            endDate: '2025-07-05',
-          },
-        ];
-        
-        setCampaign(mockCampaign);
-        setContent(mockContent);
+        setCampaign(mappedCampaign);
+        setContent(data.content || []);
       } catch (err) {
         console.error('Failed to fetch campaign:', err);
         setError('Failed to load campaign details. Please try again later.');
@@ -160,14 +149,14 @@ export default function CampaignDetail() {
     };
 
     fetchCampaign();
-  }, [id]);
+  }, [resolvedId]);
 
   const handleStatusChange = async (newStatus: CampaignStatus) => {
     if (!campaign) return;
     
     try {
       setIsUpdating(true);
-      // TODO: Replace with actual API call
+      // TODO: Implement status update API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
       setCampaign({
@@ -175,11 +164,180 @@ export default function CampaignDetail() {
         status: newStatus,
         updatedAt: new Date().toISOString(),
       });
+      
+      toast({
+        title: 'Campaign updated',
+        description: `Campaign status changed to ${newStatus}`,
+        type: 'success',
+      });
     } catch (err) {
       console.error('Failed to update campaign status:', err);
-      // Handle error (show toast, etc.)
+      toast({
+        title: 'Update failed',
+        description: 'Failed to update campaign status',
+        type: 'destructive',
+      });
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const [showAddContentModal, setShowAddContentModal] = useState(false);
+  const [isAddingContent, setIsAddingContent] = useState(false);
+
+  const handleAddContent = () => {
+    setShowAddContentModal(true);
+  };
+
+  const handleSubmitContent = async (contentData: any) => {
+    if (!campaign) return;
+
+    try {
+      setIsAddingContent(true);
+      const newContent = await advertiserService.addCampaignContent(campaign.id, contentData);
+      setContent([...content, newContent]);
+      setShowAddContentModal(false);
+      toast({
+        title: 'Content added',
+        description: 'Campaign content added successfully',
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Failed to add content:', err);
+      toast({
+        title: 'Add content failed',
+        description: 'Failed to add campaign content',
+        type: 'destructive',
+      });
+    } finally {
+      setIsAddingContent(false);
+    }
+  };
+
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [isAddingFunds, setIsAddingFunds] = useState(false);
+
+  const handleAddFunds = () => {
+    setShowAddFundsModal(true);
+  };
+
+  const handleSubmitFunds = async (amount: number) => {
+    if (!campaign) return;
+
+    try {
+      setIsAddingFunds(true);
+      const result = await advertiserService.addCampaignFunds(campaign.id, amount);
+      setCampaign({
+        ...campaign,
+        budget: result.new_total,
+        updatedAt: new Date().toISOString(),
+      });
+      setShowAddFundsModal(false);
+      toast({
+        title: 'Funds added',
+        description: `Successfully added ${formatCurrency(result.amount_added)} to campaign budget`,
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Failed to add funds:', err);
+      toast({
+        title: 'Add funds failed',
+        description: 'Failed to add funds to campaign',
+        type: 'destructive',
+      });
+    } finally {
+      setIsAddingFunds(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (!resolvedId) return;
+
+    try {
+      toast({
+        title: 'Refreshing data',
+        description: 'Fetching latest campaign metrics...',
+        type: 'info',
+      });
+
+      const data = await advertiserService.getCampaign(resolvedId);
+      if (data && data.campaign) {
+        const mappedCampaign: Campaign = {
+          id: data.campaign.id,
+          name: data.campaign.name,
+          status: data.campaign.status as CampaignStatus,
+          objective: data.campaign.objective || '',
+          description: '',
+          startDate: data.campaign.start_date,
+          endDate: data.campaign.end_date || '',
+          budget: data.campaign.total_budget,
+          spent: data.campaign.budget_spent,
+          dailyBudget: 0,
+          impressions: data.campaign.performance?.impressions || 0,
+          clicks: data.campaign.performance?.clicks || 0,
+          ctr: data.campaign.performance?.impressions > 0 
+            ? (data.campaign.performance.clicks / data.campaign.performance.impressions) * 100 
+            : 0,
+          cpc: data.campaign.performance?.clicks > 0
+            ? data.campaign.performance.spend / data.campaign.performance.clicks
+            : 0,
+          drops: 0,
+          participants: 0,
+          bidStrategy: 'lowest_cost',
+          bidAmount: 0,
+          targetCtr: 2.0,
+          targetCpc: 0.5,
+          createdAt: data.campaign.created_at,
+          updatedAt: data.campaign.updated_at,
+        };
+        setCampaign(mappedCampaign);
+        setMetrics(data.metrics || []);
+        
+        toast({
+          title: 'Data refreshed',
+          description: 'Campaign metrics updated successfully',
+          type: 'success',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to refresh campaign:', err);
+      toast({
+        title: 'Refresh failed',
+        description: 'Failed to refresh campaign data',
+        type: 'destructive',
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!campaign) return;
+    
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      toast({
+        title: 'Confirm deletion',
+        description: 'Click delete again to confirm',
+        type: 'warning',
+      });
+      setTimeout(() => setShowDeleteConfirm(false), 3000);
+      return;
+    }
+    
+    try {
+      await advertiserService.deleteCampaign(campaign.id);
+      toast({
+        title: 'Campaign deleted',
+        description: 'Campaign has been deleted successfully',
+        type: 'success',
+      });
+      navigate('/advertiser/campaigns');
+    } catch (err) {
+      console.error('Failed to delete campaign:', err);
+      toast({
+        title: 'Delete failed',
+        description: 'Failed to delete campaign',
+        type: 'destructive',
+      });
     }
   };
 
@@ -255,19 +413,19 @@ export default function CampaignDetail() {
     : null;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate(-1)}
-            className="h-8 w-8" 
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
-          </Button>
+    <>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(-1)}
+              className="h-8 w-8 p-0" 
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Back</span>
+            </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
             <div className="flex items-center mt-1 space-x-2">
@@ -556,21 +714,37 @@ export default function CampaignDetail() {
                   <section>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
                     <div className="space-y-3">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={handleRefresh}
+                      >
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Refresh Data
                       </Button>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={handleAddFunds}
+                      >
                         <DollarSign className="mr-2 h-4 w-4" />
                         Add Funds
                       </Button>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={handleAddContent}
+                      >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Content
                       </Button>
-                      <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-600">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start text-red-600 hover:text-red-600"
+                        onClick={handleDelete}
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Campaign
+                        {showDeleteConfirm ? 'Confirm Delete?' : 'Delete Campaign'}
                       </Button>
                     </div>
                   </section>
@@ -1027,5 +1201,21 @@ export default function CampaignDetail() {
                   </Tabs>
                 </div>
               </div>
-            );
-          }
+
+              {/* Modals */}
+              <AddFundsModal
+                isOpen={showAddFundsModal}
+                onClose={() => setShowAddFundsModal(false)}
+                onSubmit={handleSubmitFunds}
+                isSubmitting={isAddingFunds}
+              />
+              
+              <AddContentModal
+                isOpen={showAddContentModal}
+                onClose={() => setShowAddContentModal(false)}
+                onSubmit={handleSubmitContent}
+                isSubmitting={isAddingContent}
+              />
+            </>
+          );
+        }

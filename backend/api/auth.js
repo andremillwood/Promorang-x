@@ -28,9 +28,10 @@ const rawBodyMiddleware = (req, res, next) => {
 // JWT secret - in production, this should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Demo accounts for local testing
+// Demo accounts for local testing - must match seeded UUIDs in migration
 const DEMO_ACCOUNTS = [
   {
+    id: '00000000-0000-0000-0000-00000000c001',
     email: 'creator@demo.com',
     password: 'demo123',
     username: 'demo_creator',
@@ -38,6 +39,7 @@ const DEMO_ACCOUNTS = [
     user_type: 'creator'
   },
   {
+    id: '00000000-0000-0000-0000-00000000b001',
     email: 'investor@demo.com',
     password: 'demo123',
     username: 'demo_investor',
@@ -45,6 +47,7 @@ const DEMO_ACCOUNTS = [
     user_type: 'investor'
   },
   {
+    id: '00000000-0000-0000-0000-00000000ad01',
     email: 'advertiser@demo.com',
     password: 'demo123',
     username: 'demo_advertiser',
@@ -157,41 +160,19 @@ router.post('/login', async (req, res) => {
     const demoAccount = DEMO_ACCOUNTS.find(account => account.email === email && account.password === password);
 
     if (demoAccount) {
-      // For demo accounts, create or get the user
+      // For demo accounts, fetch the seeded user by username
       let { data: user, error: userError } = await supabase
         .from('users')
         .select('*')
-        .eq('email', email)
+        .eq('username', demoAccount.username)
         .single();
 
       if (userError || !user) {
-        // Create demo user if doesn't exist
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert([{
-            email: demoAccount.email,
-            username: demoAccount.username,
-            display_name: demoAccount.display_name,
-            user_type: demoAccount.user_type,
-            points_balance: 1000,
-            keys_balance: 50,
-            gems_balance: 100,
-            gold_collected: 0,
-            user_tier: 'free',
-            created_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating demo user:', createError);
-          return res.status(500).json({
-            success: false,
-            error: 'Failed to create demo account'
-          });
-        }
-
-        user = newUser;
+        console.error('Demo user not found in database:', demoAccount.username);
+        return res.status(500).json({
+          success: false,
+          error: 'Demo account not seeded. Please run migrations first.'
+        });
       }
 
       const token = generateToken(user);

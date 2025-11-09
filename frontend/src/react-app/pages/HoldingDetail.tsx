@@ -1,27 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, TrendingUp, DollarSign, Clock, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
-import { ContentHoldingDetail } from '@/shared/types';
+import type { ContentHoldingDetail } from '../../shared/types';
 import { getHoldingDetail } from '@/react-app/services/portfolioService';
 
 export default function HoldingDetailPage() {
-  const { id } = useParams();
+  const { holdingId } = useParams();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<ContentHoldingDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!holdingId) return;
     const load = async () => {
       setLoading(true);
-      const data = await getHoldingDetail(id);
+      const data = await getHoldingDetail(holdingId);
       setDetail(data);
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [holdingId]);
 
-  if (!id) {
+  if (!holdingId) {
     return (
       <div className="p-6">
         <button onClick={() => navigate(-1)} className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">

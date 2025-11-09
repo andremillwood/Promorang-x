@@ -15,7 +15,7 @@ import {
   Activity,
   Target
 } from 'lucide-react';
-import { WalletType, TransactionType, UserType, ContentHolding, ShareListing, ShareOffer } from '@/shared/types';
+import type { WalletType, TransactionType, UserType, ContentHolding, ShareListing, ShareOffer } from '../../shared/types';
 import CurrencyConversionModal from '@/react-app/components/CurrencyConversionModal';
 import MasterKeyModal from '@/react-app/components/MasterKeyModal';
 import GoldShopModal from '@/react-app/components/GoldShopModal';

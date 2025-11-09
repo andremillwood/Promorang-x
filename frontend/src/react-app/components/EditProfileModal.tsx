@@ -12,7 +12,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
-import { UserType, UpdateProfileRequestType } from '@/shared/types';
+import type { UserType, UpdateProfileRequestType } from '../../shared/types';
 
 interface EditProfileModalProps {
   isOpen: boolean;

@@ -8,7 +8,7 @@ import {
   Star,
   Calendar
 } from 'lucide-react';
-import { TaskType, CreateTaskRequestType, TaskCategorySchema, TaskDifficultySchema } from '@/shared/types';
+import type { TaskType, CreateTaskRequestType, TaskCategorySchema, TaskDifficultySchema } from '../../shared/types';
 
 export default function Marketplace() {
   const [tasks, setTasks] = useState<TaskType[]>([]);

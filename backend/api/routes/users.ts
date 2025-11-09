@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../_core/supabase';
-import { handleError, requireAuth, AuthenticatedRequest } from '../_core/apiUtils';
+import { handleError, AuthenticatedRequest } from '../_core/apiUtils';
+import { requireAuth } from '../_core/auth';
 
 const router = Router();
 

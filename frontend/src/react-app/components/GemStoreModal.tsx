@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Diamond, CreditCard, Shield, Star, Zap } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface GemStoreModalProps {
   user: UserType | null;

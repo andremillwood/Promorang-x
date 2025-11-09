@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, Instagram, CheckCircle, Copy, Check, TrendingUp } from 'lucide-react';
-import { UserType } from '@/shared/types';
-import { Routes as RoutePaths } from '@/react-app/utils/url';
+import type { UserType } from '../../shared/types';
+import { Routes as RoutePaths } from '../utils/url';
 
 interface InstagramVerificationModalProps {
   user: UserType | null;

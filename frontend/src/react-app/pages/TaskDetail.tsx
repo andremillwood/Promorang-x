@@ -16,13 +16,14 @@ import {
   Zap,
   Shield,
   Edit,
-  Trash2
+  Trash2,
+  Gift
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import EditDropModal from '@/react-app/components/EditDropModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
-import { DropType, DropApplicationType, UserType } from '@/shared/types';
-import { buildAuthHeaders, apiFetch } from '@/react-app/utils/api';
+import type { DropType, DropApplicationType, UserType } from '../../shared/types';
+import api from '@/react-app/lib/api';
 
 export default function TaskDetail() {
   const { id, taskId, dropId } = useParams<{ id?: string; taskId?: string; dropId?: string }>();
@@ -137,93 +138,20 @@ export default function TaskDetail() {
 
     try {
       console.log("Fetching drop detail for ID:", dropIdParam);
-      const response = await apiFetch(`/api/drops/${dropIdParam}`);
-      console.log("Drop detail response status:", response.status);
-
-      const responseData = await response.json().catch(() => ({}));
+      const responseData = await api.get<DropType>(`/drops/${dropIdParam}`);
       
-      if (response.ok) {
-        if (!responseData || !responseData.id) {
-          console.warn("Malformed drop data received:", responseData);
-          throw new Error("Invalid drop data format");
-        }
-        console.log("Drop data received:", responseData);
-        setDrop(responseData);
-      } else {
-        // Handle different error statuses
-        const errorCode = responseData.code || 'UNKNOWN_ERROR';
-        const errorMessage = responseData.error || 'An unknown error occurred';
-        
-        console.warn(`Drop fetch error (${response.status}):`, errorCode, errorMessage);
-        
-        // Log the error to the server
-        try {
-          await apiFetch("/api/logs/client-error", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              source: "TaskDetail",
-              error: `Drop fetch error: ${errorCode} (${response.status})`,
-              dropId: dropIdParam,
-              responseStatus: response.status,
-              errorDetails: errorMessage,
-              timestamp: new Date().toISOString(),
-            }),
-          });
-        } catch (logError) {
-          console.error("Failed to log error:", logError);
-        }
-
-        // Handle specific error cases
-        if (response.status === 404 || errorCode === 'DROP_NOT_FOUND') {
-          navigate("/not-found", {
-            state: {
-              title: "Drop Not Found",
-              message: "The requested drop could not be found. It may have been removed or the link might be incorrect.",
-              code: 'DROP_NOT_FOUND',
-            },
-          });
-        } else if (response.status >= 500) {
-          navigate("/error", {
-            state: {
-              title: "Server Error",
-              message: "We're having trouble loading this drop. Our team has been notified. Please try again later.",
-              code: 'SERVER_ERROR',
-            },
-          });
-        } else {
-          navigate("/error", {
-            state: {
-              title: "Error Loading Drop",
-              message: errorMessage || "There was an error loading the drop. Please try again later.",
-              code: errorCode,
-            },
-          });
-        }
+      if (!responseData || !responseData.id) {
+        console.warn("Malformed drop data received:", responseData);
+        throw new Error("Invalid drop data format");
       }
+      console.log("Drop data received:", responseData);
+      setDrop(responseData);
     } catch (error) {
       console.error("Failed to fetch drop:", error);
-      
-      // Log the error to the server if needed
-      try {
-        await apiFetch("/api/logs/client-error", {
-          method: "POST",
-          body: JSON.stringify({
-            source: "TaskDetail",
-            error: `Network error: ${error}`,
-            dropId: dropIdParam,
-            timestamp: new Date().toISOString(),
-          }),
-        });
-      } catch (logError) {
-        console.error("Failed to log error:", logError);
-      }
-      
       navigate("/error", {
         state: {
-          title: "Connection Error",
-          message:
-            "Unable to connect to the server. Please check your internet connection and try again.",
+          title: "Error Loading Drop",
+          message: "Unable to load the drop. Please try again later.",
         },
       });
     } finally {
@@ -233,18 +161,11 @@ export default function TaskDetail() {
 
   const fetchUserData = async () => {
     try {
-      const headers = buildAuthHeaders();
       // Fetch the database user data which contains the correct ID to match with creator_id
-      const response = await apiFetch('/api/users/me', {
-        credentials: 'include',
-        headers
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Database user data received:', data);
-        console.log('Database user id:', data?.id);
-        setUserData(data);
-      }
+      const data = await api.get<UserType>('/users/me');
+      console.log('Database user data received:', data);
+      console.log('Database user id:', data?.id);
+      setUserData(data);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
     }
@@ -257,18 +178,8 @@ export default function TaskDetail() {
     }
 
     try {
-      const headers = buildAuthHeaders();
-      const response = await apiFetch('/api/users/master-key-status', {
-        credentials: 'include',
-        headers,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMasterKeyStatus(data);
-      } else {
-        setMasterKeyStatus(buildFallbackMasterKeyStatus());
-      }
+      const data = await api.get<{ has_master_key: boolean }>('/users/master-key-status');
+      setMasterKeyStatus(data.has_master_key);
     } catch (error) {
       console.error('Failed to fetch master key status:', error);
       setMasterKeyStatus(buildFallbackMasterKeyStatus());
@@ -285,29 +196,10 @@ export default function TaskDetail() {
     }
 
     try {
-      const headers = buildAuthHeaders();
-      const response = await apiFetch('/api/users/drop-applications', {
-        credentials: 'include',
-        headers,
-      });
-
+      const data = await api.get<DropApplicationType[]>('/users/drop-applications');
       const dropIdKey = String(drop?.id ?? dropIdParam ?? '');
-
-      if (response.ok) {
-        const applications = await response.json();
-        if (Array.isArray(applications)) {
-          const existingApp = applications.find((app: DropApplicationType) => String(app.drop_id) === dropIdKey);
-          setApplication(existingApp || null);
-        } else {
-          console.warn('Applications API returned non-array data:', applications);
-          setApplication(null);
-        }
-      } else {
-        console.warn('Failed to fetch applications, status:', response.status);
-        const fallbackApps = buildFallbackApplications();
-        const existingApp = fallbackApps.find((app) => String(app.drop_id) === dropIdKey);
-        setApplication(existingApp || null);
-      }
+      const existingApp = data.find((app) => String(app.drop_id) === dropIdKey);
+      setApplication(existingApp || null);
     } catch (error) {
       console.error('Failed to check application:', error);
       const dropIdKey = String(drop?.id ?? dropIdParam ?? '');
@@ -323,24 +215,11 @@ export default function TaskDetail() {
 
     setApplying(true);
     try {
-      const response = await apiFetch(`/api/drops/${drop?.id ?? dropIdParam}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...buildAuthHeaders()
-        },
-        credentials: 'include',
-        body: JSON.stringify({ application_message: applicationMessage })
+      await api.post(`/drops/${drop?.id ?? dropIdParam}/apply`, {
+        application_message: applicationMessage
       });
-
-      if (response.ok) {
-        await Promise.all([checkApplication(), fetchUserData(), fetchMasterKeyStatus()]);
-        setApplicationMessage('');
-      } else {
-        const error = await response.json();
-        console.error('Failed to apply:', error);
-        alert(error.error || 'Failed to apply to drop');
-      }
+      await Promise.all([checkApplication(), fetchUserData(), fetchMasterKeyStatus()]);
+      setApplicationMessage('');
     } catch (error) {
       console.error('Failed to apply:', error);
       alert('Failed to apply to drop');
@@ -406,17 +285,8 @@ export default function TaskDetail() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const response = await apiFetch(`/api/drops/${drop!.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        navigate('/earn');
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to delete drop');
-      }
+      await api.delete(`/drops/${drop!.id}`);
+      navigate('/earn');
     } catch (error) {
       console.error('Failed to delete drop:', error);
       alert('Failed to delete drop');
@@ -466,6 +336,27 @@ export default function TaskDetail() {
           <p className="text-center text-orange-100">
             This is demo content for testing purposes. No real gems will be awarded even if the interface suggests otherwise.
           </p>
+        </div>
+      )}
+
+      {/* Coupon Reward Banner - Shows when drop has attached coupons */}
+      {!isDemo && (
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Gift className="w-6 h-6" />
+              <div>
+                <h3 className="font-semibold">Bonus Reward Available!</h3>
+                <p className="text-sm text-purple-100">Complete this drop to earn exclusive rewards</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/rewards')}
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              View Rewards
+            </button>
+          </div>
         </div>
       )}
 

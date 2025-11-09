@@ -1,37 +1,15 @@
 {
   "version": 2,
-  "name": "promorang-api",
   "builds": [
     {
-      "src": "api/**/*.ts",
+      "src": "api/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "https://promorang.co, https://www.promorang.co",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "X-Frame-Options": "DENY",
-        "X-Content-Type-Options": "nosniff"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "methods": ["OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        "Access-Control-Allow-Origin": "https://promorang.co, https://www.promorang.co"
-      }
+      "dest": "/api/index.ts"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "DISABLE_DEMO_LOGINS": "true"
-  }
+  ]
 }

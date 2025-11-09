@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, CreditCard, Building, Mail, Trash2, Star, Plus, Edit3 } from 'lucide-react';
-import { UserType, UserPaymentPreferenceType, WithdrawalMethodType } from '@/shared/types';
+import type { UserType, UserPaymentPreferenceType, WithdrawalMethodType } from '../../shared/types';
 
 interface PaymentPreferencesModalProps {
   user: UserType | null;

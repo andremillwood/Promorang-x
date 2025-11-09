@@ -22,12 +22,14 @@ import {
   Settings,
   Crown,
   Bell,
-  Rocket
+  Rocket,
+  Users,
+  ShoppingBag
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import Tooltip from '@/react-app/components/Tooltip';
 import NotificationCenter from '@/react-app/components/NotificationCenter';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../shared/types';
 import CurrencyConversionModal from '@/react-app/components/CurrencyConversionModal';
 import MasterKeyModal from '@/react-app/components/MasterKeyModal';
 import InstagramVerificationModal from '@/react-app/components/InstagramVerificationModal';
@@ -44,7 +46,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -125,9 +127,11 @@ export default function Layout({ children }: LayoutProps) {
     const baseNav = [
       { name: 'Home', href: '/dashboard', icon: Home },
       { name: 'Earn', href: '/earn', icon: DollarSign },
+      { name: 'Marketplace', href: '/marketplace', icon: ShoppingBag },
       { name: 'Create', href: '/create', icon: Plus },
       { name: 'Invest', href: '/invest', icon: TrendingUp },
       { name: 'Growth Hub', href: '/growth-hub', icon: Rocket },
+      { name: 'Referrals', href: '/referrals', icon: Users },
     ];
     
     // Add advertiser dashboard for advertisers
@@ -189,7 +193,7 @@ export default function Layout({ children }: LayoutProps) {
   const handleLogout = async () => {
     try {
       // Call the Mocha auth logout first to clear authentication state
-      await logout();
+      await signOut();
       
       // Clear any local storage or session storage
       localStorage.clear();

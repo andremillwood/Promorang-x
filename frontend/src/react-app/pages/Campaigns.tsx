@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import advertiserService, { type CampaignSummary } from '@/react-app/services/advertiser';
 import { Plus, BarChart2, Calendar, Users, DollarSign, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -30,44 +31,30 @@ export default function Campaigns({ showHeader = true, basePath = '/campaigns' }
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // TODO: Replace with actual API call
     const fetchCampaigns = async () => {
       try {
         setLoading(true);
-        // Mock data for now
-        const mockCampaigns: Campaign[] = [
-          {
-            id: '1',
-            name: 'Summer Collection Launch',
-            status: 'active',
-            startDate: '2025-06-01',
-            endDate: '2025-08-31',
-            budget: 5000,
-            spent: 1250,
-            impressions: 125000,
-            clicks: 2500,
-            ctr: 2.0,
-            cpc: 0.5,
-            drops: 12,
-            participants: 2450,
-          },
-          {
-            id: '2',
-            name: 'Back to School',
-            status: 'draft',
-            startDate: '2025-08-15',
-            endDate: '2025-09-15',
-            budget: 3000,
-            spent: 0,
-            impressions: 0,
-            clicks: 0,
-            ctr: 0,
-            cpc: 0,
-            drops: 0,
-            participants: 0,
-          },
-        ];
-        setCampaigns(mockCampaigns);
+        const data = await advertiserService.listCampaigns();
+        
+        const mappedCampaigns: Campaign[] = data.map((c: CampaignSummary) => ({
+          id: c.id,
+          name: c.name,
+          status: c.status as 'active' | 'paused' | 'draft' | 'completed',
+          startDate: c.start_date,
+          endDate: c.end_date || '',
+          budget: c.total_budget,
+          spent: c.budget_spent,
+          impressions: c.performance?.impressions || 0,
+          clicks: c.performance?.clicks || 0,
+          ctr: (c.performance?.impressions && c.performance.impressions > 0)
+            ? ((c.performance?.clicks || 0) / c.performance.impressions) * 100 
+            : 0,
+          cpc: 0,
+          drops: 0,
+          participants: 0,
+        }));
+        
+        setCampaigns(mappedCampaigns);
       } catch (err) {
         console.error('Failed to fetch campaigns:', err);
         setError('Failed to load campaigns. Please try again later.');

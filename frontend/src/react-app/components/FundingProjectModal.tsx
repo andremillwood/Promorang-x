@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Rocket, Plus, Minus } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface RewardTier {
   amount: number;

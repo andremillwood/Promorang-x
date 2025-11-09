@@ -22,7 +22,7 @@ import {
   Flame
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
-import { ContentPieceType, WalletType, UserType } from '@/shared/types';
+import type { ContentPieceType, WalletType, UserType } from '../../shared/types';
 import BuySharesModal from '@/react-app/components/BuySharesModal';
 import ShareContentModal from '@/react-app/components/ShareContentModal';
 import ExternalMoveModal from '@/react-app/components/ExternalMoveModal';
@@ -210,7 +210,10 @@ export default function ContentDetail() {
     const seed = Number(id ?? Date.now());
 
     try {
-      const response = await fetch(withApiBase(`/api/content/${id}`));
+      const response = await fetch(withApiBase(`/api/content/${id}`), {
+        credentials: 'include',
+        headers: buildAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         if (isMounted) {
@@ -264,7 +267,10 @@ export default function ContentDetail() {
   const fetchMetrics = async () => {
     const seed = Number(id ?? Date.now());
     try {
-      const response = await fetch(withApiBase(`/api/content/${id}/metrics`));
+      const response = await fetch(withApiBase(`/api/content/${id}/metrics`), {
+        credentials: 'include',
+        headers: buildAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         setMetrics(data);
@@ -1197,7 +1203,7 @@ export default function ContentDetail() {
         <>
           <BuySharesModal
             content={content}
-            wallet={wallets?.find(w => w.currency_type === 'USD')}
+            wallet={Array.isArray(wallets) ? wallets.find(w => w.currency_type === 'USD') : undefined}
             isOpen={buyModalOpen}
             onClose={() => setBuyModalOpen(false)}
             onPurchase={handleBuyShares}

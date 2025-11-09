@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { 
   Edit3, 
   Star, 
@@ -21,7 +21,7 @@ import {
   MapPin,
   User
 } from 'lucide-react';
-import { UserType, ContentPieceType, DropType, DropApplicationType, ContentHolding, PredictionSummary } from '@/shared/types';
+import type { UserType, ContentPieceType, DropType, DropApplicationType, ContentHolding, PredictionSummary } from '../../shared/types';
 import Tooltip from '@/react-app/components/Tooltip';
 import AchievementsModal from '@/react-app/components/AchievementsModal';
 import ReferralModal from '@/react-app/components/ReferralModal';
@@ -32,6 +32,7 @@ import EditProfileModal from '@/react-app/components/EditProfileModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import MakeOfferModal from '@/react-app/components/MakeOfferModal';
 import { getPortfolioHoldings, getPortfolioPredictions } from '@/react-app/services/portfolioService';
+import { Routes, slugifyUserIdentifier } from '@/react-app/utils/url';
 
 type TabType = 'overview' | 'content' | 'drops' | 'applications' | 'achievements';
 
@@ -160,6 +161,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   };
 
   const openOfferModal = (holding: ContentHolding) => {
+    if (!user) return;
     setOfferHolding(holding);
     setOfferModalOpen(true);
   };
@@ -218,11 +220,12 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
         headers['Authorization'] = `Bearer ${authToken}`;
       }
 
-      const response = await fetch(withApiBase('/api/auth/profile'), { headers, credentials: 'include' });
+      const response = await fetch(withApiBase('/api/users/me'), { headers, credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setUser(data.user);
+        const userData = data?.user || data?.data?.user || data;
+        if (userData && userData.id) {
+          setUser(userData);
         }
       }
     } catch (error) {
@@ -546,11 +549,11 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 {user?.display_name || (isPublicProfile ? user?.username : authUser?.google_user_data?.name) || 'User'}
               </h2>
-              <div className="flex flex-wrap items-center gap-3 text-gray-600">
+              <div className="flex items-center space-x-2 text-gray-500">
                 <span>@{user?.username || 'username-not-set'}</span>
                 <span>•</span>
                 <span>Level {user?.level || 1}</span>
-                {user?.user_type === 'advertiser' && (
+                {user && user.user_type === 'advertiser' && (
                   <>
                     <span>•</span>
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -580,11 +583,11 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
             </div>
 
             {/* Links and Social */}
-            {(user.website_url || user.social_links) && (
+            {(user?.website_url || user?.social_links) && (
               <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                {user.website_url && (
+                {user?.website_url && (
                   <a
-                    href={user.website_url}
+                    href={user?.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
@@ -594,9 +597,9 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
                   </a>
                 )}
 
-                {user.social_links && (() => {
+                {user?.social_links && (() => {
                   try {
-                    const socialLinks = JSON.parse(user.social_links);
+                    const socialLinks = JSON.parse(user?.social_links);
                     return Object.entries(socialLinks).map(([platform, handle]) => (
                       <div key={platform} className="flex items-center space-x-1 text-gray-600">
                         <span className="text-sm font-medium capitalize">{platform}:</span>
@@ -815,7 +818,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
               <PublicPredictionsSection
                 predictions={publicPredictions}
-                onView={(prediction) => navigate(`/predictions/${prediction.id}`)}
+                onView={(prediction) => navigate(`/prediction/${prediction.id}`)}
               />
             </div>
           )}

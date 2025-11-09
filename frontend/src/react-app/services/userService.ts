@@ -1,5 +1,5 @@
 import api from './api';
-import { UserType, WalletType } from '@/shared/types';
+import type { UserType, WalletType } from '../../shared/types';
 
 const USER_API_PREFIX = '/api/users';
 

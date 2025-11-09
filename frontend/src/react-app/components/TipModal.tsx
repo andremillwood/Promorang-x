@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ContentPieceType } from '@/shared/types';
+import type { ContentPieceType } from '../../shared/types';
 import { X, Gift, Coins } from 'lucide-react';
 
 interface TipModalProps {

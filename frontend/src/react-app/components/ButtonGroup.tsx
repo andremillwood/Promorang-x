@@ -1,6 +1,6 @@
 import { MouseEvent } from 'react';
 import { TrendingUp, Gift, Target, ExternalLink } from 'lucide-react';
-import { ContentPieceType, UserType } from '@/shared/types';
+import type { ContentPieceType, UserType } from '../../shared/types';
 
 interface ButtonGroupProps {
   content: ContentPieceType;

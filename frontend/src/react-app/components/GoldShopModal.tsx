@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Crown, Zap, Star, Shield, Award, Check } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface GoldItem {
   id: string;

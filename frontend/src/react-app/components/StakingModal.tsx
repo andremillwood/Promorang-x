@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Lock, TrendingUp, Shield, Rocket, Star, AlertCircle, Calculator } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface GrowthChannel {
   id: string;

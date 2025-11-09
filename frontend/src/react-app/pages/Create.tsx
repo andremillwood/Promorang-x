@@ -13,11 +13,12 @@ import {
   X,
   Image as ImageIcon
 } from 'lucide-react';
-import { PlatformSchema } from '@/shared/types';
 import { useAuth } from '../hooks/useAuth';
 
 import { createErrorHandler } from '@/react-app/utils/errorHandler';
 
+
+const PLATFORMS = ['instagram', 'tiktok', 'youtube', 'linkedin', 'twitter'] as const;
 
 export default function Create() {
   const { } = useAuth();
@@ -505,7 +506,7 @@ export default function Create() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">Platform</label>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  {PlatformSchema.options.map((platform) => (
+                  {PLATFORMS.map((platform) => (
                     <button
                       key={platform}
                       type="button"

@@ -18,14 +18,31 @@ function getFullUrl(input: RequestInfo | URL): string {
   return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
-export async function apiFetch(
+async function handleResponse<T = any>(response: Response): Promise<T> {
+  const data = await response.json().catch(() => ({}));
+  
+  if (!response.ok) {
+    const error = new Error(data.error || 'API request failed');
+    (error as any).status = response.status;
+    (error as any).data = data;
+    throw error;
+  }
+  
+  return data;
+}
+
+export async function apiFetch<T = any>(
   input: RequestInfo | URL,
   init: RequestInit & { skipAuth?: boolean } = {}
-) {
+): Promise<T> {
   const { skipAuth, headers, ...rest } = init;
-  const authToken = typeof window !== 'undefined' && !skipAuth ? localStorage.getItem('authToken') : null;
+  const authToken = typeof window !== 'undefined' && !skipAuth ? localStorage.getItem('auth_token') : null;
 
-  const finalHeaders = new Headers(headers);
+  const finalHeaders = new Headers({
+    'Content-Type': 'application/json',
+    ...(headers as Record<string, string> || {})
+  });
+  
   if (authToken && !finalHeaders.has('Authorization')) {
     finalHeaders.set('Authorization', `Bearer ${authToken}`);
   }
@@ -37,16 +54,28 @@ export async function apiFetch(
     console.log(`API Request: ${rest.method || 'GET'} ${url}`);
   }
 
-  return fetch(url, { ...rest, headers: finalHeaders });
+  try {
+    const response = await fetch(url, { 
+      ...rest, 
+      headers: finalHeaders,
+      credentials: 'include'
+    });
+    
+    return await handleResponse<T>(response);
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
+  }
 }
 
 export const api = {
-  get: (url: string, init?: RequestInit) => apiFetch(url, { ...init, method: 'GET' }),
-  post: (url: string, body?: any, init?: RequestInit) =>
-    apiFetch(url, {
+  get: <T = any>(url: string, init?: RequestInit) => 
+    apiFetch<T>(url, { ...init, method: 'GET' }),
+    
+  post: <T = any>(url: string, body?: any, init?: RequestInit) =>
+    apiFetch<T>(url, {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
-      headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
       ...init,
     }),
 };

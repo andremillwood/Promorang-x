@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ArrowRight, Coins, Key, Star, AlertCircle, CheckCircle } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface CurrencyConversionModalProps {
   user: UserType | null;

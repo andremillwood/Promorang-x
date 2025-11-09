@@ -1,5 +1,5 @@
 import { apiFetch } from '../utils/api';
-import { CouponType, CouponAssignmentType, CouponRedemptionType } from '@/shared/types';
+import type { CouponType, CouponAssignmentType, CouponRedemptionType } from '../../shared/types';
 
 export interface AdvertiserPlan {
   id: string;
@@ -76,6 +76,45 @@ const parseJson = async <T>(response: Response): Promise<T | null> => {
   }
 };
 
+export interface CampaignSummary {
+  id: string;
+  advertiser_id: string;
+  name: string;
+  objective?: string;
+  status: string;
+  start_date: string;
+  end_date?: string;
+  total_budget: number;
+  budget_spent: number;
+  target_audience?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  metrics?: any[];
+  latest_metrics?: any;
+  performance?: {
+    impressions: number;
+    clicks: number;
+    conversions: number;
+    spend: number;
+    revenue: number;
+  };
+  coupons?: any[];
+}
+
+export interface CampaignDetail {
+  campaign: CampaignSummary;
+  metrics: any[];
+  content: any[];
+  coupons: any[];
+}
+
+export interface CouponDetail {
+  coupon: CouponType & {
+    assignments: CouponAssignmentType[];
+    redemptions: CouponRedemptionType[];
+  };
+}
+
 export const advertiserService = {
   async getPlans(forceRefresh = false): Promise<SubscriptionPlansPayload> {
     if (!forceRefresh && plansCache && Date.now() < plansCacheExpiry) {
@@ -83,7 +122,7 @@ export const advertiserService = {
     }
 
     try {
-      const response = await apiFetch('/advertisers/subscription/plans');
+      const response = await apiFetch('/api/advertisers/subscription/plans');
       const result = await parseJson<ApiResponse<SubscriptionPlansPayload & { current_tier?: string }>>(response);
 
       if (!response.ok) {
@@ -108,7 +147,7 @@ export const advertiserService = {
 
   async upgrade(planId: string): Promise<{ plan?: AdvertiserPlan & { activated_at?: string; renews_at?: string }; message?: string }> {
     try {
-      const response = await apiFetch('/advertisers/subscription/upgrade', {
+      const response = await apiFetch('/api/advertisers/subscription/upgrade', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +180,7 @@ export const advertiserService = {
     }
 
     try {
-      const response = await apiFetch('/advertisers/coupons');
+      const response = await apiFetch('/api/advertisers/coupons');
        const result = await parseJson<ApiResponse<CouponListPayload>>(response);
 
       if (!response.ok) {
@@ -166,7 +205,7 @@ export const advertiserService = {
 
   async createCoupon(payload: Partial<CouponType>) {
     try {
-      const response = await apiFetch('/advertisers/coupons', {
+      const response = await apiFetch('/api/advertisers/coupons', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +234,7 @@ export const advertiserService = {
 
   async assignCoupon(couponId: string, assignment: { target_type: 'drop' | 'leaderboard'; target_id: string; target_label?: string }) {
     try {
-      const response = await apiFetch(`/advertisers/coupons/${couponId}/assign`, {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}/assign`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +263,7 @@ export const advertiserService = {
 
   async redeemCoupon(couponId: string, redemption: { user_id?: string; user_name?: string }) {
     try {
-      const response = await apiFetch(`/advertisers/coupons/${couponId}/redeem`, {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}/redeem`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -248,6 +287,190 @@ export const advertiserService = {
     } catch (error) {
       console.error('[Advertiser API] redeemCoupon', error);
       throw error;
+    }
+  },
+
+  async listCampaigns(): Promise<CampaignSummary[]> {
+    try {
+      const response = await apiFetch('/api/advertisers/campaigns');
+      const result = await parseJson<ApiResponse<{ campaigns: CampaignSummary[] }>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to load campaigns (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to load campaigns');
+      }
+
+      return Array.isArray(result.data.campaigns) ? result.data.campaigns : [];
+    } catch (error) {
+      console.error('[Advertiser API] listCampaigns', error);
+      return [];
+    }
+  },
+
+  async getCampaign(campaignId: string): Promise<CampaignDetail | null> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}`);
+      const result = await parseJson<ApiResponse<CampaignDetail>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to load campaign (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to load campaign');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('[Advertiser API] getCampaign', error);
+      return null;
+    }
+  },
+
+  async getCoupon(couponId: string): Promise<CouponDetail | null> {
+    try {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}`);
+      const result = await parseJson<ApiResponse<CouponDetail>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to load coupon (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to load coupon');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('[Advertiser API] getCoupon', error);
+      return null;
+    }
+  },
+
+  async updateCampaign(campaignId: string, updates: Partial<CampaignSummary>): Promise<CampaignSummary | null> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const result = await parseJson<ApiResponse<{ campaign: CampaignSummary }>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to update campaign (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to update campaign');
+      }
+
+      return result.data.campaign;
+    } catch (error) {
+      console.error('[Advertiser API] updateCampaign', error);
+      throw error;
+    }
+  },
+
+  async deleteCampaign(campaignId: string): Promise<boolean> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}`, {
+        method: 'DELETE',
+      });
+      const result = await parseJson<ApiResponse<{}>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to delete campaign (${response.status})`;
+        throw new Error(message);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[Advertiser API] deleteCampaign', error);
+      throw error;
+    }
+  },
+
+  async addCampaignFunds(campaignId: string, amount: number, provider = 'mock'): Promise<any> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}/funds`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, provider }),
+      });
+      const result = await parseJson<ApiResponse<any>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to add funds (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to add funds');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('[Advertiser API] addCampaignFunds', error);
+      throw error;
+    }
+  },
+
+  async addCampaignContent(campaignId: string, content: {
+    title: string;
+    description?: string;
+    platform: string;
+    media_url?: string;
+    status?: string;
+  }): Promise<any> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}/content`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(content),
+      });
+      const result = await parseJson<ApiResponse<{ content: any }>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to add content (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to add content');
+      }
+
+      return result.data.content;
+    } catch (error) {
+      console.error('[Advertiser API] addCampaignContent', error);
+      throw error;
+    }
+  },
+
+  async getCampaignDrops(campaignId: string): Promise<any[]> {
+    try {
+      const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}/drops`);
+      const result = await parseJson<ApiResponse<{ drops: any[] }>>(response);
+
+      if (!response.ok) {
+        const message = result?.message || `Failed to load drops (${response.status})`;
+        throw new Error(message);
+      }
+
+      if (!result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to load drops');
+      }
+
+      return result.data.drops;
+    } catch (error) {
+      console.error('[Advertiser API] getCampaignDrops', error);
+      return [];
     }
   },
 };

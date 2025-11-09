@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../_core/supabase';
-import { handleError, requireAuth, AuthenticatedRequest } from '../_core/apiUtils';
+import { handleError, AuthenticatedRequest } from '../_core/apiUtils';
+import { requireAuth } from '../_core/auth';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get('/', requireAuth, async (req: AuthenticatedRequest, res) => {
 
     if (error) throw error;
 
-    res.json({ success: true, drops: drops || [] });
+    res.json(drops || []);
   } catch (error) {
     handleError(res, error, 'Error fetching drops');
   }

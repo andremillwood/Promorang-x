@@ -82,6 +82,7 @@ app.use('/api/content', require('./api/content'));
 app.use('/api/drops', require('./api/drops'));
 app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
+app.use('/api/leaderboard', require('./api/leaderboard'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/shares', shares.router);

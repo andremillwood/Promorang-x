@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, TrendingUp, DollarSign, Target, Clock, AlertCircle } from 'lucide-react';
+import api from '@/react-app/lib/api';
 
 interface SocialForecast {
   id: number;
@@ -31,6 +32,8 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
   const [error, setError] = useState('');
   const [userWallet, setUserWallet] = useState({ balance: 0 });
 
+  const safeForecast = forecast ?? ({} as SocialForecast);
+
   useEffect(() => {
     if (isOpen) {
       fetchUserWallet();
@@ -39,12 +42,11 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
 
   const fetchUserWallet = async () => {
     try {
-      const response = await fetch('/api/users/me/wallets');
-      if (response.ok) {
-        const wallets = await response.json();
-        const usdWallet = wallets.find((w: any) => w.currency_type === 'USD');
-        setUserWallet({ balance: usdWallet?.balance || 0 });
-      }
+      const wallets = await api.get<any[]>('/users/me/wallets');
+      const usdWallet = Array.isArray(wallets)
+        ? wallets.find((w) => w.currency_type?.toLowerCase() === 'usd')
+        : undefined;
+      setUserWallet({ balance: Number(usdWallet?.balance) || 0 });
     } catch (error) {
       console.error('Failed to fetch wallet:', error);
     }
@@ -56,35 +58,36 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
     setError('');
 
     try {
-      const response = await fetch(`/api/social-forecasts/${forecast.id}/predict`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prediction_amount: parseFloat(predictionAmount),
-          prediction_side: predictionSide,
-        }),
+      await api.post(`/social-forecasts/${safeForecast.id}/predict`, {
+        prediction_amount: parseFloat(predictionAmount),
+        prediction_side: predictionSide,
       });
 
-      if (response.ok) {
-        onPredictionPlaced();
-        onClose();
-        setPredictionAmount('');
-        setPredictionSide('over');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to place prediction');
-      }
-    } catch (error) {
-      setError('Failed to place prediction');
+      onPredictionPlaced();
+      onClose();
+      setPredictionAmount('');
+      setPredictionSide('over');
+    } catch (error: any) {
+      const message = error?.message || error?.response?.error || 'Failed to place prediction';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const potentialPayout = predictionAmount ? 
-    (parseFloat(predictionAmount) * forecast.odds).toFixed(2) : '0';
+  const targetValue = typeof safeForecast.target_value === 'number' ? safeForecast.target_value : 0;
+  const poolSize = typeof safeForecast.pool_size === 'number' ? safeForecast.pool_size : 0;
+  const odds = typeof safeForecast.odds === 'number' ? safeForecast.odds : 0;
+  const creatorStake = typeof safeForecast.creator_initial_amount === 'number'
+    ? safeForecast.creator_initial_amount
+    : 0;
+
+  const potentialPayout = predictionAmount
+    ? (parseFloat(predictionAmount) * odds).toFixed(2)
+    : '0';
+
+  const formatNumber = (value: number | undefined) =>
+    typeof value === 'number' && !Number.isNaN(value) ? value.toLocaleString() : '—';
 
   const formatTimeRemaining = (expiresAt: string) => {
     const now = new Date();
@@ -129,11 +132,11 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-medium text-gray-900">Forecast Details</h3>
-              <span className="text-sm text-gray-500">{forecast.platform}</span>
+              <span className="text-sm text-gray-500">{safeForecast.platform || '—'}</span>
             </div>
             
-            {forecast.content_title && (
-              <p className="text-sm text-gray-700 mb-2">{forecast.content_title}</p>
+            {safeForecast.content_title && (
+              <p className="text-sm text-gray-700 mb-2">{safeForecast.content_title}</p>
             )}
             
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -141,22 +144,22 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
                 <p className="text-gray-500">Metric</p>
                 <p className="font-medium flex items-center">
                   <Target className="w-4 h-4 mr-1 text-blue-600" />
-                  {forecast.forecast_type} {forecast.target_value.toLocaleString()}
+                  {`${safeForecast.forecast_type || ''} ${formatNumber(targetValue)}`.trim()}
                 </p>
               </div>
               <div>
                 <p className="text-gray-500">Current Pool</p>
-                <p className="font-medium text-green-600">${forecast.pool_size.toFixed(2)}</p>
+                <p className="font-medium text-green-600">${poolSize.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-gray-500">Odds</p>
-                <p className="font-medium text-blue-600">{forecast.odds}x payout</p>
+                <p className="font-medium text-blue-600">{odds}x payout</p>
               </div>
               <div>
                 <p className="text-gray-500">Time Left</p>
                 <p className="font-medium flex items-center">
                   <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                  {formatTimeRemaining(forecast.expires_at)}
+                  {safeForecast.expires_at ? formatTimeRemaining(safeForecast.expires_at) : '—'}
                 </p>
               </div>
             </div>
@@ -164,7 +167,7 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
             <div className="mt-3 pt-3 border-t border-gray-200">
               <p className="text-xs text-gray-500 mb-1">Creator's Prediction</p>
               <p className="text-sm font-medium text-blue-600">
-                {forecast.creator_side.toUpperCase()} • ${forecast.creator_initial_amount.toFixed(2)} staked
+                {(safeForecast.creator_side || '').toUpperCase() || '—'} • ${creatorStake.toFixed(2)} staked
               </p>
             </div>
           </div>
@@ -194,7 +197,7 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
                 >
                   <div className="text-center">
                     <p className="font-semibold">OVER</p>
-                    <p className="text-xs mt-1">Will exceed {forecast.target_value.toLocaleString()}</p>
+                    <p className="text-xs mt-1">Will exceed {formatNumber(targetValue)}</p>
                   </div>
                 </button>
                 
@@ -209,7 +212,7 @@ export default function PlaceForecastModal({ isOpen, onClose, forecast, onPredic
                 >
                   <div className="text-center">
                     <p className="font-semibold">UNDER</p>
-                    <p className="text-xs mt-1">Will not reach {forecast.target_value.toLocaleString()}</p>
+                    <p className="text-xs mt-1">Will not reach {formatNumber(targetValue)}</p>
                   </div>
                 </button>
               </div>

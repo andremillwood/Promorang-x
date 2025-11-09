@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
-const { requireAuth } = require('../middleware/auth');
+const { supabase } = require('../lib/supabase');
+const { trackDropCompletion } = require('../utils/referralTracker');
+const { requireAuth } = require('./_core/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -520,6 +521,25 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
     if (error) {
       console.error('Database error updating application:', error);
       return res.status(500).json({ success: false, error: 'Failed to update application' });
+    }
+
+    // Track referral commission if drop is approved
+    if (action === 'approve' && application.user_id) {
+      try {
+        // Get drop details to find reward amount
+        const { data: drop } = await supabase
+          .from('drops')
+          .select('gem_reward_base')
+          .eq('id', dropId)
+          .single();
+        
+        if (drop && drop.gem_reward_base) {
+          await trackDropCompletion(application.user_id, drop.gem_reward_base, dropId);
+        }
+      } catch (referralError) {
+        console.error('Error tracking referral commission:', referralError);
+        // Don't fail the request if referral tracking fails
+      }
     }
 
     res.json({

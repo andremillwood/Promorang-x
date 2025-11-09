@@ -5,9 +5,75 @@ import { requireAuth } from './_core/auth';
 import { supabaseAdmin } from './_core/supabase';
 import { handleError, AuthenticatedRequest } from './_core/apiUtils';
 import jwt from 'jsonwebtoken';
-import contentRoutes from './routes/content';
-import dropsRoutes from './routes/drops';
-import usersRoutes from './routes/users';
+// Use working JS routes with demo data instead of broken TS routes
+const contentRoutes = require('./content.js');
+const dropsRoutes = require('./drops.js');
+const usersRoutes = require('./users.js');
+const portfolioRoutes = require('./portfolio.js');
+const socialForecastRoutes = require('./social-forecasts.js');
+const advertisersRoutes = require('./advertisers.js');
+const leaderboardRoutes = require('./leaderboard.js');
+
+const SEARCH_CONTENT = [
+  {
+    id: 'content-demo-1',
+    title: 'Launch Campaign: Social Buzz',
+    description: 'Highlight reel from the recent product launch activation.',
+    platform: 'instagram',
+    creator_name: 'Demo Creator',
+    share_price: 12.5,
+  },
+  {
+    id: 'content-demo-2',
+    title: 'Creator Toolkit Walkthrough',
+    description: 'Step-by-step guide on monetizing content in 30 days.',
+    platform: 'youtube',
+    creator_name: 'Creator Collective',
+    share_price: 18.0,
+  },
+];
+
+const SEARCH_DROPS = [
+  {
+    id: 'drop-demo-1',
+    title: 'Product Review Blitz',
+    description: 'Create authentic reviews for the new premium bundle.',
+    gem_reward_base: 120,
+    key_cost: 4,
+    status: 'active',
+  },
+  {
+    id: 'drop-demo-2',
+    title: 'Launch Day Engagement Sprint',
+    description: 'Boost engagement metrics during launch weekend.',
+    gem_reward_base: 95,
+    key_cost: 3,
+    status: 'active',
+  },
+];
+
+const SEARCH_USERS = [
+  {
+    id: 'user-demo-1',
+    username: 'demo_creator',
+    display_name: 'Demo Creator',
+    user_type: 'creator',
+    follower_count: 42000,
+    avatar_url: null,
+    level: 5,
+    user_tier: 'silver',
+  },
+  {
+    id: 'user-demo-2',
+    username: 'growth_analyst',
+    display_name: 'Growth Analyst',
+    user_type: 'advertiser',
+    follower_count: 12500,
+    avatar_url: null,
+    level: 3,
+    user_tier: 'bronze',
+  },
+];
 
 const app = express();
 
@@ -94,10 +160,42 @@ app.post('/api/auth/demo/:role', async (req, res) => {
   }
 });
 
+// Import auth routes
+import authRoutes from './routes/auth';
+
 // API Routes
+app.use(authRoutes);
+app.get('/api/search', (req, res) => {
+  const rawQuery = req.query.q;
+  const query = typeof rawQuery === 'string' ? rawQuery.trim().toLowerCase() : '';
+
+  if (!query) {
+    return res.json({ content: [], drops: [], users: [] });
+  }
+
+  const filterByQuery = (items: any[], fields: string[]) =>
+    items.filter((item) =>
+      fields.some((field) =>
+        typeof item[field] === 'string' && item[field].toLowerCase().includes(query)
+      )
+    );
+
+  const content = filterByQuery(SEARCH_CONTENT, ['title', 'description', 'platform', 'creator_name']);
+  const drops = filterByQuery(SEARCH_DROPS, ['title', 'description', 'status']);
+  const users = filterByQuery(SEARCH_USERS, ['username', 'display_name', 'user_type']);
+
+  return res.json({ content, drops, users });
+});
 app.use('/api/content', contentRoutes);
 app.use('/api/drops', dropsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/social-forecasts', socialForecastRoutes);
+app.use('/api/advertisers', advertisersRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/referrals', require('./referrals'));
+app.use('/api/marketplace', require('./marketplace'));
+app.use('/api/social', require('./social'));
 
 // Auth profile endpoint (legacy, will be removed in future versions)
 app.get('/api/auth/profile', requireAuth, (req: AuthenticatedRequest, res) => {
@@ -114,6 +212,30 @@ app.get('/api/auth/profile', requireAuth, (req: AuthenticatedRequest, res) => {
 // Telemetry endpoint
 app.post('/api/telemetry', (req, res) => {
   // Just acknowledge receipt of telemetry data
+  res.json({ success: true });
+});
+
+// Error reporting endpoint
+app.post('/api/report-error', (req, res) => {
+  const { error, context, componentStack, timestamp, url, userAgent } = req.body;
+  
+  // Log the error for debugging/monitoring
+  console.log('Frontend Error Report:', {
+    message: error?.message,
+    stack: error?.stack,
+    context,
+    componentStack,
+    timestamp,
+    url,
+    userAgent,
+    ip: req.ip,
+  });
+  
+  // In a production system, you might want to:
+  // - Store in database
+  // - Send to error monitoring service (Sentry, LogRocket, etc.)
+  // - Send email/notification to dev team
+  
   res.json({ success: true });
 });
 

@@ -1,283 +1,242 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/react-app/lib/supabaseClient';
-import { ApiError as ApiErrorClass } from '@/react-app/lib/api';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api, { setAccessToken } from '@/react-app/lib/api';
 
 interface User {
   id: string;
   email: string;
-  username?: string;
+  username: string;
   display_name?: string;
   user_type?: string;
   points_balance?: number;
   keys_balance?: number;
   gems_balance?: number;
-  gold_collected?: number;
-  user_tier?: string;
-  avatar_url?: string;
+  email_verified?: boolean;
+}
+
+interface AuthResponse {
+  success: boolean;
+  user?: User;
+  token?: string;
+  error?: {
+    message: string;
+    code?: string;
+  };
+  message?: string;
+  code?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  isPending: boolean;
-  session: any;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signInWithOAuth: (provider: 'google' | 'github' | 'discord') => Promise<{ error: any }>;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  signIn: (email: string, password: string) => Promise<AuthResponse>;
+  signOut: () => Promise<void>;
   demoLogin: {
-    creator: () => Promise<{ error: any }>;
-    investor: () => Promise<{ error: any }>;
-    advertiser: () => Promise<{ error: any }>;
+    creator: () => Promise<AuthResponse>;
+    investor: () => Promise<AuthResponse>;
+    advertiser: () => Promise<AuthResponse>;
   };
-  signOut: () => Promise<{ error: any }>;
-  refreshSession: () => Promise<void>;
-  getAccessToken: () => Promise<string | null>;
 }
+
+// Using AuthResponse from authService
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mapSupabaseUser = (supabaseUser: any): User | null => {
-  if (!supabaseUser) return null;
-  
-  // Extract user metadata
-  const userMetadata = supabaseUser.user_metadata || {};
-  const appMetadata = supabaseUser.app_metadata || {};
-  
-  return {
-    id: supabaseUser.id,
-    email: supabaseUser.email,
-    username: userMetadata.username || userMetadata.name,
-    display_name: 
-      userMetadata.full_name || 
-      userMetadata.name || 
-      userMetadata.email?.split('@')[0] ||
-      supabaseUser.email?.split('@')[0],
-    user_type: userMetadata.user_type,
-    points_balance: userMetadata.points_balance,
-    keys_balance: userMetadata.keys_balance,
-    gems_balance: userMetadata.gems_balance,
-    gold_collected: userMetadata.gold_collected,
-    user_tier: userMetadata.user_tier,
-    avatar_url: supabaseUser.user_metadata?.avatar_url || userMetadata.avatar_url || userMetadata.picture,
-  };
-};
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<any>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Get the current session and set up auth state listener
+  // Check for existing session on mount
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(mapSupabaseUser(session?.user) ?? null);
-    });
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session);
-      setSession(session);
-      setUser(mapSupabaseUser(session?.user) ?? null);
-    });
-
-    return () => {
-      subscription?.unsubscribe();
+    const checkSession = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        console.log('checkSession: token exists?', !!token);
+        if (token) {
+          // Verify token is not expired
+          try {
+            const tokenExp = JSON.parse(atob(token.split('.')[1])).exp * 1000;
+            console.log('Token expiry:', new Date(tokenExp), 'Current time:', new Date());
+            if (tokenExp > Date.now()) {
+              // Fetch user profile
+              try {
+                console.log('Fetching user profile from /users/me');
+                const response = await api.get('/users/me');
+                console.log('Profile response:', response);
+                
+                const userData = (response as any)?.user || (response as any)?.data?.user;
+                
+                if (userData && userData.id) {
+                  console.log('Setting user from session check:', userData);
+                  setUser(userData);
+                  setIsLoading(false);
+                  return;
+                } else {
+                  console.warn('No valid user data in profile response:', response);
+                }
+              } catch (error) {
+                console.error('Failed to fetch user profile:', error);
+              }
+            } else {
+              console.log('Token expired, removing');
+            }
+          } catch (parseError) {
+            console.error('Failed to parse token:', parseError);
+          }
+          // If we get here, token is invalid or expired
+          localStorage.removeItem('access_token');
+        }
+      } catch (error) {
+        console.error('Failed to check session:', error);
+        localStorage.removeItem('access_token');
+      } finally {
+        setIsLoading(false);
+      }
     };
+
+    checkSession();
   }, []);
 
-  // Sign in with email and password
-  const signIn = async (email: string, password: string) => {
-    setIsPending(true);
+  const signIn = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-      });
+      setIsLoading(true);
+      console.log('Attempting to sign in with:', { email });
       
-      if (error) throw error;
-      
-      // Update session and user state
-      setSession(data.session);
-      setUser(mapSupabaseUser(data.user));
-      
-      return { error: null };
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      return { 
-        error: error.message || 'Unable to sign in. Please check your credentials.' 
-      };
-    } finally {
-      setIsPending(false);
-    }
-  };
+      // Make the login request
+      const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
+      console.log('Login response:', response);
 
-  // Register new user
-  const signUp = async (email: string, password: string) => {
-    setIsPending(true);
-    try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            username: email.split('@')[0],
-            user_type: 'user',
-          },
-        },
-      });
-      
-      if (error) throw error;
-      
-      // If email confirmation is required, the user will be null
-      if (!data.user) {
-        return { 
-          error: null, 
-          requiresConfirmation: true,
-          message: 'Please check your email to confirm your account.'
-        };
+      // The API client now returns the response data directly
+      if (response && typeof response === 'object') {
+        // Handle the token and user data
+        const token = response.token || (response as any)?.data?.token;
+        const user = response.user || (response as any)?.data?.user;
+        
+        if (token) {
+          console.log('Setting access token:', token.substring(0, 20) + '...');
+          setAccessToken(token);
+          
+          // Verify token was stored
+          const storedToken = localStorage.getItem('access_token');
+          console.log('Token stored in localStorage:', storedToken ? 'YES' : 'NO');
+          
+          if (user) {
+            setUser(user);
+            console.log('Navigating to dashboard with user:', user.email);
+            navigate('/dashboard');
+            return { 
+              success: true, 
+              user, 
+              token 
+            };
+          }
+          
+          // If we have a token but no user data, try to fetch the user profile
+          try {
+            const userResponse = await api.get<{ user: User }>('/auth/me');
+            const userData = userResponse.user || (userResponse as any)?.data?.user;
+            
+            if (userData) {
+              setUser(userData);
+              navigate('/dashboard');
+              return { 
+                success: true, 
+                user: userData, 
+                token 
+              };
+            }
+          } catch (userError) {
+            console.error('Failed to fetch user profile:', userError);
+            // Continue with minimal user data
+          }
+          
+          // If we have a token but couldn't get user data, proceed with minimal info
+          return { 
+            success: true, 
+            user: { 
+              id: '',
+              email, 
+              username: email.split('@')[0],
+              email_verified: false
+            }, 
+            token,
+            message: 'Logged in but could not fetch full profile'
+          };
+        }
       }
       
-      // If email confirmation is not required, update the session
-      setSession(data.session);
-      setUser(mapSupabaseUser(data.user));
-      
-      return { error: null };
-    } catch (error: any) {
-      console.error('Sign up error:', error);
+      // If we get here, the response format is unexpected
+      console.error('Unexpected response format:', response);
+      throw new Error(
+        (response as any)?.error?.message || 
+        (response as any)?.message || 
+        'Invalid response format from server'
+      );
+    } catch (error) {
+      console.error('Sign in error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
       return { 
-        error: error.message || 'Unable to create an account. Please try again.' 
+        success: false, 
+        error: {
+          message: errorMessage,
+          code: 'SIGN_IN_ERROR'
+        },
+        message: errorMessage
       };
     } finally {
-      setIsPending(false);
+      setIsLoading(false);
     }
+  }, [navigate]);
+
+  const demoLogin = {
+    creator: async () => signIn('creator@demo.com', 'demo123'),
+    investor: async () => signIn('investor@demo.com', 'demo123'),
+    advertiser: async () => signIn('advertiser@demo.com', 'demo123'),
   };
 
-  // OAuth login
-  const signInWithOAuth = async (provider: 'google' | 'github' | 'discord') => {
+  const signOut = useCallback(async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
+      setIsLoading(true);
+      // Try to call the logout endpoint, but don't fail if it doesn't exist
+      try {
+        await api.post('/auth/logout', {});
+      } catch (error) {
+        console.warn('Logout endpoint failed, continuing with client-side cleanup', error);
+      }
       
-      if (error) throw error;
-      
-      return { error: null };
-    } catch (error: any) {
-      console.error('OAuth error:', error);
-      return { 
-        error: error.message || `Unable to sign in with ${provider}. Please try again.` 
-      };
-    }
-  };
-
-  // Demo login handler
-  const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser') => {
-    console.warn(`Demo login (${type}) is disabled in this environment.`);
-    return { error: 'Demo accounts are not available.' };
-  };
-
-  // Sign out
-  const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      // Clear session and user state
-      setSession(null);
+      // Clear all auth-related data
+      localStorage.removeItem('access_token');
       setUser(null);
-      
-      return { error: null };
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      return { 
-        error: error.message || 'Unable to sign out. Please try again.' 
-      };
-    }
-  };
-
-  // Refresh the current session
-  const refreshSession = async () => {
-    try {
-      const { data, error } = await supabase.auth.refreshSession();
-      if (error) throw error;
-      
-      setSession(data.session);
-      setUser(mapSupabaseUser(data.user));
+      navigate('/auth');
     } catch (error) {
-      console.error('Error refreshing session:', error);
-      // If refresh fails, sign out the user
-      await signOut();
+      console.error('Sign out error:', error);
+      // Even if there's an error, we should still clear the local state
+      localStorage.removeItem('access_token');
+      setUser(null);
+      navigate('/auth');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [navigate]);
 
-  // Get the current access token
-  const getAccessToken = async (): Promise<string | null> => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  };
-
-  const value: AuthContextType = {
+  const value = {
     user,
-    session,
-    isPending,
+    isLoading,
     signIn,
-    signUp,
-    signInWithOAuth,
-    demoLogin: {
-      creator: () => handleDemoLogin('creator'),
-      investor: () => handleDemoLogin('investor'),
-      advertiser: () => handleDemoLogin('advertiser')
-    },
     signOut,
-    refreshSession,
-    getAccessToken,
+    demoLogin,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
-export function useAuth() {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-// Helper hook to get the current access token
-export function useAccessToken() {
-  const [token, setToken] = useState<string | null>(null);
-  const { getAccessToken } = useAuth();
-  
-  useEffect(() => {
-    const fetchToken = async () => {
-      const accessToken = await getAccessToken();
-      setToken(accessToken);
-    };
-    
-    fetchToken();
-  }, [getAccessToken]);
-  
-  return token;
-}
-
-// Helper hook to check if user is authenticated
-export function useIsAuthenticated() {
-  const { user, session } = useAuth();
-  return Boolean(user && session);
-}
-
-// Helper hook to get the current user's ID
-export function useUserId() {
-  const { user } = useAuth();
-  return user?.id || null;
-}
+};

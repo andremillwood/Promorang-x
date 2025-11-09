@@ -24,6 +24,16 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'sb-dnysosmscoceplvcejkv-auth-token',
+  },
+  db: {
+    schema: 'public, auth',
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'promorang-x',
+    },
   },
 });
 

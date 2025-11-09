@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Trophy, Star, Award, Lock, CheckCircle, Gift } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface Achievement {
   id: number;

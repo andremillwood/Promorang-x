@@ -18,7 +18,7 @@ import {
   Lightbulb,
   Heart
 } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 import { 
   ActivityBreakdown, 
   TrendLine,

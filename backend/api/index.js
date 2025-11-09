@@ -116,6 +116,7 @@ app.use('/api/growth', require('./growth'));
 app.use('/api/advertisers', require('./advertisers'));
 app.use('/api/campaigns', require('./campaigns'));
 app.use('/api/leaderboard', require('./leaderboard'));
+app.use('/api/rewards', require('./rewards'));
 
 // 404 handler
 app.use('/api/*', (req, res) => {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Plus, Gift, TicketPercent, Users, Target, BarChart2, Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import type { CouponType, CouponAssignmentType, CouponRedemptionType, DropType } from '@/shared/types';
+import type { CouponType, CouponAssignmentType, CouponRedemptionType, DropType } from '../../shared/types';
 import { advertiserService } from '@/react-app/services/advertiser';
 
 interface CouponManagerProps {

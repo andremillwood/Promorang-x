@@ -1,4 +1,4 @@
-import { ContentPieceType, UserType } from '@/shared/types';
+import type { ContentPieceType, UserType } from '../../shared/types';
 import {
   Heart,
   MessageCircle,

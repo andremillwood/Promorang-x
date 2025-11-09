@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, TrendingUp, DollarSign } from 'lucide-react';
-import { ContentPieceType, WalletType } from '@/shared/types';
+import type { ContentPieceType, WalletType } from '../../shared/types';
 
 interface BuySharesModalProps {
   content: ContentPieceType;

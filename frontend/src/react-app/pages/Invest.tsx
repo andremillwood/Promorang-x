@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TrendingUp, Users, Clock, DollarSign, Plus, Target, ExternalLink } from 'lucide-react';
 import CreateForecastModal from '../components/CreateForecastModal';
 import PlaceForecastModal from '../components/PlaceForecastModal';
+import BuySharesModal from '@/react-app/components/BuySharesModal';
+import api from '@/react-app/lib/api';
+import { API_BASE_URL } from '@/react-app/config';
+import type { ContentPieceType, WalletType } from '@/shared/types';
 
 interface SocialForecast {
   id: number;
@@ -45,29 +49,19 @@ interface UserForecast {
   created_at: string;
 }
 
-interface ContentPiece {
-  id: number;
-  title: string;
-  creator_name: string;
-  creator_avatar: string;
-  platform: string;
-  share_price: number;
-  current_revenue: number;
-  available_shares: number;
-  total_shares: number;
-  created_at: string;
-}
-
 export default function Invest() {
   const [activeTab, setActiveTab] = useState<'forecasts' | 'my-forecasts' | 'my-created' | 'content'>('forecasts');
   const [forecasts, setForecasts] = useState<SocialForecast[]>([]);
   const [myForecasts, setMyForecasts] = useState<UserForecast[]>([]);
   const [myCreatedForecasts, setMyCreatedForecasts] = useState<SocialForecast[]>([]);
-  const [content, setContent] = useState<ContentPiece[]>([]);
+  const [content, setContent] = useState<ContentPieceType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [selectedForecast, setSelectedForecast] = useState<SocialForecast | null>(null);
+  const [wallets, setWallets] = useState<WalletType[]>([]);
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [selectedContent, setSelectedContent] = useState<ContentPieceType | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -77,45 +71,46 @@ export default function Invest() {
     setLoading(true);
     try {
       if (activeTab === 'forecasts') {
-        const response = await fetch('/api/social-forecasts');
-        if (response.ok) {
-          const data = await response.json();
-          setForecasts(data);
-        } else {
-          console.error('Failed to fetch forecasts:', response.status);
-        }
+        const data = await api.get<SocialForecast[]>('/social-forecasts');
+        setForecasts(Array.isArray(data) ? data : []);
       } else if (activeTab === 'my-forecasts') {
-        const response = await fetch('/api/users/forecasts', { credentials: 'include' });
-        if (response.ok) {
-          const data = await response.json();
-          setMyForecasts(data);
-        } else {
-          console.error('Failed to fetch user forecasts:', response.status);
-          setMyForecasts([]); // Set empty array on failure
-        }
+        const data = await api.get<UserForecast[]>('/users/forecasts');
+        setMyForecasts(Array.isArray(data) ? data : []);
       } else if (activeTab === 'my-created') {
-        const response = await fetch('/api/users/created-forecasts', { credentials: 'include' });
-        if (response.ok) {
-          const data = await response.json();
-          setMyCreatedForecasts(data);
-        } else {
-          console.error('Failed to fetch created forecasts:', response.status);
-          setMyCreatedForecasts([]); // Set empty array on failure
-        }
+        const data = await api.get<SocialForecast[]>('/users/created-forecasts');
+        setMyCreatedForecasts(Array.isArray(data) ? data : []);
       } else if (activeTab === 'content') {
-        const response = await fetch('/api/content');
-        if (response.ok) {
-          const data = await response.json();
-          setContent(data);
-        } else {
-          console.error('Failed to fetch content:', response.status);
-        }
+        const [contentData, walletData] = await Promise.all([
+          api.get<ContentPieceType[]>('/content'),
+          api.get<WalletType[]>('/users/me/wallets').catch(() => [])
+        ]);
+        setContent(Array.isArray(contentData) ? contentData : []);
+        setWallets(Array.isArray(walletData) ? walletData : []);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBuyShares = async (contentPiece: ContentPieceType, sharesCount: number) => {
+    try {
+      await api.post('/content/buy-shares', {
+        content_id: contentPiece.id,
+        shares_count: sharesCount
+      });
+
+      await fetchData();
+    } catch (error) {
+      console.error('Failed to buy shares:', error);
+      throw error;
+    }
+  };
+
+  const openBuySharesModal = (contentPiece: ContentPieceType) => {
+    setSelectedContent(contentPiece);
+    setBuyModalOpen(true);
   };
 
   const handlePlacePrediction = (forecast: SocialForecast) => {
@@ -181,7 +176,7 @@ export default function Invest() {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <img
-              src={forecast.creator_avatar || '/api/placeholder/32/32'}
+              src={forecast.creator_avatar || `${API_BASE_URL}/api/placeholder/32/32`}
               alt={forecast.creator_name}
               className="w-8 h-8 rounded-full"
             />
@@ -320,11 +315,11 @@ export default function Invest() {
     );
   };
 
-  const ContentShareCard = ({ content }: { content: ContentPiece }) => (
+  const ContentShareCard = ({ content }: { content: ContentPieceType }) => (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center space-x-3 mb-4">
         <img
-          src={content.creator_avatar || '/api/placeholder/32/32'}
+          src={content.creator_avatar || `${API_BASE_URL}/api/placeholder/32/32`}
           alt={content.creator_name}
           className="w-8 h-8 rounded-full"
         />
@@ -353,127 +348,136 @@ export default function Invest() {
         </p>
       </div>
       
-      <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+      <button
+        onClick={() => openBuySharesModal(content)}
+        className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+      >
         Buy Shares
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Investment Hub</h1>
-            <p className="text-gray-600">Create forecasts, make predictions, and invest in creator success</p>
+    <>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Investment Hub</h1>
+              <p className="text-gray-600">Create forecasts, make predictions, and invest in creator success</p>
+            </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Forecast</span>
+            </button>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Forecast</span>
-          </button>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { id: 'forecasts', label: 'All Forecasts', icon: TrendingUp },
-              { id: 'my-forecasts', label: 'My Predictions', icon: Users },
-              { id: 'my-created', label: 'My Forecasts', icon: Target },
-              { id: 'content', label: 'Content Shares', icon: DollarSign },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Content */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activeTab === 'forecasts' && forecasts.map((forecast) => (
-              <ForecastCard key={forecast.id} forecast={forecast} />
-            ))}
-            
-            {activeTab === 'my-forecasts' && myForecasts.map((forecast) => (
-              <MyForecastCard key={forecast.id} forecast={forecast} />
-            ))}
-            
-            {activeTab === 'my-created' && myCreatedForecasts.map((forecast) => (
-              <ForecastCard key={forecast.id} forecast={forecast} />
-            ))}
-            
-            {activeTab === 'content' && content.map((piece) => (
-              <ContentShareCard key={piece.id} content={piece} />
-            ))}
-          </div>
-        )}
-
-        {/* Empty States */}
-        {!loading && (
-          <>
-            {activeTab === 'forecasts' && forecasts.length === 0 && (
-              <div className="text-center py-12">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Forecasts</h3>
-                <p className="text-gray-600 mb-4">Be the first to create a prediction market! Put up your own stake and let others predict on your forecast.</p>
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200 mb-8">
+            <nav className="-mb-px flex space-x-8">
+              {[
+                { id: 'forecasts', label: 'All Forecasts', icon: TrendingUp },
+                { id: 'my-forecasts', label: 'My Predictions', icon: Users },
+                { id: 'my-created', label: 'My Forecasts', icon: Target },
+                { id: 'content', label: 'Content Shares', icon: DollarSign },
+              ].map((tab) => (
                 <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
                 >
-                  Create First Forecast
+                  <tab.icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
                 </button>
-              </div>
-            )}
-            
-            {activeTab === 'my-forecasts' && myForecasts.length === 0 && (
-              <div className="text-center py-12">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Predictions Yet</h3>
-                <p className="text-gray-600">Browse active forecasts and make your first prediction to start earning!</p>
-              </div>
-            )}
-            
-            {activeTab === 'my-created' && myCreatedForecasts.length === 0 && (
-              <div className="text-center py-12">
-                <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Created Forecasts</h3>
-                <p className="text-gray-600 mb-4">Create your first prediction market by putting up initial stake and letting others predict against you!</p>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Create Forecast
-                </button>
-              </div>
-            )}
-            
-            {activeTab === 'content' && content.length === 0 && (
-              <div className="text-center py-12">
-                <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Content Available</h3>
-                <p className="text-gray-600">No content shares are currently available for investment.</p>
-              </div>
-            )}
-          </>
-        )}
+              ))}
+            </nav>
+          </div>
+
+          {/* Content */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeTab === 'forecasts' && forecasts.map((forecast) => (
+                <ForecastCard key={forecast.id} forecast={forecast} />
+              ))}
+
+              {activeTab === 'my-forecasts' && myForecasts.map((forecast) => (
+                <MyForecastCard key={forecast.id} forecast={forecast} />
+              ))}
+
+              {activeTab === 'my-created' && myCreatedForecasts.map((forecast) => (
+                <ForecastCard key={forecast.id} forecast={forecast} />
+              ))}
+
+              {activeTab === 'content' && content.map((contentPiece) => (
+                <ContentShareCard key={contentPiece.id} content={contentPiece} />
+              ))}
+            </div>
+          )}
+
+          {/* Empty States */}
+          {!loading && (
+            <>
+              {activeTab === 'forecasts' && forecasts.length === 0 && (
+                <div className="text-center py-12">
+                  <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Forecasts</h3>
+                  <p className="text-gray-600 mb-4">
+                    Be the first to create a prediction market! Put up your own stake and let others predict on your forecast.
+                  </p>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Create First Forecast
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'my-forecasts' && myForecasts.length === 0 && (
+                <div className="text-center py-12">
+                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Predictions Yet</h3>
+                  <p className="text-gray-600">Browse active forecasts and make your first prediction to start earning!</p>
+                </div>
+              )}
+
+              {activeTab === 'my-created' && myCreatedForecasts.length === 0 && (
+                <div className="text-center py-12">
+                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Created Forecasts</h3>
+                  <p className="text-gray-600 mb-4">
+                    Create your first prediction market by putting up initial stake and letting others predict against you!
+                  </p>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Create Forecast
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'content' && content.length === 0 && (
+                <div className="text-center py-12">
+                  <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Content Available</h3>
+                  <p className="text-gray-600">No content shares are currently available for investment.</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Modals */}
@@ -491,6 +495,19 @@ export default function Invest() {
           onPredictionPlaced={handlePredictionPlaced}
         />
       )}
-    </div>
+
+      {selectedContent && (
+        <BuySharesModal
+          content={selectedContent}
+          wallet={wallets.find((wallet) => wallet.currency_type === 'USD')}
+          isOpen={buyModalOpen}
+          onClose={() => {
+            setBuyModalOpen(false);
+            setSelectedContent(null);
+          }}
+          onPurchase={handleBuyShares}
+        />
+      )}
+    </>
   );
 }

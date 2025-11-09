@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MessageCircle, Heart, Reply, Send, Trash2, Pin, MoreVertical } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface Comment {
   id: number;

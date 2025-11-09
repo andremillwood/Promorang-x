@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Upload, Link, FileText, Send, AlertCircle } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface DropSubmissionModalProps {
   user: UserType | null;

@@ -1,3 +1,5 @@
+// Import React shim first to ensure React is available globally
+import "@/react-shim";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "@/react-app/index.css";

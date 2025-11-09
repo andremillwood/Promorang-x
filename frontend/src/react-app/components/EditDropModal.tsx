@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Loader2 } from 'lucide-react';
-import { DropType, CreateDropRequestSchema, DropTypeSchema, DropDifficultySchema } from '@/shared/types';
+import type { DropType, CreateDropRequestSchema, DropTypeSchema, DropDifficultySchema } from '../../shared/types';
 
 interface EditDropModalProps {
   isOpen: boolean;

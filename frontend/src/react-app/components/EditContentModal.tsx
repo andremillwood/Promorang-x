@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Loader2 } from 'lucide-react';
-import { ContentPieceType, CreateContentRequestSchema } from '@/shared/types';
+import type { ContentPieceType } from '../../shared/types';
+import { CreateContentRequestSchema } from '../../shared/types';
 
 interface EditContentModalProps {
   isOpen: boolean;

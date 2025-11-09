@@ -1,60 +1,126 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Chrome } from 'lucide-react';
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Chrome, Gift } from 'lucide-react';
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithOAuth, demoLogin, isPending } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referrerInfo, setReferrerInfo] = useState<any>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     username: '',
     display_name: ''
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | Error | null>(null);
+
+  // Check for referral code in URL
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      setIsSignUp(true); // Auto-switch to signup mode
+      validateReferralCode(refCode);
+    }
+  }, [searchParams]);
+
+  const validateReferralCode = async (code: string) => {
+    try {
+      const response = await fetch('/api/referrals/validate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setReferrerInfo(data.data.referrer);
+      } else {
+        setReferralCode(null);
+      }
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+    }
+  };
+
+  const trackReferral = async (userId: string) => {
+    if (!referralCode) return;
+    
+    try {
+      await fetch('/api/referrals/track-referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          referred_user_id: userId,
+          referral_code: referralCode,
+        }),
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error tracking referral:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (isSignUp) {
-      if (!formData.email || !formData.password || !formData.username) {
-        setError('Please fill in all required fields');
-        return;
-      }
-      const result = await signUp(formData.email, formData.password);
-      if (result.error) {
-        setError(result.error);
+    try {
+      if (isSignUp) {
+        if (!formData.email || !formData.password || !formData.username) {
+          setError('Please fill in all required fields');
+          return;
+        }
+        const result = await signUp(formData.email, formData.password);
+        if (result.error) {
+          setError(typeof result.error === 'string' ? result.error : result.error.message || 'Signup failed');
+        } else if (result.requiresConfirmation) {
+          setError('Please check your email to confirm your account.');
+        } else {
+          // Track referral if code was provided
+          if (referralCode && result.user?.id) {
+            await trackReferral(result.user.id);
+          }
+          navigate('/dashboard');
+        }
       } else {
-        // Redirect to dashboard or home page after successful signup
-        navigate('/dashboard');
+        if (!formData.email || !formData.password) {
+          setError('Please enter email and password');
+          return;
+        }
+        const result = await signIn(formData.email, formData.password);
+        if (result.error) {
+          setError(typeof result.error === 'string' ? result.error : result.error.message || 'Login failed');
+        } else {
+          navigate('/dashboard');
+        }
       }
-    } else {
-      if (!formData.email || !formData.password) {
-        setError('Please enter email and password');
-        return;
-      }
-      const result = await signIn(formData.email, formData.password);
-      if (result.error) {
-        setError(result.error);
-      } else {
-        // Redirect to dashboard or home page after successful login
-        navigate('/dashboard');
-      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.';
+      setError(errorMessage);
     }
   };
 
   const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser') => {
-    setError('');
-    const result = await demoLogin[type]();
-    if (result.error) {
-      setError(result.error);
-    } else {
-      // Redirect to dashboard after successful demo login
-      navigate('/dashboard');
+    setError(null);
+    try {
+      const result = await demoLogin[type]();
+      if (result.error) {
+        setError(typeof result.error === 'string' ? result.error : result.error.message || 'Demo login failed');
+      } else {
+        // Redirect to dashboard after successful demo login
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Demo login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to login with demo account. Please try again.';
+      setError(errorMessage);
     }
   };
 
@@ -86,6 +152,23 @@ export default function AuthPage() {
             }
           </p>
         </div>
+
+        {/* Referral Banner */}
+        {referralCode && referrerInfo && (
+          <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg p-4 text-white">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Gift className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold">You've been invited!</p>
+                <p className="text-sm text-white/90">
+                  {referrerInfo.display_name || referrerInfo.username} invited you to join Promorang
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Demo Login Buttons */}
         <div className="space-y-3">
@@ -179,7 +262,7 @@ export default function AuthPage() {
         <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
+              {typeof error === 'string' ? error : error instanceof Error ? error.message : 'An error occurred'}
             </div>
           )}
 
@@ -267,6 +350,20 @@ export default function AuthPage() {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {!isSignUp && (
+              <div className="mt-1 text-right">
+                <a 
+                  href="/auth/reset-password" 
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/auth/reset-password');
+                  }}
+                >
+                  Forgot password?
+                </a>
+              </div>
+            )}
           </div>
 
           <button

@@ -17,9 +17,5 @@ export const handleError = (res: Response, error: any, message: string) => {
   });
 };
 
-export const requireAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return res.status(401).json({ success: false, error: 'Authentication required' });
-  }
-  next();
-};
+// Note: requireAuth middleware has been moved to _core/auth.ts
+// Import it from there instead: import { requireAuth } from '../_core/auth';

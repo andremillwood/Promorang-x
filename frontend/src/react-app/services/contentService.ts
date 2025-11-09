@@ -1,5 +1,6 @@
-import api, { ApiResponse } from './api';
-import { ContentPieceType } from '@/shared/types';
+import api from './api';
+import type { ApiResponse } from './api';
+import type { ContentPieceType } from '../../shared/types';
 
 // Enable debug logging
 const DEBUG = true;

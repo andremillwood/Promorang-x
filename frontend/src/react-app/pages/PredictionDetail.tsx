@@ -1,27 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, LineChart, Activity, Users } from 'lucide-react';
-import { PredictionDetail } from '@/shared/types';
+import { ArrowLeft, LineChart, Users } from 'lucide-react';
+import type { PredictionDetail } from '../../shared/types';
 import { getPredictionDetail } from '@/react-app/services/portfolioService';
 
 export default function PredictionDetailPage() {
-  const { id } = useParams();
+  const { predictionId } = useParams();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<PredictionDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!predictionId) return;
     const load = async () => {
       setLoading(true);
-      const data = await getPredictionDetail(id);
+      const data = await getPredictionDetail(predictionId);
       setDetail(data);
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [predictionId]);
 
-  if (!id) {
+  if (!predictionId) {
     return (
       <div className="p-6">
         <button onClick={() => navigate(-1)} className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">

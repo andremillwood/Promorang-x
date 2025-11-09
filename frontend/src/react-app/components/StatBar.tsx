@@ -1,5 +1,5 @@
 import { Heart, MessageCircle, Share2, Repeat, Eye } from 'lucide-react';
-import { ContentPieceType } from '@/shared/types';
+import type { ContentPieceType } from '../../shared/types';
 
 interface StatBarProps {
   content: ContentPieceType;

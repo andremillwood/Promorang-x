@@ -50,7 +50,7 @@ export const API_ENDPOINTS = {
     DEMO: (type: string) => `${prefix}/api/auth/demo/${type}`,
     OAUTH: (provider: string) => `${prefix}/api/auth/oauth/${provider}`,
     LOGOUT: `${prefix}/api/auth/logout`,
-    ME: `${prefix}/api/auth/me`
+    ME: `${prefix}/api/users/me`
   },
   // Add other API endpoints as needed
 };

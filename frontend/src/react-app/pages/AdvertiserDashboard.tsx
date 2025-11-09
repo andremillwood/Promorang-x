@@ -26,9 +26,8 @@ import {
   CheckCircle2,
   Loader2
 } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { DropType, AdvertiserAnalyticsType } from '@/shared/types';
+import { type DropType, type AdvertiserAnalyticsType } from '@/shared/types';
 import {
   PerformanceMetrics,
   ActivityBreakdown,
@@ -40,11 +39,13 @@ import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import BrandProfileModal from '@/react-app/components/BrandProfileModal';
 import Campaigns from './Campaigns';
 import { apiFetch } from '@/react-app/utils/api';
-import advertiserService, { AdvertiserPlan, CouponListPayload } from '@/react-app/services/advertiser';
+import advertiserService from '@/react-app/services/advertiser';
+import type { AdvertiserPlan, CouponListPayload } from '@/react-app/services/advertiser';
 import UpgradePlanModal from '@/react-app/components/UpgradePlanModal';
 import CouponManager from '@/react-app/components/CouponManager';
 import ErrorBoundary from '@/react-app/components/ErrorBoundary';
-import paymentsService, { PaymentProviderSummary, PaymentProvider } from '@/react-app/services/payments';
+import paymentsService from '@/react-app/services/payments';
+import type { PaymentProviderSummary, PaymentProvider } from '@/react-app/services/payments';
 import { PAYMENT_CONFIG } from '@/react-app/config';
 
 const CouponManagerFallback = () => (
@@ -73,7 +74,6 @@ export default function AdvertiserDashboard() {
   const [error, setError] = useState('');
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [savingBrand, setSavingBrand] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'campaigns'>('dashboard');
   const [plans, setPlans] = useState<AdvertiserPlan[]>([]);
   const [currentPlanId, setCurrentPlanId] = useState<string>('free');
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -464,26 +464,11 @@ export default function AdvertiserDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (
-      location.pathname === '/advertiser/campaigns' ||
-      location.pathname.startsWith('/advertiser/campaigns/') ||
-      location.pathname === '/campaigns' ||
-      location.pathname.startsWith('/campaigns/')
-    ) {
-      setActiveTab('campaigns');
-    } else {
-      setActiveTab('dashboard');
-    }
-  }, [location.pathname]);
-
-  const handleTabChange = (value: string) => {
-    if (value === 'campaigns') {
-      navigate('/advertiser/campaigns');
-    } else {
-      navigate('/advertiser');
-    }
-  };
+  const isCampaignsView =
+    location.pathname === '/advertiser/campaigns' ||
+    location.pathname.startsWith('/advertiser/campaigns/') ||
+    location.pathname === '/campaigns' ||
+    location.pathname.startsWith('/campaigns/');
 
   if (loading) {
     return (
@@ -552,28 +537,7 @@ export default function AdvertiserDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-gray-200">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="bg-transparent p-0 rounded-none">
-            <TabsTrigger
-              value="dashboard"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none px-4 py-3 text-sm font-medium"
-            >
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger
-              value="campaigns"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none px-4 py-3 text-sm font-medium"
-            >
-              <Megaphone className="mr-2 h-4 w-4" />
-              Campaigns
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {activeTab === 'campaigns' ? (
+      {isCampaignsView ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>

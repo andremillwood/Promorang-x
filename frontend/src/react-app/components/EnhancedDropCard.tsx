@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { DropType } from '@/shared/types';
+import type { DropType } from '../../shared/types';
 import { Clock, Users, Target, Star, TrendingUp, Calendar, Award } from 'lucide-react';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
 

@@ -154,7 +154,7 @@ const ErrorState = ({ error, onRetry }: { error: Error; onRetry: () => void }) =
 );
 
 export default function Home() {
-  const { user, demoLogin, logout } = useAuth();
+  const { user, signIn, signOut: logout } = useAuth();
   const navigate = useNavigate();
   const [activeStats, setActiveStats] = useState<StatsData>({
     earners: 0,
@@ -197,15 +197,30 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [stats, refetchStats]);
   
+  // Demo login state and handlers
+  const [demoLoginState, setDemoLoginState] = useState<{
+    loading: string | null;
+  }>({
+    loading: null,
+  });
+
   // Handle demo login with loading state
   const handleDemoLogin = useCallback(async (type: 'creator' | 'investor' | 'advertiser') => {
     try {
-      await demoLogin[type]();
+      setDemoLoginState({ loading: type });
+      const email = `${type}@demo.com`;
+      const response = await signIn(email, 'demo123');
+      
+      if (response.error) {
+        console.error('Demo login failed:', response.error);
+        // In a real app, you'd show an error toast/message here
+      }
     } catch (error) {
       console.error('Demo login failed:', error);
-      // In a real app, you'd show an error toast/message here
+    } finally {
+      setDemoLoginState({ loading: null });
     }
-  }, [demoLogin]);
+  }, [signIn]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -284,7 +299,7 @@ export default function Home() {
                   variant="outline"
                   size="sm"
                   className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-                  isLoading={demoLogin.loading === 'creator'}
+                  isLoading={demoLoginState.loading === 'creator'}
                   loadingText="Loading..."
                 >
                   Creator Demo
@@ -294,7 +309,7 @@ export default function Home() {
                   variant="outline"
                   size="sm"
                   className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
-                  isLoading={demoLogin.loading === 'investor'}
+                  isLoading={demoLoginState.loading === 'investor'}
                   loadingText="Loading..."
                 >
                   Investor Demo
@@ -304,7 +319,7 @@ export default function Home() {
                   variant="outline"
                   size="sm"
                   className="bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
-                  isLoading={demoLogin.loading === 'advertiser'}
+                  isLoading={demoLoginState.loading === 'advertiser'}
                   loadingText="Loading..."
                 >
                   Advertiser Demo

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, Share2, Copy, Check, RefreshCw, Facebook, Twitter, MessageCircle, Mail } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 import { createShareLink } from '@/react-app/services/sharesService';
 import { logEvent } from '@/react-app/services/telemetry';
 

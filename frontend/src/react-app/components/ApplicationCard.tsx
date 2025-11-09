@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Calendar, Upload, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { DropApplicationType } from '@/shared/types';
+import type { DropApplicationType } from '../../shared/types';
 import DropSubmissionModal from './DropSubmissionModal';
 
 interface ApplicationCardProps {

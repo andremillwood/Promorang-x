@@ -1,4 +1,4 @@
-import { ContentHolding, PredictionSummary, ContentHoldingDetail, PredictionDetail } from '@/shared/types';
+import type { PredictionSummary, PredictionDetail, ContentHolding, ContentHoldingDetail } from '../../shared/types';
 import { apiFetch } from '@/react-app/utils/api';
 
 const USE_MOCK_DATA = !import.meta.env.VITE_API_URL;

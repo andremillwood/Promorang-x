@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Users, Gift, Copy, Check } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface ReferralModalProps {
   user: UserType | null;

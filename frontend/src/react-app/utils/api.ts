@@ -1,12 +1,13 @@
 import { API_BASE_URL } from '../config';
 import supabaseClient from '@/react-app/lib/supabaseClient';
+import { getAccessToken } from '@/react-app/lib/api';
 
 export const buildAuthHeaders = (headers: Record<string, string> = {}) => {
   if (typeof window === 'undefined') {
     return { ...headers };
   }
 
-  const authToken = localStorage.getItem('authToken');
+  const authToken = getAccessToken();
 
   if (authToken) {
     return {
@@ -35,18 +36,12 @@ export const resolveApiUrl = (path: string) => {
 
 export const apiFetch = async (path: string, options: RequestInit = {}) => {
   const headers = new Headers(options.headers || {});
-  const supabase = supabaseClient;
+  
+  // Get the token from localStorage
+  const accessToken = getAccessToken();
 
-  if (supabase) {
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-    } catch (error) {
-      console.warn('[apiFetch] failed to attach auth token', error);
-    }
+  if (accessToken) {
+    headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
   return fetch(resolveApiUrl(path), {

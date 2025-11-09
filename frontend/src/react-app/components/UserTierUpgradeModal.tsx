@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Star, Crown, Zap, Coins, Gem, ArrowRight, CheckCircle } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 const DEFAULT_UPGRADE_COSTS: Record<string, Record<string, { points: number; gems: number }>> = {
   free: {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Shield, CheckCircle, AlertCircle, Users, Eye } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface SocialShieldPolicy {
   id: string;

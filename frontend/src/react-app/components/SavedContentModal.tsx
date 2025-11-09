@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Bookmark, Eye, Calendar, Trash2, ExternalLink } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface SavedContent {
   id: number;

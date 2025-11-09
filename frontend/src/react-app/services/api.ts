@@ -9,7 +9,7 @@ const debugLog = (...args: any[]) => {
   }
 };
 
-type ApiResponse<T> = {
+export type ApiResponse<T> = {
   data?: T;
   error?: {
     code: string;

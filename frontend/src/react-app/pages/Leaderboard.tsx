@@ -9,6 +9,7 @@ import {
   Medal,
   TrendingUp
 } from 'lucide-react';
+import { API_BASE_URL } from '@/react-app/config';
 
 type LeaderboardEntry = {
   id: number;
@@ -34,11 +35,19 @@ export default function Leaderboard() {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/leaderboard/${period}`);
+      const baseUrl = API_BASE_URL || '';
+      const url = `${baseUrl}/api/leaderboard/${period}`;
+      const response = await fetch(url, { credentials: 'include' });
+
+      if (!response.ok) {
+        throw new Error(`Leaderboard request failed with ${response.status}`);
+      }
+
       const data = await response.json();
-      setLeaderboard(data);
+      setLeaderboard(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
+      setLeaderboard([]);
     } finally {
       setLoading(false);
     }

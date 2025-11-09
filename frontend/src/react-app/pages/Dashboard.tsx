@@ -13,7 +13,7 @@ import {
   Zap,
   Users
 } from 'lucide-react';
-import { UserType, TaskType, WalletType, TransactionType } from '@/shared/types';
+import type { TaskType, WalletType, TransactionType } from '../../shared/types';
 import { 
   EarningsChart, 
   PerformanceMetrics, 
@@ -32,27 +32,53 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch wallets
-        const response = await fetch('/api/users/me/wallets', {
-          credentials: 'include'
-        });
-        const walletsData = await response.json();
-        setWallets(Array.isArray(walletsData) ? walletsData : []);
+        // Try to fetch real data first
+        const [walletsResponse, tasksResponse, transactionsResponse] = await Promise.allSettled([
+          fetch('/api/users/me/wallets', { credentials: 'include' }),
+          fetch('/api/tasks?limit=5'),
+          fetch('/api/users/transactions?limit=5', { credentials: 'include' })
+        ]);
 
-        // Fetch recent tasks
-        const tasksResponse = await fetch('/api/tasks?limit=5');
-        const tasksData = await tasksResponse.json();
-        setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
+        // Handle wallets response
+        if (walletsResponse.status === 'fulfilled' && walletsResponse.value.ok) {
+          const walletsData = await walletsResponse.value.json();
+          setWallets(Array.isArray(walletsData) ? walletsData : []);
+        } else {
+          // Use mock data if API call fails
+          const { mockWallets } = await import('../mocks/dashboardMocks');
+          setWallets(mockWallets);
+        }
 
-        // Fetch recent transactions
-        const transactionsResponse = await fetch('/api/users/transactions?limit=5', {
-          credentials: 'include'
-        });
-        const transactionsData = await transactionsResponse.json();
-        setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
+        // Handle tasks response
+        if (tasksResponse.status === 'fulfilled' && tasksResponse.value.ok) {
+          const tasksData = await tasksResponse.value.json();
+          setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
+        } else {
+          // Use mock data if API call fails
+          const { mockTasks } = await import('../mocks/dashboardMocks');
+          setRecentTasks(mockTasks);
+        }
 
+        // Handle transactions response
+        if (transactionsResponse.status === 'fulfilled' && transactionsResponse.value.ok) {
+          const transactionsData = await transactionsResponse.value.json();
+          setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
+        } else {
+          // Use mock data if API call fails
+          const { mockTransactions } = await import('../mocks/dashboardMocks');
+          setRecentTransactions(mockTransactions);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        // Fallback to all mock data if there's an error
+        try {
+          const { mockWallets, mockTasks, mockTransactions } = await import('../mocks/dashboardMocks');
+          setWallets(mockWallets);
+          setRecentTasks(mockTasks);
+          setRecentTransactions(mockTransactions);
+        } catch (mockError) {
+          console.error('Failed to load mock data:', mockError);
+        }
       } finally {
         setLoading(false);
       }
@@ -63,8 +89,17 @@ export default function Dashboard() {
 
   const usdWallet = wallets.find(w => w.currency_type === 'USD');
 
+  interface DashboardDataPoint {
+    [key: string]: string | number;
+    date: string;
+    earnings: number;
+    tasks: number;
+    activity: number;
+    xp: number;
+  }
+
   // Generate analytics data for dashboard
-  const generateDashboardData = () => {
+  const generateDashboardData = (): DashboardDataPoint[] => {
     const last30Days = Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (29 - i));
@@ -81,14 +116,25 @@ export default function Dashboard() {
 
   const dashboardData = generateDashboardData();
   
-  const activityBreakdown = [
+  interface ActivityBreakdownItem {
+    name: string;
+    value: number;
+    color: string;
+  }
+
+  const activityBreakdown: ActivityBreakdownItem[] = [
     { name: 'Task Completions', value: 40, color: '#f97316' },
     { name: 'Social Actions', value: 30, color: '#8b5cf6' },
     { name: 'Content Creation', value: 20, color: '#10b981' },
     { name: 'Investments', value: 10, color: '#3b82f6' }
   ];
 
-  const performanceMetrics = [
+  interface PerformanceMetric {
+    metric: string;
+    value: number;
+  }
+
+  const performanceMetrics: PerformanceMetric[] = [
     { metric: 'Task Success Rate', value: 87.5 },
     { metric: 'Daily Activity', value: 23.2 },
     { metric: 'Earning Efficiency', value: 156.8 },

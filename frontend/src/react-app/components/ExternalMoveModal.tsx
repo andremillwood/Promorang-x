@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ExternalLink, Upload, Camera, CheckCircle, AlertCircle, Key } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface ExternalMoveModalProps {
   user: UserType | null;

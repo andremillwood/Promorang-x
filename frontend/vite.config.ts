@@ -1,104 +1,155 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
-// This configuration ensures proper React deduplication and optimization
-// to prevent multiple React instances in production
 export default defineConfig({
-  plugins: [react()],
   root: '.',
   base: '/',
-  // React and dependency configuration
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('scheduler') || id.includes('react-dom')) {
-              return 'vendor';
-            }
-            if (id.includes('react-router') || id.includes('@remix-run/router') || id.includes('history')) {
-              return 'router';
-            }
-            if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('framer-motion')) {
-              return 'ui';
-            }
-            if (id.includes('date-fns') || id.includes('zod') || id.includes('clsx') || id.includes('tailwind-merge')) {
-              return 'utils';
-            }
-            return 'vendor-other';
-          }
-        },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          const assetName = assetInfo.name || '';
-          if (/\.(png|jpe?g|gif|svg|webp|avif)$/i.test(assetName)) {
-            return 'assets/images/[name]-[hash][extname]';
-          }
-          if (/\.(woff|woff2|eot|ttf|otf)$/i.test(assetName)) {
-            return 'assets/fonts/[name]-[hash][extname]';
-          }
-          return 'assets/[name]-[hash][extname]';
-        }
-      }
-    },
-    target: 'esnext',
-    modulePreload: {
-      polyfill: false
-    }
-  },
   server: {
     port: 5173,
-    strictPort: true,
-    open: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
+    },
+    headers: {
+      'Content-Security-Policy': "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: https: http://localhost:3001; " +
+        "font-src 'self' data:; " +
+        "connect-src 'self' http://localhost:3001 https://api.promorang.co https://dnysosmscoceplvcejkv.supabase.co;"
     }
   },
   resolve: {
-    dedupe: ['react', 'react-dom'],
     alias: [
       {
         find: 'react',
-        replacement: 'react'
+        replacement: resolve(__dirname, './node_modules/react')
       },
       {
         find: 'react-dom',
-        replacement: 'react-dom'
+        replacement: resolve(__dirname, './node_modules/react-dom')
       },
       {
         find: '@',
-        replacement: resolve(dirname(fileURLToPath(import.meta.url)), 'src')
+        replacement: resolve(__dirname, './src')
       },
       {
         find: '@/react-app',
-        replacement: resolve(dirname(fileURLToPath(import.meta.url)), 'src/react-app')
+        replacement: resolve(__dirname, './src/react-app')
       },
       {
         find: '@/shared',
-        replacement: resolve(dirname(fileURLToPath(import.meta.url)), 'src/shared')
+        replacement: resolve(__dirname, './src/shared')
       }
-    ]
+    ],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+    preserveSymlinks: false
   },
   optimizeDeps: {
-    force: true,
-    include: ['react', 'react-dom', 'react/jsx-runtime']
-  },
-  build: {
-    commonjsOptions: {
-      include: [/node_modules/],
-      extensions: ['.js', '.cjs'],
-      transformMixedEsModules: true
+    entries: ["src/react-app/**/*.{ts,tsx}"],
+    // Exclude backup files from optimization
+    exclude: [], // Temporarily removed problematic patterns
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'react-dom/client',
+      'react-is',
+      'recharts',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      'framer-motion',
+      '@supabase/supabase-js',
+      '@supabase/auth-helpers-react'
+    ],
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+        '.ts': 'ts',
+        '.tsx': 'tsx'
+      },
+      // Ensure React is properly handled
+      treeShaking: true,
+      define: {
+        global: 'globalThis',
+      },
+      target: 'es2020',
+      jsx: 'automatic',
+      jsxDev: false,
+      jsxImportSource: 'react'
     }
   },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: process.env.NODE_ENV !== 'production',
+    manifest: true,
+    target: 'es2020',
+    minify: 'terser',
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules\/recharts/, /node_modules/],
+      ignoreDynamicRequires: true,
+      dynamicRequireTargets: [],
+      esmExternals: true,
+      strictRequires: true
+    },
+    modulePreload: {
+      polyfill: true
+    },
+    rollupOptions: {
+      // Don't externalize React - we want it bundled
+      // external: ['react', 'react-dom'],
+      output: {
+        format: 'esm',
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        assetFileNames: `assets/[name].[hash].[ext]`
+      }
+    },
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        ecma: 2020,
+        keep_fnames: false,
+        module: true,
+        toplevel: true,
+        unsafe: false,
+        unsafe_arrows: false,
+        unsafe_methods: false,
+        unsafe_proto: false,
+        unsafe_undefined: true,
+      },
+      format: {
+        comments: false,
+        ecma: 2020,
+      },
+      mangle: {
+        module: true,
+        toplevel: true,
+      },
+    },
+  },
+  plugins: [
+    react({
+      jsxImportSource: 'react',
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-react-jsx', {
+            runtime: 'automatic',
+            importSource: 'react'
+          }]
+        ]
+      }
+    })
+  ]
 });

@@ -13,9 +13,13 @@ import {
   Diamond
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
-import { DropType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
-import { buildAuthHeaders, apiFetch } from '@/react-app/utils/api';
+import type { DropType, UserType } from '../../shared/types';
+import api from '@/react-app/lib/api';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
+
+// Drop type and difficulty options
+const DROP_TYPES = ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral', 'paid_content', 'action_required'];
+const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 interface CreateDropRequestType {
   title: string;
@@ -69,15 +73,8 @@ export default function Earn() {
 
   const fetchUserData = async () => {
     try {
-      const headers = buildAuthHeaders();
-      const response = await apiFetch('/api/users/me', {
-        credentials: 'include',
-        headers
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUserData(data);
-      }
+      const data = await api.get<UserType>('/users/me');
+      setUserData(data);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
     }
@@ -85,11 +82,14 @@ export default function Earn() {
 
   const fetchDrops = async () => {
     try {
-      const response = await apiFetch('/api/drops');
-      const data = await response.json();
-      setDrops(data);
+      const data = await api.get<DropType[]>('/drops');
+      console.log('💎 Earn page - Drops data type:', typeof data, 'isArray:', Array.isArray(data));
+      console.log('💎 Earn page - Drops data:', data);
+      console.log('💎 Earn page - Drops count:', Array.isArray(data) ? data.length : 'not array');
+      setDrops(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch drops:', error);
+      setDrops([]);
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ export default function Earn() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="">All Drop Types</option>
-            {DropTypeSchema.options.map(dropType => (
+            {DROP_TYPES.map(dropType => (
               <option key={dropType} value={dropType}>
                 {dropType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </option>
@@ -171,7 +171,7 @@ export default function Earn() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="">All Difficulties</option>
-            {DropDifficultySchema.options.map(difficulty => (
+            {DIFFICULTIES.map(difficulty => (
               <option key={difficulty} value={difficulty} className="capitalize">{difficulty}</option>
             ))}
           </select>
@@ -526,26 +526,13 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       });
 
       // Upload to backend
-      const response = await apiFetch('/api/content/upload-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          image: base64,
-          filename: file.name,
-          contentType: file.type,
-          description: formData.title || 'Marketing drop',
-          platform: formData.platform || 'general'
-        })
+      const data = await api.post<{ url: string }>('/content/upload-image', {
+        image: base64,
+        filename: file.name,
+        contentType: file.type,
+        description: formData.title || 'Marketing drop',
+        platform: formData.platform || 'general'
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const data = await response.json();
       return data.url;
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -586,12 +573,8 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       }
       
       // Submit the form data
-      const response = await apiFetch('/api/drops', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      try {
+        await api.post<DropType>('/drops', {
           ...formData,
           content_url: imageUrl,
           drop_type: dropType === 'proof' ? 'content_clipping' : 
@@ -605,16 +588,14 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
           is_paid_drop: dropType === 'paid',
           move_cost_points: dropType === 'move' ? formData.move_cost_points || 0 : 0,
           key_reward_amount: dropType === 'move' ? formData.key_reward_amount || 0 : 0,
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create drop');
+        });
+        
+        onSuccess();
+        onClose();
+      } catch (error) {
+        console.error('Error creating drop:', error);
+        throw error;
       }
-      
-      onSuccess();
-      onClose();
     } catch (error) {
       console.error('Error creating drop:', error);
       alert(error instanceof Error ? error.message : 'Failed to create drop');

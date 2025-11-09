@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Shield, Zap, CheckCircle, Clock, Star } from 'lucide-react';
-import { UserType, MasterKeyActivationType } from '@/shared/types';
+import type { UserType, MasterKeyActivationType } from '../../shared/types';
+import api from '@/react-app/lib/api';
 
 interface MasterKeyModalProps {
   user: UserType | null;
@@ -22,10 +23,10 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
 
   const fetchMasterKeyStatus = async () => {
     try {
-      const response = await fetch('/api/users/master-key-status', { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        setMasterKeyStatus(data);
+      const response = await api.get('/users/master-key-status');
+      const status = (response as any)?.status || response;
+      if (status) {
+        setMasterKeyStatus(status);
       }
     } catch (error) {
       console.error('Failed to fetch master key status:', error);
@@ -37,19 +38,12 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
     setError(null);
 
     try {
-      const response = await fetch('/api/users/activate-master-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({})
-      });
-
-      if (response.ok) {
+      const response = await api.post('/users/activate-master-key', {});
+      if ((response as any)?.success !== false) {
         await fetchMasterKeyStatus();
         onSuccess();
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Activation failed');
+        setError((response as any)?.error || 'Activation failed');
       }
     } catch (error) {
       console.error('Master key activation failed:', error);

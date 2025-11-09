@@ -1,4 +1,4 @@
-import { ShareListing, ShareOffer } from '@/shared/types';
+import type { ShareListing, ShareOffer } from '../../shared/types';
 import { apiFetch } from '@/react-app/utils/api';
 
 const USE_MOCK_DATA = !import.meta.env.VITE_API_URL;

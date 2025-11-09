@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Instagram, TrendingUp, Users, CheckCircle, AlertCircle, Phone, Mail, User, Calendar } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import type { UserType } from '../../shared/types';
 
 interface InfluenceRewardsModalProps {
   user: UserType | null;

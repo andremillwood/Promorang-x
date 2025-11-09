@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ContentHolding } from '@/shared/types';
+import type { ContentHolding } from '../../shared/types';
 import { createShareListing } from '@/react-app/services/sharesService';
 
 interface ListShareModalProps {
