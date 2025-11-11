@@ -36,6 +36,20 @@ router.use((req, res, next) => {
 });
 
 /**
+ * GET /api/marketplace/categories
+ * Retrieve marketplace categories (with demo fallback)
+ */
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await marketplaceService.getCategories();
+    return sendSuccess(res, { categories });
+  } catch (error) {
+    console.error('[Marketplace API] Error getting categories:', error);
+    return sendError(res, 500, 'Failed to load categories', 'SERVER_ERROR');
+  }
+});
+
+/**
  * POST /api/marketplace/stores
  * Create a new merchant store
  */

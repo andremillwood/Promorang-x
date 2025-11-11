@@ -8,6 +8,74 @@ const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const { trackProductSale } = require('../utils/referralTracker');
 
+const slugify = (value = '') =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || 'category';
+
+const demoCategories = [
+  {
+    id: 'category-featured',
+    name: 'Featured Picks',
+    slug: 'featured-picks',
+    icon: '🌟',
+  },
+  {
+    id: 'category-digital',
+    name: 'Digital Products',
+    slug: 'digital-products',
+    icon: '💾',
+  },
+  {
+    id: 'category-services',
+    name: 'Services',
+    slug: 'services',
+    icon: '🛠️',
+  },
+  {
+    id: 'category-merch',
+    name: 'Creator Merch',
+    slug: 'creator-merch',
+    icon: '🛍️',
+  },
+];
+
+/**
+ * Get product categories with fallback demo data
+ */
+async function getCategories() {
+  if (!supabase) {
+    return demoCategories;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('product_categories')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return demoCategories;
+    }
+
+    return data.map((category, index) => ({
+      id: category.id || `category-${index}`,
+      name: category.name || 'Marketplace Category',
+      slug: category.slug || slugify(category.name || `category-${index}`),
+      icon: category.icon || category.emoji || '🛒',
+    }));
+  } catch (error) {
+    console.error('[Marketplace Service] Error getting categories:', error);
+    return demoCategories;
+  }
+}
+
 /**
  * Create a merchant store
  */
@@ -574,6 +642,7 @@ module.exports = {
   getStore,
   createProduct,
   getProducts,
+  getCategories,
   addToCart,
   getCart,
   createOrder,
