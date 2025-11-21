@@ -9,16 +9,19 @@ const supabase = global.supabase || serviceSupabase || null;
 /**
  * Validate a coupon code
  */
-async function validateCoupon(code, userId, cartTotal = {}) {
+async function validateCoupon(code, userId, cartTotal = {}, context = {}) {
   if (!supabase) {
     throw new Error('Database not available');
   }
 
   try {
-    // Get coupon
+    // Get coupon with advertiser/campaign context
     const { data: coupon, error } = await supabase
       .from('coupons')
-      .select('*')
+      .select(`
+        *,
+        advertiser_campaigns(id, name, status)
+      `)
       .eq('code', code.toUpperCase())
       .single();
 
@@ -26,6 +29,22 @@ async function validateCoupon(code, userId, cartTotal = {}) {
       return {
         valid: false,
         error: 'Invalid coupon code',
+      };
+    }
+    
+    // Check campaign-specific conditions
+    if (coupon.campaign_id && context.campaign_id && coupon.campaign_id !== context.campaign_id) {
+      return {
+        valid: false,
+        error: 'This coupon is only valid for a specific campaign',
+      };
+    }
+    
+    // Check drop-specific conditions
+    if (coupon.drop_id && context.drop_id && coupon.drop_id !== context.drop_id) {
+      return {
+        valid: false,
+        error: 'This coupon is only valid for a specific drop',
       };
     }
 
@@ -202,13 +221,13 @@ async function applyCoupon(code, userId, orderData) {
 /**
  * Track coupon usage
  */
-async function trackCouponUsage(couponId, userId, orderId, discount, originalTotal, finalTotal) {
+async function trackCouponUsage(couponId, userId, orderId, discount, originalTotal, finalTotal, context = {}) {
   if (!supabase) {
     throw new Error('Database not available');
   }
 
   try {
-    // Record usage
+    // Record usage with campaign/drop context
     await supabase
       .from('coupon_usage')
       .insert({
@@ -220,6 +239,9 @@ async function trackCouponUsage(couponId, userId, orderId, discount, originalTot
         discount_amount_gold: discount.gold || 0,
         original_total_usd: originalTotal.usd || 0,
         final_total_usd: finalTotal.usd || 0,
+        campaign_id: context.campaign_id || null,
+        drop_id: context.drop_id || null,
+        source: context.source || 'marketplace',
       });
 
     // Increment coupon usage count
@@ -245,7 +267,7 @@ async function trackCouponUsage(couponId, userId, orderId, discount, originalTot
 }
 
 /**
- * Create a new coupon (merchant/admin only)
+ * Create a new coupon (merchant/admin/advertiser)
  */
 async function createCoupon(userId, couponData) {
   if (!supabase) {
@@ -257,6 +279,9 @@ async function createCoupon(userId, couponData) {
     name,
     description,
     store_id,
+    campaign_id,
+    drop_id,
+    source_type = 'merchant',
     discount_type,
     discount_value,
     max_discount_usd,
@@ -292,6 +317,9 @@ async function createCoupon(userId, couponData) {
         name,
         description,
         store_id,
+        campaign_id,
+        drop_id,
+        source_type,
         created_by: userId,
         discount_type,
         discount_value,
@@ -473,6 +501,135 @@ async function getCouponAnalytics(couponId) {
   }
 }
 
+/**
+ * Get coupons for a campaign
+ */
+async function getCampaignCoupons(campaignId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*, coupon_usage(count)')
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('[Coupon Service] Error getting campaign coupons:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get coupons for a drop
+ */
+async function getDropCoupons(dropId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('*, coupon_usage(count)')
+      .eq('drop_id', dropId)
+      .order('created_at', { ascending: false});
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('[Coupon Service] Error getting drop coupons:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create coupon from advertiser campaign
+ */
+async function createCampaignCoupon(userId, campaignId, couponData) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    // Verify user owns the campaign
+    const { data: campaign } = await supabase
+      .from('advertiser_campaigns')
+      .select('advertiser_id')
+      .eq('id', campaignId)
+      .single();
+
+    if (!campaign || campaign.advertiser_id !== userId) {
+      throw new Error('Not authorized to create coupons for this campaign');
+    }
+
+    return await createCoupon(userId, {
+      ...couponData,
+      campaign_id: campaignId,
+      source_type: 'advertiser',
+    });
+  } catch (error) {
+    console.error('[Coupon Service] Error creating campaign coupon:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create coupon for a drop
+ */
+async function createDropCoupon(userId, dropId, couponData) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    return await createCoupon(userId, {
+      ...couponData,
+      drop_id: dropId,
+      source_type: 'advertiser',
+    });
+  } catch (error) {
+    console.error('[Coupon Service] Error creating drop coupon:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get unified coupon analytics (marketplace + advertiser)
+ */
+async function getUnifiedCouponAnalytics(filters = {}) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    let query = supabase
+      .from('coupon_analytics')
+      .select('*')
+      .order('total_redemptions', { ascending: false });
+
+    if (filters.source_type) {
+      query = query.eq('source_type', filters.source_type);
+    }
+
+    if (filters.campaign_id) {
+      query = query.eq('campaign_id', filters.campaign_id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('[Coupon Service] Error getting unified analytics:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   validateCoupon,
   calculateDiscount,
@@ -483,4 +640,9 @@ module.exports = {
   updateCoupon,
   deleteCoupon,
   getCouponAnalytics,
+  getCampaignCoupons,
+  getDropCoupons,
+  createCampaignCoupon,
+  createDropCoupon,
+  getUnifiedCouponAnalytics,
 };

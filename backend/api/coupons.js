@@ -147,4 +147,82 @@ router.get('/:couponId/analytics', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/coupons/campaign/:campaignId
+ * Get coupons for a campaign
+ */
+router.get('/campaign/:campaignId', async (req, res) => {
+  try {
+    const coupons = await couponService.getCampaignCoupons(req.params.campaignId);
+    return sendSuccess(res, { coupons });
+  } catch (error) {
+    console.error('[Coupon API] Error getting campaign coupons:', error);
+    return sendError(res, 500, 'Failed to get campaign coupons', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons/campaign/:campaignId
+ * Create coupon for a campaign
+ */
+router.post('/campaign/:campaignId', async (req, res) => {
+  try {
+    const coupon = await couponService.createCampaignCoupon(
+      req.user.id,
+      req.params.campaignId,
+      req.body
+    );
+    return sendSuccess(res, { coupon }, 'Campaign coupon created successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error creating campaign coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to create campaign coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/drop/:dropId
+ * Get coupons for a drop
+ */
+router.get('/drop/:dropId', async (req, res) => {
+  try {
+    const coupons = await couponService.getDropCoupons(req.params.dropId);
+    return sendSuccess(res, { coupons });
+  } catch (error) {
+    console.error('[Coupon API] Error getting drop coupons:', error);
+    return sendError(res, 500, 'Failed to get drop coupons', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons/drop/:dropId
+ * Create coupon for a drop
+ */
+router.post('/drop/:dropId', async (req, res) => {
+  try {
+    const coupon = await couponService.createDropCoupon(
+      req.user.id,
+      req.params.dropId,
+      req.body
+    );
+    return sendSuccess(res, { coupon }, 'Drop coupon created successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error creating drop coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to create drop coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/analytics/unified
+ * Get unified analytics across all coupon types
+ */
+router.get('/analytics/unified', async (req, res) => {
+  try {
+    const analytics = await couponService.getUnifiedCouponAnalytics(req.query);
+    return sendSuccess(res, { analytics });
+  } catch (error) {
+    console.error('[Coupon API] Error getting unified analytics:', error);
+    return sendError(res, 500, 'Failed to get unified analytics', 'SERVER_ERROR');
+  }
+});
+
 module.exports = router;
