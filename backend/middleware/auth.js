@@ -68,49 +68,49 @@ async function requireAuth(req, res, next) {
       });
     }
 
-    // Then verify with Supabase
-    const { data, error } = await supabase.auth.getUser(token);
-    
-    if (error) {
-      console.error('[Auth] ❌ Supabase token verification failed:', error.message);
+    const userId = decoded.userId || decoded.id || decoded.sub;
+
+    if (!userId) {
+      console.error('[Auth] ❌ Token missing user identifier');
       return res.status(401).json({
         success: false,
-        error: 'Invalid or expired token',
-        code: 'INVALID_TOKEN',
-        details: error.message
+        error: 'Invalid token payload',
+        code: 'INVALID_TOKEN_PAYLOAD'
       });
     }
 
-    if (!data?.user) {
-      console.error('[Auth] ❌ No user data found in token');
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid user data in token',
-        code: 'INVALID_USER_DATA'
-      });
-    }
+    // Look up the user record using the service role key
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id, email, username, display_name, user_type, points_balance, keys_balance, gems_balance, email_verified')
+      .eq('id', userId)
+      .single();
 
-    // Verify the token hasn't been revoked
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      console.error('[Auth] ❌ Session verification failed:', sessionError?.message);
+    if (userError || !userData) {
+      console.error('[Auth] ❌ Failed to load user for token:', userError?.message || 'No user found');
       return res.status(401).json({
         success: false,
-        error: 'Session verification failed',
-        code: 'SESSION_VERIFICATION_FAILED',
-        details: sessionError?.message
+        error: 'User not found for token',
+        code: 'USER_NOT_FOUND'
       });
     }
 
     // Attach user to request for use in route handlers
     req.user = {
-      ...data.user,
-      // Include any additional user data you need
-      role: data.user.user_metadata?.role,
-      is_verified: data.user.confirmed_at !== null
+      id: userData.id,
+      email: userData.email,
+      username: userData.username,
+      display_name: userData.display_name,
+      user_type: userData.user_type,
+      role: decoded.role || userData.user_type,
+      points_balance: userData.points_balance,
+      keys_balance: userData.keys_balance,
+      gems_balance: userData.gems_balance,
+      is_verified: Boolean(userData.email_verified),
+      token_payload: decoded
     };
     
-    console.log(`[Auth] ✅ Authenticated as user: ${data.user.email || data.user.id}`);
+    console.log(`[Auth] ✅ Authenticated as user: ${userData.email || userData.id}`);
     return next();
     
   } catch (error) {

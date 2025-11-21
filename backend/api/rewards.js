@@ -5,11 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../config/supabase');
-const { authenticateToken } = require('../middleware/auth');
+const { supabase } = require('../lib/supabase');
+const { requireAuth } = require('../middleware/auth');
 
 // All routes require authentication
-router.use(authenticateToken);
+router.use(requireAuth);
 
 /**
  * GET /api/rewards/coupons

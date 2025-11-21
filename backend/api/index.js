@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const { requireAuth } = require('../middleware/auth');
 require('dotenv').config();
 
 const app = express();
@@ -52,35 +53,43 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'https://promorang-9idmgnr67-andre-millwoods-projects.vercel.app'
 ];
 
-// Combine allowed origins from environment variables and defaults
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  process.env.BACKOFFICE_URL,
-  process.env.LOCAL_DEV_URL,
-  ...DEFAULT_ALLOWED_ORIGINS
-].filter(Boolean);
-
 // Log allowed origins for debugging
-console.log('Allowed CORS origins:', allowedOrigins);
+console.log('Allowed CORS origins:', DEFAULT_ALLOWED_ORIGINS);
 
-// Apply CORS with specific configuration
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Check if the origin is in the allowed list
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
-      console.warn(msg);
-      return callback(new Error(msg), false);
+// Apply permissive CORS that reflects the request origin (needed for credentials)
+const corsMiddleware = cors({
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
     }
+
+    const isAllowed = DEFAULT_ALLOWED_ORIGINS.includes(origin) || (() => {
+      try {
+        const { hostname } = new URL(origin);
+        return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co');
+      } catch (error) {
+        return false;
+      }
+    })();
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    console.warn(`CORS warning: unrecognized origin ${origin}. Allowing temporarily.`);
     return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
+});
+
+app.use(corsMiddleware);
+app.options('*', corsMiddleware, (req, res) => {
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type, Authorization, X-Requested-With, Origin');
+  res.sendStatus(204);
+});
 
 // Log all incoming requests
 app.use((req, res, next) => {
@@ -113,10 +122,14 @@ app.use('/api/portfolio', require('./portfolio'));
 app.use('/api/shares', require('./shares'));
 app.use('/api/social-forecasts', require('./social-forecasts'));
 app.use('/api/growth', require('./growth'));
+app.use('/api/operator', require('./operator'));
 app.use('/api/advertisers', require('./advertisers'));
 app.use('/api/campaigns', require('./campaigns'));
 app.use('/api/leaderboard', require('./leaderboard'));
 app.use('/api/rewards', require('./rewards'));
+app.use('/api/manychat', require('./manychat'));
+app.use('/api/marketplace', require('./marketplace'));
+app.use('/api/coupons', require('./coupons'));
 
 // 404 handler
 app.use('/api/*', (req, res) => {

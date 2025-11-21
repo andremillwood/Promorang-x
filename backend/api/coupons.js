@@ -1,0 +1,150 @@
+/**
+ * PROMORANG COUPON API
+ * RESTful endpoints for coupon management
+ */
+
+const express = require('express');
+const router = express.Router();
+const couponService = require('../services/couponService');
+const { requireAuth } = require('../middleware/auth');
+
+// Helper functions
+const sendSuccess = (res, data = {}, message) => {
+  return res.json({ status: 'success', data, message });
+};
+
+const sendError = (res, statusCode, message, code) => {
+  return res.status(statusCode).json({ status: 'error', message, code });
+};
+
+// Auth middleware
+router.use(requireAuth);
+
+/**
+ * POST /api/coupons/validate
+ * Validate a coupon code
+ */
+router.post('/validate', async (req, res) => {
+  try {
+    const { code, cart_total } = req.body;
+
+    if (!code) {
+      return sendError(res, 400, 'Coupon code is required', 'MISSING_CODE');
+    }
+
+    const result = await couponService.validateCoupon(
+      code,
+      req.user.id,
+      cart_total
+    );
+
+    if (!result.valid) {
+      return sendError(res, 400, result.error, 'INVALID_COUPON');
+    }
+
+    // Calculate discount preview
+    const discount = couponService.calculateDiscount(result.coupon, cart_total || {});
+
+    return sendSuccess(res, {
+      valid: true,
+      coupon: result.coupon,
+      discount,
+    });
+  } catch (error) {
+    console.error('[Coupon API] Error validating coupon:', error);
+    return sendError(res, 500, 'Failed to validate coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons
+ * Create a new coupon (merchant only)
+ */
+router.post('/', async (req, res) => {
+  try {
+    const coupon = await couponService.createCoupon(req.user.id, req.body);
+    return sendSuccess(res, { coupon }, 'Coupon created successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error creating coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to create coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/store/:storeId
+ * Get coupons for a store
+ */
+router.get('/store/:storeId', async (req, res) => {
+  try {
+    const coupons = await couponService.getStoreCoupons(
+      req.params.storeId,
+      req.query
+    );
+    return sendSuccess(res, { coupons });
+  } catch (error) {
+    console.error('[Coupon API] Error getting store coupons:', error);
+    return sendError(res, 500, 'Failed to get coupons', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/:couponId
+ * Get coupon details
+ */
+router.get('/:couponId', async (req, res) => {
+  try {
+    const result = await couponService.getCouponAnalytics(req.params.couponId);
+    return sendSuccess(res, result);
+  } catch (error) {
+    console.error('[Coupon API] Error getting coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to get coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * PATCH /api/coupons/:couponId
+ * Update a coupon
+ */
+router.patch('/:couponId', async (req, res) => {
+  try {
+    const coupon = await couponService.updateCoupon(
+      req.params.couponId,
+      req.user.id,
+      req.body
+    );
+    return sendSuccess(res, { coupon }, 'Coupon updated successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error updating coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to update coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * DELETE /api/coupons/:couponId
+ * Delete/deactivate a coupon
+ */
+router.delete('/:couponId', async (req, res) => {
+  try {
+    await couponService.deleteCoupon(req.params.couponId, req.user.id);
+    return sendSuccess(res, {}, 'Coupon deleted successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error deleting coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to delete coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/:couponId/analytics
+ * Get coupon usage analytics
+ */
+router.get('/:couponId/analytics', async (req, res) => {
+  try {
+    const analytics = await couponService.getCouponAnalytics(req.params.couponId);
+    return sendSuccess(res, analytics);
+  } catch (error) {
+    console.error('[Coupon API] Error getting coupon analytics:', error);
+    return sendError(res, 500, 'Failed to get analytics', 'SERVER_ERROR');
+  }
+});
+
+module.exports = router;

@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const marketplaceService = require('../services/marketplaceService');
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const { requireAuth } = require('../middleware/auth');
 const supabase = global.supabase || serviceSupabase || null;
 
 // Helper functions
@@ -19,21 +20,7 @@ const sendError = (res, statusCode, message, code) => {
 };
 
 // Auth middleware
-router.use((req, res, next) => {
-  if (!req.user && process.env.NODE_ENV === 'development') {
-    req.user = {
-      id: 'demo-user-id',
-      email: 'demo@promorang.com',
-      username: 'demo_user',
-    };
-  }
-
-  if (!req.user) {
-    return sendError(res, 401, 'Unauthorized', 'UNAUTHENTICATED');
-  }
-
-  next();
-});
+router.use(requireAuth);
 
 /**
  * GET /api/marketplace/categories
@@ -140,6 +127,25 @@ router.get('/products', async (req, res) => {
   } catch (error) {
     console.error('[Marketplace API] Error getting products:', error);
     return sendError(res, 500, 'Failed to get products', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/marketplace/products/:productId
+ * Get a single product by ID
+ */
+router.get('/products/:productId', async (req, res) => {
+  try {
+    const product = await marketplaceService.getProduct(req.params.productId);
+
+    if (!product) {
+      return sendError(res, 404, 'Product not found', 'NOT_FOUND');
+    }
+
+    return sendSuccess(res, { product });
+  } catch (error) {
+    console.error('[Marketplace API] Error getting product:', error);
+    return sendError(res, 500, 'Failed to get product', 'SERVER_ERROR');
   }
 });
 

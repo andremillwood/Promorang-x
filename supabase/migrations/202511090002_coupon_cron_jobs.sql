@@ -2,8 +2,9 @@
 -- Timestamp: 2025-11-09
 -- Sets up pg_cron jobs for periodic coupon distribution
 
--- Enable pg_cron extension
+-- Enable required extensions
 create extension if not exists pg_cron;
+create extension if not exists "pgcrypto";
 
 -- Weekly leaderboard coupon assignment (runs every Monday at 00:00 UTC)
 select cron.schedule(
@@ -67,7 +68,7 @@ select cron.schedule(
 
 -- Log cron job execution for monitoring
 create table if not exists public.coupon_cron_logs (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   job_name text not null,
   executed_at timestamptz not null default timezone('utc', now()),
   coupons_assigned integer default 0,
@@ -75,8 +76,7 @@ create table if not exists public.coupon_cron_logs (
   error_message text
 );
 
--- Enhanced leaderboard assignment function with logging
-create or replace function assign_leaderboard_coupons_with_logging(
+create or replace function public.assign_leaderboard_coupons_with_logging(
   p_period text default 'weekly',
   p_limit integer default 10
 )
@@ -86,7 +86,7 @@ declare
   v_error_message text;
 begin
   -- Call the main assignment function
-  v_assigned_count := assign_leaderboard_coupons(p_period, p_limit);
+  v_assigned_count := public.assign_leaderboard_coupons(p_period, p_limit);
   
   -- Log successful execution
   insert into public.coupon_cron_logs (job_name, coupons_assigned, success)
@@ -111,19 +111,19 @@ select cron.unschedule('weekly-leaderboard-coupons');
 select cron.schedule(
   'weekly-leaderboard-coupons',
   '0 0 * * 1',
-  $$select assign_leaderboard_coupons_with_logging('weekly', 10);$$
+  $$select public.assign_leaderboard_coupons_with_logging('weekly', 10);$$
 );
 
 select cron.unschedule('monthly-leaderboard-coupons');
 select cron.schedule(
   'monthly-leaderboard-coupons',
   '0 0 1 * *',
-  $$select assign_leaderboard_coupons_with_logging('monthly', 25);$$
+  $$select public.assign_leaderboard_coupons_with_logging('monthly', 25);$$
 );
 
 select cron.unschedule('daily-top-performers-coupons');
 select cron.schedule(
   'daily-top-performers-coupons',
   '0 23 * * *',
-  $$select assign_leaderboard_coupons_with_logging('daily', 5);$$
+  $$select public.assign_leaderboard_coupons_with_logging('daily', 5);$$
 );

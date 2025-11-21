@@ -1,10 +1,13 @@
+-- Ensure Supabase CLI stores migration history in the correct schema
+alter database postgres set supabase_migrations.schema = 'supabase_migrations';
+
 -- Enable required extensions
 create extension if not exists "uuid-ossp";
 create extension if not exists "pgcrypto";
 
 -- USERS -----------------------------------------------------------------------
 create table if not exists public.users (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   email text unique,
   username text,
   display_name text,
@@ -23,7 +26,7 @@ create table if not exists public.users (
 
 -- CONTENT ---------------------------------------------------------------------
 create table if not exists public.content_items (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   creator_id uuid references public.users(id) on delete cascade,
   drop_id uuid,
   title text,
@@ -42,7 +45,7 @@ create table if not exists public.content_items (
 
 -- APPLICATIONS ---------------------------------------------------------------
 create table if not exists public.applications (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   creator_id uuid references public.users(id) on delete cascade,
   content_id uuid references public.content_items(id) on delete cascade,
   status text default 'pending',
@@ -53,7 +56,7 @@ create table if not exists public.applications (
 
 -- REVIEWS --------------------------------------------------------------------
 create table if not exists public.content_reviews (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   application_id uuid references public.applications(id) on delete cascade,
   reviewer_id uuid references public.users(id) on delete cascade,
   rating int check (rating between 1 and 5),

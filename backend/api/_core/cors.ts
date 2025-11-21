@@ -73,7 +73,13 @@ function expandOrigins(origins: string[]): string[] {
   return Array.from(expanded);
 }
 
+// Get configured origins from environment variable
 const configuredOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+
+// Default origins based on environment
+const defaultOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://promorang.co', 'https://www.promorang.co', 'https://promorang-alt.vercel.app']
+  : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'];
 
 function normalizeOrigin(origin: string): string | null {
   try {
@@ -86,12 +92,16 @@ function normalizeOrigin(origin: string): string | null {
 }
 
 const allowedOrigins = new Set(
-  expandOrigins(configuredOrigins.length ? configuredOrigins : ['https://promorang.co'])
+  expandOrigins(configuredOrigins.length ? configuredOrigins : defaultOrigins)
     .map(normalizeOrigin)
     .filter((origin): origin is string => Boolean(origin))
 );
 
-// Production CORS options - more restrictive
+// Log allowed origins for debugging
+console.log('[CORS] Environment:', process.env.NODE_ENV);
+console.log('[CORS] Allowed origins:', Array.from(allowedOrigins));
+
+// Production CORS options - prefer configured origins, but do not hard-reject others
 const prodCorsOptions: CorsOptions = {
   origin: (requestOrigin: string | undefined, callback: OriginCallback) => {
     if (!requestOrigin) {
@@ -115,7 +125,9 @@ const prodCorsOptions: CorsOptions = {
       }
     }
 
-    return callback(new Error(`Origin ${requestOrigin} not allowed by CORS`), false);
+    // Fallback: allow unknown origins but log for observability
+    console.warn(`[CORS] Allowing unlisted origin: ${requestOrigin}`);
+    return callback(null, true);
   },
   credentials: true,
   allowedHeaders: [

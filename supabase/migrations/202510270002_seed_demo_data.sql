@@ -42,15 +42,43 @@ insert into public.content_items (
 )
 on conflict (id) do nothing;
 
--- 3️⃣ Demo Application
-insert into public.applications (id, creator_id, content_id, status)
-values (
-  '60000000-0000-0000-0000-000000000001',
-  '00000000-0000-0000-0000-000000000001',
-  '50000000-0000-0000-0000-000000000001',
-  'approved'
-)
-on conflict (id) do nothing;
+do $$
+begin
+  if to_regclass('public.applications') is not null then
+    insert into public.applications (id, creator_id, content_id, status)
+    values (
+      '60000000-0000-0000-0000-000000000001',
+      '00000000-0000-0000-0000-000000000001',
+      '50000000-0000-0000-0000-000000000001',
+      'approved'
+    )
+    on conflict (id) do nothing;
+  end if;
+end $$;
+
+-- Legacy compatibility for older drop_applications table
+do $$
+begin
+  if to_regclass('public.drop_applications') is not null then
+    insert into public.drop_applications (
+      id,
+      drop_id,
+      creator_id,
+      status,
+      submitted_at,
+      approved_at
+    )
+    values (
+      '60000000-0000-0000-0000-000000000001',
+      null,
+      '00000000-0000-0000-0000-000000000001',
+      'approved',
+      timezone('utc', now()),
+      timezone('utc', now())
+    )
+    on conflict (id) do nothing;
+  end if;
+end $$;
 
 -- 4️⃣ Demo Review
 insert into public.content_reviews (id, application_id, reviewer_id, rating, feedback)

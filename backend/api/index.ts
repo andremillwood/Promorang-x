@@ -13,6 +13,8 @@ const portfolioRoutes = require('./portfolio.js');
 const socialForecastRoutes = require('./social-forecasts.js');
 const advertisersRoutes = require('./advertisers.js');
 const leaderboardRoutes = require('./leaderboard.js');
+const rewardsRoutes = require('./rewards.js');
+const operatorRoutes = require('./operator.js');
 
 const SEARCH_CONTENT = [
   {
@@ -193,9 +195,12 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/social-forecasts', socialForecastRoutes);
 app.use('/api/advertisers', advertisersRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/rewards', rewardsRoutes);
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/social', require('./social'));
+app.use('/api/manychat', require('./manychat'));
+app.use('/api/operator', operatorRoutes);
 
 // Auth profile endpoint (legacy, will be removed in future versions)
 app.get('/api/auth/profile', requireAuth, (req: AuthenticatedRequest, res) => {

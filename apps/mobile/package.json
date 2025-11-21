@@ -1,0 +1,11 @@
+{
+  "name": "vibecode-mobile",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Placeholder React Native (Expo) app for Vibecode. To be initialized with Expo.",
+  "scripts": {
+    "dev": "echo 'Expo project not yet initialized' && exit 1",
+    "build": "echo 'Expo project not yet initialized' && exit 1"
+  }
+}

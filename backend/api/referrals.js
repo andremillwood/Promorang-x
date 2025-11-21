@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const referralService = require('../services/referralService');
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const { requireAuth } = require('../middleware/auth');
 const supabase = global.supabase || serviceSupabase || null;
 
 // Helper functions
@@ -18,23 +19,8 @@ const sendError = (res, statusCode, message, code) => {
   return res.status(statusCode).json({ status: 'error', message, code });
 };
 
-// Auth middleware
-router.use((req, res, next) => {
-  // In production, validate JWT token
-  if (!req.user && process.env.NODE_ENV === 'development') {
-    req.user = {
-      id: 'demo-user-id',
-      email: 'demo@promorang.com',
-      username: 'demo_user',
-    };
-  }
-
-  if (!req.user) {
-    return sendError(res, 401, 'Unauthorized', 'UNAUTHENTICATED');
-  }
-
-  next();
-});
+// Auth middleware: use shared JWT validator so req.user is populated consistently
+router.use(requireAuth);
 
 /**
  * GET /api/referrals/my-code

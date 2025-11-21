@@ -2,9 +2,12 @@
 -- Timestamp: 2025-11-09
 -- Queues email notifications to be sent by backend service
 
+-- Enable required extensions
+create extension if not exists "pgcrypto";
+
 -- Email notification queue table
 create table if not exists public.email_notification_queue (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   email_type text not null check (email_type in ('coupon_earned', 'weekly_digest', 'expiry_warning')),
   recipient_email text not null,

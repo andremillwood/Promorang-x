@@ -4,7 +4,7 @@
 
 -- Content engagement events table
 create table if not exists public.content_engagement_events (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   content_id uuid not null,
   event_type text not null check (event_type in ('view', 'like', 'share', 'comment', 'click')),
@@ -19,7 +19,7 @@ create index if not exists idx_content_engagement_content
   on public.content_engagement_events(content_id, event_type, created_at desc);
 
 -- Function to check and assign content engagement coupons
-create or replace function check_content_engagement_coupons(
+create or replace function public.check_content_engagement_coupons(
   p_user_id uuid,
   p_content_id uuid,
   p_event_type text
@@ -143,11 +143,11 @@ end;
 $$ language plpgsql;
 
 -- Trigger to check for coupon assignments on engagement events
-create or replace function trigger_content_engagement_coupons()
+create or replace function public.trigger_content_engagement_coupons()
 returns trigger as $$
 begin
   -- Asynchronously check for coupon assignments
-  perform check_content_engagement_coupons(
+  perform public.check_content_engagement_coupons(
     NEW.user_id,
     NEW.content_id,
     NEW.event_type
@@ -157,14 +157,26 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists trigger_check_content_coupons on public.content_engagement_events;
-create trigger trigger_check_content_coupons
-  after insert on public.content_engagement_events
-  for each row
-  execute function trigger_content_engagement_coupons();
+do $$
+begin
+  if exists (
+    select 1 from pg_trigger
+    where tgname = 'trigger_check_content_coupons'
+      and tgrelid = 'public.content_engagement_events'::regclass
+  ) then
+    execute 'drop trigger trigger_check_content_coupons on public.content_engagement_events;';
+  end if;
+
+  execute '
+    create trigger trigger_check_content_coupons
+      after insert on public.content_engagement_events
+      for each row
+      execute function public.trigger_content_engagement_coupons();
+  ';
+end $$;
 
 -- Helper function to track engagement (called from backend)
-create or replace function track_content_engagement(
+create or replace function public.track_content_engagement(
   p_user_id uuid,
   p_content_id uuid,
   p_event_type text,

@@ -7,6 +7,7 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const { trackProductSale } = require('../utils/referralTracker');
+const couponService = require('./couponService');
 
 const slugify = (value = '') =>
   value
@@ -432,6 +433,7 @@ async function createOrder(userId, orderData) {
     payment_method,
     shipping_address,
     customer_notes,
+    coupon_code,
   } = orderData;
 
   try {
@@ -461,6 +463,34 @@ async function createOrder(userId, orderData) {
       if (item.price_gold) subtotal_gold += item.price_gold * item.quantity;
     });
 
+    // Apply coupon if provided
+    let discount_amount_usd = 0;
+    let discount_amount_gems = 0;
+    let discount_amount_gold = 0;
+    let couponData = null;
+
+    if (coupon_code) {
+      try {
+        couponData = await couponService.applyCoupon(coupon_code, userId, {
+          subtotal_usd,
+          subtotal_gems,
+          subtotal_gold,
+        });
+
+        discount_amount_usd = couponData.discount.usd || 0;
+        discount_amount_gems = couponData.discount.gems || 0;
+        discount_amount_gold = couponData.discount.gold || 0;
+      } catch (couponError) {
+        console.error('[Marketplace Service] Coupon error:', couponError);
+        throw new Error(`Coupon error: ${couponError.message}`);
+      }
+    }
+
+    // Calculate final totals after discount
+    const total_usd = Math.max(0, subtotal_usd - discount_amount_usd);
+    const total_gems = Math.max(0, subtotal_gems - discount_amount_gems);
+    const total_gold = Math.max(0, subtotal_gold - discount_amount_gold);
+
     // Create order
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -472,9 +502,13 @@ async function createOrder(userId, orderData) {
         subtotal_usd,
         subtotal_gems,
         subtotal_gold,
-        total_usd: subtotal_usd,
-        total_gems: subtotal_gems,
-        total_gold: subtotal_gold,
+        coupon_code: coupon_code || null,
+        discount_amount_usd,
+        discount_amount_gems,
+        discount_amount_gold,
+        total_usd,
+        total_gems,
+        total_gold,
         shipping_address,
         customer_notes,
         status: 'pending',
@@ -506,6 +540,18 @@ async function createOrder(userId, orderData) {
       .insert(orderItems);
 
     if (itemsError) throw itemsError;
+
+    // Track coupon usage if applied
+    if (couponData && couponData.coupon) {
+      await couponService.trackCouponUsage(
+        couponData.coupon.id,
+        userId,
+        order.id,
+        couponData.discount,
+        couponData.original_total,
+        couponData.final_total
+      );
+    }
 
     // Remove items from cart
     const itemIds = storeItems.map(item => item.id);
@@ -590,6 +636,42 @@ async function processPayment(orderId, userId) {
 }
 
 /**
+ * Get a single product by ID
+ */
+async function getProduct(productId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(
+        `*,
+        merchant_stores!products_store_id_fkey(store_name, store_slug, logo_url),
+        product_categories(name, slug)
+        `
+      )
+      .eq('id', productId)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      // PostgREST not-found error code
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('[Marketplace Service] Error getting product:', error);
+    throw error;
+  }
+}
+
+/**
  * Add product review
  */
 async function addReview(userId, productId, reviewData) {
@@ -643,6 +725,7 @@ module.exports = {
   createProduct,
   getProducts,
   getCategories,
+  getProduct,
   addToCart,
   getCart,
   createOrder,

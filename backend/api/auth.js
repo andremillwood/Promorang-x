@@ -780,6 +780,15 @@ router.post('/demo/advertiser', async (req, res) => {
   }
 });
 
+// Logout (does not require auth header; frontends may just clear cookies/tokens)
+router.post('/logout', (req, res) => {
+  // In a real implementation, tokens could be revoked/blacklisted.
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
 // Protected routes - require authentication
 router.use(authMiddleware);
 

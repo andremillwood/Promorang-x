@@ -8,9 +8,12 @@
     "start": "vercel dev",
     "dev": "ts-node-dev --respawn --transpile-only api/index.ts",
     "test": "jest --runInBand",
+    "test:cors": "node scripts/test-cors.js",
+    "test:cors:prod": "API_URL=https://api.promorang.co FRONTEND_URL=https://www.promorang.co node scripts/test-cors.js",
     "type-check": "tsc --noEmit",
     "logs": "vercel logs --follow",
-    "create-demo-users": "ts-node -r dotenv/config scripts/createDemoUsers.ts"
+    "create-demo-users": "ts-node -r dotenv/config scripts/createDemoUsers.ts",
+    "seed-products": "node -r dotenv/config scripts/seed-demo-products.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",

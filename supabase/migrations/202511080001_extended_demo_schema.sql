@@ -19,7 +19,7 @@ create table if not exists public.advertiser_profiles (
 
 -- Campaigns owned by advertisers
 create table if not exists public.advertiser_campaigns (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   advertiser_id uuid not null references public.users(id) on delete cascade,
   name text not null,
   objective text,
@@ -36,7 +36,7 @@ create index if not exists idx_advertiser_campaigns_owner on public.advertiser_c
 
 -- Campaign day-level metrics for dashboards
 create table if not exists public.advertiser_campaign_metrics (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   campaign_id uuid not null references public.advertiser_campaigns(id) on delete cascade,
   metric_date date not null,
   impressions bigint default 0,
@@ -52,7 +52,7 @@ create index if not exists idx_advertiser_campaign_metrics_campaign on public.ad
 
 -- Coupons created by advertisers
 create table if not exists public.advertiser_coupons (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   advertiser_id uuid not null references public.users(id) on delete cascade,
   title text not null,
   description text,
@@ -72,7 +72,7 @@ create index if not exists idx_advertiser_coupons_owner on public.advertiser_cou
 
 -- Coupon targeting metadata
 create table if not exists public.advertiser_coupon_assignments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   coupon_id uuid not null references public.advertiser_coupons(id) on delete cascade,
   target_type text not null,
   target_id text not null,
@@ -84,7 +84,7 @@ create index if not exists idx_advertiser_coupon_assignments_coupon on public.ad
 
 -- Coupon redemption ledger
 create table if not exists public.advertiser_coupon_redemptions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   coupon_id uuid not null references public.advertiser_coupons(id) on delete cascade,
   user_id uuid references public.users(id) on delete set null,
   user_name text,
@@ -181,7 +181,7 @@ end;
 $$;
 
 create table if not exists public.leaderboard_entries (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   period_type text not null check (period_type in ('daily', 'weekly', 'monthly', 'overall')),
   period_start date not null,
@@ -201,7 +201,7 @@ create index if not exists idx_leaderboard_entries_period on public.leaderboard_
 
 -- Investor content share activity
 create table if not exists public.investor_content_shares (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   investor_id uuid not null references public.users(id) on delete cascade,
   content_id uuid references public.content_items(id) on delete set null,
   share_link text,
@@ -385,7 +385,7 @@ end;
 $$;
 
 create table if not exists public.social_forecasts (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   content_id uuid references public.content_items(id) on delete set null,
   creator_id uuid references public.users(id) on delete set null,
   platform text,
@@ -408,7 +408,7 @@ create index if not exists idx_social_forecasts_status on public.social_forecast
 
 -- Investor predictions tied to social forecasts
 create table if not exists public.investor_predictions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   forecast_id uuid not null references public.social_forecasts(id) on delete cascade,
   investor_id uuid not null references public.users(id) on delete cascade,
   prediction_amount numeric(14,2) not null,
@@ -422,7 +422,7 @@ create index if not exists idx_investor_predictions_investor on public.investor_
 
 -- Growth Hub ledger captures key financial interactions
 create table if not exists public.growth_ledger (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   source_type text not null check (source_type in ('staking', 'staking_claim', 'funding_pledge', 'shield_premium', 'creator_reward')),
   source_id uuid not null,
@@ -438,7 +438,7 @@ create index if not exists idx_growth_ledger_source on public.growth_ledger(sour
 
 -- Staking channels offered in the Growth Hub
 create table if not exists public.staking_channels (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
   min_stake numeric(14,2) not null default 0,
@@ -452,7 +452,7 @@ create table if not exists public.staking_channels (
 
 -- Creator staking positions
 create table if not exists public.staking_positions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   channel_id uuid not null references public.staking_channels(id) on delete cascade,
   amount numeric(14,2) not null,
@@ -468,7 +468,7 @@ create index if not exists idx_staking_positions_user on public.staking_position
 
 -- Growth Hub funding projects
 create table if not exists public.funding_projects (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.users(id) on delete cascade,
   title text not null,
   description text not null,
@@ -485,7 +485,7 @@ create index if not exists idx_funding_projects_creator on public.funding_projec
 
 -- Funding pledges by investors into creator projects
 create table if not exists public.funding_pledges (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references public.funding_projects(id) on delete cascade,
   backer_id uuid not null references public.users(id) on delete cascade,
   amount numeric(14,2) not null,
@@ -501,7 +501,7 @@ create index if not exists idx_funding_pledges_backer on public.funding_pledges(
 
 -- Creator reward tiers configuration
 create table if not exists public.creator_reward_tiers (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
   metric text not null check (metric in ('views', 'paid_shares', 'free_shares', 'comments')),
@@ -516,7 +516,7 @@ create table if not exists public.creator_reward_tiers (
 
 -- Creator rewards earned from tiers
 create table if not exists public.creator_rewards (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.users(id) on delete cascade,
   reward_tier_id uuid not null references public.creator_reward_tiers(id) on delete cascade,
   metric text not null check (metric in ('views', 'paid_shares', 'free_shares', 'comments')),
@@ -537,7 +537,7 @@ create index if not exists idx_creator_rewards_creator on public.creator_rewards
 
 -- Shield policies available in Growth Hub
 create table if not exists public.shield_policies (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
   coverage_amount numeric(14,2) not null,
@@ -550,7 +550,7 @@ create table if not exists public.shield_policies (
 
 -- Shield subscriptions for creators/investors
 create table if not exists public.shield_subscriptions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   policy_id uuid not null references public.shield_policies(id) on delete cascade,
   premium_paid numeric(14,2) not null,
@@ -576,238 +576,289 @@ $$ language plpgsql;
 -- Apply updated_at trigger to tables defined above
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_advertiser_profiles_touch'
       and tgrelid = 'public.advertiser_profiles'::regclass
   ) then
+    execute 'drop trigger trg_advertiser_profiles_touch on public.advertiser_profiles;';
+  end if;
+
+  execute '
     create trigger trg_advertiser_profiles_touch
       before update on public.advertiser_profiles
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_advertiser_campaigns_touch'
       and tgrelid = 'public.advertiser_campaigns'::regclass
   ) then
+    execute 'drop trigger trg_advertiser_campaigns_touch on public.advertiser_campaigns;';
+  end if;
+
+  execute '
     create trigger trg_advertiser_campaigns_touch
       before update on public.advertiser_campaigns
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_advertiser_campaign_metrics_touch'
       and tgrelid = 'public.advertiser_campaign_metrics'::regclass
   ) then
+    execute 'drop trigger trg_advertiser_campaign_metrics_touch on public.advertiser_campaign_metrics;';
+  end if;
+
+  execute '
     create trigger trg_advertiser_campaign_metrics_touch
       before update on public.advertiser_campaign_metrics
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_advertiser_coupons_touch'
       and tgrelid = 'public.advertiser_coupons'::regclass
   ) then
+    execute 'drop trigger trg_advertiser_coupons_touch on public.advertiser_coupons;';
+  end if;
+
+  execute '
     create trigger trg_advertiser_coupons_touch
       before update on public.advertiser_coupons
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_leaderboard_entries_touch'
       and tgrelid = 'public.leaderboard_entries'::regclass
   ) then
+    execute 'drop trigger trg_leaderboard_entries_touch on public.leaderboard_entries;';
+  end if;
+
+  execute '
     create trigger trg_leaderboard_entries_touch
       before update on public.leaderboard_entries
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_investor_content_shares_touch'
       and tgrelid = 'public.investor_content_shares'::regclass
   ) then
+    execute 'drop trigger trg_investor_content_shares_touch on public.investor_content_shares;';
+  end if;
+
+  execute '
     create trigger trg_investor_content_shares_touch
       before update on public.investor_content_shares
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_social_forecasts_touch'
       and tgrelid = 'public.social_forecasts'::regclass
   ) then
+    execute 'drop trigger trg_social_forecasts_touch on public.social_forecasts;';
+  end if;
+
+  execute '
     create trigger trg_social_forecasts_touch
       before update on public.social_forecasts
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_investor_predictions_touch'
       and tgrelid = 'public.investor_predictions'::regclass
   ) then
+    execute 'drop trigger trg_investor_predictions_touch on public.investor_predictions;';
+  end if;
+
+  execute '
     create trigger trg_investor_predictions_touch
       before update on public.investor_predictions
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_growth_ledger_touch'
       and tgrelid = 'public.growth_ledger'::regclass
   ) then
+    execute 'drop trigger trg_growth_ledger_touch on public.growth_ledger;';
+  end if;
+
+  execute '
     create trigger trg_growth_ledger_touch
       before update on public.growth_ledger
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_staking_channels_touch'
       and tgrelid = 'public.staking_channels'::regclass
   ) then
+    execute 'drop trigger trg_staking_channels_touch on public.staking_channels;';
+  end if;
+
+  execute '
     create trigger trg_staking_channels_touch
       before update on public.staking_channels
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_staking_positions_touch'
       and tgrelid = 'public.staking_positions'::regclass
   ) then
+    execute 'drop trigger trg_staking_positions_touch on public.staking_positions;';
+  end if;
+
+  execute '
     create trigger trg_staking_positions_touch
       before update on public.staking_positions
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_funding_projects_touch'
       and tgrelid = 'public.funding_projects'::regclass
   ) then
+    execute 'drop trigger trg_funding_projects_touch on public.funding_projects;';
+  end if;
+
+  execute '
     create trigger trg_funding_projects_touch
       before update on public.funding_projects
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_funding_pledges_touch'
       and tgrelid = 'public.funding_pledges'::regclass
   ) then
+    execute 'drop trigger trg_funding_pledges_touch on public.funding_pledges;';
+  end if;
+
+  execute '
     create trigger trg_funding_pledges_touch
       before update on public.funding_pledges
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_creator_reward_tiers_touch'
       and tgrelid = 'public.creator_reward_tiers'::regclass
   ) then
+    execute 'drop trigger trg_creator_reward_tiers_touch on public.creator_reward_tiers;';
+  end if;
+
+  execute '
     create trigger trg_creator_reward_tiers_touch
       before update on public.creator_reward_tiers
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_creator_rewards_touch'
       and tgrelid = 'public.creator_rewards'::regclass
   ) then
+    execute 'drop trigger trg_creator_rewards_touch on public.creator_rewards;';
+  end if;
+
+  execute '
     create trigger trg_creator_rewards_touch
       before update on public.creator_rewards
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_shield_policies_touch'
       and tgrelid = 'public.shield_policies'::regclass
   ) then
+    execute 'drop trigger trg_shield_policies_touch on public.shield_policies;';
+  end if;
+
+  execute '
     create trigger trg_shield_policies_touch
       before update on public.shield_policies
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1 from pg_trigger
     where tgname = 'trg_shield_subscriptions_touch'
       and tgrelid = 'public.shield_subscriptions'::regclass
   ) then
+    execute 'drop trigger trg_shield_subscriptions_touch on public.shield_subscriptions;';
+  end if;
+
+  execute '
     create trigger trg_shield_subscriptions_touch
       before update on public.shield_subscriptions
       for each row execute procedure public.touch_updated_at();
-  end if;
-end;
-$$;
+  ';
+end $$;
