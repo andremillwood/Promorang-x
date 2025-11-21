@@ -30,61 +30,69 @@ router.get('/coupons', async (req, res) => {
       });
     }
 
-    // Build query for user-specific coupon assignments
-    let query = supabase
-      .from('advertiser_coupon_assignments')
-      .select(`
-        id,
-        coupon_id,
-        target_type,
-        target_label,
-        assigned_at,
-        is_redeemed,
-        redeemed_at,
-        drop_id,
-        content_id,
-        leaderboard_rank,
-        metadata,
-        status,
-        advertiser_coupons!inner (
+    // Fetch BOTH user-assigned coupons AND available marketplace coupons
+    const [assignmentsResult, marketplaceCouponsResult] = await Promise.all([
+      // 1. User-specific coupon assignments
+      supabase
+        .from('advertiser_coupon_assignments')
+        .select(`
           id,
-          title,
-          description,
-          reward_type,
-          value,
-          value_unit,
-          quantity_total,
-          quantity_remaining,
-          start_date,
-          end_date,
+          coupon_id,
+          target_type,
+          target_label,
+          assigned_at,
+          is_redeemed,
+          redeemed_at,
+          drop_id,
+          content_id,
+          leaderboard_rank,
+          metadata,
           status,
-          conditions,
-          advertiser_id
-        )
-      `)
-      .eq('user_id', userId)
-      .order('assigned_at', { ascending: false });
+          advertiser_coupons!inner (
+            id,
+            title,
+            description,
+            reward_type,
+            value,
+            value_unit,
+            quantity_total,
+            quantity_remaining,
+            start_date,
+            end_date,
+            status,
+            conditions,
+            advertiser_id
+          )
+        `)
+        .eq('user_id', userId)
+        .order('assigned_at', { ascending: false }),
+      
+      // 2. Available marketplace coupons (campaign/advertiser/platform)
+      supabase
+        .from('coupons')
+        .select('*')
+        .eq('is_active', true)
+        .gte('expires_at', new Date().toISOString())
+        .in('source_type', ['advertiser', 'platform'])
+        .order('created_at', { ascending: false })
+        .limit(20)
+    ]);
 
-    // Filter by redemption status
-    if (status === 'available') {
-      query = query.eq('is_redeemed', false).eq('status', 'active');
-    } else if (status === 'redeemed') {
-      query = query.eq('is_redeemed', true);
+    const { data: assignments, error: assignmentsError } = assignmentsResult;
+    const { data: marketplaceCoupons, error: marketplaceError } = marketplaceCouponsResult;
+
+    if (assignmentsError) {
+      console.error('Error fetching user coupon assignments:', assignmentsError);
+    }
+    if (marketplaceError) {
+      console.error('Error fetching marketplace coupons:', marketplaceError);
     }
 
-    query = query.range(offset, offset + limit - 1);
-
-    const { data: assignments, error, count } = await query;
-
-    if (error) {
-      console.error('Error fetching user coupons:', error);
-      return res.status(500).json({ error: 'Failed to fetch coupons' });
-    }
-
-    // Format response
-    const coupons = (assignments || []).map(assignment => ({
+    // Format user-assigned coupons
+    const assignedCoupons = (assignments || []).map(assignment => ({
       assignment_id: assignment.id,
       coupon_id: assignment.coupon_id,
+      code: null, // User-assigned coupons don't have codes yet
       title: assignment.advertiser_coupons.title,
       description: assignment.advertiser_coupons.description,
       reward_type: assignment.advertiser_coupons.reward_type,
@@ -97,14 +105,59 @@ router.get('/coupons', async (req, res) => {
       redeemed_at: assignment.redeemed_at,
       expires_at: assignment.advertiser_coupons.end_date,
       status: getCouponStatus(assignment),
-      metadata: assignment.metadata,
-      conditions: assignment.advertiser_coupons.conditions,
+      metadata: assignment.metadata || {},
+      conditions: assignment.advertiser_coupons.conditions || {},
+      coupon_source: 'assigned'
     }));
 
+    // Format marketplace coupons
+    const availableMarketplaceCoupons = (marketplaceCoupons || []).map(coupon => ({
+      assignment_id: coupon.id, // Use coupon ID as assignment ID for marketplace coupons
+      coupon_id: coupon.id,
+      code: coupon.code,
+      title: coupon.name,
+      description: coupon.description,
+      reward_type: 'coupon',
+      value: coupon.discount_value,
+      value_unit: coupon.discount_type === 'percentage' ? 'percentage' : 
+                  coupon.discount_type === 'fixed_usd' ? 'usd' :
+                  coupon.discount_type === 'fixed_gems' ? 'gems' :
+                  coupon.discount_type === 'fixed_gold' ? 'gold' : 'other',
+      source: coupon.source_type,
+      source_label: coupon.campaign_id ? 'Campaign Reward' : 'Platform Offer',
+      earned_at: coupon.created_at,
+      is_redeemed: false,
+      redeemed_at: null,
+      expires_at: coupon.expires_at,
+      status: 'available',
+      metadata: coupon.metadata || {},
+      conditions: {},
+      coupon_source: 'marketplace',
+      max_uses: coupon.max_uses,
+      current_uses: coupon.current_uses,
+      discount_type: coupon.discount_type
+    }));
+
+    // Combine both types
+    let allCoupons = [...assignedCoupons, ...availableMarketplaceCoupons];
+
+    // Filter by status
+    if (status === 'available') {
+      allCoupons = allCoupons.filter(c => !c.is_redeemed && c.status === 'available');
+    } else if (status === 'redeemed') {
+      allCoupons = allCoupons.filter(c => c.is_redeemed);
+    }
+
+    // Sort by earned_at/created_at descending
+    allCoupons.sort((a, b) => new Date(b.earned_at) - new Date(a.earned_at));
+
+    // Apply pagination
+    const paginatedCoupons = allCoupons.slice(offset, offset + limit);
+
     res.json({
-      coupons,
-      total: count || coupons.length,
-      has_more: (offset + limit) < (count || 0),
+      coupons: paginatedCoupons,
+      total: allCoupons.length,
+      has_more: (offset + limit) < allCoupons.length,
     });
   } catch (error) {
     console.error('Error in GET /api/rewards/coupons:', error);
