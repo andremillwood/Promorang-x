@@ -13,13 +13,18 @@ app.use(helmet());
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
   ];
   
   const origin = req.headers.origin;
   
-  // Always set CORS headers
-  if (origin && allowedOrigins.includes(origin)) {
+  // In development, allow all origins
+  if (process.env.NODE_ENV === 'development' || origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
@@ -157,9 +162,10 @@ app.use((error, req, res, next) => {
   });
 });
 
-const PORT = 3001; // Hardcoded to ensure it runs on 3001
-app.listen(PORT, () => {
-  console.log(`🚀 Promorang API development server running on port ${PORT}`);
-  console.log(`📡 Frontend URL: http://localhost:5173`);
-  console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
+const PORT = process.env.PORT || 3001;
+const HOST = 'localhost'; // Always bind to localhost for backend
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Promorang API development server running on ${HOST}:${PORT}`);
+  console.log(`📡 Frontend URL: http://localhost:5000`);
+  console.log(`🔗 API Base URL: http://${HOST}:${PORT}/api`);
 });

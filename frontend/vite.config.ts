@@ -35,7 +35,9 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL)
     },
     server: {
-      port: 5173,
+      host: '0.0.0.0',
+      port: 5000,
+      allowedHosts: true,
       proxy: {
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:3001',
