@@ -21,13 +21,13 @@ args = "Start Application"
 name = "Start Application"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd backend && node server.js & cd frontend && npm run dev"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && NODE_ENV=development node server.js & cd frontend && npm run dev"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3001
@@ -36,3 +36,12 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 42321
+externalPort = 3000
+
+[deployment]
+deploymentTarget = "static"
+build = ["npm", "run", "build"]
+publicDir = "frontend/dist"

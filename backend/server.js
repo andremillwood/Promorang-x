@@ -15,15 +15,23 @@ app.use((req, res, next) => {
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:5000',
-    'http://127.0.0.1:5000'
-  ];
+    'http://127.0.0.1:5000',
+    process.env.FRONTEND_URL
+  ].filter(Boolean);
   
   const origin = req.headers.origin;
   
-  // In development, allow all origins
-  if (process.env.NODE_ENV === 'development' || origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // In development mode, allow any origin (for Replit proxy support)
+  // In production, only allow whitelisted origins
+  if (process.env.NODE_ENV === 'development') {
+    // When there's an origin header, echo it back
+    // When there's no origin (same-origin requests), use '*'
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
   } else if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
