@@ -131,6 +131,72 @@ app.use('/api/manychat', require('./manychat'));
 app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/coupons', require('./coupons'));
 
+app.get('/api/referrals/stats', (req, res) => {
+  res.json({
+    status: 'success',
+    data: {
+      summary: {
+        total_referrals: 0,
+        active_referrals: 0,
+        pending_referrals: 0,
+        conversion_rate: '0.0',
+        total_earnings: {
+          usd: 0,
+          gems: 0,
+          points: 0,
+        },
+        referral_code: null,
+        tier: {
+          tier_name: 'Bronze',
+          tier_level: 1,
+          commission_rate: 0.05,
+          badge_icon: '🥉',
+          badge_color: '#CD7F32',
+        },
+      },
+      referrals: [],
+      recent_commissions: [],
+    },
+  });
+});
+
+app.get('/api/referrals/tiers', (req, res) => {
+  res.json({
+    status: 'success',
+    data: {
+      tiers: [
+        {
+          tier_name: 'Bronze',
+          tier_level: 1,
+          min_referrals: 0,
+          commission_rate: 0.05,
+          badge_icon: '🥉',
+          badge_color: '#CD7F32',
+          perks: [],
+        },
+        {
+          tier_name: 'Silver',
+          tier_level: 2,
+          min_referrals: 10,
+          commission_rate: 0.06,
+          badge_icon: '🥈',
+          badge_color: '#C0C0C0',
+          perks: [],
+        },
+        {
+          tier_name: 'Gold',
+          tier_level: 3,
+          min_referrals: 50,
+          commission_rate: 0.075,
+          badge_icon: '🥇',
+          badge_color: '#FFD700',
+          perks: [],
+        },
+      ],
+    },
+  });
+});
+
 // 404 handler
 app.use('/api/*', (req, res) => {
   res.status(404).json({
