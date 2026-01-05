@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const { supabase: serviceSupabase } = require('../lib/supabase');
+const supabase = global.supabase || serviceSupabase || null;
+
 const buildMockEntries = (period = 'daily', count = 10) => {
   return Array.from({ length: count }).map((_, index) => ({
     id: `${period}-user-${index + 1}`,
@@ -27,20 +30,82 @@ const createLeaderboardResponse = (period) => buildMockEntries(period).map((entr
   composite_score: 86 - index * 3.4,
 }));
 
-router.get('/daily', (req, res) => {
-  res.json(createLeaderboardResponse('daily'));
+const fetchLeaderboard = async (period) => {
+  if (!supabase) {
+    return createLeaderboardResponse(period);
+  }
+
+  try {
+    const { data: entries, error } = await supabase
+      .from('leaderboard_entries')
+      .select(`
+        id,
+        user_id,
+        rank,
+        points_earned,
+        gems_earned,
+        keys_used,
+        gold_collected,
+        composite_score,
+        trend,
+        users!inner(username, display_name, avatar_url)
+      `)
+      .eq('period_type', period)
+      .order('rank', { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error(`Error fetching ${period} leaderboard:`, error);
+      return createLeaderboardResponse(period);
+    }
+
+    if (!entries || entries.length === 0) {
+      return createLeaderboardResponse(period);
+    }
+
+    return entries.map((entry) => ({
+      id: entry.id,
+      position: entry.rank,
+      user_id: entry.user_id,
+      username: entry.users?.username || 'unknown',
+      display_name: entry.users?.display_name || 'Unknown User',
+      avatar_url: entry.users?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.user_id}`,
+      metric: period,
+      score: entry.composite_score || 0,
+      change: entry.trend === 'up' ? '+2' : entry.trend === 'down' ? '-1' : '0',
+      campaign_count: 0,
+      total_rewards: entry.gems_earned || 0,
+      trend: entry.trend || 'steady',
+      points_earned: entry.points_earned || 0,
+      gems_earned: entry.gems_earned || 0,
+      keys_used: entry.keys_used || 0,
+      gold_collected: entry.gold_collected || 0,
+      composite_score: entry.composite_score || 0
+    }));
+  } catch (error) {
+    console.error(`Leaderboard fetch error (${period}):`, error);
+    return createLeaderboardResponse(period);
+  }
+};
+
+router.get('/daily', async (req, res) => {
+  const entries = await fetchLeaderboard('daily');
+  res.json(entries);
 });
 
-router.get('/weekly', (req, res) => {
-  res.json(createLeaderboardResponse('weekly'));
+router.get('/weekly', async (req, res) => {
+  const entries = await fetchLeaderboard('weekly');
+  res.json(entries);
 });
 
-router.get('/monthly', (req, res) => {
-  res.json(createLeaderboardResponse('monthly'));
+router.get('/monthly', async (req, res) => {
+  const entries = await fetchLeaderboard('monthly');
+  res.json(entries);
 });
 
-router.get('/overall', (req, res) => {
-  res.json(createLeaderboardResponse('overall'));
+router.get('/overall', async (req, res) => {
+  const entries = await fetchLeaderboard('overall');
+  res.json(entries);
 });
 
 module.exports = router;

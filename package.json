@@ -3,20 +3,37 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "backend"
+  ],
   "scripts": {
-    "dev": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "lint": "cd frontend && npm run lint",
-    "deploy:frontend": "cd frontend && npx vercel --prod",
+    "dev": "npm run dev:web",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:mobile": "npm run dev --workspace apps/mobile",
+    "build": "npm run build --workspace apps/web",
+    "lint": "npm run lint --workspace apps/web",
+    "test:shared": "npm test --workspace packages/shared",
+    "deploy:web": "cd apps/web && npx vercel --prod",
     "deploy:backend": "cd backend && npx vercel --prod",
-    "deploy": "npm run deploy:frontend && npm run deploy:backend"
+    "deploy": "npm run deploy:web && npm run deploy:backend"
   },
   "description": "Promorang full-stack application with React frontend and API backend",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andremillwood/Promorang-x.git"
   },
-  "keywords": ["react", "vite", "vercel", "api", "fullstack"],
+  "keywords": [
+    "react",
+    "vite",
+    "vercel",
+    "api",
+    "fullstack"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }

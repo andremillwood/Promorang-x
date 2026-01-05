@@ -213,7 +213,11 @@ const authMiddleware = async (req, res, next) => {
       const token = authHeader.substring(7);
       const decoded = decodeToken(token);
       if (decoded) {
-        req.user = decoded;
+        // Map userId to id for compatibility
+        req.user = {
+          ...decoded,
+          id: decoded.userId || decoded.id
+        };
         return next();
       }
     }
@@ -242,51 +246,62 @@ const authMiddleware = async (req, res, next) => {
 
 // Public profile routes (no auth required)
 router.get('/public/:username', async (req, res) => {
-  const { username } = req.params;
+  const rawUsername = req.params.username || '';
+  const decodedUsername = decodeURIComponent(rawUsername).trim();
+  const slug = decodedUsername
+    ? decodedUsername.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+    : 'demo_user';
+
+  const buildFallbackProfile = () => {
+    const profile = ensureUserProfile({
+      id: `public-${slug}`,
+      username: slug,
+      display_name: decodedUsername || slug.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      bio: 'This creator profile is using demo data. Connect Supabase to replace with live stats.',
+      website_url: 'https://promorang.co',
+      user_type: 'creator',
+      avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(slug)}`,
+      follower_count: 1200,
+      following_count: 320,
+      points_balance: 12345,
+      gems_balance: 250,
+      keys_balance: 12,
+    });
+
+    return res.json({
+      success: true,
+      fallback: true,
+      user: profile,
+      content: [],
+      drops: [],
+      leaderboard_position: null
+    });
+  };
+
+  if (!decodedUsername) {
+    return buildFallbackProfile();
+  }
 
   try {
     if (!supabase) {
-      return res.json({
-        success: true,
-        user: {
-          id: 'public-demo-user',
-          username,
-          display_name: username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Demo User',
-          bio: 'This is a demo public profile.',
-          website_url: 'https://example.com',
-          twitter_handle: 'demo_user',
-          instagram_handle: 'demo_user',
-          youtube_channel: null,
-          tiktok_handle: null,
-          location: 'Internet',
-          user_type: 'creator',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo_public',
-          points_balance: 12345,
-          gems_balance: 250,
-          keys_balance: 12,
-          follower_count: 1200,
-          following_count: 320
-        },
-        content: [],
-        drops: [],
-        leaderboard_position: null
-      });
+      return buildFallbackProfile();
     }
 
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('username', username)
+      .ilike('username', decodedUsername)
       .single();
 
     if (error || !user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+      console.warn('Public profile not found in Supabase, using fallback:', decodedUsername, error?.message);
+      return buildFallbackProfile();
     }
 
     res.json({ success: true, user, content: [], drops: [], leaderboard_position: null });
   } catch (error) {
     console.error('Error fetching public profile:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch public profile' });
+    return buildFallbackProfile();
   }
 });
 
@@ -372,6 +387,7 @@ router.get('/me', async (req, res) => {
           gold_collected: req.user.gold_collected ?? 0,
           user_tier: req.user.user_tier || 'free',
           avatar_url: req.user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+          master_key_activated_at: req.user.master_key_activated_at ?? null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
@@ -380,7 +396,10 @@ router.get('/me', async (req, res) => {
       return user;
     });
 
-    res.json(profile);
+    res.json({
+      ...profile,
+      master_key_activated_at: profile.master_key_activated_at ?? null
+    });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch user data' });

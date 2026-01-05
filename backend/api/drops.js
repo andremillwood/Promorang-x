@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
+const { trackDropCompletion } = require('../utils/referralTracker');
+const { requireAuth } = require('./_core/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -30,14 +32,7 @@ const invalidateCache = (prefix) => {
   }
 };
 
-// Mock auth middleware
-const authMiddleware = (req, res, next) => {
-  req.user = { id: 'mock-user-id', email: 'user@example.com' };
-  next();
-};
-
-// Apply auth to protected routes
-router.use(authMiddleware);
+router.use(requireAuth);
 
 // Get all drops
 router.get('/', async (req, res) => {
@@ -122,8 +117,13 @@ router.get('/:id', async (req, res) => {
     const cacheKey = `drops:item:${id}`;
     const payload = await getCachedValue(cacheKey, async () => {
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        // Handle both numeric and UUID format IDs
+        const numericId = isNaN(parseInt(id, 10)) ? 
+          parseInt(id.replace(/[^0-9]/g, '').substring(0, 4), 10) || 1 : 
+          parseInt(id, 10);
+          
         return {
-          id: parseInt(id),
+          id: id, // Keep the original ID for consistency
           creator_id: Math.floor(Math.random() * 100) + 1,
           creator_name: `Drop Creator ${id}`,
           creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${id}`,
@@ -175,10 +175,30 @@ router.get('/:id', async (req, res) => {
       return drop;
     });
 
+    if (!payload) {
+      console.log(`Drop not found for ID: ${id}`);
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Drop not found',
+        code: 'DROP_NOT_FOUND'
+      });
+    }
+
     res.json(payload);
   } catch (error) {
     console.error('Error fetching drop:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch drop' });
+    if (error.message === 'Drop not found') {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Drop not found',
+        code: 'DROP_NOT_FOUND'
+      });
+    }
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch drop',
+      code: 'SERVER_ERROR'
+    });
   }
 });
 
@@ -501,6 +521,25 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
     if (error) {
       console.error('Database error updating application:', error);
       return res.status(500).json({ success: false, error: 'Failed to update application' });
+    }
+
+    // Track referral commission if drop is approved
+    if (action === 'approve' && application.user_id) {
+      try {
+        // Get drop details to find reward amount
+        const { data: drop } = await supabase
+          .from('drops')
+          .select('gem_reward_base')
+          .eq('id', dropId)
+          .single();
+        
+        if (drop && drop.gem_reward_base) {
+          await trackDropCompletion(application.user_id, drop.gem_reward_base, dropId);
+        }
+      } catch (referralError) {
+        console.error('Error tracking referral commission:', referralError);
+        // Don't fail the request if referral tracking fails
+      }
     }
 
     res.json({

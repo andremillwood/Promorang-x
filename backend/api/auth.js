@@ -28,9 +28,10 @@ const rawBodyMiddleware = (req, res, next) => {
 // JWT secret - in production, this should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Demo accounts for local testing
+// Demo accounts for local testing - must match seeded UUIDs in migration
 const DEMO_ACCOUNTS = [
   {
+    id: '00000000-0000-0000-0000-00000000c001',
     email: 'creator@demo.com',
     password: 'demo123',
     username: 'demo_creator',
@@ -38,6 +39,7 @@ const DEMO_ACCOUNTS = [
     user_type: 'creator'
   },
   {
+    id: '00000000-0000-0000-0000-00000000b001',
     email: 'investor@demo.com',
     password: 'demo123',
     username: 'demo_investor',
@@ -45,11 +47,26 @@ const DEMO_ACCOUNTS = [
     user_type: 'investor'
   },
   {
+    id: '00000000-0000-0000-0000-00000000ad01',
     email: 'advertiser@demo.com',
     password: 'demo123',
     username: 'demo_advertiser',
     display_name: 'Demo Advertiser',
     user_type: 'advertiser'
+  },
+  {
+    email: 'operator@demo.com',
+    password: 'demo123',
+    username: 'demo_operator',
+    display_name: 'Demo Operator',
+    user_type: 'operator'
+  },
+  {
+    email: 'merchant@demo.com',
+    password: 'demo123',
+    username: 'demo_merchant',
+    display_name: 'Demo Merchant',
+    user_type: 'merchant'
   }
 ];
 
@@ -157,41 +174,19 @@ router.post('/login', async (req, res) => {
     const demoAccount = DEMO_ACCOUNTS.find(account => account.email === email && account.password === password);
 
     if (demoAccount) {
-      // For demo accounts, create or get the user
+      // For demo accounts, fetch the seeded user by username
       let { data: user, error: userError } = await supabase
         .from('users')
         .select('*')
-        .eq('email', email)
+        .eq('username', demoAccount.username)
         .single();
 
       if (userError || !user) {
-        // Create demo user if doesn't exist
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert([{
-            email: demoAccount.email,
-            username: demoAccount.username,
-            display_name: demoAccount.display_name,
-            user_type: demoAccount.user_type,
-            points_balance: 1000,
-            keys_balance: 50,
-            gems_balance: 100,
-            gold_collected: 0,
-            user_tier: 'free',
-            created_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating demo user:', createError);
-          return res.status(500).json({
-            success: false,
-            error: 'Failed to create demo account'
-          });
-        }
-
-        user = newUser;
+        console.error('Demo user not found in database:', demoAccount.username);
+        return res.status(500).json({
+          success: false,
+          error: 'Demo account not seeded. Please run migrations first.'
+        });
       }
 
       const token = generateToken(user);
@@ -799,6 +794,229 @@ router.post('/demo/advertiser', async (req, res) => {
   }
 });
 
+// Logout (does not require auth header; frontends may just clear cookies/tokens)
+router.post('/logout', (req, res) => {
+  // In a real implementation, tokens could be revoked/blacklisted.
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
+// Demo operator login
+router.post('/demo/operator', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[3]; // operator account
+
+    if (!supabase) {
+      const demoToken = generateToken({
+        id: 'demo-operator-id',
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type,
+        points_balance: 8000,
+        keys_balance: 500,
+        gems_balance: 1500,
+        gold_collected: 75,
+        user_tier: 'premium'
+      });
+
+      res.cookie('auth_token', demoToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return res.json({
+        success: true,
+        user: {
+          id: 'demo-operator-id',
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 8000,
+          keys_balance: 500,
+          gems_balance: 1500,
+          gold_collected: 75,
+          user_tier: 'premium'
+        },
+        token: demoToken
+      });
+    }
+
+    let { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', demoAccount.email)
+      .single();
+
+    if (userError || !user) {
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert([{
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 8000,
+          keys_balance: 500,
+          gems_balance: 1500,
+          gold_collected: 75,
+          user_tier: 'premium',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create demo account'
+        });
+      }
+
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+
+    return res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        display_name: user.display_name,
+        user_type: user.user_type,
+        points_balance: user.points_balance,
+        keys_balance: user.keys_balance,
+        gems_balance: user.gems_balance,
+        gold_collected: user.gold_collected,
+        user_tier: user.user_tier,
+        avatar_url: user.avatar_url
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error('Demo login error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Demo login failed'
+    });
+  }
+});
+
+// Demo merchant login
+router.post('/demo/merchant', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[4]; // merchant account
+
+    if (!supabase) {
+      const demoToken = generateToken({
+        id: 'demo-merchant-id',
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type,
+        points_balance: 3000,
+        keys_balance: 100,
+        gems_balance: 500,
+        gold_collected: 50,
+        user_tier: 'premium'
+      });
+
+      res.cookie('auth_token', demoToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return res.json({
+        success: true,
+        user: {
+          id: 'demo-merchant-id',
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 3000,
+          keys_balance: 100,
+          gems_balance: 500,
+          gold_collected: 50,
+          user_tier: 'premium'
+        },
+        token: demoToken
+      });
+    }
+
+    let { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', demoAccount.email)
+      .single();
+
+    if (userError || !user) {
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert([{
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 3000,
+          keys_balance: 100,
+          gems_balance: 500,
+          gold_collected: 50,
+          user_tier: 'premium',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create demo account'
+        });
+      }
+
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+
+    return res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        display_name: user.display_name,
+        user_type: user.user_type,
+        points_balance: user.points_balance,
+        keys_balance: user.keys_balance,
+        gems_balance: user.gems_balance,
+        gold_collected: user.gold_collected,
+        user_tier: user.user_tier,
+        avatar_url: user.avatar_url
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error('Demo login error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Demo login failed'
+    });
+  }
+});
+
 // Protected routes - require authentication
 router.use(authMiddleware);
 
@@ -857,11 +1075,11 @@ router.post('/logout', (req, res) => {
 router.get('/me', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'No token provided' 
+      return res.status(401).json({
+        success: false,
+        error: 'No token provided'
       });
     }
 
@@ -917,15 +1135,15 @@ router.get('/me', async (req, res) => {
       .single();
 
     if (error || !user) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'User not found' 
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
       });
     }
 
     // Return user data without sensitive information
     const { password, ...userWithoutPassword } = user;
-    
+
     res.json({
       success: true,
       user: userWithoutPassword
@@ -934,14 +1152,14 @@ router.get('/me', async (req, res) => {
   } catch (error) {
     console.error('Me endpoint error:', error);
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid token' 
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token'
       });
     }
-    res.status(500).json({ 
-      success: false, 
-      error: 'Server error' 
+    res.status(500).json({
+      success: false,
+      error: 'Server error'
     });
   }
 });

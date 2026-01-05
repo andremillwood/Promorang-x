@@ -5,6 +5,12 @@ const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
+const payments = require('./api/payments');
+const shares = require('./api/shares');
+const { supabase: supabaseClient } = require('./lib/supabase');
+
+app.post('/api/payments/webhook/stripe', express.raw({ type: 'application/json' }), payments.stripeWebhook);
+app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), payments.stripeWebhook);
 
 // Security middleware
 app.use(helmet());
@@ -79,8 +85,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mock supabase for development
-global.supabase = null;
+// Expose Supabase client globally for legacy modules
+global.supabase = supabaseClient || null;
 
 // API routes
 app.use('/api/auth', require('./api/auth'));
@@ -89,10 +95,14 @@ app.use('/api/content', require('./api/content'));
 app.use('/api/drops', require('./api/drops'));
 app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
+app.use('/api/leaderboard', require('./api/leaderboard'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/portfolio', require('./api/portfolio'));
-app.use('/api/shares', require('./api/shares'));
+app.use('/api/shares', shares.router);
 app.use('/api/placeholder', require('./api/placeholder'));
+app.use('/api/payments', payments.router);
+app.use('/api/telemetry', require('./api/telemetry'));
+app.get('/s/:id', shares.redirectHandler);
 
 // Demo login endpoint (bypasses default body parser)
 app.use('/api/demo', require('./api/demo-login'));

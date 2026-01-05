@@ -20,7 +20,7 @@ import {
   Settings,
   Edit
 } from 'lucide-react';
-import { DropType, AdvertiserAnalyticsType } from '@/shared/types';
+import { type DropType, type AdvertiserAnalyticsType } from '@/shared/types';
 import { 
   PerformanceMetrics, 
   ActivityBreakdown, 

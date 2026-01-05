@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -48,3 +49,19 @@ coverage/
 
 # OS files
 Thumbs.db
+=======
+.vercel
+.env
+.env.*
+.env*.local
+
+node_modules/
+**/node_modules/
+
+dist/
+**/dist/
+build/
+**/build/
+
+.DS_Store
+>>>>>>> feature/error-handling-updates

@@ -295,7 +295,7 @@ router.post('/:id/predict', async (req, res) => {
 
     // Create prediction
     const { data: prediction, error: predictionError } = await supabase
-      .from('forecast_predictions')
+      .from('investor_predictions')
       .insert([{
         forecast_id: parseInt(id),
         user_id: 1, // TODO: Get from authenticated user

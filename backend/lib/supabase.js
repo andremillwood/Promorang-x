@@ -2,7 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Supabase client for backend
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 let supabase = null;
 
@@ -36,3 +36,4 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 module.exports = supabase;
+module.exports.supabase = supabase;
