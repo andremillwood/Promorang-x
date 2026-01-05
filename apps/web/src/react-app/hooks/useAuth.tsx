@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       console.log('Attempting to sign in with:', { email });
-      
+
       // Make the login request
       const response = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
       console.log('Login response:', response);
@@ -128,72 +128,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Handle the token and user data
         const token = response.token || (response as any)?.data?.token;
         const user = response.user || (response as any)?.data?.user;
-        
+
         if (token) {
           console.log('Setting access token:', token.substring(0, 20) + '...');
           setAccessToken(token);
-          
+
           // Verify token was stored
           const storedToken = localStorage.getItem('access_token');
           console.log('Token stored in localStorage:', storedToken ? 'YES' : 'NO');
-          
+
           if (user) {
             setUser(user);
             console.log('Navigating to dashboard with user:', user.email);
             navigate('/dashboard');
-            return { 
-              success: true, 
-              user, 
-              token 
+            return {
+              success: true,
+              user,
+              token
             };
           }
-          
+
           // If we have a token but no user data, try to fetch the user profile
           try {
             const userResponse = await api.get<{ user: User }>('/auth/me');
             const userData = userResponse.user || (userResponse as any)?.data?.user;
-            
+
             if (userData) {
               setUser(userData);
               navigate('/dashboard');
-              return { 
-                success: true, 
-                user: userData, 
-                token 
+              return {
+                success: true,
+                user: userData,
+                token
               };
             }
           } catch (userError) {
             console.error('Failed to fetch user profile:', userError);
             // Continue with minimal user data
           }
-          
+
           // If we have a token but couldn't get user data, proceed with minimal info
-          return { 
-            success: true, 
-            user: { 
+          return {
+            success: true,
+            user: {
               id: '',
-              email, 
+              email,
               username: email.split('@')[0],
               email_verified: false
-            }, 
+            },
             token,
             message: 'Logged in but could not fetch full profile'
           };
         }
       }
-      
+
       // If we get here, the response format is unexpected
       console.error('Unexpected response format:', response);
       throw new Error(
-        (response as any)?.error?.message || 
-        (response as any)?.message || 
+        (response as any)?.error?.message ||
+        (response as any)?.message ||
         'Invalid response format from server'
       );
     } catch (error) {
       console.error('Sign in error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: {
           message: errorMessage,
           code: 'SIGN_IN_ERROR'
@@ -209,7 +209,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     creator: async () => signIn('creator@demo.com', 'demo123'),
     investor: async () => signIn('investor@demo.com', 'demo123'),
     advertiser: async () => signIn('advertiser@demo.com', 'demo123'),
-    operator: async () => signIn('castleblack-demo@promorang.co', 'demo123'),
+    operator: async () => signIn('operator@demo.com', 'demo123'),
     merchant: async () => signIn('merchant@demo.com', 'demo123'),
   };
 
@@ -222,7 +222,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.warn('Logout endpoint failed, continuing with client-side cleanup', error);
       }
-      
+
       // Clear all auth-related data
       localStorage.removeItem('access_token');
       setUser(null);
