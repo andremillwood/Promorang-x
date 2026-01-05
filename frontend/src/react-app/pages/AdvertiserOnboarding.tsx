@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
-import { 
-  Megaphone, 
-  Users, 
-  TrendingUp, 
-  Star, 
-  CheckCircle, 
+import {
+  Megaphone,
+  Users,
+  TrendingUp,
+  Star,
+  CheckCircle,
   ArrowRight,
   Crown,
   Zap,
@@ -16,12 +16,12 @@ import {
 } from 'lucide-react';
 
 export default function AdvertiserOnboarding() {
-  const { user, demoLogin } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleBecomeAdvertiser = async () => {
+  const handleBecomeAdvertiser = async (brandName?: string, brandLogoUrl?: string) => {
     if (!user) {
       navigate('/?error=auth_required');
       return;
@@ -37,6 +37,7 @@ export default function AdvertiserOnboarding() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
         },
+        body: JSON.stringify({ brand_name: brandName, brand_logo_url: brandLogoUrl }),
         credentials: 'include'
       });
 
@@ -73,7 +74,7 @@ export default function AdvertiserOnboarding() {
     },
     premium: {
       name: 'Premium Advertiser',
-      color: 'text-purple-600 bg-purple-50 border-purple-200', 
+      color: 'text-purple-600 bg-purple-50 border-purple-200',
       inventory: 'Weekly: 200 moves, 15 proof drops, 8 paid drops',
       features: ['Advanced analytics', 'Priority support', 'Custom targeting', 'Create proof & paid drops', 'Sponsor content with gems']
     },
@@ -128,7 +129,7 @@ export default function AdvertiserOnboarding() {
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
             Why Choose Promorang for Advertising?
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
@@ -170,7 +171,7 @@ export default function AdvertiserOnboarding() {
           <p className="text-center text-gray-600 mb-12 text-lg">
             Choose the tier that matches your advertising needs and scale
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {Object.entries(tierBenefits).map(([tier, info]) => (
               <div key={tier} className={`border-2 rounded-2xl p-8 ${info.color} relative`}>
@@ -181,7 +182,7 @@ export default function AdvertiserOnboarding() {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="text-center mb-6">
                   <div className="flex justify-center mb-4">
                     {tier === 'free' && <Zap className="w-8 h-8 text-gray-600" />}
@@ -194,7 +195,7 @@ export default function AdvertiserOnboarding() {
                     {tier === 'free' ? 'Sample inventory allocation' : 'Weekly inventory allocation'}
                   </p>
                 </div>
-                
+
                 <ul className="space-y-3 mb-6">
                   {info.features.map((feature, index) => (
                     <li key={index} className="flex items-center space-x-2">
@@ -203,7 +204,7 @@ export default function AdvertiserOnboarding() {
                     </li>
                   ))}
                 </ul>
-                
+
                 {tier === 'free' && (
                   <p className="text-xs opacity-75 text-center">
                     Free tier can create proof drops and sponsor content. Upgrade to create paid drops.
@@ -219,7 +220,7 @@ export default function AdvertiserOnboarding() {
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
             How It Works
           </h2>
-          
+
           <div className="grid md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -265,42 +266,72 @@ export default function AdvertiserOnboarding() {
 
         {/* CTA Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ready to Start Advertising?
-            </h2>
-            <p className="text-gray-600 mb-8 text-lg">
-              Join hundreds of brands already using Promorang to create authentic, high-performing campaigns
-            </p>
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-            
-            <button
-              onClick={handleBecomeAdvertiser}
-              disabled={isConverting}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
-            >
-              {isConverting ? (
-                <>
-                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                  <span>Setting up your account...</span>
-                </>
-              ) : (
-                <>
-                  <span>Become an Advertiser</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-            
-            <p className="text-sm text-gray-500 mt-4">
-              Free to get started • No setup fees • Pay only for completed work
-            </p>
+          <p className="text-gray-600 mb-8 text-lg">
+            Join hundreds of brands already using Promorang to create authentic, high-performing campaigns
+          </p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 text-left">
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+            </div>
+          )}
+
+          <div className="space-y-4 mb-8 text-left max-w-md mx-auto">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Brand Name
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Acme Corp"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                id="brandName"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Brand Logo URL (optional)
+              </label>
+              <input
+                type="text"
+                placeholder="https://..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                id="brandLogoUrl"
+              />
+            </div>
           </div>
+
+          <button
+            onClick={() => {
+              const brandName = (document.getElementById('brandName') as HTMLInputElement)?.value;
+              const brandLogoUrl = (document.getElementById('brandLogoUrl') as HTMLInputElement)?.value;
+
+              if (!brandName) {
+                setError('Please enter your brand name');
+                return;
+              }
+
+              handleBecomeAdvertiser(brandName, brandLogoUrl);
+            }}
+            disabled={isConverting}
+            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
+          >
+            {isConverting ? (
+              <>
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                <span>Setting up your account...</span>
+              </>
+            ) : (
+              <>
+                <span>Become an Advertiser</span>
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </button>
+
+          <p className="text-sm text-gray-500 mt-4">
+            Free to get started • No setup fees • Pay only for completed work
+          </p>
         </div>
       </div>
     </div>

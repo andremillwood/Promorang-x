@@ -12,18 +12,32 @@ interface NotificationHook {
   showToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
+import { apiFetch } from '../../lib/api';
+
 export function useNotifications(): NotificationHook {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (user) {
-      // In a real implementation, this would fetch the actual unread count
-      // For now, we'll simulate with localStorage
-      const stored = localStorage.getItem(`notifications_unread_${user.id}`);
-      setUnreadCount(stored ? parseInt(stored) : 0);
+      fetchUnreadCount();
+      // Poll for updates every minute
+      const interval = setInterval(fetchUnreadCount, 60000);
+      return () => clearInterval(interval);
     }
   }, [user]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await apiFetch('/api/notifications/unread-count');
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
+    }
+  };
 
   const addNotification = useCallback((notification: {
     type: 'achievement' | 'reward' | 'system' | 'social' | 'warning';
@@ -32,15 +46,15 @@ export function useNotifications(): NotificationHook {
     data?: any;
   }) => {
     if (!user) return;
-    
+
     // Increment unread count
     const newCount = unreadCount + 1;
     setUnreadCount(newCount);
     localStorage.setItem(`notifications_unread_${user.id}`, newCount.toString());
-    
+
     // Show toast notification
     showToast(notification.message, 'info');
-    
+
     // In a real implementation, this would save to the database
     console.log('New notification:', notification);
   }, [user, unreadCount]);
@@ -49,7 +63,7 @@ export function useNotifications(): NotificationHook {
     // Create a toast notification element
     const toast = document.createElement('div');
     toast.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full`;
-    
+
     // Style based on type
     const styles = {
       success: 'bg-green-500 text-white',
@@ -57,17 +71,17 @@ export function useNotifications(): NotificationHook {
       warning: 'bg-yellow-500 text-white',
       info: 'bg-blue-500 text-white'
     };
-    
+
     toast.className += ` ${styles[type]}`;
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
+
     // Animate in
     setTimeout(() => {
       toast.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // Animate out and remove
     setTimeout(() => {
       toast.style.transform = 'translateX(100%)';

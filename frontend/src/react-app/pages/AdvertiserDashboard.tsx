@@ -257,7 +257,18 @@ export default function AdvertiserDashboard() {
     return last30Days;
   };
 
-  const analyticsData = generateAnalyticsData();
+  const analyticsData = dashboardData?.analytics?.map(a => ({
+    date: a.period_start.split('T')[0],
+    applications: a.total_participants || 0,
+    conversions: a.conversions || 0,
+    impressions: a.impressions || 0,
+    clicks: a.total_participants * 0.1 || 0, // Simplified estimate
+    spent: a.gems_spent || 0,
+    participants: a.total_participants || 0
+  })) || [];
+
+  // Fallback for new advertisers with no data yet
+  const displayAnalytics = analyticsData.length > 0 ? analyticsData : generateAnalyticsData();
   const campaignPerformance = [
     { metric: 'Click-through Rate', value: 4.2 },
     { metric: 'Conversion Rate', value: 12.8 },
@@ -597,16 +608,16 @@ export default function AdvertiserDashboard() {
               title="Avg. Engagement"
               value={`${dashboardData.analytics.length > 0
                 ? (
-                    dashboardData.analytics.reduce(
-                      (sum, a) => sum + (a.engagement_rate || 0),
-                      0
-                    ) / dashboardData.analytics.length
-                  ).toFixed(1)
+                  dashboardData.analytics.reduce(
+                    (sum, a) => sum + (a.engagement_rate || 0),
+                    0
+                  ) / dashboardData.analytics.length
+                ).toFixed(1)
                 : '8.5'}%`}
-              change={3}
+              change={analyticsData.length > 0 ? 0 : 3}
               changeType="increase"
               icon={<TrendingUp className="w-5 h-5" />}
-              trend={analyticsData.slice(-7).map(d => ({ date: d.date, value: Math.floor(Math.random() * 20) + 5 }))}
+              trend={displayAnalytics.slice(-7).map(d => ({ date: d.date, value: d.applications }))}
             />
           </div>
 
@@ -724,7 +735,7 @@ export default function AdvertiserDashboard() {
                 </div>
               </div>
               <MultiMetricChart
-                data={analyticsData}
+                data={displayAnalytics}
                 height={300}
                 metrics={[
                   { key: 'applications', name: 'Applications', color: '#f97316' },
@@ -850,9 +861,8 @@ export default function AdvertiserDashboard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            drop.status === 'active' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100'
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${drop.status === 'active' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100'
+                            }`}
                         >
                           {drop.status}
                         </span>

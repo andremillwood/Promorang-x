@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { 
-  TrendingUp, 
-  DollarSign, 
+import {
+  TrendingUp,
+  DollarSign,
   Award,
   Plus,
   Eye,
@@ -13,14 +13,15 @@ import {
   Zap,
   Users
 } from 'lucide-react';
-import { UserType, TaskType, WalletType, TransactionType } from '@/shared/types';
-import { 
-  EarningsChart, 
-  PerformanceMetrics, 
-  ActivityBreakdown, 
+import { TaskType, WalletType, TransactionType } from '@/shared/types';
+import {
+  EarningsChart,
+  PerformanceMetrics,
+  ActivityBreakdown,
   MultiMetricChart,
-  KPICard 
+  KPICard
 } from '@/react-app/components/AnalyticsCharts';
+import { apiFetch } from '../../lib/api';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -33,23 +34,27 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         // Fetch wallets
-        const response = await fetch('/api/users/me/wallets', {
-          credentials: 'include'
-        });
-        const walletsData = await response.json();
-        setWallets(Array.isArray(walletsData) ? walletsData : []);
+        const response = await apiFetch('/api/users/me/wallets');
+        if (response.ok) {
+          const walletsData = await response.json();
+          setWallets(Array.isArray(walletsData) ? walletsData : []);
+        }
 
         // Fetch recent tasks
-        const tasksResponse = await fetch('/api/tasks?limit=5');
-        const tasksData = await tasksResponse.json();
-        setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
+        const tasksResponse = await apiFetch('/api/drops?limit=5');
+        if (tasksResponse.ok) {
+          const tasksData = await tasksResponse.json();
+          setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) :
+            (tasksData.drops ? tasksData.drops.slice(0, 5) : []));
+        }
 
         // Fetch recent transactions
-        const transactionsResponse = await fetch('/api/users/transactions?limit=5', {
-          credentials: 'include'
-        });
-        const transactionsData = await transactionsResponse.json();
-        setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
+        const transactionsResponse = await apiFetch('/api/users/transactions?limit=5');
+        if (transactionsResponse.ok) {
+          const transactionsData = await transactionsResponse.json();
+          setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) :
+            (transactionsData.transactions ? transactionsData.transactions.slice(0, 5) : []));
+        }
 
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -80,7 +85,7 @@ export default function Dashboard() {
   };
 
   const dashboardData = generateDashboardData();
-  
+
   const activityBreakdown = [
     { name: 'Task Completions', value: 40, color: '#f97316' },
     { name: 'Social Actions', value: 30, color: '#8b5cf6' },
@@ -126,7 +131,7 @@ export default function Dashboard() {
           icon={<DollarSign className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.earnings }))}
         />
-        
+
         <KPICard
           title="PromoGems"
           value={(authUser?.gems_balance || 0).toFixed(0)}
@@ -135,7 +140,7 @@ export default function Dashboard() {
           icon={<Diamond className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.earnings * 0.8 }))}
         />
-        
+
         <KPICard
           title="XP Points"
           value={(authUser?.xp_points || 0).toLocaleString()}
@@ -144,7 +149,7 @@ export default function Dashboard() {
           icon={<TrendingUp className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.xp }))}
         />
-        
+
         <KPICard
           title="Current Level"
           value={authUser?.level || 1}
@@ -192,9 +197,9 @@ export default function Dashboard() {
         {/* Earnings Trend */}
         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Earnings Trend</h3>
-          <EarningsChart 
-            data={dashboardData.map(d => ({ 
-              date: d.date, 
+          <EarningsChart
+            data={dashboardData.map(d => ({
+              date: d.date,
               earnings: d.earnings,
               gems: d.earnings * 0.8,
               points: d.activity
@@ -249,12 +254,12 @@ export default function Dashboard() {
             <Plus className="w-5 h-5 text-blue-600" />
             <span className="font-medium text-blue-700">Create Task</span>
           </button>
-          
+
           <button className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors">
             <Eye className="w-5 h-5 text-green-600" />
             <span className="font-medium text-green-700">Browse Tasks</span>
           </button>
-          
+
           <button className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors">
             <TrendingUp className="w-5 h-5 text-purple-600" />
             <span className="font-medium text-purple-700">Invest in Content</span>

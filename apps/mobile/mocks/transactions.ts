@@ -1,0 +1,68 @@
+import { Transaction } from '@/types';
+
+export const transactions: Transaction[] = [
+  {
+    id: 'trans1',
+    type: 'earning',
+    amount: 50,
+    description: 'Completed task: Create a TikTok video featuring our product',
+    status: 'completed',
+    createdAt: '2025-06-14T10:30:00Z',
+  },
+  {
+    id: 'trans2',
+    type: 'earning',
+    amount: 25.75,
+    description: 'Commission from Fashion Forward campaign',
+    status: 'completed',
+    createdAt: '2025-06-12T14:45:00Z',
+  },
+  {
+    id: 'trans3',
+    type: 'withdrawal',
+    amount: 100,
+    description: 'Withdrawal to bank account',
+    status: 'completed',
+    createdAt: '2025-06-10T09:15:00Z',
+  },
+  {
+    id: 'trans4',
+    type: 'investment',
+    amount: 5.25,
+    description: "Backed Sarah Miller's photography course post",
+    status: 'completed',
+    createdAt: '2025-06-08T16:20:00Z',
+  },
+  {
+    id: 'trans5',
+    type: 'earning',
+    amount: 15,
+    description: 'Completed task: Share our Instagram post to your story',
+    status: 'completed',
+    createdAt: '2025-06-06T11:30:00Z',
+  },
+  {
+    id: 'trans6',
+    type: 'referral',
+    amount: 10,
+    description: 'Referral bonus: Michael Chen joined using your code',
+    status: 'completed',
+    createdAt: '2025-06-04T13:45:00Z',
+  },
+  {
+    id: 'trans7',
+    type: 'earning',
+    amount: 75,
+    description: 'Won bet: TikTok video reached 1M views',
+    status: 'completed',
+    createdAt: '2025-06-02T15:20:00Z',
+  },
+  {
+    id: 'trans8',
+    type: 'withdrawal',
+    amount: 150,
+    description: 'Withdrawal to PayPal',
+    status: 'pending',
+    createdAt: '2025-06-15T10:00:00Z',
+  },
+];

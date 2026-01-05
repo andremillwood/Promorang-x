@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { X, Users, Gift, Copy, Check } from 'lucide-react';
-import { UserType } from '@/shared/types';
+import { apiFetch } from '@/lib/api';
 
 interface ReferralModalProps {
-  user: UserType | null;
+  user: any;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
@@ -14,6 +14,7 @@ export default function ReferralModal({ user, isOpen, onClose, onSuccess }: Refe
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
 
   if (!isOpen || !user) return null;
 
@@ -27,10 +28,8 @@ export default function ReferralModal({ user, isOpen, onClose, onSuccess }: Refe
     setError(null);
 
     try {
-      const response = await fetch('/api/users/process-referral', {
+      const response = await apiFetch('/api/referrals/apply', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ referral_code: referralCode.toUpperCase() })
       });
 
@@ -38,7 +37,7 @@ export default function ReferralModal({ user, isOpen, onClose, onSuccess }: Refe
         const result = await response.json();
         onSuccess();
         onClose();
-        showSuccessNotification(result.referred_reward);
+        showSuccessNotification(250); // Standard referral reward
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to process referral');
@@ -167,7 +166,7 @@ export default function ReferralModal({ user, isOpen, onClose, onSuccess }: Refe
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono"
                   maxLength={6}
                 />
-                
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                     <p className="text-sm text-red-700">{error}</p>

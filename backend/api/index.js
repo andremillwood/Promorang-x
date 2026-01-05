@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const app = express();
@@ -65,10 +64,10 @@ console.log('Allowed CORS origins:', allowedOrigins);
 
 // Apply CORS with specific configuration
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-    
+
     // Check if the origin is in the allowed list
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = `The CORS policy for this site does not allow access from the specified origin: ${origin}`;
@@ -82,17 +81,52 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Log all incoming requests
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'unknown origin'}`);
-  next();
-});
+// Simple in-memory rate limiter (no external dependencies)
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX_REQUESTS = 100; // max requests per window
 
-// Log request body for debugging
-app.use((req, res, next) => {
-  console.log('Request body:', req.body);
-  next();
-});
+const cleanupRateLimits = () => {
+  const now = Date.now();
+  for (const [key, data] of rateLimitStore.entries()) {
+    if (now - data.windowStart > RATE_LIMIT_WINDOW_MS) {
+      rateLimitStore.delete(key);
+    }
+  }
+};
+
+// Cleanup expired entries every 5 minutes
+setInterval(cleanupRateLimits, 5 * 60 * 1000);
+
+const createRateLimiter = (maxRequests = RATE_LIMIT_MAX_REQUESTS, windowMs = RATE_LIMIT_WINDOW_MS) => {
+  return (req, res, next) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    const key = `${ip}:${req.path}`;
+    const now = Date.now();
+
+    let record = rateLimitStore.get(key);
+
+    if (!record || (now - record.windowStart > windowMs)) {
+      record = { count: 1, windowStart: now };
+      rateLimitStore.set(key, record);
+    } else {
+      record.count++;
+    }
+
+    if (record.count > maxRequests) {
+      return res.status(429).json({
+        success: false,
+        error: 'Too many requests, please try again later',
+        retryAfter: Math.ceil((record.windowStart + windowMs - now) / 1000)
+      });
+    }
+
+    next();
+  };
+};
+
+// Rate limiter for auth endpoints (stricter: 20 requests per 15 min)
+const authRateLimiter = createRateLimiter(20, RATE_LIMIT_WINDOW_MS);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -103,85 +137,27 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Apply rate limiting to auth routes
+app.use('/api/auth/login', authRateLimiter);
+app.use('/api/auth/register', authRateLimiter);
+app.use('/api/auth/forgot-password', authRateLimiter);
+
 // API routes will be mounted here
-app.use('/api/auth', require('./auth'));
-app.use('/api/users', require('./users'));
-app.use('/api/content', require('./content'));
-app.use('/api/drops', require('./drops'));
-app.use('/api/placeholder', require('./placeholder'));
-app.use('/api/portfolio', require('./portfolio'));
-app.use('/api/shares', require('./shares'));
-app.use('/api/social-forecasts', require('./social-forecasts'));
-app.use('/api/growth', require('./growth'));
-app.use('/api/advertisers', require('./advertisers'));
-app.use('/api/campaigns', require('./campaigns'));
-app.use('/api/leaderboard', require('./leaderboard'));
-
-app.get('/api/referrals/stats', (req, res) => {
-  res.json({
-    status: 'success',
-    data: {
-      summary: {
-        total_referrals: 0,
-        active_referrals: 0,
-        pending_referrals: 0,
-        conversion_rate: '0.0',
-        total_earnings: {
-          usd: 0,
-          gems: 0,
-          points: 0,
-        },
-        referral_code: null,
-        tier: {
-          tier_name: 'Bronze',
-          tier_level: 1,
-          commission_rate: 0.05,
-          badge_icon: '🥉',
-          badge_color: '#CD7F32',
-        },
-      },
-      referrals: [],
-      recent_commissions: [],
-    },
-  });
-});
-
-app.get('/api/referrals/tiers', (req, res) => {
-  res.json({
-    status: 'success',
-    data: {
-      tiers: [
-        {
-          tier_name: 'Bronze',
-          tier_level: 1,
-          min_referrals: 0,
-          commission_rate: 0.05,
-          badge_icon: '🥉',
-          badge_color: '#CD7F32',
-          perks: [],
-        },
-        {
-          tier_name: 'Silver',
-          tier_level: 2,
-          min_referrals: 10,
-          commission_rate: 0.06,
-          badge_icon: '🥈',
-          badge_color: '#C0C0C0',
-          perks: [],
-        },
-        {
-          tier_name: 'Gold',
-          tier_level: 3,
-          min_referrals: 50,
-          commission_rate: 0.075,
-          badge_icon: '🥇',
-          badge_color: '#FFD700',
-          perks: [],
-        },
-      ],
-    },
-  });
-});
+app.use('/api/auth', require('../handlers/auth'));
+app.use('/api/users', require('../handlers/users'));
+app.use('/api/content', require('../handlers/content'));
+app.use('/api/drops', require('../handlers/drops'));
+app.use('/api/placeholder', require('../handlers/placeholder'));
+app.use('/api/portfolio', require('../handlers/portfolio'));
+app.use('/api/shares', require('../handlers/shares'));
+app.use('/api/social-forecasts', require('../handlers/social-forecasts'));
+app.use('/api/growth', require('../handlers/growth'));
+app.use('/api/advertisers', require('../handlers/advertisers'));
+app.use('/api/campaigns', require('../handlers/campaigns'));
+app.use('/api/leaderboard', require('../handlers/leaderboard'));
+app.use('/api/notifications', require('../handlers/notifications'));
+app.use('/api/referrals', require('../handlers/referrals'));
+app.use('/api/operator', require('../handlers/operator'));
 
 // 404 handler
 app.use('/api/*', (req, res) => {

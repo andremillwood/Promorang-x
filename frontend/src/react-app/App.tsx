@@ -22,6 +22,8 @@ import AdvertiserOnboarding from "@/react-app/pages/AdvertiserOnboarding";
 import CampaignDetail from "@/react-app/pages/CampaignDetail";
 import NewCampaign from "@/react-app/pages/NewCampaign";
 import TestContentDetailsPage from "@/react-app/pages/TestContentDetailsPage";
+import OperatorDashboard from "@/react-app/pages/OperatorDashboard";
+import SeasonHubPage from "@/react-app/pages/SeasonHubPage";
 import { AuthProvider, useAuth } from '@/react-app/hooks/useAuth';
 
 // Debug logging
@@ -175,6 +177,16 @@ export default function App() {
             <Route path="/campaigns/:campaignId" element={
               <ProtectedRoute>
                 <Layout><CampaignDetail /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/operator" element={
+              <ProtectedRoute>
+                <Layout><OperatorDashboard /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/club/:hubSlug" element={
+              <ProtectedRoute>
+                <Layout><SeasonHubPage /></Layout>
               </ProtectedRoute>
             } />
             <Route path="/home" element={<Navigate to="/dashboard" replace />} />

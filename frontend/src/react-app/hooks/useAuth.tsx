@@ -13,6 +13,13 @@ interface User {
   gold_collected?: number;
   user_tier?: string;
   avatar_url?: string;
+  google_user_data?: {
+    given_name?: string;
+    family_name?: string;
+    picture?: string;
+  };
+  xp_points?: number;
+  level?: number;
 }
 
 interface AuthContextType {
@@ -25,6 +32,8 @@ interface AuthContextType {
     creator: () => Promise<{ error: any }>;
     investor: () => Promise<{ error: any }>;
     advertiser: () => Promise<{ error: any }>;
+    operator: () => Promise<{ error: any }>;
+    merchant: () => Promise<{ error: any }>;
   };
   signOut: () => Promise<{ error: any }>;
   logout: () => Promise<{ error: any }>;
@@ -105,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
         credentials: 'include'
       });
-      
+
       const data = await handleApiResponse(response);
       persistSession(data.token, data.user);
       return { error: null };
@@ -126,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
         credentials: 'include'
       });
-      
+
       const data = await handleApiResponse(response);
       persistSession(data.token, data.user);
       return { error: null };
@@ -149,11 +158,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Demo login handler
-  const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser') => {
+  const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser' | 'operator' | 'merchant') => {
     setIsPending(true);
     const url = API_ENDPOINTS.AUTH.DEMO(type);
     console.log('Demo login URL:', url);
-    
+
     try {
       console.log('Sending demo login request to:', url);
       const response = await fetch(url, {
@@ -165,9 +174,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({}), // Add empty body to ensure POST works
       });
-      
+
       console.log('Response status:', response.status, response.statusText);
-      
+
       if (!response.ok) {
         let errorText;
         try {
@@ -179,10 +188,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Demo login failed:', errorText);
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Demo login successful:', data);
-      
+
       if (!data.token) {
         throw new Error('No token received in response');
       }
@@ -225,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             },
             credentials: 'include'
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             persistSession(token, data.user);
@@ -261,7 +270,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     demoLogin: {
       creator: () => handleDemoLogin('creator'),
       investor: () => handleDemoLogin('investor'),
-      advertiser: () => handleDemoLogin('advertiser')
+      advertiser: () => handleDemoLogin('advertiser'),
+      operator: () => handleDemoLogin('operator'),
+      merchant: () => handleDemoLogin('merchant')
     },
     signOut,
     logout: () => signOut(),

@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { apiFetch } from '@/lib/api';
 
 interface Notification {
   id: string;
-  type: 'achievement' | 'reward' | 'system' | 'social' | 'warning';
+  type: string;
   title: string;
   message: string;
-  timestamp: Date;
+  created_at: string;
   read: boolean;
-  actionUrl?: string;
-  data?: any;
+  metadata?: any;
 }
 
 interface NotificationCenterProps {
@@ -21,6 +21,7 @@ interface NotificationCenterProps {
 export default function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -32,46 +33,12 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      // For now, we'll use mock data since we don't have a notifications API yet
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          type: 'achievement',
-          title: 'Achievement Unlocked!',
-          message: 'You earned the "First Steps" achievement and received 50 gold!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-          read: false,
-          data: { achievement: 'first_steps', gold_reward: 50 }
-        },
-        {
-          id: '2',
-          type: 'reward',
-          title: 'Points Earned',
-          message: 'You earned 25 points from sharing content!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-          read: false,
-          data: { points_earned: 25, action: 'content_share' }
-        },
-        {
-          id: '3',
-          type: 'system',
-          title: 'Master Key Activated',
-          message: 'Your master key for today has been activated. You can now apply to drops!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-          read: true
-        },
-        {
-          id: '4',
-          type: 'social',
-          title: 'New Follower',
-          message: 'PromoCreator just followed you!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
-          read: true,
-          actionUrl: '/users/promocreator'
-        }
-      ];
-      
-      setNotifications(mockNotifications);
+      const response = await apiFetch('/api/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unread_count || 0);
+      }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {
@@ -80,24 +47,45 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
   };
 
   const markAsRead = async (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+    try {
+      const response = await apiFetch(`/api/notifications/${notificationId}/read`, {
+        method: 'POST'
+      });
+      if (response.ok) {
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification.id === notificationId
+              ? { ...notification, read: true }
+              : notification
+          )
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
   const markAllAsRead = async () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+    try {
+      const response = await apiFetch('/api/notifications/read-all', {
+        method: 'POST'
+      });
+      if (response.ok) {
+        setNotifications(prev =>
+          prev.map(notification => ({ ...notification, read: true }))
+        );
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'achievement':
+      case 'drop_approved':
         return <Trophy className="w-5 h-5 text-yellow-600" />;
       case 'reward':
         return <Coins className="w-5 h-5 text-blue-600" />;
@@ -112,7 +100,8 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
     }
   };
 
-  const formatTimestamp = (timestamp: Date) => {
+  const formatTimestamp = (timestampStr: string) => {
+    const timestamp = new Date(timestampStr);
     const now = new Date();
     const diff = now.getTime() - timestamp.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
@@ -120,15 +109,13 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
     if (minutes < 60) {
-      return `${minutes}m ago`;
+      return `${Math.max(0, minutes)}m ago`;
     } else if (hours < 24) {
       return `${hours}h ago`;
     } else {
       return `${days}d ago`;
     }
   };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   if (!isOpen) return null;
 
@@ -185,14 +172,11 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                  }`}
+                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                    }`}
                   onClick={() => {
                     if (!notification.read) markAsRead(notification.id);
-                    if (notification.actionUrl) {
-                      window.location.href = notification.actionUrl;
-                    }
+                    // Handle navigation if needed
                   }}
                 >
                   <div className="flex items-start space-x-3">
@@ -201,32 +185,30 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
-                        <h4 className={`text-sm font-medium ${
-                          !notification.read ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
+                        <h4 className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'
+                          }`}>
                           {notification.title}
                         </h4>
                         <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
-                          {formatTimestamp(notification.timestamp)}
+                          {formatTimestamp(notification.created_at)}
                         </span>
                       </div>
-                      <p className={`text-sm mt-1 ${
-                        !notification.read ? 'text-gray-800' : 'text-gray-600'
-                      }`}>
+                      <p className={`text-sm mt-1 ${!notification.read ? 'text-gray-800' : 'text-gray-600'
+                        }`}>
                         {notification.message}
                       </p>
-                      {notification.data && (
+                      {notification.metadata && (
                         <div className="mt-2 flex items-center space-x-4">
-                          {notification.data.gold_reward && (
+                          {notification.metadata.gold_reward && (
                             <div className="flex items-center space-x-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
                               <Trophy className="w-3 h-3" />
-                              <span>+{notification.data.gold_reward} Gold</span>
+                              <span>+{notification.metadata.gold_reward} Gold</span>
                             </div>
                           )}
-                          {notification.data.points_earned && (
+                          {notification.metadata.gems_earned && (
                             <div className="flex items-center space-x-1 text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded">
                               <Coins className="w-3 h-3" />
-                              <span>+{notification.data.points_earned} Points</span>
+                              <span>+{notification.metadata.gems_earned} Gems</span>
                             </div>
                           )}
                         </div>

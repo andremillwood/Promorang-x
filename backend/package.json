@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "jest --runInBand",
-    "build": "echo 'No build step needed for serverless functions'",
     "deploy": "vercel --prod",
     "logs": "vercel logs --follow"
   },

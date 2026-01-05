@@ -1,9 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-
-const hasSupabaseConfig = Boolean(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY));
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = hasSupabaseConfig ? createClient(supabaseUrl, supabaseKey) : null;
+const supabase = require('../lib/supabase');
+const { incrementGems, decrementGems } = require('../lib/rpc');
 
 const demoChannels = () => ([
   {
@@ -211,10 +207,7 @@ const createStakingPosition = async (userId, channelId, amount) => {
   }
 
   // Update user's gem balance
-  const { error: updateError } = await supabase.rpc('decrement_gems', {
-    user_id: userId,
-    amount,
-  });
+  const { error: updateError } = await decrementGems(userId, amount);
 
   if (updateError) {
     console.error('Error updating user balance:', updateError);
@@ -247,7 +240,7 @@ const claimStakingRewards = async (userId, positionId) => {
 
   // In a real implementation, this would calculate and distribute rewards
   // For now, we'll mark it as claimed and return a success response
-  
+
   const { data: position, error: positionError } = await supabase
     .from('staking_positions')
     .select('*')
@@ -302,10 +295,7 @@ const claimStakingRewards = async (userId, positionId) => {
   }
 
   // Update user's gem balance
-  const { error: balanceError } = await supabase.rpc('increment_gems', {
-    user_id: userId,
-    amount: rewards,
-  });
+  const { error: balanceError } = await incrementGems(userId, rewards);
 
   if (balanceError) {
     console.error('Error updating user balance:', balanceError);
@@ -436,7 +426,7 @@ const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
   // 3. Create a pledge record
   // 4. Update the project's amount_raised
   // 5. Record the transaction in the ledger
-  
+
   // This is a simplified version
   const { data: pledge, error } = await supabase
     .from('funding_pledges')
@@ -471,7 +461,7 @@ const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
       amount: -amount, // Negative because it's an outflow
       currency: 'gems',
       status: 'completed',
-      metadata: { 
+      metadata: {
         project_id: projectId,
         reward_tier: rewardTier,
       },

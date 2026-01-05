@@ -47,7 +47,7 @@ export default function AuthPage() {
     }
   };
 
-  const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser') => {
+  const handleDemoLogin = async (type: 'creator' | 'investor' | 'advertiser' | 'operator' | 'merchant') => {
     setError('');
     const result = await demoLogin[type]();
     if (result.error) {
@@ -135,6 +135,38 @@ export default function AuthPage() {
                 <div className="text-left">
                   <div className="font-medium">Demo Advertiser</div>
                   <div className="text-xs text-gray-500">advertiser@demo.com</div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleDemoLogin('operator')}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors disabled:opacity-50"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium">Demo Operator</div>
+                  <div className="text-xs text-gray-500">operator@demo.com</div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleDemoLogin('merchant')}
+              disabled={isPending}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-colors disabled:opacity-50"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-pink-600" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium">Demo Merchant</div>
+                  <div className="text-xs text-gray-500">merchant@demo.com</div>
                 </div>
               </div>
             </button>
