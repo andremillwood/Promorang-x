@@ -5,9 +5,15 @@
     "module": "esnext",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/react-app/*": ["./src/react-app/*"],
-      "@/shared/*": ["./src/shared/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/react-app/*": [
+        "./src/react-app/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -19,7 +25,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -27,5 +32,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/react-app"]
+  "include": [
+    "src/react-app",
+    "src/lib",
+    "src/components"
+  ]
 }

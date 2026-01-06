@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { SupportedLanguage, DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/lib/i18n';
+import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/lib/i18n';
+import type { SupportedLanguage } from '@/lib/i18n';
 
 interface LanguageContextType {
   language: SupportedLanguage;

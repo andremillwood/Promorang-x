@@ -68,7 +68,7 @@ import PromoPointsPage from "@/react-app/pages/marketing/PromoPointsPage";
 import WorkforceDashboard from "@/react-app/pages/WorkforceDashboard";
 import WorkforcePodDetail from "@/react-app/pages/WorkforcePodDetail";
 
-// Debug logging
+// Debug logging - Verifying git tracking
 console.log("🚀 App.tsx: Starting to load...");
 
 // Protected route wrapper that requires authentication
