@@ -1,7 +1,7 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
+const bodyParser = require('body-parser');
 const { requireAuth } = require('../middleware/auth');
 require('dotenv').config();
 
@@ -62,23 +62,24 @@ const corsMiddleware = cors({
     if (!origin) {
       return callback(null, true);
     }
+  }
 
     const isAllowed = DEFAULT_ALLOWED_ORIGINS.includes(origin) || (() => {
-      try {
-        const { hostname } = new URL(origin);
-        return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co') || hostname.endsWith('.vercel.app');
-      } catch (error) {
-        return false;
-      }
-    })();
-
-    if (isAllowed) {
-      return callback(null, true);
+    try {
+      const { hostname } = new URL(origin);
+      return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co');
+    } catch (error) {
+      return false;
     }
+  })();
+
+  if(isAllowed) {
+    return callback(null, true);
+  }
 
     console.warn(`CORS warning: unrecognized origin ${origin}. Allowing temporarily.`);
-    return callback(null, true);
-  },
+  return callback(null, true);
+},
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
@@ -152,47 +153,6 @@ app.use('/api/auth/login', authRateLimiter);
 app.use('/api/auth/register', authRateLimiter);
 app.use('/api/auth/forgot-password', authRateLimiter);
 
-// Demo login endpoint (protected in production by DEMO_LOGINS_ENABLED)
-app.post('/api/auth/demo/:role', async (req, res) => {
-  if (process.env.DEMO_LOGINS_ENABLED !== 'true') {
-    // console.log('Demo login blocked: DEMO_LOGINS_ENABLED is not true');
-    // Allow for now to unblock
-  }
-
-  const { role } = req.params;
-  if (!['creator', 'advertiser', 'investor', 'operator', 'merchant'].includes(role)) {
-    return res.status(400).json({ success: false, error: 'Invalid role' });
-  }
-
-  try {
-    const mockUser = {
-      id: `demo-${role}-id`,
-      email: `${role}@demo.com`,
-      user_metadata: { role, full_name: `Demo ${role}` }
-    };
-
-    // Generate a signed JWT so that requireAuth middleware accepts it
-    const token = jwt.sign(
-      {
-        sub: mockUser.id,
-        email: mockUser.email,
-        user_metadata: mockUser.user_metadata
-      },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    return res.json({
-      success: true,
-      token,
-      user: mockUser
-    });
-  } catch (error) {
-    console.error('Demo login error:', error);
-    res.status(500).json({ success: false, error: 'Demo login failed' });
-  }
-});
-
 // API routes will be mounted here
 app.use('/api/auth', require('./auth'));
 app.use('/api/users', require('./users'));
@@ -211,12 +171,37 @@ app.use('/api/rewards', require('./rewards'));
 app.use('/api/manychat', require('./manychat'));
 app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/coupons', require('./coupons'));
-// TODO: Re-enable events route after debugging
-// app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
 app.use('/api/referrals', require('./referrals'));
-app.post('/api/telemetry', (req, res) => res.json({ success: true }));
-app.post('/api/report-error', (req, res) => res.json({ success: true }));
+
+app.get('/api/referrals/stats', (req, res) => {
+  res.json({
+    status: 'success',
+    data: {
+      summary: {
+        total_referrals: 0,
+        active_referrals: 0,
+        pending_referrals: 0,
+        conversion_rate: '0.0',
+        total_earnings: {
+          usd: 0,
+          gems: 0,
+          points: 0,
+        },
+        referral_code: null,
+        tier: {
+          tier_name: 'Bronze',
+          tier_level: 1,
+          commission_rate: 0.05,
+          badge_icon: '🥉',
+          badge_color: '#CD7F32',
+        },
+      },
+      referrals: [],
+      recent_commissions: [],
+    },
+  });
+});
 
 app.get('/api/referrals/tiers', (req, res) => {
   res.json({
