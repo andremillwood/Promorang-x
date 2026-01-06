@@ -36,4 +36,9 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 
-module.exports = supabase;
+if (supabase) {
+  module.exports = supabase;
+  module.exports.supabase = supabase;
+} else {
+  module.exports = null;
+}
