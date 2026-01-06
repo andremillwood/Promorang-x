@@ -4,6 +4,7 @@ import { logger } from 'hono/logger';
 import { authRouter } from './routes/auth';
 import { growthRouter } from './routes/growth';
 import { healthRouter } from './routes/health';
+import { eventsRouter } from './routes/events';
 import { authMiddleware } from './auth/middleware';
 import { config } from './config';
 
@@ -35,7 +36,7 @@ app.use('*', cors({
   origin: resolveAllowedOrigins(),
   credentials: true,
   allowHeaders: ['Content-Type', 'Authorization'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));
 
 // Health check route (no auth required)
@@ -49,6 +50,10 @@ app.use('*', authMiddleware);
 
 // Growth hub routes (require auth)
 app.route('/api/growth', growthRouter);
+
+// Events routes (require auth)
+app.route('/api/events', eventsRouter);
+
 
 // Example protected route
 app.get('/api/me', async (c) => {

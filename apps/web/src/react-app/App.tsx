@@ -67,6 +67,14 @@ import WorkforceDashboard from "@/react-app/pages/WorkforceDashboard";
 import WorkforcePodDetail from "@/react-app/pages/WorkforcePodDetail";
 import HowItWorks from "@/react-app/pages/marketing/HowItWorks";
 import PricingPage from "@/react-app/pages/marketing/PricingPage";
+import ForInvestors from "@/react-app/pages/marketing/ForInvestors";
+import ForMerchants from "@/react-app/pages/marketing/ForMerchants";
+
+// Events Pages
+import Events from "@/react-app/pages/Events";
+import EventDetail from "@/react-app/pages/EventDetail";
+import CreateEvent from "@/react-app/pages/CreateEvent";
+
 
 // Debug logging - Verifying git tracking
 console.log("🚀 App.tsx: Starting to load...");
@@ -141,6 +149,8 @@ function App() {
                 {/* Public Marketing Routes */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/creators" element={<ForCreators />} />
+                <Route path="/investors" element={<ForInvestors />} />
+                <Route path="/merchants" element={<ForMerchants />} />
                 <Route path="/brands" element={<ForAdvertisers />} />
                 <Route path="/advertisers" element={<ForAdvertisers />} /> {/* Alias */}
                 <Route path="/about" element={<About />} />
@@ -152,6 +162,11 @@ function App() {
                 <Route path="/promo-points" element={<PromoPointsPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/pricing" element={<PricingPage />} />
+
+                {/* Events Routes (Public listing, protected create) */}
+                <Route path="/events" element={<ProtectedLayout><Events /></ProtectedLayout>} />
+                <Route path="/events/create" element={<ProtectedLayout><CreateEvent /></ProtectedLayout>} />
+                <Route path="/events/:id" element={<ProtectedLayout><EventDetail /></ProtectedLayout>} />
 
                 {/* Workforce Routes */}
                 <Route path="/workforce" element={<ProtectedLayout><WorkforceDashboard /></ProtectedLayout>} />
@@ -279,6 +294,14 @@ function App() {
                   element={
                     <ProtectedLayout>
                       <ProfilePage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/users/:slug"
+                  element={
+                    <ProtectedLayout>
+                      <ProfilePage isPublicProfile={true} />
                     </ProtectedLayout>
                   }
                 />

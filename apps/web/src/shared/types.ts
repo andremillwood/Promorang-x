@@ -534,7 +534,90 @@ export interface CouponRedemptionType {
   status: 'pending' | 'completed' | 'cancelled';
 }
 
+// ===== EVENT TYPES =====
+
+export interface EventType {
+  id: string;
+  creator_id: string;
+  organizer_name: string;
+  organizer_avatar: string | null;
+  title: string;
+  description: string | null;
+  category: string | null;
+  flyer_url: string | null;
+  banner_url: string | null;
+  event_date: string;
+  event_end_date: string | null;
+  location_name: string | null;
+  location_address: string | null;
+  location_coordinates: { lat: number; lng: number } | null;
+  ticketing_platform: string | null;
+  ticketing_url: string | null;
+  ticket_price_range: string | null;
+  is_virtual: boolean;
+  virtual_url: string | null;
+  is_public: boolean;
+  is_featured: boolean;
+  max_attendees: number | null;
+  total_rewards_pool: number;
+  total_gems_pool: number;
+  tags: string[] | null;
+  metadata: Record<string, unknown>;
+  status: 'draft' | 'published' | 'cancelled' | 'completed';
+  total_attendees: number;
+  total_check_ins: number;
+  total_tasks_completed: number;
+  total_ugc_submissions: number;
+  engagement_score: number;
+  rewards_distributed: number;
+  gems_distributed: number;
+  total_rsvps: number;
+  average_rating: number;
+  total_reviews: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventRsvpType {
+  id: string;
+  event_id: string;
+  user_id: string;
+  user_name?: string;
+  user_avatar?: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'attended';
+  created_at: string;
+  checked_in_at: string | null;
+}
+
+export interface EventTaskType {
+  id: string;
+  event_id: string;
+  title: string;
+  description: string | null;
+  task_type: string;
+  points_reward: number;
+  gems_reward: number;
+  max_completions: number | null;
+  current_completions: number;
+  status: 'active' | 'paused' | 'completed';
+  created_at: string;
+}
+
+export interface EventSponsorType {
+  id: string;
+  event_id: string;
+  sponsor_id: string;
+  sponsor_name: string;
+  sponsor_logo: string | null;
+  tier: string;
+  amount: number;
+  benefits: Record<string, unknown>;
+  status: 'pending' | 'approved' | 'active';
+  created_at: string;
+}
+
 // ===== REQUEST TYPES =====
+
 
 import { z } from 'zod';
 
