@@ -2,7 +2,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
-const bodyParser = require('body-parser');
 const { requireAuth } = require('../middleware/auth');
 require('dotenv').config();
 
