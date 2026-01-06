@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { 
-  Edit3, 
-  Star, 
-  Users, 
-  DollarSign, 
+import {
+  Edit3,
+  Star,
+  Users,
+  DollarSign,
   Award,
   Copy,
   Check,
@@ -52,7 +52,7 @@ type LeaderboardSummary = {
 function adaptLegacyUser(raw: unknown): ProfileUser | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const user = raw as Partial<UserType>;
-  
+
   return {
     id: String(user.id ?? ''),
     email: user.email ?? '',
@@ -76,7 +76,7 @@ function adaptLegacyUser(raw: unknown): ProfileUser | null {
 // Helper to convert ProfileUser back to UserType for modals
 function profileToUserType(profile: ProfileUser | null): UserType | null {
   if (!profile) return null;
-  
+
   return {
     id: profile.id,
     mocha_user_id: profile.id,
@@ -110,7 +110,7 @@ function profileToUserType(profile: ProfileUser | null): UserType | null {
 
 export default function Profile({ isPublicProfile = false, useUserId = false }: ProfileProps) {
   const { user: authUser } = useAuth();
-  const { username: urlUsername, id: urlUserId } = useParams();
+  const { slug: urlUsername, id: urlUserId } = useParams();
   const navigate = useNavigate();
   const apiBase = API_BASE_URL || '';
   const withApiBase = useCallback((path: string) => `${apiBase}${path}`, [apiBase]);
@@ -119,7 +119,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  
+
   // New state for profile data
   const [userContent, setUserContent] = useState<ContentPieceType[]>([]);
   const [userDrops, setUserDrops] = useState<ProfileDrop[]>([]);
@@ -306,7 +306,12 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   }, [authUser, isPublicProfile, withApiBase]);
 
   useEffect(() => {
-    if (isPublicProfile && (urlUsername || urlUserId)) {
+    const isOwnProfile = !isPublicProfile && user &&
+      (urlUsername === user.username ||
+        urlUsername === user.email?.split('@')[0] ||
+        urlUsername === 'me');
+
+    if (isPublicProfile || (!isOwnProfile && urlUsername)) {
       void fetchPublicProfile();
     } else {
       void fetchUserProfile();
@@ -350,7 +355,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     setEditContentData(null);
 
     // Update content in the local state
-    setUserContent(prev => prev.map(item => 
+    setUserContent(prev => prev.map(item =>
       item.id === updatedContent.id ? updatedContent : item
     ));
   };
@@ -657,11 +662,10 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`py-4 px-1 mr-8 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-orange-500 text-orange-600'
-                      : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-                  }`}
+                  className={`py-4 px-1 mr-8 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap transition-colors ${activeTab === tab.id
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -936,11 +940,11 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-pr-text-1">Drops You Created</h3>
                 {!isPublicProfile && user && user.user_type === 'advertiser' && (
-                <Link
-                  to="/earn?create=proof"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-                >
-                  Create New Drop
+                  <Link
+                    to="/earn?create=proof"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+                  >
+                    Create New Drop
                   </Link>
                 )}
               </div>

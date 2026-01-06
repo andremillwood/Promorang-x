@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { trackDropCompletion } = require('../utils/referralTracker');
-const { requireAuth } = require('./_core/auth');
+const { requireAuth } = require('../middleware/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -48,31 +48,31 @@ router.get('/', async (req, res) => {
           creator_name: `Drop Creator ${i + 1}`,
           creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${i + 1}`,
           title: `Earn ${Math.floor(Math.random() * 100) + 10} Gems - ${['Instagram Post', 'TikTok Video', 'YouTube Review', 'Twitter Thread'][Math.floor(Math.random() * 4)]}`,
-        description: `Complete this task to earn gems and boost your profile. ${['Share your experience', 'Create engaging content', 'Review a product', 'Participate in discussion'][Math.floor(Math.random() * 4)]} and get rewarded!`,
-        drop_type: ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral'][Math.floor(Math.random() * 4)],
-        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)],
-        key_cost: Math.floor(Math.random() * 10) + 1,
-        gem_reward_base: Math.floor(Math.random() * 50) + 10,
-        gem_pool_total: Math.floor(Math.random() * 500) + 100,
-        gem_pool_remaining: Math.floor(Math.random() * 300) + 50,
-        reward_logic: 'completion_based',
-        follower_threshold: Math.floor(Math.random() * 1000),
-        time_commitment: ['15 minutes', '30 minutes', '1 hour', '2 hours'][Math.floor(Math.random() * 4)],
-        requirements: 'Follow the instructions and submit proof of completion',
-        deliverables: 'Screenshot or link to completed work',
-        deadline_at: new Date(Date.now() + (Math.random() * 7 + 1) * 24 * 60 * 60 * 1000).toISOString(),
-        max_participants: Math.floor(Math.random() * 50) + 10,
-        current_participants: Math.floor(Math.random() * 20) + 1,
-        status: Math.random() > 0.3 ? 'active' : 'completed',
-        platform: ['instagram', 'tiktok', 'youtube', 'twitter'][Math.floor(Math.random() * 4)],
-        content_url: `https://example.com/drop/${i + 1}`,
-        preview_image: `https://images.unsplash.com/photo-${1503376780353 + i}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=${i + 1}`,
-        move_cost_points: Math.floor(Math.random() * 5) + 1,
-        key_reward_amount: Math.floor(Math.random() * 5) + 1,
-        is_proof_drop: Math.random() > 0.7,
-        is_paid_drop: Math.random() > 0.5,
-        created_at: new Date(Date.now() - i * 3600000).toISOString(),
-        updated_at: new Date(Date.now() - i * 3600000).toISOString()
+          description: `Complete this task to earn gems and boost your profile. ${['Share your experience', 'Create engaging content', 'Review a product', 'Participate in discussion'][Math.floor(Math.random() * 4)]} and get rewarded!`,
+          drop_type: ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral'][Math.floor(Math.random() * 4)],
+          difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)],
+          key_cost: Math.floor(Math.random() * 10) + 1,
+          gem_reward_base: Math.floor(Math.random() * 50) + 10,
+          gem_pool_total: Math.floor(Math.random() * 500) + 100,
+          gem_pool_remaining: Math.floor(Math.random() * 300) + 50,
+          reward_logic: 'completion_based',
+          follower_threshold: Math.floor(Math.random() * 1000),
+          time_commitment: ['15 minutes', '30 minutes', '1 hour', '2 hours'][Math.floor(Math.random() * 4)],
+          requirements: 'Follow the instructions and submit proof of completion',
+          deliverables: 'Screenshot or link to completed work',
+          deadline_at: new Date(Date.now() + (Math.random() * 7 + 1) * 24 * 60 * 60 * 1000).toISOString(),
+          max_participants: Math.floor(Math.random() * 50) + 10,
+          current_participants: Math.floor(Math.random() * 20) + 1,
+          status: Math.random() > 0.3 ? 'active' : 'completed',
+          platform: ['instagram', 'tiktok', 'youtube', 'twitter'][Math.floor(Math.random() * 4)],
+          content_url: `https://example.com/drop/${i + 1}`,
+          preview_image: `https://images.unsplash.com/photo-${1503376780353 + i}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=${i + 1}`,
+          move_cost_points: Math.floor(Math.random() * 5) + 1,
+          key_reward_amount: Math.floor(Math.random() * 5) + 1,
+          is_proof_drop: Math.random() > 0.7,
+          is_paid_drop: Math.random() > 0.5,
+          created_at: new Date(Date.now() - i * 3600000).toISOString(),
+          updated_at: new Date(Date.now() - i * 3600000).toISOString()
         }));
       }
 
@@ -118,10 +118,10 @@ router.get('/:id', async (req, res) => {
     const payload = await getCachedValue(cacheKey, async () => {
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
         // Handle both numeric and UUID format IDs
-        const numericId = isNaN(parseInt(id, 10)) ? 
-          parseInt(id.replace(/[^0-9]/g, '').substring(0, 4), 10) || 1 : 
+        const numericId = isNaN(parseInt(id, 10)) ?
+          parseInt(id.replace(/[^0-9]/g, '').substring(0, 4), 10) || 1 :
           parseInt(id, 10);
-          
+
         return {
           id: id, // Keep the original ID for consistency
           creator_id: Math.floor(Math.random() * 100) + 1,
@@ -177,8 +177,8 @@ router.get('/:id', async (req, res) => {
 
     if (!payload) {
       console.log(`Drop not found for ID: ${id}`);
-      return res.status(404).json({ 
-        success: false, 
+      return res.status(404).json({
+        success: false,
         error: 'Drop not found',
         code: 'DROP_NOT_FOUND'
       });
@@ -188,14 +188,14 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching drop:', error);
     if (error.message === 'Drop not found') {
-      return res.status(404).json({ 
-        success: false, 
+      return res.status(404).json({
+        success: false,
         error: 'Drop not found',
         code: 'DROP_NOT_FOUND'
       });
     }
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Failed to fetch drop',
       code: 'SERVER_ERROR'
     });
@@ -532,7 +532,7 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
           .select('gem_reward_base')
           .eq('id', dropId)
           .single();
-        
+
         if (drop && drop.gem_reward_base) {
           await trackDropCompletion(application.user_id, drop.gem_reward_base, dropId);
         }

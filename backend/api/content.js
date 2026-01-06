@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const router = express.Router();
 const supabase = require('../lib/supabase');
 // Use the working auth middleware from _core/auth.ts
-const { requireAuth } = require('./_core/auth');
+const { requireAuth } = require('../middleware/auth');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -541,18 +541,18 @@ router.get('/:id', async (req, res) => {
 // Get content metrics
 router.get('/:id/metrics', async (req, res) => {
   const { id } = req.params;
-  
+
   // Input validation
   if (!id) {
-    return res.status(400).json({ 
-      success: false, 
-      error: 'Content ID is required' 
+    return res.status(400).json({
+      success: false,
+      error: 'Content ID is required'
     });
   }
 
   try {
     const cacheKey = `content:metrics:${id}`;
-    
+
     const metrics = await getCachedValue(cacheKey, async () => {
       // Demo data fallback
       if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
@@ -610,13 +610,13 @@ router.get('/:id/metrics', async (req, res) => {
     if (metrics && metrics.success) {
       return res.json(metrics.data);
     }
-    
+
     // If we got here, there was an issue with the data
     throw new Error('Failed to process metrics data');
-    
+
   } catch (error) {
     console.error(`Error in /api/content/${id}/metrics:`, error);
-    
+
     // Return appropriate status code based on error type
     const statusCode = error.message.includes('not found') ? 404 : 500;
 
@@ -678,11 +678,11 @@ router.get('/:id/user-status', async (req, res) => {
 // Get content sponsorship data
 router.get('/:id/sponsorship', async (req, res) => {
   const { id } = req.params;
-  
+
   // Input validation
   if (!id) {
-    return res.status(400).json({ 
-      success: false, 
+    return res.status(400).json({
+      success: false,
       error: 'Content ID is required',
       code: 'MISSING_CONTENT_ID'
     });
@@ -752,8 +752,8 @@ router.get('/:id/sponsorship', async (req, res) => {
 
     // Calculate aggregated metrics
     const totalGems = sponsorships.reduce((sum, s) => sum + (s.gems_allocated || 0), 0);
-    const avgBoost = sponsorships.length > 0 
-      ? sponsorships.reduce((sum, s) => sum + (s.boost_multiplier || 0), 0) / sponsorships.length 
+    const avgBoost = sponsorships.length > 0
+      ? sponsorships.reduce((sum, s) => sum + (s.boost_multiplier || 0), 0) / sponsorships.length
       : 0;
 
     // Prepare response
@@ -1379,9 +1379,9 @@ router.put('/:id', async (req, res) => {
         legacyUpdates.performance_metrics = typeof updates.performance_metrics === 'string'
           ? updates.performance_metrics
           : JSON.stringify({
-              ...updates.performance_metrics,
-              engagement_rate: engagementRate
-            });
+            ...updates.performance_metrics,
+            engagement_rate: engagementRate
+          });
       }
     }
     if (updates.performance_metrics !== undefined && legacyUpdates.performance_metrics === undefined) {

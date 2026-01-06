@@ -579,8 +579,9 @@ async function redirectHandler(req, res) {
   return res.redirect(302, link.target_url);
 }
 
-module.exports = {
-  router,
-  redirectHandler,
-  signShare,
-};
+// Export router directly for app.use() compatibility
+// Also attach helpers to router for external access if needed
+router.redirectHandler = redirectHandler;
+router.signShare = signShare;
+
+module.exports = router;

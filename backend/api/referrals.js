@@ -97,6 +97,7 @@ router.post('/generate-code', async (req, res) => {
  * Get comprehensive referral statistics for the user
  */
 router.get('/stats', async (req, res) => {
+  console.log('[Referrals API] GET /stats called by user:', req.user?.id);
   try {
     const userId = req.user.id;
 

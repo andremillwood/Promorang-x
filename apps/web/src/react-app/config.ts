@@ -4,7 +4,10 @@ const LOCAL_API_URL = 'http://localhost:3001';
 const isLocalAddress = (value: string) => /^(https?:\/\/)?(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/.test(value);
 
 const resolveApiBase = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  // Use separate API domain in production
+  const envUrl = import.meta.env.PROD
+    ? 'https://api.promorang.co'
+    : import.meta.env.VITE_API_URL;
 
   if (envUrl && !isLocalAddress(envUrl)) {
     return envUrl;

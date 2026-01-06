@@ -17,13 +17,13 @@ if (!supabaseUrl || !supabaseServiceKey || !jwtSecret) {
 
 const supabase = supabaseUrl && supabaseServiceKey
   ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { 
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-        multiTab: false
-      },
-    })
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      multiTab: false
+    },
+  })
   : null;
 
 /**
@@ -33,7 +33,7 @@ const supabase = supabaseUrl && supabaseServiceKey
 async function requireAuth(req, res, next) {
   if (!supabase) {
     console.error('[Auth] ❌ Supabase client not initialized');
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
       error: 'Authentication service unavailable',
       code: 'AUTH_SERVICE_UNAVAILABLE'
@@ -45,7 +45,7 @@ async function requireAuth(req, res, next) {
 
   if (!token) {
     console.warn('[Auth] 🔒 No token provided in Authorization header');
-    return res.status(401).json({ 
+    return res.status(401).json({
       success: false,
       error: 'Access token required',
       code: 'MISSING_TOKEN',
@@ -54,11 +54,11 @@ async function requireAuth(req, res, next) {
   }
 
   console.log('[Auth] 🔍 Verifying token...');
-  
+
   try {
     // First, verify the JWT signature
     const decoded = jwt.verify(token, jwtSecret);
-    
+
     if (!decoded) {
       console.error('[Auth] ❌ Invalid token signature');
       return res.status(401).json({
@@ -77,6 +77,26 @@ async function requireAuth(req, res, next) {
         error: 'Invalid token payload',
         code: 'INVALID_TOKEN_PAYLOAD'
       });
+    }
+
+    // Special handling for demo users to bypass database lookups
+    if (String(userId).startsWith('demo-')) {
+      const role = decoded.user_metadata?.role || 'creator';
+      req.user = {
+        id: userId,
+        email: decoded.email || `${role}@demo.com`,
+        username: decoded.user_metadata?.username || `demo-${role}`,
+        display_name: decoded.user_metadata?.full_name || `Demo ${role}`,
+        user_type: role,
+        role: role,
+        points_balance: 1000,
+        keys_balance: 50,
+        gems_balance: 100,
+        is_verified: true,
+        token_payload: decoded
+      };
+      console.log(`[Auth] ✅ Authenticated as Demo User: ${req.user.email}`);
+      return next();
     }
 
     // Look up the user record using the service role key
@@ -109,10 +129,10 @@ async function requireAuth(req, res, next) {
       is_verified: Boolean(userData.email_verified),
       token_payload: decoded
     };
-    
+
     console.log(`[Auth] ✅ Authenticated as user: ${userData.email || userData.id}`);
     return next();
-    
+
   } catch (error) {
     console.error('[Auth] ❌ Error during authentication:', error);
     return res.status(500).json({

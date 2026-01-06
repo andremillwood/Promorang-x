@@ -213,10 +213,10 @@ const authMiddleware = async (req, res, next) => {
       const token = authHeader.substring(7);
       const decoded = decodeToken(token);
       if (decoded) {
-        // Map userId to id for compatibility
+        // Map userId or sub to id for compatibility
         req.user = {
           ...decoded,
-          id: decoded.userId || decoded.id
+          id: decoded.userId || decoded.id || decoded.sub
         };
         return next();
       }
@@ -249,8 +249,9 @@ router.get('/public/:username', async (req, res) => {
   const rawUsername = req.params.username || '';
   const decodedUsername = decodeURIComponent(rawUsername).trim();
   const slug = decodedUsername
-    ? decodedUsername.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
-    : 'demo_user';
+    ? decodedUsername.toLowerCase().trim().replace(/[^a-z0-9\s_-]/g, '').replace(/\s+/g, '-').replace(/-{2,}/g, '-').replace(/^[-_]+|[-_]+$/g, '')
+    : 'demo-user';
+
 
   const buildFallbackProfile = () => {
     const profile = ensureUserProfile({

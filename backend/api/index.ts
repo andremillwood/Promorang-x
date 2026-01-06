@@ -196,10 +196,18 @@ app.use('/api/social-forecasts', socialForecastRoutes);
 app.use('/api/advertisers', advertisersRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/rewards', rewardsRoutes);
-app.use('/api/referrals', require('./referrals'));
-app.use('/api/marketplace', require('./marketplace'));
-app.use('/api/social', require('./social'));
-app.use('/api/manychat', require('./manychat'));
+// Using require for .js files in TS to maintain compatibility with existing CommonJS modules
+const referrals = require('./referrals.js');
+const marketplace = require('./marketplace.js');
+const social = require('./social.js');
+const manychat = require('./manychat.js');
+const coupons = require('./coupons.js');
+
+app.use('/api/referrals', referrals);
+app.use('/api/marketplace', marketplace);
+app.use('/api/social', social);
+app.use('/api/manychat', manychat);
+app.use('/api/coupons', coupons);
 app.use('/api/operator', operatorRoutes);
 
 // Auth profile endpoint (legacy, will be removed in future versions)
@@ -244,7 +252,7 @@ app.post('/api/report-error', (req, res) => {
   res.json({ success: true });
 });
 
-// 404 handler
+// 404 handler - MUST BE LAST
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,

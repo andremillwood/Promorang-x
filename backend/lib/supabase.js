@@ -35,5 +35,5 @@ if (!supabaseUrl || !supabaseServiceKey) {
   }
 }
 
+
 module.exports = supabase;
-module.exports.supabase = supabase;

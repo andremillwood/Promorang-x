@@ -8,9 +8,11 @@ interface DesktopSidebarProps {
   onNavClick?: (item: NavigationItem) => boolean | void;
   onLogout?: () => void;
   onSearch?: () => void;
+  userData?: any;
+  profilePath?: string;
 }
 
-export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout, onSearch }: DesktopSidebarProps) {
+export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout, onSearch, userData, profilePath }: DesktopSidebarProps) {
   const showSectionLabels = groups.length > 1;
 
   return (
@@ -26,6 +28,39 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
           <span className="text-xl font-bold text-pr-text-1">Promorang</span>
         </Link>
       </div>
+
+      {/* Profile Section - Quick Access */}
+      {(userData || profilePath) && (
+        <div className="p-4 border-b border-pr-surface-3">
+          <Link 
+            to={profilePath || '/profile/me'} 
+            className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 group ${
+              isActive(profilePath || '/profile/me') 
+                ? 'bg-pr-surface-2 ring-1 ring-pr-border' 
+                : 'hover:bg-pr-surface-2'
+            }`}
+          >
+            <div className="relative">
+              <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-pr-border group-hover:border-orange-500 transition-colors">
+                <img 
+                  src={userData?.avatar_url || `https://ui-avatars.com/api/?name=${userData?.display_name || 'User'}&background=random`} 
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 border-2 border-white dark:border-pr-surface-card rounded-full" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-pr-text-1 truncate">
+                {userData?.display_name || 'My Profile'}
+              </p>
+              <p className="text-xs text-pr-text-2 truncate">
+                @{userData?.username || 'view profile'}
+              </p>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Search Button */}
       {onSearch && (

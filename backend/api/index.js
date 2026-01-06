@@ -169,6 +169,7 @@ app.use('/api/rewards', require('./rewards'));
 app.use('/api/manychat', require('./manychat'));
 app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/coupons', require('./coupons'));
+app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
 app.use('/api/referrals', require('./referrals'));
 

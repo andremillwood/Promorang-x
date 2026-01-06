@@ -305,6 +305,8 @@ export default function Layout({ children }: LayoutProps) {
           onNavClick={handleSidebarNavClick}
           onLogout={handleLogout}
           onSearch={() => setShowSearchModal(true)}
+          userData={userData}
+          profilePath={profilePath}
         />
       </aside>
 
