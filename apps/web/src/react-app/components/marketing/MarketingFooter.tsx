@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 export default function MarketingFooter() {
-    const { t } = useTranslation('common');
     const currentYear = new Date().getFullYear();
 
     return (
@@ -12,26 +10,26 @@ export default function MarketingFooter() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                     {/* Product */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">{t('footer.platform')}</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Product</h3>
                         <ul className="space-y-3">
                             <li>
                                 <Link to="/how-it-works" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.howItWorks')}
+                                    How It Works
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/pricing" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.pricing')}
+                                    Pricing
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/about" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.about')}
+                                    About
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/promo-points" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.promoPoints')}
+                                    Promo Points
                                 </Link>
                             </li>
                         </ul>
@@ -39,26 +37,26 @@ export default function MarketingFooter() {
 
                     {/* Solutions */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">{t('nav.solutions')}</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Solutions</h3>
                         <ul className="space-y-3">
                             <li>
-                                <Link to="/for-creators" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.forCreators')}
+                                <Link to="/creators" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Creators
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/for-investors" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.forInvestors')}
+                                <Link to="/investors" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Investors
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/for-advertisers" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.forAdvertisers')}
+                                <Link to="/brands" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Brands
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/for-merchants" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.forMerchants')}
+                                <Link to="/merchants" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Merchants
                                 </Link>
                             </li>
                         </ul>
@@ -66,21 +64,21 @@ export default function MarketingFooter() {
 
                     {/* Company */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">{t('footer.company')}</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Company</h3>
                         <ul className="space-y-3">
                             <li>
                                 <Link to="/contact" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.contact')}
+                                    Contact
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/join-team" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.joinTeam')}
+                                    Join Team
                                 </Link>
                             </li>
                             <li>
                                 <a href="https://blog.promorang.com" target="_blank" rel="noopener noreferrer" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.blog')}
+                                    Blog
                                 </a>
                             </li>
                         </ul>
@@ -88,21 +86,21 @@ export default function MarketingFooter() {
 
                     {/* Legal */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">{t('footer.legal')}</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Legal</h3>
                         <ul className="space-y-3">
                             <li>
                                 <Link to="/terms" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.terms')}
+                                    Terms
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/privacy" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.privacy')}
+                                    Privacy
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/cookies" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    {t('nav.cookies')}
+                                    Cookies
                                 </Link>
                             </li>
                         </ul>
@@ -120,7 +118,7 @@ export default function MarketingFooter() {
                     </div>
 
                     <p className="text-sm text-pr-text-2">
-                        © {currentYear} Promorang. {t('footer.tagline')}
+                        © {currentYear} Promorang. All rights reserved.
                     </p>
 
                     {/* Social Links */}

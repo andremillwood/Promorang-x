@@ -1,7 +1,6 @@
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import type { ReactNode } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import ErrorPage from "@/react-app/pages/ErrorPage";
 import LeaderboardPage from "@/react-app/pages/Leaderboard";
 import Layout from "@/react-app/components/Layout";
 import EnhancedErrorBoundary from "@/react-app/components/common/EnhancedErrorBoundary";
@@ -14,7 +13,7 @@ import CreatePage from "@/react-app/pages/Create";
 import InvestPage from "@/react-app/pages/Invest";
 import WalletPage from "@/react-app/pages/Wallet";
 import GrowthHubPage from "@/react-app/pages/GrowthHub";
-import Profile, { ProfilePage } from "@/react-app/pages/Profile";
+import { ProfilePage } from "@/react-app/pages/Profile";
 import { ContentDetailPage } from "@/react-app/pages/ContentDetail";
 import HoldingDetailPage from "@/react-app/pages/HoldingDetail";
 import PredictionDetailPage from "@/react-app/pages/PredictionDetail";
@@ -50,7 +49,6 @@ import TestContentDetailsPage from "@/react-app/pages/TestContentDetailsPage";
 import NotFound from "@/react-app/pages/NotFound";
 import { AuthProvider, useAuth } from '@/react-app/hooks/useAuth';
 import { ToastProvider } from '@/react-app/components/ui/use-toast';
-import { Routes as RoutePaths } from "@/react-app/utils/url";
 import OAuthCallback from "@/react-app/pages/OAuthCallback";
 import PasswordResetPage from "@/react-app/pages/PasswordResetPage";
 import SessionManager from "@/react-app/components/auth/SessionManager";
@@ -103,10 +101,6 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => (
 
 function ProfileRedirect() {
   const { user } = useAuth();
-  const location = useLocation();
-
-  const params = new URLSearchParams(location.search);
-  const paramsObject = Object.fromEntries(params.entries()) as Record<string, string>;
 
   const deriveSlug = () => {
     if (!user) return undefined;

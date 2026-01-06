@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import PersonaHero from '@/react-app/components/marketing/PersonaHero';
@@ -6,22 +5,20 @@ import CTASection from '@/react-app/components/marketing/CTASection';
 import { Target, Zap, Users, TrendingUp } from 'lucide-react';
 
 export default function ForAdvertisers() {
-    const { t } = useTranslation('marketing');
-
     return (
         <div className="min-h-screen-dynamic bg-pr-surface-background">
             <MarketingNav />
 
             <PersonaHero
-                headline={t('advertisers.hero.headline')}
-                subheadline={t('advertisers.hero.subheadline')}
-                ctaText={t('advertisers.hero.cta')}
+                headline="High-Conversion Campaigns for Modern Brands"
+                subheadline="Reach engaged audiences through vetted creators. Pay for performance, not potential."
+                ctaText="Start Campaign"
                 ctaLink="/auth"
                 stats={[
-                    { value: '3.5x', label: t('advertisers.hero.stats.roi') },
-                    { value: '100%', label: t('advertisers.hero.stats.verified') },
-                    { value: '0', label: t('advertisers.hero.stats.upfrontFees') },
-                    { value: '24h', label: t('advertisers.hero.stats.launchTime') },
+                    { value: '3.5x', label: 'ROI' },
+                    { value: '100%', label: 'Verified Creators' },
+                    { value: '0', label: 'Upfront Fees' },
+                    { value: '24h', label: 'Launch Time' },
                 ]}
                 backgroundGradient="from-purple-600/20 to-pink-600/20"
                 icon={<Target className="w-10 h-10 text-purple-500" />}
@@ -32,34 +29,30 @@ export default function ForAdvertisers() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
-                            {t('advertisers.painPoints.headline').split('<highlight>')[0]}
-                            <span className="text-red-500">
-                                {t('advertisers.painPoints.headline').split('<highlight>')[1]?.split('</highlight>')[0]}
-                            </span>
-                            {t('advertisers.painPoints.headline').split('</highlight>')[1]}
+                            Traditional <span className="text-red-500">Ad Networks</span> are Failing
                         </h2>
                         <p className="text-xl text-pr-text-2">
-                            {t('advertisers.painPoints.subheadline')}
+                            Stop wasting budget on bots and banner blindness.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {[
                             {
-                                problem: t('advertisers.painPoints.problems.adBlindness'),
-                                solution: t('advertisers.painPoints.solutions.authenticContent'),
+                                problem: "Ad blindness & blocking",
+                                solution: "Authentic creator content",
                             },
                             {
-                                problem: t('advertisers.painPoints.problems.unpredictableCAC'),
-                                solution: t('advertisers.painPoints.solutions.performancePricing'),
+                                problem: "Unpredictable CAC",
+                                solution: "Performance-based pricing",
                             },
                             {
-                                problem: t('advertisers.painPoints.problems.lowTrust'),
-                                solution: t('advertisers.painPoints.solutions.highTrust'),
+                                problem: "Low consumer trust",
+                                solution: "High-trust community",
                             },
                             {
-                                problem: t('advertisers.painPoints.problems.complexAttribution'),
-                                solution: t('advertisers.painPoints.solutions.directROI'),
+                                problem: "Complex attribution",
+                                solution: "Direct ROI tracking",
                             },
                         ].map((item, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-xl p-6">
@@ -68,7 +61,7 @@ export default function ForAdvertisers() {
                                         <span className="text-xl">❌</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('advertisers.painPoints.oldWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Old Way</div>
                                         <div className="text-sm text-pr-text-2">{item.problem}</div>
                                     </div>
                                 </div>
@@ -77,7 +70,7 @@ export default function ForAdvertisers() {
                                         <span className="text-xl">✅</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('advertisers.painPoints.promorangWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Promorang Way</div>
                                         <div className="text-sm text-pr-text-2">{item.solution}</div>
                                     </div>
                                 </div>
@@ -91,9 +84,9 @@ export default function ForAdvertisers() {
             <section className="py-24 bg-pr-surface-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('advertisers.benefits.headline')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Benefits for Brands</h2>
                         <p className="text-xl text-pr-text-2 max-w-3xl mx-auto">
-                            {t('advertisers.benefits.subheadline')}
+                            Scale your marketing efforts without scaling your team.
                         </p>
                     </div>
 
@@ -101,18 +94,18 @@ export default function ForAdvertisers() {
                         {[
                             {
                                 icon: <Users className="w-10 h-10 text-blue-500" />,
-                                title: t('advertisers.benefits.vettedCreators.title'),
-                                description: t('advertisers.benefits.vettedCreators.description'),
+                                title: "Vetted Creators",
+                                description: "Access a network of high-quality creators pre-vetted for authenticity and engagement.",
                             },
                             {
                                 icon: <Zap className="w-10 h-10 text-yellow-500" />,
-                                title: t('advertisers.benefits.instantScale.title'),
-                                description: t('advertisers.benefits.instantScale.description'),
+                                title: "Instant Scale",
+                                description: "Launch campaigns to hundreds of creators simultaneously with a few clicks.",
                             },
                             {
                                 icon: <TrendingUp className="w-10 h-10 text-green-500" />,
-                                title: t('advertisers.benefits.equityAligned.title'),
-                                description: t('advertisers.benefits.equityAligned.description'),
+                                title: "Equity Aligned",
+                                description: "Option to compensate with equity, aligning creator incentives with your long-term growth.",
                             },
                         ].map((benefit, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-purple-500/50 transition-all">
@@ -128,9 +121,9 @@ export default function ForAdvertisers() {
             </section>
 
             <CTASection
-                headline={t('advertisers.cta.headline')}
-                subheadline={t('advertisers.cta.subheadline')}
-                ctaText={t('advertisers.cta.button')}
+                headline="Start Your Campaign"
+                subheadline="Join forward-thinking brands driving growth with Promorang."
+                ctaText="Get Started"
                 ctaLink="/auth"
                 backgroundStyle="gradient"
             />

@@ -4,11 +4,8 @@ import { ChevronDown, Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import { useUnauthenticatedTheme } from '@/react-app/hooks/useUnauthenticatedTheme';
-import LanguageSwitcher from '@/react-app/components/LanguageSwitcher';
-import { useTranslation } from 'react-i18next';
 
 export default function MarketingNav() {
-    const { t } = useTranslation('common');
     const { user } = useAuth();
     const { theme, setTheme } = useUnauthenticatedTheme();
     const location = useLocation();
@@ -18,11 +15,11 @@ export default function MarketingNav() {
     const isActive = (path: string) => location.pathname === path;
 
     const personaLinks = [
-        { label: t('nav.forCreators'), path: '/for-creators' },
-        { label: t('nav.forInvestors'), path: '/for-investors' },
-        { label: t('nav.forAdvertisers'), path: '/for-advertisers' },
-        { label: t('nav.forMerchants'), path: '/for-merchants' },
-        { label: t('nav.forOperators'), path: '/for-operators' },
+        { label: 'For Creators', path: '/creators' },
+        { label: 'For Investors', path: '/investors' },
+        { label: 'For Brands', path: '/brands' },
+        { label: 'For Merchants', path: '/merchants' },
+        { label: 'For Operators', path: '/for-operators' },
     ];
 
     return (
@@ -45,14 +42,14 @@ export default function MarketingNav() {
                             className={`text-sm font-medium transition-colors ${isActive('/about') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
                                 }`}
                         >
-                            {t('nav.about')}
+                            About
                         </Link>
                         <Link
                             to="/how-it-works"
                             className={`text-sm font-medium transition-colors ${isActive('/how-it-works') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
                                 }`}
                         >
-                            {t('nav.howItWorks')}
+                            How It Works
                         </Link>
 
                         {/* Persona Dropdown */}
@@ -61,7 +58,7 @@ export default function MarketingNav() {
                                 onClick={() => setPersonaDropdownOpen(!personaDropdownOpen)}
                                 className="flex items-center gap-1 text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
                             >
-                                {t('nav.solutions')}
+                                Solutions
                                 <ChevronDown className={`w-4 h-4 transition-transform ${personaDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
                             {personaDropdownOpen && (
@@ -85,14 +82,14 @@ export default function MarketingNav() {
                             className={`text-sm font-medium transition-colors ${isActive('/pricing') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
                                 }`}
                         >
-                            {t('nav.pricing')}
+                            Pricing
                         </Link>
                         <Link
                             to="/contact"
                             className={`text-sm font-medium transition-colors ${isActive('/contact') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
                                 }`}
                         >
-                            {t('nav.contact')}
+                            Contact
                         </Link>
                     </div>
 
@@ -106,22 +103,19 @@ export default function MarketingNav() {
                             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                         </button>
 
-                        {/* Language Switcher */}
-                        <LanguageSwitcher />
-
                         {/* Auth Buttons */}
                         <div className="hidden md:flex items-center gap-3">
                             {user ? (
                                 <Button onClick={() => window.location.href = '/dashboard'} variant="primary" size="sm">
-                                    {t('nav.dashboard')}
+                                    Dashboard
                                 </Button>
                             ) : (
                                 <>
                                     <Button onClick={() => window.location.href = '/auth'} variant="ghost" size="sm">
-                                        {t('nav.login')}
+                                        Login
                                     </Button>
                                     <Button onClick={() => window.location.href = '/auth'} variant="primary" size="sm">
-                                        {t('nav.getStarted')}
+                                        Get Started
                                     </Button>
                                 </>
                             )}
@@ -146,17 +140,17 @@ export default function MarketingNav() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
                             >
-                                {t('nav.about')}
+                                About
                             </Link>
                             <Link
                                 to="/how-it-works"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
                             >
-                                {t('nav.howItWorks')}
+                                How It Works
                             </Link>
                             <div className="border-t border-pr-border pt-4">
-                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2">{t('nav.solutions')}</div>
+                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2">Solutions</div>
                                 {personaLinks.map((link) => (
                                     <Link
                                         key={link.path}
@@ -173,27 +167,27 @@ export default function MarketingNav() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
                             >
-                                {t('nav.pricing')}
+                                Pricing
                             </Link>
                             <Link
                                 to="/contact"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
                             >
-                                {t('nav.contact')}
+                                Contact
                             </Link>
                             <div className="border-t border-pr-border pt-4 flex flex-col gap-2">
                                 {user ? (
                                     <Button onClick={() => window.location.href = '/dashboard'} variant="primary" className="w-full">
-                                        {t('nav.dashboard')}
+                                        Dashboard
                                     </Button>
                                 ) : (
                                     <>
                                         <Button onClick={() => window.location.href = '/auth'} variant="ghost" className="w-full">
-                                            {t('nav.login')}
+                                            Login
                                         </Button>
                                         <Button onClick={() => window.location.href = '/auth'} variant="primary" className="w-full">
-                                            {t('nav.getStarted')}
+                                            Get Started
                                         </Button>
                                     </>
                                 )}

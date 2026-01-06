@@ -1,32 +1,29 @@
-import { useTranslation } from 'react-i18next';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import CTASection from '@/react-app/components/marketing/CTASection';
 import { Sparkles, Target, Users, TrendingUp } from 'lucide-react';
 
 export default function About() {
-    const { t } = useTranslation('marketing');
-
     const values = [
         {
             icon: <Sparkles className="w-8 h-8 text-blue-500" />,
-            title: t('about.values.tasteOverFollowers.title'),
-            description: t('about.values.tasteOverFollowers.description'),
+            title: "Taste Over Followers",
+            description: "We believe influence is about quality, not just quantity. A curated recommendation is worth more than a generic shoutout.",
         },
         {
             icon: <Target className="w-8 h-8 text-purple-500" />,
-            title: t('about.values.equityForAll.title'),
-            description: t('about.values.equityForAll.description'),
+            title: "Equity for All",
+            description: "Creators build the value of platforms. They should share in the upside. That's why we offer equity-based rewards.",
         },
         {
             icon: <Users className="w-8 h-8 text-green-500" />,
-            title: t('about.values.transparencyFirst.title'),
-            description: t('about.values.transparencyFirst.description'),
+            title: "Transparency First",
+            description: "No hidden fees, no opaque algorithms. Just clear terms and direct relationships between brands and creators.",
         },
         {
             icon: <TrendingUp className="w-8 h-8 text-orange-500" />,
-            title: t('about.values.longTermThinking.title'),
-            description: t('about.values.longTermThinking.description'),
+            title: "Long-Term Thinking",
+            description: "Short-term gains are easy. We're building infrastructure for the next decade of the creator economy.",
         },
     ];
 
@@ -43,14 +40,10 @@ export default function About() {
 
                 <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
                     <h1 className="text-5xl md:text-7xl font-extrabold text-pr-text-1 tracking-tight mb-6 leading-tight">
-                        {t('about.hero.headline').split('<highlight>')[0]}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
-                            {t('about.hero.headline').split('<highlight>')[1]?.split('</highlight>')[0]}
-                        </span>
-                        {t('about.hero.headline').split('</highlight>')[1]}
+                        Building the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Curator Economy</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-pr-text-2 max-w-3xl mx-auto leading-relaxed">
-                        {t('about.hero.subheadline')}
+                        We're on a mission to democratize influence and help anyone monetize their taste.
                     </p>
                 </div>
             </section>
@@ -59,20 +52,20 @@ export default function About() {
             <section className="py-24 bg-pr-surface-1">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('about.mission.title')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Our Mission</h2>
                         <p className="text-xl text-pr-text-2 leading-relaxed">
-                            {t('about.mission.description')}
+                            To empower individuals to own their audience and their income.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h3 className="text-2xl font-bold text-pr-text-1 mb-4">{t('about.mission.problemTitle')}</h3>
+                            <h3 className="text-2xl font-bold text-pr-text-1 mb-4">The Problem</h3>
                             <p className="text-lg text-pr-text-2 mb-6 leading-relaxed">
-                                {t('about.mission.problemText1')}
+                                The current social media landscape is extractive. Users create value, platforms capture it.
                             </p>
                             <p className="text-lg text-pr-text-2 leading-relaxed">
-                                {t('about.mission.problemText2')}
+                                We're flipping the script by aligning incentives between creators, brands, and platforms.
                             </p>
                         </div>
                         <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-8">
@@ -82,8 +75,8 @@ export default function About() {
                                         <span className="text-2xl">❌</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('about.mission.traditional')}</div>
-                                        <div className="text-sm text-pr-text-2">{t('about.mission.traditionalDesc')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">Traditional Platforms</div>
+                                        <div className="text-sm text-pr-text-2">You are the product.</div>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
@@ -91,8 +84,8 @@ export default function About() {
                                         <span className="text-2xl">✅</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('about.mission.promorang')}</div>
-                                        <div className="text-sm text-pr-text-2">{t('about.mission.promorangDesc')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">Promorang</div>
+                                        <div className="text-sm text-pr-text-2">You are the partner.</div>
                                     </div>
                                 </div>
                             </div>
@@ -105,9 +98,9 @@ export default function About() {
             <section className="py-24 bg-pr-surface-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('about.values.title')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Our Values</h2>
                         <p className="text-xl text-pr-text-2 max-w-3xl mx-auto">
-                            {t('about.values.subtitle')}
+                            The principles that guide every decision we make.
                         </p>
                     </div>
 
@@ -128,28 +121,30 @@ export default function About() {
             {/* Story */}
             <section className="py-24 bg-pr-surface-1">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-8 text-center">{t('about.story.title')}</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-8 text-center">Our Story</h2>
                     <div className="prose prose-lg max-w-none text-pr-text-2">
                         <p className="text-xl leading-relaxed mb-6">
-                            {t('about.story.text1')}
+                            Promorang started with a simple observation: everyone is influential to someone.
                         </p>
                         <p className="text-lg leading-relaxed mb-6">
-                            {t('about.story.text2')}
+                            Whether you have 100 followers or 100,000, your recommendation matters. But traditional influencer marketing only valued the top 1%.
                         </p>
-                        <p className="text-lg leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: t('about.story.text3') }} />
+                        <p className="text-lg leading-relaxed mb-6">
+                            We built Promorang to unlock the value of the other 99%. By creating a marketplace where brands can tap into micro-communities, we're building a more authentic and effective way to market.
+                        </p>
                         <p className="text-lg leading-relaxed">
-                            {t('about.story.text4')}
+                            Join us as we redefine what it means to be a creator.
                         </p>
                     </div>
                 </div>
             </section>
 
             <CTASection
-                headline={t('about.cta.headline')}
-                subheadline={t('about.cta.subheadline')}
-                ctaText={t('about.cta.button')}
+                headline="Join the movement"
+                subheadline="Be part of the future of the creator economy."
+                ctaText="Get Started"
                 ctaLink="/auth"
-                secondaryCta={{ text: t('about.cta.secondary'), link: '/how-it-works' }}
+                secondaryCta={{ text: "How It Works", link: '/how-it-works' }}
             />
 
             <MarketingFooter />

@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import PersonaHero from '@/react-app/components/marketing/PersonaHero';
@@ -6,8 +5,6 @@ import CTASection from '@/react-app/components/marketing/CTASection';
 import { Sparkles, DollarSign, TrendingUp, Users, CheckCircle } from 'lucide-react';
 
 export default function ForCreators() {
-    const { t } = useTranslation('marketing');
-
     const successStories = [
         {
             name: 'Sarah J.',
@@ -30,15 +27,15 @@ export default function ForCreators() {
             <MarketingNav />
 
             <PersonaHero
-                headline={t('creators.hero.headline')}
-                subheadline={t('creators.hero.subheadline')}
-                ctaText={t('creators.hero.cta')}
+                headline="Monetize Your Influence"
+                subheadline="Turn your passion into a profession. Connect with brands, create content you love, and get paid instantly."
+                ctaText="Start Earning"
                 ctaLink="/auth"
                 stats={[
-                    { value: '$1,247', label: t('creators.hero.stats.earnings') },
-                    { value: '0', label: t('creators.hero.stats.followersNeeded') },
-                    { value: '2 min', label: t('creators.hero.stats.setupTime') },
-                    { value: '100%', label: t('creators.hero.stats.keepFirst') },
+                    { value: '$1,247', label: 'Avg. Earnings' },
+                    { value: '0', label: 'Followers Needed' },
+                    { value: '2 min', label: 'Setup Time' },
+                    { value: '100%', label: 'Keep First $1k' },
                 ]}
                 backgroundGradient="from-yellow-600/20 to-orange-600/20"
                 icon={<Sparkles className="w-10 h-10 text-yellow-500" />}
@@ -49,34 +46,30 @@ export default function ForCreators() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
-                            {t('creators.painPoints.headline').split('<highlight>')[0]}
-                            <span className="text-red-500">
-                                {t('creators.painPoints.headline').split('<highlight>')[1]?.split('</highlight>')[0]}
-                            </span>
-                            {t('creators.painPoints.headline').split('</highlight>')[1]}
+                            The <span className="text-red-500">Creator Economy</span> is Rigged
                         </h2>
                         <p className="text-xl text-pr-text-2">
-                            {t('creators.painPoints.subheadline')}
+                            Platforms maximize their ad revenue, not your earnings. It’s time for a change.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {[
                             {
-                                problem: t('creators.painPoints.problems.followers'),
-                                solution: t('creators.painPoints.solutions.dayOne'),
+                                problem: "Need 10k+ followers to earn",
+                                solution: "Earn from Day 1",
                             },
                             {
-                                problem: t('creators.painPoints.problems.platformCut'),
-                                solution: t('creators.painPoints.solutions.keepMost'),
+                                problem: "Platform takes 40-50%",
+                                solution: "Keep 95% of earnings",
                             },
                             {
-                                problem: t('creators.painPoints.problems.oneTime'),
-                                solution: t('creators.painPoints.solutions.equity'),
+                                problem: "One-time payments",
+                                solution: "Long-term equity & revenue share",
                             },
                             {
-                                problem: t('creators.painPoints.problems.algorithm'),
-                                solution: t('creators.painPoints.solutions.taste'),
+                                problem: "Algorithm decides your fate",
+                                solution: "Your taste decides your success",
                             },
                         ].map((item, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-xl p-6">
@@ -85,7 +78,7 @@ export default function ForCreators() {
                                         <span className="text-xl">❌</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('creators.painPoints.oldWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Old Way</div>
                                         <div className="text-sm text-pr-text-2">{item.problem}</div>
                                     </div>
                                 </div>
@@ -94,7 +87,7 @@ export default function ForCreators() {
                                         <span className="text-xl">✅</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('creators.painPoints.promorangWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Promorang Way</div>
                                         <div className="text-sm text-pr-text-2">{item.solution}</div>
                                     </div>
                                 </div>
@@ -108,12 +101,12 @@ export default function ForCreators() {
             <section className="py-24 bg-pr-surface-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('creators.howYouEarn.headline')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">How You Earn</h2>
                         <p className="text-xl text-pr-text-2 max-w-3xl mx-auto">
-                            {t('creators.howYouEarn.subheadline')}
+                            Multiple income streams, one platform. Choose how you want to grow.
                         </p>
                         <p className="mt-6 text-base md:text-lg text-pr-text-2 max-w-3xl mx-auto">
-                            {t('creators.howYouEarn.disclaimer')}
+                            *Earnings vary based on participation and performance.
                         </p>
                     </div>
 
@@ -121,21 +114,21 @@ export default function ForCreators() {
                         {[
                             {
                                 icon: <DollarSign className="w-10 h-10 text-green-500" />,
-                                title: t('creators.howYouEarn.streams.instantCash.title'),
-                                description: t('creators.howYouEarn.streams.instantCash.description'),
-                                example: t('creators.howYouEarn.streams.instantCash.example'),
+                                title: "Instant Cash",
+                                description: "Get paid immediately for completing simple tasks and challenges from brands.",
+                                example: "Earn $50 for posting an Instagram story about a new coffee brand.",
                             },
                             {
                                 icon: <TrendingUp className="w-10 h-10 text-blue-500" />,
-                                title: t('creators.howYouEarn.streams.equityTokens.title'),
-                                description: t('creators.howYouEarn.streams.equityTokens.description'),
-                                example: t('creators.howYouEarn.streams.equityTokens.example'),
+                                title: "Equity Tokens",
+                                description: "Earn ownership stakes in the brands you help grow. Your success is their success.",
+                                example: "Receive 500 BrandTokens for consistent promotion, vesting over 12 months.",
                             },
                             {
                                 icon: <Users className="w-10 h-10 text-purple-500" />,
-                                title: t('creators.howYouEarn.streams.networkEffects.title'),
-                                description: t('creators.howYouEarn.streams.networkEffects.description'),
-                                example: t('creators.howYouEarn.streams.networkEffects.example'),
+                                title: "Network Effects",
+                                description: "Earn overrides on creators you refer to the platform.",
+                                example: "Get 5% of earnings from every creator who signs up with your code.",
                             },
                         ].map((stream, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-blue-500/50 transition-all">
@@ -157,7 +150,7 @@ export default function ForCreators() {
             <section className="py-24 bg-pr-surface-1">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('creators.successStories.headline')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Success Stories</h2>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
@@ -176,11 +169,11 @@ export default function ForCreators() {
                                 <div className="flex items-center justify-between pt-6 border-t border-pr-border">
                                     <div>
                                         <div className="text-2xl font-bold text-green-500">{creator.earnings}</div>
-                                        <div className="text-xs text-pr-text-2">{t('creators.successStories.monthlyEarnings')}</div>
+                                        <div className="text-xs text-pr-text-2">Monthly Earnings</div>
                                     </div>
                                     <div>
                                         <div className="text-2xl font-bold text-pr-text-1">{creator.followers}</div>
-                                        <div className="text-xs text-pr-text-2">{t('creators.successStories.followers')}</div>
+                                        <div className="text-xs text-pr-text-2">Followers</div>
                                     </div>
                                 </div>
                             </div>
@@ -193,11 +186,17 @@ export default function ForCreators() {
             <section className="py-24 bg-pr-surface-background">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('creators.gettingStarted.headline')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Getting Started is Easy</h2>
                     </div>
 
                     <div className="space-y-6">
-                        {(t('creators.gettingStarted.steps', { returnObjects: true }) as string[]).map((step, index) => (
+                        {[
+                            "Create your account in 30 seconds",
+                            "Connect your social media profiles",
+                            "Browse available campaigns and tasks",
+                            "Create content and submit for review",
+                            "Get paid instantly upon approval"
+                        ].map((step, index) => (
                             <div key={index} className="flex items-center gap-4 bg-pr-surface-card border border-pr-border rounded-xl p-6">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
                                     {index + 1}
@@ -211,11 +210,11 @@ export default function ForCreators() {
             </section>
 
             <CTASection
-                headline={t('creators.cta.headline')}
-                subheadline={t('creators.cta.subheadline')}
-                ctaText={t('creators.cta.button')}
+                headline="Start earning today"
+                subheadline="Join thousands of creators who are owning their financial future."
+                ctaText="Start Earning"
                 ctaLink="/auth"
-                secondaryCta={{ text: t('creators.cta.secondary'), link: '/how-it-works' }}
+                secondaryCta={{ text: "How It Works", link: '/how-it-works' }}
                 backgroundStyle="gradient"
             />
 

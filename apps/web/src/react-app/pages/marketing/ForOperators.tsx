@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import PersonaHero from '@/react-app/components/marketing/PersonaHero';
@@ -6,22 +5,20 @@ import CTASection from '@/react-app/components/marketing/CTASection';
 import { Layers, Zap, Settings, BarChart } from 'lucide-react';
 
 export default function ForOperators() {
-    const { t } = useTranslation('marketing');
-
     return (
         <div className="min-h-screen-dynamic bg-pr-surface-background">
             <MarketingNav />
 
             <PersonaHero
-                headline={t('operators.hero.headline')}
-                subheadline={t('operators.hero.subheadline')}
-                ctaText={t('operators.hero.cta')}
+                headline="Modern Infrastructure for Digital Economies"
+                subheadline="We provide the plumbing. You build the empire. Seamlessly integrate compliant, high-yield digital asset rewards into your existing platform."
+                ctaText="Start Integration"
                 ctaLink="/auth"
                 stats={[
-                    { value: '10x', label: t('operators.hero.stats.engagement') },
-                    { value: '30%', label: t('operators.hero.stats.retentionLift') },
-                    { value: '10min', label: t('operators.hero.stats.integration') },
-                    { value: '50/50', label: t('operators.hero.stats.revShare') },
+                    { value: '10x', label: 'Engagement' },
+                    { value: '30%', label: 'Retention Lift' },
+                    { value: '10min', label: 'Integration' },
+                    { value: '50/50', label: 'Rev Share' },
                 ]}
                 backgroundGradient="from-orange-600/20 to-red-600/20"
                 icon={<Layers className="w-10 h-10 text-orange-500" />}
@@ -32,34 +29,30 @@ export default function ForOperators() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
-                            {t('operators.painPoints.headline').split('<highlight>')[0]}
-                            <span className="text-red-500">
-                                {t('operators.painPoints.headline').split('<highlight>')[1]?.split('</highlight>')[0]}
-                            </span>
-                            {t('operators.painPoints.headline').split('</highlight>')[1]}
+                            The <span className="text-red-500">Social Economy</span> is Broken
                         </h2>
                         <p className="text-xl text-pr-text-2">
-                            {t('operators.painPoints.subheadline')}
+                            Your users are leaving value on the table. We help you capture it.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {[
                             {
-                                problem: t('operators.painPoints.problems.devTime'),
-                                solution: t('operators.painPoints.solutions.plugAndPlay'),
+                                problem: "High development cost",
+                                solution: "Plug-and-play solution",
                             },
                             {
-                                problem: t('operators.painPoints.problems.highChurn'),
-                                solution: t('operators.painPoints.solutions.gamifiedRetention'),
+                                problem: "High user churn",
+                                solution: "Gamified retention loops",
                             },
                             {
-                                problem: t('operators.painPoints.problems.hardToMonetize'),
-                                solution: t('operators.painPoints.solutions.builtInRevenue'),
+                                problem: "Hard to monetize",
+                                solution: "Built-in revenue model",
                             },
                             {
-                                problem: t('operators.painPoints.problems.siloedData'),
-                                solution: t('operators.painPoints.solutions.unifiedAnalytics'),
+                                problem: "Siloed user data",
+                                solution: "Unified cross-platform analytics",
                             },
                         ].map((item, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-xl p-6">
@@ -68,7 +61,7 @@ export default function ForOperators() {
                                         <span className="text-xl">❌</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('operators.painPoints.oldWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Old Way</div>
                                         <div className="text-sm text-pr-text-2">{item.problem}</div>
                                     </div>
                                 </div>
@@ -77,7 +70,7 @@ export default function ForOperators() {
                                         <span className="text-xl">✅</span>
                                     </div>
                                     <div>
-                                        <div className="font-bold text-pr-text-1 mb-1">{t('operators.painPoints.promorangWay')}</div>
+                                        <div className="font-bold text-pr-text-1 mb-1">The Promorang Way</div>
                                         <div className="text-sm text-pr-text-2">{item.solution}</div>
                                     </div>
                                 </div>
@@ -91,25 +84,25 @@ export default function ForOperators() {
             <section className="py-24 bg-pr-surface-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">{t('operators.benefits.headline')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Benefits for Operators</h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
                             {
                                 icon: <Zap className="w-10 h-10 text-orange-500" />,
-                                title: t('operators.benefits.instantIntegration.title'),
-                                description: t('operators.benefits.instantIntegration.description'),
+                                title: "Instant Integration",
+                                description: "Drop our SDK into your app and start rewarding users in minutes.",
                             },
                             {
                                 icon: <Settings className="w-10 h-10 text-gray-500" />,
-                                title: t('operators.benefits.fullyCustomizable.title'),
-                                description: t('operators.benefits.fullyCustomizable.description'),
+                                title: "Fully Customizable",
+                                description: "White-label the entire experience to match your brand identity.",
                             },
                             {
                                 icon: <BarChart className="w-10 h-10 text-blue-500" />,
-                                title: t('operators.benefits.newRevenue.title'),
-                                description: t('operators.benefits.newRevenue.description'),
+                                title: "New Revenue Streams",
+                                description: "Unlock entirely new monetization channels with zero overhead.",
                             },
                         ].map((benefit, index) => (
                             <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-orange-500/50 transition-all">
@@ -125,9 +118,9 @@ export default function ForOperators() {
             </section>
 
             <CTASection
-                headline={t('operators.cta.headline')}
-                subheadline={t('operators.cta.subheadline')}
-                ctaText={t('operators.cta.button')}
+                headline="Ready to Scale?"
+                subheadline="Join the top platforms powering their economy with Promorang."
+                ctaText="Get Started"
                 ctaLink="/auth"
                 backgroundStyle="gradient"
             />
