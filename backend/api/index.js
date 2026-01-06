@@ -211,37 +211,11 @@ app.use('/api/rewards', require('./rewards'));
 app.use('/api/manychat', require('./manychat'));
 app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/coupons', require('./coupons'));
+app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
 app.use('/api/referrals', require('./referrals'));
-
-app.get('/api/referrals/stats', (req, res) => {
-  res.json({
-    status: 'success',
-    data: {
-      summary: {
-        total_referrals: 0,
-        active_referrals: 0,
-        pending_referrals: 0,
-        conversion_rate: '0.0',
-        total_earnings: {
-          usd: 0,
-          gems: 0,
-          points: 0,
-        },
-        referral_code: null,
-        tier: {
-          tier_name: 'Bronze',
-          tier_level: 1,
-          commission_rate: 0.05,
-          badge_icon: '🥉',
-          badge_color: '#CD7F32',
-        },
-      },
-      referrals: [],
-      recent_commissions: [],
-    },
-  });
-});
+app.post('/api/telemetry', (req, res) => res.json({ success: true }));
+app.post('/api/report-error', (req, res) => res.json({ success: true }));
 
 app.get('/api/referrals/tiers', (req, res) => {
   res.json({
