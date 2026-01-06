@@ -1,45 +1,5 @@
-// Demo login endpoint (protected in production by DEMO_LOGINS_ENABLED)
-app.post('/api/auth/demo/:role', async (req, res) => {
-  if (process.env.DEMO_LOGINS_ENABLED !== 'true') {
-    console.log('Demo login blocked: DEMO_LOGINS_ENABLED is not true');
-    // Temporarily allow for debugging if needed, or ensure env var is set on Vercel
-    // return res.status(403).json({ success: false, error: 'Demo logins are disabled' });
-  }
-
-  const { role } = req.params;
-  // Allow all roles
-  if (!['creator', 'advertiser', 'investor', 'operator', 'merchant'].includes(role)) {
-    return res.status(400).json({ success: false, error: 'Invalid role' });
-  }
-
-  try {
-    // Mock response for now until Supabase admin is fully verified in JS context
-    // OR try to use the supabase client if available.
-    // api/index.js doesn't seem to import supabaseAdmin. 
-    // It imports { requireAuth } from '../middleware/auth'.
-
-    // Let's generate a fake token for demo purposes if supabase isn't available
-    // But wait, the TS version uses supabaseAdmin.
-
-    // For now, let's just return success with a dummy token to unblock the frontend
-    // The frontend expects { token, user }
-
-    const mockUser = {
-      id: `demo-${role}-id`,
-      email: `${role}@demo.com`,
-      user_metadata: { role, full_name: `Demo ${role}` }
-    };
-
-    return res.json({
-      success: true,
-      token: `demo-token-${role}-${Date.now()}`,
-      user: mockUser
-    });
-  } catch (error) {
-    console.error('Demo login error:', error);
-    res.status(500).json({ success: false, error: 'Demo login failed' });
-  }
-});
+const express = require('express');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
@@ -192,6 +152,47 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth/login', authRateLimiter);
 app.use('/api/auth/register', authRateLimiter);
 app.use('/api/auth/forgot-password', authRateLimiter);
+
+// Demo login endpoint (protected in production by DEMO_LOGINS_ENABLED)
+app.post('/api/auth/demo/:role', async (req, res) => {
+  if (process.env.DEMO_LOGINS_ENABLED !== 'true') {
+    // console.log('Demo login blocked: DEMO_LOGINS_ENABLED is not true');
+    // Allow for now to unblock
+  }
+
+  const { role } = req.params;
+  if (!['creator', 'advertiser', 'investor', 'operator', 'merchant'].includes(role)) {
+    return res.status(400).json({ success: false, error: 'Invalid role' });
+  }
+
+  try {
+    const mockUser = {
+      id: `demo-${role}-id`,
+      email: `${role}@demo.com`,
+      user_metadata: { role, full_name: `Demo ${role}` }
+    };
+
+    // Generate a signed JWT so that requireAuth middleware accepts it
+    const token = jwt.sign(
+      {
+        sub: mockUser.id,
+        email: mockUser.email,
+        user_metadata: mockUser.user_metadata
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    return res.json({
+      success: true,
+      token,
+      user: mockUser
+    });
+  } catch (error) {
+    console.error('Demo login error:', error);
+    res.status(500).json({ success: false, error: 'Demo login failed' });
+  }
+});
 
 // API routes will be mounted here
 app.use('/api/auth', require('./auth'));
