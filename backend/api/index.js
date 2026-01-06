@@ -61,24 +61,23 @@ const corsMiddleware = cors({
     if (!origin) {
       return callback(null, true);
     }
-  }
 
     const isAllowed = DEFAULT_ALLOWED_ORIGINS.includes(origin) || (() => {
-    try {
-      const { hostname } = new URL(origin);
-      return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co');
-    } catch (error) {
-      return false;
-    }
-  })();
+      try {
+        const { hostname } = new URL(origin);
+        return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co');
+      } catch (error) {
+        return false;
+      }
+    })();
 
-  if(isAllowed) {
-    return callback(null, true);
-  }
+    if (isAllowed) {
+      return callback(null, true);
+    }
 
     console.warn(`CORS warning: unrecognized origin ${origin}. Allowing temporarily.`);
-  return callback(null, true);
-},
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
