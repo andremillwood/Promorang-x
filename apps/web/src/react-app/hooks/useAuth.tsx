@@ -31,6 +31,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<AuthResponse>;
+  signUp: (email: string, password: string, username: string, displayName?: string) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
   demoLogin: {
     creator: () => Promise<AuthResponse>;
@@ -205,6 +206,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [navigate]);
 
+  const signUp = useCallback(async (email: string, password: string, username: string, displayName?: string): Promise<AuthResponse> => {
+    try {
+      setIsLoading(true);
+      console.log('Attempting to sign up with:', { email, username });
+
+      const response = await api.post<{ token: string; user: User }>('/auth/register', {
+        email,
+        password,
+        username,
+        display_name: displayName
+      });
+
+      if (response && typeof response === 'object') {
+        const token = response.token || (response as any)?.data?.token;
+        const user = response.user || (response as any)?.data?.user;
+
+        if (token && user) {
+          setAccessToken(token);
+          setUser(user);
+          return { success: true, user, token };
+        }
+      }
+
+      throw new Error('Invalid response from server');
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Failed to sign up',
+          code: 'SIGN_UP_ERROR'
+        }
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const demoLogin = {
     creator: async () => signIn('creator@demo.com', 'demo123'),
     investor: async () => signIn('investor@demo.com', 'demo123'),
@@ -242,6 +281,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isLoading,
     signIn,
+    signUp,
     signOut,
     demoLogin,
     isAuthenticated: !!user,

@@ -14,26 +14,16 @@ import {
   Zap,
   Users,
   ClipboardList,
-  CreditCard,
-  ShoppingBag
+  CreditCard
 } from 'lucide-react';
-<<<<<<< HEAD:frontend/src/react-app/pages/Dashboard.tsx
-import { TaskType, WalletType, TransactionType } from '@/shared/types';
+import type { TaskType, WalletType, TransactionType } from '../../shared/types';
 import {
   EarningsChart,
   PerformanceMetrics,
   ActivityBreakdown,
-=======
-import type { TaskType, WalletType, TransactionType } from '../../shared/types';
-import { 
-  EarningsChart, 
-  PerformanceMetrics, 
-  ActivityBreakdown, 
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/Dashboard.tsx
   MultiMetricChart,
   KPICard
 } from '@/react-app/components/AnalyticsCharts';
-import { apiFetch } from '../../lib/api';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -46,29 +36,6 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-<<<<<<< HEAD:frontend/src/react-app/pages/Dashboard.tsx
-        // Fetch wallets
-        const response = await apiFetch('/api/users/me/wallets');
-        if (response.ok) {
-          const walletsData = await response.json();
-          setWallets(Array.isArray(walletsData) ? walletsData : []);
-        }
-
-        // Fetch recent tasks
-        const tasksResponse = await apiFetch('/api/drops?limit=5');
-        if (tasksResponse.ok) {
-          const tasksData = await tasksResponse.json();
-          setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) :
-            (tasksData.drops ? tasksData.drops.slice(0, 5) : []));
-        }
-
-        // Fetch recent transactions
-        const transactionsResponse = await apiFetch('/api/users/transactions?limit=5');
-        if (transactionsResponse.ok) {
-          const transactionsData = await transactionsResponse.json();
-          setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) :
-            (transactionsData.transactions ? transactionsData.transactions.slice(0, 5) : []));
-=======
         // Try to fetch real data first
         const [walletsResponse, tasksResponse, transactionsResponse] = await Promise.allSettled([
           fetch('/api/users/me/wallets', { credentials: 'include' }),
@@ -81,7 +48,6 @@ export default function Dashboard() {
           const walletsData = await walletsResponse.value.json();
           setWallets(Array.isArray(walletsData) ? walletsData : []);
         } else {
-          // Use mock data if API call fails
           const { mockWallets } = await import('../mocks/dashboardMocks');
           setWallets(mockWallets);
         }
@@ -91,10 +57,8 @@ export default function Dashboard() {
           const tasksData = await tasksResponse.value.json();
           setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
         } else {
-          // Use mock data if API call fails
           const { mockTasks } = await import('../mocks/dashboardMocks');
           setRecentTasks(mockTasks);
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/Dashboard.tsx
         }
 
         // Handle transactions response
@@ -102,13 +66,11 @@ export default function Dashboard() {
           const transactionsData = await transactionsResponse.value.json();
           setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
         } else {
-          // Use mock data if API call fails
           const { mockTransactions } = await import('../mocks/dashboardMocks');
           setRecentTransactions(mockTransactions);
         }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
-        // Fallback to all mock data if there's an error
         try {
           const { mockWallets, mockTasks, mockTransactions } = await import('../mocks/dashboardMocks');
           setWallets(mockWallets);
@@ -128,7 +90,6 @@ export default function Dashboard() {
   const usdWallet = wallets.find(w => w.currency_type === 'USD');
 
   interface DashboardDataPoint {
-    [key: string]: string | number;
     date: string;
     earnings: number;
     tasks: number;
@@ -136,7 +97,6 @@ export default function Dashboard() {
     xp: number;
   }
 
-  // Generate analytics data for dashboard
   const generateDashboardData = (): DashboardDataPoint[] => {
     const last30Days = Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
@@ -153,31 +113,15 @@ export default function Dashboard() {
   };
 
   const dashboardData = generateDashboardData();
-<<<<<<< HEAD:frontend/src/react-app/pages/Dashboard.tsx
 
   const activityBreakdown = [
-=======
-  
-  interface ActivityBreakdownItem {
-    name: string;
-    value: number;
-    color: string;
-  }
-
-  const activityBreakdown: ActivityBreakdownItem[] = [
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/Dashboard.tsx
     { name: 'Task Completions', value: 40, color: '#f97316' },
     { name: 'Social Actions', value: 30, color: '#8b5cf6' },
     { name: 'Content Creation', value: 20, color: '#10b981' },
     { name: 'Investments', value: 10, color: '#3b82f6' }
   ];
 
-  interface PerformanceMetric {
-    metric: string;
-    value: number;
-  }
-
-  const performanceMetrics: PerformanceMetric[] = [
+  const performanceMetrics = [
     { metric: 'Task Success Rate', value: 87.5 },
     { metric: 'Daily Activity', value: 23.2 },
     { metric: 'Earning Efficiency', value: 156.8 },
@@ -189,53 +133,14 @@ export default function Dashboard() {
     return (
       <div className="space-y-8">
         <div className="h-32 rounded-2xl bg-gradient-to-r from-orange-200 to-red-200 animate-pulse" />
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={`kpi-skeleton-${index}`}
-              className="h-32 rounded-xl border border-orange-100 bg-pr-surface-card/60 animate-pulse"
-            />
+            <div key={index} className="h-32 rounded-xl border border-orange-100 bg-pr-surface-card/60 animate-pulse" />
           ))}
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={`chart-skeleton-${index}`}
-              className="h-80 rounded-xl border border-pr-surface-3 bg-pr-surface-2 animate-pulse"
-            />
-          ))}
-        </div>
-
-        <div className="rounded-xl border border-pr-surface-3 bg-pr-surface-card/80 p-6 animate-pulse">
-          <div className="h-6 bg-pr-surface-3 rounded w-40 mb-6" />
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={`stat-skeleton-${index}`} className="h-24 bg-pr-surface-3/70 rounded-lg" />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-pr-surface-3 bg-pr-surface-card/80 p-6 animate-pulse">
-          <div className="h-6 bg-pr-surface-3 rounded w-48 mb-4" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={`quick-action-skeleton-${index}`} className="h-16 rounded-lg bg-pr-surface-3/70" />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div key={`list-skeleton-${index}`} className="rounded-xl border border-pr-surface-3 bg-pr-surface-card/80 p-6 animate-pulse">
-              <div className="h-6 bg-pr-surface-3 rounded w-56 mb-4" />
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((__, itemIndex) => (
-                  <div key={`list-item-skeleton-${index}-${itemIndex}`} className="h-16 bg-pr-surface-3/80 rounded-lg" />
-                ))}
-              </div>
-            </div>
+            <div key={index} className="h-80 rounded-xl border border-pr-surface-3 bg-pr-surface-2 animate-pulse" />
           ))}
         </div>
       </div>
@@ -254,7 +159,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Enhanced KPI Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Total Earnings"
@@ -264,7 +169,6 @@ export default function Dashboard() {
           icon={<DollarSign className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.earnings }))}
         />
-
         <KPICard
           title="PromoGems"
           value={(authUser?.gems_balance || 0).toFixed(0)}
@@ -273,7 +177,6 @@ export default function Dashboard() {
           icon={<Diamond className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.earnings * 0.8 }))}
         />
-
         <KPICard
           title="XP Points"
           value={(authUser?.xp_points || 0).toLocaleString()}
@@ -282,7 +185,6 @@ export default function Dashboard() {
           icon={<TrendingUp className="w-5 h-5" />}
           trend={dashboardData.slice(-7).map(d => ({ date: d.date, value: d.xp }))}
         />
-
         <KPICard
           title="Current Level"
           value={authUser?.level || 1}
@@ -295,7 +197,6 @@ export default function Dashboard() {
 
       {/* Analytics Dashboard */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Activity Overview */}
         <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
           <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Activity Overview</h3>
           <MultiMetricChart
@@ -308,39 +209,19 @@ export default function Dashboard() {
             ]}
           />
         </div>
-
-        {/* Activity Breakdown */}
         <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
           <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Activity Distribution</h3>
-          <ActivityBreakdown
-            data={activityBreakdown}
-            height={300}
-          />
+          <ActivityBreakdown data={activityBreakdown} height={300} />
         </div>
-
-        {/* Performance Metrics */}
         <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
           <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Performance Metrics</h3>
-          <PerformanceMetrics
-            data={performanceMetrics}
-            height={300}
-          />
+          <PerformanceMetrics data={performanceMetrics} height={300} />
         </div>
-
-        {/* Earnings Trend */}
-<<<<<<< HEAD:frontend/src/react-app/pages/Dashboard.tsx
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">Earnings Trend</h3>
+        <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
+          <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Earnings Trend</h3>
           <EarningsChart
             data={dashboardData.map(d => ({
               date: d.date,
-=======
-        <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
-          <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Earnings Trend</h3>
-          <EarningsChart 
-            data={dashboardData.map(d => ({ 
-              date: d.date, 
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/Dashboard.tsx
               earnings: d.earnings,
               gems: d.earnings * 0.8,
               points: d.activity
@@ -350,7 +231,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Real-time Activity Stats */}
+      {/* Today's Activity */}
       <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
         <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Today's Activity</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -377,7 +258,7 @@ export default function Dashboard() {
           <div className="text-center p-4 bg-yellow-50 rounded-lg">
             <Eye className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
             <p className="text-2xl font-bold text-yellow-900">156</p>
-            <p className="text-sm text-yellow-600">Content Views</p>
+            <p className="text-sm text-yellow-600">Views</p>
           </div>
           <div className="text-center p-4 bg-indigo-50 rounded-lg">
             <Users className="w-6 h-6 text-indigo-600 mx-auto mb-2" />
@@ -391,17 +272,15 @@ export default function Dashboard() {
       <div className="bg-pr-surface-card rounded-xl p-6 shadow-sm border border-pr-surface-3">
         <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-colors">
+          <button onClick={() => navigate('/marketplace')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-colors">
             <Plus className="w-5 h-5 text-blue-600" />
-            <span className="font-medium text-blue-700">Create Task</span>
+            <span className="font-medium text-blue-700">Explore Marketplace</span>
           </button>
-
-          <button className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors">
+          <button onClick={() => navigate('/marketplace')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors">
             <Eye className="w-5 h-5 text-green-600" />
             <span className="font-medium text-green-700">Browse Tasks</span>
           </button>
-
-          <button className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors">
+          <button onClick={() => navigate('/invest')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors">
             <TrendingUp className="w-5 h-5 text-purple-600" />
             <span className="font-medium text-purple-700">Invest in Content</span>
           </button>
@@ -410,90 +289,51 @@ export default function Dashboard() {
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Tasks */}
         <div className="bg-pr-surface-card rounded-xl p-6 shadow-sm border border-pr-surface-3">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-pr-text-1">Latest Tasks</h2>
-            <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">
-              View All
-            </button>
+            <button onClick={() => navigate('/marketplace')} className="text-orange-600 hover:text-orange-700 text-sm font-medium">View All</button>
           </div>
           <div className="space-y-3">
-            {recentTasks.length > 0 ? (
-              recentTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-pr-surface-2 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-pr-text-1 truncate">{task.title}</p>
-                    <p className="text-xs text-pr-text-2">{task.category}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-green-600">${task.reward_amount}</p>
-                    <p className="text-xs text-pr-text-2 capitalize">{task.difficulty}</p>
-                  </div>
+            {recentTasks.map((task) => (
+              <div key={task.id} className="flex items-center justify-between p-3 bg-pr-surface-2 rounded-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-pr-text-1 truncate">{task.title}</p>
+                  <p className="text-xs text-pr-text-2">{task.category}</p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <ClipboardList className="mx-auto h-12 w-12 text-orange-500" />
-                <h3 className="mt-4 text-lg font-semibold text-pr-text-1">You&apos;re all caught up</h3>
-                <p className="mt-2 text-sm text-pr-text-2">
-                  No tasks right now—explore the marketplace to grab fresh opportunities.
-                </p>
-                <button
-                  onClick={() => navigate('/marketplace')}
-                  className="mt-6 inline-flex items-center rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
-                >
-                  Browse marketplace
-                </button>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-green-600">${task.reward_amount}</p>
+                  <p className="text-xs text-pr-text-2 capitalize">{task.difficulty}</p>
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
-
-        {/* Recent Transactions */}
         <div className="bg-pr-surface-card rounded-xl p-6 shadow-sm border border-pr-surface-3">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-pr-text-1">Recent Transactions</h2>
-            <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">
-              View All
-            </button>
+            <button onClick={() => navigate('/wallet')} className="text-orange-600 hover:text-orange-700 text-sm font-medium">View All</button>
           </div>
           <div className="space-y-3">
-            {recentTransactions.length > 0 ? (
-              recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between p-3 bg-pr-surface-2 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-pr-text-1">{transaction.description || transaction.transaction_type}</p>
-                      <p className="text-xs text-pr-text-2">{new Date(transaction.created_at).toLocaleDateString()}</p>
-                    </div>
+            {recentTransactions.map((transaction) => (
+              <div key={transaction.id} className="flex items-center justify-between p-3 bg-pr-surface-2 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-blue-600" />
                   </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-semibold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-pr-text-2 capitalize">{transaction.status}</p>
+                  <div>
+                    <p className="text-sm font-medium text-pr-text-1">{transaction.description || transaction.transaction_type}</p>
+                    <p className="text-xs text-pr-text-2">{new Date(transaction.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <CreditCard className="mx-auto h-12 w-12 text-blue-500" />
-                <h3 className="mt-4 text-lg font-semibold text-pr-text-1">No transactions yet</h3>
-                <p className="mt-2 text-sm text-pr-text-2">
-                  Once you start completing tasks and earning, your history will appear here.
-                </p>
-                <button
-                  onClick={() => navigate('/marketplace')}
-                  className="mt-6 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                >
-                  Discover earning opportunities
-                </button>
+                <div className="text-right">
+                  <p className={`text-sm font-semibold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
+                  </p>
+                  <p className="text-xs text-pr-text-2 capitalize">{transaction.status}</p>
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>

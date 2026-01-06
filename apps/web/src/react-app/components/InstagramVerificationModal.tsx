@@ -223,113 +223,36 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
 
         {step === 2 && (
           <div className="space-y-6">
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-<<<<<<< HEAD:frontend/src/react-app/components/InstagramVerificationModal.tsx
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Code for your bio:</h4>
-                    <code className="text-lg font-mono bg-white px-3 py-2 rounded border mt-2 block">
-                      {verificationCode}
-                    </code>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(verificationCode)}
-                    className="p-2 bg-gray-200 hover:bg-gray-300 rounded transition-colors"
-                    title="Copy code"
-                  >
-                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                  </button>
-=======
-              <h3 className="mb-2 text-lg font-semibold text-pr-text-1">Send Verification DM</h3>
-              <p className="text-sm text-pr-text-2">
-                Send a DM to @promorangco on Instagram with the word below
-              </p>
-            </div>
+            <h3 className="mb-2 text-lg font-semibold text-pr-text-1">Code for your bio</h3>
+            <p className="text-sm text-pr-text-2">
+              Add this unique code to your Instagram bio to verify your account.
+            </p>
 
             <div className="rounded-lg bg-pr-surface-2 p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-pr-text-1">Message to send:</h4>
-                  <code className="mt-2 block rounded border bg-pr-surface-card px-3 py-2 font-mono text-lg">
-                    promopoints
+                <div className="flex-1">
+                  <h4 className="font-medium text-pr-text-1">Verification Code:</h4>
+                  <code className="mt-2 block rounded border bg-pr-surface-card px-3 py-2 font-mono text-lg text-pr-text-1">
+                    {verificationCode}
                   </code>
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/InstagramVerificationModal.tsx
                 </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 mb-2">Next Steps:</h4>
-                <ol className="text-sm text-blue-700 space-y-1">
-                  <li>1. Open Instagram and Edit Profile</li>
-                  <li>2. Paste the code anywhere in your <strong>Bio</strong></li>
-                  <li>3. Save your profile</li>
-                  <li>4. Click "Verify & Claim" below</li>
-                </ol>
-              </div>
-
-              <div className="space-y-3">
                 <button
-<<<<<<< HEAD:frontend/src/react-app/components/InstagramVerificationModal.tsx
-                  onClick={handleClaimPoints}
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                  onClick={() => copyToClipboard(verificationCode)}
+                  className="ml-3 p-2 bg-pr-surface-3 hover:bg-pr-surface-card rounded-lg transition-colors border border-pr-surface-3"
+                  title="Copy verification code"
                 >
-                  {loading ? 'Verifying...' : 'Verify & Claim Points'}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setStep(1);
-                    setInstagramUsername('');
-                    setError(null);
-                  }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Try Different Username
-=======
-                  onClick={() => copyToClipboard('promopoints')}
-                  className="rounded bg-pr-surface-3 p-2 transition-colors hover:bg-pr-surface-3"
-                  title="Copy message"
-                >
-                  {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/InstagramVerificationModal.tsx
+                  {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5 text-pr-text-2" />}
                 </button>
               </div>
+            </div>
 
-<<<<<<< HEAD:frontend/src/react-app/components/InstagramVerificationModal.tsx
-              {/* Influence Rewards Promotion for Step 2 */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mt-6">
-                <h4 className="font-medium text-purple-900 mb-2 flex items-center space-x-2">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Maximize Your Instagram Earning Potential!</span>
-                </h4>
-                <p className="text-sm text-purple-700 mb-4">
-                  While you wait for verification, explore our <strong>Influence Rewards</strong> program for dynamic monthly points based on your follower count.
-                </p>
-                <button
-                  onClick={() => {
-                    onClose(); // Close the current modal
-                    // Navigate to profile with query param to open Influence Rewards
-                    window.location.href = '/profile?openInfluenceRewards=true';
-                  }}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                >
-                  Discover Influence Rewards
-                </button>
-=======
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <h4 className="mb-2 font-medium text-blue-900">Next Steps:</h4>
               <ol className="space-y-1 text-sm text-blue-700">
-                <li>1. Open Instagram and go to @promorangco</li>
-                <li>
-                  2. Send a DM with exactly: <strong>promopoints</strong>
-                </li>
-                <li>3. Wait for verification (usually within 24 hours)</li>
-                <li>4. Return here to claim your monthly points</li>
+                <li>1. Open Instagram and go to your profile</li>
+                <li>2. Paste the code anywhere in your <strong>Bio</strong></li>
+                <li>3. Save your profile changes</li>
+                <li>4. Return here to verify and claim your rewards</li>
               </ol>
             </div>
 
@@ -339,7 +262,7 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
                 disabled={loading}
                 className="w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 font-medium text-white transition-all duration-200 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50"
               >
-                {loading ? 'Checking...' : 'Claim Points (if verified)'}
+                {loading ? 'Verifying...' : 'Verify & Claim Points'}
               </button>
 
               <button
@@ -360,7 +283,7 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
                 <span>Maximize Your Instagram Earning Potential!</span>
               </h4>
               <p className="mb-4 text-sm text-purple-700">
-                While you wait for verification, explore our <strong>Influence Rewards</strong> program for dynamic monthly points based on your follower count.
+                Explore our <strong>Influence Rewards</strong> program for dynamic monthly points based on your follower count.
               </p>
               <button
                 onClick={() => {
@@ -376,15 +299,8 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
             {error && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3">
                 <p className="text-sm text-red-700">{error}</p>
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/InstagramVerificationModal.tsx
               </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         )}
       </div>

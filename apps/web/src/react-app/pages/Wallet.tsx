@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Wallet as WalletIcon, 
-  DollarSign, 
-  ArrowUpRight, 
+import {
+  Wallet as WalletIcon,
+  DollarSign,
+  ArrowUpRight,
   ArrowDownLeft,
   Clock,
   Filter,
@@ -28,12 +28,12 @@ import { buildAuthHeaders } from '@/react-app/utils/api';
 import ListShareModal from '@/react-app/components/ListShareModal';
 import { getPortfolioHoldings } from '@/react-app/services/portfolioService';
 import { fetchShareListings, fetchShareOffers, acceptShareOffer } from '@/react-app/services/sharesService';
-import { 
-  EarningsChart, 
-  PerformanceMetrics, 
-  ActivityBreakdown, 
+import {
+  EarningsChart,
+  PerformanceMetrics,
+  ActivityBreakdown,
   TrendLine,
-  KPICard 
+  KPICard
 } from '@/react-app/components/AnalyticsCharts';
 
 // Wallet Analytics Component
@@ -55,7 +55,7 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
   };
 
   const earningsData = generateEarningsData();
-  
+
   const currencyBreakdown = [
     { name: 'Points', value: userData?.points_balance || 0, color: '#3b82f6' },
     { name: 'Keys', value: (userData?.keys_balance || 0) * 10, color: '#f97316' },
@@ -99,7 +99,7 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
           icon={<TrendingUp className="w-5 h-5" />}
           trend={earningsData.slice(-7).map(d => ({ date: d.date, value: d.earnings }))}
         />
-        
+
         <KPICard
           title="All Time"
           value="$1,456.80"
@@ -108,7 +108,7 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
           icon={<Activity className="w-5 h-5" />}
           trend={earningsData.slice(-7).map(d => ({ date: d.date, value: d.earnings * 5 }))}
         />
-        
+
         <KPICard
           title="Pending"
           value="$89.25"
@@ -117,7 +117,7 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
           icon={<Clock className="w-5 h-5" />}
           trend={earningsData.slice(-7).map(d => ({ date: d.date, value: d.earnings * 0.5 }))}
         />
-        
+
         <KPICard
           title="Available"
           value="$234.75"
@@ -133,7 +133,7 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
         {/* Earnings Trend */}
         <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
           <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Earnings Trend (30 Days)</h3>
-          <EarningsChart 
+          <EarningsChart
             data={earningsData}
             height={300}
           />
@@ -161,10 +161,10 @@ function WalletAnalyticsOverview({ userData }: { userData: UserType | null; tran
         <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
           <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Currency Growth</h3>
           <TrendLine
-            data={earningsData.map(d => ({ 
-              date: d.date, 
-              value: d.points, 
-              secondary: d.gems * 5 
+            data={earningsData.map(d => ({
+              date: d.date,
+              value: d.points,
+              secondary: d.gems * 5
             }))}
             height={300}
             primaryKey="value"
@@ -398,9 +398,8 @@ function PortfolioHoldingsSection({
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                    holding.day_change_pct >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${holding.day_change_pct >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                    }`}>
                     {holding.day_change_pct >= 0 ? '+' : ''}{holding.day_change_pct.toFixed(2)}%
                   </span>
                 </td>
@@ -582,6 +581,7 @@ function OffersSection({
 }
 
 export default function Wallet() {
+  const navigate = useNavigate();
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -625,11 +625,11 @@ export default function Wallet() {
     try {
       console.log('=== fetchWalletData Debug ===');
       console.log('Starting wallet data fetch...');
-      
+
       // Check authentication with comprehensive logging
       console.log('Checking authentication with Mocha service...');
       console.log('Current cookies:', document.cookie);
-      
+
       const authHeaders = buildAuthHeaders();
       const authResponse = await fetch('/api/users/me', {
         credentials: 'include',
@@ -640,16 +640,16 @@ export default function Wallet() {
         statusText: authResponse.statusText,
         headers: Object.fromEntries(authResponse.headers.entries())
       });
-      
+
       let authData = null;
       try {
         const responseText = await authResponse.text();
         console.log('Raw auth response:', responseText);
-        
+
         if (responseText) {
           authData = JSON.parse(responseText);
         }
-        
+
         console.log('Auth data parsed:', {
           isNull: authData === null,
           hasId: !!(authData?.id),
@@ -660,28 +660,28 @@ export default function Wallet() {
       } catch (parseError) {
         console.error('Failed to parse auth response:', parseError);
       }
-      
+
       if (!authData || authData === null) {
         console.log('User not authenticated - showing error and manual auth options');
         // Don't redirect immediately, show user state for debugging
         setUserData(null);
         setWallets([]);
         setTransactions([]);
-        
+
         // Set a temporary notification instead of redirecting
         alert('Authentication failed. Please try the "Force Re-Login" button or refresh the page.');
         return;
       }
-      
+
       console.log('User is authenticated, fetching user data...');
-      
+
       // Fetch user data from database with error handling
       const response = await fetch('/api/users/me/wallets', {
         credentials: 'include',
         headers: buildAuthHeaders()
       });
       console.log('User data response status:', response.status);
-      
+
       let userData = null;
       try {
         userData = await response.json();
@@ -696,7 +696,7 @@ export default function Wallet() {
       } catch (parseError) {
         console.error('Failed to parse user response:', parseError);
       }
-      
+
       // Handle error responses
       if (userData?.error) {
         console.error('User data API error:', userData.error);
@@ -705,7 +705,7 @@ export default function Wallet() {
           return;
         }
       }
-      
+
       // If still no user data, create temporary user for display
       if (!userData || userData === null || userData?.error) {
         console.log('No valid database user found, creating temporary user...');
@@ -739,7 +739,7 @@ export default function Wallet() {
           master_key_activated_at: undefined,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-  };
+        };
         console.log('Using temporary user data:', tempUser);
         setUserData(tempUser);
       } else {
@@ -750,7 +750,7 @@ export default function Wallet() {
         });
         setUserData(userData);
       }
-      
+
       // Fetch wallets and transactions with error handling
       try {
         const sharedHeaders = buildAuthHeaders();
@@ -794,7 +794,7 @@ export default function Wallet() {
         setWallets([]);
         setTransactions([]);
       }
-      
+
     } catch (error) {
       console.error('Failed to fetch wallet data:', error);
       if (error instanceof Error) {
@@ -885,7 +885,7 @@ export default function Wallet() {
     console.log('Current userData:', userData);
     setShowGemStoreModal(true);
     console.log('Setting showGemStoreModal to true');
-    
+
     // Force re-render to ensure state change is detected
     setTimeout(() => {
       console.log('showGemStoreModal after timeout:', showGemStoreModal);
@@ -958,7 +958,7 @@ export default function Wallet() {
             <p className="text-3xl font-bold">{userData?.points_balance?.toLocaleString() || '0'}</p>
             <p className="text-blue-100 text-sm">Earn from social actions</p>
           </div>
-          <button 
+          <button
             onClick={handleConvertCurrency}
             className="w-full bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-4 text-sm font-medium transition-colors"
           >
@@ -981,7 +981,7 @@ export default function Wallet() {
             <p className="text-3xl font-bold">{userData?.keys_balance || '0'}</p>
             <p className="text-orange-100 text-sm">Apply for paid drops</p>
           </div>
-          <button 
+          <button
             onClick={() => setShowMasterKeyModal(true)}
             className="w-full bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-4 text-sm font-medium transition-colors"
           >
@@ -1005,19 +1005,19 @@ export default function Wallet() {
             <p className="text-purple-100 text-sm">Earn from completed drops</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <button 
+            <button
               onClick={handleBuyMoreGems}
               className="bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-2 text-xs font-medium transition-colors"
             >
               Buy More
             </button>
-            <button 
+            <button
               onClick={handleConvertCurrency}
               className="bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-2 text-xs font-medium transition-colors"
             >
               Convert
             </button>
-            <button 
+            <button
               onClick={handleWithdrawGems}
               disabled={(userData?.gems_balance || 0) < 200}
               className="bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-2 text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1043,13 +1043,13 @@ export default function Wallet() {
             <p className="text-yellow-100 text-sm">Prestige currency</p>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <button 
+            <button
               onClick={() => setShowGoldShopModal(true)}
               className="bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-2 text-xs font-medium transition-colors"
             >
               Gold Shop
             </button>
-            <button 
+            <button
               onClick={() => setShowAchievementsModal(true)}
               className="bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-2 text-xs font-medium transition-colors"
             >
@@ -1077,7 +1077,7 @@ export default function Wallet() {
             <button className="flex-1 bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-4 text-sm font-medium transition-colors">
               Withdraw
             </button>
-            <button 
+            <button
               onClick={() => setShowPaymentPreferencesModal(true)}
               className="flex-1 bg-pr-surface-card/20 hover:bg-pr-surface-card/30 backdrop-blur-sm rounded-lg py-2 px-4 text-sm font-medium transition-colors"
             >
@@ -1122,21 +1122,19 @@ export default function Wallet() {
           <nav className="flex space-x-8 px-6">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 border-b-2 font-medium text-sm ${
-                activeTab === 'overview'
+              className={`py-4 border-b-2 font-medium text-sm ${activeTab === 'overview'
                   ? 'border-orange-500 text-orange-600'
                   : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
-              }`}
+                }`}
             >
               Overview
             </button>
             <button
               onClick={() => setActiveTab('transactions')}
-              className={`py-4 border-b-2 font-medium text-sm ${
-                activeTab === 'transactions'
+              className={`py-4 border-b-2 font-medium text-sm ${activeTab === 'transactions'
                   ? 'border-orange-500 text-orange-600'
                   : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
-              }`}
+                }`}
             >
               Transactions
             </button>
@@ -1222,21 +1220,21 @@ export default function Wallet() {
         onClose={handleCloseCurrencyModal}
         onSuccess={fetchWalletData}
       />
-      
+
       <MasterKeyModal
         user={userData}
         isOpen={showMasterKeyModal}
         onClose={() => setShowMasterKeyModal(false)}
         onSuccess={fetchWalletData}
       />
-      
+
       <GoldShopModal
         user={userData}
         isOpen={showGoldShopModal}
         onClose={() => setShowGoldShopModal(false)}
         onPurchase={fetchWalletData}
       />
-      
+
       <WithdrawalModal
         user={userData}
         isOpen={showWithdrawalModal}
@@ -1250,21 +1248,21 @@ export default function Wallet() {
         holding={selectedHolding}
         onSuccess={handleListingSuccess}
       />
-      
+
       <PaymentPreferencesModal
         user={userData}
         isOpen={showPaymentPreferencesModal}
         onClose={() => setShowPaymentPreferencesModal(false)}
         onSuccess={fetchWalletData}
       />
-      
+
       <GemStoreModal
         user={userData}
         isOpen={showGemStoreModal}
         onClose={handleCloseGemStore}
         onSuccess={fetchWalletData}
       />
-      
+
       <AchievementsModal
         user={userData}
         isOpen={showAchievementsModal}

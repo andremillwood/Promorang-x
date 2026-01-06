@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/react-app/hooks/useAuth';
-import { 
+import {
   TrendingUp,
   DollarSign,
   Star,
@@ -400,7 +400,7 @@ export default function HomeFeed() {
     let dropIndex = 0;
     let couponIndex = 0;
     let itemCount = 0;
-    
+
     while (contentIndex < regularContent.length || dropIndex < dropFeed.length || couponIndex < coupons.length) {
       // Add 2 content items
       if (contentIndex < regularContent.length) {
@@ -413,7 +413,7 @@ export default function HomeFeed() {
         contentIndex++;
         itemCount++;
       }
-      
+
       // Add 1 drop
       if (dropIndex < dropFeed.length) {
         mixedFeed.push({ type: 'drop', data: dropFeed[dropIndex] });
@@ -459,7 +459,7 @@ export default function HomeFeed() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h1 className="text-3xl font-bold mb-2 leading-tight">
-                  Welcome back, {user?.google_user_data?.given_name || 'Creator'}! 👋
+                  Welcome back, {user?.google_user_data?.given_name || 'User'}! 👋
                 </h1>
                 <p className="text-orange-100 text-base">
                   Ready to turn your influence into income?
@@ -547,11 +547,10 @@ export default function HomeFeed() {
               <button
                 key={tab.key}
                 onClick={() => handleTabChange(tab.key as any)}
-                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-base transition-all duration-200 ${
-                  activeTab === tab.key
+                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-base transition-all duration-200 ${activeTab === tab.key
                     ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50 shadow-sm'
                     : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
-                }`}
+                  }`}
               >
                 {tab.icon}
                 <span>{tab.label}</span>

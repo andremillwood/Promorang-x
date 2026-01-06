@@ -52,7 +52,7 @@ export default function AuthPage() {
 
   const trackReferral = async (userId: string) => {
     if (!referralCode) return;
-    
+
     try {
       await fetch('/api/referrals/track-referral', {
         method: 'POST',
@@ -88,7 +88,7 @@ export default function AuthPage() {
           if (referralCode && result.user?.id) {
             await trackReferral(result.user.id);
           }
-          navigate('/dashboard');
+          navigate('/onboarding');
         }
       } else {
         if (!formData.email || !formData.password) {
@@ -398,8 +398,8 @@ export default function AuthPage() {
             </div>
             {!isSignUp && (
               <div className="mt-1 text-right">
-                <a 
-                  href="/auth/reset-password" 
+                <a
+                  href="/auth/reset-password"
                   className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline"
                   onClick={(e) => {
                     e.preventDefault();

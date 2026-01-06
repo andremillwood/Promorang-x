@@ -30,6 +30,10 @@ interface Cart {
 export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponData, setCouponData] = useState<any>(null);
+  const [couponError, setCouponError] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -57,10 +61,10 @@ export default function Checkout() {
         credentials: 'include',
       });
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setCart(data.data.cart);
-        
+
         if (!data.data.cart || !data.data.cart.cart_items || data.data.cart.cart_items.length === 0) {
           navigate('/cart');
         }
@@ -109,9 +113,9 @@ export default function Checkout() {
     () =>
       Boolean(
         shippingAddress.street.trim() &&
-          shippingAddress.city.trim() &&
-          shippingAddress.state.trim() &&
-          shippingAddress.zip.trim()
+        shippingAddress.city.trim() &&
+        shippingAddress.state.trim() &&
+        shippingAddress.zip.trim()
       ),
     [shippingAddress]
   );
@@ -130,6 +134,67 @@ export default function Checkout() {
     const firstIncomplete = steps.findIndex((step) => !step.complete);
     return firstIncomplete === -1 ? steps.length - 1 : firstIncomplete;
   }, [steps]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    setIsValidatingCoupon(true);
+    setCouponError('');
+    setCouponData(null);
+
+    try {
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          code: couponCode,
+          cart_total: {
+            usd: totals.usd,
+            gems: totals.gems,
+            gold: totals.gold
+          }
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        const coupon = data.data.coupon;
+
+        // If coupon is store-specific, verify we have items from that store
+        if (coupon.store_id) {
+          const storeGroup = storeGroups[coupon.store_id];
+          if (!storeGroup) {
+            setCouponError('This coupon applies to a store you do not have items from.');
+            return;
+          }
+
+          // Re-validate minimums against specific store total
+          const storeTotalUsd = storeGroup.items.reduce((sum, item) => sum + (item.price_usd || 0) * item.quantity, 0);
+
+          if (coupon.min_purchase_usd && storeTotalUsd < coupon.min_purchase_usd) {
+            setCouponError(`Minimum purchase of $${coupon.min_purchase_usd} required from ${storeGroup.storeName}.`);
+            return;
+          }
+        }
+
+        setCouponData(data.data);
+        toast({
+          title: 'Coupon applied!',
+          description: `You save ${data.data.discount.usd ? '$' + data.data.discount.usd.toFixed(2) : ''} ${data.data.discount.gems ? data.data.discount.gems + ' Gems' : ''}`,
+          type: 'success',
+        });
+      } else {
+        setCouponError(data.message || 'Invalid coupon code');
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error);
+      setCouponError('Failed to validate coupon');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
 
   const handleCheckout = async () => {
     const newErrors: Record<string, string> = {};
@@ -158,12 +223,27 @@ export default function Checkout() {
     setFieldErrors({});
 
     setProcessing(true);
-    
+
     try {
       const storeIds = Object.keys(storeGroups);
 
       // Create orders for each store
       for (const storeId of storeIds) {
+        // Determine if coupon applies to this store
+        let applyCouponCode = null;
+        if (couponData && couponData.coupon) {
+          if (couponData.coupon.store_id === storeId) {
+            applyCouponCode = couponData.coupon.code;
+          } else if (!couponData.coupon.store_id) {
+            // Platform-wide coupon logic - risky for split orders but passing for now
+            // Using logic: if max_uses_per_user > 1, or if first iteration?
+            // For safety, let's only apply platform coupons to the FIRST store order to avoid errors
+            if (storeIds.indexOf(storeId) === 0) {
+              applyCouponCode = couponData.coupon.code;
+            }
+          }
+        }
+
         const orderResponse = await fetch('/api/marketplace/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -173,21 +253,23 @@ export default function Checkout() {
             payment_method: paymentMethod,
             shipping_address: shippingAddress,
             customer_notes: '',
+            coupon_code: applyCouponCode,
           }),
         });
 
         const orderData = await orderResponse.json();
-        
+
         if (orderData.status === 'success') {
           // Process payment
           const paymentResponse = await fetch(`/api/marketplace/orders/${orderData.data.order.id}/pay`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
+            body: JSON.stringify({}),
           });
 
           const paymentData = await paymentResponse.json();
-          
+
           if (paymentData.status !== 'success') {
             throw new Error(paymentData.message || 'Payment failed');
           }
@@ -214,6 +296,16 @@ export default function Checkout() {
       setProcessing(false);
     }
   };
+
+  // Calculate final totals with discount for display
+  const finalTotals = useMemo(() => {
+    if (!couponData || !couponData.discount) return totals;
+    return {
+      usd: Math.max(0, totals.usd - (couponData.discount.usd || 0)),
+      gems: Math.max(0, totals.gems - (couponData.discount.gems || 0)),
+      gold: Math.max(0, totals.gold - (couponData.discount.gold || 0)),
+    };
+  }, [totals, couponData]);
 
   if (loading) {
     return (
@@ -243,23 +335,21 @@ export default function Checkout() {
               return (
                 <li
                   key={step.title}
-                  className={`rounded-xl border p-4 transition-all ${
-                    isComplete
+                  className={`rounded-xl border p-4 transition-all ${isComplete
                       ? 'border-blue-600 bg-blue-50'
                       : isCurrent
                         ? 'border-blue-400 bg-pr-surface-card shadow-sm'
                         : 'border-pr-surface-3 bg-pr-surface-card'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold ${
-                        isComplete
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold ${isComplete
                           ? 'border-blue-600 bg-blue-600 text-white'
                           : isCurrent
                             ? 'border-blue-500 text-blue-600'
                             : 'border-pr-surface-3 text-pr-text-2'
-                      }`}
+                        }`}
                     >
                       {isComplete ? <Check className="h-4 w-4" /> : index + 1}
                     </div>
@@ -297,9 +387,8 @@ export default function Checkout() {
                         setFieldErrors((prev) => ({ ...prev, email: '' }));
                       }
                     }}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      fieldErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
+                      }`}
                     placeholder="your@email.com"
                     required
                   />
@@ -339,9 +428,8 @@ export default function Checkout() {
                         setFieldErrors((prev) => ({ ...prev, street: '' }));
                       }
                     }}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      fieldErrors.street ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fieldErrors.street ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
+                      }`}
                     placeholder="123 Main St"
                   />
                   {fieldErrors.street && (
@@ -362,9 +450,8 @@ export default function Checkout() {
                           setFieldErrors((prev) => ({ ...prev, city: '' }));
                         }
                       }}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        fieldErrors.city ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fieldErrors.city ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
+                        }`}
                       placeholder="New York"
                     />
                     {fieldErrors.city && (
@@ -384,9 +471,8 @@ export default function Checkout() {
                           setFieldErrors((prev) => ({ ...prev, state: '' }));
                         }
                       }}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        fieldErrors.state ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fieldErrors.state ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
+                        }`}
                       placeholder="NY"
                     />
                     {fieldErrors.state && (
@@ -408,9 +494,8 @@ export default function Checkout() {
                           setFieldErrors((prev) => ({ ...prev, zip: '' }));
                         }
                       }}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        fieldErrors.zip ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fieldErrors.zip ? 'border-red-500 focus:ring-red-500' : 'border-pr-surface-3'
+                        }`}
                       placeholder="10001"
                     />
                     {fieldErrors.zip && (
@@ -439,18 +524,16 @@ export default function Checkout() {
             <Card className="p-6">
               <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Payment Method</h2>
               <div className="space-y-3">
-                {totals.usd > 0 && (
+                {finalTotals.usd > 0 && (
                   <button
                     onClick={() => setPaymentMethod('stripe')}
-                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${
-                      paymentMethod === 'stripe'
+                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${paymentMethod === 'stripe'
                         ? 'border-blue-600 bg-blue-50'
                         : 'border-pr-surface-3 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === 'stripe' ? 'border-blue-600' : 'border-pr-surface-3'
-                    }`}>
+                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'stripe' ? 'border-blue-600' : 'border-pr-surface-3'
+                      }`}>
                       {paymentMethod === 'stripe' && (
                         <div className="h-3 w-3 rounded-full bg-blue-600"></div>
                       )}
@@ -460,22 +543,20 @@ export default function Checkout() {
                       <p className="font-medium text-pr-text-1">Credit / Debit Card</p>
                       <p className="text-sm text-pr-text-2">Pay with Stripe</p>
                     </div>
-                    <span className="font-semibold text-pr-text-1">${totals.usd.toFixed(2)}</span>
+                    <span className="font-semibold text-pr-text-1">${finalTotals.usd.toFixed(2)}</span>
                   </button>
                 )}
-                
-                {totals.gems > 0 && (
+
+                {finalTotals.gems > 0 && (
                   <button
                     onClick={() => setPaymentMethod('gems')}
-                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${
-                      paymentMethod === 'gems'
+                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${paymentMethod === 'gems'
                         ? 'border-purple-600 bg-purple-50'
                         : 'border-pr-surface-3 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === 'gems' ? 'border-purple-600' : 'border-pr-surface-3'
-                    }`}>
+                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'gems' ? 'border-purple-600' : 'border-pr-surface-3'
+                      }`}>
                       {paymentMethod === 'gems' && (
                         <div className="h-3 w-3 rounded-full bg-purple-600"></div>
                       )}
@@ -485,22 +566,20 @@ export default function Checkout() {
                       <p className="font-medium text-pr-text-1">Gems</p>
                       <p className="text-sm text-pr-text-2">Pay with your gems balance</p>
                     </div>
-                    <span className="font-semibold text-pr-text-1">{totals.gems} 💎</span>
+                    <span className="font-semibold text-pr-text-1">{finalTotals.gems} 💎</span>
                   </button>
                 )}
-                
-                {totals.gold > 0 && (
+
+                {finalTotals.gold > 0 && (
                   <button
                     onClick={() => setPaymentMethod('gold')}
-                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${
-                      paymentMethod === 'gold'
+                    className={`w-full p-4 border-2 rounded-lg flex items-center gap-3 transition-colors ${paymentMethod === 'gold'
                         ? 'border-yellow-600 bg-yellow-50'
                         : 'border-pr-surface-3 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
-                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === 'gold' ? 'border-yellow-600' : 'border-pr-surface-3'
-                    }`}>
+                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'gold' ? 'border-yellow-600' : 'border-pr-surface-3'
+                      }`}>
                       {paymentMethod === 'gold' && (
                         <div className="h-3 w-3 rounded-full bg-yellow-600"></div>
                       )}
@@ -510,8 +589,14 @@ export default function Checkout() {
                       <p className="font-medium text-pr-text-1">Gold</p>
                       <p className="text-sm text-pr-text-2">Pay with your gold balance</p>
                     </div>
-                    <span className="font-semibold text-pr-text-1">{totals.gold} 🪙</span>
+                    <span className="font-semibold text-pr-text-1">{finalTotals.gold} 🪙</span>
                   </button>
+                )}
+
+                {finalTotals.usd === 0 && finalTotals.gems === 0 && finalTotals.gold === 0 && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center text-green-700 font-medium">
+                    Order covered by coupon! No payment required.
+                  </div>
                 )}
               </div>
             </Card>
@@ -521,7 +606,7 @@ export default function Checkout() {
           <div className="lg:col-span-1">
             <Card className="p-6 sticky top-8">
               <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Order Summary</h2>
-              
+
               {cart && cart.cart_items && (
                 <div className="space-y-3 mb-6">
                   {cart.cart_items.map((item) => (
@@ -542,7 +627,51 @@ export default function Checkout() {
                 </div>
               )}
 
-              <div className="border-t pt-4 space-y-2 mb-6">
+              {/* Coupon Input */}
+              <div className="mb-6 border-t pt-4 border-b pb-4">
+                <label className="block text-xs font-medium text-pr-text-2 mb-2 uppercase">Promo Code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    disabled={isValidatingCoupon || !!couponData}
+                    placeholder="Enter code"
+                    className="flex-1 px-3 py-2 border border-pr-surface-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                  />
+                  {couponData ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setCouponData(null);
+                        setCouponCode('');
+                        setCouponError('');
+                      }}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      Remove
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={!couponCode || isValidatingCoupon}
+                      onClick={handleApplyCoupon}
+                      size="sm"
+                      className="bg-pr-text-1 text-pr-surface-1 hover:bg-pr-text-2"
+                    >
+                      {isValidatingCoupon ? '...' : 'Apply'}
+                    </Button>
+                  )}
+                </div>
+                {couponError && <p className="mt-2 text-xs text-red-500">{couponError}</p>}
+                {couponData && (
+                  <p className="mt-2 text-xs text-green-600 font-medium flex items-center gap-1">
+                    <Check className="h-3 w-3" /> Code applied successfully
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-pr-text-2">
                   <span>Subtotal</span>
                   <div className="text-right">
@@ -551,6 +680,18 @@ export default function Checkout() {
                     {totals.gold > 0 && <div>{totals.gold} 🪙</div>}
                   </div>
                 </div>
+
+                {couponData && couponData.discount && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount</span>
+                    <div className="text-right">
+                      {couponData.discount.usd > 0 && <div>-${couponData.discount.usd.toFixed(2)}</div>}
+                      {couponData.discount.gems > 0 && <div>-{couponData.discount.gems} 💎</div>}
+                      {couponData.discount.gold > 0 && <div>-{couponData.discount.gold} 🪙</div>}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-pr-text-2">
                   <span>Shipping</span>
                   <span>Free</span>
@@ -558,9 +699,12 @@ export default function Checkout() {
                 <div className="border-t pt-2 flex justify-between font-semibold text-lg">
                   <span>Total</span>
                   <div className="text-right">
-                    {totals.usd > 0 && <div>${totals.usd.toFixed(2)}</div>}
-                    {totals.gems > 0 && <div>{totals.gems} 💎</div>}
-                    {totals.gold > 0 && <div>{totals.gold} 🪙</div>}
+                    {finalTotals.usd > 0 && <div>${finalTotals.usd.toFixed(2)}</div>}
+                    {finalTotals.gems > 0 && <div>{finalTotals.gems} 💎</div>}
+                    {finalTotals.gold > 0 && <div>{finalTotals.gold} 🪙</div>}
+                    {finalTotals.usd === 0 && finalTotals.gems === 0 && finalTotals.gold === 0 && (
+                      <div>Free</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -595,9 +739,12 @@ export default function Checkout() {
           <div>
             <p className="text-xs uppercase tracking-wide text-pr-text-2">Total</p>
             <div className="text-sm font-semibold text-pr-text-1 space-y-1">
-              {totals.usd > 0 && <div>${totals.usd.toFixed(2)}</div>}
-              {totals.gems > 0 && <div>{totals.gems} 💎</div>}
-              {totals.gold > 0 && <div>{totals.gold} 🪙</div>}
+              {finalTotals.usd > 0 && <div>${finalTotals.usd.toFixed(2)}</div>}
+              {finalTotals.gems > 0 && <div>{finalTotals.gems} 💎</div>}
+              {finalTotals.gold > 0 && <div>{finalTotals.gold} 🪙</div>}
+              {finalTotals.usd === 0 && finalTotals.gems === 0 && finalTotals.gold === 0 && (
+                <div>Free</div>
+              )}
             </div>
           </div>
           <Button

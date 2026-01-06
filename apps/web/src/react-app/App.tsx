@@ -21,6 +21,7 @@ import PredictionDetailPage from "@/react-app/pages/PredictionDetail";
 import TaskDetailPage from "@/react-app/pages/TaskDetail";
 import AdvertiserDashboard from "@/react-app/pages/AdvertiserDashboard";
 import AdvertiserOnboarding from "@/react-app/pages/AdvertiserOnboarding";
+import Onboarding from "@/react-app/pages/Onboarding";
 import AdvertiserLayout from "@/react-app/pages/AdvertiserLayout";
 import AdvertiserCoupons from "@/react-app/pages/AdvertiserCoupons";
 import CouponDetail from "@/react-app/pages/CouponDetail";
@@ -53,6 +54,19 @@ import { Routes as RoutePaths } from "@/react-app/utils/url";
 import OAuthCallback from "@/react-app/pages/OAuthCallback";
 import PasswordResetPage from "@/react-app/pages/PasswordResetPage";
 import SessionManager from "@/react-app/components/auth/SessionManager";
+
+// Restored Marketing Pages
+import ForCreators from "@/react-app/pages/marketing/ForCreators";
+import ForAdvertisers from "@/react-app/pages/marketing/ForAdvertisers";
+import About from "@/react-app/pages/marketing/About";
+import Contact from "@/react-app/pages/marketing/Contact";
+import Privacy from "@/react-app/pages/legal/Privacy";
+import Terms from "@/react-app/pages/legal/Terms";
+import ForShoppers from "@/react-app/pages/marketing/ForShoppers";
+import ForOperators from "@/react-app/pages/marketing/ForOperators";
+import PromoPointsPage from "@/react-app/pages/marketing/PromoPointsPage";
+import WorkforceDashboard from "@/react-app/pages/WorkforceDashboard";
+import WorkforcePodDetail from "@/react-app/pages/WorkforcePodDetail";
 
 // Debug logging
 console.log("🚀 App.tsx: Starting to load...");
@@ -97,187 +111,356 @@ function ProfileRedirect() {
   const deriveSlug = () => {
     if (!user) return undefined;
 
-    const candidates = [
-      (user as any)?.slug,
-      (user as any)?.profile_slug,
-      (user as any)?.username,
-      (user as any)?.user_metadata?.username,
-      (user as any)?.profile?.username,
-      user?.email ? user.email.split('@')[0] : undefined,
-      // Supabase/Mocha user objects should always include an id we can fall back to
-      user?.id ? String(user.id) : undefined,
-    ];
-
-    return candidates.find((value) => typeof value === 'string' && value.trim().length > 0);
+    // TODO: We need a reliable way to get the profile slug.
+    // For now, let's try to infer it from the user metadata if available,
+    // or fallback to the user ID (which the profile page should hopefully handle relative to "me").
+    // ideally the user object has a username or slug field.
+    return (user as any).user_metadata?.username || (user as any).username || user.id;
   };
 
   const slug = deriveSlug();
 
-  if (!slug) {
-    console.warn('[Redirect] Missing profile slug', { userId: user?.id });
-    return <Navigate to="/error" state={{ message: 'Profile unavailable' }} replace />;
+  if (slug) {
+    return <Navigate to={`/profile/${slug}`} replace />;
   }
 
-  console.log('[Redirect]', { userSlug: slug, from: location.pathname });
-
-  const target = RoutePaths.profile(
-    slug,
-    Object.keys(paramsObject).length ? paramsObject : undefined
-  );
-
-  return <Navigate to={target} replace />;
+  // Fallback if we can't determine slug (maybe redirect to settings/profile-setup?)
+  return <Navigate to="/settings" replace />;
 }
 
-// Public route wrapper for marketing/landing pages (no internal navigation)
-function PublicRoute({
-  children,
-  redirectAuthenticated = true,
-  redirectTo = '/dashboard'
-}: { children: ReactNode; redirectAuthenticated?: boolean; redirectTo?: string }) {
-  const { user } = useAuth();
-  const location = useLocation();
-
-  // If user is already logged in, redirect to dashboard
-  if (redirectAuthenticated && user) {
-    const from = location.state?.from?.pathname || redirectTo;
-    return <Navigate to={from} replace />;
-  }
-
-  return <>{children}</>;
-}
-
-const LoadingScreen = () => (
-  <div className="min-h-screen-dynamic flex items-center justify-center">
-    <div className="h-10 w-10 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
-  </div>
-);
-
-const AppRoutesComponent = () => (
-  <Routes>
-    {/* Public routes */}
-    <Route path="/auth" element={
-      <PublicRoute>
-        <AuthPage />
-      </PublicRoute>
-    } />
-    <Route path="/auth/callback" element={<OAuthCallback />} />
-    <Route path="/auth/v1/callback" element={<OAuthCallback />} />
-    <Route path="/oauth/callback" element={<OAuthCallback />} />
-    <Route path="/auth/reset-password" element={
-      <PublicRoute>
-        <PasswordResetPage />
-      </PublicRoute>
-    } />
-    <Route path="/auth/update-password" element={
-      <PublicRoute>
-        <PasswordResetPage />
-      </PublicRoute>
-    } />
-    {/* Legacy or marketing signup links -> redirect to /auth while preserving query params */}
-    <Route path="/signup" element={<Navigate to="/auth" replace />} />
-    <Route path="/" element={
-      <PublicRoute redirectAuthenticated={false}>
-        <HomePage />
-      </PublicRoute>
-    } />
-
-    {/* Protected routes */}
-    <Route path="/dashboard" element={<ProtectedLayout><HomeFeedPage /></ProtectedLayout>} />
-    <Route path="/leaderboard" element={<ProtectedLayout><LeaderboardPage /></ProtectedLayout>} />
-    <Route path="/earn" element={<ProtectedLayout><EarnPage /></ProtectedLayout>} />
-    <Route path="/create" element={<ProtectedLayout><CreatePage /></ProtectedLayout>} />
-    <Route path="/invest" element={<ProtectedLayout><InvestPage /></ProtectedLayout>} />
-    <Route path="/wallet" element={<ProtectedLayout><WalletPage /></ProtectedLayout>} />
-    <Route path="/rewards" element={<ProtectedLayout><Rewards /></ProtectedLayout>} />
-    <Route path="/growth-hub" element={<ProtectedLayout><GrowthHubPage /></ProtectedLayout>} />
-    <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
-    <Route path="/profile" element={<ProtectedLayout><ProfileRedirect /></ProtectedLayout>} />
-    <Route path="/profile/:username" element={<ProtectedLayout><ProfilePage /></ProtectedLayout>} />
-    <Route path="/users/:username" element={<ProtectedLayout><Profile isPublicProfile /></ProtectedLayout>} />
-    <Route path="/users/id/:id" element={<ProtectedLayout><Profile isPublicProfile useUserId /></ProtectedLayout>} />
-    <Route path="/holding/:holdingId" element={<ProtectedLayout><HoldingDetailPage /></ProtectedLayout>} />
-    <Route path="/portfolio/holdings/:holdingId" element={<ProtectedLayout><HoldingDetailPage /></ProtectedLayout>} />
-    <Route path="/prediction/:predictionId" element={<ProtectedLayout><PredictionDetailPage /></ProtectedLayout>} />
-    <Route path="/task/:taskId" element={<ProtectedLayout><TaskDetailPage /></ProtectedLayout>} />
-    <Route path="/advertiser/onboarding" element={<ProtectedLayout><AdvertiserOnboarding /></ProtectedLayout>} />
-    <Route path="/advertiser" element={<ProtectedRoute><AdvertiserLayout /></ProtectedRoute>}>
-      <Route index element={<AdvertiserDashboard />} />
-      <Route path="campaigns" element={<CampaignsPage basePath="/advertiser/campaigns" />} />
-      <Route path="campaigns/:campaignId" element={<CampaignDetail />} />
-      <Route path="campaigns/:campaignId/edit" element={<EditCampaign />} />
-      <Route path="coupons" element={<AdvertiserCoupons />} />
-      <Route path="coupons/bulk" element={<BulkCouponCreation />} />
-      <Route path="coupons/analytics" element={<CouponAnalytics />} />
-      <Route path="coupons/:id" element={<CouponDetail />} />
-    </Route>
-    <Route path="/campaigns" element={<ProtectedLayout><CampaignsPage /></ProtectedLayout>} />
-    <Route path="/campaigns/new" element={<ProtectedLayout><NewCampaign /></ProtectedLayout>} />
-    <Route path="/campaigns/:campaignId" element={<ProtectedLayout><CampaignDetail /></ProtectedLayout>} />
-    <Route path="/campaigns/:campaignId/edit" element={<ProtectedLayout><EditCampaign /></ProtectedLayout>} />
-    <Route path="/content/:id" element={
-      <ProtectedRoute>
-        <ContentDetailPage />
-      </ProtectedRoute>
-    } />
-    <Route path="/test-content/:id" element={<TestContentDetailsPage />} />
-    <Route path="/referrals" element={<ProtectedLayout><ReferralDashboard /></ProtectedLayout>} />
-    <Route path="/marketplace" element={<ProtectedLayout><MarketplaceBrowse /></ProtectedLayout>} />
-    <Route path="/marketplace/product/:productId" element={<ProtectedLayout><ProductDetail /></ProtectedLayout>} />
-    <Route path="/marketplace/store/:storeSlug" element={<ProtectedLayout><StorePage /></ProtectedLayout>} />
-    <Route path="/cart" element={<ProtectedLayout><ShoppingCart /></ProtectedLayout>} />
-    <Route path="/checkout" element={<ProtectedLayout><Checkout /></ProtectedLayout>} />
-    <Route path="/orders" element={<ProtectedLayout><Orders /></ProtectedLayout>} />
-    <Route path="/merchant/dashboard" element={<ProtectedLayout><MerchantDashboard /></ProtectedLayout>} />
-    <Route path="/merchant/products/new" element={<ProtectedLayout><ProductForm /></ProtectedLayout>} />
-    <Route path="/merchant/products/:productId/edit" element={<ProtectedLayout><ProductForm /></ProtectedLayout>} />
-    <Route path="/operator" element={<ProtectedLayout><OperatorDashboard /></ProtectedLayout>} />
-    <Route path="/club/:hubSlug" element={<ProtectedLayout><SeasonHubPage /></ProtectedLayout>} />
-    <Route path="/feed" element={<ProtectedLayout><ActivityFeed /></ProtectedLayout>} />
-    <Route path="/profile/:username" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />
-    <Route path="/home" element={<Navigate to="/dashboard" replace />} />
-
-    {/* Error and fallback routes */}
-    <Route path="/not-found" element={<NotFound />} />
-    <Route path="/error" element={<ErrorPage />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
-
-export default function App() {
-  // Global error handler
-  useEffect(() => {
-    const handleGlobalError = (event: ErrorEvent) => {
-      console.error('Global error caught:', event.error);
-      // You can add additional error reporting here
-    };
-
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('Unhandled promise rejection:', event.reason);
-      // You can add additional error reporting here
-    };
-
-    window.addEventListener('error', handleGlobalError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-
-    return () => {
-      window.removeEventListener('error', handleGlobalError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
-  }, []);
-
+function App() {
   return (
-    <EnhancedErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <ToastProvider>
-            <SessionManager />
+    <Router>
+      <AuthProvider>
+        <SessionManager />
+        <ToastProvider>
+          <EnhancedErrorBoundary>
             <LayoutDebugger />
-            <Suspense fallback={<LoadingScreen />}>
-              <AppRoutesComponent />
+            <Suspense fallback={
+              <div className="min-h-screen-dynamic flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            }>
+              <Routes>
+                {/* Public Marketing Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/creators" element={<ForCreators />} />
+                <Route path="/brands" element={<ForAdvertisers />} />
+                <Route path="/advertisers" element={<ForAdvertisers />} /> {/* Alias */}
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/shoppers" element={<ForShoppers />} />
+                <Route path="/for-operators" element={<ForOperators />} />
+                <Route path="/promo-points" element={<PromoPointsPage />} />
+
+                {/* Workforce Routes */}
+                <Route path="/workforce" element={<ProtectedLayout><WorkforceDashboard /></ProtectedLayout>} />
+                <Route path="/workforce/pod/:id" element={<ProtectedLayout><WorkforcePodDetail /></ProtectedLayout>} />
+
+                {/* Auth Routes */}
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/password-reset" element={<PasswordResetPage />} />
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
+
+                {/* Onboarding - Protected */}
+                <Route
+                  path="/onboarding"
+                  element={
+                    <ProtectedRoute>
+                      <Onboarding />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Protected Dashboard Routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedLayout>
+                      <HomeFeedPage />
+                    </ProtectedLayout>
+                  }
+                />
+                {/* Redirect /home to /dashboard for logged in users context or keeps consistency */}
+                <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+
+                <Route
+                  path="/earn"
+                  element={
+                    <ProtectedLayout>
+                      <EarnPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/earn/:id"
+                  element={
+                    <ProtectedLayout>
+                      <TaskDetailPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/create"
+                  element={
+                    <ProtectedLayout>
+                      <CreatePage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/invest"
+                  element={
+                    <ProtectedLayout>
+                      <InvestPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/wallet"
+                  element={
+                    <ProtectedLayout>
+                      <WalletPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/growth-hub"
+                  element={
+                    <ProtectedLayout>
+                      <GrowthHubPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/rewards"
+                  element={
+                    <ProtectedLayout>
+                      <Rewards />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/referrals"
+                  element={
+                    <ProtectedLayout>
+                      <ReferralDashboard />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedLayout>
+                      <Settings />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/leaderboard"
+                  element={
+                    <ProtectedLayout>
+                      <LeaderboardPage />
+                    </ProtectedLayout>
+                  }
+                />
+
+                {/* Profile Routes */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedLayout>
+                      <ProfileRedirect />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/profile/:slug"
+                  element={
+                    <ProtectedLayout>
+                      <ProfilePage />
+                    </ProtectedLayout>
+                  }
+                />
+                {/* Legacy/Other Profile Route - keeping for safety */}
+                <Route
+                  path="/user-profile"
+                  element={
+                    <ProtectedLayout>
+                      <UserProfile />
+                    </ProtectedLayout>
+                  }
+                />
+
+
+                {/* Content & Holding Details */}
+                <Route
+                  path="/content/:id"
+                  element={
+                    <ProtectedLayout>
+                      <ContentDetailPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/holding/:id"
+                  element={
+                    <ProtectedLayout>
+                      <HoldingDetailPage />
+                    </ProtectedLayout>
+                  }
+                />
+                {/* Prediction Markets */}
+                <Route
+                  path="/prediction/:id"
+                  element={
+                    <ProtectedLayout>
+                      <PredictionDetailPage />
+                    </ProtectedLayout>
+                  }
+                />
+
+                {/* Marketplace & Ecommerce */}
+                <Route
+                  path="/marketplace"
+                  element={
+                    <ProtectedLayout>
+                      <MarketplaceBrowse />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/product/:id" // Or /marketplace/product/:id
+                  element={
+                    <ProtectedLayout>
+                      <ProductDetail />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedLayout>
+                      <ShoppingCart />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedLayout>
+                      <Checkout />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedLayout>
+                      <Orders />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/store/:storeId"
+                  element={
+                    <ProtectedLayout>
+                      <StorePage />
+                    </ProtectedLayout>
+                  }
+                />
+
+
+                {/* Merchant/Advertiser Routes */}
+                <Route
+                  path="/merchant/dashboard"
+                  element={
+                    <ProtectedLayout>
+                      <MerchantDashboard />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/products/new"
+                  element={
+                    <ProtectedLayout>
+                      <ProductForm />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/products/edit/:id"
+                  element={
+                    <ProtectedLayout>
+                      <ProductForm />
+                    </ProtectedLayout>
+                  }
+                />
+
+                {/* Advertiser Specifics */}
+                <Route path="/advertiser/onboarding" element={<AdvertiserOnboarding />} />
+                <Route
+                  path="/advertiser"
+                  element={
+                    <ProtectedRoute>
+                      <AdvertiserLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdvertiserDashboard />} />
+                  <Route path="campaigns" element={<CampaignsPage />} />
+                  <Route path="campaigns/new" element={<NewCampaign />} />
+                  <Route path="campaigns/:id" element={<CampaignDetail />} />
+                  <Route path="campaigns/:id/edit" element={<EditCampaign />} />
+                  <Route path="coupons" element={<AdvertiserCoupons />} />
+                  <Route path="coupons/bulk" element={<BulkCouponCreation />} />
+                  <Route path="coupons/:id" element={<CouponDetail />} />
+                  <Route path="coupons/:id/analytics" element={<CouponAnalytics />} />
+                </Route>
+
+                {/* Operator/Admin */}
+                <Route
+                  path="/operator/dashboard"
+                  element={
+                    <ProtectedLayout>
+                      <OperatorDashboard />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/season-hub"
+                  element={
+                    <ProtectedLayout>
+                      <SeasonHubPage />
+                    </ProtectedLayout>
+                  }
+                />
+
+                {/* Activity Feed Standalone? */}
+                <Route
+                  path="/activity"
+                  element={
+                    <ProtectedLayout>
+                      <ActivityFeed />
+                    </ProtectedLayout>
+                  }
+                />
+
+                {/* Test/Debug */}
+                <Route path="/test-content/:id" element={<TestContentDetailsPage />} />
+
+
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </Suspense>
-          </ToastProvider>
-        </AuthProvider>
-      </Router>
-    </EnhancedErrorBoundary>
+          </EnhancedErrorBoundary>
+        </ToastProvider>
+      </AuthProvider>
+    </Router>
   );
 }
+
+export default App;

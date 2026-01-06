@@ -1,22 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-<<<<<<< HEAD:frontend/src/react-app/pages/AdvertiserOnboarding.tsx
-import { useNavigate } from 'react-router';
+import { useNavigate } from "react-router-dom";
 import {
   Megaphone,
   Users,
   TrendingUp,
   Star,
   CheckCircle,
-=======
-import { useNavigate } from "react-router-dom";
-import { 
-  Megaphone, 
-  Users, 
-  TrendingUp, 
-  Star, 
-  CheckCircle, 
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/AdvertiserOnboarding.tsx
   ArrowRight,
   Crown,
   Zap,
@@ -24,6 +14,20 @@ import {
   Target,
   DollarSign
 } from 'lucide-react';
+
+const MegaphoneIcon = Megaphone as any;
+const UsersIcon = Users as any;
+const TrendingUpIcon = TrendingUp as any;
+const StarIcon = Star as any;
+const CheckCircleIcon = CheckCircle as any;
+const ArrowRightIcon = ArrowRight as any;
+const CrownIcon = Crown as any;
+const ZapIcon = Zap as any;
+const BarChart3Icon = BarChart3 as any;
+const TargetIcon = Target as any;
+const DollarSignIcon = DollarSign as any;
+
+
 
 export default function AdvertiserOnboarding() {
   const { user } = useAuth();
@@ -105,7 +109,7 @@ export default function AdvertiserOnboarding() {
           <div className="max-w-4xl mx-auto text-center text-white">
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-pr-surface-card/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <Megaphone className="w-8 h-8" />
+                <MegaphoneIcon className="w-8 h-8" />
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -116,15 +120,15 @@ export default function AdvertiserOnboarding() {
             </p>
             <div className="flex items-center justify-center space-x-8 text-orange-100">
               <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5" />
+                <UsersIcon className="w-5 h-5" />
                 <span>50k+ Active Creators</span>
               </div>
               <div className="flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5" />
+                <TrendingUpIcon className="w-5 h-5" />
                 <span>95% Completion Rate</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Star className="w-5 h-5" />
+                <StarIcon className="w-5 h-5" />
                 <span>4.9★ Average Rating</span>
               </div>
             </div>
@@ -143,7 +147,7 @@ export default function AdvertiserOnboarding() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-pr-surface-card rounded-2xl p-8 shadow-sm border border-pr-surface-3 hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                <Target className="w-6 h-6 text-blue-600" />
+                <TargetIcon className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold text-pr-text-1 mb-4">Moves & Proof System</h3>
               <p className="text-pr-text-2">
@@ -153,7 +157,7 @@ export default function AdvertiserOnboarding() {
 
             <div className="bg-pr-surface-card rounded-2xl p-8 shadow-sm border border-pr-surface-3 hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-                <BarChart3 className="w-6 h-6 text-green-600" />
+                <BarChart3Icon className="w-6 h-6 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold text-pr-text-1 mb-4">Flexible Inventory System</h3>
               <p className="text-pr-text-2">
@@ -163,7 +167,7 @@ export default function AdvertiserOnboarding() {
 
             <div className="bg-pr-surface-card rounded-2xl p-8 shadow-sm border border-pr-surface-3 hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-                <DollarSign className="w-6 h-6 text-purple-600" />
+                <DollarSignIcon className="w-6 h-6 text-purple-600" />
               </div>
               <h3 className="text-xl font-semibold text-pr-text-1 mb-4">Gem Sponsorship System</h3>
               <p className="text-pr-text-2">
@@ -195,9 +199,9 @@ export default function AdvertiserOnboarding() {
 
                 <div className="text-center mb-6">
                   <div className="flex justify-center mb-4">
-                    {tier === 'free' && <Zap className="w-8 h-8 text-pr-text-2" />}
-                    {tier === 'premium' && <Star className="w-8 h-8 text-purple-600" />}
-                    {tier === 'super' && <Crown className="w-8 h-8 text-yellow-600" />}
+                    {tier === 'free' && <ZapIcon className="w-8 h-8 text-pr-text-2" />}
+                    {tier === 'premium' && <StarIcon className="w-8 h-8 text-purple-600" />}
+                    {tier === 'super' && <CrownIcon className="w-8 h-8 text-yellow-600" />}
                   </div>
                   <h3 className="text-2xl font-bold mb-2">{info.name}</h3>
                   <p className="text-lg font-semibold">{info.inventory}</p>
@@ -209,7 +213,7 @@ export default function AdvertiserOnboarding() {
                 <ul className="space-y-3 mb-6">
                   {info.features.map((feature, index) => (
                     <li key={index} className="flex items-center space-x-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <CheckCircleIcon className="w-4 h-4 text-green-600 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
@@ -275,42 +279,6 @@ export default function AdvertiserOnboarding() {
         </div>
 
         {/* CTA Section */}
-<<<<<<< HEAD:frontend/src/react-app/pages/AdvertiserOnboarding.tsx
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-600 mb-8 text-lg">
-            Join hundreds of brands already using Promorang to create authentic, high-performing campaigns
-          </p>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 text-left">
-              <p className="text-sm text-red-700 font-medium">{error}</p>
-            </div>
-          )}
-
-          <div className="space-y-4 mb-8 text-left max-w-md mx-auto">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Brand Name
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Acme Corp"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                id="brandName"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Brand Logo URL (optional)
-              </label>
-              <input
-                type="text"
-                placeholder="https://..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                id="brandLogoUrl"
-              />
-            </div>
-=======
         <div className="bg-pr-surface-card rounded-2xl shadow-lg border border-pr-surface-3 p-12 text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-pr-text-1 mb-4">
@@ -319,15 +287,50 @@ export default function AdvertiserOnboarding() {
             <p className="text-pr-text-2 mb-8 text-lg">
               Join hundreds of brands already using Promorang to create authentic, high-performing campaigns
             </p>
-            
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
-            
+
+            <div className="space-y-4 mb-8 text-left max-w-md mx-auto">
+              <div>
+                <label className="block text-sm font-medium text-pr-text-1 mb-1">
+                  Brand Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Acme Corp"
+                  className="w-full px-4 py-2 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-pr-surface-2 text-pr-text-1"
+                  id="brandName"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-pr-text-1 mb-1">
+                  Brand Logo URL (optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  className="w-full px-4 py-2 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-pr-surface-2 text-pr-text-1"
+                  id="brandLogoUrl"
+                />
+              </div>
+            </div>
+
             <button
-              onClick={handleBecomeAdvertiser}
+              onClick={() => {
+                const brandName = (document.getElementById('brandName') as HTMLInputElement)?.value;
+                const brandLogoUrl = (document.getElementById('brandLogoUrl') as HTMLInputElement)?.value;
+
+                if (!brandName) {
+                  setError('Please enter your brand name');
+                  return;
+                }
+
+                handleBecomeAdvertiser(brandName, brandLogoUrl);
+              }}
               disabled={isConverting}
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
             >
@@ -339,50 +342,18 @@ export default function AdvertiserOnboarding() {
               ) : (
                 <>
                   <span>Become an Advertiser</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRightIcon className="w-5 h-5" />
                 </>
               )}
             </button>
-            
+
             <p className="text-sm text-pr-text-2 mt-4">
               Free to get started • No setup fees • Pay only for completed work
             </p>
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/AdvertiserOnboarding.tsx
           </div>
-
-          <button
-            onClick={() => {
-              const brandName = (document.getElementById('brandName') as HTMLInputElement)?.value;
-              const brandLogoUrl = (document.getElementById('brandLogoUrl') as HTMLInputElement)?.value;
-
-              if (!brandName) {
-                setError('Please enter your brand name');
-                return;
-              }
-
-              handleBecomeAdvertiser(brandName, brandLogoUrl);
-            }}
-            disabled={isConverting}
-            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2 mx-auto"
-          >
-            {isConverting ? (
-              <>
-                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                <span>Setting up your account...</span>
-              </>
-            ) : (
-              <>
-                <span>Become an Advertiser</span>
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
-
-          <p className="text-sm text-gray-500 mt-4">
-            Free to get started • No setup fees • Pay only for completed work
-          </p>
         </div>
       </div>
     </div>
   );
 }
+

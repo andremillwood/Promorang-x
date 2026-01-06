@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Bell, X, Check, Trophy, Star, Coins, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-<<<<<<< HEAD:frontend/src/react-app/components/NotificationCenter.tsx
-import { apiFetch } from '@/lib/api';
-=======
+import { apiFetch } from '@/react-app/utils/api';
 import ModalBase from '@/react-app/components/ModalBase';
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/NotificationCenter.tsx
 
 interface Notification {
   id: string;
@@ -182,14 +179,8 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-<<<<<<< HEAD:frontend/src/react-app/components/NotificationCenter.tsx
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${!notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                  className={`cursor-pointer p-4 transition-colors hover:bg-pr-surface-2 ${!notification.read ? 'border-l-4 border-l-blue-500 bg-blue-50' : ''
                     }`}
-=======
-                  className={`cursor-pointer p-4 transition-colors hover:bg-pr-surface-2 ${
-                    !notification.read ? 'border-l-4 border-l-blue-500 bg-blue-50' : ''
-                  }`}
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/NotificationCenter.tsx
                   onClick={() => {
                     if (!notification.read) markAsRead(notification.id);
                     // Handle navigation if needed
@@ -199,62 +190,28 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
                     <div className="mt-1 flex-shrink-0">{getNotificationIcon(notification.type)}</div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between">
-<<<<<<< HEAD:frontend/src/react-app/components/NotificationCenter.tsx
-                        <h4 className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'
-                          }`}>
-                          {notification.title}
-                        </h4>
-                        <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
-                          {formatTimestamp(notification.created_at)}
-                        </span>
-                      </div>
-                      <p className={`text-sm mt-1 ${!notification.read ? 'text-gray-800' : 'text-gray-600'
-                        }`}>
-=======
-                        <h4
-                          className={`text-sm font-medium ${
-                            !notification.read ? 'text-pr-text-1' : 'text-pr-text-1'
-                          }`}
-                        >
+                        <h4 className="text-sm font-medium text-pr-text-1">
                           {notification.title}
                         </h4>
                         <span className="ml-2 whitespace-nowrap text-xs text-pr-text-2">
-                          {formatTimestamp(notification.timestamp)}
+                          {formatTimestamp(notification.created_at)}
                         </span>
                       </div>
-                      <p
-                        className={`mt-1 text-sm ${
-                          !notification.read ? 'text-pr-text-1' : 'text-pr-text-2'
-                        }`}
-                      >
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/NotificationCenter.tsx
+                      <p className={`mt-1 text-sm ${!notification.read ? 'text-pr-text-1' : 'text-pr-text-2'}`}>
                         {notification.message}
                       </p>
                       {notification.metadata && (
                         <div className="mt-2 flex items-center space-x-4">
-<<<<<<< HEAD:frontend/src/react-app/components/NotificationCenter.tsx
                           {notification.metadata.gold_reward && (
-                            <div className="flex items-center space-x-1 text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                              <Trophy className="w-3 h-3" />
+                            <div className="flex items-center space-x-1 rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
+                              <Trophy className="h-3 w-3" />
                               <span>+{notification.metadata.gold_reward} Gold</span>
                             </div>
                           )}
                           {notification.metadata.gems_earned && (
-                            <div className="flex items-center space-x-1 text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded">
-                              <Coins className="w-3 h-3" />
-                              <span>+{notification.metadata.gems_earned} Gems</span>
-=======
-                          {notification.data.gold_reward && (
-                            <div className="flex items-center space-x-1 rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-                              <Trophy className="h-3 w-3" />
-                              <span>+{notification.data.gold_reward} Gold</span>
-                            </div>
-                          )}
-                          {notification.data.points_earned && (
                             <div className="flex items-center space-x-1 rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">
                               <Coins className="h-3 w-3" />
-                              <span>+{notification.data.points_earned} Points</span>
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/components/NotificationCenter.tsx
+                              <span>+{notification.metadata.gems_earned} Gems</span>
                             </div>
                           )}
                         </div>

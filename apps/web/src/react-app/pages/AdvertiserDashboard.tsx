@@ -805,9 +805,8 @@ export default function AdvertiserDashboard() {
                           )}
                         </div>
                         <span
-                          className={`text-xs font-semibold ${
-                            provider.enabled ? 'text-emerald-600' : 'text-pr-text-2'
-                          }`}
+                          className={`text-xs font-semibold ${provider.enabled ? 'text-emerald-600' : 'text-pr-text-2'
+                            }`}
                         >
                           {paymentProviderStatus(provider)}
                         </span>
@@ -937,19 +936,11 @@ export default function AdvertiserDashboard() {
               title="Avg. Engagement"
               value={`${dashboardData.analytics.length > 0
                 ? (
-<<<<<<< HEAD:frontend/src/react-app/pages/AdvertiserDashboard.tsx
                   dashboardData.analytics.reduce(
-                    (sum, a) => sum + (a.engagement_rate || 0),
+                    (sum, a) => sum + (a.engagement_rate ?? 0),
                     0
                   ) / dashboardData.analytics.length
                 ).toFixed(1)
-=======
-                    dashboardData.analytics.reduce(
-                      (sum, a) => sum + (a.engagement_rate ?? 0),
-                      0
-                    ) / dashboardData.analytics.length
-                  ).toFixed(1)
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/AdvertiserDashboard.tsx
                 : '8.5'}%`}
               change={analyticsData.length > 0 ? 0 : 3}
               changeType="increase"
@@ -1216,14 +1207,8 @@ export default function AdvertiserDashboard() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <span
-<<<<<<< HEAD:frontend/src/react-app/pages/AdvertiserDashboard.tsx
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${drop.status === 'active' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100'
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${drop.status === 'active' ? 'text-green-600 bg-green-100' : 'text-pr-text-2 bg-pr-surface-2'
                             }`}
-=======
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            drop.status === 'active' ? 'text-green-600 bg-green-100' : 'text-pr-text-2 bg-pr-surface-2'
-                          }`}
->>>>>>> feature/error-handling-updates:apps/web/src/react-app/pages/AdvertiserDashboard.tsx
                         >
                           {drop.status}
                         </span>
