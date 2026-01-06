@@ -113,7 +113,7 @@ app.post('/api/auth/demo/:role', async (req, res) => {
   }
 
   const { role } = req.params;
-  if (!['creator', 'advertiser'].includes(role)) {
+  if (!['creator', 'advertiser', 'investor', 'operator', 'merchant'].includes(role)) {
     return res.status(400).json({ success: false, error: 'Invalid role' });
   }
 
@@ -134,7 +134,7 @@ app.post('/api/auth/demo/:role', async (req, res) => {
 
     // Generate a JWT for the new user
     const token = jwt.sign(
-      { 
+      {
         sub: data.user.id,
         email: data.user.email,
         user_metadata: data.user.user_metadata,
@@ -143,8 +143,8 @@ app.post('/api/auth/demo/:role', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       token,
       user: {
         id: data.user.id,
@@ -154,8 +154,8 @@ app.post('/api/auth/demo/:role', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Demo login error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Failed to create demo account',
       details: process.env.NODE_ENV === 'development' ? error?.message : undefined,
     });
@@ -223,7 +223,7 @@ app.post('/api/telemetry', (req, res) => {
 // Error reporting endpoint
 app.post('/api/report-error', (req, res) => {
   const { error, context, componentStack, timestamp, url, userAgent } = req.body;
-  
+
   // Log the error for debugging/monitoring
   console.log('Frontend Error Report:', {
     message: error?.message,
@@ -235,12 +235,12 @@ app.post('/api/report-error', (req, res) => {
     userAgent,
     ip: req.ip,
   });
-  
+
   // In a production system, you might want to:
   // - Store in database
   // - Send to error monitoring service (Sentry, LogRocket, etc.)
   // - Send email/notification to dev team
-  
+
   res.json({ success: true });
 });
 

@@ -65,6 +65,8 @@ import ForOperators from "@/react-app/pages/marketing/ForOperators";
 import PromoPointsPage from "@/react-app/pages/marketing/PromoPointsPage";
 import WorkforceDashboard from "@/react-app/pages/WorkforceDashboard";
 import WorkforcePodDetail from "@/react-app/pages/WorkforcePodDetail";
+import HowItWorks from "@/react-app/pages/marketing/HowItWorks";
+import PricingPage from "@/react-app/pages/marketing/PricingPage";
 
 // Debug logging - Verifying git tracking
 console.log("🚀 App.tsx: Starting to load...");
@@ -148,6 +150,8 @@ function App() {
                 <Route path="/shoppers" element={<ForShoppers />} />
                 <Route path="/for-operators" element={<ForOperators />} />
                 <Route path="/promo-points" element={<PromoPointsPage />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/pricing" element={<PricingPage />} />
 
                 {/* Workforce Routes */}
                 <Route path="/workforce" element={<ProtectedLayout><WorkforceDashboard /></ProtectedLayout>} />

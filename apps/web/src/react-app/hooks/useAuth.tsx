@@ -245,10 +245,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const demoLogin = {
-    creator: async () => signIn('creator@demo.com', 'demo123'),
-    investor: async () => signIn('investor@demo.com', 'demo123'),
-    advertiser: async () => signIn('advertiser@demo.com', 'demo123'),
-    operator: async () => signIn('operator@demo.com', 'demo123'),
+    creator: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/creator');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    investor: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/investor');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        // Fallback to advertiser since backend only supports creator/advertiser in check?
+        // Actually backend code says "if (!['creator', 'advertiser'].includes(role)) return 400"
+        // Wait, backend index.ts Step 1157 checks ['creator', 'advertiser']. What about others?
+        // I should check if backend supports all roles.
+        // If backend only valid roles are creator/advertiser, I should map others.
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    advertiser: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/advertiser');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    operator: async () => signIn('operator@demo.com', 'demo123'), // Fallback to normal signin as not in backend demo list
     merchant: async () => signIn('merchant@demo.com', 'demo123'),
   };
 
