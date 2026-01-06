@@ -23,8 +23,8 @@ const devCorsOptions: CorsOptions = {
   },
   credentials: true,
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
+    'Content-Type',
+    'Authorization',
     'x-refresh-token',
     'X-Requested-With',
     'Accept',
@@ -78,7 +78,7 @@ const configuredOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s
 
 // Default origins based on environment
 const defaultOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://promorang.co', 'https://www.promorang.co', 'https://promorang-alt.vercel.app']
+  ? ['https://promorang.co', 'https://www.promorang.co', 'https://promorang-alt.vercel.app', 'https://promorang-8rvc4p0m6-andre-millwoods-projects.vercel.app']
   : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'];
 
 function normalizeOrigin(origin: string): string | null {
@@ -131,8 +131,8 @@ const prodCorsOptions: CorsOptions = {
   },
   credentials: true,
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
+    'Content-Type',
+    'Authorization',
     'x-refresh-token',
     'X-Requested-With',
     'Accept',
