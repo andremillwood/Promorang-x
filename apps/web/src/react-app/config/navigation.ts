@@ -15,6 +15,7 @@ import {
   ArrowUpCircle,
   Settings as SettingsIcon,
   BarChart3,
+  CalendarDays,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -110,6 +111,17 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     href: '/referrals',
     icon: Users,
     description: 'Invite friends and earn',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'primary',
+  },
+  {
+    name: 'Events',
+    href: '/events',
+    icon: CalendarDays,
+    description: 'Discover and attend events',
     requiresAuth: true,
     showInSidebar: true,
     showInMobile: true,
@@ -317,13 +329,13 @@ export function getBottomNavigation(userRole?: string): NavigationItem[] {
 export function isPathActive(currentPath: string, itemHref: string): boolean {
   // Exact match
   if (currentPath === itemHref) return true;
-  
+
   // For query param routes, check base path
   const [basePath] = itemHref.split('?');
   if (currentPath === basePath) return true;
-  
+
   // For nested routes
   if (currentPath.startsWith(itemHref + '/')) return true;
-  
+
   return false;
 }
