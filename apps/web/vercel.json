@@ -1,7 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "./vercel-build.sh",
-  "outputDirectory": "dist",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://api.promorang.co/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
