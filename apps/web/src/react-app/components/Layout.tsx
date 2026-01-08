@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import SuccessGuide from '@/react-app/components/SuccessGuide';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
-import { 
-  User, 
+import {
+  User,
   LogOut,
   Coins,
   Key,
@@ -79,6 +80,7 @@ export default function Layout({ children }: LayoutProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showGoldShopModal, setShowGoldShopModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+  const [showSuccessGuide, setShowSuccessGuide] = useState(true);
   const { unreadCount } = useNotifications();
   const apiBase = API_BASE_URL || '';
   const withApiBase = (path: string) => `${apiBase}${path}`;
@@ -236,11 +238,11 @@ export default function Layout({ children }: LayoutProps) {
     try {
       // Call the Mocha auth logout first to clear authentication state
       await signOut();
-      
+
       // Clear any local storage or session storage
       localStorage.clear();
       sessionStorage.clear();
-      
+
       // Call our backend logout endpoint to clear server-side session
       try {
         await fetch(withApiBase('/api/auth/logout'), {
@@ -251,13 +253,13 @@ export default function Layout({ children }: LayoutProps) {
         console.error('Backend logout failed:', backendError);
         // Continue with redirect even if backend logout fails
       }
-      
+
       // Use React Router navigate to go to the marketing page
       navigate('/', { replace: true });
-      
+
     } catch (error) {
       console.error('Logout failed:', error);
-      
+
       // Fallback: Force clear everything and redirect anyway
       try {
         localStorage.clear();
@@ -265,7 +267,7 @@ export default function Layout({ children }: LayoutProps) {
       } catch (storageError) {
         console.error('Failed to clear storage:', storageError);
       }
-      
+
       // Still redirect to marketing page even if logout fails
       navigate('/', { replace: true });
     }
@@ -295,293 +297,304 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <>
-    {/* DESKTOP: TRUE 3-COLUMN GRID LAYOUT */}
-    <div className="min-h-screen-dynamic bg-pr-surface-background grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_300px]">
-      {/* LEFT SIDEBAR - Desktop Only (260px fixed) */}
-      <aside className="hidden lg:block border-r border-pr-border bg-pr-surface-card sticky top-0 h-screen overflow-y-auto">
-        <DesktopSidebar
-          groups={sidebarGroups}
-          isActive={isActive}
-          onNavClick={handleSidebarNavClick}
-          onLogout={handleLogout}
-          onSearch={() => setShowSearchModal(true)}
-          userData={userData}
-          profilePath={profilePath}
-        />
-      </aside>
+      {/* DESKTOP: TRUE 3-COLUMN GRID LAYOUT */}
+      <div className="min-h-screen bg-pr-surface-background grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_300px]">
+        {/* LEFT SIDEBAR - Desktop Only (260px fixed) */}
+        <aside className="hidden lg:block fixed left-0 top-0 h-screen w-[260px] border-r border-pr-border bg-pr-surface-card z-30">
+          <DesktopSidebar
+            groups={sidebarGroups}
+            isActive={isActive}
+            onNavClick={handleSidebarNavClick}
+            onLogout={handleLogout}
+            onSearch={() => setShowSearchModal(true)}
+            userData={userData}
+            profilePath={profilePath}
+            showSuccessGuide={showSuccessGuide}
+            onToggleSuccessGuide={() => setShowSuccessGuide(true)}
+          />
+        </aside>
 
-      {/* MAIN CONTENT AREA (Center Column) */}
-      <div className="flex flex-col min-w-0">
-        {/* Top Header - Mobile & Tablet */}
-        <header className="bg-pr-surface-1 shadow-sm border-b border-pr-surface-3 sticky top-0 z-40 lg:hidden">
-        <div className="max-w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left Side - Logo & Search */}
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
-                <img 
-                  src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
-                  alt="Promorang"
-                  className="h-8 w-8 sm:h-10 sm:w-10 transition-transform group-hover:scale-105"
-                />
-              </Link>
-              
-              
-            </div>
+        {/* MAIN CONTENT AREA (Center Column) */}
+        <div className="flex flex-col min-w-0 min-h-screen lg:col-start-2">
+          {/* Top Header - Mobile & Tablet */}
+          <header className="bg-pr-surface-1 shadow-sm border-b border-pr-surface-3 sticky top-0 z-40 lg:hidden">
+            <div className="max-w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                {/* Left Side - Logo & Search */}
+                <div className="flex items-center space-x-4">
+                  <Link to="/dashboard" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
+                    <img
+                      src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
+                      alt="Promorang"
+                      className="h-8 w-8 sm:h-10 sm:w-10 transition-transform group-hover:scale-105"
+                    />
+                  </Link>
+                </div>
 
-            {/* Right Side - Actions & User Menu */}
-            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-              {/* Desktop Search Button */}
-              <Tooltip content="Search (⌘K)" position="bottom" compact={true}>
-                <button
-                  onClick={() => setShowSearchModal(true)}
-                  className="hidden md:flex items-center space-x-2 px-3 py-2 bg-pr-surface-2 hover:bg-pr-surface-3 rounded-lg transition-colors"
-                >
-                  <Search className="w-4 h-4 text-pr-text-2" />
-                  <span className="text-sm text-pr-text-2">Search...</span>
-                  <kbd className="hidden lg:inline-flex items-center px-2 py-1 text-xs font-medium text-pr-text-2 bg-pr-surface-card border border-pr-surface-3 rounded">
-                    ⌘K
-                  </kbd>
-                </button>
-              </Tooltip>
-
-              {/* Desktop Notifications */}
-              <Tooltip content="Notifications" position="bottom" compact={true}>
-                <button
-                  onClick={() => setShowNotifications(true)}
-                  className="hidden md:flex relative p-2 text-gray-400 hover:text-pr-text-2 transition-colors rounded-lg hover:bg-pr-surface-2"
-                >
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-              </Tooltip>
-
-              {/* Desktop Wallet Menu */}
-              {(user || userData) && (
-                <div className="relative wallet-menu hidden md:block">
-                  <Tooltip content="Your wallet balance" position="bottom" compact={true}>
+                {/* Right Side - Actions & User Menu */}
+                <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                  {/* Desktop Search Button */}
+                  <Tooltip content="Search (⌘K)" position="bottom" compact={true}>
                     <button
-                      onClick={() => setShowWalletMenu(!showWalletMenu)}
-                      className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-lg transition-all duration-200 border border-blue-200/50 shadow-sm hover:shadow-md"
+                      onClick={() => setShowSearchModal(true)}
+                      className="hidden md:flex items-center space-x-2 px-3 py-2 bg-pr-surface-2 hover:bg-pr-surface-3 rounded-lg transition-colors"
                     >
-                      <Wallet className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span className="hidden sm:inline text-xs sm:text-sm font-semibold text-blue-900 truncate max-w-[80px] md:max-w-none">
-                        {getTotalBalance().toLocaleString()}
-                      </span>
-                      <ChevronDown className={`w-4 h-4 text-blue-600 transition-transform flex-shrink-0 ${showWalletMenu ? 'rotate-180' : ''}`} />
+                      <Search className="w-4 h-4 text-pr-text-2" />
+                      <span className="text-sm text-pr-text-2">Search...</span>
+                      <kbd className="hidden lg:inline-flex items-center px-2 py-1 text-xs font-medium text-pr-text-2 bg-pr-surface-card border border-pr-surface-3 rounded">
+                        ⌘K
+                      </kbd>
                     </button>
                   </Tooltip>
 
-                  {/* Wallet Dropdown */}
-                  {showWalletMenu && (
-                    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
-                      <div className="px-4 py-2 border-b border-pr-border">
-                        <h3 className="text-sm font-medium text-pr-text-1">Your Balances</h3>
-                      </div>
-                      
-                      <div className="py-2">
-                        <Tooltip content="Earn points from engagement" position="left">
-                          <button
-                            onClick={() => handleWalletAction('instagram')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Coins className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm text-pr-text-1">Points</span>
-                            </div>
-                            <span className="text-sm font-medium text-blue-900">{userData?.points_balance || 0}</span>
-                          </button>
-                        </Tooltip>
-                        
-                        <Tooltip content="Unlock premium features" position="left">
-                          <button
-                            onClick={() => handleWalletAction('masterkey')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Key className="w-4 h-4 text-orange-600" />
-                              <span className="text-sm text-pr-text-1">Keys</span>
-                            </div>
-                            <span className="text-sm font-medium text-orange-900">{userData?.keys_balance || 0}</span>
-                          </button>
-                        </Tooltip>
-                        
-                        <Tooltip content="Premium currency from drops" position="left">
-                          <button
-                            onClick={() => handleWalletAction('convert')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Star className="w-4 h-4 text-purple-600" />
-                              <span className="text-sm text-pr-text-1">Gems</span>
-                            </div>
-                            <span className="text-sm font-medium text-purple-900">{userData?.gems_balance || 0}</span>
-                          </button>
-                        </Tooltip>
-                        
-                        {(userData?.gold_collected || 0) > 0 && (
-                          <Tooltip content="Achievement rewards" position="left">
-                            <button
-                              onClick={() => handleWalletAction('goldshop')}
-                              className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
-                            >
-                              <div className="flex items-center space-x-3">
-                                <Trophy className="w-4 h-4 text-yellow-600" />
-                                <span className="text-sm text-pr-text-1">Gold</span>
-                              </div>
-                              <span className="text-sm font-medium text-yellow-900">{userData?.gold_collected || 0}</span>
-                            </button>
-                          </Tooltip>
-                        )}
-                      </div>
-                      
-                      <div className="border-t border-pr-border pt-2">
-                        <Tooltip content="Full wallet management" position="left" compact={true}>
-                          <button
-                            onClick={() => handleWalletAction('wallet')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                          >
-                            <Wallet className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm text-pr-text-1">View Full Wallet</span>
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="Put your gems to work" position="left" compact={true}>
-                          <button
-                            onClick={() => handleWalletAction('growthhub')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                          >
-                            <Rocket className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm text-pr-text-1">Explore Growth Hub</span>
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="View rankings" position="left" compact={true}>
-                          <button
-                            onClick={() => handleWalletAction('leaderboard')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                          >
-                            <Trophy className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm text-pr-text-1">View Rankings</span>
-                          </button>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Desktop User Menu */}
-              <div className="relative user-menu hidden md:block">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-pr-surface-2 transition-all duration-200 group"
-                >
-                  <UserLink 
-                    username={userData?.username || user?.email?.split('@')[0]}
-                    displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name}
-                    avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
-                    className="flex items-center space-x-2"
-                    size="sm"
-                  />
-                  <div className="hidden lg:block text-left ml-1 sm:ml-2">
-                    <div className="text-xs sm:text-sm font-medium text-pr-text-1 truncate max-w-24 xl:max-w-32">
-                      {user?.google_user_data?.given_name || user?.google_user_data?.name || user?.email?.split('@')[0] || 'User'}
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
-                      {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
-                      {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
-                      <span className={`text-xs font-medium ${
-                        (userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
-                        (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
-                      }`}>
-                        {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-pr-text-2 ${showUserMenu ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* User Dropdown */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
-                    <div className="px-4 py-2 border-b border-pr-border">
-                      <div className="text-sm font-medium text-pr-text-1">
-                        {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
-                      </div>
-                      <div className="text-xs text-pr-text-2">{user?.email}</div>
-                    </div>
-                    
-                    <div className="py-2">
-                      <button
-                        onClick={() => handleUserAction('profile')}
-                        className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                      >
-                        <User className="w-4 h-4 text-pr-text-2" />
-                        <span className="text-sm text-pr-text-1">Profile</span>
-                      </button>
-                      
-                      {userData && (
-                        <Tooltip content="Upgrade to Premium or Super tier for better rewards" position="left">
-                          <button
-                            onClick={() => handleUserAction('upgrade')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                          >
-                            <Crown className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm text-pr-text-1">Upgrade Tier</span>
-                          </button>
-                        </Tooltip>
+                  {/* Desktop Notifications */}
+                  <Tooltip content="Notifications" position="bottom" compact={true}>
+                    <button
+                      onClick={() => setShowNotifications(true)}
+                      className="hidden md:flex relative p-2 text-gray-400 hover:text-pr-text-2 transition-colors rounded-lg hover:bg-pr-surface-2"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
                       )}
-                      
-                      <Tooltip content="Create and manage marketing drops for your business" position="left">
+                    </button>
+                  </Tooltip>
+
+                  {/* Desktop Wallet Menu */}
+                  {(user || userData) && (
+                    <div className="relative wallet-menu hidden md:block">
+                      <Tooltip content="Your wallet balance" position="bottom" compact={true}>
                         <button
-                          onClick={() => handleUserAction('advertiser')}
-                          className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                          onClick={() => setShowWalletMenu(!showWalletMenu)}
+                          className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-lg transition-all duration-200 border border-blue-200/50 shadow-sm hover:shadow-md"
                         >
-                          <Megaphone className="w-4 h-4 text-orange-600" />
-                          <span className="text-sm text-pr-text-1">
-                            {(!userData || (userData as any).user_type !== 'advertiser') ? 'Become Advertiser' : 'Advertiser Dashboard'}
+                          <Wallet className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                          <span className="hidden sm:inline text-xs sm:text-sm font-semibold text-blue-900 truncate max-w-[80px] md:max-w-none">
+                            {getTotalBalance().toLocaleString()}
                           </span>
+                          <ChevronDown className={`w-4 h-4 text-blue-600 transition-transform flex-shrink-0 ${showWalletMenu ? 'rotate-180' : ''}`} />
                         </button>
                       </Tooltip>
+
+                      {/* Wallet Dropdown */}
+                      {showWalletMenu && (
+                        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
+                          <div className="px-4 py-2 border-b border-pr-border">
+                            <h3 className="text-sm font-medium text-pr-text-1">Your Balances</h3>
+                          </div>
+
+                          <div className="py-2">
+                            <Tooltip content="Earn points from engagement" position="left">
+                              <button
+                                onClick={() => handleWalletAction('instagram')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Coins className="w-4 h-4 text-blue-600" />
+                                  <span className="text-sm text-pr-text-1">Points</span>
+                                </div>
+                                <span className="text-sm font-medium text-blue-900">{userData?.points_balance || 0}</span>
+                              </button>
+                            </Tooltip>
+
+                            <Tooltip content="Unlock premium features" position="left">
+                              <button
+                                onClick={() => handleWalletAction('masterkey')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Key className="w-4 h-4 text-orange-600" />
+                                  <span className="text-sm text-pr-text-1">Keys</span>
+                                </div>
+                                <span className="text-sm font-medium text-orange-900">{userData?.keys_balance || 0}</span>
+                              </button>
+                            </Tooltip>
+
+                            <Tooltip content="Premium currency from drops" position="left">
+                              <button
+                                onClick={() => handleWalletAction('convert')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Star className="w-4 h-4 text-purple-600" />
+                                  <span className="text-sm text-pr-text-1">Gems</span>
+                                </div>
+                                <span className="text-sm font-medium text-purple-900">{userData?.gems_balance || 0}</span>
+                              </button>
+                            </Tooltip>
+
+                            {(userData?.gold_collected || 0) > 0 && (
+                              <Tooltip content="Achievement rewards" position="left">
+                                <button
+                                  onClick={() => handleWalletAction('goldshop')}
+                                  className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center justify-between"
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <Trophy className="w-4 h-4 text-yellow-600" />
+                                    <span className="text-sm text-pr-text-1">Gold</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-yellow-900">{userData?.gold_collected || 0}</span>
+                                </button>
+                              </Tooltip>
+                            )}
+                          </div>
+
+                          <div className="border-t border-pr-border pt-2">
+                            <Tooltip content="Full wallet management" position="left" compact={true}>
+                              <button
+                                onClick={() => handleWalletAction('wallet')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              >
+                                <Wallet className="w-4 h-4 text-blue-600" />
+                                <span className="text-sm text-pr-text-1">View Full Wallet</span>
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Put your gems to work" position="left" compact={true}>
+                              <button
+                                onClick={() => handleWalletAction('growthhub')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              >
+                                <Rocket className="w-4 h-4 text-blue-600" />
+                                <span className="text-sm text-pr-text-1">Explore Growth Hub</span>
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="View rankings" position="left" compact={true}>
+                              <button
+                                onClick={() => handleWalletAction('leaderboard')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              >
+                                <Trophy className="w-4 h-4 text-purple-600" />
+                                <span className="text-sm text-pr-text-1">View Rankings</span>
+                              </button>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    <div className="border-t border-pr-border pt-2">
-                      <button
-                        onClick={() => handleUserAction('logout')}
-                        className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3 text-red-600"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span className="text-sm">Sign Out</span>
-                      </button>
-                    </div>
+                  )}
+
+                  {/* Desktop User Menu */}
+                  <div className="relative user-menu hidden md:block">
+                    <button
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-pr-surface-2 transition-all duration-200 group"
+                    >
+                      <UserLink
+                        username={userData?.username || user?.email?.split('@')[0]}
+                        displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name}
+                        avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
+                        className="flex items-center space-x-2"
+                        size="sm"
+                      />
+                      <div className="hidden lg:block text-left ml-1 sm:ml-2">
+                        <div className="text-xs sm:text-sm font-medium text-pr-text-1 truncate max-w-24 xl:max-w-32">
+                          {user?.google_user_data?.given_name || user?.google_user_data?.name || user?.email?.split('@')[0] || 'User'}
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
+                          {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
+                          {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
+                          <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
+                            (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
+                            }`}>
+                            {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-pr-text-2 ${showUserMenu ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* User Dropdown */}
+                    {showUserMenu && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
+                        <div className="px-4 py-2 border-b border-pr-border">
+                          <div className="text-sm font-medium text-pr-text-1">
+                            {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
+                          </div>
+                          <div className="text-xs text-pr-text-2">{user?.email}</div>
+                        </div>
+
+                        <div className="py-2">
+                          <button
+                            onClick={() => handleUserAction('profile')}
+                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                          >
+                            <User className="w-4 h-4 text-pr-text-2" />
+                            <span className="text-sm text-pr-text-1">Profile</span>
+                          </button>
+
+                          {!showSuccessGuide && (
+                            <button
+                              onClick={() => {
+                                setShowSuccessGuide(true);
+                                setShowUserMenu(false);
+                              }}
+                              className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                            >
+                              <Trophy className="w-4 h-4 text-green-600" />
+                              <span className="text-sm text-pr-text-1">Show Success Guide</span>
+                            </button>
+                          )}
+
+                          {userData && (
+                            <Tooltip content="Upgrade to Premium or Super tier for better rewards" position="left">
+                              <button
+                                onClick={() => handleUserAction('upgrade')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              >
+                                <Crown className="w-4 h-4 text-purple-600" />
+                                <span className="text-sm text-pr-text-1">Upgrade Tier</span>
+                              </button>
+                            </Tooltip>
+                          )}
+
+                          <Tooltip content="Create and manage marketing drops for your business" position="left">
+                            <button
+                              onClick={() => handleUserAction('advertiser')}
+                              className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                            >
+                              <Megaphone className="w-4 h-4 text-orange-600" />
+                              <span className="text-sm text-pr-text-1">
+                                {(!userData || (userData as any).user_type !== 'advertiser') ? 'Become Advertiser' : 'Advertiser Dashboard'}
+                              </span>
+                            </button>
+                          </Tooltip>
+                        </div>
+
+                        <div className="border-t border-pr-border pt-2">
+                          <button
+                            onClick={() => handleUserAction('logout')}
+                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3 text-red-600"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span className="text-sm">Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+
+
+                </div>
               </div>
-
-              
             </div>
-          </div>
+          </header>
+
+          {/* CENTER FEED - Fluid expansion */}
+          <main className="flex-1 bg-pr-surface-background">
+            <div className="max-w-[1800px] w-full mx-auto px-0 sm:px-4 md:px-6 lg:px-8 py-6 pb-mobile-nav lg:pb-8">
+              {children}
+            </div>
+          </main>
         </div>
-      </header>
 
-        {/* CENTER FEED - Fluid expansion with ultrawide max-width */}
-        <main className="overflow-y-auto overflow-x-hidden bg-pr-surface-background">
-          <div className="max-w-[1800px] w-full mx-auto px-0 sm:px-4 md:px-6 lg:px-10 xl:px-16 2xl:px-24 py-6 pb-mobile-nav lg:pb-8">
-            {children}
-          </div>
-        </main>
-      </div>
-
-      {/* RIGHT SIDEBAR - Desktop Only (300px fixed, visible at lg+) */}
-      <aside className="hidden lg:block border-l border-pr-border bg-pr-surface-card sticky top-0 h-screen overflow-y-auto">
-        <RightSidebar userData={userData} />
-      </aside>
-
-      {/* Mobile Menu Overlay */}
+        {/* RIGHT SIDEBAR - Desktop Only (300px fixed, visible at xl+) */}
+        <aside className="hidden xl:block fixed right-0 top-0 h-screen w-[300px] border-l border-pr-border bg-pr-surface-card z-30">
+          <RightSidebar userData={userData} />
+        </aside>
+      </div>   {/* Mobile Menu Overlay */}
       {showMobileMenu && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setShowMobileMenu(false)}>
           <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-[#0D0D0D] shadow-xl overflow-y-auto safe-bottom border-l border-pr-border" onClick={(e) => e.stopPropagation()}>
@@ -596,10 +609,10 @@ export default function Layout({ children }: LayoutProps) {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              
+
               {/* User Profile Section */}
               <div className="flex items-center space-x-3">
-                <UserLink 
+                <UserLink
                   username={userData?.username || user?.email?.split('@')[0]}
                   displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || 'User'}
                   avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
@@ -614,21 +627,20 @@ export default function Layout({ children }: LayoutProps) {
                     {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
                     {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
                     {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
-                    <span className={`text-xs font-medium ${
-                      (userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
+                    <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
                       (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
-                    }`}>
+                      }`}>
                       {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)} Tier
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Quick Actions */}
             <div className="p-4 space-y-2">
               <h3 className="text-sm font-medium text-pr-text-2 uppercase tracking-wide mb-3">Quick Actions</h3>
-              
+
               {/* Search */}
               <button
                 onClick={() => {
@@ -703,7 +715,7 @@ export default function Layout({ children }: LayoutProps) {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="space-y-1">
                   <button
                     onClick={() => {
@@ -715,7 +727,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Wallet className="w-4 h-4 text-blue-600" />
                     <span className="text-sm">Full Wallet</span>
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       handleWalletAction('convert');
@@ -726,7 +738,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Star className="w-4 h-4 text-purple-600" />
                     <span className="text-sm">Convert Currency</span>
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       handleWalletAction('masterkey');
@@ -755,7 +767,7 @@ export default function Layout({ children }: LayoutProps) {
                   <User className="w-4 h-4 text-pr-text-2" />
                   <span className="text-sm">Profile</span>
                 </button>
-                
+
                 {(user || userData) && (
                   <button
                     onClick={() => {
@@ -768,7 +780,7 @@ export default function Layout({ children }: LayoutProps) {
                     <span className="text-sm">Upgrade Tier</span>
                   </button>
                 )}
-                
+
                 <button
                   onClick={() => {
                     handleWalletAction('achievements');
@@ -779,7 +791,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Trophy className="w-4 h-4 text-yellow-600" />
                   <span className="text-sm">Achievements</span>
                 </button>
-                
+
                 <button
                   onClick={() => {
                     handleWalletAction('leaderboard');
@@ -790,7 +802,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Trophy className="w-4 h-4 text-purple-600" />
                   <span className="text-sm">Leaderboard</span>
                 </button>
-                
+
                 <button
                   onClick={() => {
                     handleWalletAction('instagram');
@@ -861,69 +873,69 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       )}
 
-    </div>
-
-    {/* MOBILE/TABLET BOTTOM NAVIGATION - FIXED at bottom (hidden on desktop) */}
-    <nav className="fixed bottom-0 inset-x-0 bg-pr-surface-card bg-white dark:bg-[#141414] border-t border-pr-surface-3 z-[9999] lg:hidden safe-bottom mobile-nav-fixed">
-      <MobileNav 
-        items={bottomNavItems}
-        isActive={isActive} 
-        onMenuClick={() => setShowMobileMenu(!showMobileMenu)}
-        showMobileMenu={showMobileMenu}
-      />
-    </nav>
+      {/* MOBILE/TABLET BOTTOM NAVIGATION - FIXED at bottom (hidden on desktop) */}
+      <nav className="fixed bottom-0 inset-x-0 bg-pr-surface-card bg-white dark:bg-[#141414] border-t border-pr-surface-3 z-[9999] lg:hidden safe-bottom mobile-nav-fixed">
+        <MobileNav
+          items={bottomNavItems}
+          isActive={isActive}
+          onMenuClick={() => setShowMobileMenu(!showMobileMenu)}
+          showMobileMenu={showMobileMenu}
+        />
+      </nav>
 
       {/* Modals */}
       <CurrencyConversionModal
         user={userData}
         isOpen={showCurrencyModal}
-        onClose={() => setShowCurrencyModal(false)}
+        onClose={() => setShowCurrencyModal(false)
+        }
         onSuccess={fetchUserData}
       />
-      
+
       <MasterKeyModal
         user={userData}
         isOpen={showMasterKeyModal}
         onClose={() => setShowMasterKeyModal(false)}
         onSuccess={fetchUserData}
       />
-      
+
       <InstagramVerificationModal
         user={userData}
         isOpen={showInstagramModal}
         onClose={() => setShowInstagramModal(false)}
         onSuccess={fetchUserData}
       />
-      
+
       <UserTierUpgradeModal
         user={userData}
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         onSuccess={fetchUserData}
       />
-      
+
       <SearchModal
         isOpen={showSearchModal}
         onClose={() => setShowSearchModal(false)}
       />
-      
+
       <NotificationCenter
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
       />
-      
+
       <GoldShopModal
         user={userData}
         isOpen={showGoldShopModal}
         onClose={() => setShowGoldShopModal(false)}
         onPurchase={fetchUserData}
       />
-      
+
       <AchievementsModal
         user={userData}
         isOpen={showAchievementsModal}
         onClose={() => setShowAchievementsModal(false)}
       />
+      <SuccessGuide isOpen={showSuccessGuide} onClose={() => setShowSuccessGuide(false)} />
     </>
   );
 }

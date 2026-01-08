@@ -117,6 +117,23 @@ export default function ForMerchants() {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-20 p-8 bg-pr-surface-card border border-pr-border rounded-3xl text-center">
+                        <h3 className="text-xl font-bold mb-8">Works with the platforms you already use</h3>
+                        <div className="flex flex-wrap justify-center gap-12 grayscale hover:grayscale-0 transition-all">
+                            {[
+                                { name: 'Shopify', icon: '🛍️' },
+                                { name: 'WooCommerce', icon: '🛒' },
+                                { name: 'Etsy', icon: '🧶' },
+                                { name: 'BigCommerce', icon: '📦' }
+                            ].map((p) => (
+                                <div key={p.name} className="flex items-center gap-3">
+                                    <span className="text-2xl">{p.icon}</span>
+                                    <span className="font-bold text-pr-text-muted">{p.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </section>
 

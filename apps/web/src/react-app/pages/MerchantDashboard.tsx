@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
+import PlatformConnector from '@/react-app/components/merchant/PlatformConnector';
+import ProductImporter from '@/react-app/components/merchant/ProductImporter';
+import { Settings2 } from 'lucide-react';
 
 interface StoreData {
   id: string;
@@ -68,7 +71,7 @@ export default function MerchantDashboard() {
         credentials: 'include',
       });
       const storeData = await storeResponse.json();
-      
+
       if (storeData.status === 'success' && storeData.data.store) {
         setStore(storeData.data.store);
         fetchProducts(storeData.data.store.id);
@@ -89,7 +92,7 @@ export default function MerchantDashboard() {
         credentials: 'include',
       });
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setProducts(data.data.products);
       }
@@ -104,7 +107,7 @@ export default function MerchantDashboard() {
         credentials: 'include',
       });
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setOrders(data.data.orders);
       }
@@ -115,7 +118,7 @@ export default function MerchantDashboard() {
 
   const handleCreateStore = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch('/api/marketplace/stores', {
         method: 'POST',
@@ -125,7 +128,7 @@ export default function MerchantDashboard() {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         toast({
           title: 'Success!',
@@ -303,6 +306,7 @@ export default function MerchantDashboard() {
           <TabsList>
             <TabsTrigger value="products">Products ({products.length})</TabsTrigger>
             <TabsTrigger value="orders">Orders ({orders.length})</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="mt-6">
@@ -329,9 +333,8 @@ export default function MerchantDashboard() {
                         alt={product.name}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
-                      <span className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-medium ${
-                        product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-pr-surface-2 text-pr-text-1'
-                      }`}>
+                      <span className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-medium ${product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-pr-surface-2 text-pr-text-1'
+                        }`}>
                         {product.status}
                       </span>
                     </div>
@@ -392,9 +395,8 @@ export default function MerchantDashboard() {
                           {order.total_gems > 0 && `${order.total_gems} 💎`}
                           {order.total_gold > 0 && `${order.total_gold} 🪙`}
                         </p>
-                        <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-medium ${
-                          order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-medium ${order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {order.status}
                         </span>
                       </div>
@@ -403,6 +405,27 @@ export default function MerchantDashboard() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="integrations" className="mt-6">
+            <div className="space-y-8">
+              <div className="max-w-3xl">
+                <h2 className="text-xl font-bold text-pr-text-1 mb-4 flex items-center gap-2">
+                  <Settings2 className="h-5 w-5" /> External Connections
+                </h2>
+                <PlatformConnector onConnected={() => fetchMerchantData()} />
+              </div>
+
+              {store && (
+                <div className="pt-8 border-t border-pr-border">
+                  <h2 className="text-xl font-bold text-pr-text-1 mb-4">Import Products</h2>
+                  <p className="text-pr-text-2 mb-6 text-sm">
+                    Select products from your connected e-commerce platforms to import them into the Promorang marketplace.
+                  </p>
+                  <ProductImporter />
+                </div>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>

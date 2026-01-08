@@ -22,6 +22,15 @@ export default function MarketingNav() {
         { label: 'For Operators', path: '/for-operators' },
     ];
 
+    const industryLinks = [
+        { label: 'Tourism & Hospitality', path: '/for-tourism' },
+        { label: 'Restaurants & F&B', path: '/for-restaurants' },
+        { label: 'E-commerce & DTC', path: '/for-ecommerce' },
+        { label: 'Events & Festivals', path: '/for-events' },
+        { label: 'Corporate & Enterprise', path: '/for-enterprise' },
+        { label: 'Universities & Students', path: '/for-universities' },
+    ];
+
     return (
         <nav className="sticky top-0 z-50 bg-pr-surface-background border-b border-pr-border">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,6 +46,13 @@ export default function MarketingNav() {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
+                        <Link
+                            to="/explore"
+                            className={`text-sm font-bold transition-colors ${isActive('/explore') ? 'text-blue-500' : 'text-pr-text-2 hover:text-blue-500'
+                                }`}
+                        >
+                            Explore
+                        </Link>
                         <Link
                             to="/about"
                             className={`text-sm font-medium transition-colors ${isActive('/about') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
@@ -62,8 +78,21 @@ export default function MarketingNav() {
                                 <ChevronDown className={`w-4 h-4 transition-transform ${personaDropdownOpen ? 'rotate-180' : ''}`} />
                             </button>
                             {personaDropdownOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-48 bg-pr-surface-card border border-pr-border rounded-lg shadow-xl py-2 z-50">
+                                <div className="absolute top-full left-0 mt-2 w-64 bg-pr-surface-card border border-pr-border rounded-lg shadow-xl py-2 z-50">
+                                    <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-pr-text-muted">By Role</div>
                                     {personaLinks.map((link) => (
+                                        <Link
+                                            key={link.path}
+                                            to={link.path}
+                                            onClick={() => setPersonaDropdownOpen(false)}
+                                            className="block px-4 py-2 text-sm text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2 transition-colors"
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    ))}
+                                    <div className="border-t border-pr-border my-2" />
+                                    <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-pr-text-muted">By Industry</div>
+                                    {industryLinks.map((link) => (
                                         <Link
                                             key={link.path}
                                             to={link.path}
@@ -136,6 +165,13 @@ export default function MarketingNav() {
                     <div className="md:hidden py-4 border-t border-pr-border">
                         <div className="flex flex-col gap-4">
                             <Link
+                                to="/explore"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`text-sm font-bold ${isActive('/explore') ? 'text-blue-500' : 'text-pr-text-2'}`}
+                            >
+                                Explore Ecosystem
+                            </Link>
+                            <Link
                                 to="/about"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
@@ -150,8 +186,19 @@ export default function MarketingNav() {
                                 How It Works
                             </Link>
                             <div className="border-t border-pr-border pt-4">
-                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2">Solutions</div>
+                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2">By Role</div>
                                 {personaLinks.map((link) => (
+                                    <Link
+                                        key={link.path}
+                                        to={link.path}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="block py-2 text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                ))}
+                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2 mt-4">By Industry</div>
+                                {industryLinks.map((link) => (
                                     <Link
                                         key={link.path}
                                         to={link.path}

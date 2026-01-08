@@ -4,26 +4,7 @@ const supabase = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
 
-// Custom body parser middleware to handle raw body
-const rawBodyMiddleware = (req, res, next) => {
-  let data = '';
-  req.on('data', chunk => {
-    data += chunk;
-  });
-  req.on('end', () => {
-    try {
-      if (data) {
-        req.rawBody = data;
-        req.body = data ? JSON.parse(data) : {};
-      }
-      next();
-    } catch (error) {
-      console.error('Error parsing request body:', error);
-      req.body = {};
-      next();
-    }
-  });
-};
+// Body is already parsed by express.json() in api/index.js
 
 // JWT secret - in production, this should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -452,27 +433,12 @@ router.get('/oauth/google/url', async (req, res) => {
 });
 
 // Demo login endpoints for easy testing
-router.post('/demo/creator', rawBodyMiddleware, async (req, res) => {
+router.post('/demo/creator', async (req, res) => {
   try {
     // Log the request body for debugging
     console.log('Demo creator login request received');
     console.log('Request body:', req.body);
     console.log('Request headers:', req.headers);
-
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      process.env.FRONTEND_URL,
-      process.env.LOCAL_DEV_URL
-    ].filter(Boolean);
-
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
 
     const demoAccount = DEMO_ACCOUNTS[0];
 

@@ -24,6 +24,7 @@ import {
   MultiMetricChart,
   KPICard
 } from '@/react-app/components/AnalyticsCharts';
+import SuccessGuide from '../components/SuccessGuide';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -337,6 +338,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+      {/* <SuccessGuide /> - Moved to Layout.tsx */}
+    </div >
   );
 }

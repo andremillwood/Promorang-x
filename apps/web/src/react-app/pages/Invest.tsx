@@ -1,33 +1,14 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Users, Clock, DollarSign, Plus, Target, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, Users, DollarSign, Plus, Target, ShoppingCart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import CreateForecastModal from '../components/CreateForecastModal';
 import PlaceForecastModal from '../components/PlaceForecastModal';
+import ForecastCard, { type SocialForecast } from '../components/ForecastCard';
 import BuySharesModal from '@/react-app/components/BuySharesModal';
 import api from '@/react-app/lib/api';
 import { API_BASE_URL } from '@/react-app/config';
 import type { ContentPieceType, WalletType } from '@/shared/types';
-
-interface SocialForecast {
-  id: number;
-  creator_id: number;
-  creator_name: string;
-  creator_avatar: string;
-  platform: string;
-  content_url: string;
-  content_id?: number;
-  content_title?: string;
-  content_platform?: string;
-  forecast_type: string;
-  target_value: number;
-  current_value: number;
-  odds: number;
-  pool_size: number;
-  creator_initial_amount: number;
-  creator_side: string;
-  expires_at: string;
-  status: string;
-  created_at: string;
-}
 
 interface UserForecast {
   id: number;
@@ -42,6 +23,7 @@ interface UserForecast {
   current_value: number;
   platform: string;
   content_url: string;
+  media_url?: string;
   expires_at: string;
   forecast_status: string;
   result: string;
@@ -50,11 +32,12 @@ interface UserForecast {
 }
 
 export default function Invest() {
-  const [activeTab, setActiveTab] = useState<'forecasts' | 'my-forecasts' | 'my-created' | 'content'>('forecasts');
+  const [activeTab, setActiveTab] = useState<'forecasts' | 'my-forecasts' | 'my-created' | 'content' | 'market'>('forecasts');
   const [forecasts, setForecasts] = useState<SocialForecast[]>([]);
   const [myForecasts, setMyForecasts] = useState<UserForecast[]>([]);
   const [myCreatedForecasts, setMyCreatedForecasts] = useState<SocialForecast[]>([]);
   const [content, setContent] = useState<ContentPieceType[]>([]);
+  const [marketShares, setMarketShares] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
@@ -86,6 +69,9 @@ export default function Invest() {
         ]);
         setContent(Array.isArray(contentData) ? contentData : []);
         setWallets(Array.isArray(walletData) ? walletData : []);
+      } else if (activeTab === 'market') {
+        const data = await api.get<any[]>('/shares/listings?object_type=product');
+        setMarketShares(Array.isArray(data?.listings) ? data.listings : []);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -127,35 +113,22 @@ export default function Invest() {
     fetchData();
   };
 
-  const formatNumber = (value: number | null | undefined, options?: Intl.NumberFormatOptions) => {
-    if (typeof value !== 'number' || Number.isNaN(value)) {
-      return '—';
-    }
-    return value.toLocaleString(undefined, options);
-  };
-
-  const formatCurrency = (value: number | null | undefined) => {
-    if (typeof value !== 'number' || Number.isNaN(value)) {
-      return '—';
-    }
-    return value.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
 
   const formatTimeRemaining = (expiresAt: string) => {
     const now = new Date();
     const expires = new Date(expiresAt);
     const diff = expires.getTime() - now.getTime();
-    
+
     if (diff <= 0) return 'Expired';
-    
+
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hours > 24) {
       const days = Math.floor(hours / 24);
       return `${days}d ${hours % 24}h`;
     }
-    
+
     return `${hours}h ${minutes}m`;
   };
 
@@ -168,100 +141,10 @@ export default function Invest() {
     }
   };
 
-  const ForecastCard = ({ forecast }: { forecast: SocialForecast }) => {
-    const isExpired = new Date(forecast.expires_at) <= new Date();
-    
-    return (
-      <div className="bg-pr-surface-card rounded-lg border border-pr-surface-3 p-6 hover:shadow-md transition-shadow">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <img
-              src={forecast.creator_avatar || `${API_BASE_URL}/api/placeholder/32/32`}
-              alt={forecast.creator_name}
-              className="w-8 h-8 rounded-full"
-            />
-            <div>
-              <p className="font-medium text-pr-text-1">{forecast.creator_name}</p>
-              <p className="text-xs text-pr-text-2">{forecast.platform}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(forecast.status)}`}>
-              {forecast.status}
-            </span>
-            <a
-              href={forecast.content_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-pr-text-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-
-        {forecast.content_title && (
-          <div className="mb-3 p-3 bg-pr-surface-2 rounded-lg">
-            <p className="text-sm font-medium text-pr-text-1">{forecast.content_title}</p>
-            <p className="text-xs text-pr-text-2">{forecast.content_platform}</p>
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Target className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium">
-                {forecast.forecast_type} {formatNumber(forecast.target_value)}
-              </span>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-pr-text-2">Pool</p>
-              <p className="font-semibold text-green-600">{formatCurrency(forecast.pool_size)}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-pr-text-2">
-                {formatTimeRemaining(forecast.expires_at)}
-              </span>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-pr-text-2">Odds</p>
-              <p className="font-semibold text-blue-600">
-                {typeof forecast.odds === 'number' && !Number.isNaN(forecast.odds) ? `${forecast.odds}x` : '—'}
-              </p>
-            </div>
-          </div>
-
-          {forecast.creator_side && forecast.creator_initial_amount > 0 && (
-            <div className="bg-blue-50 rounded-lg p-3">
-              <p className="text-xs text-pr-text-2 mb-1">Creator's Prediction</p>
-              <p className="text-sm font-medium text-blue-600">
-                {forecast.creator_side.toUpperCase()} • {formatCurrency(forecast.creator_initial_amount)} staked
-              </p>
-            </div>
-          )}
-
-          {!isExpired && (
-            <button
-              onClick={() => handlePlacePrediction(forecast)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Make Your Prediction
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   const MyForecastCard = ({ forecast }: { forecast: UserForecast }) => {
     const isResolved = forecast.forecast_status === 'resolved';
     const isWin = isResolved && forecast.actual_payout > 0;
-    
+
     return (
       <div className="bg-pr-surface-card rounded-lg border border-pr-surface-3 p-6">
         <div className="flex items-start justify-between mb-4">
@@ -275,6 +158,16 @@ export default function Invest() {
             {forecast.forecast_status}
           </span>
         </div>
+
+        {forecast.media_url && (
+          <div className="mb-4 rounded-lg overflow-hidden h-32 bg-pr-surface-2">
+            <img
+              src={forecast.media_url}
+              alt="Forecast Content"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
@@ -320,34 +213,46 @@ export default function Invest() {
       <div className="flex items-center space-x-3 mb-4">
         <img
           src={content.creator_avatar || `${API_BASE_URL}/api/placeholder/32/32`}
-          alt={content.creator_name}
+          alt={content.creator_username}
           className="w-8 h-8 rounded-full"
         />
         <div>
-          <p className="font-medium text-pr-text-1">{content.creator_name}</p>
+          <p className="font-medium text-pr-text-1">{content.creator_username}</p>
           <p className="text-xs text-pr-text-2">{content.platform}</p>
         </div>
       </div>
-      
-      <h3 className="font-medium text-pr-text-1 mb-3">{content.title}</h3>
-      
+
+      <Link to={`/content/${content.id}`}>
+        <h3 className="font-medium text-pr-text-1 mb-3 hover:text-blue-600 transition-colors">{content.title}</h3>
+      </Link>
+
+      {content.media_url && (
+        <div className="mb-4 rounded-lg overflow-hidden h-32 bg-pr-surface-2">
+          <img
+            src={content.media_url}
+            alt={content.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <p className="text-xs text-pr-text-2">Share Price</p>
-          <p className="font-medium">${content.share_price.toFixed(2)}</p>
+          <p className="font-medium">${content.share_price?.toFixed(2) || '0.00'}</p>
         </div>
         <div>
           <p className="text-xs text-pr-text-2">Available</p>
           <p className="font-medium">{content.available_shares}/{content.total_shares}</p>
         </div>
       </div>
-      
+
       <div className="bg-green-50 rounded-lg p-3 mb-4">
         <p className="text-sm text-green-600 font-medium">
-          Revenue: ${content.current_revenue.toFixed(2)}
+          Price: ${typeof content.share_price === 'number' ? content.share_price.toFixed(2) : '0.00'}
         </p>
       </div>
-      
+
       <button
         onClick={() => openBuySharesModal(content)}
         className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
@@ -383,15 +288,15 @@ export default function Invest() {
                 { id: 'my-forecasts', label: 'My Predictions', icon: Users },
                 { id: 'my-created', label: 'My Forecasts', icon: Target },
                 { id: 'content', label: 'Content Shares', icon: DollarSign },
+                { id: 'market', label: 'Marketplace', icon: ShoppingCart },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-                  }`}
+                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
+                    }`}
                 >
                   <tab.icon className="w-4 h-4" />
                   <span>{tab.label}</span>
@@ -408,7 +313,11 @@ export default function Invest() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {activeTab === 'forecasts' && forecasts.map((forecast) => (
-                <ForecastCard key={forecast.id} forecast={forecast} />
+                <ForecastCard
+                  key={forecast.id}
+                  forecast={forecast}
+                  onPlacePrediction={handlePlacePrediction}
+                />
               ))}
 
               {activeTab === 'my-forecasts' && myForecasts.map((forecast) => (
@@ -416,11 +325,36 @@ export default function Invest() {
               ))}
 
               {activeTab === 'my-created' && myCreatedForecasts.map((forecast) => (
-                <ForecastCard key={forecast.id} forecast={forecast} />
+                <ForecastCard
+                  key={forecast.id}
+                  forecast={forecast}
+                  onPlacePrediction={handlePlacePrediction}
+                />
               ))}
 
               {activeTab === 'content' && content.map((contentPiece) => (
                 <ContentShareCard key={contentPiece.id} content={contentPiece} />
+              ))}
+
+              {activeTab === 'market' && marketShares.map((share) => (
+                <div key={share.id} className="bg-pr-surface-card rounded-lg border border-pr-surface-3 p-6">
+                  <div className="relative pb-[100%] rounded-lg overflow-hidden mb-4 bg-pr-surface-2">
+                    <img src={share.content_thumbnail} className="absolute inset-0 w-full h-full object-cover" />
+                  </div>
+                  <h3 className="font-bold text-pr-text-1 mb-1">{share.content_title}</h3>
+                  <p className="text-xs text-pr-text-2 mb-4">Seller: {share.owner_name}</p>
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <p className="text-[10px] uppercase text-pr-text-2">Price/Share</p>
+                      <p className="font-black text-pr-text-1">${share.price_per_share}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase text-pr-text-2">Available</p>
+                      <p className="font-black text-pr-text-1">{share.remaining_quantity}</p>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-blue-600">Buy Now</Button>
+                </div>
               ))}
             </div>
           )}

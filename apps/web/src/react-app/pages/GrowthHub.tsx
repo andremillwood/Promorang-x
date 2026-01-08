@@ -1,7 +1,7 @@
 import { useEffect, useState, ComponentType } from 'react';
-import { 
-  TrendingUp, 
-  DollarSign, 
+import {
+  TrendingUp,
+  DollarSign,
   Plus,
   Lock,
   Shield,
@@ -19,10 +19,10 @@ import {
   Heart
 } from 'lucide-react';
 import type { UserType } from '../../shared/types';
-import { 
-  ActivityBreakdown, 
+import {
+  ActivityBreakdown,
   TrendLine,
-  KPICard 
+  KPICard
 } from '@/react-app/components/AnalyticsCharts';
 import StakingModal from '@/react-app/components/StakingModal';
 import FundingProjectModal from '@/react-app/components/FundingProjectModal';
@@ -138,55 +138,55 @@ const buildFallbackUser = (): { user: UserType } => ({
 const buildFallbackChannels = (
   iconMap: Record<string, ComponentType<{ className?: string }>>,
 ): Array<Record<string, unknown>> => [
-  {
-    id: 'foundation-growth',
-    name: 'Foundation Growth',
-    description: 'Balanced staking pool focused on retention and engagement.',
-    lock_period_days: 45,
-    base_multiplier: 1.4,
-    risk_level: 'medium',
-    min_amount: 150,
-    max_amount: 7500,
-    expected_apr: 18.5,
-    icon: Object.keys(iconMap)[0] || 'TrendingUp',
-    color: 'emerald',
-    features: ['Boosted engagement rewards', 'Weekly treasury reports', 'Auto-compound'],
-    participant_count: 182,
-    total_deposited: 96500,
-  },
-  {
-    id: 'creator-accelerator',
-    name: 'Creator Accelerator',
-    description: 'High-yield pool backing top creators and launch drops.',
-    lock_period_days: 75,
-    base_multiplier: 2.1,
-    risk_level: 'high',
-    min_amount: 500,
-    max_amount: 20000,
-    expected_apr: 28,
-    icon: Object.keys(iconMap)[1] || 'Rocket',
-    color: 'purple',
-    features: ['Launch drop priority', 'Risk-adjusted backfill', 'Creator insurance'],
-    participant_count: 94,
-    total_deposited: 184000,
-  },
-  {
-    id: 'stability-shield',
-    name: 'Stability Shield',
-    description: 'Protected staking for conservative growth portfolios.',
-    lock_period_days: 30,
-    base_multiplier: 1.1,
-    risk_level: 'low',
-    min_amount: 50,
-    max_amount: 5000,
-    expected_apr: 9.5,
-    icon: Object.keys(iconMap)[2] || 'Shield',
-    color: 'cyan',
-    features: ['Principal protection', 'Daily liquidity window', 'Auto rollover'],
-    participant_count: 312,
-    total_deposited: 142500,
-  },
-];
+    {
+      id: 'foundation-growth',
+      name: 'Foundation Growth',
+      description: 'Balanced staking pool focused on retention and engagement.',
+      lock_period_days: 45,
+      base_multiplier: 1.4,
+      risk_level: 'medium',
+      min_amount: 150,
+      max_amount: 7500,
+      expected_apr: 18.5,
+      icon: Object.keys(iconMap)[0] || 'TrendingUp',
+      color: 'emerald',
+      features: ['Boosted engagement rewards', 'Weekly treasury reports', 'Auto-compound'],
+      participant_count: 182,
+      total_deposited: 96500,
+    },
+    {
+      id: 'creator-accelerator',
+      name: 'Creator Accelerator',
+      description: 'High-yield pool backing top creators and launch drops.',
+      lock_period_days: 75,
+      base_multiplier: 2.1,
+      risk_level: 'high',
+      min_amount: 500,
+      max_amount: 20000,
+      expected_apr: 28,
+      icon: Object.keys(iconMap)[1] || 'Rocket',
+      color: 'purple',
+      features: ['Launch drop priority', 'Risk-adjusted backfill', 'Creator insurance'],
+      participant_count: 94,
+      total_deposited: 184000,
+    },
+    {
+      id: 'stability-shield',
+      name: 'Stability Shield',
+      description: 'Protected staking for conservative growth portfolios.',
+      lock_period_days: 30,
+      base_multiplier: 1.1,
+      risk_level: 'low',
+      min_amount: 50,
+      max_amount: 5000,
+      expected_apr: 9.5,
+      icon: Object.keys(iconMap)[2] || 'Shield',
+      color: 'cyan',
+      features: ['Principal protection', 'Daily liquidity window', 'Auto rollover'],
+      participant_count: 312,
+      total_deposited: 142500,
+    },
+  ];
 
 const buildFallbackStakingPositions = (): Array<Record<string, unknown>> => [
   {
@@ -296,7 +296,7 @@ export default function GrowthHub() {
   const [growthChannels, setGrowthChannels] = useState<GrowthChannel[]>([]);
   const [shieldPolicies, setShieldPolicies] = useState<SocialShieldPolicy[]>([]);
   const [selectedChannel, setSelectedChannel] = useState<GrowthChannel | null>(null);
-  
+
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [showShieldModal, setShowShieldModal] = useState(false);
@@ -337,21 +337,21 @@ export default function GrowthHub() {
         const iconComponent = iconMap[iconKey] || Shield;
 
         return {
-        id: channel.id ?? `channel-${index}`,
-        name: channel.name ?? 'Growth Channel',
-        description: channel.description ?? 'Ecosystem staking opportunity',
-        lockPeriod: channel.lock_period_days ?? channel.lockPeriodDays ?? channel.lockPeriod ?? 30,
-        baseMultiplier: channel.base_multiplier ?? channel.baseMultiplier ?? 1.2,
-        riskLevel: (channel.risk_level ?? channel.riskLevel ?? 'medium') as GrowthChannel['riskLevel'],
-        minDeposit: channel.min_amount ?? channel.minDeposit ?? 100,
-        maxDeposit: channel.max_amount ?? channel.maxDeposit ?? 10000,
-        totalDeposited: channel.total_deposited ?? channel.totalDeposited ?? 0,
-        participantCount: channel.participant_count ?? channel.participantCount ?? 0,
-        expectedApr: channel.expected_apr ?? channel.expectedApr ?? channel.apy ?? 12,
-        icon: iconComponent,
-        color: channel.color || ['blue', 'green', 'purple'][index % 3],
-        features: channel.features || ['Daily rewards', 'Auto-compound'],
-      };
+          id: channel.id ?? `channel-${index}`,
+          name: channel.name ?? 'Growth Channel',
+          description: channel.description ?? 'Ecosystem staking opportunity',
+          lockPeriod: channel.lock_period_days ?? channel.lockPeriodDays ?? channel.lockPeriod ?? 30,
+          baseMultiplier: channel.base_multiplier ?? channel.baseMultiplier ?? 1.2,
+          riskLevel: (channel.risk_level ?? channel.riskLevel ?? 'medium') as GrowthChannel['riskLevel'],
+          minDeposit: channel.min_amount ?? channel.minDeposit ?? 100,
+          maxDeposit: channel.max_amount ?? channel.maxDeposit ?? 10000,
+          totalDeposited: channel.total_deposited ?? channel.totalDeposited ?? 0,
+          participantCount: channel.participant_count ?? channel.participantCount ?? 0,
+          expectedApr: channel.expected_apr ?? channel.expectedApr ?? channel.apy ?? 12,
+          icon: iconComponent,
+          color: channel.color || ['blue', 'green', 'purple'][index % 3],
+          features: channel.features || ['Daily rewards', 'Auto-compound'],
+        };
       });
       setGrowthChannels(mappedChannels);
 
@@ -570,7 +570,7 @@ export default function GrowthHub() {
   const getChannelColor = (color: string) => {
     const colors = {
       green: 'from-green-500 to-emerald-600',
-      blue: 'from-blue-500 to-cyan-600', 
+      blue: 'from-blue-500 to-cyan-600',
       purple: 'from-purple-500 to-pink-600',
       orange: 'from-orange-500 to-red-600'
     };
@@ -620,11 +620,10 @@ export default function GrowthHub() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
+                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
                     ? 'border-purple-500 text-purple-600'
                     : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
@@ -647,7 +646,7 @@ export default function GrowthHub() {
               icon={<Lock className="w-5 h-5" />}
               trend={[]}
             />
-            
+
             <KPICard
               title="Total Earnings"
               value={`${stakingPositions.reduce((sum, pos) => sum + pos.earnedSoFar, 0).toFixed(1)} Gems`}
@@ -656,7 +655,7 @@ export default function GrowthHub() {
               icon={<Diamond className="w-5 h-5" />}
               trend={[]}
             />
-            
+
             <KPICard
               title="Projects Backed"
               value="3"
@@ -665,7 +664,7 @@ export default function GrowthHub() {
               icon={<Heart className="w-5 h-5" />}
               trend={[]}
             />
-            
+
             <KPICard
               title="Shield Coverage"
               value="$5,000"
@@ -685,9 +684,9 @@ export default function GrowthHub() {
                   const channel = displayedGrowthChannels.find(c => c.id === position.channelId);
                   const Icon = channel?.icon || Lock;
                   const daysLeft = Math.ceil((new Date(position.lockUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                  
+
                   return (
-                    <div key={position.id} className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 border border-pr-surface-3">
+                    <div key={position.id} className="bg-pr-surface-2 rounded-lg p-4 border border-pr-border">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className={`w-12 h-12 bg-gradient-to-r ${getChannelColor(channel?.color || 'blue')} rounded-xl flex items-center justify-center text-white`}>
@@ -709,7 +708,7 @@ export default function GrowthHub() {
                           <span>{((position.earnedSoFar / (position.amount * (position.multiplier - 1))) * 100).toFixed(1)}%</span>
                         </div>
                         <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                          <div 
+                          <div
                             className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${Math.min(100, (position.earnedSoFar / (position.amount * (position.multiplier - 1))) * 100)}%` }}
                           ></div>
@@ -900,7 +899,7 @@ export default function GrowthHub() {
                           <span className="font-semibold">{channel.totalDeposited.toLocaleString()} Gems</span>
                         </div>
                         <div className="w-full bg-pr-surface-3 rounded-full h-2 mt-2">
-                          <div 
+                          <div
                             className={`bg-gradient-to-r ${getChannelColor(channel.color)} h-2 rounded-full transition-all duration-300`}
                             style={{ width: `${Math.min(100, (channel.totalDeposited / channel.maxDeposit) * 100)}%` }}
                           ></div>
@@ -933,8 +932,8 @@ export default function GrowthHub() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-pr-text-1 mb-2">Amount (Gems)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   placeholder="1000"
                   className="w-full px-3 py-2 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -995,7 +994,7 @@ export default function GrowthHub() {
                       <p className="text-pr-text-2 mb-4">{project.description}</p>
                       <div className="flex items-center space-x-6">
                         <div className="flex items-center space-x-2">
-                          <img 
+                          <img
                             src={project.creatorAvatar}
                             alt={project.creatorName}
                             className="w-8 h-8 rounded-full"
@@ -1047,7 +1046,7 @@ export default function GrowthHub() {
                   </div>
 
                   <div className="w-full bg-pr-surface-3 rounded-full h-3 mb-4">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(100, (project.currentFunding / project.fundingGoal) * 100)}%` }}
                     ></div>
@@ -1077,7 +1076,7 @@ export default function GrowthHub() {
               <div key={project.id} className="bg-pr-surface-card rounded-xl border border-pr-surface-3 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
                 <div className="p-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <img 
+                    <img
                       src={project.creatorAvatar}
                       alt={project.creatorName}
                       className="w-10 h-10 rounded-full"
@@ -1087,10 +1086,10 @@ export default function GrowthHub() {
                       <span className="text-sm text-pr-text-2">{project.category}</span>
                     </div>
                   </div>
-                  
+
                   <h3 className="text-lg font-bold text-pr-text-1 mb-2">{project.title}</h3>
                   <p className="text-pr-text-2 mb-4 line-clamp-2">{project.description}</p>
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-pr-text-2">Funding Progress</span>
@@ -1099,7 +1098,7 @@ export default function GrowthHub() {
                       </span>
                     </div>
                     <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(100, (project.currentFunding / project.fundingGoal) * 100)}%` }}
                       ></div>
@@ -1144,15 +1143,14 @@ export default function GrowthHub() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {socialShieldPolicies.map((policy) => (
-              <div key={policy.id} className={`bg-pr-surface-card rounded-xl border-2 shadow-sm overflow-hidden ${
-                policy.id === 'pro' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-pr-surface-3'
-              }`}>
+              <div key={policy.id} className={`bg-pr-surface-card rounded-xl border-2 shadow-sm overflow-hidden ${policy.id === 'pro' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-pr-surface-3'
+                }`}>
                 {policy.id === 'pro' && (
                   <div className="bg-blue-500 text-white text-center py-2 text-sm font-medium">
                     Most Popular
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   <div className="text-center mb-6">
                     <h3 className="text-xl font-bold text-pr-text-1 mb-2">{policy.name}</h3>
@@ -1203,11 +1201,10 @@ export default function GrowthHub() {
 
                   <button
                     onClick={() => setShowShieldModal(true)}
-                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                      policy.id === 'pro' 
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${policy.id === 'pro'
                         ? 'bg-blue-500 hover:bg-blue-600 text-white'
                         : 'bg-pr-surface-2 hover:bg-pr-surface-3 text-pr-text-1'
-                    }`}
+                      }`}
                   >
                     Get {policy.name}
                   </button>
@@ -1242,7 +1239,7 @@ export default function GrowthHub() {
               icon={<Lock className="w-5 h-5" />}
               trend={economicData.slice(-7).map(d => ({ date: d.date, value: d.totalStaked }))}
             />
-            
+
             <KPICard
               title="Active Projects"
               value={fundingProjects.length.toString()}
@@ -1251,7 +1248,7 @@ export default function GrowthHub() {
               icon={<Rocket className="w-5 h-5" />}
               trend={economicData.slice(-7).map(d => ({ date: d.date, value: d.activeProjects }))}
             />
-            
+
             <KPICard
               title="Funding Volume"
               value={`$${fundingProjects.reduce((sum, p) => sum + p.currentFunding, 0).toLocaleString()}`}
@@ -1260,7 +1257,7 @@ export default function GrowthHub() {
               icon={<DollarSign className="w-5 h-5" />}
               trend={economicData.slice(-7).map(d => ({ date: d.date, value: d.fundingVolume }))}
             />
-            
+
             <KPICard
               title="Shield Premiums"
               value="$47,000"
@@ -1275,8 +1272,8 @@ export default function GrowthHub() {
             <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3 shadow-sm">
               <h3 className="text-lg font-semibold text-pr-text-1 mb-6">Economic Flow</h3>
               <TrendLine
-                data={economicData.map(d => ({ 
-                  date: d.date, 
+                data={economicData.map(d => ({
+                  date: d.date,
                   value: d.rewardsDistributed,
                   secondary: d.fundingVolume
                 }))}
@@ -1325,7 +1322,7 @@ export default function GrowthHub() {
                     <p className="text-pr-text-2 text-sm">When you stake gems, they're used to fund platform operations, creator rewards, and new feature development.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <Rocket className="w-4 h-4 text-blue-600" />
@@ -1335,7 +1332,7 @@ export default function GrowthHub() {
                     <p className="text-pr-text-2 text-sm">Creator funding projects introduce new content types and engagement methods, expanding earning opportunities.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <Shield className="w-4 h-4 text-purple-600" />
@@ -1346,7 +1343,7 @@ export default function GrowthHub() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1357,7 +1354,7 @@ export default function GrowthHub() {
                     <p className="text-pr-text-2 text-sm">More participants mean better rates, higher liquidity, and stronger protection for everyone.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <Target className="w-4 h-4 text-red-600" />
@@ -1367,7 +1364,7 @@ export default function GrowthHub() {
                     <p className="text-pr-text-2 text-sm">Your success directly correlates with platform growth, creating aligned incentives for long-term value creation.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <Lightbulb className="w-4 h-4 text-yellow-600" />
@@ -1391,14 +1388,14 @@ export default function GrowthHub() {
         user={userData}
         onSuccess={fetchGrowthHubData}
       />
-      
+
       <FundingProjectModal
         isOpen={showFundingModal}
         onClose={() => setShowFundingModal(false)}
         user={userData}
         onSuccess={fetchGrowthHubData}
       />
-      
+
       <SocialShieldModal
         isOpen={showShieldModal}
         onClose={() => setShowShieldModal(false)}

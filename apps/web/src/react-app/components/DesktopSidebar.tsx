@@ -10,9 +10,11 @@ interface DesktopSidebarProps {
   onSearch?: () => void;
   userData?: any;
   profilePath?: string;
+  showSuccessGuide?: boolean;
+  onToggleSuccessGuide?: () => void;
 }
 
-export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout, onSearch, userData, profilePath }: DesktopSidebarProps) {
+export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout, onSearch, userData, profilePath, showSuccessGuide, onToggleSuccessGuide }: DesktopSidebarProps) {
   const showSectionLabels = groups.length > 1;
 
   return (
@@ -20,7 +22,7 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
       {/* Logo */}
       <div className="p-6 border-b border-pr-surface-3">
         <Link to="/dashboard" className="flex items-center space-x-3 group">
-          <img 
+          <img
             src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
             alt="Promorang"
             className="h-10 w-10 transition-transform group-hover:scale-105"
@@ -32,18 +34,17 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
       {/* Profile Section - Quick Access */}
       {(userData || profilePath) && (
         <div className="p-4 border-b border-pr-surface-3">
-          <Link 
-            to={profilePath || '/profile/me'} 
-            className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 group ${
-              isActive(profilePath || '/profile/me') 
-                ? 'bg-pr-surface-2 ring-1 ring-pr-border' 
-                : 'hover:bg-pr-surface-2'
-            }`}
+          <Link
+            to={profilePath || '/profile/me'}
+            className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 group ${isActive(profilePath || '/profile/me')
+              ? 'bg-pr-surface-2 ring-1 ring-pr-border'
+              : 'hover:bg-pr-surface-2'
+              }`}
           >
             <div className="relative">
               <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-pr-border group-hover:border-orange-500 transition-colors">
-                <img 
-                  src={userData?.avatar_url || `https://ui-avatars.com/api/?name=${userData?.display_name || 'User'}&background=random`} 
+                <img
+                  src={userData?.avatar_url || `https://ui-avatars.com/api/?name=${userData?.display_name || 'User'}&background=random`}
                   alt="Profile"
                   className="h-full w-full object-cover"
                 />
@@ -100,11 +101,10 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
                         e.preventDefault();
                       }
                     }}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      active
-                        ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 shadow-sm'
-                        : 'text-pr-text-2 hover:bg-pr-surface-2 hover:text-pr-text-1'
-                    }`}
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${active
+                      ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 shadow-sm'
+                      : 'text-pr-text-2 hover:bg-pr-surface-2 hover:text-pr-text-1'
+                      }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
                     <span className="truncate">{item.name}</span>
@@ -113,6 +113,39 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
               })}
             </div>
           ))}
+
+          {/* Restore Success Guide (Only if hidden) */}
+          {showSuccessGuide === false && onToggleSuccessGuide && (
+            <div className="space-y-1">
+              <button
+                onClick={onToggleSuccessGuide}
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-pr-text-2 hover:bg-green-50 hover:text-green-700 transition-all duration-200 group border border-dashed border-gray-200 hover:border-green-200"
+              >
+                {/* Dynamically imported Trophy to avoid huge bundle impact if not tree-shaken, 
+                    but lucide-react treeshaking is good usually. Need to import Trophy though. */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5 flex-shrink-0 text-green-500"
+                >
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                <span className="truncate">Show Success Guide</span>
+              </button>
+            </div>
+          )}
         </div>
       </nav>
 

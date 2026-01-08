@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const couponService = require('../services/couponService');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 
 // Helper functions
 const sendSuccess = (res, data = {}, message) => {
@@ -17,7 +17,53 @@ const sendError = (res, statusCode, message, code) => {
   return res.status(statusCode).json({ status: 'error', message, code });
 };
 
-// Auth middleware
+// ============================================
+// PUBLIC ROUTES
+// ============================================
+
+/**
+ * GET /api/coupons/public
+ * List public coupons
+ */
+router.get('/public', async (req, res) => {
+  try {
+    const { limit = 20, offset = 0, category } = req.query;
+
+    const result = await couponService.listPublicCoupons({
+      limit,
+      offset,
+      category
+    });
+
+    return sendSuccess(res, result);
+  } catch (error) {
+    console.error('[Coupon API] Error listing public coupons:', error);
+    return sendError(res, 500, 'Failed to list coupons', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/public/:id
+ * Get public coupon details
+ */
+router.get('/public/:id', async (req, res) => {
+  try {
+    const coupon = await couponService.getPublicCoupon(req.params.id);
+    if (!coupon) {
+      return sendError(res, 404, 'Coupon not found', 'NOT_FOUND');
+    }
+    return sendSuccess(res, { coupon });
+  } catch (error) {
+    console.error('[Coupon API] Error getting public coupon:', error);
+    return sendError(res, 500, 'Failed to get coupon', 'SERVER_ERROR');
+  }
+});
+
+// ============================================
+// PROTECTED ROUTES
+// ============================================
+
+// Apply auth middleware to all subsequent routes
 router.use(requireAuth);
 
 /**

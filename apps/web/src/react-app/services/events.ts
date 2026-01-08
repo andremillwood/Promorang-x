@@ -195,6 +195,131 @@ class EventsService {
     }
 
     /**
+     * Submit proof for an event task
+     */
+    async submitTaskProof(
+        eventId: string,
+        taskId: string,
+        payload: { submission_url?: string; proof_text?: string }
+    ): Promise<any> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/tasks/${taskId}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to submit proof');
+        }
+
+        const result = await response.json();
+        return result.data.submission;
+    }
+
+    /**
+     * Get event media gallery
+     */
+    async getEventMedia(eventId: string): Promise<any[]> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/media`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch event media');
+        }
+
+        const result = await response.json();
+        return result.data.media || [];
+    }
+
+    /**
+     * Upload media to event gallery
+     */
+    async uploadEventMedia(
+        eventId: string,
+        payload: { media_url: string; media_type?: string; caption?: string }
+    ): Promise<any> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/media`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to upload media');
+        }
+
+        const result = await response.json();
+        return result.data.media;
+    }
+
+    /**
+     * Get event updates/announcements
+     */
+    async getEventUpdates(eventId: string): Promise<any[]> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/updates`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch event updates');
+        }
+
+        const result = await response.json();
+        return result.data.updates || [];
+    }
+
+    /**
+     * Post an update (Organizer only)
+     */
+    async postEventUpdate(eventId: string, content: string): Promise<any> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/updates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to post update');
+        }
+
+        const result = await response.json();
+        return result.data.update;
+    }
+
+    /**
+     * Get event attendees
+     */
+    async getEventAttendees(eventId: string): Promise<any[]> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/attendees`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch event attendees');
+        }
+
+        const result = await response.json();
+        return result.data.attendees;
+    }
+
+    /**
+     * Check in an attendee (Organizer only)
+     */
+    async checkInAttendee(
+        eventId: string,
+        payload: { user_id?: string; check_in_code?: string }
+    ): Promise<void> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/check-in`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to check in');
+        }
+    }
+
+    /**
      * Format event date for display
      */
     formatEventDate(eventDate: string, eventEndDate?: string | null): string {

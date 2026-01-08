@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 import colors from 'tailwindcss/colors';
+import typography from '@tailwindcss/typography';
+import forms from '@tailwindcss/forms';
+import aspectRatio from '@tailwindcss/aspect-ratio';
 
 export default {
   content: [
@@ -33,12 +36,49 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        // Theme surface colors
+        'pr-surface-0': 'var(--pr-surface-0)',
+        'pr-surface-background': 'var(--pr-surface-background)',
+        'pr-surface-card': 'var(--pr-surface-card)',
+        'pr-surface-elevated': 'var(--pr-surface-elevated)',
+        'pr-surface-1': 'var(--pr-surface-1)',
+        'pr-surface-2': 'var(--pr-surface-2)',
+        'pr-surface-3': 'var(--pr-surface-3)',
+        // Theme text colors
+        'pr-text-primary': 'var(--pr-text-primary)',
+        'pr-text-secondary': 'var(--pr-text-secondary)',
+        'pr-text-tertiary': 'var(--pr-text-tertiary)',
+        'pr-text-1': 'var(--pr-text-1)',
+        'pr-text-2': 'var(--pr-text-2)',
+        // Theme border color
+        'pr-border': 'var(--pr-border)',
+        // Brand colors
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: '#FF6B00',
+          50: '#FFF5F0',
+          100: '#FFE6D6',
+          200: '#FFC7A8',
+          300: '#FFA77A',
+          400: '#FF884C',
+          500: '#FF6B00',
+          600: '#CC5600',
+          700: '#994000',
+          800: '#662B00',
+          900: '#331500',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
+          DEFAULT: '#6C63FF',
+          50: '#F0F0FF',
+          100: '#E0E0FF',
+          200: '#C2C1FF',
+          300: '#A3A1FF',
+          400: '#8582FF',
+          500: '#6C63FF',
+          600: '#4D42FF',
+          700: '#3A30CC',
+          800: '#282499',
+          900: '#151866',
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
@@ -60,68 +100,6 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
-        },
-        // Theme surface colors
-        'pr-surface-0': 'var(--pr-surface-0)',
-        'pr-surface-background': 'var(--pr-surface-background)',
-        'pr-surface-card': 'var(--pr-surface-card)',
-        'pr-surface-elevated': 'var(--pr-surface-elevated)',
-        'pr-surface-1': 'var(--pr-surface-1)',
-        'pr-surface-2': 'var(--pr-surface-2)',
-        'pr-surface-3': 'var(--pr-surface-3)',
-        // Theme text colors
-        'pr-text-primary': 'var(--pr-text-primary)',
-        'pr-text-secondary': 'var(--pr-text-secondary)',
-        'pr-text-tertiary': 'var(--pr-text-tertiary)',
-        'pr-text-1': 'var(--pr-text-1)',
-        'pr-text-2': 'var(--pr-text-2)',
-        // Theme border color
-        'pr-border': 'var(--pr-border)',
-      },
-      boxShadow: {
-        'pr-card': 'var(--pr-shadow-card)',
-        'pr-elevated': 'var(--pr-shadow-elevated)',
-      },
-      maxWidth: {
-        'ultrawide': '1600px',
-        'ultrawide-xl': '1800px',
-      },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
-      },
-      colors: {
-        // Brand colors
-        primary: {
-          DEFAULT: '#FF6B00',
-          50: '#FFF5F0',
-          100: '#FFE6D6',
-          200: '#FFC7A8',
-          300: '#FFA77A',
-          400: '#FF884C',
-          500: '#FF6B00',
-          600: '#CC5600',
-          700: '#994000',
-          800: '#662B00',
-          900: '#331500',
-        },
-        secondary: {
-          DEFAULT: '#6C63FF',
-          50: '#F0F0FF',
-          100: '#E0E0FF',
-          200: '#C2C1FF',
-          300: '#A3A1FF',
-          400: '#8582FF',
-          500: '#6C63FF',
-          600: '#4D42FF',
-          700: '#3A30CC',
-          800: '#282499',
-          900: '#151866',
         },
         // Neutral palette
         gray: {
@@ -246,12 +224,11 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/forms')({
+    typography,
+    forms({
       strategy: 'class',
     }),
-    require('@tailwindcss/line-clamp'),
-    require('@tailwindcss/aspect-ratio'),
+    aspectRatio,
   ],
   // Safelist for dynamic classes
   safelist: [

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import {
@@ -29,12 +29,18 @@ import CouponCard from '@/react-app/components/CouponCard';
 import PersonalizedEmptyState from '@/react-app/components/PersonalizedEmptyState';
 import PlaceForecastModal from '@/react-app/components/PlaceForecastModal';
 import TipModal from '@/react-app/components/TipModal';
+import FeedItemWrapper from '@/react-app/components/FeedItemWrapper';
+import ForecastCard, { type SocialForecast } from '@/react-app/components/ForecastCard';
+import MovementCard from '@/react-app/components/MovementCard';
 
-import type { ContentPieceType, DropType, WalletType, UserType } from '../../shared/types';
+import type { ContentPieceType, DropType, WalletType, UserType, EventType, ProductType } from '../../shared/types';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
 import { logEvent } from '@/react-app/services/telemetry';
 import api from '@/react-app/lib/api';
 import rewardsService, { type UserCoupon } from '@/react-app/services/rewards';
+import eventsService from '@/react-app/services/events';
+import EventCard from '@/react-app/components/EventCard';
+import ProductCard from '@/react-app/components/ProductCard';
 
 export default function HomeFeed() {
   const { user, signOut: logout } = useAuth();
@@ -42,11 +48,27 @@ export default function HomeFeed() {
   const [contentFeed, setContentFeed] = useState<ContentPieceType[]>([]);
   const [dropFeed, setDropFeed] = useState<DropType[]>([]);
   const [coupons, setCoupons] = useState<UserCoupon[]>([]);
+  const [events, setEvents] = useState<EventType[]>([]);
+  const [products, setProducts] = useState<ProductType[]>([]);
+
   const [wallets, setWallets] = useState<WalletType[]>([]);
+  const [unifiedFeed, setUnifiedFeed] = useState<any[]>([]); // Unified feed items
   const [userData, setUserData] = useState<UserType | null>(null);
   const [, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'for-you' | 'social' | 'drops' | 'rewards'>('for-you');
   const [sponsoredContent, setSponsoredContent] = useState<any[]>([]);
+
+  // Generalized infinite scroll state for all tabs
+  const [pagination, setPagination] = useState({
+    'for-you': { offset: 0, hasMore: true },
+    'social': { offset: 0, hasMore: true },
+    'drops': { offset: 0, hasMore: true },
+    'rewards': { offset: 0, hasMore: true }
+  });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const FEED_PAGE_SIZE = 20;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [externalMoveModalOpen] = useState(false);
@@ -64,6 +86,7 @@ export default function HomeFeed() {
   const [tipContent, setTipContent] = useState<ContentPieceType | null>(null);
   const [predictModalOpen, setPredictModalOpen] = useState(false);
   const [predictContent, setPredictContent] = useState<ContentPieceType | null>(null);
+  const [selectedForecast, setSelectedForecast] = useState<SocialForecast | null>(null);
   const profileSlug =
     userData?.username ||
     (userData?.email ? userData.email.split('@')[0] : undefined) ||
@@ -108,12 +131,14 @@ export default function HomeFeed() {
 
   const fetchFeeds = async () => {
     try {
-      const [contentData, dropsData, walletsData, sponsoredData, couponsData] = await Promise.all([
+      const [contentData, dropsData, walletsData, sponsoredData, couponsData, eventsData, productsResponse] = await Promise.all([
         api.get<ContentPieceType[]>('/content'),
         api.get<DropType[]>('/drops?limit=10'),
         api.get<WalletType[]>('/users/me/wallets'),
         api.get('/content/sponsored'),
-        rewardsService.getAvailableCoupons().catch(() => [])
+        rewardsService.getAvailableCoupons().catch(() => []),
+        eventsService.listEvents({ limit: 5, upcoming: true }).catch(() => []),
+        api.get<{ products: ProductType[] }>('/marketplace/products?limit=10').catch(() => ({ products: [] }))
       ]);
 
       console.log('📊 Feed data received:', {
@@ -121,27 +146,149 @@ export default function HomeFeed() {
         drops: Array.isArray(dropsData) ? dropsData.length : 'not array',
         wallets: Array.isArray(walletsData) ? walletsData.length : 'not array',
         sponsored: Array.isArray(sponsoredData) ? sponsoredData.length : 'not array',
-        coupons: Array.isArray(couponsData) ? couponsData.length : 'not array'
+        coupons: Array.isArray(couponsData) ? couponsData.length : 'not array',
+        events: Array.isArray(eventsData) ? eventsData.length : 'not array',
+        products: productsResponse?.products?.length || '0'
       });
-      console.log('🎯 Drops data type:', typeof dropsData, 'isArray:', Array.isArray(dropsData));
-      console.log('🎯 Drops data structure:', JSON.stringify(dropsData).substring(0, 200));
 
       setContentFeed(Array.isArray(contentData) ? contentData : []);
       setDropFeed(Array.isArray(dropsData) ? dropsData.slice(0, 5) : []);
       setWallets(Array.isArray(walletsData) ? walletsData : []);
       setSponsoredContent(Array.isArray(sponsoredData) ? sponsoredData : []);
       setCoupons(Array.isArray(couponsData) ? couponsData : []);
+      setEvents(Array.isArray(eventsData) ? eventsData : []);
+      setEvents(Array.isArray(eventsData) ? eventsData : []);
+      setProducts(Array.isArray(productsResponse?.products) ? productsResponse.products : (Array.isArray(productsResponse) ? productsResponse : []));
+
+      // Fetch unified feed separately - reset pagination
+      try {
+        const feedResponse = await api.get<{ data?: { feed: any[] }, feed?: any[] }>(`/feed/for-you?limit=${FEED_PAGE_SIZE}&offset=0`);
+        const feedData = feedResponse?.data?.feed || feedResponse?.feed || [];
+        setUnifiedFeed(feedData);
+
+        setPagination(prev => ({
+          ...prev,
+          'for-you': { offset: FEED_PAGE_SIZE, hasMore: feedData.length >= FEED_PAGE_SIZE },
+          'social': { offset: FEED_PAGE_SIZE, hasMore: (contentData as any)?.length >= FEED_PAGE_SIZE },
+          'drops': { offset: 10, hasMore: (dropsData as any)?.length >= 10 },
+          'rewards': { offset: FEED_PAGE_SIZE, hasMore: (couponsData as any)?.length >= FEED_PAGE_SIZE }
+        }));
+      } catch (e) {
+        console.error('Failed to fetch unified feed', e);
+      }
+
     } catch (error) {
       console.error('Failed to fetch feeds:', error);
       setContentFeed([]);
-      setDropFeed([]);
-      setWallets([]);
-      setSponsoredContent([]);
-      setCoupons([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Load more function for infinite scroll - generalized for all tabs
+  const loadMoreFeed = useCallback(async () => {
+    if (isLoadingMore) return;
+
+    const currentPagination = pagination[activeTab];
+    if (!currentPagination.hasMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      let endpoint = '';
+      let limit = FEED_PAGE_SIZE;
+      const offset = currentPagination.offset;
+
+      switch (activeTab) {
+        case 'for-you':
+          endpoint = `/feed/for-you?limit=${limit}&offset=${offset}`;
+          break;
+        case 'social':
+          // content API uses page=, limit=
+          const page = Math.floor(offset / limit) + 1;
+          endpoint = `/content?limit=${limit}&page=${page}`;
+          break;
+        case 'drops':
+          limit = 10;
+          endpoint = `/drops?limit=${limit}&offset=${offset}`;
+          break;
+        case 'rewards':
+          endpoint = `/rewards/coupons?limit=${limit}&offset=${offset}`;
+          break;
+      }
+
+      const response = await api.get<any>(endpoint);
+      let newItems: any[] = [];
+
+      // Handle different response shapes
+      if (activeTab === 'for-you') {
+        newItems = response?.data?.feed || response?.feed || [];
+      } else if (activeTab === 'social') {
+        newItems = Array.isArray(response) ? response : (response?.data || []);
+      } else if (activeTab === 'drops') {
+        newItems = Array.isArray(response) ? response : (response?.data || []);
+      } else if (activeTab === 'rewards') {
+        newItems = response?.coupons || [];
+      }
+
+      if (newItems.length > 0) {
+        // Update respective state
+        switch (activeTab) {
+          case 'for-you':
+            setUnifiedFeed(prev => [...prev, ...newItems]);
+            break;
+          case 'social':
+            setContentFeed(prev => [...prev, ...newItems]);
+            break;
+          case 'drops':
+            setDropFeed(prev => [...prev, ...newItems]);
+            break;
+          case 'rewards':
+            setCoupons(prev => [...prev, ...newItems]);
+            break;
+        }
+
+        setPagination(prev => ({
+          ...prev,
+          [activeTab]: {
+            offset: offset + limit,
+            hasMore: newItems.length >= limit
+          }
+        }));
+      } else {
+        setPagination(prev => ({
+          ...prev,
+          [activeTab]: { ...currentPagination, hasMore: false }
+        }));
+      }
+    } catch (e) {
+      console.error(`Failed to load more items for ${activeTab}`, e);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [activeTab, pagination, isLoadingMore]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && pagination[activeTab].hasMore && !isLoadingMore) {
+          loadMoreFeed();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [activeTab, pagination, isLoadingMore, loadMoreFeed]);
 
   const fetchUserData = async () => {
     try {
@@ -315,6 +462,10 @@ export default function HomeFeed() {
     }
   };
 
+  const handlePlaceForecast = (forecast: SocialForecast) => {
+    setSelectedForecast(forecast);
+  };
+
   const getTierIcon = (tier: string) => {
     switch (tier) {
       case 'super': return <Crown className="w-4 h-4 text-yellow-600" />;
@@ -372,65 +523,6 @@ export default function HomeFeed() {
       color: "from-green-500 to-emerald-500",
       icon: <TrendingUp className="w-5 h-5" />
     };
-  };
-
-  const getForYouFeed = () => {
-    // Mix content, drops, and coupons in a personalized order
-    const mixedFeed = [];
-
-    console.log('🔄 Building For You feed:', {
-      contentFeed: contentFeed.length,
-      dropFeed: dropFeed.length,
-      sponsoredContent: sponsoredContent.length,
-      coupons: coupons.length
-    });
-
-    // Add sponsored content first (highest priority)
-    sponsoredContent.forEach(content => {
-      mixedFeed.push({ type: 'content', data: content, isSponsored: true });
-    });
-
-    // Filter non-sponsored content
-    const regularContent = contentFeed.filter(content =>
-      !sponsoredContent.some(sponsored => sponsored.id === content.id)
-    );
-
-    // Interleave content, drops, and coupons (2 content : 1 drop : 1 coupon every 5 items)
-    let contentIndex = 0;
-    let dropIndex = 0;
-    let couponIndex = 0;
-    let itemCount = 0;
-
-    while (contentIndex < regularContent.length || dropIndex < dropFeed.length || couponIndex < coupons.length) {
-      // Add 2 content items
-      if (contentIndex < regularContent.length) {
-        mixedFeed.push({ type: 'content', data: regularContent[contentIndex] });
-        contentIndex++;
-        itemCount++;
-      }
-      if (contentIndex < regularContent.length) {
-        mixedFeed.push({ type: 'content', data: regularContent[contentIndex] });
-        contentIndex++;
-        itemCount++;
-      }
-
-      // Add 1 drop
-      if (dropIndex < dropFeed.length) {
-        mixedFeed.push({ type: 'drop', data: dropFeed[dropIndex] });
-        dropIndex++;
-        itemCount++;
-      }
-
-      // Add 1 coupon every 5 items
-      if (itemCount >= 5 && couponIndex < coupons.length) {
-        mixedFeed.push({ type: 'coupon', data: coupons[couponIndex] });
-        couponIndex++;
-        itemCount = 0;
-      }
-    }
-
-    console.log('✅ Mixed feed generated:', mixedFeed.length, 'items');
-    return mixedFeed.slice(0, 20); // Show more items
   };
 
   const smartCTA = getSmartCTA();
@@ -548,8 +640,8 @@ export default function HomeFeed() {
                 key={tab.key}
                 onClick={() => handleTabChange(tab.key as any)}
                 className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-base transition-all duration-200 ${activeTab === tab.key
-                    ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50 shadow-sm'
-                    : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
+                  ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50 shadow-sm'
+                  : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
                   }`}
               >
                 {tab.icon}
@@ -563,35 +655,75 @@ export default function HomeFeed() {
           {/* For You Tab - Personalized Mix */}
           {activeTab === 'for-you' && (
             <div className="space-y-6">
-              {getForYouFeed().length > 0 ? (
+              {unifiedFeed.length > 0 ? (
                 <>
                   <div className="flex items-center space-x-2 mb-6">
                     <Flame className="w-5 h-5 text-orange-500" />
                     <h3 className="text-lg font-semibold text-pr-text-1">Trending opportunities for you</h3>
                   </div>
-                  {getForYouFeed().map((item, index) => (
-                    <div key={index}>
+                  {unifiedFeed.map((item, index) => (
+                    <div key={`${item.type}-${item.id || index}`}>
                       {item.type === 'content' ? (
-                        <ContentCard
-                          content={item.data as ContentPieceType}
-                          onBuyShares={openBuyModal}
-                          onShare={openShareModal}
-                          onSocialAction={handleSocialAction}
-                          onTip={openTipModal}
-                          onNavigate={openContentDetail}
-                          onPredict={openPredictModal}
-                          currentUser={userData}
-                          onEdit={openEditModal}
-                          onDelete={openDeleteConfirm}
-                          isSponsored={(item as any).isSponsored}
-                        />
+                        <FeedItemWrapper type="content">
+                          <ContentCard
+                            content={item}
+                            onBuyShares={openBuyModal}
+                            onShare={openShareModal}
+                            onSocialAction={handleSocialAction}
+                            onTip={openTipModal}
+                            onNavigate={openContentDetail}
+                            onPredict={openPredictModal}
+                            currentUser={userData}
+                            onEdit={openEditModal}
+                            onDelete={openDeleteConfirm}
+                            isSponsored={(item as any).isSponsored}
+                          />
+                        </FeedItemWrapper>
                       ) : item.type === 'drop' ? (
-                        <EnhancedDropCard drop={item.data as DropType} />
+                        <FeedItemWrapper type="drop">
+                          <EnhancedDropCard drop={item} />
+                        </FeedItemWrapper>
+                      ) : item.type === 'event' ? (
+                        <FeedItemWrapper type="event">
+                          <EventCard event={item} />
+                        </FeedItemWrapper>
+                      ) : item.type === 'product' ? (
+                        <FeedItemWrapper type="product">
+                          <ProductCard product={item} compact />
+                        </FeedItemWrapper>
                       ) : item.type === 'coupon' ? (
-                        <CouponCard coupon={item.data as UserCoupon} />
+                        <FeedItemWrapper type="coupon">
+                          <CouponCard coupon={item} />
+                        </FeedItemWrapper>
+                      ) : item.type === 'prediction' ? (
+                        <FeedItemWrapper type="prediction">
+                          <ForecastCard
+                            forecast={item}
+                            onPlacePrediction={handlePlaceForecast}
+                          />
+                        </FeedItemWrapper>
+                      ) : item.type === 'movement' ? (
+                        <FeedItemWrapper type="movement">
+                          <MovementCard movement={item} />
+                        </FeedItemWrapper>
                       ) : null}
                     </div>
                   ))}
+
+                  {/* Infinite scroll observer target and loading indicator */}
+                  <div ref={loadMoreRef} className="py-4">
+                    {isLoadingMore && (
+                      <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+                        <span className="text-sm">Loading more...</span>
+                      </div>
+                    )}
+                    {!pagination['for-you'].hasMore && unifiedFeed.length > 0 && (
+                      <div className="text-center text-sm text-pr-text-2 py-2">
+                        You've reached the end of your personalized feed
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <PersonalizedEmptyState />
@@ -615,29 +747,12 @@ export default function HomeFeed() {
                 </button>
               </div>
               {contentFeed.length > 0 ? (
-                // Show sponsored content first, then regular content
-                [
-                  ...sponsoredContent.map((content) => (
-                    <ContentCard
-                      key={`sponsored-${content.id}`}
-                      content={content}
-                      onBuyShares={openBuyModal}
-                      onShare={openShareModal}
-                      onSocialAction={handleSocialAction}
-                      onTip={openTipModal}
-                      onNavigate={openContentDetail}
-                      onPredict={openPredictModal}
-                      currentUser={userData}
-                      onEdit={openEditModal}
-                      onDelete={openDeleteConfirm}
-                      isSponsored={true}
-                    />
-                  )),
-                  ...contentFeed
-                    .filter(content => !sponsoredContent.some(sponsored => sponsored.id === content.id))
-                    .map((content) => (
+                <>
+                  {/* Show sponsored content first, then regular content */}
+                  {[
+                    ...sponsoredContent.map((content) => (
                       <ContentCard
-                        key={content.id}
+                        key={`sponsored-${content.id}`}
                         content={content}
                         onBuyShares={openBuyModal}
                         onShare={openShareModal}
@@ -648,9 +763,43 @@ export default function HomeFeed() {
                         currentUser={userData}
                         onEdit={openEditModal}
                         onDelete={openDeleteConfirm}
+                        isSponsored={true}
                       />
-                    ))
-                ]
+                    )),
+                    ...contentFeed
+                      .filter(content => !sponsoredContent.some(sponsored => sponsored.id === content.id))
+                      .map((content) => (
+                        <ContentCard
+                          key={content.id}
+                          content={content}
+                          onBuyShares={openBuyModal}
+                          onShare={openShareModal}
+                          onSocialAction={handleSocialAction}
+                          onTip={openTipModal}
+                          onNavigate={openContentDetail}
+                          onPredict={openPredictModal}
+                          currentUser={userData}
+                          onEdit={openEditModal}
+                          onDelete={openDeleteConfirm}
+                        />
+                      ))
+                  ]}
+
+                  {/* Infinite scroll observer target and loading indicator */}
+                  <div ref={loadMoreRef} className="py-4">
+                    {isLoadingMore && (
+                      <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+                        <span className="text-sm">Loading more...</span>
+                      </div>
+                    )}
+                    {!pagination['social'].hasMore && contentFeed.length > 0 && (
+                      <div className="text-center text-sm text-pr-text-2 py-2">
+                        You've reached the end of the social feed
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-24 h-24 bg-pr-surface-2 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -682,9 +831,26 @@ export default function HomeFeed() {
           {activeTab === 'drops' && (
             <div className="space-y-4">
               {dropFeed.length > 0 ? (
-                dropFeed.map((drop) => (
-                  <EnhancedDropCard key={drop.id} drop={drop} />
-                ))
+                <>
+                  {dropFeed.map((drop) => (
+                    <EnhancedDropCard key={drop.id} drop={drop} />
+                  ))}
+
+                  {/* Infinite scroll observer target and loading indicator */}
+                  <div ref={loadMoreRef} className="py-4">
+                    {isLoadingMore && (
+                      <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+                        <span className="text-sm">Loading more...</span>
+                      </div>
+                    )}
+                    {!pagination['drops'].hasMore && dropFeed.length > 0 && (
+                      <div className="text-center text-sm text-pr-text-2 py-2">
+                        No more opportunities available
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-24 h-24 bg-pr-surface-2 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -721,9 +887,24 @@ export default function HomeFeed() {
                     </button>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {coupons.slice(0, 6).map((coupon) => (
+                    {coupons.map((coupon) => (
                       <CouponCard key={coupon.assignment_id} coupon={coupon} compact />
                     ))}
+                  </div>
+
+                  {/* Infinite scroll observer target and loading indicator */}
+                  <div ref={loadMoreRef} className="py-4">
+                    {isLoadingMore && (
+                      <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+                        <span className="text-sm">Loading more...</span>
+                      </div>
+                    )}
+                    {!pagination['rewards'].hasMore && coupons.length > 0 && (
+                      <div className="text-center text-sm text-pr-text-2 py-2">
+                        You've seen all your rewards
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -877,7 +1058,10 @@ export default function HomeFeed() {
             pool_size: 250.00,
             creator_initial_amount: 100.00,
             creator_side: 'over',
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            created_at: new Date().toISOString(),
+            status: 'active',
+            creator_id: 0
           }}
           isOpen={predictModalOpen}
           onClose={() => {
@@ -888,6 +1072,19 @@ export default function HomeFeed() {
             setPredictModalOpen(false);
             setPredictContent(null);
             fetchFeeds(); // Refresh feeds to show new prediction
+          }}
+        />
+      )}
+
+      {/* Actual Social Forecast Modal */}
+      {selectedForecast && (
+        <PlaceForecastModal
+          forecast={selectedForecast}
+          isOpen={!!selectedForecast}
+          onClose={() => setSelectedForecast(null)}
+          onPredictionPlaced={() => {
+            setSelectedForecast(null);
+            fetchFeeds();
           }}
         />
       )}

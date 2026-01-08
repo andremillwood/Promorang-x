@@ -120,13 +120,13 @@ export default function ForCreators() {
                             },
                             {
                                 icon: <TrendingUp className="w-10 h-10 text-blue-500" />,
-                                title: "Equity Tokens",
-                                description: "Earn ownership stakes in the brands you help grow. Your success is their success.",
-                                example: "Receive 500 BrandTokens for consistent promotion, vesting over 12 months.",
+                                title: "Forecasts & Predictions",
+                                description: "Predict which products will succeed. When you're right, you earn bonus Promo Points.",
+                                example: "Forecast a product, earn 500 Promo Points when it hits its target.",
                             },
                             {
                                 icon: <Users className="w-10 h-10 text-purple-500" />,
-                                title: "Network Effects",
+                                title: "Referral Network",
                                 description: "Earn overrides on creators you refer to the platform.",
                                 example: "Get 5% of earnings from every creator who signs up with your code.",
                             },

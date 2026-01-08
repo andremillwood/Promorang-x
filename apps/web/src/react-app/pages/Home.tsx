@@ -4,12 +4,27 @@ import { useAuth } from '../hooks/useAuth';
 import { useAsyncData } from '../hooks/useAsyncData';
 import {
   ArrowRight,
-  Star,
+  ChevronRight,
   TrendingUp,
   Zap,
+  ShoppingBag,
+  Target,
   Sparkles,
+  Store,
+  Loader2,
+  RefreshCw,
   Share2,
-  RefreshCw
+  Star,
+  Users,
+  CheckCircle,
+  BarChart3,
+  Globe,
+  Shield,
+  Clock,
+  Layout,
+  MousePointer2,
+  Smartphone,
+  Check
 } from 'lucide-react';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
@@ -21,6 +36,8 @@ import TrendingContentSection from '@/react-app/components/marketing/TrendingCon
 import ForecastsPreviewSection from '@/react-app/components/marketing/ForecastsPreviewSection';
 import HeroBentoGrid from '@/react-app/components/marketing/HeroBentoGrid';
 import PlatformTicker from '@/react-app/components/marketing/PlatformTicker';
+import PersonaSwitcher, { type PersonaType } from '@/react-app/components/marketing/PersonaSwitcher';
+import PublicSearch from '@/react-app/components/marketing/PublicSearch';
 
 // Components
 import { Button } from '../../components/ui/button';
@@ -51,104 +68,110 @@ const fetchStats = async (): Promise<StatsData> => {
 // Persuasion Architecture Components
 
 // 1. The "Grand Slam" Hero Section
-const HeroSection = ({ activeStats, user, navigate, handleDemoLogin, demoLoginState }: any) => {
+const HeroSection = ({ activeStats, user, navigate, handleDemoLogin, demoLoginState, activePersona, onPersonaChange }: any) => {
+  const personaCopy = {
+    creator: {
+      title: "Monetize Your Influence",
+      highlight: "Creators",
+      sub: "Turn your audience into revenue by participating in high-engagement Drops and viral campaigns."
+    },
+    investor: {
+      title: "Invest in Viral",
+      highlight: "Performance",
+      sub: "Trade social capital, manage content portfolios, and predict viral trends for maximum returns."
+    },
+    merchant: {
+      title: "Scale Your Brand",
+      highlight: "ROI",
+      sub: "Deploy word-of-mouth campaigns at scale and track every share with precision analytics."
+    },
+    shopper: {
+      title: "Shop with",
+      highlight: "Rewards",
+      sub: "Earn points through engagement and redeem them for exclusive deals and partner coupons."
+    }
+  };
+
+  const copy = personaCopy[activePersona as keyof typeof personaCopy] || personaCopy.creator;
+
   return (
-    <section className="relative min-h-[95vh] flex flex-col justify-center overflow-hidden bg-pr-surface-background pt-20">
-      {/* Dynamic Background - "Alchemy" Vibe */}
+    <section className="relative min-h-[100vh] lg:min-h-[90vh] flex items-center justify-center overflow-hidden bg-pr-surface-background pt-20">
+      {/* Background elements */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px] animate-pulse delay-1000" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px] animate-pulse delay-700" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left Column: Messaging */}
-          <div className="text-left animate-fade-in">
-            {/* Scarcity/Status Signal */}
-            <div className="inline-flex items-center gap-2 bg-pr-surface-card/80 backdrop-blur-md border border-pr-border px-4 py-2 rounded-full mb-8">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-              </span>
-              <span className="text-sm font-bold text-pr-text-1">
-                {activeStats.earners.toLocaleString()} People Earning Right Now
-              </span>
-            </div>
+          {/* Left Column: Messaging & Funnels */}
+          <div className="max-w-2xl text-center lg:text-left">
+            <PersonaSwitcher activePersona={activePersona} onPersonaChange={onPersonaChange} />
 
-            <h1 className="text-5xl md:text-7xl font-extrabold text-pr-text-1 tracking-tight mb-8 leading-[1.1]">
-              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Stock Market</span> of <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Social Capital</span>
+            <h1 className="text-5xl lg:text-7xl font-black text-pr-text-1 tracking-tight mb-6 leading-[1.1] animate-in fade-in slide-in-from-left duration-700">
+              {copy.title} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient bg-size-200">
+                {copy.highlight}
+              </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-pr-text-2 mb-10 leading-relaxed max-w-xl">
-              Predict performance, buy content shares, and earn from your influence. The first platform where your audience is your asset.
+            <p className="text-xl text-pr-text-muted mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0 animate-in fade-in slide-in-from-left duration-700 delay-200">
+              {copy.sub}
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              {user ? (
-                <Button
-                  onClick={() => navigate('/dashboard')}
-                  variant="primary"
-                  size="lg"
-                  className="text-lg px-12 py-7 shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all"
-                  rightIcon={<ArrowRight className="w-6 h-6" />}
-                >
-                  Enter Platform
-                </Button>
-              ) : (
-                <div className="flex flex-col items-start gap-4 w-full sm:w-auto">
-                  <Button
-                    onClick={() => navigate('/auth')}
-                    variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto text-lg px-12 py-7 shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all bg-gradient-to-r from-blue-600 to-purple-600"
-                    rightIcon={<ArrowRight className="w-6 h-6" />}
+            <div className="mb-10 animate-in fade-in slide-in-from-left duration-700 delay-300">
+              <PublicSearch />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-left duration-700 delay-400">
+              {!user ? (
+                <>
+                  <button
+                    onClick={() => navigate('/explore')}
+                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-black flex items-center justify-center gap-3 overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-500/20"
                   >
-                    Start Earning
-                  </Button>
-                  <div className="flex items-center gap-3 text-sm text-pr-text-muted">
-                    <span className="flex items-center gap-1"><span className="text-green-500">●</span> No Fees</span>
-                    <span className="flex items-center gap-1"><span className="text-green-500">●</span> Daily Payouts</span>
-                  </div>
-                </div>
+                    <span className="relative z-10 flex items-center gap-2">
+                      EXPLORE ECOSYSTEM <Globe className="w-5 h-5 flex-shrink-0" />
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => handleDemoLogin(activePersona)}
+                    disabled={demoLoginState.loading}
+                    className="px-8 py-4 bg-pr-surface-card border border-pr-border text-pr-text-1 rounded-2xl font-extrabold hover:bg-pr-surface-2 transition-all hover:border-blue-500/50 flex items-center justify-center gap-2 group/demo"
+                  >
+                    {demoLoginState.loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Layout className="w-5 h-5 text-pr-text-muted group-hover/demo:text-blue-500 transition-colors" />
+                    )}
+                    <span>TRY AS {activePersona.toUpperCase()}</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-black shadow-2xl hover:shadow-blue-500/40 transition-all hover:scale-105 flex items-center gap-3"
+                >
+                  GO TO DASHBOARD <ArrowRight className="w-6 h-6" />
+                </button>
               )}
             </div>
 
-            {/* Demo Accounts */}
-            {!user && (
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => handleDemoLogin('creator')}
-                  disabled={demoLoginState.loading === 'creator'}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-semibold transition-all hover:scale-105"
-                >
-                  {demoLoginState.loading === 'creator' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-yellow-500" />}
-                  Try Creator Demo
-                </button>
-                <button
-                  onClick={() => handleDemoLogin('investor')}
-                  disabled={demoLoginState.loading === 'investor'}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-semibold transition-all hover:scale-105"
-                >
-                  {demoLoginState.loading === 'investor' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4 text-green-500" />}
-                  Try Investor Demo
-                </button>
-              </div>
+            {demoLoginState.error && (
+              <p className="mt-4 text-red-500 text-sm font-medium animate-bounce">
+                {demoLoginState.error}
+              </p>
             )}
           </div>
 
           {/* Right Column: Platform Showcase (Bento Grid) */}
-          <div className="relative mt-12 lg:mt-0 animate-fade-in delay-300">
+          <div className="relative mt-8 lg:mt-0 animate-in fade-in slide-in-from-right duration-1000">
             <div className="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full" />
             <div className="relative">
-              <HeroBentoGrid />
+              <HeroBentoGrid persona={activePersona} />
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="mt-auto">
-        <PlatformTicker />
       </div>
     </section>
   );
@@ -443,6 +466,42 @@ const EarningsCalculatorSection = ({ navigate }: { navigate: (path: string) => v
   );
 };
 
+// Integrations Section - "Works With Your Stack"
+const IntegrationsSection = () => {
+  const platforms = [
+    { name: 'Shopify', icon: '🛍️' },
+    { name: 'WooCommerce', icon: '🛒' },
+    { name: 'Etsy', icon: '🧶' },
+    { name: 'BigCommerce', icon: '📦' },
+  ];
+
+  return (
+    <section className="py-24 bg-pr-surface-1 border-y border-pr-border overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-pr-text-1 mb-4">
+            Connect Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Store</span>
+          </h2>
+          <p className="text-lg text-pr-text-2 max-w-2xl mx-auto">
+            Promorang integrates with the world's leading e-commerce platforms. Sync your product catalog in seconds.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-12 md:gap-20 items-center grayscale hover:grayscale-0 transition-all duration-500">
+          {platforms.map((p) => (
+            <div key={p.name} className="flex flex-col items-center gap-3 group">
+              <div className="w-20 h-20 bg-pr-surface-card border border-pr-border rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm group-hover:shadow-blue-500/10 group-hover:border-blue-500/30">
+                {p.icon}
+              </div>
+              <span className="font-bold text-pr-text-muted group-hover:text-pr-text-1 transition-colors">{p.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // 4. "Oversubscribed" Social Proof (Priestley)
 const SocialProofSection = ({ activeStats }: any) => {
   return (
@@ -493,16 +552,16 @@ const SocialProofSection = ({ activeStats }: any) => {
             <div className="flex items-center justify-center gap-4">
               <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah`} alt="User" />
-              </div>
+              </div >
               <div className="text-left">
                 <div className="font-bold text-pr-text-1">Sarah Chen</div>
                 <div className="text-sm text-pr-text-2">Content Creator, 50k followers</div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+            </div >
+          </div >
+        </div >
+      </div >
+    </section >
   );
 };
 
@@ -538,8 +597,9 @@ const FinalCTA = ({ navigate, user }: any) => {
 };
 
 export default function Home() {
-  const { user, signIn, signOut: logout } = useAuth();
+  const { user, signIn } = useAuth();
   const navigate = useNavigate();
+  const [activePersona, setActivePersona] = useState<PersonaType>('creator');
   const [activeStats, setActiveStats] = useState<StatsData>({
     earners: 0,
     payout: 0,
@@ -573,25 +633,38 @@ export default function Home() {
 
   // Demo login state and handlers
   const [demoLoginState, setDemoLoginState] = useState<{
-    loading: string | null;
+    loading: boolean;
+    error: string | null;
   }>({
-    loading: null,
+    loading: false,
+    error: null,
   });
 
   // Handle demo login with loading state
-  const handleDemoLogin = useCallback(async (type: 'creator' | 'investor' | 'advertiser') => {
+  const handleDemoLogin = useCallback(async (persona: PersonaType) => {
     try {
-      setDemoLoginState({ loading: type });
-      const email = `${type}@demo.com`;
+      setDemoLoginState({ loading: true, error: null });
+
+      // Map persona to demo account
+      const demoMap = {
+        creator: 'creator@demo.com',
+        investor: 'investor@demo.com',
+        merchant: 'advertiser@demo.com',
+        shopper: 'shopper@demo.com'
+      };
+
+      const email = demoMap[persona as keyof typeof demoMap] || 'creator@demo.com';
       const response = await signIn(email, 'demo123');
 
       if (response.error) {
-        console.error('Demo login failed:', response.error);
+        setDemoLoginState({ loading: false, error: response.error.message || 'Login failed' });
       }
     } catch (error) {
       console.error('Demo login failed:', error);
+      setDemoLoginState({ loading: false, error: 'Failed to process demo login' });
     } finally {
-      setDemoLoginState({ loading: null });
+      // Logic handled by auth redirect usually, but safety cleanup
+      setDemoLoginState(prev => ({ ...prev, loading: false }));
     }
   }, [signIn]);
 
@@ -611,6 +684,8 @@ export default function Home() {
         navigate={navigate}
         handleDemoLogin={handleDemoLogin}
         demoLoginState={demoLoginState}
+        activePersona={activePersona}
+        onPersonaChange={setActivePersona}
       />
 
       <SolutionFinderSection navigate={navigate} />
@@ -631,6 +706,8 @@ export default function Home() {
 
       <EarningsCalculatorSection navigate={navigate} />
 
+      <IntegrationsSection />
+
       <SocialProofSection activeStats={activeStats} />
 
       <FinalCTA navigate={navigate} user={user} />
@@ -644,6 +721,9 @@ export default function Home() {
             <span>TikTok</span>
             <span>YouTube</span>
             <span>Shopify</span>
+            <span>WooCommerce</span>
+            <span>Etsy</span>
+            <span>BigCommerce</span>
           </div>
           <p>© 2026 Promorang. All rights reserved.</p>
         </div>

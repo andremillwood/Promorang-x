@@ -84,46 +84,20 @@ const sendError = (res, statusCode, message, code) => {
   return res.status(statusCode).json({ status: 'error', message, code });
 };
 
-const availablePlans = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    billingInterval: 'monthly',
-    features: [
-      '50 moves / month',
-      '5 proof drops',
-      'Basic analytics',
-    ],
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 249,
-    billingInterval: 'monthly',
-    features: [
-      '200 moves / week',
-      '15 proof drops',
-      '8 paid drops',
-      'Advanced analytics',
-      'Audience targeting tools',
-    ],
-  },
-  {
-    id: 'super',
-    name: 'Super',
-    price: 799,
-    billingInterval: 'monthly',
-    features: [
-      '500 moves / week',
-      '25 proof drops',
-      '15 paid drops',
-      'Premium analytics + reporting',
-      'Dedicated success manager',
-      'Leaderboard incentive targeting',
-    ],
-  },
-];
+// Import centralized pricing constants
+const { ADVERTISER_TIERS, getAdvertiserTierList, MOVE_RULES } = require('../constants/pricing');
+
+// Transform ADVERTISER_TIERS to the format expected by the API
+const availablePlans = getAdvertiserTierList().map(tier => ({
+  id: tier.id,
+  name: tier.name,
+  price: tier.price,
+  billingInterval: tier.billingInterval,
+  features: tier.features,
+  moves: tier.moves,
+  inventory: tier.inventory,
+  isCustom: tier.isCustom || false,
+}));
 
 const getUserTier = (user = {}) => user?.advertiser_tier || user?.user_tier || 'free';
 
@@ -509,26 +483,26 @@ const formatCouponRecord = (coupon = {}) => ({
   conditions: parseJsonField(coupon.conditions, {}),
   assignments: Array.isArray(coupon.assignments)
     ? coupon.assignments.map((assignment) => ({
-        id: assignment.id,
-        coupon_id: assignment.coupon_id,
-        target_type: assignment.target_type,
-        target_id: assignment.target_id,
-        target_label: assignment.target_label,
-        assigned_at: assignment.assigned_at,
-        status: assignment.status,
-      }))
+      id: assignment.id,
+      coupon_id: assignment.coupon_id,
+      target_type: assignment.target_type,
+      target_id: assignment.target_id,
+      target_label: assignment.target_label,
+      assigned_at: assignment.assigned_at,
+      status: assignment.status,
+    }))
     : [],
   redemptions: Array.isArray(coupon.redemptions)
     ? coupon.redemptions.map((redemption) => ({
-        id: redemption.id,
-        coupon_id: redemption.coupon_id,
-        user_id: redemption.user_id,
-        user_name: redemption.user_name,
-        redeemed_at: redemption.redeemed_at,
-        reward_value: toNumber(redemption.reward_value, 2),
-        reward_unit: redemption.reward_unit,
-        status: redemption.status,
-      }))
+      id: redemption.id,
+      coupon_id: redemption.coupon_id,
+      user_id: redemption.user_id,
+      user_name: redemption.user_name,
+      redeemed_at: redemption.redeemed_at,
+      reward_value: toNumber(redemption.reward_value, 2),
+      reward_unit: redemption.reward_unit,
+      status: redemption.status,
+    }))
     : [],
 });
 
@@ -542,12 +516,12 @@ const createCampaignSummary = (campaign, metrics = [], coupons = []) => {
     performance:
       latestMetric
         ? {
-            impressions: toNumber(latestMetric.impressions, 0),
-            clicks: toNumber(latestMetric.clicks, 0),
-            conversions: toNumber(latestMetric.conversions, 0),
-            spend: toNumber(latestMetric.spend, 2),
-            revenue: toNumber(latestMetric.revenue, 2),
-          }
+          impressions: toNumber(latestMetric.impressions, 0),
+          clicks: toNumber(latestMetric.clicks, 0),
+          conversions: toNumber(latestMetric.conversions, 0),
+          spend: toNumber(latestMetric.spend, 2),
+          revenue: toNumber(latestMetric.revenue, 2),
+        }
         : null,
     coupons: coupons.map(formatCouponRecord),
   };
@@ -1250,7 +1224,7 @@ router.patch('/campaigns/:campaignId', async (req, res) => {
     if (!campaign) {
       return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
     }
-    
+
     if (name !== undefined) campaign.name = name;
     if (objective !== undefined) campaign.objective = objective;
     if (status !== undefined) campaign.status = status;
@@ -1309,7 +1283,7 @@ router.delete('/campaigns/:campaignId', async (req, res) => {
     if (index === -1) {
       return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
     }
-    
+
     demoCampaigns.splice(index, 1);
     demoCampaignMetrics.delete(campaignId);
     demoCampaignContent.delete(campaignId);
@@ -1352,7 +1326,7 @@ router.post('/campaigns/:campaignId/funds', async (req, res) => {
     if (!campaign) {
       return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
     }
-    
+
     campaign.total_budget = toNumber(campaign.total_budget, 2) + toNumber(amount, 2);
     campaign.updated_at = new Date().toISOString();
 
@@ -1591,6 +1565,175 @@ router.get('/coupons/:couponId', async (req, res) => {
   } catch (error) {
     console.error('Coupon detail error:', error);
     return sendError(res, 500, 'Failed to load coupon', 'SERVER_ERROR');
+  }
+});
+
+// Update coupon
+router.patch('/coupons/:couponId', async (req, res) => {
+  const { couponId } = req.params;
+  const advertiserId = await resolveAdvertiserId(req.user);
+  const {
+    title,
+    description,
+    status,
+    reward_type,
+    value,
+    value_unit,
+    start_date,
+    end_date,
+    conditions,
+  } = req.body || {};
+
+  if (!supabase) {
+    ensureDemoCoupons(req.user?.id);
+    const coupon = advertiserCoupons.find((entry) => entry.id === couponId);
+    if (!coupon) {
+      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+    }
+
+    if (title !== undefined) coupon.title = title;
+    if (description !== undefined) coupon.description = description;
+    if (status !== undefined) coupon.status = status;
+    if (reward_type !== undefined) coupon.reward_type = reward_type;
+    if (value !== undefined) coupon.value = toNumber(value, 2);
+    if (value_unit !== undefined) coupon.value_unit = value_unit;
+    if (start_date !== undefined) coupon.start_date = start_date;
+    if (end_date !== undefined) coupon.end_date = end_date;
+    if (conditions !== undefined) coupon.conditions = conditions;
+    coupon.updated_at = new Date().toISOString();
+
+    return sendSuccess(res, { coupon: formatCouponRecord(coupon) }, 'Coupon updated successfully');
+  }
+
+  try {
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (status !== undefined) updates.status = status;
+    if (reward_type !== undefined) updates.reward_type = reward_type;
+    if (value !== undefined) updates.value = toNumber(value, 2);
+    if (value_unit !== undefined) updates.value_unit = value_unit;
+    if (start_date !== undefined) updates.start_date = start_date;
+    if (end_date !== undefined) updates.end_date = end_date;
+    if (conditions !== undefined) updates.conditions = JSON.stringify(conditions);
+
+    if (Object.keys(updates).length === 0) {
+      return sendError(res, 422, 'No fields to update', 'VALIDATION_ERROR');
+    }
+
+    const { data: coupon, error } = await supabase
+      .from('advertiser_coupons')
+      .update(updates)
+      .eq('id', couponId)
+      .eq('advertiser_id', advertiserId)
+      .select()
+      .single();
+
+    if (error || !coupon) {
+      console.error('Error updating coupon:', error);
+      return sendError(res, 404, 'Coupon not found or update failed', 'COUPON_NOT_FOUND');
+    }
+
+    return sendSuccess(res, {
+      coupon: { ...coupon, conditions: parseJsonField(coupon.conditions, {}) }
+    }, 'Coupon updated successfully');
+  } catch (error) {
+    console.error('Coupon update error:', error);
+    return sendError(res, 500, 'Failed to update coupon', 'SERVER_ERROR');
+  }
+});
+
+// Delete coupon
+router.delete('/coupons/:couponId', async (req, res) => {
+  const { couponId } = req.params;
+  const advertiserId = await resolveAdvertiserId(req.user);
+
+  if (!supabase) {
+    const index = advertiserCoupons.findIndex((entry) => entry.id === couponId);
+    if (index === -1) {
+      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+    }
+    advertiserCoupons.splice(index, 1);
+    return sendSuccess(res, {}, 'Coupon deleted successfully');
+  }
+
+  try {
+    // Check if it has active assignments first? Maybe just delete.
+    const { error } = await supabase
+      .from('advertiser_coupons')
+      .delete()
+      .eq('id', couponId)
+      .eq('advertiser_id', advertiserId);
+
+    if (error) {
+      console.error('Error deleting coupon:', error);
+      return sendError(res, 404, 'Coupon not found or delete failed', 'COUPON_NOT_FOUND');
+    }
+
+    return sendSuccess(res, {}, 'Coupon deleted successfully');
+  } catch (error) {
+    console.error('Coupon delete error:', error);
+    return sendError(res, 500, 'Failed to delete coupon', 'SERVER_ERROR');
+  }
+});
+
+// Replenish coupon
+router.post('/coupons/:couponId/replenish', async (req, res) => {
+  const { couponId } = req.params;
+  const advertiserId = await resolveAdvertiserId(req.user);
+  const { quantity } = req.body || {};
+
+  if (!quantity || quantity <= 0) {
+    return sendError(res, 422, 'Valid quantity is required', 'VALIDATION_ERROR');
+  }
+
+  if (!supabase) {
+    ensureDemoCoupons(req.user?.id);
+    const coupon = advertiserCoupons.find((entry) => entry.id === couponId);
+    if (!coupon) {
+      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+    }
+
+    coupon.quantity_total += Math.floor(quantity);
+    coupon.quantity_remaining += Math.floor(quantity);
+    coupon.updated_at = new Date().toISOString();
+
+    return sendSuccess(res, { coupon: formatCouponRecord(coupon) }, 'Coupon replenished successfully');
+  }
+
+  try {
+    const { data: coupon, error: fetchError } = await supabase
+      .from('advertiser_coupons')
+      .select('*')
+      .eq('id', couponId)
+      .eq('advertiser_id', advertiserId)
+      .single();
+
+    if (fetchError || !coupon) {
+      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
+    }
+
+    const { data: updated, error: updateError } = await supabase
+      .from('advertiser_coupons')
+      .update({
+        quantity_total: coupon.quantity_total + Math.floor(quantity),
+        quantity_remaining: coupon.quantity_remaining + Math.floor(quantity)
+      })
+      .eq('id', couponId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error replenishing coupon:', updateError);
+      return sendError(res, 500, 'Failed to replenish coupon', 'DATABASE_ERROR');
+    }
+
+    return sendSuccess(res, {
+      coupon: { ...updated, conditions: parseJsonField(updated.conditions, {}) }
+    }, 'Coupon replenished successfully');
+  } catch (error) {
+    console.error('Replenish error:', error);
+    return sendError(res, 500, 'Failed to replenish coupon', 'SERVER_ERROR');
   }
 });
 

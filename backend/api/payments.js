@@ -14,11 +14,11 @@ try {
 
 const supabaseAdmin = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
   ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    })
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
   : null;
 
 const router = express.Router();
@@ -61,15 +61,15 @@ router.get('/providers', (_req, res) => {
   const summary = providersSummary();
   res.json({
     status: 'success',
-      data: {
-        providers: Object.entries(summary).map(([provider, config]) => ({
-          provider,
-          enabled: config.enabled,
-          ready: config.ready,
-          publishableKey: config.publishableKey,
-        })),
-        defaultProvider: process.env.DEFAULT_PAYMENT_PROVIDER || (summary.stripe.enabled ? 'stripe' : 'mock'),
-      },
+    data: {
+      providers: Object.entries(summary).map(([provider, config]) => ({
+        provider,
+        enabled: config.enabled,
+        ready: config.ready,
+        publishableKey: config.publishableKey,
+      })),
+      defaultProvider: process.env.DEFAULT_PAYMENT_PROVIDER || (summary.stripe.enabled ? 'stripe' : 'mock'),
+    },
   });
 });
 
@@ -225,6 +225,17 @@ async function stripeWebhook(req, res) {
           customer: intent.customer,
         });
         // TODO: credit wallet / mark invoice paid
+
+        // Track Revenue for PromoShare (5% allocation)
+        try {
+          const revenueService = require('../services/revenueService');
+          // intent.amount_received is in cents
+          const amountUsd = intent.amount_received / 100;
+          await revenueService.trackRevenue(amountUsd, intent.id, 'stripe_payment');
+        } catch (err) {
+          console.error('[payments.webhook.stripe] Failed to track revenue', err);
+        }
+
         break;
       }
 

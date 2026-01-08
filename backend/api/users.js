@@ -160,7 +160,7 @@ const fetchTransactionsForUser = async (userId) => {
 
     const queryStart = Date.now();
     const { data, error } = await supabase
-      .from('transactions')
+      .from('transaction_history')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -168,6 +168,15 @@ const fetchTransactionsForUser = async (userId) => {
     const durationMs = Date.now() - queryStart;
     if (durationMs > 250) {
       console.log(`[users:transactions:${userId}] Supabase query took ${durationMs}ms`);
+    }
+
+    if (!error && data) {
+      // Map to frontend expected format if needed
+      return data.map(tx => ({
+        ...tx,
+        currency_type: tx.currency, // Map 'currency' to 'currency_type'
+        status: 'completed' // Assume completed
+      }));
     }
 
     if (error) {
@@ -359,16 +368,35 @@ router.get('/me', async (req, res) => {
 
     const cacheKey = `users:profile:${req.user.id}`;
     const profile = await getCachedValue(cacheKey, async () => {
-      // Query user from database
+      // Query user from database with economy balances
       const queryStart = Date.now();
       const { data: user, error } = await supabase
         .from('users')
-        .select('*')
+        .select(`
+          *,
+          user_balances (*)
+        `)
         .eq('id', req.user.id)
         .single();
       const durationMs = Date.now() - queryStart;
       if (durationMs > 250) {
         console.log(`[users:profile:${req.user.id}] Supabase query took ${durationMs}ms`);
+      }
+
+      if (user && user.user_balances) {
+        // Map new economy table to expected user fields
+        const balances = user.user_balances; // It might be an array or object depending on relation, usually object for 1:1
+        // If it's 1:1 via FK, supabase returns object or array depending on setup. Assuming object or single item array.
+        // Actually, let's handle both.
+        const balanceData = Array.isArray(balances) ? balances[0] : balances;
+
+        if (balanceData) {
+          user.points_balance = balanceData.points || 0;
+          user.keys_balance = balanceData.promokeys || 0;
+          user.gems_balance = balanceData.gems || 0;
+          user.gold_collected = balanceData.gold || 0;
+          user.master_key_activated_at = balanceData.master_key_unlocked ? (balanceData.master_key_expires_at || new Date().toISOString()) : null;
+        }
       }
 
       if (error || !user) {
@@ -742,6 +770,120 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Mark onboarding as complete
+router.post('/onboarding/complete', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(400).json({ success: false, error: 'User context missing' });
+
+    if (!supabase) {
+      return res.json({ success: true, message: 'Onboarding marked complete (mock)' });
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({ onboarding_completed: true })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error marking onboarding complete:', error);
+      return res.status(500).json({ success: false, error: 'Failed to update onboarding status' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error in onboarding complete:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// Get guide progress
+router.get('/guide-progress', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(400).json({ success: false, error: 'User context missing' });
+
+    if (!supabase) {
+      return res.json({
+        success: true,
+        progress: [
+          { guide_id: 'onboarding', completed_steps: ['welcome', 'interests'], is_completed: false }
+        ]
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('user_guide_progress')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching guide progress:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch guide progress' });
+    }
+
+    res.json({ success: true, progress: data || [] });
+  } catch (error) {
+    console.error('Error fetching guide progress:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// Update guide step
+router.post('/guide-progress/step', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { guide_id, step_id, is_completed } = req.body;
+
+    if (!userId || !guide_id || !step_id) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+
+    if (!supabase) {
+      return res.json({ success: true, message: 'Step updated (mock)' });
+    }
+
+    // First get current progress
+    const { data: current, error: fetchError } = await supabase
+      .from('user_guide_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('guide_id', guide_id)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      return res.status(500).json({ success: false, error: 'Error fetching progress' });
+    }
+
+    let completedSteps = current ? (current.completed_steps || []) : [];
+
+    if (is_completed && !completedSteps.includes(step_id)) {
+      completedSteps.push(step_id);
+    } else if (!is_completed && completedSteps.includes(step_id)) {
+      completedSteps = completedSteps.filter(id => id !== step_id);
+    }
+
+    const { error: upsertError } = await supabase
+      .from('user_guide_progress')
+      .upsert({
+        user_id: userId,
+        guide_id,
+        completed_steps: completedSteps,
+        updated_at: new Date().toISOString()
+      });
+
+    if (upsertError) {
+      console.error('Error updating guide progress:', upsertError);
+      return res.status(500).json({ success: false, error: 'Failed to update progress' });
+    }
+
+    res.json({ success: true, completed_steps: completedSteps });
+  } catch (error) {
+    console.error('Error updating guide step:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // Get user's master key status
 router.get('/master-key-status', async (req, res) => {
   try {
@@ -1029,6 +1171,253 @@ router.get('/:id', async (req, res) => {
     res.json({ success: true, user });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch user' });
+  }
+});
+
+// =============================================
+// ECONOMY v3.3 ENDPOINTS
+// =============================================
+
+// Get follower points preview (without claiming)
+router.get('/follower-points/preview', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const followerPointsService = require('../services/followerPointsService');
+    const preview = await followerPointsService.getFollowerPointsPreview(userId);
+
+    res.json({
+      success: true,
+      ...preview
+    });
+  } catch (error) {
+    console.error('Error getting follower points preview:', error);
+    res.status(500).json({ success: false, error: 'Failed to get follower points preview' });
+  }
+});
+
+// Claim monthly follower points
+router.post('/follower-points/claim', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const followerPointsService = require('../services/followerPointsService');
+    const result = await followerPointsService.claimMonthlyFollowerPoints(userId);
+
+    invalidateCache(`users:${userId}`);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error claiming follower points:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to claim follower points'
+    });
+  }
+});
+
+// Sync engagement metrics from platform
+router.post('/engagement/sync', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const { raw_followers, engagement_rate, avg_likes_per_post, avg_comments_per_post, total_posts_analyzed } = req.body;
+
+    const followerPointsService = require('../services/followerPointsService');
+    const result = await followerPointsService.updateEngagementMetrics(userId, {
+      raw_followers,
+      engagement_rate,
+      avg_likes_per_post,
+      avg_comments_per_post,
+      total_posts_analyzed
+    });
+
+    res.json({
+      success: true,
+      ...result
+    });
+  } catch (error) {
+    console.error('Error syncing engagement metrics:', error);
+    res.status(500).json({ success: false, error: 'Failed to sync engagement metrics' });
+  }
+});
+
+// Get engagement metrics
+router.get('/engagement/metrics', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const followerPointsService = require('../services/followerPointsService');
+    const metrics = await followerPointsService.getEngagementMetrics(userId);
+
+    res.json({
+      success: true,
+      metrics
+    });
+  } catch (error) {
+    console.error('Error getting engagement metrics:', error);
+    res.status(500).json({ success: false, error: 'Failed to get engagement metrics' });
+  }
+});
+
+// Get trust tier information
+router.get('/trust-tier', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const followerPointsService = require('../services/followerPointsService');
+    const tier = await followerPointsService.getTrustTier(userId);
+
+    res.json({
+      success: true,
+      ...tier
+    });
+  } catch (error) {
+    console.error('Error getting trust tier:', error);
+    res.status(500).json({ success: false, error: 'Failed to get trust tier' });
+  }
+});
+
+// Get next recommended action (One Action Path)
+router.get('/next-action', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const userJourneyService = require('../services/userJourneyService');
+    const nextAction = await userJourneyService.getNextAction(userId);
+
+    res.json({
+      success: true,
+      ...nextAction
+    });
+  } catch (error) {
+    console.error('Error getting next action:', error);
+    res.status(500).json({ success: false, error: 'Failed to get next action' });
+  }
+});
+
+// Get user journey progress
+router.get('/journey-progress', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const userJourneyService = require('../services/userJourneyService');
+    const progress = await userJourneyService.getJourneyProgress(userId);
+
+    res.json({
+      success: true,
+      ...progress
+    });
+  } catch (error) {
+    console.error('Error getting journey progress:', error);
+    res.status(500).json({ success: false, error: 'Failed to get journey progress' });
+  }
+});
+
+// Get visible features (progressive disclosure)
+router.get('/visible-features', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const progressiveDisclosureService = require('../services/progressiveDisclosureService');
+    const summary = await progressiveDisclosureService.getDisclosureSummary(userId);
+
+    res.json({
+      success: true,
+      ...summary
+    });
+  } catch (error) {
+    console.error('Error getting visible features:', error);
+    res.status(500).json({ success: false, error: 'Failed to get visible features' });
+  }
+});
+
+// Unlock all features (skip progressive disclosure)
+router.post('/unlock-all-features', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const progressiveDisclosureService = require('../services/progressiveDisclosureService');
+    await progressiveDisclosureService.unlockAllFeatures(userId);
+
+    res.json({
+      success: true,
+      message: 'All features unlocked'
+    });
+  } catch (error) {
+    console.error('Error unlocking features:', error);
+    res.status(500).json({ success: false, error: 'Failed to unlock features' });
+  }
+});
+
+// Get tour status
+router.get('/tour-status', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const progressiveDisclosureService = require('../services/progressiveDisclosureService');
+    const status = await progressiveDisclosureService.getTourStatus(userId);
+
+    res.json({
+      success: true,
+      ...status
+    });
+  } catch (error) {
+    console.error('Error getting tour status:', error);
+    res.status(500).json({ success: false, error: 'Failed to get tour status' });
+  }
+});
+
+// Update tour progress
+router.post('/tour-progress', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const { step, completed } = req.body;
+
+    const progressiveDisclosureService = require('../services/progressiveDisclosureService');
+    await progressiveDisclosureService.updateTourProgress(userId, step, completed);
+
+    res.json({
+      success: true,
+      message: 'Tour progress updated'
+    });
+  } catch (error) {
+    console.error('Error updating tour progress:', error);
+    res.status(500).json({ success: false, error: 'Failed to update tour progress' });
   }
 });
 

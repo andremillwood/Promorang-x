@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Gift, TrendingUp, Calendar, CheckCircle2, Clock, Sparkles, Trophy, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/react-app/components/ui/use-toast';
 import rewardsService, { type UserCoupon, type RewardStats } from '@/react-app/services/rewards';
+import RelayButton from '@/react-app/components/Relay/RelayButton';
 
 export default function Rewards() {
   const [coupons, setCoupons] = useState<UserCoupon[]>([]);
@@ -10,6 +11,9 @@ export default function Rewards() {
   const [loading, setLoading] = useState(true);
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'available' | 'redeemed'>('available');
+  const [pagination, setPagination] = useState({ offset: 0, hasMore: true });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -20,11 +24,12 @@ export default function Rewards() {
     try {
       setLoading(true);
       const [couponsData, statsData] = await Promise.all([
-        rewardsService.listCoupons({ status: activeTab }),
+        rewardsService.listCoupons({ status: activeTab, limit: 12, offset: 0 }),
         rewardsService.getStats(),
       ]);
       setCoupons(couponsData.coupons);
       setStats(statsData);
+      setPagination({ offset: 12, hasMore: couponsData.has_more });
     } catch (error) {
       console.error('Failed to fetch rewards:', error);
       toast({
@@ -35,6 +40,55 @@ export default function Rewards() {
       setLoading(false);
     }
   };
+
+  const loadMore = async () => {
+    if (isLoadingMore || !pagination.hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      const data = await rewardsService.listCoupons({
+        status: activeTab,
+        limit: 12,
+        offset: pagination.offset,
+      });
+
+      if (data.coupons.length > 0) {
+        setCoupons(prev => [...prev, ...data.coupons]);
+        setPagination({
+          offset: pagination.offset + 12,
+          hasMore: data.has_more,
+        });
+      } else {
+        setPagination(prev => ({ ...prev, hasMore: false }));
+      }
+    } catch (error) {
+      console.error('Failed to load more rewards:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && pagination.hasMore && !isLoadingMore && !loading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [pagination.hasMore, isLoadingMore, loading, activeTab]);
 
   const handleRedeem = async (assignmentId: string) => {
     try {
@@ -161,21 +215,19 @@ export default function Rewards() {
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab('available')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeTab === 'available'
-                ? 'border-purple-500 text-purple-600'
-                : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'available'
+              ? 'border-purple-500 text-purple-600'
+              : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
+              }`}
           >
             Available Rewards
           </button>
           <button
             onClick={() => setActiveTab('redeemed')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeTab === 'redeemed'
-                ? 'border-purple-500 text-purple-600'
-                : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'redeemed'
+              ? 'border-purple-500 text-purple-600'
+              : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
+              }`}
           >
             Redeemed
           </button>
@@ -196,13 +248,12 @@ export default function Rewards() {
               >
                 {/* Header with gradient based on type */}
                 <div
-                  className={`p-4 ${
-                    coupon.reward_type === 'coupon'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500'
-                      : coupon.reward_type === 'giveaway'
+                  className={`p-4 ${coupon.reward_type === 'coupon'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                    : coupon.reward_type === 'giveaway'
                       ? 'bg-gradient-to-r from-orange-500 to-red-500'
                       : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between text-white">
                     <div className="flex items-center space-x-2">
@@ -262,26 +313,35 @@ export default function Rewards() {
                     )}
                   </div>
 
-                  {/* Action Button */}
-                  {!coupon.is_redeemed && coupon.status === 'available' && (
-                    <Button
-                      onClick={() => handleRedeem(coupon.assignment_id)}
-                      disabled={redeeming === coupon.assignment_id}
-                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
-                      {redeeming === coupon.assignment_id ? (
-                        <span className="flex items-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Redeeming...</span>
-                        </span>
-                      ) : (
-                        <span className="flex items-center space-x-2">
-                          <Gift className="h-4 w-4" />
-                          <span>Redeem Now</span>
-                        </span>
-                      )}
-                    </Button>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    {/* Relay Button - share coupon opportunity */}
+                    <RelayButton
+                      objectType="coupon"
+                      objectId={coupon.coupon_id}
+                      showLabel={false}
+                    />
+
+                    {!coupon.is_redeemed && coupon.status === 'available' && (
+                      <Button
+                        onClick={() => handleRedeem(coupon.assignment_id)}
+                        disabled={redeeming === coupon.assignment_id}
+                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                      >
+                        {redeeming === coupon.assignment_id ? (
+                          <span className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Redeeming...</span>
+                          </span>
+                        ) : (
+                          <span className="flex items-center space-x-2">
+                            <Gift className="h-4 w-4" />
+                            <span>Redeem Now</span>
+                          </span>
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -298,6 +358,22 @@ export default function Rewards() {
               ? 'Complete drops, engage with content, or climb the leaderboard to earn rewards!'
               : 'Redeemed rewards will appear here.'}
           </p>
+        </div>
+      )}
+
+      {/* Infinite Scroll Indicator */}
+      {coupons.length > 0 && (
+        <div ref={loadMoreRef} className="py-8">
+          {isLoadingMore ? (
+            <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
+              <span className="text-sm">Loading more rewards...</span>
+            </div>
+          ) : !pagination.hasMore ? (
+            <div className="text-center text-sm text-pr-text-2">
+              You've seen all your rewards
+            </div>
+          ) : null}
         </div>
       )}
     </div>

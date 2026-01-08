@@ -69,7 +69,7 @@ export default function CouponCard({ coupon, compact = false }: CouponCardProps)
   return (
     <div
       onClick={handleClick}
-      className="bg-pr-surface-card rounded-xl shadow-sm border border-pr-surface-3 overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+      className="bg-pr-surface-card overflow-hidden transition-colors cursor-pointer group hover:bg-pr-surface-2"
     >
       {/* Header with gradient */}
       <div className={`p-4 bg-gradient-to-r ${getGradientClass()}`}>

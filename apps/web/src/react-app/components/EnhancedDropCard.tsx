@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import type { DropType } from '../../shared/types';
 import { Clock, Users, Target, Star, TrendingUp, Calendar, Award } from 'lucide-react';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
+import RelayButton from './Relay/RelayButton';
 
 interface EnhancedDropCardProps {
   drop: DropType;
@@ -66,7 +67,7 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
 
   return (
     <div
-      className="bg-pr-surface-card rounded-xl shadow-sm border border-pr-border p-5 cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-pr-surface-3"
+      className="w-full bg-pr-surface-card p-5 cursor-pointer transition-colors duration-200 hover:bg-pr-surface-2"
       onClick={handleCardClick}
     >
       <div className="mb-4 -mx-5 -mt-5">
@@ -85,14 +86,22 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
       {/* Header with Creator Info */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3 flex-1">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+          <Link
+            to={RoutePaths.profile(drop.creator_name || 'unknown')}
+            onClick={(e) => e.stopPropagation()}
+            className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm transition-transform hover:scale-105"
+          >
             {(drop.creator_name || 'U')[0].toUpperCase()}
-          </div>
+          </Link>
           <div className="flex-1">
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-pr-text-1 text-base hover:text-purple-600 transition-colors">
+              <Link
+                to={RoutePaths.profile(drop.creator_name || 'unknown')}
+                onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-pr-text-1 text-base hover:text-purple-600 transition-colors"
+              >
                 {drop.creator_name || 'Unknown Creator'}
-              </span>
+              </Link>
               <span className="text-gray-400">•</span>
               <span className="text-sm text-pr-text-2">
                 {new Date(drop.created_at).toLocaleDateString()}
@@ -136,9 +145,9 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(drop.status)}`}>
           {drop.status.charAt(0).toUpperCase() + drop.status.slice(1)}
         </span>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(drop.difficulty)}`}>
-              {formatLabel(drop.difficulty)}
-            </span>
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(drop.difficulty)}`}>
+          {formatLabel(drop.difficulty)}
+        </span>
         {drop.is_proof_drop && (
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
             Proof Drop
@@ -206,37 +215,43 @@ export default function EnhancedDropCard({ drop, onApply }: EnhancedDropCardProp
         )}
       </div>
 
-      {/* Apply Button */}
+      {/* Apply Button and Relay */}
       <div className="flex items-center justify-between pt-4 border-t border-pr-border">
         <div className="flex items-center space-x-2 text-sm text-pr-text-2">
           <Calendar className="w-4 h-4" />
           <span>Created {new Date(drop.created_at).toLocaleDateString()}</span>
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onApply?.(drop);
-          }}
-          className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-            drop.status?.toLowerCase() === 'active'
+        <div className="flex items-center space-x-2">
+          <RelayButton
+            objectType="drop"
+            objectId={String(drop.id)}
+            showLabel={false}
+          />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onApply?.(drop);
+            }}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${drop.status?.toLowerCase() === 'active'
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white hover:shadow-lg hover:-translate-y-0.5'
               : 'bg-pr-surface-2 text-pr-text-2 cursor-not-allowed'
-          }`}
-          disabled={drop.status?.toLowerCase() !== 'active'}
-        >
-          {drop.status?.toLowerCase() === 'active' ? (
-            <>
-              <span>Apply Now</span>
-              <Target className="w-4 h-4" />
-            </>
-          ) : (
-            <>
-              <span>Not Available</span>
-              <Clock className="w-4 h-4" />
-            </>
-          )}
-        </button>
+              }`}
+            disabled={drop.status?.toLowerCase() !== 'active'}
+          >
+            {drop.status?.toLowerCase() === 'active' ? (
+              <>
+                <span>Apply Now</span>
+                <Target className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <span>Not Available</span>
+                <Clock className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

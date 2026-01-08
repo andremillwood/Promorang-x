@@ -79,10 +79,10 @@ const normaliseCouponPayload = (payload: unknown): CouponListPayload => {
 
   const coupons = Array.isArray(payload.coupons)
     ? (payload.coupons as Array<CouponType & { assignments?: CouponAssignmentType[] }>)
-        .map(coupon => ({
-          ...coupon,
-          assignments: Array.isArray(coupon.assignments) ? coupon.assignments : [],
-        }))
+      .map(coupon => ({
+        ...coupon,
+        assignments: Array.isArray(coupon.assignments) ? coupon.assignments : [],
+      }))
     : [];
 
   const redemptions = Array.isArray(payload.redemptions)
@@ -220,7 +220,7 @@ export const advertiserService = {
 
     try {
       const response = await apiFetch('/api/advertisers/coupons');
-       const result = await parseJson<ApiResponse<CouponListPayload>>(response);
+      const result = await parseJson<ApiResponse<CouponListPayload>>(response);
 
       if (!response.ok) {
         const message = result?.message || `Failed to load coupons (${response.status})`;
@@ -392,6 +392,58 @@ export const advertiserService = {
     }
   },
 
+  async updateCoupon(couponId: string, updates: Partial<CouponType>): Promise<CouponType | null> {
+    try {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const result = await parseJson<ApiResponse<{ coupon: CouponType }>>(response);
+      if (!response.ok || !result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to update coupon');
+      }
+      invalidateCouponCache();
+      return result.data.coupon;
+    } catch (error) {
+      console.error('[Advertiser API] updateCoupon', error);
+      throw error;
+    }
+  },
+
+  async deleteCoupon(couponId: string): Promise<boolean> {
+    try {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete coupon');
+      invalidateCouponCache();
+      return true;
+    } catch (error) {
+      console.error('[Advertiser API] deleteCoupon', error);
+      throw error;
+    }
+  },
+
+  async replenishCoupon(couponId: string, quantity: number): Promise<CouponType | null> {
+    try {
+      const response = await apiFetch(`/api/advertisers/coupons/${couponId}/replenish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+      const result = await parseJson<ApiResponse<{ coupon: CouponType }>>(response);
+      if (!response.ok || !result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to replenish coupon');
+      }
+      invalidateCouponCache();
+      return result.data.coupon;
+    } catch (error) {
+      console.error('[Advertiser API] replenishCoupon', error);
+      throw error;
+    }
+  },
+
   async updateCampaign(campaignId: string, updates: Partial<CampaignSummary>): Promise<CampaignSummary | null> {
     try {
       const response = await apiFetch(`/api/advertisers/campaigns/${campaignId}`, {
@@ -517,6 +569,44 @@ export const advertiserService = {
     } catch (error) {
       console.error('[Advertiser API] getCampaignDrops', error);
       return [];
+    }
+  },
+
+  async listPublicCoupons(limit = 20, offset = 0, category?: string): Promise<{ coupons: any[] }> {
+    try {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: offset.toString(),
+        ...(category ? { category } : {}),
+      });
+
+      const response = await fetch(`/api/coupons/public?${params.toString()}`);
+      const result = await response.json();
+
+      if (!response.ok || !result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to list public coupons');
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error('[Advertiser API] listPublicCoupons', error);
+      return { coupons: [] };
+    }
+  },
+
+  async getPublicCoupon(id: string): Promise<any | null> {
+    try {
+      const response = await fetch(`/api/coupons/public/${id}`);
+      const result = await response.json();
+
+      if (!response.ok || !result || result.status !== 'success') {
+        throw new Error(result?.message || 'Failed to get public coupon');
+      }
+
+      return result.data.coupon;
+    } catch (error) {
+      console.error('[Advertiser API] getPublicCoupon', error);
+      return null;
     }
   },
 };

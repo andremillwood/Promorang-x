@@ -44,6 +44,8 @@ const createMockUserProfile = (context = {}) => {
     gems_balance: context.gems_balance ?? 1500,
     gold_collected: context.gold_collected ?? 12,
     user_tier: context.user_tier || 'free',
+    kyc_status: context.kyc_status || 'none',
+    role: context.role || 'user',
     points_streak_days: context.points_streak_days ?? 7,
     last_activity_date: context.last_activity_date || isoNow.split('T')[0],
     master_key_activated_at: context.master_key_activated_at || new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),

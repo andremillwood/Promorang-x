@@ -402,41 +402,63 @@ export default function AdvertiserDashboard() {
 
   const getTierBenefits = (tier: string): TierInfo => {
     switch (tier) {
-      case 'super':
+      case 'enterprise':
         return {
-          name: 'Super Advertiser',
-          color: 'text-yellow-600 bg-yellow-50',
-          inventory: 'Weekly: 500 moves, 25 proof drops, 15 paid drops',
+          name: 'Enterprise Partner',
+          color: 'text-gray-600 bg-gray-100',
+          inventory: 'Custom: Unlimited Moves, custom Drop limits',
           features: [
-            'Premium analytics',
-            'Priority support',
-            'Custom targeting',
-            'Advanced reporting',
-            'Create proof & paid drops'
+            'Custom-defined Move pools',
+            'Dedicated account team',
+            'API access & integrations',
+            'White-label options'
           ]
         };
       case 'premium':
         return {
           name: 'Premium Advertiser',
+          color: 'text-yellow-600 bg-yellow-50',
+          inventory: 'Weekly: 500 Moves, 25 Proof Drops, 15 Paid Drops',
+          features: [
+            'Premium analytics + reporting',
+            'Dedicated success manager',
+            'Priority PromoKey distribution',
+            'Leaderboard incentive targeting'
+          ]
+        };
+      case 'growth':
+        return {
+          name: 'Growth Advertiser',
           color: 'text-purple-600 bg-purple-50',
-          inventory: 'Weekly: 200 moves, 15 proof drops, 8 paid drops',
+          inventory: 'Weekly: 200 Moves, 15 Proof Drops, 8 Paid Drops',
           features: [
             'Advanced analytics',
-            'Priority support',
-            'Custom targeting',
-            'Create proof & paid drops'
+            'Audience targeting tools',
+            'PromoShare enabled',
+            'Create Proof & Paid Drops'
+          ]
+        };
+      case 'starter':
+        return {
+          name: 'Starter Advertiser',
+          color: 'text-blue-600 bg-blue-50',
+          inventory: 'Monthly: 100 Moves, 8 Proof Drops, 2 Paid Drops',
+          features: [
+            'Basic analytics',
+            'Standard support',
+            'Create Proof & Paid Drops'
           ]
         };
       default:
         return {
           name: 'Free Advertiser',
           color: 'text-pr-text-2 bg-pr-surface-2',
-          inventory: 'Monthly Sample: 50 moves, 5 proof drops',
+          inventory: 'Monthly: 50 Moves, 5 Proof Drops',
           features: [
             'Basic analytics',
             'Standard support',
-            'Create proof drops only',
-            'Sponsor content with gems'
+            'Create Proof Drops only',
+            'Sponsor content with Gems'
           ]
         };
     }
@@ -650,6 +672,73 @@ export default function AdvertiserDashboard() {
         </div>
       ) : (
         <>
+          {/* Move Depletion Warning Banner */}
+          {(() => {
+            const movesUsed = dashboardData?.monthly_inventory?.moves_used ?? dashboardData?.weekly_inventory?.moves_used ?? 0;
+            const movesLimit = currentPlanId === 'free' ? 50 :
+              currentPlanId === 'starter' ? 100 :
+                currentPlanId === 'growth' ? 200 :
+                  currentPlanId === 'premium' ? 500 : 999;
+            const movesRemaining = Math.max(0, movesLimit - movesUsed);
+            const isWeekly = ['growth', 'premium'].includes(currentPlanId);
+
+            if (movesRemaining === 0) {
+              return (
+                <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-red-100 p-3 rounded-xl">
+                      <Target className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-red-900">Move Limit Reached</h3>
+                      <p className="text-red-700 mt-1">
+                        You've used all {movesLimit} Moves for this {isWeekly ? 'week' : 'month'}.
+                        Upgrade or wait for your next billing cycle to continue requesting user actions.
+                      </p>
+                      <div className="flex gap-3 mt-4">
+                        <button
+                          onClick={() => setShowUpgradeModal(true)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          Upgrade Plan
+                        </button>
+                        <Link
+                          to="/advertiser-pricing"
+                          className="text-red-600 hover:text-red-800 px-4 py-2 font-medium"
+                        >
+                          View Pricing
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            } else if (movesRemaining <= movesLimit * 0.2) {
+              return (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-5 h-5 text-yellow-600" />
+                    <div className="flex-1">
+                      <span className="font-medium text-yellow-900">
+                        {movesRemaining} Moves remaining this {isWeekly ? 'week' : 'month'}
+                      </span>
+                      <span className="text-yellow-700 ml-2">
+                        — Consider upgrading to avoid interruptions.
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="text-yellow-700 hover:text-yellow-900 font-medium text-sm"
+                    >
+                      Upgrade
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">

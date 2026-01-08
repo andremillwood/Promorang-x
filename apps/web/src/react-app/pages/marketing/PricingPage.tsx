@@ -10,46 +10,48 @@ export default function PricingPage() {
         {
             name: "Starter",
             price: "Free",
-            description: "Perfect for new creators getting started.",
+            description: "Perfect for new creators getting started. Build habits and earn your first Gems.",
             features: [
-                "Access to public campaigns",
+                "Access to public Drops",
+                "Limited daily Move participation",
+                "Earn Gems via interactions & Proof Drops",
                 "Basic analytics",
-                "Standard payouts",
                 "Community support"
             ],
+            constraints: "≈300 Gems/month ceiling • No withdrawals",
             cta: "Get Started",
             highlight: false
         },
         {
             name: "Professional",
-            price: "$29",
+            price: "$10",
             period: "/month",
-            description: "For serious creators scaling their business.",
+            description: "For serious creators scaling their engagement velocity.",
             features: [
                 "All Starter features",
-                "Access to premium campaigns",
-                "Advanced analytics & insights",
-                "Instant payouts",
-                "Priority support",
-                "Custom referral links"
+                "Increased daily participation",
+                "Weekly PromoKeys",
+                "Priority Drop access",
+                "Improved Proof weight",
+                "Advanced analytics"
             ],
             cta: "Start Free Trial",
             highlight: true
         },
         {
-            name: "Enterprise",
-            price: "Custom",
-            description: "For brands and agencies with large scale needs.",
+            name: "Power User",
+            price: "$30",
+            period: "/month",
+            description: "Maximum participation for system drivers and top performers.",
             features: [
-                "Unlimited campaigns",
-                "Dedicated account manager",
-                "API access",
-                "Custom integrations",
-                "White-label options",
-                "SLA guarantees"
+                "All Professional features",
+                "Maximum participation limits",
+                "Full PromoKey access",
+                "Master Key eligibility",
+                "Leaderboard multipliers",
+                "Highest PromoShare yield"
             ],
-            cta: "Contact Sales",
-            link: "/contact",
+            cta: "Upgrade Now",
             highlight: false
         }
     ];

@@ -24,9 +24,9 @@ app.use((req, res, next) => {
     'http://127.0.0.1:5000',
     process.env.FRONTEND_URL
   ].filter(Boolean);
-  
+
   const origin = req.headers.origin;
-  
+
   // In development mode, allow any origin (for Replit proxy support)
   // In production, only allow whitelisted origins
   if (process.env.NODE_ENV === 'development') {
@@ -42,7 +42,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -50,7 +50,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     return res.status(200).end();
   }
-  
+
   next();
 });
 
@@ -96,12 +96,34 @@ app.use('/api/drops', require('./api/drops'));
 app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
 app.use('/api/leaderboard', require('./api/leaderboard'));
+app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/portfolio', require('./api/portfolio'));
-app.use('/api/shares', shares.router);
+app.use('/api/platform-drops', require('./api/platform-drops'));
+app.use('/api/shares', shares);
 app.use('/api/placeholder', require('./api/placeholder'));
 app.use('/api/payments', payments.router);
 app.use('/api/telemetry', require('./api/telemetry'));
+app.use('/api/feed', require('./api/feed'));
+app.use('/api/events', require('./api/events'));
+app.use('/api/marketplace', require('./api/marketplace'));
+app.use('/api/rewards', require('./api/rewards'));
+app.use('/api/coupons', require('./api/coupons'));
+app.use('/api/notifications', require('./api/notifications'));
+app.use('/api/referrals', require('./api/referrals'));
+app.use('/api/search', require('./api/search'));
+app.use('/api/operator', require('./api/operator'));
+app.use('/api/campaigns', require('./api/campaigns'));
+app.use('/api/manychat', require('./api/manychat'));
+app.use('/api/withdrawal', require('./api/withdrawal'));
+app.use('/api/kyc', require('./api/kyc'));
+app.use('/api/admin', require('./api/admin'));
+app.use('/api/support', require('./api/support'));
+const errorHandlers = require('./api/errors');
+app.post('/api/report-error', errorHandlers.handleReportError);
+app.post('/api/log-error', errorHandlers.handleLogError);
+app.get('/api/error-logs', errorHandlers.handleGetLogs);
+app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
 app.get('/s/:id', shares.redirectHandler);
 
 // Demo login endpoint (bypasses default body parser)
@@ -120,7 +142,7 @@ app.get('/api/health', (req, res) => {
 app.post('/api/demo-login', (req, res) => {
   try {
     console.log('Demo login request received');
-    
+
     // Create a demo user response
     const demoUser = {
       id: 'demo-creator-id',
@@ -134,7 +156,7 @@ app.post('/api/demo-login', (req, res) => {
       gold_collected: 0,
       user_tier: 'free'
     };
-    
+
     // Generate JWT token
     const jwt = require('jsonwebtoken');
     const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -186,4 +208,17 @@ app.listen(PORT, HOST, () => {
   console.log(`🚀 Promorang API development server running on ${HOST}:${PORT}`);
   console.log(`📡 Frontend URL: http://localhost:5000`);
   console.log(`🔗 API Base URL: http://${HOST}:${PORT}/api`);
+
+  // Start cron jobs if enabled
+  if (process.env.ENABLE_CRON_JOBS === 'true') {
+    try {
+      const cronJobs = require('./jobs/cron');
+      cronJobs.startCronJobs();
+      console.log('⏰ Cron jobs started');
+    } catch (error) {
+      console.warn('⚠️ Failed to start cron jobs:', error.message);
+    }
+  } else {
+    console.log('⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)');
+  }
 });

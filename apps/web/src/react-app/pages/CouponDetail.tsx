@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Gift, Calendar, Users, TrendingUp, Package } from 'lucide-react';
+import { ArrowLeft, Gift, Calendar, Users, TrendingUp, Package, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 import advertiserService, { type CouponDetail as CouponDetailType } from '@/react-app/services/advertiser';
 
 export default function CouponDetail() {
@@ -10,6 +21,11 @@ export default function CouponDetail() {
   const [couponData, setCouponData] = useState<CouponDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isReplenishing, setIsReplenishing] = useState(false);
+  const [editData, setEditData] = useState<Partial<CouponType>>({});
+  const [replenishQty, setReplenishQty] = useState(10);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -22,7 +38,7 @@ export default function CouponDetail() {
       try {
         setLoading(true);
         const data = await advertiserService.getCoupon(id);
-        
+
         if (!data) {
           setError('Coupon not found');
           return;
@@ -39,6 +55,59 @@ export default function CouponDetail() {
 
     fetchCoupon();
   }, [id]);
+
+  const handleUpdate = async () => {
+    if (!id) return;
+    try {
+      const updated = await advertiserService.updateCoupon(id, editData);
+      if (updated && couponData) {
+        setCouponData({ ...couponData, coupon: { ...couponData.coupon, ...updated } });
+        setIsEditing(false);
+        toast({ title: 'Success', description: 'Coupon updated successfully' });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to update coupon', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id || !window.confirm('Are you sure you want to delete this coupon?')) return;
+    try {
+      await advertiserService.deleteCoupon(id);
+      toast({ title: 'Success', description: 'Coupon deleted' });
+      navigate('/advertiser/coupons');
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to delete coupon', variant: 'destructive' });
+    }
+  };
+
+  const handleReplenish = async () => {
+    if (!id) return;
+    try {
+      const updated = await advertiserService.replenishCoupon(id, replenishQty);
+      if (updated && couponData) {
+        setCouponData({ ...couponData, coupon: { ...couponData.coupon, ...updated } });
+        setIsReplenishing(false);
+        toast({ title: 'Success', description: `Added ${replenishQty} more coupons` });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to replenish coupon', variant: 'destructive' });
+    }
+  };
+
+  const toggleStatus = async () => {
+    if (!id || !couponData) return;
+    const newStatus = couponData.coupon.status === 'active' ? 'paused' : 'active';
+    try {
+      const updated = await advertiserService.updateCoupon(id, { status: newStatus });
+      if (updated) {
+        setCouponData({ ...couponData, coupon: { ...couponData.coupon, status: newStatus } });
+        toast({ title: 'Success', description: `Coupon ${newStatus}` });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to update status', variant: 'destructive' });
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
@@ -94,10 +163,101 @@ export default function CouponDetail() {
             <p className="text-sm text-pr-text-2 mt-1">{coupon.description}</p>
           </div>
         </div>
-        <span className={getStatusBadge(coupon.status)}>
-          {coupon.status}
-        </span>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" onClick={() => {
+            setEditData({
+              title: coupon.title,
+              description: coupon.description,
+              value: coupon.value,
+              value_unit: coupon.value_unit
+            });
+            setIsEditing(true);
+          }}>
+            <Edit className="h-4 w-4 mr-2" /> Edit
+          </Button>
+          <Button variant="outline" onClick={() => setIsReplenishing(true)}>
+            <RefreshCw className="h-4 w-4 mr-2" /> Replenish
+          </Button>
+          <Button variant="outline" onClick={toggleStatus}>
+            {coupon.status === 'active' ? 'Pause' : 'Activate'}
+          </Button>
+          <Button variant="destructive" onClick={handleDelete}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <span className={getStatusBadge(coupon.status)}>
+            {coupon.status}
+          </span>
+        </div>
       </div>
+
+      {/* Modals */}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Coupon</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title</label>
+              <Input
+                value={editData.title || ''}
+                onChange={e => setEditData({ ...editData, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              <Textarea
+                value={editData.description || ''}
+                onChange={e => setEditData({ ...editData, description: e.target.value })}
+              />
+            </div>
+            <div className="flex space-x-4">
+              <div className="flex-1 space-y-2">
+                <label className="text-sm font-medium">Value</label>
+                <Input
+                  type="number"
+                  value={editData.value || 0}
+                  onChange={e => setEditData({ ...editData, value: Number(e.target.value) })}
+                />
+              </div>
+              <div className="flex-1 space-y-2">
+                <label className="text-sm font-medium">Unit</label>
+                <Input
+                  value={editData.value_unit || ''}
+                  onChange={e => setEditData({ ...editData, value_unit: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+            <Button onClick={handleUpdate}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReplenishing} onOpenChange={setIsReplenishing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replenish Inventory</DialogTitle>
+            <DialogDescription>
+              Add more coupons to this campaign's inventory.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-4">
+            <label className="text-sm font-medium">Quantity to Add</label>
+            <Input
+              type="number"
+              value={replenishQty}
+              onChange={e => setReplenishQty(Number(e.target.value))}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReplenishing(false)}>Cancel</Button>
+            <Button onClick={handleReplenish}>Add Quantity</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -160,9 +320,8 @@ export default function CouponDetail() {
                     Type: {assignment.target_type} • Assigned {new Date(assignment.assigned_at).toLocaleDateString()}
                   </p>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  assignment.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-pr-surface-2 text-pr-text-1'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${assignment.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-pr-surface-2 text-pr-text-1'
+                  }`}>
                   {assignment.status}
                 </span>
               </div>
@@ -203,9 +362,8 @@ export default function CouponDetail() {
                       {new Date(redemption.redeemed_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        redemption.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-pr-surface-2 text-pr-text-1'
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${redemption.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-pr-surface-2 text-pr-text-1'
+                        }`}>
                         {redemption.status}
                       </span>
                     </td>

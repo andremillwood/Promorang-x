@@ -13,6 +13,11 @@ export default function MarketingFooter() {
                         <h3 className="text-sm font-bold text-pr-text-1 mb-4">Product</h3>
                         <ul className="space-y-3">
                             <li>
+                                <Link to="/explore" className="text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors">
+                                    Explore Ecosystem
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/how-it-works" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
                                     How It Works
                                 </Link>

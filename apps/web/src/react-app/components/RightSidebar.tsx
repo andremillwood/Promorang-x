@@ -26,8 +26,8 @@ export default function RightSidebar({ userData }: RightSidebarProps) {
                 <div className="bg-white h-2 rounded-full w-[70%]" />
               </div>
             </div>
-            <Link 
-              to="/referrals" 
+            <Link
+              to="/referrals"
               className="mt-4 block w-full py-2 bg-white text-orange-600 rounded-lg text-center text-sm font-bold hover:bg-orange-50 transition-colors"
             >
               Get Invite Link
@@ -53,8 +53,8 @@ export default function RightSidebar({ userData }: RightSidebarProps) {
               <p className="text-xs text-pr-text-2">Ends in 14 days</p>
             </div>
           </div>
-          <Link 
-            to="/club/summerjam" 
+          <Link
+            to="/club/summerjam"
             className="flex items-center justify-center space-x-2 w-full py-2 border border-blue-600 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
           >
             <span>Enter Hub</span>
@@ -104,7 +104,7 @@ export default function RightSidebar({ userData }: RightSidebarProps) {
             ].map((user, idx) => (
               <div
                 key={idx}
-                className={`flex items-center justify-between p-2 rounded-lg ${user.isMe ? 'bg-orange-50 ring-1 ring-orange-200' : ''}`}
+                className={`flex items-center justify-between p-2 rounded-lg ${user.isMe ? 'bg-orange-500/10 ring-1 ring-orange-500/20' : ''}`}
               >
                 <div className="flex items-center space-x-3">
                   <span className={`text-xs font-bold w-4 ${user.rank === 1 ? 'text-yellow-600' : user.rank === 2 ? 'text-gray-400' : 'text-pr-text-2'}`}>

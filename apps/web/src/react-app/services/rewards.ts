@@ -95,7 +95,17 @@ class RewardsService {
       method: 'POST',
     });
     if (!response.ok) {
-      throw new Error('Failed to redeem coupon');
+      // Extract error message from response
+      let errorMessage = 'Failed to redeem coupon';
+      try {
+        const errorData = await response.json();
+        if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        // JSON parsing failed, use default message
+      }
+      throw new Error(errorMessage);
     }
     return (await response.json()) as RedeemResponse;
   }

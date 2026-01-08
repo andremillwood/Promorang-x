@@ -14,8 +14,10 @@ interface UpgradePlanModalProps {
 
 const tierIconMap: Record<string, JSX.Element> = {
   free: <Zap className="w-5 h-5 text-orange-500" />,
-  premium: <Sparkles className="w-5 h-5 text-purple-500" />,
-  super: <Crown className="w-5 h-5 text-yellow-500" />,
+  starter: <Zap className="w-5 h-5 text-blue-500" />,
+  growth: <Sparkles className="w-5 h-5 text-purple-500" />,
+  premium: <Crown className="w-5 h-5 text-yellow-500" />,
+  enterprise: <Crown className="w-5 h-5 text-gray-500" />,
 };
 
 export function UpgradePlanModal({
@@ -63,11 +65,10 @@ export function UpgradePlanModal({
               return (
                 <div
                   key={plan.id}
-                  className={`flex flex-col rounded-xl border p-5 shadow-sm transition-all ${
-                    isCurrent
+                  className={`flex flex-col rounded-xl border p-5 shadow-sm transition-all ${isCurrent
                       ? 'border-blue-500 bg-blue-50/60 shadow-blue-100'
                       : 'border-pr-surface-3 hover:border-blue-400 hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -105,11 +106,10 @@ export function UpgradePlanModal({
                   <button
                     onClick={() => onSelect(plan.id)}
                     disabled={isCurrent || isSubmitting}
-                    className={`mt-6 w-full rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                      isCurrent
+                    className={`mt-6 w-full rounded-lg px-4 py-2 text-sm font-medium transition-colors ${isCurrent
                         ? 'cursor-default bg-pr-surface-2 text-pr-text-2'
                         : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 disabled:opacity-60'
-                    }`}
+                      }`}
                   >
                     {isCurrent ? 'Selected Plan' : `Choose ${plan.name}`}
                   </button>

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@getmocha/users-service/react';
-import { 
-  Heart, 
-  MessageCircle, 
-  Share2, 
+import {
+  Heart,
+  MessageCircle,
+  Share2,
   TrendingUp,
   Eye,
   DollarSign,
@@ -35,6 +35,7 @@ import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import ShareModal from '@/react-app/components/ShareModal';
 import SavedContentModal from '@/react-app/components/SavedContentModal';
 import CommentSystem from '@/react-app/components/CommentSystem';
+import PrimaryCTA from '@/react-app/components/PrimaryCTA';
 
 export default function HomeFeed() {
   const { user } = useAuth();
@@ -226,11 +227,11 @@ export default function HomeFeed() {
   };
 
   const openExternalMoveModal = (content: ContentPieceType) => {
-    setExternalMoveContentData({ 
-      id: content.id, 
-      title: content.title, 
+    setExternalMoveContentData({
+      id: content.id,
+      title: content.title,
       platform: content.platform,
-      url: content.platform_url 
+      url: content.platform_url
     });
     setExternalMoveModalOpen(true);
   };
@@ -253,9 +254,9 @@ export default function HomeFeed() {
   const handleEditSuccess = (updatedContent: ContentPieceType) => {
     setEditContentModalOpen(false);
     setEditContentData(null);
-    
+
     // Update content in the local state
-    setContentFeed(prev => prev.map(item => 
+    setContentFeed(prev => prev.map(item =>
       item.id === updatedContent.id ? updatedContent : item
     ));
   };
@@ -288,14 +289,14 @@ export default function HomeFeed() {
     setFundingModalOpen(false);
     // Update the content in the local state
     if (fundingContentData) {
-      const updatedContent = { 
-        ...fundingContentData, 
-        current_revenue: newRevenue, 
-        share_price: newSharePrice 
+      const updatedContent = {
+        ...fundingContentData,
+        current_revenue: newRevenue,
+        share_price: newSharePrice
       };
-      
+
       // Update content array
-      setContentFeed(prev => prev.map(item => 
+      setContentFeed(prev => prev.map(item =>
         item.id === fundingContentData.id ? updatedContent : item
       ));
     }
@@ -373,25 +374,25 @@ export default function HomeFeed() {
   const getForYouFeed = () => {
     // Mix content and drops in a personalized order
     const mixedFeed = [];
-    
+
     // Add sponsored content first (highest priority)
     sponsoredContent.forEach(content => {
       mixedFeed.push({ type: 'content', data: content, isSponsored: true });
     });
-    
+
     // Add high-value opportunities
     const highValueDrops = dropFeed.filter(drop => drop.gem_reward_base >= 50);
-    const trendingContent = contentFeed.filter(content => 
-      content.available_shares > 0 && 
+    const trendingContent = contentFeed.filter(content =>
+      content.available_shares > 0 &&
       !sponsoredContent.some(sponsored => sponsored.id === content.id)
     );
-    
+
     // Interleave content and drops
     for (let i = 0; i < Math.max(trendingContent.length, highValueDrops.length); i++) {
       if (trendingContent[i]) mixedFeed.push({ type: 'content', data: trendingContent[i] });
       if (highValueDrops[i]) mixedFeed.push({ type: 'drop', data: highValueDrops[i] });
     }
-    
+
     return mixedFeed.slice(0, 10); // Limit to 10 items for better UX
   };
 
@@ -410,6 +411,9 @@ export default function HomeFeed() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Primary CTA - One Action Path */}
+      <PrimaryCTA className="mb-2" />
+
       {/* Personalized Dashboard Header */}
       <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden">
         {/* Background Pattern */}
@@ -417,7 +421,7 @@ export default function HomeFeed() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.05'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20z'/%3E%3C/g%3E%3C/svg%3E")`,
           opacity: 0.3
         }}></div>
-        
+
         <div className="relative">
           <div className="flex items-start justify-between mb-6">
             <div>
@@ -460,8 +464,8 @@ export default function HomeFeed() {
                 { value: (userData.gems_balance || 0).toFixed(1), label: 'Gems', icon: <Diamond className="w-4 h-4" />, color: 'text-purple-200' },
                 { value: 'View', label: 'Saved', icon: <Bookmark className="w-4 h-4" />, color: 'text-green-200', action: openSavedContentModal }
               ].map((stat, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center ${(stat as any).action ? 'cursor-pointer hover:bg-white/20 transition-colors' : ''}`}
                   onClick={(stat as any).action || undefined}
                 >
@@ -508,11 +512,10 @@ export default function HomeFeed() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-sm transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-sm transition-colors ${activeTab === tab.key
+                  ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 {tab.icon}
                 <span>{tab.label}</span>
@@ -534,7 +537,7 @@ export default function HomeFeed() {
                   {getForYouFeed().map((item, index) => (
                     <div key={index}>
                       {item.type === 'content' ? (
-                        <ContentCard 
+                        <ContentCard
                           content={item.data as ContentPieceType}
                           onBuyShares={openBuyModal}
                           onShare={openShareModal}
@@ -569,21 +572,21 @@ export default function HomeFeed() {
                 <div className="text-sm text-blue-700">
                   Showing {contentFeed.length} content pieces
                 </div>
-                <button 
+                <button
                   onClick={refreshFeeds}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   Refresh Feed
                 </button>
               </div>
-              
+
               {contentFeed.length > 0 ? (
                 // Show sponsored content first, then regular content
                 [
                   ...sponsoredContent.map((content) => (
-                    <ContentCard 
+                    <ContentCard
                       key={`sponsored-${content.id}`}
-                      content={content} 
+                      content={content}
                       onBuyShares={openBuyModal}
                       onShare={openShareModal}
                       onExternalMove={openExternalMoveModal}
@@ -600,9 +603,9 @@ export default function HomeFeed() {
                   ...contentFeed
                     .filter(content => !sponsoredContent.some(sponsored => sponsored.id === content.id))
                     .map((content) => (
-                      <ContentCard 
-                        key={content.id} 
-                        content={content} 
+                      <ContentCard
+                        key={content.id}
+                        content={content}
                         onBuyShares={openBuyModal}
                         onShare={openShareModal}
                         onExternalMove={openExternalMoveModal}
@@ -624,14 +627,14 @@ export default function HomeFeed() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No content yet</h3>
                   <p className="text-gray-600 mb-4">Be the first to create and share content!</p>
                   <div className="space-y-3">
-                    <button 
+                    <button
                       onClick={() => window.location.href = '/create'}
                       className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 mx-auto"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Create Content</span>
                     </button>
-                    <button 
+                    <button
                       onClick={refreshFeeds}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                     >
@@ -657,7 +660,7 @@ export default function HomeFeed() {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No opportunities available</h3>
                   <p className="text-gray-600 mb-4">Check back later for new earning opportunities!</p>
-                  <button 
+                  <button
                     onClick={() => window.location.href = '/earn'}
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200"
                   >
@@ -867,14 +870,14 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
 
   const handleLocalAction = async (action: string) => {
     if (!currentUser || actionLoading) return;
-    
+
     setActionLoading(true);
     try {
       if (action === 'comment') {
         onComment?.(content);
         return;
       }
-      
+
       if (action === 'share') {
         onShare(content);
         return;
@@ -919,22 +922,21 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
   };
 
   // Check if this is demo content
-  const isDemo = content.title?.toLowerCase().includes('[demo]') || 
-                 content.title?.toLowerCase().includes('demo') ||
-                 content.description?.toLowerCase().includes('demo');
+  const isDemo = content.title?.toLowerCase().includes('[demo]') ||
+    content.title?.toLowerCase().includes('demo') ||
+    content.description?.toLowerCase().includes('demo');
 
   // Check if current user owns this content
   const isOwner = currentUser && (
-    currentUser.id === content.creator_id || 
+    currentUser.id === content.creator_id ||
     currentUser.username === content.creator_name ||
     currentUser.display_name === content.creator_name
   );
 
   return (
-    <div className={`bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${
-      isDemo ? 'border-orange-300 bg-orange-50/30' : 
+    <div className={`bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${isDemo ? 'border-orange-300 bg-orange-50/30' :
       isSponsored ? 'border-purple-300 bg-purple-50/20 ring-2 ring-purple-200' : 'border-gray-200'
-    } ${isPersonalized && !isSponsored ? 'ring-2 ring-orange-200' : ''}`}>
+      } ${isPersonalized && !isSponsored ? 'ring-2 ring-orange-200' : ''}`}>
       {/* Demo Banner */}
       {isDemo && (
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
@@ -963,9 +965,9 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
           {(content as any).sponsor_names && (
             <div className="text-xs text-purple-100 mt-1 flex items-center space-x-1">
               {(content as any).sponsor_logos && (content as any).sponsor_logos.split(',')[0] && (
-                <img 
-                  src={(content as any).sponsor_logos.split(',')[0]} 
-                  alt="Sponsor" 
+                <img
+                  src={(content as any).sponsor_logos.split(',')[0]}
+                  alt="Sponsor"
                   className="w-4 h-4 rounded-full border border-white/20"
                 />
               )}
@@ -994,9 +996,9 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl shadow-lg overflow-hidden">
             {((content as any).display_avatar || content.creator_avatar) ? (
-              <img 
-                src={(content as any).display_avatar || content.creator_avatar} 
-                alt="Creator" 
+              <img
+                src={(content as any).display_avatar || content.creator_avatar}
+                alt="Creator"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -1005,7 +1007,7 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <UserLink 
+              <UserLink
                 username={content.creator_name}
                 displayName={(content as any).display_name || content.creator_name || 'Creator'}
                 avatarUrl={(content as any).display_avatar || content.creator_avatar}
@@ -1062,8 +1064,8 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
       {/* Content Image */}
       {content.media_url && (
         <div className="relative cursor-pointer group" onClick={handleContentClick}>
-          <img 
-            src={content.media_url} 
+          <img
+            src={content.media_url}
             alt={content.title}
             className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-200"
           />
@@ -1081,7 +1083,7 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
         <h4 className="font-bold text-gray-900 mb-2 cursor-pointer hover:text-purple-600 transition-colors text-lg" onClick={handleContentClick}>
           {content.title}
         </h4>
-        
+
         {content.description && (
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{content.description}</p>
         )}
@@ -1114,7 +1116,7 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
               { action: 'save', icon: Bookmark, count: null, color: 'hover:text-yellow-500' }
             ].map(({ action, icon: Icon, count, color }) => (
               <Tooltip key={action} content={`+${getPointsForAction(action)} points`} compact={true}>
-                <button 
+                <button
                   onClick={() => handleLocalAction(action)}
                   className={`flex flex-col items-center p-2 rounded-lg ${color} transition-colors hover:bg-white`}
                 >
@@ -1163,23 +1165,22 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
               <p className="font-bold text-purple-600">${content.current_revenue.toFixed(2)}</p>
             </div>
           </div>
-          
+
           <div className="flex space-x-2">
             <Tooltip content={isDemo ? "Demo content - no real value transfers" : "Tip creator & boost value"}>
-              <button 
+              <button
                 onClick={() => onFunding(content)}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-1 ${
-                  isDemo 
-                    ? 'bg-orange-100 hover:bg-orange-200 text-orange-700' 
-                    : 'bg-green-100 hover:bg-green-200 text-green-700'
-                }`}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-1 ${isDemo
+                  ? 'bg-orange-100 hover:bg-orange-200 text-orange-700'
+                  : 'bg-green-100 hover:bg-green-200 text-green-700'
+                  }`}
               >
                 <Gift className="w-4 h-4" />
                 <span>{isDemo ? 'Demo Tip' : 'Tip'}</span>
               </button>
             </Tooltip>
             <Tooltip content="Predict performance & earn">
-              <button 
+              <button
                 onClick={() => window.location.href = '/invest/social-forecasts'}
                 className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-1"
               >
@@ -1188,14 +1189,13 @@ function ContentCard({ content, onBuyShares, onShare, onExternalMove, onFunding,
               </button>
             </Tooltip>
             <Tooltip content={content.available_shares === 0 ? "Sold out" : isDemo ? "Demo content - no real shares" : "Invest in performance"}>
-              <button 
+              <button
                 onClick={() => onBuyShares(content)}
                 disabled={content.available_shares === 0}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center space-x-1 ${
-                  isDemo
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center space-x-1 ${isDemo
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <TrendingUp className="w-4 h-4" />
                 <span>{content.available_shares === 0 ? 'Sold Out' : isDemo ? 'Demo' : 'Invest'}</span>
@@ -1214,7 +1214,7 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
     if (drop?.content_url) {
       return drop.content_url;
     }
-    
+
     switch (dropType) {
       case 'content_clipping': return 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop';
       case 'reviews': return 'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=400&h=250&fit=crop';
@@ -1232,17 +1232,16 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
   };
 
   // Check if this is demo content
-  const isDemo = drop.title?.toLowerCase().includes('[demo]') || 
-                 drop.title?.toLowerCase().includes('demo') ||
-                 drop.description?.toLowerCase().includes('demo');
+  const isDemo = drop.title?.toLowerCase().includes('[demo]') ||
+    drop.title?.toLowerCase().includes('demo') ||
+    drop.description?.toLowerCase().includes('demo');
 
   const isHighValue = drop.gem_reward_base >= 50;
 
   return (
-    <div className={`bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${
-      isDemo ? 'border-orange-300 bg-orange-50/30' : 
+    <div className={`bg-white rounded-2xl overflow-hidden border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${isDemo ? 'border-orange-300 bg-orange-50/30' :
       isHighValue ? 'border-purple-300 bg-purple-50/30' : 'border-gray-200'
-    }`}>
+      }`}>
       {/* Demo Banner for Drop Cards */}
       {isDemo && (
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-2 text-center">
@@ -1262,13 +1261,13 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
       )}
 
       <div className="relative cursor-pointer group" onClick={handleDropClick}>
-        <img 
-          src={getDropTypeImage(drop.drop_type)} 
+        <img
+          src={getDropTypeImage(drop.drop_type)}
           alt={drop.title}
           className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-200"
         />
         <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-200" />
-        
+
         {/* Enhanced badges */}
         <div className="absolute top-3 right-3 flex flex-col space-y-2">
           {isDemo && (
@@ -1276,15 +1275,14 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
               DEMO
             </span>
           )}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
-            drop.difficulty === 'easy' ? 'bg-green-500/90 text-white' :
+          <span className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${drop.difficulty === 'easy' ? 'bg-green-500/90 text-white' :
             drop.difficulty === 'medium' ? 'bg-yellow-500/90 text-white' :
-            'bg-red-500/90 text-white'
-          }`}>
+              'bg-red-500/90 text-white'
+            }`}>
             {drop.difficulty.toUpperCase()}
           </span>
         </div>
-        
+
         <div className="absolute top-3 left-3">
           {drop.is_proof_drop ? (
             <div className="bg-green-500/90 backdrop-blur-sm px-3 py-1 rounded-full">
@@ -1301,7 +1299,7 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
             </div>
           )}
         </div>
-        
+
         <div className="absolute bottom-3 left-3">
           <div className="bg-black/50 backdrop-blur-sm rounded-xl px-3 py-2">
             <p className="text-2xl font-bold text-white drop-shadow-lg flex items-center space-x-1">
@@ -1312,14 +1310,14 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
           </div>
         </div>
       </div>
-      
+
       <div className="p-4">
         <div className="flex items-start space-x-3 mb-3">
           <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
             {((drop as any).display_avatar || (drop as any).creator_avatar) ? (
-              <img 
-                src={(drop as any).display_avatar || (drop as any).creator_avatar} 
-                alt="Advertiser" 
+              <img
+                src={(drop as any).display_avatar || (drop as any).creator_avatar}
+                alt="Advertiser"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -1345,7 +1343,7 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center space-x-4 text-xs text-gray-500">
             <span className="bg-gray-100 px-2 py-1 rounded-full font-medium">
@@ -1358,13 +1356,12 @@ function EnhancedDropCard({ drop }: { drop: DropType }) {
               </div>
             )}
           </div>
-          <button 
+          <button
             onClick={handleDropClick}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg ${
-              isHighValue 
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg ${isHighValue
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+              : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
+              }`}
           >
             View Details
           </button>
@@ -1385,14 +1382,14 @@ function PersonalizedEmptyState() {
         We're curating the best opportunities based on your interests and earning potential.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <button 
+        <button
           onClick={() => window.location.href = '/earn'}
           className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
         >
           <DollarSign className="w-4 h-4" />
           <span>Browse All Opportunities</span>
         </button>
-        <button 
+        <button
           onClick={() => window.location.href = '/create'}
           className="border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
         >

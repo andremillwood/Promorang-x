@@ -4,6 +4,7 @@
  */
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const economyService = require('./economyService');
 const supabase = global.supabase || serviceSupabase || null;
 
 /**
@@ -29,6 +30,14 @@ async function followUser(followerId, followingId) {
       .single();
 
     if (error) throw error;
+
+    // Economy: Award points for following (10 points)
+    try {
+      await economyService.addCurrency(followerId, 'points', 10, 'social_registration', data.id, 'Followed user');
+    } catch (ecoError) {
+      console.error('[Social Service] Failed to award points for follow:', ecoError.message);
+    }
+
     return data;
   } catch (error) {
     console.error('[Social Service] Error following user:', error);
@@ -287,6 +296,14 @@ async function createPost(userId, postData) {
       visibility,
     });
 
+    // PromoShare Ticket
+    try {
+      const promoShareService = require('./promoShareService');
+      await promoShareService.awardTicket(userId, 'create_post', data.id);
+    } catch (promoError) {
+      console.error('[Social Service] Failed to award ticket for post:', promoError.message);
+    }
+
     return data;
   } catch (error) {
     console.error('[Social Service] Error creating post:', error);
@@ -423,6 +440,21 @@ async function addReaction(userId, reactionData) {
       .single();
 
     if (error) throw error;
+
+    // Economy: Award points for like (1 point)
+    try {
+      const points = reaction_type === 'like' ? 1 : 0;
+      if (points > 0) {
+        await economyService.addCurrency(userId, 'points', points, 'moves', data.id, `Reaction: ${reaction_type}`);
+
+        // PromoShare Ticket
+        const promoShareService = require('./promoShareService');
+        await promoShareService.awardTicket(userId, 'social_reaction', data.id);
+      }
+    } catch (ecoError) {
+      console.error('[Social Service] Failed to award rewards for reaction:', ecoError.message);
+    }
+
     return data;
   } catch (error) {
     console.error('[Social Service] Error adding reaction:', error);
@@ -479,6 +511,18 @@ async function addComment(userId, commentData) {
       .single();
 
     if (error) throw error;
+
+    // Economy: Award points for comment (5 points)
+    try {
+      await economyService.addCurrency(userId, 'points', 5, 'moves', data.id, 'Commented on content');
+
+      // PromoShare Ticket
+      const promoShareService = require('./promoShareService');
+      await promoShareService.awardTicket(userId, 'social_comment', data.id);
+    } catch (ecoError) {
+      console.error('[Social Service] Failed to award rewards for comment:', ecoError.message);
+    }
+
     return data;
   } catch (error) {
     console.error('[Social Service] Error adding comment:', error);

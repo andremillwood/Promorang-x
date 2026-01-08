@@ -31,7 +31,7 @@ async function validateCoupon(code, userId, cartTotal = {}, context = {}) {
         error: 'Invalid coupon code',
       };
     }
-    
+
     // Check campaign-specific conditions
     if (coupon.campaign_id && context.campaign_id && coupon.campaign_id !== context.campaign_id) {
       return {
@@ -39,7 +39,7 @@ async function validateCoupon(code, userId, cartTotal = {}, context = {}) {
         error: 'This coupon is only valid for a specific campaign',
       };
     }
-    
+
     // Check drop-specific conditions
     if (coupon.drop_id && context.drop_id && coupon.drop_id !== context.drop_id) {
       return {
@@ -537,7 +537,7 @@ async function getDropCoupons(dropId) {
       .from('coupons')
       .select('*, coupon_usage(count)')
       .eq('drop_id', dropId)
-      .order('created_at', { ascending: false});
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -630,6 +630,64 @@ async function getUnifiedCouponAnalytics(filters = {}) {
   }
 }
 
+/**
+ * List public coupons
+ */
+async function listPublicCoupons({ limit = 20, offset = 0, category } = {}) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    let query = supabase
+      .from('coupons')
+      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url)')
+      .eq('is_active', true)
+      .eq('is_public', true)
+      .gt('quantity_remaining', 0)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (category) {
+      // Assuming category filtering logic if needed, for now just basic list
+      // query = query.contains('category_ids', [category]); 
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return { coupons: data || [] };
+  } catch (error) {
+    console.error('[Coupon Service] Error listing public coupons:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get public coupon details
+ */
+async function getPublicCoupon(id) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url, description), conditions')
+      .eq('id', id)
+      .eq('is_active', true)
+      .eq('is_public', true)
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('[Coupon Service] Error getting public coupon:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   validateCoupon,
   calculateDiscount,
@@ -645,4 +703,6 @@ module.exports = {
   createCampaignCoupon,
   createDropCoupon,
   getUnifiedCouponAnalytics,
+  listPublicCoupons,
+  getPublicCoupon,
 };

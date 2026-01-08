@@ -80,12 +80,12 @@ export default function ContentCard({
   const creatorProfilePath = content.creator_username
     ? RoutePaths.profile(content.creator_username)
     : content.creator_name
-    ? RoutePaths.profile(content.creator_name)
-    : null;
+      ? RoutePaths.profile(content.creator_name)
+      : null;
 
   return (
     <div
-      className={`bg-pr-surface-card rounded-xl shadow-sm border border-pr-border p-5 cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-pr-surface-3 max-w-[720px] mx-auto w-full focus-within:outline focus-within:outline-2 focus-within:outline-primary/40 focus-within:ring-2 focus-within:ring-primary/20 ${isSponsored || content.is_sponsored ? 'ring-2 ring-orange-200 ring-opacity-50' : ''}`}
+      className={`w-full bg-pr-surface-card p-5 cursor-pointer transition-colors duration-200 hover:bg-pr-surface-2 focus-within:outline focus-within:outline-2 focus-within:outline-primary/40 ${isSponsored || content.is_sponsored ? 'bg-orange-50/10' : ''}`}
       onClick={handleCardClick}
       tabIndex={0}
       role="article"

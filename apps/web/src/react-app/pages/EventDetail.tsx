@@ -8,17 +8,25 @@ import {
     Globe,
     Share2,
     ArrowLeft,
-    Edit,
-    Trash2,
-    CheckCircle,
-    ExternalLink,
-    Gift,
-    Star,
+    CheckCircle2,
+    Megaphone,
+    Loader2,
+    Info,
+    LayoutDashboard,
+    Image as ImageIcon,
     Target,
+    Edit
 } from 'lucide-react';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import eventsService from '@/react-app/services/events';
 import type { EventDetailResponse } from '@/react-app/services/events';
+import type { EventTaskType } from '@/shared/types';
+
+// New Components
+import CheckInQR from '../components/events/CheckInQR';
+import TaskSubmissionModal from '../components/events/TaskSubmissionModal';
+import EventGallery from '../components/events/EventGallery';
+import OrganizerDashboard from '../components/events/OrganizerDashboard';
 
 export default function EventDetail() {
     const { id } = useParams<{ id: string }>();
@@ -29,6 +37,11 @@ export default function EventDetail() {
     const [loading, setLoading] = useState(true);
     const [hasRsvp, setHasRsvp] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
+
+    // UI State
+    const [activeTab, setActiveTab] = useState<'about' | 'tasks' | 'gallery' | 'dashboard'>('about');
+    const [selectedTask, setSelectedTask] = useState<EventTaskType | null>(null);
+    const [showTaskModal, setShowTaskModal] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -51,7 +64,7 @@ export default function EventDetail() {
 
     const handleRsvp = async () => {
         if (!user) {
-            navigate('/auth?redirect=/events/' + id);
+            navigate(`/auth?redirect=/events/${id}`);
             return;
         }
 
@@ -87,17 +100,6 @@ export default function EventDetail() {
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this event?')) return;
-
-        try {
-            await eventsService.deleteEvent(id!);
-            navigate('/events');
-        } catch (error) {
-            console.error('Error deleting event:', error);
-            alert('Failed to delete event');
-        }
-    };
 
     if (loading) {
         return (
@@ -123,8 +125,18 @@ export default function EventDetail() {
 
     const { event, tasks, sponsors } = data;
     const isCreator = user?.id === event.creator_id;
-    const isUpcoming = eventsService.isUpcoming(event.event_date);
     const isHappeningNow = eventsService.isHappeningNow(event.event_date, event.event_end_date);
+
+    // Dynamic Tab Logic
+    const tabs = [
+        { id: 'about', label: 'About', icon: Info },
+        { id: 'tasks', label: 'Tasks', icon: Target, count: tasks.length },
+        { id: 'gallery', label: 'Gallery', icon: ImageIcon },
+    ];
+
+    if (isCreator) {
+        tabs.push({ id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard });
+    }
 
     return (
         <div className="min-h-screen bg-pr-surface-2">
@@ -149,168 +161,125 @@ export default function EventDetail() {
 
                 {/* Status Badge */}
                 {isHappeningNow && (
-                    <div className="absolute top-4 right-4 px-4 py-2 bg-green-500 text-white rounded-full font-bold animate-pulse">
+                    <div className="absolute top-4 right-4 px-4 py-2 bg-green-500 text-white rounded-full font-bold animate-pulse z-20">
                         🔴 HAPPENING NOW
                     </div>
                 )}
             </div>
 
             {/* Content */}
-            <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-10">
-                {/* Main Card */}
-                <div className="bg-pr-surface-card border border-pr-border rounded-2xl shadow-xl overflow-hidden">
+            <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-10 pb-20">
+                {/* Main Header Card */}
+                <div className="bg-pr-surface-card border border-pr-border rounded-2xl shadow-xl overflow-hidden mb-6">
                     <div className="p-6 md:p-8">
-                        {/* Category & Rating */}
-                        <div className="flex items-center gap-3 mb-4">
+                        {/* Highlights */}
+                        <div className="flex flex-wrap items-center gap-2 mb-4">
                             {event.category && (
-                                <span className="px-3 py-1 bg-purple-500/10 text-purple-500 rounded-full text-sm font-medium">
-                                    {eventsService.getCategoryLabel(event.category)}
+                                <span className="px-3 py-1 bg-purple-500/10 text-purple-500 rounded-full text-xs font-bold uppercase tracking-wider">
+                                    {eventsService.getCategoryLabel(event.category).split(' ')[1]}
                                 </span>
                             )}
                             {event.is_virtual && (
-                                <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm font-medium">
-                                    <Globe className="w-3 h-3 inline mr-1" />
+                                <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold uppercase tracking-wider">
                                     Virtual
                                 </span>
                             )}
-                            {event.average_rating > 0 && (
-                                <span className="flex items-center gap-1 px-3 py-1 bg-yellow-500/10 text-yellow-600 rounded-full text-sm font-medium">
-                                    <Star className="w-3 h-3 fill-current" />
-                                    {event.average_rating.toFixed(1)} ({event.total_reviews} reviews)
+                            {event.is_featured && (
+                                <span className="px-3 py-1 bg-orange-500/10 text-orange-500 rounded-full text-xs font-bold uppercase tracking-wider">
+                                    Featured
                                 </span>
                             )}
                         </div>
 
-                        {/* Title */}
-                        <h1 className="text-3xl md:text-4xl font-bold text-pr-text-1 mb-4">
-                            {event.title}
-                        </h1>
-
-                        {/* Organizer Info */}
-                        <div className="flex items-center gap-3 mb-6">
-                            {event.organizer_avatar ? (
-                                <img
-                                    src={event.organizer_avatar}
-                                    alt={event.organizer_name}
-                                    className="w-10 h-10 rounded-full"
-                                />
-                            ) : (
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                    {event.organizer_name?.[0] || '?'}
-                                </div>
-                            )}
+                        {/* Title & Stats */}
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                             <div>
-                                <p className="font-medium text-pr-text-1">
-                                    Hosted by {event.organizer_name || 'Unknown'}
-                                </p>
-                                <p className="text-sm text-pr-text-2">Event Organizer</p>
+                                <h1 className="text-3xl md:text-5xl font-extrabold text-pr-text-1 mb-2 tracking-tight">
+                                    {event.title}
+                                </h1>
+                                <div className="flex items-center gap-3">
+                                    {event.organizer_avatar ? (
+                                        <img src={event.organizer_avatar} className="w-6 h-6 rounded-full" />
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                            {event.organizer_name?.[0]}
+                                        </div>
+                                    )}
+                                    <span className="text-sm text-pr-text-2">by <span className="text-pr-text-1 font-semibold">{event.organizer_name}</span></span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="text-center px-4 py-2 bg-pr-surface-2 rounded-xl border border-pr-border">
+                                    <p className="text-xl font-bold text-pr-text-1">{event.total_rsvps || 0}</p>
+                                    <p className="text-[10px] text-pr-text-3 font-bold uppercase">RSVPs</p>
+                                </div>
+                                {(event.total_rewards_pool > 0 || event.total_gems_pool > 0) && (
+                                    <div className="text-center px-4 py-2 bg-green-500/10 rounded-xl border border-green-500/20">
+                                        <p className="text-xl font-bold text-green-600">
+                                            {event.total_rewards_pool > 0 ? event.total_rewards_pool : event.total_gems_pool}
+                                        </p>
+                                        <p className="text-[10px] text-green-600 font-bold uppercase">Reward</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {/* Key Details */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div className="flex items-start gap-3 p-4 bg-pr-surface-2 rounded-xl">
-                                <Calendar className="w-6 h-6 text-purple-500 mt-0.5" />
-                                <div>
-                                    <p className="font-medium text-pr-text-1">Date & Time</p>
-                                    <p className="text-sm text-pr-text-2">
-                                        {eventsService.formatEventDate(event.event_date, event.event_end_date)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {event.location_name && (
-                                <div className="flex items-start gap-3 p-4 bg-pr-surface-2 rounded-xl">
-                                    <MapPin className="w-6 h-6 text-pink-500 mt-0.5" />
-                                    <div>
-                                        <p className="font-medium text-pr-text-1">Location</p>
-                                        <p className="text-sm text-pr-text-2">
-                                            {event.location_name}
-                                            {event.location_address && `, ${event.location_address}`}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="flex items-start gap-3 p-4 bg-pr-surface-2 rounded-xl">
-                                <Users className="w-6 h-6 text-blue-500 mt-0.5" />
-                                <div>
-                                    <p className="font-medium text-pr-text-1">Attendance</p>
-                                    <p className="text-sm text-pr-text-2">
-                                        {event.total_rsvps || 0} RSVP'd
-                                        {event.max_attendees && ` / ${event.max_attendees} max`}
-                                    </p>
-                                    {event.max_attendees && (
-                                        <div className="w-full bg-pr-surface-3 rounded-full h-2 mt-2">
-                                            <div
-                                                className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
-                                                style={{
-                                                    width: `${Math.min(((event.total_rsvps || 0) / event.max_attendees) * 100, 100)}%`,
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {event.is_virtual && event.virtual_url && (
-                                <div className="flex items-start gap-3 p-4 bg-pr-surface-2 rounded-xl">
-                                    <Globe className="w-6 h-6 text-green-500 mt-0.5" />
-                                    <div>
-                                        <p className="font-medium text-pr-text-1">Online Event</p>
+                        {/* Action Bar */}
+                        <div className="flex flex-wrap gap-3 pt-6 border-t border-pr-border">
+                            {isCreator ? (
+                                <>
+                                    <button
+                                        onClick={() => navigate(`/events/${id}/edit`)}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors shadow-sm"
+                                    >
+                                        <Edit className="w-5 h-5" />
+                                        Edit Event
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('dashboard')}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-pr-text-1 text-white rounded-xl font-bold hover:bg-black transition-colors shadow-sm"
+                                    >
+                                        <LayoutDashboard className="w-5 h-5" />
+                                        Organizer Dashboard
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleRsvp}
+                                        disabled={actionLoading}
+                                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-md ${hasRsvp
+                                            ? 'bg-green-500 text-white hover:bg-green-600'
+                                            : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg'
+                                            }`}
+                                    >
+                                        {actionLoading ? (
+                                            <Loader2 className="animate-spin h-5 w-5" />
+                                        ) : hasRsvp ? (
+                                            <>
+                                                <CheckCircle2 className="w-5 h-5" />
+                                                Entry Secured
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Users className="w-5 h-5" />
+                                                Join Now
+                                            </>
+                                        )}
+                                    </button>
+                                    {event.is_virtual && event.virtual_url && (
                                         <a
                                             href={event.virtual_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-sm text-purple-500 hover:underline flex items-center gap-1"
+                                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors shadow-sm"
                                         >
-                                            Join virtual event <ExternalLink className="w-3 h-3" />
+                                            <Globe className="w-5 h-5" />
+                                            Join Room
                                         </a>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Rewards Pool */}
-                            {(event.total_rewards_pool > 0 || event.total_gems_pool > 0) && (
-                                <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/20">
-                                    <Gift className="w-6 h-6 text-green-500 mt-0.5" />
-                                    <div>
-                                        <p className="font-medium text-pr-text-1">Rewards Pool</p>
-                                        <p className="text-sm text-green-600">
-                                            {event.total_rewards_pool > 0 && `${event.total_rewards_pool} Points`}
-                                            {event.total_rewards_pool > 0 && event.total_gems_pool > 0 && ' + '}
-                                            {event.total_gems_pool > 0 && `${event.total_gems_pool} Gems`}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap gap-3 mb-8">
-                            {isUpcoming && !isCreator && (
-                                <button
-                                    onClick={handleRsvp}
-                                    disabled={actionLoading}
-                                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${hasRsvp
-                                            ? 'bg-green-500 text-white hover:bg-green-600'
-                                            : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg'
-                                        }`}
-                                >
-                                    {actionLoading ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                                    ) : hasRsvp ? (
-                                        <>
-                                            <CheckCircle className="w-5 h-5" />
-                                            RSVP'd
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Users className="w-5 h-5" />
-                                            RSVP
-                                        </>
                                     )}
-                                </button>
+                                </>
                             )}
 
                             {event.ticketing_url && (
@@ -318,167 +287,258 @@ export default function EventDetail() {
                                     href={event.ticketing_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors"
+                                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors"
                                 >
                                     <Ticket className="w-5 h-5" />
-                                    {event.ticket_price_range || 'Get Tickets'}
+                                    {event.ticket_price_range || 'Buy Tickets'}
                                 </a>
                             )}
 
                             <button
                                 onClick={handleShare}
-                                className="flex items-center justify-center gap-2 px-4 py-3 bg-pr-surface-2 text-pr-text-1 rounded-xl font-medium hover:bg-pr-surface-3 transition-colors"
+                                className="p-3 bg-pr-surface-2 text-pr-text-1 rounded-xl hover:bg-pr-surface-3 transition-colors border border-pr-border"
                             >
                                 <Share2 className="w-5 h-5" />
-                                Share
                             </button>
-
-                            {isCreator && (
-                                <>
-                                    <button
-                                        onClick={() => navigate(`/events/${id}/edit`)}
-                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors"
-                                    >
-                                        <Edit className="w-5 h-5" />
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={handleDelete}
-                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                        Delete
-                                    </button>
-                                </>
-                            )}
                         </div>
+                    </div>
 
-                        {/* Description */}
-                        {event.description && (
-                            <div className="mb-8">
-                                <h2 className="text-xl font-bold text-pr-text-1 mb-3">About This Event</h2>
-                                <p className="text-pr-text-2 whitespace-pre-wrap">{event.description}</p>
+                    {/* Tabs Navigation */}
+                    <div className="flex border-t border-pr-border px-4 bg-pr-surface-card overflow-x-auto no-scrollbar">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`flex items-center gap-2 px-6 py-4 text-sm font-bold min-w-fit transition-colors border-b-2 ${activeTab === tab.id
+                                    ? 'text-purple-500 border-purple-500'
+                                    : 'text-pr-text-3 border-transparent hover:text-pr-text-1'
+                                    }`}
+                            >
+                                <tab.icon className="w-4 h-4" />
+                                {tab.label}
+                                {tab.count !== undefined && (
+                                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-purple-500 text-white' : 'bg-pr-surface-3 text-pr-text-2'
+                                        }`}>
+                                        {tab.count}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Tab Content Area */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Column (Main Tab Content) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {activeTab === 'about' && (
+                            <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="p-6 md:p-8">
+                                    <h2 className="text-2xl font-bold text-pr-text-1 mb-6">Experience Details</h2>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                                        <div className="space-y-4">
+                                            <div className="flex gap-4">
+                                                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                                                    <Calendar className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-pr-text-3 font-bold uppercase">When</p>
+                                                    <p className="text-pr-text-1 font-semibold">{eventsService.formatEventDate(event.event_date, event.event_end_date)}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <div className="p-2 bg-pink-500/10 rounded-lg text-pink-500">
+                                                    <MapPin className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-pr-text-3 font-bold uppercase">Where</p>
+                                                    <p className="text-pr-text-1 font-semibold">{event.location_name || 'Virtual Event'}</p>
+                                                    {event.location_address && <p className="text-sm text-pr-text-2">{event.location_address}</p>}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="flex gap-4">
+                                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                                    <Users className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-pr-text-3 font-bold uppercase">Who's Coming</p>
+                                                    <p className="text-pr-text-1 font-semibold">{event.total_rsvps || 0} attending</p>
+                                                    <p className="text-sm text-pr-text-2">Join the crowd!</p>
+                                                </div>
+                                            </div>
+                                            {event.ticketing_url && (
+                                                <div className="flex gap-4">
+                                                    <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
+                                                        <Ticket className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-pr-text-3 font-bold uppercase">Entry</p>
+                                                        <p className="text-pr-text-1 font-semibold">{event.ticket_price_range || 'Ticketed Event'}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="prose max-w-none text-pr-text-2">
+                                        <p className="whitespace-pre-wrap leading-relaxed">{event.description}</p>
+                                    </div>
+
+                                    {event.tags && event.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-10">
+                                            {event.tags.map(tag => (
+                                                <span key={tag} className="px-3 py-1 bg-pr-surface-2 text-pr-text-3 rounded-lg text-xs font-bold border border-pr-border">#{tag}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
 
-                        {/* Tags */}
-                        {event.tags && event.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-8">
-                                {event.tags.map((tag) => (
-                                    <span
-                                        key={tag}
-                                        className="px-3 py-1 bg-pr-surface-2 text-pr-text-2 rounded-full text-sm"
-                                    >
-                                        #{tag}
-                                    </span>
-                                ))}
+                        {activeTab === 'tasks' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl text-white shadow-lg">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Target className="w-8 h-8" />
+                                        <h2 className="text-2xl font-extrabold tracking-tight">Earning Opportunities</h2>
+                                    </div>
+                                    <p className="text-white/80 font-medium">Complete these specific missions to unlock special rewards and reputation points.</p>
+                                </div>
+
+                                {tasks.length === 0 ? (
+                                    <div className="p-12 text-center bg-pr-surface-card border border-dashed border-pr-border rounded-2xl">
+                                        <p className="text-pr-text-3 font-bold">No active tasks for this event.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {tasks.map(task => (
+                                            <div key={task.id} className="group p-6 bg-pr-surface-card border border-pr-border rounded-2xl hover:border-purple-500 transition-all hover:shadow-md">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-pr-text-1">{task.title}</h3>
+                                                        <p className="text-sm text-pr-text-2 mt-1">{task.description}</p>
+                                                    </div>
+                                                    <div className="px-3 py-1 bg-green-500/10 text-green-600 rounded-lg text-xs font-bold">
+                                                        {task.points_reward} PTS
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        if (!hasRsvp) {
+                                                            alert('You must RSVP to complete tasks!');
+                                                            return;
+                                                        }
+                                                        setSelectedTask(task);
+                                                        setShowTaskModal(true);
+                                                    }}
+                                                    className="w-full py-3 bg-pr-surface-2 group-hover:bg-purple-500 group-hover:text-white text-pr-text-1 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Megaphone className="w-4 h-4" />
+                                                    Submit Proof
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'gallery' && (
+                            <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-6 md:p-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <EventGallery eventId={id!} hasRsvp={hasRsvp} />
+                            </div>
+                        )}
+
+                        {activeTab === 'dashboard' && isCreator && (
+                            <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-6 md:p-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <OrganizerDashboard eventId={id!} event={event} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right Column (Sidebar) */}
+                    <div className="space-y-6">
+                        {/* Entry Pass Card (Attendee Only) */}
+                        {hasRsvp && !isCreator && (
+                            <CheckInQR
+                                checkInCode={event.id.replace(/-/g, '').slice(0, 12)}
+                                eventName={event.title}
+                                isVirtual={event.is_virtual}
+                            />
+                        )}
+
+                        {/* Event Stats Quick View */}
+                        <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-6">
+                            <h3 className="text-lg font-bold text-pr-text-1 mb-4">Event Pulse</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-pr-text-2">
+                                        <Users className="w-4 h-4" />
+                                        <span className="text-sm font-medium">Attendence</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-pr-text-1">{event.total_check_ins || 0} checked in</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-pr-text-2">
+                                        <ImageIcon className="w-4 h-4" />
+                                        <span className="text-sm font-medium">UGC Shares</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-pr-text-1">{event.total_ugc_submissions || 0}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-pr-text-2">
+                                        <Target className="w-4 h-4" />
+                                        <span className="text-sm font-medium">Tasks Closed</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-pr-text-1">{event.total_tasks_completed || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Sponsors Bar */}
+                        {sponsors.length > 0 && (
+                            <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-6">
+                                <h3 className="text-lg font-bold text-pr-text-1 mb-4">Our Partners</h3>
+                                <div className="space-y-3">
+                                    {sponsors.map(sponsor => (
+                                        <div key={sponsor.id} className="flex items-center gap-3 p-3 bg-pr-surface-2 rounded-xl transition-all hover:translate-x-1">
+                                            {sponsor.sponsor_logo ? (
+                                                <img src={sponsor.sponsor_logo} className="w-8 h-8 rounded-lg" />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-lg bg-black text-white text-[10px] font-bold flex items-center justify-center">
+                                                    {sponsor.sponsor_name?.[0]}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className="text-sm font-bold text-pr-text-1">{sponsor.sponsor_name}</p>
+                                                <p className="text-[10px] text-pr-text-3 font-bold uppercase">{sponsor.tier} Partner</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Event Tasks Section */}
-                {tasks.length > 0 && (
-                    <div className="mt-8 bg-pr-surface-card border border-pr-border rounded-2xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Target className="w-6 h-6 text-purple-500" />
-                            <h2 className="text-xl font-bold text-pr-text-1">Event Tasks</h2>
-                        </div>
-                        <p className="text-pr-text-2 mb-4">
-                            Complete tasks to earn rewards!
-                        </p>
-                        <div className="space-y-4">
-                            {tasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    className="p-4 bg-pr-surface-2 rounded-xl border border-pr-border"
-                                >
-                                    <h3 className="font-semibold text-pr-text-1 mb-2">{task.title}</h3>
-                                    {task.description && (
-                                        <p className="text-sm text-pr-text-2 mb-3">{task.description}</p>
-                                    )}
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-purple-500 font-medium">
-                                            {task.points_reward > 0 && `${task.points_reward} Points`}
-                                            {task.points_reward > 0 && task.gems_reward > 0 && ' + '}
-                                            {task.gems_reward > 0 && `${task.gems_reward} Gems`}
-                                        </span>
-                                        <button className="px-4 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors">
-                                            Start Task
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Sponsors Section */}
-                {sponsors.length > 0 && (
-                    <div className="mt-8 bg-pr-surface-card border border-pr-border rounded-2xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Gift className="w-6 h-6 text-orange-500" />
-                            <h2 className="text-xl font-bold text-pr-text-1">Event Sponsors</h2>
-                        </div>
-                        <div className="flex flex-wrap gap-4">
-                            {sponsors.map((sponsor) => (
-                                <div
-                                    key={sponsor.id}
-                                    className="flex items-center gap-3 px-4 py-2 bg-pr-surface-2 rounded-xl"
-                                >
-                                    {sponsor.sponsor_logo ? (
-                                        <img
-                                            src={sponsor.sponsor_logo}
-                                            alt={sponsor.sponsor_name}
-                                            className="w-8 h-8 rounded-full"
-                                        />
-                                    ) : (
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white text-sm font-bold">
-                                            {sponsor.sponsor_name?.[0] || '?'}
-                                        </div>
-                                    )}
-                                    <div>
-                                        <p className="font-medium text-pr-text-1 text-sm">
-                                            {sponsor.sponsor_name}
-                                        </p>
-                                        <p className="text-xs text-pr-text-2 capitalize">
-                                            {sponsor.tier} Sponsor
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Engagement Stats */}
-                {(event.total_check_ins > 0 || event.total_tasks_completed > 0 || event.total_ugc_submissions > 0) && (
-                    <div className="mt-8 bg-pr-surface-card border border-pr-border rounded-2xl p-6">
-                        <h2 className="text-xl font-bold text-pr-text-1 mb-4">Event Stats</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="text-center p-4 bg-pr-surface-2 rounded-xl">
-                                <p className="text-2xl font-bold text-purple-500">{event.total_check_ins}</p>
-                                <p className="text-sm text-pr-text-2">Check-ins</p>
-                            </div>
-                            <div className="text-center p-4 bg-pr-surface-2 rounded-xl">
-                                <p className="text-2xl font-bold text-pink-500">{event.total_tasks_completed}</p>
-                                <p className="text-sm text-pr-text-2">Tasks Done</p>
-                            </div>
-                            <div className="text-center p-4 bg-pr-surface-2 rounded-xl">
-                                <p className="text-2xl font-bold text-blue-500">{event.total_ugc_submissions}</p>
-                                <p className="text-sm text-pr-text-2">UGC Submissions</p>
-                            </div>
-                            <div className="text-center p-4 bg-pr-surface-2 rounded-xl">
-                                <p className="text-2xl font-bold text-green-500">{event.engagement_score}</p>
-                                <p className="text-sm text-pr-text-2">Engagement</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Spacer */}
-                <div className="h-12" />
             </div>
+
+            {/* Modals */}
+            {selectedTask && (
+                <TaskSubmissionModal
+                    isOpen={showTaskModal}
+                    onClose={() => setShowTaskModal(false)}
+                    task={selectedTask}
+                    eventId={id!}
+                    onSuccess={() => {
+                        fetchEvent();
+                        setSelectedTask(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

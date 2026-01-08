@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Clock, 
+import { useEffect, useState, useRef, useCallback } from 'react';
+import {
+  Plus,
+  Search,
+  Filter,
+  Clock,
   Users,
   Star,
   Calendar
@@ -17,33 +17,80 @@ export default function Marketplace() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
+  const [pagination, setPagination] = useState({ offset: 0, hasMore: true });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (isInitial = true) => {
     try {
-      const response = await fetch('/api/tasks');
-      const data = await response.json();
-      setTasks(data);
+      if (isInitial) setLoading(true);
+      else setIsLoadingMore(true);
+
+      const offset = isInitial ? 0 : pagination.offset;
+      const response = await fetch(`/api/marketplace/products?limit=${PAGE_SIZE}&offset=${offset}`);
+      const result = await response.json();
+      const newProducts = result.data?.products || [];
+
+      if (isInitial) {
+        setTasks(newProducts);
+        setPagination({ offset: PAGE_SIZE, hasMore: newProducts.length >= PAGE_SIZE });
+      } else {
+        setTasks(prev => [...prev, ...newProducts]);
+        setPagination({
+          offset: offset + PAGE_SIZE,
+          hasMore: newProducts.length >= PAGE_SIZE
+        });
+      }
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
+      else setIsLoadingMore(false);
     }
   };
 
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !pagination.hasMore || loading) return;
+    fetchTasks(false);
+  }, [isLoadingMore, pagination.hasMore, loading]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && pagination.hasMore && !isLoadingMore && !loading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [loadMore, pagination.hasMore, isLoadingMore, loading]);
+
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      task.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || task.category === selectedCategory;
     const matchesDifficulty = !selectedDifficulty || task.difficulty === selectedDifficulty;
-    
+
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  
+
 
   if (loading) {
     return (
@@ -120,6 +167,22 @@ export default function Marketplace() {
         ))}
       </div>
 
+      {/* Infinite Scroll Indicator */}
+      {filteredTasks.length > 0 && (
+        <div ref={loadMoreRef} className="py-8">
+          {isLoadingMore ? (
+            <div className="flex items-center justify-center space-x-2 text-pr-text-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+              <span className="text-sm">Loading more tasks...</span>
+            </div>
+          ) : !pagination.hasMore ? (
+            <div className="text-center text-sm text-pr-text-2">
+              You've seen all available tasks
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {filteredTasks.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-pr-surface-2 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -132,8 +195,8 @@ export default function Marketplace() {
 
       {/* Create Task Modal */}
       {showCreateForm && (
-        <CreateTaskModal 
-          onClose={() => setShowCreateForm(false)} 
+        <CreateTaskModal
+          onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
             setShowCreateForm(false);
             fetchTasks();
@@ -173,7 +236,7 @@ function TaskCard({ task }: { task: TaskType }) {
           <Users className="w-4 h-4" />
           <span>{task.current_participants}/{task.max_participants || '∞'} participants</span>
         </div>
-        
+
         {task.follower_threshold > 0 && (
           <div className="flex items-center space-x-2 text-sm text-pr-text-2">
             <Star className="w-4 h-4" />

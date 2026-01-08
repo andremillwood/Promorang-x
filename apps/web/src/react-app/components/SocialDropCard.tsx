@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Share2, Users, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import RelayButton from './Relay/RelayButton';
 
 interface Creator {
   id: string;
@@ -137,7 +138,7 @@ export default function SocialDropCard({
             <span className="text-xs text-pr-text-2">@{creator.username}</span>
           </div>
         </div>
-        
+
         {!isFollowing && (
           <Button
             size="sm"
@@ -168,11 +169,10 @@ export default function SocialDropCard({
       <div className="flex items-center gap-1">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${
-            isLiked
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${isLiked
               ? 'bg-red-50 text-red-600'
               : 'hover:bg-pr-surface-2 text-pr-text-2'
-          }`}
+            }`}
         >
           <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
           <span className="text-sm">{likesCount}</span>
@@ -193,6 +193,13 @@ export default function SocialDropCard({
           <Share2 className="h-4 w-4" />
           <span className="text-sm">Share</span>
         </button>
+
+        {/* Relay Button */}
+        <RelayButton
+          objectType="drop"
+          objectId={dropId}
+          showLabel={false}
+        />
       </div>
     </div>
   );

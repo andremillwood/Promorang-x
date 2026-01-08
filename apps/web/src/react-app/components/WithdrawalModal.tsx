@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, DollarSign, CreditCard, Building, Mail, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import type { UserType, WithdrawalMethodType, UserPaymentPreferenceType } from '../../shared/types';
 import ModalBase from '@/react-app/components/ModalBase';
+import IdentityVerificationModal from './IdentityVerificationModal';
 
 interface WithdrawalModalProps {
   user: UserType | null;
@@ -20,6 +21,8 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveAsDefault, setSaveAsDefault] = useState(false);
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [kycError, setKycError] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -145,7 +148,13 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
         resetForm();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Withdrawal request failed');
+
+        if (response.status === 403 && errorData.code === 'KYC_REQUIRED') {
+          setKycError(true);
+          setError(errorData.message || 'Identity verification required for this amount.');
+        } else {
+          setError(errorData.error || 'Withdrawal request failed');
+        }
       }
     } catch (error) {
       console.error('Withdrawal failed:', error);
@@ -173,7 +182,7 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
   const canProceedToDetails = selectedMethod !== '';
   const canProceedToConfirm = () => {
     const requiredFields = getRequiredFields(selectedMethod);
-    return requiredFields.every(field => 
+    return requiredFields.every(field =>
       !isFieldRequired(field) || (paymentDetails[field] && paymentDetails[field].trim() !== '')
     );
   };
@@ -216,11 +225,10 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
             <div className="flex items-center space-x-2 mb-6">
               {['amount', 'method', 'details', 'confirm'].map((stepName, index) => (
                 <div key={stepName} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === stepName ? 'bg-purple-500 text-white' :
-                    ['amount', 'method', 'details', 'confirm'].indexOf(step) > index ? 'bg-green-500 text-white' :
-                    'bg-pr-surface-3 text-pr-text-2'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === stepName ? 'bg-purple-500 text-white' :
+                      ['amount', 'method', 'details', 'confirm'].indexOf(step) > index ? 'bg-green-500 text-white' :
+                        'bg-pr-surface-3 text-pr-text-2'
+                    }`}>
                     {index + 1}
                   </div>
                   {index < 3 && <div className="w-12 h-0.5 bg-pr-surface-3 mx-2" />}
@@ -294,7 +302,7 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
                   <label className="block text-sm font-medium text-pr-text-1 mb-3">
                     Select Payment Method
                   </label>
-                  
+
                   {userPreferences.length > 0 && (
                     <div className="mb-4">
                       <h4 className="text-sm font-medium text-pr-text-2 mb-2">Saved Methods</h4>
@@ -326,11 +334,10 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
                                   setPaymentDetails({});
                                 }
                               }}
-                              className={`w-full p-3 border-2 rounded-lg text-left transition-colors ${
-                                selectedMethod === pref.payment_method
+                              className={`w-full p-3 border-2 rounded-lg text-left transition-colors ${selectedMethod === pref.payment_method
                                   ? 'border-purple-500 bg-purple-50'
                                   : 'border-pr-surface-3 hover:border-pr-surface-3'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center space-x-3">
                                 {getMethodIcon(pref.payment_method)}
@@ -356,17 +363,16 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {withdrawalMethods.filter(method => method.is_active).map((method) => (
                       <button
                         key={method.method_name}
                         onClick={() => setSelectedMethod(method.method_name)}
-                        className={`p-4 border-2 rounded-lg text-left transition-colors ${
-                          selectedMethod === method.method_name
+                        className={`p-4 border-2 rounded-lg text-left transition-colors ${selectedMethod === method.method_name
                             ? 'border-purple-500 bg-purple-50'
                             : 'border-pr-surface-3 hover:border-pr-surface-3'
-                        }`}
+                          }`}
                       >
                         <div className="mb-2 flex items-center space-x-3">
                           {getMethodIcon(method.method_name)}
@@ -511,7 +517,7 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-medium text-pr-text-1 mb-4">Review Withdrawal Request</h3>
-                  
+
                   <div className="bg-pr-surface-2 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between">
                       <span className="text-pr-text-2">Withdrawal Amount:</span>
@@ -538,7 +544,7 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
                         <div key={key} className="flex justify-between">
                           <span className="capitalize">{getFieldLabel(key)}:</span>
                           <span className="font-mono">
-                            {key.includes('address') && value.length > 20 
+                            {key.includes('address') && value.length > 20
                               ? `${value.slice(0, 8)}...${value.slice(-8)}`
                               : value
                             }
@@ -569,6 +575,14 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-sm text-red-700">{error}</p>
+                    {kycError && (
+                      <button
+                        onClick={() => setShowKycModal(true)}
+                        className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Start Identity Verification
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -600,6 +614,18 @@ export default function WithdrawalModal({ user, isOpen, onClose, onSuccess }: Wi
           </div>
         )}
       </div>
+
+      <IdentityVerificationModal
+        isOpen={showKycModal}
+        onClose={() => setShowKycModal(false)}
+        onSuccess={() => {
+          // On successful submission (becomes pending), we might still block withdrawal until approved.
+          // But let's show a success message and close this flow.
+          setKycError(false);
+          setError('Verification submitted. Please wait for approval before retrying withdrawal.');
+          // Maybe auto-close kyc modal? It's handled by generic onSuccess of that modal usually
+        }}
+      />
     </ModalBase>
   );
 }

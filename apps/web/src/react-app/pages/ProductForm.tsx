@@ -13,7 +13,7 @@ interface Category {
 }
 
 export default function ProductForm() {
-  const { productId } = useParams<{ productId?: string }>();
+  const { id: productId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -164,7 +164,7 @@ export default function ProductForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Basic Information</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-pr-text-1 mb-2">
@@ -228,7 +228,7 @@ export default function ProductForm() {
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Pricing</h2>
             <p className="text-sm text-pr-text-2 mb-4">Set at least one price option</p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-pr-text-1 mb-2">
@@ -274,7 +274,7 @@ export default function ProductForm() {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Inventory</h2>
-            
+
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <input
@@ -307,7 +307,7 @@ export default function ProductForm() {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Images</h2>
-            
+
             <div className="space-y-4">
               <div className="flex gap-2">
                 <input
@@ -347,7 +347,7 @@ export default function ProductForm() {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-pr-text-1 mb-4">Tags</h2>
-            
+
             <div className="space-y-4">
               <div className="flex gap-2">
                 <input

@@ -616,6 +616,39 @@ export interface EventSponsorType {
   created_at: string;
 }
 
+
+export interface ProductType {
+  id: string;
+  name: string;
+  slug: string;
+  short_description: string;
+  price_usd: number | null;
+  price_gems: number | null;
+  price_gold: number | null;
+  images: string[];
+  rating: number;
+  review_count: number;
+  sales_count: number;
+  is_featured: boolean;
+  merchant_stores: {
+    store_name: string;
+    store_slug: string;
+    logo_url: string;
+  };
+  product_categories: {
+    name: string;
+    slug: string;
+  } | null;
+  created_at: string;
+}
+
+export interface CategoryType {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+}
+
 // ===== REQUEST TYPES =====
 
 

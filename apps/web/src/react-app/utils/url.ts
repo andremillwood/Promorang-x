@@ -25,9 +25,9 @@ export const Routes = {
     `/profile/${slugifyUserIdentifier(slug)}${toQueryString(params)}`,
   publicProfile: (slug: string, params?: Record<string, string>) =>
     `/users/${slugifyUserIdentifier(slug)}${toQueryString(params)}`,
-  campaign: (id: string) => `/campaigns/${encodeSegment(id)}`,
+  campaign: (id: string) => `/advertiser/campaigns/${encodeSegment(id)}`,
   advertiser: (id: string) => `/advertiser/campaigns/${encodeSegment(id)}`,
-  drop: (id: string) => `/task/${encodeSegment(id)}`,
+  drop: (id: string) => `/earn/${encodeSegment(id)}`,
   coupon: (id: string) => `/coupon/${encodeSegment(id)}`,
 };
 

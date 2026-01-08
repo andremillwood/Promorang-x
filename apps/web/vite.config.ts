@@ -14,17 +14,17 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
+        // Removed rewrite - the backend routes expect /api prefix
       }
     },
     headers: {
       'Content-Security-Policy': "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
         "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data: https: http://localhost:3001; " +
+        "img-src 'self' data: https: http://localhost:3001 *.google.com *.googleusercontent.com; " +
         "font-src 'self' data:; " +
-        "connect-src 'self' http://localhost:3001 https://api.promorang.co https://dnysosmscoceplvcejkv.supabase.co;"
+        "connect-src 'self' http://localhost:3001 https://api.promorang.co https://dnysosmscoceplvcejkv.supabase.co *.google.com play.google.com;"
     }
   },
   resolve: {

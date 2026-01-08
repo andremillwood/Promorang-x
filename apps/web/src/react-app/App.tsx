@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { ReactNode } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LeaderboardPage from "@/react-app/pages/Leaderboard";
+import PromoShareDashboard from "@/react-app/pages/PromoShareDashboard";
 import Layout from "@/react-app/components/Layout";
 import EnhancedErrorBoundary from "@/react-app/components/common/EnhancedErrorBoundary";
 import LayoutDebugger from "@/react-app/components/LayoutDebugger";
@@ -42,6 +43,12 @@ import Orders from "@/react-app/pages/Orders";
 import StorePage from "@/react-app/pages/StorePage";
 import MerchantDashboard from "@/react-app/pages/MerchantDashboard";
 import OperatorDashboard from "@/react-app/pages/OperatorDashboard";
+import AdminLayout from "@/react-app/layouts/AdminLayout";
+import AdminDashboard from "@/react-app/pages/admin/AdminDashboard";
+import AdminKYC from "@/react-app/pages/admin/AdminKYC";
+import AdminSupport from "@/react-app/pages/admin/AdminSupport";
+import AdminSettings from "@/react-app/pages/admin/AdminSettings";
+import SupportPage from "@/react-app/pages/Support";
 import SeasonHubPage from "@/react-app/pages/SeasonHubPage";
 import ProductForm from "@/react-app/pages/ProductForm";
 import ActivityFeed from "@/react-app/pages/ActivityFeed";
@@ -69,6 +76,7 @@ import WorkforceDashboard from "@/react-app/pages/WorkforceDashboard";
 import WorkforcePodDetail from "@/react-app/pages/WorkforcePodDetail";
 import HowItWorks from "@/react-app/pages/marketing/HowItWorks";
 import PricingPage from "@/react-app/pages/marketing/PricingPage";
+import AdvertiserPricingPage from "@/react-app/pages/marketing/AdvertiserPricingPage";
 import ForInvestors from "@/react-app/pages/marketing/ForInvestors";
 import ForMerchants from "@/react-app/pages/marketing/ForMerchants";
 import ForTourism from "@/react-app/pages/marketing/ForTourism";
@@ -87,6 +95,9 @@ import PublicMarketplacePage from "@/react-app/pages/public/PublicMarketplacePag
 import PublicProductPage from "@/react-app/pages/public/PublicProductPage";
 import PublicContentPage from "@/react-app/pages/public/PublicContentPage";
 import PublicForecastPage from "@/react-app/pages/public/PublicForecastPage";
+import ExplorePage from "@/react-app/pages/public/ExplorePage";
+import ExploreCoupons from "@/react-app/pages/public/ExploreCoupons";
+import PublicCouponDetail from "@/react-app/pages/public/PublicCouponDetail";
 
 // Proposals
 import DryvaMobilityPage from "@/react-app/pages/proposals/dryvamobility/DryvaMobilityPage";
@@ -170,6 +181,18 @@ function App() {
               <Routes>
                 {/* Public Marketing Routes */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/operator/dashboard" element={<OperatorDashboard />} />
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="kyc" element={<AdminKYC />} />
+                  <Route path="support" element={<AdminSupport />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+
+                <Route path="/support" element={<SupportPage />} />
+
                 <Route path="/creators" element={<ForCreators />} />
                 <Route path="/investors" element={<ForInvestors />} />
                 <Route path="/merchants" element={<ForMerchants />} />
@@ -184,6 +207,7 @@ function App() {
                 <Route path="/promo-points" element={<PromoPointsPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/advertiser-pricing" element={<AdvertiserPricingPage />} />
 
                 {/* Niche Marketing Pages */}
                 <Route path="/for-tourism" element={<ForTourism />} />
@@ -204,11 +228,32 @@ function App() {
                 <Route path="/p/:id" element={<PublicProductPage />} />
                 <Route path="/c/:id" element={<PublicContentPage />} />
                 <Route path="/f/:id" element={<PublicForecastPage />} />
+                <Route path="/explore" element={<ExplorePage />} />
+
+                {/* Public Coupon Pages */}
+                <Route path="/coupons" element={<ExploreCoupons />} />
+                <Route path="/coupons/:id" element={<PublicCouponDetail />} />
 
                 {/* Events Routes (Public listing, protected create) */}
-                <Route path="/events" element={<ProtectedLayout><Events /></ProtectedLayout>} />
+                {/* Now using default Layout for public event pages instead of ProtectedLayout,
+                    Assuming Events and EventDetail can handle their own layout wrapping if needed,
+                    OR we wrap them in a public Layout if one exists.
+                    For now, passing them directly or wrapped in a simple Layout if `Layout` supports it without auth.
+                    Wait, `Layout` component usually has sidebar etc which might require auth data.
+                    If `Layout` crashes without user, we need a PublicLayout.
+                    Based on typical usage, Layout often has user profile in header.
+                    Let's check Layout compatibility later. For now, assuming Layout is protected or requires user.
+                    We'll use a wrapper that doesn't enforce auth but tries to show Layout if possible, or just the page.
+                    Actually, Events.tsx and EventDetail.tsx have their own full page structures (headers etc)?
+                    Events.tsx has "Hero Section" and "Main Content", looks standalone-ish but imports Layout in App.tsx originally.
+                    Let's wrap them in a generic div for now or verify Layout.
+                    Re-reading Events.tsx: it renders a full page div "min-h-screen bg-pr-surface-2".
+                    It does not seem to rely on an outlet.
+                    So we can probably render it directly.
+                */}
+                <Route path="/events" element={<Layout><Events /></Layout>} />
+                <Route path="/events/:id" element={<Layout><EventDetail /></Layout>} />
                 <Route path="/events/create" element={<ProtectedLayout><CreateEvent /></ProtectedLayout>} />
-                <Route path="/events/:id" element={<ProtectedLayout><EventDetail /></ProtectedLayout>} />
 
                 {/* Workforce Routes */}
                 <Route path="/workforce" element={<ProtectedLayout><WorkforceDashboard /></ProtectedLayout>} />
@@ -336,6 +381,14 @@ function App() {
                   element={
                     <ProtectedLayout>
                       <LeaderboardPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/promoshare"
+                  element={
+                    <ProtectedLayout>
+                      <PromoShareDashboard />
                     </ProtectedLayout>
                   }
                 />

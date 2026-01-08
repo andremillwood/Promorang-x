@@ -1,5 +1,6 @@
 import { Heart, MessageCircle, Share2, Repeat, Eye } from 'lucide-react';
 import type { ContentPieceType } from '../../shared/types';
+import RelayButton from './Relay/RelayButton';
 
 interface StatBarProps {
   content: ContentPieceType;
@@ -97,6 +98,14 @@ export default function StatBar({ content, onSocialAction, onShare, onComment }:
             action="share"
             onClick={() => onShare?.(content)}
             color="green"
+          />
+
+          {/* Relay Button - propagate content to your network */}
+          <RelayButton
+            objectType="content"
+            objectId={String(content.id)}
+            showLabel={false}
+            className="ml-1"
           />
         </div>
       </div>

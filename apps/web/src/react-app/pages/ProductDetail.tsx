@@ -47,7 +47,7 @@ interface Review {
 }
 
 export default function ProductDetail() {
-  const { productId } = useParams<{ productId: string }>();
+  const { id: productId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
@@ -55,11 +55,15 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [sharesData, setSharesData] = useState<{ supporter_count: number; available_shares: number } | null>(null);
+  const [relayId, setRelayId] = useState<string | null>(null);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   useEffect(() => {
     if (productId) {
       fetchProduct();
       fetchReviews();
+      fetchSharesData();
     }
   }, [productId]);
 
@@ -67,7 +71,7 @@ export default function ProductDetail() {
     try {
       const response = await apiFetch(`/api/marketplace/products/${productId}`);
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setProduct(data.data.product);
       }
@@ -82,12 +86,57 @@ export default function ProductDetail() {
     try {
       const response = await apiFetch(`/api/marketplace/products/${productId}/reviews`);
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setReviews(data.data.reviews);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
+    }
+  };
+
+  const fetchSharesData = async () => {
+    try {
+      const response = await apiFetch(`/api/marketplace/products/${productId}/shares-status`);
+      const data = await response.json();
+      if (data.status === 'success') {
+        setSharesData(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching shares data:', error);
+    }
+  };
+
+  const generateShareLink = async () => {
+    setIsGeneratingLink(true);
+    try {
+      const response = await apiFetch('/api/shares/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target_url: window.location.href,
+          object_type: 'product',
+          object_id: productId
+        }),
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setRelayId(data.data.id);
+        const url = data.data.url;
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: 'Link copied!',
+          description: 'Your personalized share link is ready. Earn shares on every converted sale!',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate share link',
+        type: 'destructive',
+      });
+    } finally {
+      setIsGeneratingLink(false);
     }
   };
 
@@ -100,7 +149,7 @@ export default function ProductDetail() {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         toast({
           title: 'Added to cart',
@@ -242,9 +291,8 @@ export default function ProductDetail() {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`relative pb-[100%] rounded-lg overflow-hidden border transition-shadow ${
-                      selectedImage === index ? 'border-blue-600 shadow-sm' : 'border-transparent'
-                    }`}
+                    className={`relative pb-[100%] rounded-lg overflow-hidden border transition-shadow ${selectedImage === index ? 'border-blue-600 shadow-sm' : 'border-transparent'
+                      }`}
                   >
                     <img
                       src={image}
@@ -262,9 +310,8 @@ export default function ProductDetail() {
                   <button
                     key={`mobile-thumb-${index}`}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border transition-transform ${
-                      selectedImage === index ? 'border-blue-600 scale-105' : 'border-transparent'
-                    }`}
+                    className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border transition-transform ${selectedImage === index ? 'border-blue-600 scale-105' : 'border-transparent'
+                      }`}
                   >
                     <img
                       src={image}
@@ -288,9 +335,8 @@ export default function ProductDetail() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`h-5 w-5 ${
-                      star <= Math.round(averageRating) ? 'text-yellow-500 fill-current' : 'text-gray-300'
-                    }`}
+                    className={`h-5 w-5 ${star <= Math.round(averageRating) ? 'text-yellow-500 fill-current' : 'text-gray-300'
+                      }`}
                   />
                 ))}
               </div>
@@ -301,26 +347,108 @@ export default function ProductDetail() {
               <span className="text-sm text-pr-text-2">{product.sales_count} sold</span>
             </div>
 
+            {/* Market Shares / Supporter Hub */}
+            <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100 mb-6 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-indigo-600 rounded-lg">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="font-black text-indigo-900 uppercase text-sm tracking-tight">Supporter Hub</h3>
+                </div>
+                <div className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded border border-indigo-200 uppercase">
+                  Early Access
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-white/60 p-3 rounded-xl border border-white">
+                  <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Supporters</p>
+                  <p className="text-xl font-black text-indigo-900">{sharesData?.supporter_count ?? 0}</p>
+                </div>
+                <div className="bg-white/60 p-3 rounded-xl border border-white">
+                  <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Available Shares</p>
+                  <p className="text-xl font-black text-indigo-900">{sharesData?.available_shares ?? 1000}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs text-indigo-700/80 font-medium leading-relaxed">
+                  Join the <span className="font-bold">Supporter Circle</span>. The first 10 buyers earn 100 tradeable shares in this product's performance.
+                </p>
+                <Button
+                  onClick={generateShareLink}
+                  disabled={isGeneratingLink}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-200"
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  {isGeneratingLink ? 'Generating...' : 'Share & Earn Market Shares'}
+                </Button>
+              </div>
+            </Card>
+
             {/* Store */}
             <div
-              className="flex items-center gap-3 p-4 bg-pr-surface-card rounded-lg mb-6 cursor-pointer hover:bg-pr-surface-2"
+              className="flex items-center gap-3 p-4 bg-pr-surface-card rounded-xl mb-6 cursor-pointer hover:bg-pr-surface-2 border border-pr-border group transition-all"
               onClick={() => navigate(`/marketplace/store/${product.merchant_stores.store_slug}`)}
             >
               <img
                 src={product.merchant_stores.logo_url || 'https://via.placeholder.com/48'}
                 alt={product.merchant_stores.store_name}
-                className="h-12 w-12 rounded-full"
+                className="h-12 w-12 rounded-full border border-pr-border shadow-sm group-hover:scale-105 transition-transform"
               />
               <div>
-                <p className="font-semibold text-pr-text-1">{product.merchant_stores.store_name}</p>
+                <p className="font-bold text-pr-text-1 group-hover:text-blue-600 transition-colors">{product.merchant_stores.store_name}</p>
                 <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
-                  <span className="text-sm text-pr-text-2">
-                    {merchantRating != null ? merchantRating.toFixed(1) : 'New'}
+                  <Star className="h-4 w-4 text-orange-500 fill-current mr-1" />
+                  <span className="text-sm font-black text-pr-text-2">
+                    {merchantRating != null ? merchantRating.toFixed(1) : 'New Store'}
                   </span>
                 </div>
               </div>
-              <Store className="ml-auto h-5 w-5 text-gray-400" />
+              <Button variant="ghost" size="sm" className="ml-auto text-blue-600 font-bold">
+                Visit Store
+              </Button>
+            </div>
+
+            {/* Urgency & Gamification Badges */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {product.inventory_count < 10 && !product.is_unlimited && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-black uppercase border border-red-200 animate-pulse">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Only {product.inventory_count} left in stock!
+                </div>
+              )}
+              {product.sales_count > 20 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-600 rounded-lg text-xs font-black uppercase border border-orange-200">
+                  🔥 Selling fast: {product.sales_count}+ sold recently
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg text-xs font-black uppercase border border-blue-200">
+                ✨ Earn {(product.price_usd || 0) * 10} Promo Points
+              </div>
+            </div>
+
+            {/* Trust Badges (Amazon/Shein style) */}
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-100">
+                <div className="p-2 bg-green-600 rounded-lg">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-green-700 leading-none">Verified</p>
+                  <p className="text-xs font-bold text-green-900">Original Item</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <Share2 className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-blue-700 leading-none">Secure</p>
+                  <p className="text-xs font-bold text-blue-900">Encrypted Pay</p>
+                </div>
+              </div>
             </div>
 
             {/* Price */}
@@ -425,11 +553,10 @@ export default function ProductDetail() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={`avg-star-${star}`}
-                            className={`h-5 w-5 ${
-                              star <= Math.round(averageRating)
-                                ? 'text-blue-500 fill-current'
-                                : 'text-blue-100'
-                            }`}
+                            className={`h-5 w-5 ${star <= Math.round(averageRating)
+                              ? 'text-blue-500 fill-current'
+                              : 'text-blue-100'
+                              }`}
                           />
                         ))}
                       </div>
@@ -490,11 +617,10 @@ export default function ProductDetail() {
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
                                       key={`${review.id}-star-${star}`}
-                                      className={`h-4 w-4 ${
-                                        star <= review.rating
-                                          ? 'text-yellow-500 fill-current'
-                                          : 'text-gray-300'
-                                      }`}
+                                      className={`h-4 w-4 ${star <= review.rating
+                                        ? 'text-yellow-500 fill-current'
+                                        : 'text-gray-300'
+                                        }`}
                                     />
                                   ))}
                                 </div>

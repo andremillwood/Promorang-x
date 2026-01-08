@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
+const couponService = require('../services/couponService');
 
 // All routes require authentication
 router.use(requireAuth);
@@ -66,7 +67,7 @@ router.get('/coupons', async (req, res) => {
         `)
         .eq('user_id', userId)
         .order('assigned_at', { ascending: false }),
-      
+
       // 2. Available marketplace coupons (campaign/advertiser/platform)
       supabase
         .from('coupons')
@@ -86,6 +87,24 @@ router.get('/coupons', async (req, res) => {
     }
     if (marketplaceError) {
       console.error('Error fetching marketplace coupons:', marketplaceError);
+    }
+
+    // Get user's usage counts for marketplace coupons to filter out maxed-out ones
+    let userCouponUsage = {};
+    if (marketplaceCoupons && marketplaceCoupons.length > 0) {
+      const couponIds = marketplaceCoupons.map(c => c.id);
+      const { data: usageData } = await supabase
+        .from('coupon_usage')
+        .select('coupon_id')
+        .eq('user_id', userId)
+        .in('coupon_id', couponIds);
+
+      if (usageData) {
+        // Count usage per coupon
+        usageData.forEach(u => {
+          userCouponUsage[u.coupon_id] = (userCouponUsage[u.coupon_id] || 0) + 1;
+        });
+      }
     }
 
     // Format user-assigned coupons
@@ -110,33 +129,42 @@ router.get('/coupons', async (req, res) => {
       coupon_source: 'assigned'
     }));
 
-    // Format marketplace coupons
-    const availableMarketplaceCoupons = (marketplaceCoupons || []).map(coupon => ({
-      assignment_id: coupon.id, // Use coupon ID as assignment ID for marketplace coupons
-      coupon_id: coupon.id,
-      code: coupon.code,
-      title: coupon.name,
-      description: coupon.description,
-      reward_type: 'coupon',
-      value: coupon.discount_value,
-      value_unit: coupon.discount_type === 'percentage' ? 'percentage' : 
-                  coupon.discount_type === 'fixed_usd' ? 'usd' :
-                  coupon.discount_type === 'fixed_gems' ? 'gems' :
-                  coupon.discount_type === 'fixed_gold' ? 'gold' : 'other',
-      source: coupon.source_type,
-      source_label: coupon.campaign_id ? 'Campaign Reward' : 'Platform Offer',
-      earned_at: coupon.created_at,
-      is_redeemed: false,
-      redeemed_at: null,
-      expires_at: coupon.expires_at,
-      status: 'available',
-      metadata: coupon.metadata || {},
-      conditions: {},
-      coupon_source: 'marketplace',
-      max_uses: coupon.max_uses,
-      current_uses: coupon.current_uses,
-      discount_type: coupon.discount_type
-    }));
+    // Format marketplace coupons - mark ones user has maxed out as 'used'
+    const availableMarketplaceCoupons = (marketplaceCoupons || [])
+      .map(coupon => {
+        // Check if user has reached their per-user limit
+        const userUsage = userCouponUsage[coupon.id] || 0;
+        const hasMaxedOut = coupon.max_uses_per_user && userUsage >= coupon.max_uses_per_user;
+
+        return {
+          assignment_id: coupon.id, // Use coupon ID as assignment ID for marketplace coupons
+          coupon_id: coupon.id,
+          code: coupon.code,
+          title: coupon.name,
+          description: coupon.description,
+          reward_type: 'coupon',
+          value: coupon.discount_value,
+          value_unit: coupon.discount_type === 'percentage' ? 'percentage' :
+            coupon.discount_type === 'fixed_usd' ? 'usd' :
+              coupon.discount_type === 'fixed_gems' ? 'gems' :
+                coupon.discount_type === 'fixed_gold' ? 'gold' : 'other',
+          source: coupon.source_type,
+          source_label: coupon.campaign_id ? 'Campaign Reward' : 'Platform Offer',
+          earned_at: coupon.created_at,
+          is_redeemed: hasMaxedOut,
+          redeemed_at: hasMaxedOut ? new Date().toISOString() : null,
+          expires_at: coupon.expires_at,
+          status: hasMaxedOut ? 'used' : 'available',
+          metadata: coupon.metadata || {},
+          conditions: {},
+          coupon_source: 'marketplace',
+          max_uses: coupon.max_uses,
+          current_uses: coupon.current_uses,
+          discount_type: coupon.discount_type,
+          user_usage: userUsage,
+          max_uses_per_user: coupon.max_uses_per_user
+        };
+      });
 
     // Combine both types
     let allCoupons = [...assignedCoupons, ...availableMarketplaceCoupons];
@@ -248,7 +276,7 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
       });
     }
 
-    // Fetch the assignment
+    // 1. Try fetching from advertiser_coupon_assignments first
     const { data: assignment, error: fetchError } = await supabase
       .from('advertiser_coupon_assignments')
       .select(`
@@ -267,79 +295,128 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
       .eq('user_id', userId)
       .single();
 
-    if (fetchError || !assignment) {
-      return res.status(404).json({ error: 'Coupon not found' });
+    if (assignment) {
+      // Validate assigned coupon can be redeemed
+      if (assignment.is_redeemed) {
+        return res.status(400).json({ error: 'Coupon already redeemed' });
+      }
+
+      if (assignment.advertiser_coupons.status !== 'active') {
+        return res.status(400).json({ error: 'Coupon is no longer active' });
+      }
+
+      if (assignment.advertiser_coupons.quantity_remaining <= 0) {
+        return res.status(400).json({ error: 'Coupon is no longer available' });
+      }
+
+      if (new Date(assignment.advertiser_coupons.end_date) < new Date()) {
+        return res.status(400).json({ error: 'Coupon has expired' });
+      }
+
+      // Mark assignment as redeemed
+      const { error: updateError } = await supabase
+        .from('advertiser_coupon_assignments')
+        .update({
+          is_redeemed: true,
+          redeemed_at: new Date().toISOString(),
+        })
+        .eq('id', assignmentId);
+
+      if (updateError) {
+        console.error('Error updating assignment:', updateError);
+        return res.status(500).json({ error: 'Failed to redeem coupon' });
+      }
+
+      // Decrement coupon quantity
+      const { error: decrementError } = await supabase
+        .from('advertiser_coupons')
+        .update({
+          quantity_remaining: assignment.advertiser_coupons.quantity_remaining - 1,
+        })
+        .eq('id', assignment.coupon_id);
+
+      if (decrementError) {
+        console.error('Error decrementing coupon quantity:', decrementError);
+      }
+
+      // Create redemption record
+      const { error: redemptionError } = await supabase
+        .from('advertiser_coupon_redemptions')
+        .insert({
+          coupon_id: assignment.coupon_id,
+          user_id: userId,
+          reward_value: assignment.advertiser_coupons.value,
+          reward_unit: assignment.advertiser_coupons.value_unit,
+          status: 'completed',
+        });
+
+      if (redemptionError) {
+        console.error('Error creating redemption record:', redemptionError);
+      }
+
+      // Generate coupon code or apply in-app reward
+      const redemptionResult = await processRedemption(
+        userId,
+        assignment.advertiser_coupons
+      );
+
+      return res.json({
+        success: true,
+        message: 'Coupon redeemed successfully',
+        ...redemptionResult,
+      });
     }
 
-    // Validate coupon can be redeemed
-    if (assignment.is_redeemed) {
-      return res.status(400).json({ error: 'Coupon already redeemed' });
-    }
+    // 2. Fallback: Check if it's a marketplace coupon (from 'coupons' table)
+    const { data: marketplaceCoupon, error: marketplaceError } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('id', assignmentId)
+      .single();
 
-    if (assignment.advertiser_coupons.status !== 'active') {
-      return res.status(400).json({ error: 'Coupon is no longer active' });
-    }
-
-    if (assignment.advertiser_coupons.quantity_remaining <= 0) {
-      return res.status(400).json({ error: 'Coupon is no longer available' });
-    }
-
-    if (new Date(assignment.advertiser_coupons.end_date) < new Date()) {
-      return res.status(400).json({ error: 'Coupon has expired' });
-    }
-
-    // Mark assignment as redeemed
-    const { error: updateError } = await supabase
-      .from('advertiser_coupon_assignments')
-      .update({
-        is_redeemed: true,
-        redeemed_at: new Date().toISOString(),
-      })
-      .eq('id', assignmentId);
-
-    if (updateError) {
-      console.error('Error updating assignment:', updateError);
-      return res.status(500).json({ error: 'Failed to redeem coupon' });
-    }
-
-    // Decrement coupon quantity
-    const { error: decrementError } = await supabase
-      .from('advertiser_coupons')
-      .update({
-        quantity_remaining: assignment.advertiser_coupons.quantity_remaining - 1,
-      })
-      .eq('id', assignment.coupon_id);
-
-    if (decrementError) {
-      console.error('Error decrementing coupon quantity:', decrementError);
-    }
-
-    // Create redemption record
-    const { error: redemptionError } = await supabase
-      .from('advertiser_coupon_redemptions')
-      .insert({
-        coupon_id: assignment.coupon_id,
-        user_id: userId,
-        reward_value: assignment.advertiser_coupons.value,
-        reward_unit: assignment.advertiser_coupons.value_unit,
-        status: 'completed',
+    if (marketplaceCoupon) {
+      console.log('[Rewards API] Found marketplace coupon:', {
+        id: marketplaceCoupon.id,
+        code: marketplaceCoupon.code,
+        is_active: marketplaceCoupon.is_active,
+        expires_at: marketplaceCoupon.expires_at,
+        max_uses: marketplaceCoupon.max_uses,
+        current_uses: marketplaceCoupon.current_uses,
       });
 
-    if (redemptionError) {
-      console.error('Error creating redemption record:', redemptionError);
+      // Use couponService to validate the marketplace coupon
+      // Note: We don't verify against cart total here, just basic validation
+      const validation = await couponService.validateCoupon(
+        marketplaceCoupon.code,
+        userId
+      );
+
+      if (!validation.valid) {
+        console.log('[Rewards API] Marketplace coupon validation failed:', validation.error);
+        return res.status(400).json({ error: validation.error || 'Coupon validation failed' });
+      }
+
+      // Increment usage count via couponService
+      await couponService.trackCouponUsage(
+        marketplaceCoupon.id,
+        userId,
+        null, // No order ID yet
+        {},   // Empty discount (since it's a preview/redemption)
+        {},   // Empty original total
+        {}    // Empty final total
+      );
+
+      return res.json({
+        success: true,
+        message: 'Marketplace coupon retrieved successfully',
+        code: marketplaceCoupon.code,
+        instructions: `Use code "${marketplaceCoupon.code}" at checkout to receive your ${marketplaceCoupon.discount_type === 'percentage' ? marketplaceCoupon.discount_value + '%' : '$' + marketplaceCoupon.discount_value} discount.`,
+        expires_at: marketplaceCoupon.expires_at,
+      });
     }
 
-    // Generate coupon code or apply in-app reward
-    const redemptionResult = await processRedemption(
-      userId,
-      assignment.advertiser_coupons
-    );
-
-    res.json({
-      success: true,
-      message: 'Coupon redeemed successfully',
-      ...redemptionResult,
-    });
+    // 3. Neither found
+    return res.status(404).json({ error: 'Coupon not found or invalid ID' });
   } catch (error) {
     console.error('Error in POST /api/rewards/coupons/:assignmentId/redeem:', error);
     res.status(500).json({ error: 'Internal server error' });

@@ -1,15 +1,54 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const { requireAuth } = require('../middleware/auth');
 require('dotenv').config();
+const { requireAuth } = require('../middleware/auth');
 
 const app = express();
 
-// Security middleware
+// SECURITY & CORS MUST BE FIRST
 app.use(helmet());
 
-// Log all incoming requests
+// Default allowed origins
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://promorang.co',
+  'https://www.promorang.co',
+  'https://promorang-alt.vercel.app',
+  'https://promorang-alt-andremillwood.vercel.app'
+];
+
+// Robust CORS Middleware
+const corsMiddleware = cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    const isAllowed = DEFAULT_ALLOWED_ORIGINS.includes(origin) ||
+      origin.endsWith('.promorang.co') ||
+      origin.endsWith('.vercel.app');
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS warning: origin ${origin} not explicitly in whitelist`);
+      callback(null, true); // Allow for now but log
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Api-Version']
+});
+
+app.use(corsMiddleware);
+
+// Handle preflight
+app.options('*', corsMiddleware);
+
+// Logging middleware
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'unknown origin'}`);
   next();
@@ -38,57 +77,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Default allowed origins (for development)
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:5173', // Vite dev server
-  'http://127.0.0.1:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
-  'https://promorang.co',
-  'https://www.promorang.co',
-  'https://promorang-alt-andremillwood.vercel.app',
-  'https://promorang-9idmgnr67-andre-millwoods-projects.vercel.app'
-];
-
-// Log allowed origins for debugging
-console.log('Allowed CORS origins:', DEFAULT_ALLOWED_ORIGINS);
-
-// Apply permissive CORS that reflects the request origin (needed for credentials)
-const corsMiddleware = cors({
-  origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    const isAllowed = DEFAULT_ALLOWED_ORIGINS.includes(origin) || (() => {
-      try {
-        const { hostname } = new URL(origin);
-        return hostname === 'promorang.co' || hostname === 'www.promorang.co' || hostname.endsWith('.promorang.co');
-      } catch (error) {
-        return false;
-      }
-    })();
-
-    if (isAllowed) {
-      return callback(null, true);
-    }
-
-    console.warn(`CORS warning: unrecognized origin ${origin}. Allowing temporarily.`);
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin']
-});
-
-app.use(corsMiddleware);
-app.options('*', corsMiddleware, (req, res) => {
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type, Authorization, X-Requested-With, Origin');
-  res.sendStatus(204);
-});
+// CORS already handled above
 
 // Simple in-memory rate limiter (no external dependencies)
 const rateLimitStore = new Map();
@@ -171,7 +160,16 @@ app.use('/api/marketplace', require('./marketplace'));
 app.use('/api/coupons', require('./coupons'));
 app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
+const errorHandlers = require('./errors');
+app.post('/api/report-error', errorHandlers.handleReportError);
+app.post('/api/log-error', errorHandlers.handleLogError);
+app.get('/api/error-logs', errorHandlers.handleGetLogs);
+app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
+app.use('/api/telemetry', require('./telemetry'));
 app.use('/api/referrals', require('./referrals'));
+app.use('/api/feed', require('./feed'));
+app.use('/api/promoshare', require('./promoshare'));
+app.use('/api/relays', require('./relays'));
 
 app.get('/api/referrals/stats', (req, res) => {
   res.json({

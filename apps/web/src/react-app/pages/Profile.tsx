@@ -140,6 +140,18 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [offerHolding, setOfferHolding] = useState<ContentHolding | null>(null);
 
+  // Derived state to securely check if we are viewing the logged-in user's profile
+  const isOwnProfile = useMemo(() => {
+    // If strict public view is enforced, never show private controls/data
+    if (isPublicProfile) return false;
+
+    // If no user loaded or no auth user, not own profile
+    if (!user || !authUser) return false;
+
+    // Strict ID check
+    return String(user.id) === String(authUser.id);
+  }, [isPublicProfile, user, authUser]);
+
   // Define fetch callbacks before useEffect hooks that depend on them
   const fetchUserContent = useCallback(async (userId: string | null) => {
     if (isPublicProfile || !userId) {
@@ -573,7 +585,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
             </div>
 
             {/* Edit Button */}
-            {!isPublicProfile && (
+            {isOwnProfile && (
               <button
                 onClick={() => setShowEditProfileModal(true)}
                 className="lg:mb-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-medium flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl self-start lg:self-auto"
@@ -686,7 +698,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
             <div className="space-y-8">
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {!isPublicProfile && completeUser && (
+                {isOwnProfile && completeUser && (
                   <div className="bg-pr-surface-card rounded-2xl p-6 border border-pr-surface-3">
                     <div className="flex items-center justify-between">
                       <div>
@@ -766,7 +778,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
               </div>
 
               {/* Influence Rewards - Only show for own profile */}
-              {!isPublicProfile && (
+              {isOwnProfile && (
                 <div className="bg-pr-surface-card border border-pr-surface-3 rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -803,7 +815,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
               )}
 
               {/* Referral Program - Only show for own profile */}
-              {!isPublicProfile && (
+              {isOwnProfile && (
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-purple-900">Referral Program</h3>
@@ -838,7 +850,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
               <PublicHoldingsSection
                 holdings={publicHoldings}
-                isOwner={!isPublicProfile || (authUser && user && authUser.id === user.id)}
+                isOwner={isOwnProfile}
                 onOffer={openOfferModal}
                 onView={(holding) => navigate(`/portfolio/holdings/${holding.content_id}`)}
               />
@@ -876,7 +888,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
                           <span className="text-sm font-medium text-pr-text-2 capitalize">{content.platform}</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          {!isPublicProfile && (
+                          {isOwnProfile && (
                             <>
                               <Tooltip content="Edit content" compact={true}>
                                 <button
@@ -939,7 +951,7 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-pr-text-1">Drops You Created</h3>
-                {!isPublicProfile && user && user.user_type === 'advertiser' && (
+                {isOwnProfile && user && user.user_type === 'advertiser' && (
                   <Link
                     to="/earn?create=proof"
                     className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"

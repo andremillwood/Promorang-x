@@ -16,6 +16,7 @@ import {
   Settings as SettingsIcon,
   BarChart3,
   CalendarDays,
+  Ticket,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -170,6 +171,17 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     href: '/leaderboard',
     icon: Trophy,
     description: 'Top performers',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'community',
+  },
+  {
+    name: 'PromoShare',
+    href: '/promoshare',
+    icon: Ticket,
+    description: 'Win weekly prizes',
     requiresAuth: true,
     showInSidebar: true,
     showInMobile: true,

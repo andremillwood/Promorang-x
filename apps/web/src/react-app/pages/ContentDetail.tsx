@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Heart,
-  MessageCircle,
-  Share2,
-  Eye,
   ArrowLeft,
   ExternalLink,
   Calendar,
@@ -18,9 +14,15 @@ import {
   Repeat,
   Tag,
   Sparkles,
-  Star,
-  Flame
+  Heart,
+  MessageCircle,
+  Share2,
+  Eye,
+  BarChart2,
+  Activity
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import UserLink from '@/react-app/components/UserLink';
 import type { ContentPieceType, WalletType, UserType } from '../../shared/types';
 import BuySharesModal from '@/react-app/components/BuySharesModal';
@@ -36,6 +38,23 @@ import TipModal from '@/react-app/components/TipModal';
 import { buildAuthHeaders } from '@/react-app/utils/api';
 import { API_BASE_URL } from '../config';
 
+interface ExtendedContentPieceType extends ContentPieceType {
+  creator_name?: string;
+  views_count?: number;
+  likes_count?: number;
+  comments_count?: number;
+  reposts_count?: number;
+  engagement_shares_total?: number;
+  engagement_shares_remaining?: number;
+  current_revenue?: number;
+  share_price?: number;
+  available_shares?: number;
+  total_shares?: number;
+  is_demo?: boolean;
+  is_sponsored?: boolean;
+  [key: string]: any;
+}
+
 const fallbackImages = [
   'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80&sat=-10',
   'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80&sat=-10',
@@ -49,7 +68,7 @@ const getFallbackImage = (seed: number | string | undefined) => {
   return `${fallbackImages[index]}&sig=${seed ?? index}`;
 };
 
-const buildFallbackContent = (seed: number): ContentPieceType => ({
+const buildFallbackContent = (seed: number): ExtendedContentPieceType => ({
   id: seed,
   creator_id: 1000 + seed,
   creator_username: 'demo_creator',
@@ -82,7 +101,7 @@ const buildFallbackContent = (seed: number): ContentPieceType => ({
   updated_at: new Date().toISOString(),
 });
 
-const normalizeContent = (raw: any, seed: number): ContentPieceType => {
+const normalizeContent = (raw: any, seed: number): ExtendedContentPieceType => {
   const fallback = buildFallbackContent(seed);
 
   if (!raw || typeof raw !== 'object') {
@@ -94,11 +113,11 @@ const normalizeContent = (raw: any, seed: number): ContentPieceType => {
     typeof raw.performance_metrics === 'string'
       ? raw.performance_metrics
       : JSON.stringify({
-          impressions: raw.impressions ?? fallback.views_count ?? 0,
-          clicks: raw.clicks ?? 0,
-          conversions: raw.conversions ?? 0,
-          engagement_rate: raw.engagement_rate ?? 0.07,
-        });
+        impressions: raw.impressions ?? fallback.views_count ?? 0,
+        clicks: raw.clicks ?? 0,
+        conversions: raw.conversions ?? 0,
+        engagement_rate: raw.engagement_rate ?? 0.07,
+      });
 
   const mediaUrl = raw.media_url && /^https?:\/\//i.test(raw.media_url)
     ? raw.media_url
@@ -148,7 +167,7 @@ export default function ContentDetail() {
   const navigate = useNavigate();
   const apiBase = API_BASE_URL || '';
   const withApiBase = (path: string) => `${apiBase}${path}`;
-  const [content, setContent] = useState<ContentPieceType | null>(null);
+  const [content, setContent] = useState<ExtendedContentPieceType | null>(null);
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
   const [metrics, setMetrics] = useState<any>(null);
@@ -166,8 +185,8 @@ export default function ContentDetail() {
 
   // Check if this is demo content
   const isDemo = content?.title?.toLowerCase().includes('[demo]') ||
-                 content?.title?.toLowerCase().includes('demo') ||
-                 content?.description?.toLowerCase().includes('demo');
+    content?.title?.toLowerCase().includes('demo') ||
+    content?.description?.toLowerCase().includes('demo');
 
   // Check if current user owns this content
   const isOwner = userData && content && (
@@ -690,137 +709,173 @@ export default function ContentDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Content Card */}
-          <div className={`bg-pr-surface-card rounded-xl border overflow-hidden ${
-            isDemo ? 'border-orange-300 bg-orange-50/30' : content.is_sponsored ? 'ring-2 ring-orange-200 ring-opacity-50' : 'border-pr-surface-3'
-          }`}>
-            {/* Demo Banner */}
-            {isDemo && (
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
-                <div className="flex items-center justify-center space-x-2 text-sm font-medium">
-                  <span>🧪</span>
-                  <span>DEMO CONTENT - No real value transfers</span>
-                  <span>🧪</span>
-                </div>
-              </div>
-            )}
-
-            {/* Sponsored Banner */}
-            {content.is_sponsored && !isDemo && (
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
-                <div className="flex items-center justify-center space-x-2 text-sm font-medium">
-                  <Tag className="w-4 h-4" />
-                  <span>SPONSORED CONTENT</span>
-                  <Tag className="w-4 h-4" />
-                </div>
-              </div>
-            )}
-
-            {/* Creator Header */}
-            <div className="p-6 pb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl">
-                  {getPlatformIcon(content.platform)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <UserLink
-                      username={content.creator_name}
-                      displayName={content.creator_name || 'Creator'}
-                      avatarUrl={content.creator_avatar}
-                      className="font-semibold text-pr-text-1 hover:text-orange-600 transition-colors"
-                      showAvatar={false}
-                    />
-                    <div className="flex items-center space-x-2">
-                      {isOwner && (
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
-                          YOUR CONTENT
-                        </span>
-                      )}
-                      {isDemo && (
-                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
-                          DEMO
-                        </span>
-                      )}
-                      <span className="text-sm text-pr-text-2 capitalize">{content.platform}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-pr-text-2">2 hours ago</p>
-                </div>
-              </div>
+          <Tabs defaultValue="overview" className="w-full">
+            <div className="mb-6 border-b border-pr-border">
+              <TabsList className="w-full justify-start bg-transparent p-0 h-auto space-x-6 overflow-x-auto no-scrollbar">
+                <TabsTrigger
+                  value="overview"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-4 py-3 whitespace-nowrap"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger
+                  value="engagement"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-4 py-3 whitespace-nowrap"
+                >
+                  Engagement
+                </TabsTrigger>
+                <TabsTrigger
+                  value="analytics"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-4 py-3 whitespace-nowrap"
+                >
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger
+                  value="community"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-4 py-3 whitespace-nowrap"
+                >
+                  Community
+                </TabsTrigger>
+                {(sponsorshipData || (userData?.user_type === 'advertiser' && !isOwner)) && (
+                  <TabsTrigger
+                    value="sponsorship"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 data-[state=active]:text-purple-600 px-4 py-3 whitespace-nowrap"
+                  >
+                    Sponsorship
+                  </TabsTrigger>
+                )}
+              </TabsList>
             </div>
 
-            {/* Content Image */}
-            {content.media_url && (
-              <div className="relative">
-                <img
-                  src={content.media_url}
-                  alt={content.title}
-                  className="w-full h-96 object-cover"
-                />
+            <TabsContent value="overview" className="space-y-6">
+              {/* Content Card */}
+              <div className={`bg-pr-surface-card rounded-xl border overflow-hidden ${isDemo ? 'border-orange-300 bg-orange-50/30' : content.is_sponsored ? 'ring-2 ring-orange-200 ring-opacity-50' : 'border-pr-surface-3'
+                }`}>
+                {/* Demo Banner */}
+                {isDemo && (
+                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-2 text-sm font-medium">
+                      <span>🧪</span>
+                      <span>DEMO CONTENT - No real value transfers</span>
+                      <span>🧪</span>
+                    </div>
+                  </div>
+                )}
+                {/* Sponsored Banner */}
+                {content.is_sponsored && !isDemo && (
+                  <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
+                    <div className="flex items-center justify-center space-x-2 text-sm font-medium">
+                      <Tag className="w-4 h-4" />
+                      <span>SPONSORED CONTENT</span>
+                      <Tag className="w-4 h-4" />
+                    </div>
+                  </div>
+                )}
+                {/* Creator Header */}
+                <div className="p-6 pb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl">
+                      {getPlatformIcon(content.platform)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <UserLink
+                          username={content.creator_name}
+                          displayName={content.creator_name || 'Creator'}
+                          avatarUrl={content.creator_avatar}
+                          className="font-semibold text-pr-text-1 hover:text-orange-600 transition-colors"
+                          showAvatar={false}
+                        />
+                        <div className="flex items-center space-x-2">
+                          {isOwner && (
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                              YOUR CONTENT
+                            </span>
+                          )}
+                          {isDemo && (
+                            <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
+                              DEMO
+                            </span>
+                          )}
+                          <span className="text-sm text-pr-text-2 capitalize">{content.platform}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-pr-text-2">Posted on {new Date(content.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* Content Image */}
+                {content.media_url && (
+                  <div className="relative group">
+                    <img
+                      src={content.media_url}
+                      alt={content.title}
+                      className="w-full h-96 object-cover"
+                    />
+                    <a
+                      href={content.platform_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute bottom-4 right-4 bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center space-x-2"
+                    >
+                      <span>View Original</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
+                {/* Content Details */}
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-pr-text-1 mb-3">{content.title}</h2>
+                  {content.description && (
+                    <p className="text-pr-text-1 leading-relaxed text-base">{content.description}</p>
+                  )}
+                </div>
               </div>
-            )}
 
-            {/* Content Details */}
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-pr-text-1 mb-3">{content.title}</h2>
+              {/* External Move Button */}
+              <div className="mb-6">
+                <Tooltip content="Perform actions on the original platform for 10x points!" position="top">
+                  <button
+                    onClick={() => setExternalMoveModalOpen(true)}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    <span className="text-2xl">🚀</span>
+                    <div className="text-left">
+                      <span className="block text-lg font-bold">Perform External Move</span>
+                      <span className="text-sm opacity-90">Engage on {content.platform} for 10x Points Reward!</span>
+                    </div>
+                  </button>
+                </Tooltip>
+              </div>
 
-              {content.description && (
-                <p className="text-pr-text-1 mb-6 leading-relaxed">{content.description}</p>
-              )}
-
-              {/* Real Engagement Stats */}
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-1 text-red-500 mb-1">
-                    <Heart className="w-5 h-5" />
-                  </div>
-                  <p className="text-lg font-bold text-pr-text-1">{formatNumber(engagementMetrics.likes)}</p>
-                  <p className="text-sm text-pr-text-2">Likes</p>
+              {/* Quick High-Level Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-pr-surface-card p-4 rounded-xl border border-pr-surface-3 flex flex-col items-center">
+                  <Eye className="w-5 h-5 text-pr-text-2 mb-2" />
+                  <span className="text-xl font-bold text-pr-text-1">{formatNumber(engagementMetrics.views || content.views_count)}</span>
+                  <span className="text-xs text-pr-text-2">Total Views</span>
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-1 text-blue-500 mb-1">
-                    <MessageCircle className="w-5 h-5" />
-                  </div>
-                  <p className="text-lg font-bold text-pr-text-1">{formatNumber(engagementMetrics.comments)}</p>
-                  <p className="text-sm text-pr-text-2">Comments</p>
+                <div className="bg-pr-surface-card p-4 rounded-xl border border-pr-surface-3 flex flex-col items-center">
+                  <Heart className="w-5 h-5 text-red-500 mb-2" />
+                  <span className="text-xl font-bold text-pr-text-1">{formatNumber(engagementMetrics.likes || content.likes_count)}</span>
+                  <span className="text-xs text-pr-text-2">Likes</span>
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-1 text-green-500 mb-1">
-                    <Share2 className="w-5 h-5" />
-                  </div>
-                  <p className="text-lg font-bold text-pr-text-1">{formatNumber(engagementMetrics.shares)}</p>
-                  <p className="text-sm text-pr-text-2">Shares</p>
+                <div className="bg-pr-surface-card p-4 rounded-xl border border-pr-surface-3 flex flex-col items-center">
+                  <Activity className="w-5 h-5 text-green-500 mb-2" />
+                  <span className="text-xl font-bold text-pr-text-1">{(engagementMetrics.engagement_rate || 8.7) + '%'}</span>
+                  <span className="text-xs text-pr-text-2">Engagement Rate</span>
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-1 text-purple-500 mb-1">
-                    <Eye className="w-5 h-5" />
-                  </div>
-                  <p className="text-lg font-bold text-pr-text-1">{formatNumber(engagementMetrics.views)}</p>
-                  <p className="text-sm text-pr-text-2">Views</p>
+                <div className="bg-pr-surface-card p-4 rounded-xl border border-pr-surface-3 flex flex-col items-center">
+                  <Coins className="w-5 h-5 text-yellow-500 mb-2" />
+                  <span className="text-xl font-bold text-pr-text-1">{formatNumber(content.engagement_shares_total || 0)}</span>
+                  <span className="text-xs text-pr-text-2">Reward Pool</span>
                 </div>
               </div>
 
-              {/* Move Activity Stats */}
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                <h4 className="font-medium text-blue-900 mb-3">Platform Activity</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-blue-900">{engagementMetrics.internal_moves || 0}</p>
-                    <p className="text-xs text-blue-700">Internal Moves</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-purple-900">{engagementMetrics.external_moves || 0}</p>
-                    <p className="text-xs text-purple-700">External Moves</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Enhanced Engagement Shares Display */}
+              {/* Engagement Shares Display */}
               {content.engagement_shares_total > 0 && (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
@@ -838,7 +893,6 @@ export default function ContentDetail() {
                       <div className="text-sm text-green-500">remaining</div>
                     </div>
                   </div>
-
                   {/* Progress Bar */}
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
@@ -857,7 +911,6 @@ export default function ContentDetail() {
                     </div>
                   </div>
 
-                  {/* Engagement Tips */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="flex items-center space-x-2 text-sm text-green-700">
                       <Heart className="w-4 h-4" />
@@ -874,68 +927,65 @@ export default function ContentDetail() {
                   </div>
                 </div>
               )}
+            </TabsContent>
 
-              {/* External Move Button - Most Prominent */}
-              <div className="mb-6">
-                <Tooltip content="Perform actions on the original platform for 10x points!" position="top">
-                  <button
-                    onClick={() => setExternalMoveModalOpen(true)}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    <span className="text-xl">🚀</span>
-                    <span>Perform External Move</span>
-                    <span className="bg-pr-surface-card/20 px-3 py-1 rounded-full text-sm font-bold">10x Points!</span>
-                  </button>
-                </Tooltip>
-              </div>
-
+            <TabsContent value="engagement" className="space-y-6">
               {/* Quick Internal Actions */}
-              <div className="bg-pr-surface-2 rounded-xl p-4 mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-pr-text-2 uppercase tracking-wide">Quick Actions</span>
-                  <span className="text-xs text-gray-400">Reduced points</span>
+              <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold text-pr-text-1">Quick Actions</span>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Internal (Reduced Points)</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     {
                       action: 'like',
                       icon: Heart,
-                      color: userStatus.has_liked ? 'text-red-500 bg-red-50' : 'hover:text-red-500',
-                      disabled: userStatus.has_liked
+                      color: userStatus.has_liked ? 'text-red-500 bg-red-50 ring-2 ring-red-100' : 'hover:text-red-500',
+                      disabled: userStatus.has_liked,
+                      label: 'Like'
                     },
-                    { action: 'comment', icon: MessageCircle, color: 'hover:text-blue-500', disabled: false },
-                    { action: 'repost', icon: Repeat, color: 'hover:text-purple-500', disabled: false },
+                    {
+                      action: 'comment',
+                      icon: MessageCircle,
+                      color: 'hover:text-blue-500',
+                      disabled: false,
+                      label: 'Comment'
+                    },
+                    {
+                      action: 'repost',
+                      icon: Repeat,
+                      color: 'hover:text-purple-500',
+                      disabled: false,
+                      label: 'Repost'
+                    },
                     {
                       action: 'save',
                       icon: Bookmark,
-                      color: userStatus.has_saved ? 'text-yellow-500 bg-yellow-50' : 'hover:text-yellow-500',
-                      disabled: userStatus.has_saved
+                      color: userStatus.has_saved ? 'text-yellow-500 bg-yellow-50 ring-2 ring-yellow-100' : 'hover:text-yellow-500',
+                      disabled: userStatus.has_saved,
+                      label: 'Save'
                     }
-                  ].map(({ action, icon: Icon, color, disabled }) => (
+                  ].map(({ action, icon: Icon, color, disabled, label }) => (
                     <Tooltip
                       key={action}
                       content={
                         disabled && action === 'like' ? 'Already liked!' :
-                        disabled && action === 'save' ? 'Already saved!' :
-                        `+${getPointsForAction(action)} points`
+                          disabled && action === 'save' ? 'Already saved!' :
+                            `+${getPointsForAction(action)} points`
                       }
-                      compact={true}
                     >
                       <button
                         onClick={() => handleSocialAction(action)}
                         disabled={disabled}
-                        className={`flex flex-col items-center p-3 rounded-lg transition-colors hover:bg-pr-surface-card ${color} ${
-                          disabled ? 'cursor-not-allowed opacity-75' : ''
-                        }`}
+                        className={`flex flex-col items-center justify-center p-4 rounded-xl border border-pr-surface-3 transition-all hover:shadow-md ${color} ${disabled ? 'cursor-not-allowed opacity-75' : 'hover:border-transparent'
+                          }`}
                       >
-                        <Icon className={`w-5 h-5 mb-1 ${
-                          userStatus.has_liked && action === 'like' ? 'fill-current' : ''
-                        } ${
-                          userStatus.has_saved && action === 'save' ? 'fill-current' : ''
-                        }`} />
-                        <span className="text-xs text-pr-text-2 capitalize">{action}</span>
-                        <span className="text-xs text-green-600 font-medium">
-                          {disabled ? (action === 'like' ? '✓' : action === 'save' ? '✓' : `+${getPointsForAction(action)}`) : `+${getPointsForAction(action)}`}
+                        <Icon className={`w-6 h-6 mb-2 ${(userStatus.has_liked && action === 'like') || (userStatus.has_saved && action === 'save') ? 'fill-current' : ''
+                          }`} />
+                        <span className="font-medium text-pr-text-1">{label}</span>
+                        <span className="text-xs text-green-600 font-bold mt-1">
+                          {disabled ? 'Done' : `+${getPointsForAction(action)} Pts`}
                         </span>
                       </button>
                     </Tooltip>
@@ -943,262 +993,288 @@ export default function ContentDetail() {
                 </div>
               </div>
 
-              {/* Platform Link */}
-              <div className="pt-4 border-t border-pr-border">
-                <a
-                  href={content.platform_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>View on {content.platform}</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Analytics */}
-          <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
-            <h3 className="text-lg font-semibold text-pr-text-1 mb-4">Performance Analytics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">Engagement Rate</span>
-                </div>
-                <p className="text-xl font-bold text-green-900">8.7%</p>
-                <p className="text-xs text-green-600">+2.3% from avg</p>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Calendar className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">Growth Rate</span>
-                </div>
-                <p className="text-xl font-bold text-blue-900">15.2%</p>
-                <p className="text-xs text-blue-600">Last 24 hours</p>
-              </div>
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <DollarSign className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">Revenue/View</span>
-                </div>
-                <p className="text-xl font-bold text-purple-900">$0.0032</p>
-                <p className="text-xs text-purple-600">Industry avg: $0.0028</p>
-              </div>
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Users className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm font-medium text-orange-800">Reach</span>
-                </div>
-                <p className="text-xl font-bold text-orange-900">1.2M</p>
-                <p className="text-xs text-orange-600">Unique users</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Comments Section */}
-          <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
-            <CommentSystem
-              contentId={content.id}
-              currentUser={userData}
-              isOwner={isOwner || false}
-            />
-          </div>
-        </div>
-
-        {/* Investment Sidebar */}
-        <div className="space-y-6">
-          {/* Enhanced Sponsorship Status */}
-          {sponsorshipData && (
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4">
-              <div className="flex items-center space-x-2 mb-3">
-                <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="font-semibold text-purple-900">Sponsored Content</span>
-                {sponsorshipData.sponsor_count > 1 && (
-                  <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium">
-                    {sponsorshipData.sponsor_count} Sponsors
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-purple-700 mb-3">
-                This content receives {sponsorshipData.total_boost_multiplier || sponsorshipData.boost_multiplier}x visibility boost
-                {sponsorshipData.sponsor_count > 1 && ' from multiple sponsors'}
-              </p>
-
-              {/* Sponsor Information */}
-              <div className="space-y-2">
-                {sponsorshipData.sponsor_names && sponsorshipData.sponsor_names.length > 0 ? (
-                  <div className="text-sm text-purple-700">
-                    <span className="font-medium">Sponsored by:</span>
-                    <div className="mt-1">
-                      {sponsorshipData.sponsor_names.slice(0, 3).map((name: string, index: number) => (
-                        <span key={index} className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium mr-2 mb-1">
-                          {name}
-                        </span>
-                      ))}
-                      {sponsorshipData.sponsor_names.length > 3 && (
-                        <span className="text-xs text-purple-600">
-                          +{sponsorshipData.sponsor_names.length - 3} more
-                        </span>
-                      )}
+              {/* Detailed Engagement Metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Social Activity */}
+                <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
+                  <h3 className="font-semibold text-pr-text-1 mb-4 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-500" />
+                    Community Stats
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-pr-surface-2 rounded-lg">
+                      <span className="text-pr-text-2">Likes</span>
+                      <span className="font-bold text-pr-text-1">{formatNumber(engagementMetrics.likes)}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-pr-surface-2 rounded-lg">
+                      <span className="text-pr-text-2">Comments</span>
+                      <span className="font-bold text-pr-text-1">{formatNumber(engagementMetrics.comments)}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-pr-surface-2 rounded-lg">
+                      <span className="text-pr-text-2">Shares</span>
+                      <span className="font-bold text-pr-text-1">{formatNumber(engagementMetrics.shares)}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-pr-surface-2 rounded-lg">
+                      <span className="text-pr-text-2">Reposts</span>
+                      <span className="font-bold text-pr-text-1">{formatNumber(content.reposts_count || 0)}</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-sm text-purple-700">
-                    <span className="font-medium">Primary Sponsor:</span> {sponsorshipData.primary_sponsor || sponsorshipData.advertiser_name || 'Advertiser'}
-                  </div>
-                )}
+                </div>
 
-                <div className="flex items-center justify-between text-xs text-purple-600 pt-2 border-t border-purple-200">
-                  <span>{sponsorshipData.total_gems_allocated || sponsorshipData.gems_allocated} gems invested</span>
-                  <span>{sponsorshipData.sponsor_count || 1} active sponsorship{(sponsorshipData.sponsor_count || 1) !== 1 ? 's' : ''}</span>
+                {/* Move Activity */}
+                <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
+                  <h3 className="font-semibold text-pr-text-1 mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-purple-500" />
+                    Movement Stats
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                      <div className="text-center">
+                        <span className="text-3xl font-bold text-purple-700 block mb-1">{engagementMetrics.external_moves || 0}</span>
+                        <span className="text-sm font-medium text-purple-900 uppercase tracking-wide">External Moves</span>
+                        <p className="text-xs text-purple-600 mt-2">Actions taken on original platform</p>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="text-center">
+                        <span className="text-3xl font-bold text-blue-700 block mb-1">{engagementMetrics.internal_moves || 0}</span>
+                        <span className="text-sm font-medium text-blue-900 uppercase tracking-wide">Internal Moves</span>
+                        <p className="text-xs text-blue-600 mt-2">Actions taken within Promorang</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            </TabsContent>
 
-          {/* Enhanced Advertiser Sponsorship Controls */}
-          {userData?.user_type === 'advertiser' && !isOwner && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
-              <div className="flex items-center space-x-2 mb-3">
-                <Target className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-blue-900">
-                  {sponsorshipData ? 'Boost Further' : 'Sponsor This Content'}
-                </span>
-              </div>
-              <p className="text-sm text-blue-700 mb-3">
-                {sponsorshipData
-                  ? `Add your sponsorship to boost visibility even more! Multiple sponsors can collaborate to maximize reach.`
-                  : `Boost this content's visibility and reach more users. Sponsored content appears higher in feeds and gets priority placement.`
-                }
-              </p>
-              {sponsorshipData && (
-                <div className="bg-blue-100 rounded-lg p-3 mb-3">
-                  <div className="text-xs text-blue-700">
-                    <div className="flex justify-between items-center">
-                      <span>Current boost:</span>
-                      <span className="font-semibold">{sponsorshipData.total_boost_multiplier || sponsorshipData.boost_multiplier}x</span>
+            <TabsContent value="analytics" className="space-y-6">
+              <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
+                <h3 className="text-lg font-semibold text-pr-text-1 mb-4">Performance Analytics</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <TrendingUp className="w-5 h-5 text-green-600" />
+                      <span className="text-sm font-medium text-green-800">Engagement Rate</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span>Active sponsors:</span>
-                      <span className="font-semibold">{sponsorshipData.sponsor_count || 1}</span>
+                    <p className="text-xl font-bold text-green-900">8.7%</p>
+                    <p className="text-xs text-green-600">+2.3% from avg</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Calendar className="w-5 h-5 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">Growth Rate</span>
+                    </div>
+                    <p className="text-xl font-bold text-blue-900">15.2%</p>
+                    <p className="text-xs text-blue-600">Last 24 hours</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <DollarSign className="w-5 h-5 text-purple-600" />
+                      <span className="text-sm font-medium text-purple-800">Revenue/View</span>
+                    </div>
+                    <p className="text-xl font-bold text-purple-900">$0.0032</p>
+                    <p className="text-xs text-purple-600">Industry avg: $0.0028</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Users className="w-5 h-5 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-800">Reach</span>
+                    </div>
+                    <p className="text-xl font-bold text-orange-900">1.2M</p>
+                    <p className="text-xs text-orange-600">Unique users</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-pr-text-1 mb-4">Market Insights</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between p-2 border-b border-gray-200">
+                    <span className="text-pr-text-2">24h Volume</span>
+                    <span className="font-semibold text-pr-text-1">$1,247</span>
+                  </div>
+                  <div className="flex justify-between p-2 border-b border-gray-200">
+                    <span className="text-pr-text-2">Price Change</span>
+                    <span className="font-semibold text-green-600 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3" /> +7.2%
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-2 border-b border-gray-200">
+                    <span className="text-pr-text-2">Investors</span>
+                    <span className="font-semibold text-pr-text-1">23</span>
+                  </div>
+                  <div className="flex justify-between p-2">
+                    <span className="text-pr-text-2">ROI Potential</span>
+                    <span className="font-semibold text-purple-600">High</span>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="community" className="space-y-6">
+              <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
+                <CommentSystem
+                  contentId={content.id}
+                  currentUser={userData}
+                  isOwner={isOwner || false}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="sponsorship" className="space-y-6">
+              {/* Sponsorship Information */}
+              {sponsorshipData ? (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Tag className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg text-purple-900">Active Sponsorship</h4>
+                      <p className="text-sm text-purple-700">This content is currently boosted</p>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="bg-white/50 p-4 rounded-lg">
+                      <span className="text-sm text-purple-600 block">Total Investment</span>
+                      <span className="text-2xl font-bold text-purple-900">{sponsorshipData.total_gems_allocated || sponsorshipData.gems_allocated} Gems</span>
+                    </div>
+                    <div className="bg-white/50 p-4 rounded-lg">
+                      <span className="text-sm text-purple-600 block">Visibility Boost</span>
+                      <span className="text-2xl font-bold text-purple-900">{sponsorshipData.total_boost_multiplier || sponsorshipData.boost_multiplier}x</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 bg-white/50 p-4 rounded-lg">
+                    <span className="text-sm font-medium text-purple-800 block mb-2">Sponsors</span>
+                    {sponsorshipData.sponsor_names && sponsorshipData.sponsor_names.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {sponsorshipData.sponsor_names.map((name: string, index: number) => (
+                          <span key={index} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium border border-purple-200">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-purple-700">
+                        <span className="font-medium">Primary Sponsor:</span> {sponsorshipData.primary_sponsor || sponsorshipData.advertiser_name || 'Advertiser'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-12 text-center bg-pr-surface-card rounded-xl border border-dashed border-gray-300">
+                  <Tag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-gray-500">No active sponsorships</h3>
+                  <p className="text-gray-400">Be the first to sponsor this content</p>
                 </div>
               )}
-              <button
-                onClick={() => setSponsorshipModalOpen(true)}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span>{sponsorshipData ? 'Add Your Sponsorship' : 'Sponsor This Content'}</span>
-              </button>
-            </div>
-          )}
 
+              {/* Enhanced Advertiser Sponsorship Controls */}
+              {userData?.user_type === 'advertiser' && !isOwner && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Target className="w-6 h-6 text-blue-600" />
+                    <div>
+                      <h4 className="font-bold text-lg text-blue-900">
+                        {sponsorshipData ? 'Boost Further' : 'Sponsor This Content'}
+                      </h4>
+                      <p className="text-sm text-blue-700">Increase visibility and reach more users</p>
+                    </div>
+                  </div>
+
+                  <p className="text-blue-700 mb-6 bg-blue-100/50 p-4 rounded-lg border border-blue-100">
+                    {sponsorshipData
+                      ? `Add your sponsorship to boost visibility even more! Multiple sponsors can collaborate to maximize reach.`
+                      : `Boost this content's visibility and reach more users. Sponsored content appears higher in feeds and gets priority placement.`
+                    }
+                  </p>
+
+                  <button
+                    onClick={() => setSponsorshipModalOpen(true)}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+                  >
+                    <Tag className="w-5 h-5" />
+                    <span>{sponsorshipData ? 'Add Your Sponsorship' : 'Sponsor This Content'}</span>
+                  </button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div className="space-y-6">
           {/* Investment Card */}
-          <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6">
-            <h3 className="text-lg font-semibold text-pr-text-1 mb-4">Investment Details</h3>
+          <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-6 sticky top-24">
+            <h3 className="text-lg font-semibold text-pr-text-1 mb-6 pb-2 border-b border-pr-surface-3">Investment</h3>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-pr-text-2">Share Price</span>
-                <span className="text-xl font-bold text-green-600">${(content.share_price || 0).toFixed(4)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-pr-text-2">Available Shares</span>
-                <span className="font-semibold text-pr-text-1">{content.available_shares || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-pr-text-2">Total Shares</span>
-                <span className="font-semibold text-pr-text-1">{content.total_shares || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-pr-text-2">Engagement Shares</span>
-                <span className="font-semibold text-orange-600">{content.engagement_shares_remaining || 0}/{content.engagement_shares_total || 0}</span>
+                <span className="text-2xl font-bold text-green-600">${(content.share_price || 0).toFixed(4)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-pr-text-2">Current Revenue</span>
                 <span className="font-semibold text-purple-600">${(content.current_revenue || 0).toFixed(2)}</span>
               </div>
+              <div className="h-px bg-pr-surface-3 my-2"></div>
+              <div className="flex justify-between items-center">
+                <span className="text-pr-text-2">Available</span>
+                <span className="font-semibold text-pr-text-1">{content.available_shares || 0} / {content.total_shares || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-pr-text-2">Rewards</span>
+                <span className="font-semibold text-orange-600">{content.engagement_shares_remaining || 0} remaining</span>
+              </div>
             </div>
 
             <div className="space-y-3">
+              <button
+                onClick={() => setBuyModalOpen(true)}
+                disabled={content.available_shares === 0}
+                className={`w-full px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg flex items-center justify-center gap-2 ${isDemo
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                  }`}
+              >
+                <DollarSign className="w-5 h-5" />
+                {content.available_shares === 0 ? 'Sold Out' : isDemo ? 'Buy Demo Shares' : 'Buy Shares'}
+              </button>
+
               <Tooltip content={isDemo ? "Demo content - no real value transfers" : "Tip creator & boost content value"}>
                 <button
                   onClick={() => setTipModalOpen(true)}
-                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
-                    isDemo
-                      ? 'bg-orange-100 hover:bg-orange-200 text-orange-700'
-                      : 'bg-purple-100 hover:bg-purple-200 text-purple-700'
-                  }`}
+                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${isDemo
+                    ? 'bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200'
+                    : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200'
+                    }`}
                 >
                   <Gift className="w-4 h-4" />
-                  <span>{isDemo ? 'Demo Tip Creator' : 'Tip Creator'}</span>
+                  <span>{isDemo ? 'Demo Tip' : 'Tip Creator'}</span>
                 </button>
               </Tooltip>
 
               <button
-                onClick={() => setBuyModalOpen(true)}
-                disabled={content.available_shares === 0}
-                className={`w-full px-6 py-3 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-white ${
-                  isDemo
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-                }`}
-              >
-                {content.available_shares === 0 ? 'Sold Out' : isDemo ? 'Demo Shares' : 'Buy Shares'}
-              </button>
-
-              <button
                 onClick={() => navigate('/invest/social-forecasts')}
-                className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
               >
                 <Target className="w-4 h-4" />
-                <span>Make Performance Forecast</span>
+                <span>Make Forecast</span>
               </button>
 
               {isDemo && (
-                <div className="bg-orange-100 border border-orange-200 rounded-lg p-3">
-                  <p className="text-xs text-orange-700 text-center">
-                    💡 This is demo content. No real purchases or value transfers will occur.
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-orange-700 text-center flex items-center justify-center gap-1">
+                    <Sparkles className="w-3 h-3" /> Demo Mode Active
                   </p>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Market Stats */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-pr-text-1 mb-4">Market Insights</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-pr-text-2">24h Volume</span>
-                <span className="font-semibold text-pr-text-1">$1,247</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-pr-text-2">Price Change</span>
-                <span className="font-semibold text-green-600">+7.2%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-pr-text-2">Investors</span>
-                <span className="font-semibold text-pr-text-1">23</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-pr-text-2">ROI Potential</span>
-                <span className="font-semibold text-purple-600">High</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Modals */}
       {content && (
         <>
           <BuySharesModal
@@ -1282,8 +1358,9 @@ export default function ContentDetail() {
             onTip={handleTip}
           />
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 

@@ -3,6 +3,73 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { trackDropCompletion } = require('../utils/referralTracker');
 const { requireAuth } = require('../middleware/auth');
+const { ADVERTISER_TIERS, MOVE_RULES } = require('../constants/pricing');
+
+/**
+ * Check if advertiser has available Moves for the requested action.
+ * Returns { allowed: boolean, remaining: number, tier: object, error?: string }
+ */
+const checkMoveAvailability = async (userId, userTier = 'free') => {
+  const tier = ADVERTISER_TIERS[userTier] || ADVERTISER_TIERS.free;
+
+  // Enterprise has custom limits - always allow
+  if (tier.isCustom) {
+    return { allowed: true, remaining: 999, tier };
+  }
+
+  const movesLimit = tier.moves?.amount || 50;
+  const period = tier.moves?.period || 'month';
+
+  // In production, fetch from database
+  // For now, return allowed with mock data
+  if (!supabase) {
+    return { allowed: true, remaining: movesLimit, tier };
+  }
+
+  try {
+    // Calculate period start
+    const now = new Date();
+    let periodStart;
+    if (period === 'week') {
+      const dayOfWeek = now.getDay();
+      periodStart = new Date(now);
+      periodStart.setDate(now.getDate() - dayOfWeek);
+      periodStart.setHours(0, 0, 0, 0);
+    } else {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+
+    // Count moves used in current period
+    const { count, error } = await supabase
+      .from('drops')
+      .select('*', { count: 'exact', head: true })
+      .eq('creator_id', userId)
+      .gte('created_at', periodStart.toISOString());
+
+    if (error) {
+      console.error('Error checking move availability:', error);
+      // Fail open for now
+      return { allowed: true, remaining: movesLimit, tier };
+    }
+
+    const movesUsed = count || 0;
+    const movesRemaining = Math.max(0, movesLimit - movesUsed);
+
+    if (movesRemaining <= 0) {
+      return {
+        allowed: false,
+        remaining: 0,
+        tier,
+        error: `Move limit reached. You've used all ${movesLimit} Moves for this ${period}. Upgrade or wait for your next billing cycle to continue.`
+      };
+    }
+
+    return { allowed: true, remaining: movesRemaining, tier };
+  } catch (err) {
+    console.error('Error in checkMoveAvailability:', err);
+    return { allowed: true, remaining: movesLimit, tier };
+  }
+};
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -32,21 +99,206 @@ const invalidateCache = (prefix) => {
   }
 };
 
+// =====================================================
+// PUBLIC LIST ENDPOINT - No auth required (for homepage/marketing)
+// =====================================================
+router.get('/public', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 10, 20);
+
+    const cacheKey = `drops:public:list:${limit}`;
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        // Return demo drops for homepage
+        return [
+          {
+            id: 'demo-1',
+            title: 'Summer Fashion Drop',
+            description: 'Share this look with your followers',
+            preview_image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400',
+            creator_name: 'StyleCo',
+            promo_points_reward: 50,
+            current_participants: 127,
+            status: 'active'
+          },
+          {
+            id: 'demo-2',
+            title: 'Tech Review Campaign',
+            description: 'Review our latest product',
+            preview_image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400',
+            creator_name: 'TechBrand',
+            promo_points_reward: 100,
+            current_participants: 89,
+            status: 'active'
+          },
+          {
+            id: 'demo-3',
+            title: 'Local Eats Promo',
+            description: 'Share your meal experience',
+            preview_image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400',
+            creator_name: 'FoodieHub',
+            promo_points_reward: 25,
+            current_participants: 234,
+            status: 'active'
+          },
+          {
+            id: 'demo-4',
+            title: 'Fitness Challenge',
+            description: 'Join the movement',
+            preview_image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
+            creator_name: 'FitLife',
+            promo_points_reward: 75,
+            current_participants: 156,
+            status: 'active'
+          }
+        ].slice(0, limit);
+      }
+
+      const { data: drops, error } = await supabase
+        .from('drops')
+        .select(`
+          id,
+          title,
+          description,
+          preview_image,
+          creator_name,
+          gem_reward_base,
+          current_participants,
+          status,
+          created_at
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        console.error('Error fetching public drops:', error);
+        return [];
+      }
+
+      return drops.map(drop => ({
+        id: drop.id,
+        title: drop.title,
+        description: drop.description,
+        preview_image: drop.preview_image,
+        creator_name: drop.creator_name,
+        promo_points_reward: drop.gem_reward_base || 0,
+        current_participants: drop.current_participants || 0,
+        status: drop.status
+      }));
+    });
+
+    res.json(payload);
+  } catch (error) {
+    console.error('Error fetching public drops list:', error);
+    res.status(500).json({ error: 'Failed to fetch drops' });
+  }
+});
+
+// =====================================================
+// PUBLIC DETAIL ENDPOINT - No auth required (for SEO/sharing)
+// =====================================================
+router.get('/:id/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const cacheKey = `drops:public:${id}`;
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
+        return {
+          id: id,
+          title: `Special Drop #${id}`,
+          description: `This is a detailed description of drop ${id}. Complete this task to earn rewards!`,
+          preview_image: `https://images.unsplash.com/photo-1503376780200?auto=format&fit=crop&w=1200&q=80`,
+          creator_name: `Creator ${id}`,
+          creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${id}`,
+          views_count: Math.floor(Math.random() * 10000),
+          likes_count: Math.floor(Math.random() * 1000),
+          shares_count: Math.floor(Math.random() * 500),
+          promo_points_reward: Math.floor(Math.random() * 100) + 10,
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'active',
+          key_cost: Math.floor(Math.random() * 10) + 1
+        };
+      }
+
+      const { data: drop, error } = await supabase
+        .from('drops')
+        .select(`
+          id,
+          title,
+          description,
+          preview_image,
+          creator_name,
+          status,
+          gem_reward_base,
+          key_cost,
+          created_at,
+          creator:users!creator_id (
+            display_name,
+            username,
+            avatar_url
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Database error fetching public drop:', error);
+        throw new Error('Drop not found');
+      }
+
+      // Return only public-safe fields
+      return {
+        id: drop.id,
+        title: drop.title,
+        description: drop.description,
+        preview_image: drop.preview_image,
+        creator_name: drop.creator?.display_name || drop.creator?.username || drop.creator_name || 'Anonymous Creator',
+        creator_avatar: drop.creator?.avatar_url || null,
+        promo_points_reward: drop.gem_reward_base || 0,
+        key_cost: drop.key_cost || 0,
+        created_at: drop.created_at,
+        status: drop.status,
+        // These would come from analytics in a real implementation
+        views_count: 0,
+        likes_count: 0,
+        shares_count: 0
+      };
+    });
+
+    if (!payload) {
+      return res.status(404).json({ error: 'Drop not found' });
+    }
+
+    res.json(payload);
+  } catch (error) {
+    console.error('Error fetching public drop:', error);
+    if (error.message === 'Drop not found') {
+      return res.status(404).json({ error: 'Drop not found' });
+    }
+    res.status(500).json({ error: 'Failed to fetch drop' });
+  }
+});
+
+// =====================================================
+// PROTECTED ROUTES - Auth required below this line
+// =====================================================
 router.use(requireAuth);
 
 // Get all drops
 router.get('/', async (req, res) => {
   try {
-    const { limit = 10, type } = req.query;
-    const cacheKey = `drops:list:${limit}:${type || 'all'}`;
+    const { limit = 10, offset = 0, type } = req.query;
+    const cacheKey = `drops:list:${limit}:${offset}:${type || 'all'}`;
 
     const drops = await getCachedValue(cacheKey, async () => {
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
         return Array.from({ length: parseInt(limit) }, (_, i) => ({
-          id: i + 1,
+          id: i + parseInt(offset) + 1,
           creator_id: Math.floor(Math.random() * 100) + 1,
-          creator_name: `Drop Creator ${i + 1}`,
-          creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${i + 1}`,
+          creator_name: `Drop Creator ${i + parseInt(offset) + 1}`,
+          creator_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=creator${i + parseInt(offset) + 1}`,
           title: `Earn ${Math.floor(Math.random() * 100) + 10} Gems - ${['Instagram Post', 'TikTok Video', 'YouTube Review', 'Twitter Thread'][Math.floor(Math.random() * 4)]}`,
           description: `Complete this task to earn gems and boost your profile. ${['Share your experience', 'Create engaging content', 'Review a product', 'Participate in discussion'][Math.floor(Math.random() * 4)]} and get rewarded!`,
           drop_type: ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral'][Math.floor(Math.random() * 4)],
@@ -65,23 +317,30 @@ router.get('/', async (req, res) => {
           current_participants: Math.floor(Math.random() * 20) + 1,
           status: Math.random() > 0.3 ? 'active' : 'completed',
           platform: ['instagram', 'tiktok', 'youtube', 'twitter'][Math.floor(Math.random() * 4)],
-          content_url: `https://example.com/drop/${i + 1}`,
-          preview_image: `https://images.unsplash.com/photo-${1503376780353 + i}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=${i + 1}`,
+          content_url: `https://example.com/drop/${i + parseInt(offset) + 1}`,
+          preview_image: i % 3 === 0 ? '/assets/demo/tiktok-drop.png' : `https://images.unsplash.com/photo-${1503376780353 + i + parseInt(offset)}?auto=format&fit=crop&w=1200&q=80&sat=-20&sig=${i + parseInt(offset) + 1}`,
           move_cost_points: Math.floor(Math.random() * 5) + 1,
           key_reward_amount: Math.floor(Math.random() * 5) + 1,
           is_proof_drop: Math.random() > 0.7,
           is_paid_drop: Math.random() > 0.5,
-          created_at: new Date(Date.now() - i * 3600000).toISOString(),
-          updated_at: new Date(Date.now() - i * 3600000).toISOString()
+          created_at: new Date(Date.now() - (i + parseInt(offset)) * 3600000).toISOString(),
+          updated_at: new Date(Date.now() - (i + parseInt(offset)) * 3600000).toISOString()
         }));
       }
 
       let query = supabase
         .from('drops')
-        .select('*')
+        .select(`
+          *,
+          creator:users!creator_id (
+            display_name,
+            username,
+            avatar_url
+          )
+        `)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(parseInt(limit));
+        .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1);
 
       if (type) {
         query = query.eq('drop_type', type);
@@ -99,7 +358,13 @@ router.get('/', async (req, res) => {
         throw new Error('Failed to fetch drops');
       }
 
-      return rows || [];
+      const processedDrops = (rows || []).map(drop => ({
+        ...drop,
+        creator_name: drop.creator?.display_name || drop.creator?.username || drop.creator_name || 'Unknown Creator',
+        creator_avatar: drop.creator?.avatar_url || drop.creator_avatar
+      }));
+
+      return processedDrops;
     });
 
     res.json(drops);
@@ -159,7 +424,14 @@ router.get('/:id', async (req, res) => {
       const queryStart = Date.now();
       const { data: drop, error } = await supabase
         .from('drops')
-        .select('*')
+        .select(`
+          *,
+          creator:users!creator_id (
+            display_name,
+            username,
+            avatar_url
+          )
+        `)
         .eq('id', id)
         .single();
       const durationMs = Date.now() - queryStart;
@@ -172,7 +444,14 @@ router.get('/:id', async (req, res) => {
         throw new Error('Drop not found');
       }
 
-      return drop;
+      // Enhance with resolved creator name
+      const processedDrop = {
+        ...drop,
+        creator_name: drop.creator?.display_name || drop.creator?.username || drop.creator_name || 'Unknown Creator',
+        creator_avatar: drop.creator?.avatar_url || drop.creator_avatar
+      };
+
+      return processedDrop;
     });
 
     if (!payload) {
@@ -276,12 +555,37 @@ router.post('/:id/apply', async (req, res) => {
       return res.status(400).json({ success: false, error: 'You have already applied to this drop' });
     }
 
+    // Economy: Check Master Key and Deduct PromoKeys
+    const economyService = require('../services/economyService');
+    const { drops: dropConfig } = economyService.CONFIG;
+
+    // 1. Check Master Key
+    if (dropConfig.access_rule?.includes('Master Key')) {
+      const masterKeyStatus = await economyService.getMasterKeyStatus(req.user.id);
+      if (!masterKeyStatus.active) {
+        return res.status(403).json({ success: false, error: 'Master Key required to apply for Drops', code: 'MASTER_KEY_REQUIRED' });
+      }
+    }
+
+    // 2. Determine Cost
+    const dropTypeConfig = dropConfig.types[drop.drop_type] || {};
+    const cost = dropTypeConfig.promokey_cost || drop.key_cost || 0; // Fallback to drop property if config missing
+
+    // 3. Spend Currency
+    if (cost > 0) {
+      try {
+        await economyService.spendCurrency(req.user.id, 'promokeys', cost, 'drop_entry', id, `Applied to drop: ${drop.title}`);
+      } catch (ecoError) {
+        return res.status(402).json({ success: false, error: ecoError.message, code: 'INSUFFICIENT_FUNDS' });
+      }
+    }
+
     // Create application
     const { data: application, error } = await supabase
       .from('drop_applications')
       .insert({
         drop_id: parseInt(id),
-        user_id: 1, // TODO: Get from authenticated user
+        user_id: req.user.id,
         status: 'pending',
         application_message
       })
@@ -349,6 +653,47 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // MOVE ENFORCEMENT: Only applies to Drops that request ENGAGEMENT actions
+    // (likes, comments, shares on campaign content)
+    // 
+    // Does NOT count as Moves:
+    // - Content creation / UGC requests
+    // - Content clipping
+    // - Reviews
+    // - Affiliate link promotion
+    // - Product promotion without engagement request
+    //
+    const engagementTypes = ['engagement', 'like', 'comment', 'share', 'follow', 'subscribe', 'view'];
+    const isEngagementDrop = engagementTypes.includes(drop_type) ||
+      (drop_type === 'social_engagement') ||
+      (req.body.requires_engagement === true);
+
+    if (isEngagementDrop) {
+      const userId = req.user?.id;
+      const userTier = req.user?.advertiser_tier || req.user?.user_tier || 'free';
+      const moveCheck = await checkMoveAvailability(userId, userTier);
+
+      if (!moveCheck.allowed) {
+        return res.status(403).json({
+          success: false,
+          error: moveCheck.error,
+          code: 'MOVE_LIMIT_REACHED',
+          movesRemaining: 0,
+          tier: userTier
+        });
+      }
+    }
+
+    // GEM ESCROW: Validate that gem_pool_total is provided for escrow
+    const escrowAmount = gem_pool_total || gem_reward_base || 0;
+    if (escrowAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Gem escrow amount (gem_pool_total) is required. All Drops must have Gems in escrow.',
+        code: 'ESCROW_REQUIRED'
+      });
+    }
+
     if (!supabase) {
       invalidateCache('drops:list');
       invalidateCache('drops:item');
@@ -375,11 +720,24 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Fetch user details for creator_name
+    let creatorName = 'Friendly Creator';
+    if (req.user && req.user.id) {
+      const { data: u } = await supabase
+        .from('users')
+        .select('display_name, username')
+        .eq('id', req.user.id)
+        .single();
+      if (u) {
+        creatorName = u.display_name || u.username;
+      }
+    }
+
     const { data: drop, error } = await supabase
       .from('drops')
       .insert({
-        creator_id: 1, // TODO: Get from authenticated user
-        creator_name: 'Demo User',
+        creator_id: req.user.id,
+        creator_name: creatorName,
         title,
         description,
         drop_type,
@@ -525,6 +883,7 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
 
     // Track referral commission if drop is approved
     if (action === 'approve' && application.user_id) {
+      const promoShareService = require('../services/promoShareService'); // Lazy load
       try {
         // Get drop details to find reward amount
         const { data: drop } = await supabase
@@ -536,9 +895,13 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
         if (drop && drop.gem_reward_base) {
           await trackDropCompletion(application.user_id, drop.gem_reward_base, dropId);
         }
+
+        // Award PromoShare Ticket
+        await promoShareService.awardTicket(application.user_id, 'drop_completion', dropId);
+
       } catch (referralError) {
-        console.error('Error tracking referral commission:', referralError);
-        // Don't fail the request if referral tracking fails
+        console.error('Error tracking referral/ticket:', referralError);
+        // Don't fail the request
       }
     }
 

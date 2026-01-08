@@ -10,7 +10,7 @@ type ViewMode = 'grid' | 'list';
 type FilterTab = 'all' | 'upcoming' | 'featured' | 'my-events';
 
 export default function Events() {
-    const { user } = useAuth();
+    const { user, isLoading: authLoading } = useAuth(); // Use isLoading from auth
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -24,13 +24,22 @@ export default function Events() {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
+        // If trying to access protected tab without user, default to 'all'
+        if (activeTab === 'my-events' && !user && !authLoading) {
+            setActiveTab('all');
+        }
         fetchEvents();
-    }, [activeTab]);
+    }, [activeTab, user, authLoading]);
 
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            if (activeTab === 'my-events' && user) {
+            if (activeTab === 'my-events') {
+                if (!user) {
+                    setMyEvents([]);
+                    setEvents([]);
+                    return;
+                }
                 const [created, rsvps] = await Promise.all([
                     eventsService.getMyCreatedEvents(),
                     eventsService.getMyRsvps(),
@@ -116,8 +125,8 @@ export default function Events() {
                                 key={tab.key}
                                 onClick={() => handleTabChange(tab.key as FilterTab)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm whitespace-nowrap transition-all ${activeTab === tab.key
-                                        ? 'bg-purple-500 text-white shadow-lg'
-                                        : 'bg-pr-surface-card text-pr-text-2 hover:bg-pr-surface-3'
+                                    ? 'bg-purple-500 text-white shadow-lg'
+                                    : 'bg-pr-surface-card text-pr-text-2 hover:bg-pr-surface-3'
                                     }`}
                             >
                                 {tab.icon}
@@ -143,13 +152,20 @@ export default function Events() {
                             </button>
                         </div>
 
-                        {user && (
+                        {user ? (
                             <button
                                 onClick={() => navigate('/events/create')}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition-all"
                             >
                                 <Plus className="w-4 h-4" />
                                 Create Event
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/auth?redirect=/events/create')}
+                                className="flex items-center gap-2 px-4 py-2 bg-pr-surface-card text-pr-text-1 border border-pr-border rounded-lg font-medium hover:bg-pr-surface-3 transition-all"
+                            >
+                                Sign In to Create
                             </button>
                         )}
                     </div>

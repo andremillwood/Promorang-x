@@ -14,7 +14,7 @@ const slugify = (value = '') =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    || 'category';
+  || 'category';
 
 const demoCategories = [
   {
@@ -100,10 +100,10 @@ async function createStore(userId, storeData) {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     // Check for uniqueness
     while (true) {
       const { data: existing } = await supabase
@@ -111,7 +111,7 @@ async function createStore(userId, storeData) {
         .select('id')
         .eq('store_slug', slug)
         .single();
-      
+
       if (!existing) break;
       slug = `${baseSlug}-${counter}`;
       counter++;
@@ -159,14 +159,14 @@ async function getStore(identifier) {
 
   try {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
-    
+
     const query = supabase
       .from('merchant_stores')
       .select(`
         *,
         users!merchant_stores_user_id_fkey(username, display_name, profile_image)
       `);
-    
+
     const { data, error } = isUUID
       ? await query.eq('id', identifier).single()
       : await query.eq('store_slug', identifier).single();
@@ -207,10 +207,10 @@ async function createProduct(storeId, productData) {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     while (true) {
       const { data: existing } = await supabase
         .from('products')
@@ -218,7 +218,7 @@ async function createProduct(storeId, productData) {
         .eq('store_id', storeId)
         .eq('slug', slug)
         .single();
-      
+
       if (!existing) break;
       slug = `${baseSlug}-${counter}`;
       counter++;
@@ -279,15 +279,15 @@ async function getProducts(filters = {}) {
       .from('products')
       .select(`
         *,
-        merchant_stores!products_store_id_fkey(store_name, store_slug, logo_url),
-        product_categories(name, slug)
+        merchant_stores!products_store_id_fkey(id, store_name, store_slug, logo_url, rating),
+        product_categories(id, name, slug)
       `, { count: 'exact' });
 
     if (store_id) query = query.eq('store_id', store_id);
     if (category_id) query = query.eq('category_id', category_id);
     if (status) query = query.eq('status', status);
     if (is_featured !== undefined) query = query.eq('is_featured', is_featured);
-    
+
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
@@ -299,8 +299,15 @@ async function getProducts(filters = {}) {
 
     if (error) throw error;
 
+    const productsWithImages = (data || []).map((product, index) => ({
+      ...product,
+      images: (product.images && product.images.length > 0)
+        ? product.images
+        : [index % 2 === 0 ? '/assets/demo/streetwear-hoodie.png' : '/assets/demo/headphones.png']
+    }));
+
     return {
-      products: data || [],
+      products: productsWithImages,
       total: count || 0,
       limit,
       offset,
@@ -512,6 +519,7 @@ async function createOrder(userId, orderData) {
         shipping_address,
         customer_notes,
         status: 'pending',
+        relay_id: orderData.relay_id || null, // Track the relay that drove this sale
       })
       .select()
       .single();
@@ -628,6 +636,13 @@ async function processPayment(orderId, userId) {
       await trackProductSale(userId, order.total_usd, orderId);
     }
 
+    // Award Market Shares (Early Supporter & Performance)
+    try {
+      await awardMarketShares(orderId, userId);
+    } catch (shareError) {
+      console.error('[Marketplace Service] Error awarding market shares:', shareError);
+    }
+
     return updatedOrder;
   } catch (error) {
     console.error('[Marketplace Service] Error processing payment:', error);
@@ -648,8 +663,8 @@ async function getProduct(productId) {
       .from('products')
       .select(
         `*,
-        merchant_stores!products_store_id_fkey(store_name, store_slug, logo_url),
-        product_categories(name, slug)
+        merchant_stores!products_store_id_fkey(id, store_name, store_slug, logo_url, rating),
+        product_categories(id, name, slug)
         `
       )
       .eq('id', productId)
@@ -716,6 +731,72 @@ async function addReview(userId, productId, reviewData) {
   } catch (error) {
     console.error('[Marketplace Service] Error adding review:', error);
     throw error;
+  }
+}
+
+/**
+ * Award Market Shares to early buyers or through relay chains
+ */
+async function awardMarketShares(orderId, userId) {
+  if (!supabase) return;
+
+  try {
+    // 1. Get order items
+    const { data: items } = await supabase
+      .from('order_items')
+      .select('product_id, quantity')
+      .eq('order_id', orderId);
+
+    if (!items || items.length === 0) return;
+
+    for (const item of items) {
+      // 3. Early Buyer Reward (First 10 distinct buyers)
+      const { count } = await supabase
+        .from('order_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('product_id', item.product_id);
+
+      if ((count || 0) <= 10) {
+        await supabase.rpc('grant_shares', {
+          p_user_id: userId,
+          p_object_type: 'product',
+          p_object_id: item.product_id,
+          p_amount: 100,
+          p_price: 0
+        });
+      }
+
+      // 4. Relay/Promoter Reward
+      if (order && order.relay_id) {
+        // Find the relayer
+        const { data: relay } = await supabase
+          .from('relays')
+          .select('relayer_user_id')
+          .eq('id', order.relay_id)
+          .single();
+
+        if (relay && relay.relayer_user_id) {
+          // Grant shares to the promoter
+          await supabase.rpc('grant_shares', {
+            p_user_id: relay.relayer_user_id,
+            p_object_type: 'product',
+            p_object_id: item.product_id,
+            p_amount: 50, // 50 shares for driving a sale
+            p_price: 0
+          });
+
+          // Also track engagement completion on the relay
+          await supabase
+            .from('relays')
+            .update({
+              downstream_completion_count: supabase.raw('downstream_completion_count + 1')
+            })
+            .eq('id', order.relay_id);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[Marketplace Service] awardMarketShares failed:', err);
   }
 }
 

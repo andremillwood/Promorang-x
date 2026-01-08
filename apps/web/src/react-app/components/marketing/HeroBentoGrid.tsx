@@ -1,28 +1,36 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+    Link
+} from 'react-router-dom';
 import {
     TrendingUp,
-    ShoppingBag,
-    Sparkles,
-    Zap,
     ArrowRight,
+    ArrowUpRight,
     Target,
-    Users,
-    Gift,
+    ShoppingBag,
     Trophy,
-    ArrowUpRight
+    Sparkles,
+    Store,
+    Gift
 } from 'lucide-react';
 import { API_BASE_URL } from '@/react-app/config';
+
+import type { PersonaType } from './PersonaSwitcher';
 
 interface BentoData {
     drops?: any;
     forecasts?: any;
     content?: any;
     products?: any;
+    coupons?: any;
+    milestones?: any;
 }
 
-export default function HeroBentoGrid() {
-    const navigate = useNavigate();
+interface HeroBentoGridProps {
+    persona: PersonaType;
+}
+
+export default function HeroBentoGrid({ persona }: HeroBentoGridProps) {
     const [data, setData] = useState<BentoData>({});
     const [loading, setLoading] = useState(true);
 
@@ -30,7 +38,7 @@ export default function HeroBentoGrid() {
         async function fetchBentoData() {
             try {
                 const [dropsRes, forecastsRes, contentRes, productsRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/api/drops?limit=1`),
+                    fetch(`${API_BASE_URL}/api/drops/public?limit=1`),
                     fetch(`${API_BASE_URL}/api/social-forecasts/public?limit=1`),
                     fetch(`${API_BASE_URL}/api/content/public?limit=1`),
                     fetch(`${API_BASE_URL}/api/marketplace/products/public?limit=1`)
@@ -71,42 +79,56 @@ export default function HeroBentoGrid() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-6 gap-4 min-h-[600px] w-full group/bento transition-all duration-500">
 
-            {/* 1. Primary Feature: Hot Drop or Content (Large) */}
+            {/* 1. Primary Feature: Adaptive based on Persona */}
             <Link
-                to={data.drops ? `/d/${data.drops.id}` : '/drops'}
+                to={
+                    persona === 'merchant' ? '/for-merchants' :
+                        persona === 'investor' ? '/portfolio' :
+                            data.drops ? `/d/${data.drops.id}` : '/drops'
+                }
                 className="md:col-span-4 md:row-span-4 bg-pr-surface-card border border-pr-border rounded-3xl overflow-hidden relative group/item hover:border-blue-500/50 transition-all shadow-xl flex flex-col"
             >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
                 <img
-                    src={data.drops?.preview_image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800'}
+                    src={
+                        persona === 'merchant' ? 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800' :
+                            persona === 'investor' ? 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800' :
+                                data.drops?.preview_image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800'
+                    }
                     className="absolute inset-0 w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-700"
                     alt=""
                 />
                 <div className="absolute top-6 left-6 z-20 flex gap-2">
                     <span className="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> Featured Drop
+                        {persona === 'merchant' ? <Store className="w-3 h-3" /> : persona === 'investor' ? <TrendingUp className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                        {persona === 'merchant' ? 'Brand Growth' : persona === 'investor' ? 'Social Alpha' : 'Featured Drop'}
                     </span>
                     <span className="bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                        Live Now
+                        {persona === 'merchant' ? 'Partner Portal' : 'Live Ecosystem'}
                     </span>
                 </div>
                 <div className="mt-auto p-8 relative z-20">
                     <h3 className="text-3xl font-black text-white mb-2 leading-tight">
-                        {data.drops?.title || "Exclusive Tech Drop"}
+                        {persona === 'merchant' ? "Scale Your Brand Influence" :
+                            persona === 'investor' ? "Trade Social Capital" :
+                                data.drops?.title || "Exclusive Tech Drop"}
                     </h3>
                     <p className="text-gray-300 mb-6 max-w-md line-clamp-2">
-                        Participate and earn up to {data.drops?.promo_points_reward || 1000} Promo Points!
+                        {persona === 'merchant' ? "Deploy high-impact campaigns and track ROI in real-time." :
+                            persona === 'investor' ? "Buy shares in viral content and predict performance for top returns." :
+                                `Participate and earn up to ${data.drops?.promo_points_reward || 1000} Promo Points!`}
                     </p>
                     <div className="flex items-center gap-2 text-white font-bold group-hover/item:gap-4 transition-all">
-                        Join the Drop <ArrowRight className="w-5 h-5" />
+                        {persona === 'merchant' ? 'Start Campaign' : persona === 'investor' ? 'Explore Market' : 'Join the Drop'} <ArrowRight className="w-5 h-5" />
                     </div>
                 </div>
             </Link>
 
-            {/* 2. Forecast Odds (Wide/Medium) */}
+            {/* 2. Forecast Odds (Wide/Medium) - Stays consistent but adapts theme */}
             <Link
                 to={data.forecasts ? `/f/${data.forecasts.id}` : '/forecasts'}
-                className="md:col-span-2 md:row-span-3 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-pr-border rounded-3xl p-6 hover:border-green-500/50 transition-all group/forecast relative overflow-hidden"
+                className={`md:col-span-2 md:row-span-3 border border-pr-border rounded-3xl p-6 transition-all group/forecast relative overflow-hidden ${persona === 'investor' ? 'bg-green-500/20 border-green-500/50' : 'bg-gradient-to-br from-green-500/10 to-emerald-500/10 hover:border-green-500/50'
+                    }`}
             >
                 <div className="absolute top-[-20px] right-[-20px] opacity-10 group-hover/forecast:opacity-20 transition-opacity">
                     <TrendingUp className="w-32 h-32 text-green-500" />
@@ -115,7 +137,9 @@ export default function HeroBentoGrid() {
                     <div className="p-2 bg-green-500 rounded-lg text-white">
                         <Target className="w-4 h-4" />
                     </div>
-                    <span className="text-xs font-bold text-green-500 uppercase tracking-widest">Active Forecast</span>
+                    <span className="text-xs font-bold text-green-500 uppercase tracking-widest">
+                        {persona === 'investor' ? 'High Yield Alpha' : 'Active Forecast'}
+                    </span>
                 </div>
                 <h4 className="text-lg font-bold text-pr-text-1 mb-2 line-clamp-2 leading-snug">
                     {data.forecasts?.content_title || "Will Tech Channel hit 1M views?"}
@@ -134,16 +158,19 @@ export default function HeroBentoGrid() {
                 </div>
             </Link>
 
-            {/* 3. Marketplace Teaser (Small) */}
+            {/* 3. Marketplace Teaser (Small) - Focus on Coupons for Shoppers */}
             <Link
                 to={data.products ? `/p/${data.products.id}` : '/marketplace'}
-                className="md:col-span-2 md:row-span-3 bg-pr-surface-card border border-pr-border rounded-3xl p-6 hover:border-purple-500/50 transition-all flex flex-col"
+                className={`md:col-span-2 md:row-span-3 bg-pr-surface-card border border-pr-border rounded-3xl p-6 hover:border-purple-500/50 transition-all flex flex-col ${persona === 'shopper' ? 'border-yellow-500/30' : ''
+                    }`}
             >
                 <div className="flex items-center justify-between mb-4">
                     <div className="p-2 bg-purple-500 rounded-lg text-white">
                         <ShoppingBag className="w-4 h-4" />
                     </div>
-                    <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">Hot Product</span>
+                    <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">
+                        {persona === 'shopper' ? 'Exclusive Deal' : 'Hot Product'}
+                    </span>
                 </div>
                 <div className="flex-1 flex flex-col">
                     <div className="w-full aspect-square bg-pr-surface-background rounded-xl mb-4 overflow-hidden relative">
@@ -153,11 +180,13 @@ export default function HeroBentoGrid() {
                             alt=""
                         />
                         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded">
-                            ${data.products?.price || '49.99'}
+                            {persona === 'shopper' ? '30% OFF' : `$${data.products?.price || '49.99'}`}
                         </div>
                     </div>
                     <h4 className="font-bold text-pr-text-1 text-sm line-clamp-1 truncate">{data.products?.name || "Premium Headphones"}</h4>
-                    <p className="text-[10px] text-pr-text-muted mt-1 uppercase tracking-wider font-medium">Redeem with Points</p>
+                    <p className="text-[10px] text-pr-text-muted mt-1 uppercase tracking-wider font-medium">
+                        {persona === 'shopper' ? 'Claim with Points' : 'Redeem with Points'}
+                    </p>
                 </div>
             </Link>
 
