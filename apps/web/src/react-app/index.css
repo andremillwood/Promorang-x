@@ -23,7 +23,7 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    
+
     /* Border and input */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
@@ -43,17 +43,17 @@
     --pr-surface-1: #ffffff;
     --pr-surface-2: #f8f9fa;
     --pr-surface-3: #f1f3f5;
-    
+
     /* Text tokens */
     --pr-text-primary: #1a1a1a;
     --pr-text-secondary: #6b7280;
     --pr-text-tertiary: #9ca3af;
     --pr-text-1: #1a1a1a;
     --pr-text-2: #6b7280;
-    
+
     /* Border tokens */
     --pr-border: #e5e7eb;
-    
+
     /* Shadow tokens */
     --pr-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --pr-shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -80,7 +80,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 11%;
     --input: 0 0% 11%;
-    
+
     /* Surface tokens */
     --pr-surface-0: #080808;
     --pr-surface-background: #0D0D0D;
@@ -89,17 +89,17 @@
     --pr-surface-1: #0D0D0D;
     --pr-surface-2: #141414;
     --pr-surface-3: #1C1C1C;
-    
+
     /* Text tokens - brighter for dark mode */
     --pr-text-primary: #f9fafb;
     --pr-text-secondary: #d1d5db;
     --pr-text-tertiary: #9ca3af;
     --pr-text-1: #f9fafb;
     --pr-text-2: #d1d5db;
-    
+
     /* Border tokens - brighter for visibility */
     --pr-border: #2a2a2a;
-    
+
     /* Shadow tokens - reduced opacity for dark mode */
     --pr-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
     --pr-shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
@@ -143,7 +143,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 10%;
     --input: 0 0% 10%;
-    
+
     /* Surface tokens */
     --pr-surface-0: #000000;
     --pr-surface-background: #000000;
@@ -152,17 +152,17 @@
     --pr-surface-1: #000000;
     --pr-surface-2: #080808;
     --pr-surface-3: #101010;
-    
+
     /* Text tokens - maximum brightness for OLED */
     --pr-text-primary: #ffffff;
     --pr-text-secondary: #b3b3b3;
     --pr-text-tertiary: #808080;
     --pr-text-1: #ffffff;
     --pr-text-2: #b3b3b3;
-    
+
     /* Border tokens - subtle but visible on pure black */
     --pr-border: #1a1a1a;
-    
+
     /* Shadow tokens - minimal for OLED */
     --pr-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
     --pr-shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.6);
@@ -192,7 +192,7 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 300ms;
   }
-  
+
   html,
   body {
     background-color: var(--pr-surface-background);
@@ -240,6 +240,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -281,42 +282,43 @@ select:focus {
 
 /* Responsive Design Utilities */
 @layer utilities {
+
   /* Prevent text overflow */
   .text-wrap-balance {
     text-wrap: balance;
   }
-  
+
   .text-ellipsis-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .text-ellipsis-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   /* Safe area for mobile devices */
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .safe-left {
     padding-left: env(safe-area-inset-left);
   }
-  
+
   .safe-right {
     padding-right: env(safe-area-inset-right);
   }
-  
+
   /* Touch-friendly tap targets */
   .tap-target {
     min-height: 44px;
@@ -327,6 +329,7 @@ select:focus {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -349,18 +352,20 @@ select:focus {
 
 /* Mobile-specific fixes */
 @media (max-width: 768px) {
+
   /* Prevent horizontal scroll */
-  html, body {
+  html,
+  body {
     overflow-x: hidden;
     width: 100%;
     position: relative;
   }
-  
+
   /* Ensure all containers respect viewport width */
   * {
     max-width: 100vw;
   }
-  
+
   /* Fix input zoom on iOS */
   input[type="text"],
   input[type="email"],
@@ -371,14 +376,14 @@ select:focus {
   select {
     font-size: 16px !important;
   }
-  
+
   /* Prevent layout shift on mobile menu */
   body.menu-open {
     overflow: hidden;
     position: fixed;
     width: 100%;
   }
-  
+
   /* Better touch targets */
   button,
   a {
@@ -403,14 +408,23 @@ select:focus {
 }
 
 /* Prevent text from going off screen - NO mid-word breaks */
-h1, h2, h3, h4, h5, h6, p, span, div {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div {
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: none;
 }
 
 /* Only allow word breaks in captions/descriptions */
-.caption, .description {
+.caption,
+.description {
   hyphens: auto;
 }
 
@@ -436,4 +450,42 @@ html {
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.bg-size-200 {
+  background-size: 200% 200%;
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }

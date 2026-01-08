@@ -8,6 +8,7 @@ import LayoutDebugger from "@/react-app/components/LayoutDebugger";
 import HomePage from "@/react-app/pages/Home";
 import AuthPage from "@/react-app/pages/AuthPage";
 import HomeFeedPage from "@/react-app/pages/HomeFeed";
+import Feed from "@/react-app/pages/Feed";
 import EarnPage from "@/react-app/pages/Earn";
 import CreatePage from "@/react-app/pages/Create";
 import InvestPage from "@/react-app/pages/Invest";
@@ -45,6 +46,7 @@ import SeasonHubPage from "@/react-app/pages/SeasonHubPage";
 import ProductForm from "@/react-app/pages/ProductForm";
 import ActivityFeed from "@/react-app/pages/ActivityFeed";
 import UserProfile from "@/react-app/pages/UserProfile";
+import AdminForecasts from "@/react-app/pages/AdminForecasts";
 import TestContentDetailsPage from "@/react-app/pages/TestContentDetailsPage";
 import NotFound from "@/react-app/pages/NotFound";
 import { AuthProvider, useAuth } from '@/react-app/hooks/useAuth';
@@ -69,6 +71,26 @@ import HowItWorks from "@/react-app/pages/marketing/HowItWorks";
 import PricingPage from "@/react-app/pages/marketing/PricingPage";
 import ForInvestors from "@/react-app/pages/marketing/ForInvestors";
 import ForMerchants from "@/react-app/pages/marketing/ForMerchants";
+import ForTourism from "@/react-app/pages/marketing/ForTourism";
+import ForRestaurants from "@/react-app/pages/marketing/ForRestaurants";
+import ForUniversities from "@/react-app/pages/marketing/ForUniversities";
+import ForEcommerce from "@/react-app/pages/marketing/ForEcommerce";
+import ForEvents from "@/react-app/pages/marketing/ForEvents";
+import ForEnterprise from "@/react-app/pages/marketing/ForEnterprise";
+import ContentSharesPage from "@/react-app/pages/marketing/ContentSharesPage";
+import ForecastsPage from "@/react-app/pages/marketing/ForecastsPage";
+import GrowthHubMarketingPage from "@/react-app/pages/marketing/GrowthHubPage";
+
+// Public Pages (for SEO/sharing)
+import PublicDropPage from "@/react-app/pages/public/PublicDropPage";
+import PublicMarketplacePage from "@/react-app/pages/public/PublicMarketplacePage";
+import PublicProductPage from "@/react-app/pages/public/PublicProductPage";
+import PublicContentPage from "@/react-app/pages/public/PublicContentPage";
+import PublicForecastPage from "@/react-app/pages/public/PublicForecastPage";
+
+// Proposals
+import DryvaMobilityPage from "@/react-app/pages/proposals/dryvamobility/DryvaMobilityPage";
+
 
 // Events Pages
 import Events from "@/react-app/pages/Events";
@@ -163,6 +185,26 @@ function App() {
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/pricing" element={<PricingPage />} />
 
+                {/* Niche Marketing Pages */}
+                <Route path="/for-tourism" element={<ForTourism />} />
+                <Route path="/for-restaurants" element={<ForRestaurants />} />
+                <Route path="/for-universities" element={<ForUniversities />} />
+                <Route path="/for-ecommerce" element={<ForEcommerce />} />
+                <Route path="/for-events" element={<ForEvents />} />
+                <Route path="/for-enterprise" element={<ForEnterprise />} />
+
+                {/* Feature Marketing Pages */}
+                <Route path="/content-shares" element={<ContentSharesPage />} />
+                <Route path="/forecasts" element={<ForecastsPage />} />
+                <Route path="/about/growth-hub" element={<GrowthHubMarketingPage />} />
+
+                {/* Public Content Pages (SEO/Sharing) */}
+                <Route path="/d/:id" element={<PublicDropPage />} />
+                <Route path="/marketplace" element={<PublicMarketplacePage />} />
+                <Route path="/p/:id" element={<PublicProductPage />} />
+                <Route path="/c/:id" element={<PublicContentPage />} />
+                <Route path="/f/:id" element={<PublicForecastPage />} />
+
                 {/* Events Routes (Public listing, protected create) */}
                 <Route path="/events" element={<ProtectedLayout><Events /></ProtectedLayout>} />
                 <Route path="/events/create" element={<ProtectedLayout><CreateEvent /></ProtectedLayout>} />
@@ -184,6 +226,16 @@ function App() {
                     <ProtectedRoute>
                       <Onboarding />
                     </ProtectedRoute>
+                  }
+                />
+
+                {/* New Feed Route */}
+                <Route
+                  path="/feed"
+                  element={
+                    <ProtectedLayout>
+                      <Feed />
+                    </ProtectedLayout>
                   }
                 />
 
@@ -209,6 +261,14 @@ function App() {
                 />
                 <Route
                   path="/earn/:id"
+                  element={
+                    <ProtectedLayout>
+                      <TaskDetailPage />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/task/:id"
                   element={
                     <ProtectedLayout>
                       <TaskDetailPage />
@@ -353,7 +413,15 @@ function App() {
                   }
                 />
                 <Route
-                  path="/product/:id" // Or /marketplace/product/:id
+                  path="/marketplace/product/:id"
+                  element={
+                    <ProtectedLayout>
+                      <ProductDetail />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
+                  path="/product/:id"
                   element={
                     <ProtectedLayout>
                       <ProductDetail />
@@ -451,6 +519,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/operator/forecasts"
+                  element={
+                    <ProtectedLayout>
+                      <AdminForecasts />
+                    </ProtectedLayout>
+                  }
+                />
+                <Route
                   path="/season-hub"
                   element={
                     <ProtectedLayout>
@@ -472,6 +548,9 @@ function App() {
                 {/* Test/Debug */}
                 <Route path="/test-content/:id" element={<TestContentDetailsPage />} />
 
+
+                {/* Proposal Routes */}
+                <Route path="/flashcreate/proposal/dryvamobility" element={<DryvaMobilityPage />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />

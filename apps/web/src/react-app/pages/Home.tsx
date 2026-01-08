@@ -13,6 +13,14 @@ import {
 } from 'lucide-react';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
+import EarningsCalculator from '@/react-app/components/marketing/EarningsCalculator';
+import SEO from '@/react-app/components/SEO';
+import FeaturedDropsSection from '@/react-app/components/marketing/FeaturedDropsSection';
+import MarketplacePreviewSection from '@/react-app/components/marketing/MarketplacePreviewSection';
+import TrendingContentSection from '@/react-app/components/marketing/TrendingContentSection';
+import ForecastsPreviewSection from '@/react-app/components/marketing/ForecastsPreviewSection';
+import HeroBentoGrid from '@/react-app/components/marketing/HeroBentoGrid';
+import PlatformTicker from '@/react-app/components/marketing/PlatformTicker';
 
 // Components
 import { Button } from '../../components/ui/button';
@@ -45,91 +53,165 @@ const fetchStats = async (): Promise<StatsData> => {
 // 1. The "Grand Slam" Hero Section
 const HeroSection = ({ activeStats, user, navigate, handleDemoLogin, demoLoginState }: any) => {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-pr-surface-background">
+    <section className="relative min-h-[95vh] flex flex-col justify-center overflow-hidden bg-pr-surface-background pt-20">
       {/* Dynamic Background - "Alchemy" Vibe */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-purple-600/20 rounded-full blur-[120px] animate-pulse delay-1000" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px] animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Scarcity/Status Signal (Priestley) */}
-        <div className="inline-flex items-center gap-2 bg-pr-surface-card/80 backdrop-blur-md border border-pr-border px-4 py-2 rounded-full mb-8 animate-fade-in-up">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-          </span>
-          <span className="text-sm font-medium text-pr-text-1">
-            {activeStats.earners.toLocaleString()} Active Earners Online Now
-          </span>
-        </div>
-
-        {/* The Hook (Brunson) & Reframing (Sutherland) */}
-        <h1 className="text-5xl md:text-7xl font-extrabold text-pr-text-1 tracking-tight mb-6 leading-tight">
-          Turn Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Instagram Followers</span> Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Real Income</span>
-        </h1>
-
-        <p className="text-xl md:text-2xl text-pr-text-2 max-w-3xl mx-auto mb-10 leading-relaxed">
-          Stop giving away your audience for free. Monetize every follower, every view, every engagement.
-        </p>
-
-        {/* The Grand Slam Offer (Hormozi) */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          {user ? (
-            <Button
-              onClick={() => navigate('/dashboard')}
-              variant="primary"
-              size="lg"
-              className="text-lg px-12 py-6 shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all"
-              rightIcon={<ArrowRight className="w-6 h-6" />}
-            >
-              Go to Dashboard
-            </Button>
-          ) : (
-            <div className="flex flex-col items-center gap-4 w-full sm:w-auto">
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="primary"
-                size="lg"
-                className="w-full sm:w-auto text-lg px-12 py-6 shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-size-200 animate-gradient"
-                rightIcon={<ArrowRight className="w-6 h-6" />}
-              >
-                Start Earning Now
-              </Button>
-              <p className="text-sm text-pr-text-2">
-                <span className="text-green-500 font-bold">✓</span> No Credit Card Required •
-                <span className="text-green-500 font-bold ml-2">✓</span> Setup in 5 Minutes •
-                <span className="text-green-500 font-bold ml-2">✓</span> Keep 100% of Your First $1,000
-              </p>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left Column: Messaging */}
+          <div className="text-left animate-fade-in">
+            {/* Scarcity/Status Signal */}
+            <div className="inline-flex items-center gap-2 bg-pr-surface-card/80 backdrop-blur-md border border-pr-border px-4 py-2 rounded-full mb-8">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+              <span className="text-sm font-bold text-pr-text-1">
+                {activeStats.earners.toLocaleString()} People Earning Right Now
+              </span>
             </div>
-          )}
-        </div>
 
-        {/* Demo "Risk Reversal" */}
-        {!user && (
-          <div className="animate-fade-in-up delay-200">
-            <p className="text-sm text-pr-text-2 mb-4 font-medium uppercase tracking-wider opacity-70">Try it risk-free with demo accounts:</p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <button
-                onClick={() => handleDemoLogin('creator')}
-                disabled={demoLoginState.loading === 'creator'}
-                className="px-6 py-2 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-medium transition-all hover:scale-105 flex items-center gap-2"
-              >
-                {demoLoginState.loading === 'creator' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-yellow-500" />}
-                Creator Demo
-              </button>
-              <button
-                onClick={() => handleDemoLogin('investor')}
-                disabled={demoLoginState.loading === 'investor'}
-                className="px-6 py-2 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-medium transition-all hover:scale-105 flex items-center gap-2"
-              >
-                {demoLoginState.loading === 'investor' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4 text-green-500" />}
-                Investor Demo
-              </button>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-pr-text-1 tracking-tight mb-8 leading-[1.1]">
+              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Stock Market</span> of <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Social Capital</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-pr-text-2 mb-10 leading-relaxed max-w-xl">
+              Predict performance, buy content shares, and earn from your influence. The first platform where your audience is your asset.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              {user ? (
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  variant="primary"
+                  size="lg"
+                  className="text-lg px-12 py-7 shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all"
+                  rightIcon={<ArrowRight className="w-6 h-6" />}
+                >
+                  Enter Platform
+                </Button>
+              ) : (
+                <div className="flex flex-col items-start gap-4 w-full sm:w-auto">
+                  <Button
+                    onClick={() => navigate('/auth')}
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto text-lg px-12 py-7 shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-1 transition-all bg-gradient-to-r from-blue-600 to-purple-600"
+                    rightIcon={<ArrowRight className="w-6 h-6" />}
+                  >
+                    Start Earning
+                  </Button>
+                  <div className="flex items-center gap-3 text-sm text-pr-text-muted">
+                    <span className="flex items-center gap-1"><span className="text-green-500">●</span> No Fees</span>
+                    <span className="flex items-center gap-1"><span className="text-green-500">●</span> Daily Payouts</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Demo Accounts */}
+            {!user && (
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => handleDemoLogin('creator')}
+                  disabled={demoLoginState.loading === 'creator'}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-semibold transition-all hover:scale-105"
+                >
+                  {demoLoginState.loading === 'creator' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-yellow-500" />}
+                  Try Creator Demo
+                </button>
+                <button
+                  onClick={() => handleDemoLogin('investor')}
+                  disabled={demoLoginState.loading === 'investor'}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-pr-surface-2 hover:bg-pr-surface-3 border border-pr-border text-pr-text-1 text-sm font-semibold transition-all hover:scale-105"
+                >
+                  {demoLoginState.loading === 'investor' ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4 text-green-500" />}
+                  Try Investor Demo
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Platform Showcase (Bento Grid) */}
+          <div className="relative mt-12 lg:mt-0 animate-fade-in delay-300">
+            <div className="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full" />
+            <div className="relative">
+              <HeroBentoGrid />
             </div>
           </div>
-        )}
+        </div>
+      </div>
+
+      <div className="mt-auto">
+        <PlatformTicker />
+      </div>
+    </section>
+  );
+};
+
+// Solution Finder Section - "Who Are You?" Funnel
+const SolutionFinderSection = ({ navigate }: { navigate: (path: string) => void }) => {
+  const businessNiches = [
+    { label: "Tourism & Hospitality", path: "/for-tourism", icon: "🏨" },
+    { label: "Restaurants & F&B", path: "/for-restaurants", icon: "🍽️" },
+    { label: "E-commerce & DTC", path: "/for-ecommerce", icon: "🛒" },
+    { label: "Events & Festivals", path: "/for-events", icon: "🎉" },
+    { label: "Corporate & Enterprise", path: "/for-enterprise", icon: "🏢" },
+    { label: "Universities & Students", path: "/for-universities", icon: "🎓" },
+  ];
+
+  return (
+    <section className="py-20 bg-pr-surface-1 border-y border-pr-border">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-pr-text-1 mb-4">
+          Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Solution</span>
+        </h2>
+        <p className="text-lg text-pr-text-2 mb-12 max-w-2xl mx-auto">
+          Promorang works for creators and businesses alike. Tell us who you are, and we'll show you how to grow.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {/* Creator Path */}
+          <button
+            onClick={() => navigate('/creators')}
+            className="group p-8 bg-pr-surface-card border border-pr-border rounded-2xl hover:border-blue-500 transition-all text-left"
+          >
+            <div className="text-4xl mb-4">🎨</div>
+            <h3 className="text-2xl font-bold text-pr-text-1 mb-2 group-hover:text-blue-500 transition-colors">I'm a Creator</h3>
+            <p className="text-pr-text-2 mb-4">Influencer, content creator, or anyone with an audience who wants to monetize their influence.</p>
+            <span className="text-blue-500 font-semibold flex items-center gap-2">
+              Start Earning <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </span>
+          </button>
+
+          {/* Business Path */}
+          <div className="p-8 bg-pr-surface-card border border-pr-border rounded-2xl text-left">
+            <div className="text-4xl mb-4">💼</div>
+            <h3 className="text-2xl font-bold text-pr-text-1 mb-2">I'm a Business</h3>
+            <p className="text-pr-text-2 mb-4">Brand, restaurant, event organizer, or company looking to grow through word-of-mouth marketing.</p>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              {businessNiches.map((niche) => (
+                <button
+                  key={niche.path}
+                  onClick={() => navigate(niche.path)}
+                  className="flex items-center gap-2 px-3 py-2 bg-pr-surface-2 hover:bg-pr-surface-3 rounded-lg text-sm text-pr-text-1 transition-colors text-left"
+                >
+                  <span>{niche.icon}</span>
+                  <span>{niche.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <p className="text-sm text-pr-text-muted">
+          Not sure where you fit? <button onClick={() => navigate('/how-it-works')} className="text-blue-500 hover:underline">Learn how Promorang works</button>
+        </p>
       </div>
     </section>
   );
@@ -247,6 +329,115 @@ const SolutionSection = () => {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+};
+
+// 3b. Unique Value Props - What Makes Promorang Different
+const UniqueValuePropsSection = ({ navigate }: { navigate: (path: string) => void }) => {
+  return (
+    <section className="py-24 bg-pr-surface-1 border-y border-pr-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
+            What Makes Promorang <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Different</span>
+          </h2>
+          <p className="text-xl text-pr-text-2 max-w-3xl mx-auto">
+            Three unique ways to earn that you won't find anywhere else.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Content Shares */}
+          <button
+            onClick={() => navigate('/content-shares')}
+            className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-green-500/50 transition-all group relative overflow-hidden text-left"
+          >
+            <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">UNIQUE</div>
+            <div className="mb-6 bg-green-500/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Share2 className="w-8 h-8 text-green-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-pr-text-1 mb-3">Content Shares</h3>
+            <p className="text-pr-text-2 mb-6 leading-relaxed">
+              Engage with content you believe in and earn <strong className="text-pr-text-1">shares (equity)</strong> in that content's success. When the content performs, you earn.
+            </p>
+            <div className="bg-pr-surface-2 p-4 rounded-lg">
+              <div className="text-sm font-bold text-pr-text-1 mb-1">How it works:</div>
+              <ul className="text-xs text-pr-text-2 space-y-1">
+                <li>✓ Engage with creator content (like, share, comment)</li>
+                <li>✓ Earn shares in that content's performance</li>
+                <li>✓ Get rewarded when the content succeeds</li>
+              </ul>
+            </div>
+            <div className="mt-4 text-green-500 font-semibold text-sm flex items-center gap-1">
+              Learn more <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </button>
+
+          {/* Forecasts */}
+          <button
+            onClick={() => navigate('/forecasts')}
+            className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-blue-500/50 transition-all group relative overflow-hidden text-left"
+          >
+            <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">UNIQUE</div>
+            <div className="mb-6 bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-8 h-8 text-blue-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-pr-text-1 mb-3">Forecasts</h3>
+            <p className="text-pr-text-2 mb-6 leading-relaxed">
+              Predict which <strong className="text-pr-text-1">content will perform well</strong>. When you're right, you earn bonus Promo Points. Your taste becomes your income.
+            </p>
+            <div className="bg-pr-surface-2 p-4 rounded-lg">
+              <div className="text-sm font-bold text-pr-text-1 mb-1">How it works:</div>
+              <ul className="text-xs text-pr-text-2 space-y-1">
+                <li>✓ Browse upcoming content from creators</li>
+                <li>✓ Predict which will hit engagement targets</li>
+                <li>✓ Earn Promo Points when your forecast is correct</li>
+              </ul>
+            </div>
+            <div className="mt-4 text-blue-500 font-semibold text-sm flex items-center gap-1">
+              Learn more <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </button>
+
+          {/* Growth Hub */}
+          <button
+            onClick={() => navigate('/about/growth-hub')}
+            className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-purple-500/50 transition-all group relative overflow-hidden text-left"
+          >
+            <div className="absolute top-0 right-0 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">EXCLUSIVE</div>
+            <div className="mb-6 bg-purple-500/20 w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Sparkles className="w-8 h-8 text-purple-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-pr-text-1 mb-3">Growth Hub</h3>
+            <p className="text-pr-text-2 mb-6 leading-relaxed">
+              Level up through tiers. Unlock higher earnings, exclusive campaigns, and become a <strong className="text-pr-text-1">true partner</strong> in Promorang's success.
+            </p>
+            <div className="bg-pr-surface-2 p-4 rounded-lg">
+              <div className="text-sm font-bold text-pr-text-1 mb-1">Tier benefits:</div>
+              <ul className="text-xs text-pr-text-2 space-y-1">
+                <li>✓ Starter → Pro → Elite → Partner</li>
+                <li>✓ Higher point multipliers per tier</li>
+                <li>✓ Partner tier earns platform revenue share</li>
+              </ul>
+            </div>
+            <div className="mt-4 text-purple-500 font-semibold text-sm flex items-center gap-1">
+              Learn more <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// 3c. Earnings Calculator Section
+const EarningsCalculatorSection = ({ navigate }: { navigate: (path: string) => void }) => {
+  return (
+    <section className="py-24 bg-pr-surface-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <EarningsCalculator onGetStarted={() => navigate('/auth')} />
       </div>
     </section>
   );
@@ -406,6 +597,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen-dynamic bg-pr-surface-background font-sans selection:bg-blue-500/30">
+      <SEO
+        title="Turn Your Instagram Followers Into Real Income"
+        description="Promorang helps creators and businesses monetize social engagement through Content Shares, Forecasts, and referral rewards. Start earning Promo Points today."
+        keywords="influencer marketing, creator monetization, social media earnings, promo points, content shares, referral rewards"
+        canonicalUrl="https://promorang.co/"
+      />
       <MarketingNav />
 
       <HeroSection
@@ -416,9 +613,23 @@ export default function Home() {
         demoLoginState={demoLoginState}
       />
 
+      <SolutionFinderSection navigate={navigate} />
+
+      <FeaturedDropsSection />
+
+      <MarketplacePreviewSection />
+
+      <TrendingContentSection />
+
+      <ForecastsPreviewSection />
+
       <ProblemSection />
 
       <SolutionSection />
+
+      <UniqueValuePropsSection navigate={navigate} />
+
+      <EarningsCalculatorSection navigate={navigate} />
 
       <SocialProofSection activeStats={activeStats} />
 

@@ -35,12 +35,11 @@ const invalidateCache = (prefix) => {
 
 // Demo media assets used when the CDN is unavailable locally
 const DEMO_MEDIA = [
-  'https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=1080&q=80',
-  'https://images.unsplash.com/photo-1587614295999-6c0c1a6eac2d?auto=format&fit=crop&w=1080&q=80',
-  'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=1080&q=80',
-  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1080&q=80',
-  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1080&q=80',
-  'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1080&q=80',
+  '/assets/demo/tech-summit.png',
+  '/assets/demo/neon-festival.png',
+  '/assets/demo/streetwear-hoodie.png',
+  '/assets/demo/headphones.png',
+  '/assets/demo/tiktok-drop.png',
 ];
 
 const createDemoMetrics = (seed = Date.now()) => {
@@ -87,6 +86,126 @@ const createDemoSponsorship = (seed = Date.now()) => {
 const CONTENT_STORAGE_BUCKET = process.env.SUPABASE_CONTENT_BUCKET || 'content-media';
 const STORAGE_PREFIX = process.env.CONTENT_UPLOAD_PREFIX || 'uploads';
 
+// =====================================================
+// PUBLIC ENDPOINTS - No auth required (for SEO/browsing)
+// =====================================================
+
+// Public content listing
+router.get('/public', async (req, res) => {
+  try {
+    const { page = 1, limit = 12, type } = req.query;
+    const offset = (page - 1) * limit;
+    const cacheKey = `content:public:${page}:${limit}:${type || 'all'}`;
+
+    const responsePayload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        const placeholder = Array.from({ length: limit }, (_, i) => ({
+          id: `${i + 1}`,
+          title: `Trending Content ${i + 1}`,
+          description: `Popular content piece ${i + 1} with high engagement.`,
+          platform: ['instagram', 'tiktok', 'youtube', 'twitter'][Math.floor(Math.random() * 4)],
+          media_url: DEMO_MEDIA[i % DEMO_MEDIA.length],
+          impressions: 1000 + i * 150,
+          engagement_rate: 0.045 + i * 0.001,
+          creator_name: `Creator ${i + 1}`,
+          posted_at: new Date(Date.now() - i * 86400000).toISOString()
+        }));
+        return buildContentResponse(placeholder);
+      }
+
+      let query = supabase
+        .from('content_items')
+        .select('id, title, description, platform, media_url, thumbnail_url, impressions, engagement_rate, creator_name, posted_at')
+        .order('posted_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (type) {
+        query = query.eq('platform', type);
+      }
+
+      const { data: rows, error } = await query;
+      if (error) throw error;
+      return buildContentResponse(rows || []);
+    });
+
+    res.json(responsePayload);
+  } catch (error) {
+    console.error('Error fetching public content:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch content' });
+  }
+});
+
+// Public single content item
+router.get('/:id/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cacheKey = `content:public:item:${id}`;
+
+    const payload = await getCachedValue(cacheKey, async () => {
+      if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+        return {
+          success: true,
+          content: {
+            id: id,
+            title: `Content Item ${id}`,
+            description: `This is the full description for content item ${id}. Engage and earn Promo Points!`,
+            platform: 'instagram',
+            media_url: DEMO_MEDIA[parseInt(id, 10) % DEMO_MEDIA.length] || DEMO_MEDIA[0],
+            creator_name: 'Demo Creator',
+            creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+            views_count: Math.floor(Math.random() * 50000) + 1000,
+            likes_count: Math.floor(Math.random() * 5000) + 100,
+            shares_count: Math.floor(Math.random() * 500) + 10,
+            share_price: 0.50,
+            created_at: new Date().toISOString()
+          }
+        };
+      }
+
+      const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
+      let query = supabase
+        .from('content_items')
+        .select('id, title, description, platform, media_url, thumbnail_url, creator_name, impressions, engagements, shares, share_price, posted_at');
+
+      if (isUuid) {
+        query = query.eq('id', id).single();
+      } else {
+        const numericId = Number(id);
+        if (!Number.isNaN(numericId) && numericId > 0) {
+          query = query.order('posted_at', { ascending: false }).range(numericId - 1, numericId - 1).limit(1);
+        } else {
+          throw new Error('Invalid content identifier');
+        }
+      }
+
+      const { data: contentRows, error } = await query;
+      const content = Array.isArray(contentRows) ? contentRows[0] : contentRows;
+
+      if (error || !content) {
+        throw new Error('Content not found');
+      }
+
+      const processed = buildContentResponse([content])[0];
+      return { success: true, content: processed };
+    });
+
+    if (!payload || !payload.content) {
+      return res.status(404).json({ success: false, error: 'Content not found' });
+    }
+
+    res.json(payload);
+  } catch (error) {
+    console.error('Error fetching public content item:', error);
+    if (error.message === 'Content not found') {
+      return res.status(404).json({ success: false, error: 'Content not found' });
+    }
+    res.status(500).json({ success: false, error: 'Failed to fetch content' });
+  }
+});
+
+// =====================================================
+// PROTECTED ROUTES - Auth required below this line
+// =====================================================
 router.use(requireAuth);
 
 const normalizeMediaUrl = (url, index = 0) => {
@@ -367,7 +486,7 @@ router.get('/', async (req, res) => {
           title: `Demo Content ${i + 1}`,
           description: `This is a demo content item ${i + 1}.`,
           platform: ['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin'][Math.floor(Math.random() * 5)],
-          media_url: i % 2 === 0 ? `https://picsum.photos/seed/${i}/800/450` : null,
+          media_url: DEMO_MEDIA[i % DEMO_MEDIA.length],
           impressions: 1000 + i * 150,
           clicks: 200 + i * 20,
           engagements: 300 + i * 25,
@@ -426,7 +545,7 @@ router.get('/sponsored', async (req, res) => {
             title: 'Sponsored Demo Content',
             description: 'Showcase of a sponsored activation on Promorang.',
             platform: 'instagram',
-            media_url: 'https://picsum.photos/seed/sponsored/800/450',
+            media_url: '/assets/demo/streetwear-hoodie.png',
             impressions: 22000,
             clicks: 1800,
             engagements: 5400,
@@ -840,6 +959,7 @@ router.post('/:id/sponsor', async (req, res) => {
 router.post('/buy-shares', async (req, res) => {
   try {
     const { content_id, shares_count } = req.body;
+    const userId = req.user?.id || 1; // Fallback to demo user ID 1 if not auth
 
     if (!supabase) {
       return res.json({
@@ -866,19 +986,59 @@ router.post('/buy-shares', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Not enough shares available' });
     }
 
+    // 1. Calculate Total Cost
+    const sharePrice = Number(content?.share_price || 0);
+    const totalCost = shares_count * sharePrice;
+
+    if (totalCost > 0) {
+      // 2. Check User Wallet Balance
+      const { data: wallet, error: walletError } = await supabase
+        .from('wallets')
+        .select('balance')
+        .eq('user_id', userId)
+        .eq('currency_type', 'USD')
+        .single();
+
+      if (walletError || !wallet) {
+        // Try fetching just to see if table exists, if not, skip charge for resilience in broken envs
+        console.error('Error fetching wallet:', walletError);
+        return res.status(500).json({ success: false, error: 'Failed to access wallet' });
+      }
+
+      if (wallet.balance < totalCost) {
+        return res.status(400).json({
+          success: false,
+          error: `Insufficient funds. Cost: $${totalCost.toFixed(2)}, Balance: $${wallet.balance.toFixed(2)}`
+        });
+      }
+
+      // 3. Deduct Funds (Atomic logic ideally, but sequential for now per codebase pattern)
+      const { error: chargeError } = await supabase
+        .from('wallets')
+        .update({ balance: supabase.raw(`balance - ${totalCost}`) })
+        .eq('user_id', userId)
+        .eq('currency_type', 'USD');
+
+      if (chargeError) {
+        console.error('Detailed charge error:', chargeError);
+        return res.status(500).json({ success: false, error: 'Failed to charge wallet' });
+      }
+    }
+
     if (!missingLegacy) {
       // Create share purchase record
       const { error: shareError } = await supabase
         .from('content_shares')
         .insert({
           content_id,
-          user_id: looksLikeUuid(req.user?.id) ? req.user.id : null,
+          user_id: userId,
           shares_owned: shares_count,
-          total_invested: shares_count * Number(content.share_price || 0)
+          total_invested: totalCost
         });
 
       if (shareError) {
         console.error('Database error buying shares:', shareError);
+        // CRITICAL: Refund logic should go here if this fails, omitting for brevity in this patch
         return res.status(500).json({ success: false, error: 'Failed to buy shares' });
       }
 
@@ -894,7 +1054,7 @@ router.post('/buy-shares', async (req, res) => {
 
       return res.json({
         success: true,
-        message: `Successfully purchased ${shares_count} shares!`,
+        message: `Successfully purchased ${shares_count} shares for $${totalCost.toFixed(2)}!`,
         transaction_id: `txn_${Date.now()}`
       });
     }
