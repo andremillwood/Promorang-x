@@ -83,7 +83,7 @@ router.get('/public', async (req, res) => {
 
     const { data: forecasts, error } = await supabase
       .from('social_forecasts')
-      .select('id, creator_name, platform, content_title, forecast_type, target_value, current_value, odds, pool_size, expires_at, participants, status, content:content_items(media_url, thumbnail_url)')
+      .select('id, creator_side, platform, content_title, forecast_type, target_value, current_value, odds, pool_size, expires_at, participants, status, content:content_pieces(media_url, creator_name)')
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
       .order('pool_size', { ascending: false })
@@ -93,7 +93,7 @@ router.get('/public', async (req, res) => {
 
     const result = (forecasts || []).map(f => ({
       ...f,
-      media_url: f.content?.media_url || f.content?.thumbnail_url || '/assets/demo/neon-festival.png'
+      media_url: f.content?.media_url || '/assets/demo/neon-festival.png'
     }));
 
     res.json(result);
@@ -128,7 +128,7 @@ router.get('/:id/public', async (req, res) => {
 
     const { data: forecast, error } = await supabase
       .from('social_forecasts')
-      .select('id, creator_name, platform, content_title, forecast_type, target_value, current_value, odds, pool_size, expires_at, participants, status, content:content_items(media_url, thumbnail_url)')
+      .select('id, creator_side, platform, content_title, forecast_type, target_value, current_value, odds, pool_size, expires_at, participants, status, content:content_pieces(media_url, creator_name)')
       .eq('id', id)
       .single();
 
@@ -138,7 +138,7 @@ router.get('/:id/public', async (req, res) => {
 
     res.json({
       ...forecast,
-      media_url: forecast.content?.media_url || forecast.content?.thumbnail_url || null
+      media_url: forecast.content?.media_url || null
     });
   } catch (error) {
     console.error('Error fetching public forecast:', error);
@@ -207,7 +207,7 @@ router.get('/', async (req, res) => {
     // Query forecasts from database
     const { data: forecastsData, error } = await supabase
       .from('social_forecasts')
-      .select('*, content:content_items(media_url, thumbnail_url)')
+      .select('*, content:content_items(media_url)')
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
@@ -221,7 +221,7 @@ router.get('/', async (req, res) => {
     // Flatten the structure to put media_url at the top level
     const forecasts = (forecastsData || []).map(f => ({
       ...f,
-      media_url: f.content?.media_url || f.content?.thumbnail_url || null
+      media_url: f.content?.media_url || null
     }));
 
     res.json(forecasts);

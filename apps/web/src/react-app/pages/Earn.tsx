@@ -1,16 +1,21 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Clock, 
+import { useMaturity } from '@/react-app/context/MaturityContext';
+import {
+  Plus,
+  Search,
+  Filter,
+  Clock,
   Users,
   Star,
   Calendar,
   Key,
-  Diamond
+  Diamond,
+  Sparkles,
+  ArrowRight,
+  Gift,
+  Target
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import type { DropType, UserType } from '../../shared/types';
@@ -44,8 +49,92 @@ interface CreateDropRequestType {
   move_actions: any[];
 }
 
+/**
+ * Simplified Earn View for State 0/1 users
+ * Shows educational content about how earning works
+ */
+function EarnSimplified() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Gift className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-pr-text-1 mb-2">Start Earning</h1>
+        <p className="text-pr-text-2">Complete simple tasks to earn Points and Keys</p>
+      </div>
+
+      {/* How it works */}
+      <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-border">
+        <h2 className="text-lg font-semibold text-pr-text-1 mb-4 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-orange-500" />
+          How Earning Works
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-orange-600 font-bold text-sm">1</span>
+            </div>
+            <div>
+              <p className="font-medium text-pr-text-1">Complete your first drop</p>
+              <p className="text-sm text-pr-text-2">Drops are simple tasks from brands and creators</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-orange-600 font-bold text-sm">2</span>
+            </div>
+            <div>
+              <p className="font-medium text-pr-text-1">Earn Points & Keys</p>
+              <p className="text-sm text-pr-text-2">Each completed task earns you rewards</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-orange-600 font-bold text-sm">3</span>
+            </div>
+            <div>
+              <p className="font-medium text-pr-text-1">Unlock more opportunities</p>
+              <p className="text-sm text-pr-text-2">Higher-paying drops unlock as you level up</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured Opportunity */}
+      <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-6 text-white">
+        <div className="flex items-center gap-2 mb-3">
+          <Target className="w-5 h-5" />
+          <span className="text-sm font-medium opacity-90">Recommended for you</span>
+        </div>
+        <h3 className="text-xl font-bold mb-2">Your First Drop</h3>
+        <p className="text-white/80 text-sm mb-4">
+          Start with this beginner-friendly task to learn how everything works
+        </p>
+        <button
+          onClick={() => navigate('/today/opportunity')}
+          className="w-full bg-white text-orange-600 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors"
+        >
+          Get Started
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Coming Soon Preview */}
+      <div className="text-center text-sm text-pr-text-2">
+        <p>Complete more drops to unlock the full marketplace</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Earn() {
   const { user } = useAuth();
+  const { maturityState, isLoading: maturityLoading } = useMaturity();
+  const navigate = useNavigate();
   const location = useLocation();
   const [drops, setDrops] = useState<DropType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -107,11 +196,16 @@ export default function Earn() {
 
     const matchesDropType = !selectedDropType || dropType === selectedDropType;
     const matchesDifficulty = !selectedDifficulty || difficulty === selectedDifficulty;
-    
+
     return matchesSearch && matchesDropType && matchesDifficulty;
   });
 
-  if (loading) {
+  // State 0/1: Show simplified view
+  if (!maturityLoading && maturityState <= 1) {
+    return <EarnSimplified />;
+  }
+
+  if (loading || maturityLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"></div>
@@ -128,13 +222,21 @@ export default function Earn() {
           <p className="text-pr-text-2 mt-2">Discover earning drops that match your skills</p>
         </div>
         {userData && userData.user_type === 'advertiser' && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Create Drop</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/drops/manage')}
+              className="px-5 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 border border-pr-surface-3 hover:bg-pr-surface-2 text-pr-text-1"
+            >
+              <span>Manage Drops</span>
+            </button>
+            <button
+              onClick={() => navigate('/drops/create')}
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Create Drop</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -202,8 +304,8 @@ export default function Earn() {
 
       {/* Create Drop Modal */}
       {showCreateForm && userData && userData.user_type === 'advertiser' && (
-        <CreateDropModal 
-          onClose={() => setShowCreateForm(false)} 
+        <CreateDropModal
+          onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
             setShowCreateForm(false);
             fetchDrops();
@@ -223,7 +325,7 @@ const formatLabel = (value?: string | null, fallback = 'General') => {
 
 function DropCard({ drop }: { drop: DropType }) {
   const navigate = useNavigate();
-  
+
   const getDropTypeImage = (dropType?: string | null) => {
     // Use the drop's content_url if available, otherwise fallback to default images
     if (drop?.content_url) {
@@ -246,9 +348,9 @@ function DropCard({ drop }: { drop: DropType }) {
   };
 
   // Check if this is demo content
-  const isDemo = drop.title?.toLowerCase().includes('[demo]') || 
-                 drop.title?.toLowerCase().includes('demo') ||
-                 drop.description?.toLowerCase().includes('demo');
+  const isDemo = drop.title?.toLowerCase().includes('[demo]') ||
+    drop.title?.toLowerCase().includes('demo') ||
+    drop.description?.toLowerCase().includes('demo');
 
   const getDropTypeIcon = (dropType?: string | null) => {
     switch (dropType || '') {
@@ -285,8 +387,8 @@ function DropCard({ drop }: { drop: DropType }) {
       )}
 
       <div className="relative cursor-pointer" onClick={handleDropClick}>
-        <img 
-          src={getDropTypeImage(drop.drop_type)} 
+        <img
+          src={getDropTypeImage(drop.drop_type)}
           alt={drop.title}
           className="w-full h-48 object-cover hover:opacity-95 transition-opacity"
         />
@@ -357,7 +459,7 @@ function DropCard({ drop }: { drop: DropType }) {
         <p className="text-pr-text-2 text-sm mb-4 line-clamp-3">{drop.description || 'No description available.'}</p>
 
         <div className="mb-4">
-          <UserLink 
+          <UserLink
             username={drop.creator_name}
             displayName={drop.creator_name}
             avatarUrl={drop.creator_avatar}
@@ -371,7 +473,7 @@ function DropCard({ drop }: { drop: DropType }) {
             <Users className="w-4 h-4" />
             <span>{drop.current_participants}/{drop.max_participants || '∞'} participants</span>
           </div>
-          
+
           {drop.follower_threshold > 0 && (
             <div className="flex items-center space-x-2 text-sm text-pr-text-2">
               <Star className="w-4 h-4" />
@@ -396,7 +498,7 @@ function DropCard({ drop }: { drop: DropType }) {
           {drop.gem_pool_total > 0 && (
             <div className="flex items-center space-x-2 text-sm text-pr-text-2">
               <Diamond className="w-4 h-4" />
-            <span>{drop.gem_pool_remaining ?? drop.gem_pool_total} gems remaining in pool</span>
+              <span>{drop.gem_pool_remaining ?? drop.gem_pool_total} gems remaining in pool</span>
             </div>
           )}
         </div>
@@ -430,14 +532,14 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const createParam = urlParams.get('create');
-  
+
   // Determine initial drop type based on URL parameter
   const getInitialDropType = (): 'proof' | 'paid' | 'move' => {
     if (createParam === 'paid') return 'paid';
     if (createParam === 'move') return 'move';
     return 'proof'; // Default to proof drop
   };
-  
+
   const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadMode, setUploadMode] = useState<'upload' | 'link'>('upload');
@@ -446,7 +548,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [dropType, setDropType] = useState<'proof' | 'paid' | 'move'>(getInitialDropType());
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Initialize form data based on drop type
   const getInitialFormData = (type: 'proof' | 'paid' | 'move'): CreateDropRequestType => {
     return {
@@ -472,7 +574,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       move_actions: []
     };
   };
-  
+
   const [formData, setFormData] = useState<CreateDropRequestType>(() => getInitialFormData(getInitialDropType()));
 
   // Update form data when drop type changes
@@ -490,7 +592,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setUploadedFile(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -513,7 +615,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
   const uploadImageToStorage = async (file: File): Promise<string> => {
     try {
       setUploadingFile(true);
-      
+
       // Convert file to base64 for transmission
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -546,11 +648,11 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       // Handle file upload if in upload mode and file is selected
       let imageUrl = formData.content_url;
-      
+
       if (uploadMode === 'upload' && uploadedFile) {
         try {
           imageUrl = await uploadImageToStorage(uploadedFile);
@@ -571,14 +673,14 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
           return;
         }
       }
-      
+
       // Submit the form data
       try {
         await api.post<DropType>('/drops', {
           ...formData,
           content_url: imageUrl,
-          drop_type: dropType === 'proof' ? 'content_clipping' : 
-                    dropType === 'paid' ? 'paid_content' : 'action_required',
+          drop_type: dropType === 'proof' ? 'content_clipping' :
+            dropType === 'paid' ? 'paid_content' : 'action_required',
           difficulty: formData.difficulty || 'easy',
           deadline_at: formData.deadline_at || null,
           max_participants: formData.max_participants || null,
@@ -589,7 +691,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
           move_cost_points: dropType === 'move' ? formData.move_cost_points || 0 : 0,
           key_reward_amount: dropType === 'move' ? formData.key_reward_amount || 0 : 0,
         });
-        
+
         onSuccess();
         onClose();
       } catch (error) {
@@ -609,7 +711,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
       <div className="bg-pr-surface-card rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Create New Drop</h2>
-          <button 
+          <button
             onClick={onClose}
             className="text-pr-text-2 hover:text-pr-text-1"
             aria-label="Close modal"
@@ -617,7 +719,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
             ✕
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-pr-text-1 mb-1">
@@ -646,7 +748,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
               type="text"
               className="w-full p-2 border rounded"
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
             />
           </div>
@@ -659,7 +761,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
               className="w-full p-2 border rounded"
               rows={3}
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
             />
           </div>
@@ -672,7 +774,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
               <select
                 className="w-full p-2 border rounded"
                 value={formData.difficulty}
-                onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
               >
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
@@ -690,7 +792,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
                   min="1"
                   className="w-full p-2 border rounded"
                   value={formData.key_cost}
-                  onChange={(e) => setFormData({...formData, key_cost: Number(e.target.value)})}
+                  onChange={(e) => setFormData({ ...formData, key_cost: Number(e.target.value) })}
                   required={dropType === 'paid'}
                 />
               </div>
@@ -737,9 +839,9 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
                 </button>
                 {previewUrl && (
                   <div className="mt-2 relative">
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
                       className="max-h-40 rounded"
                     />
                     <button
@@ -759,7 +861,7 @@ const CreateDropModal: React.FC<CreateDropModalProps> = ({ onClose, onSuccess })
                 className="w-full p-2 border rounded"
                 placeholder="https://example.com/image.jpg"
                 value={formData.content_url}
-                onChange={(e) => setFormData({...formData, content_url: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, content_url: e.target.value })}
                 required
               />
             )}

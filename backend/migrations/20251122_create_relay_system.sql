@@ -3,27 +3,132 @@
 -- Adds Relays, Predictions, Seasons and updates core objects
 -- =====================================================
 
+-- Ensure core tables exist (handles rename if needed and provides safe stub creations)
+DO $$ 
+BEGIN
+    -- 1. Handle content_items -> content_pieces rename
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'content_items') 
+    AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'content_pieces') THEN
+        ALTER TABLE content_items RENAME TO content_pieces;
+    END IF;
+
+    -- 2. Fallback content_pieces creation if missing
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'content_pieces') THEN
+        CREATE TABLE content_pieces (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            creator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+            platform VARCHAR(50) NOT NULL,
+            platform_url TEXT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            media_url TEXT,
+            total_shares INTEGER DEFAULT 1000,
+            available_shares INTEGER DEFAULT 1000,
+            engagement_shares_total INTEGER DEFAULT 100,
+            engagement_shares_remaining INTEGER DEFAULT 100,
+            share_price DECIMAL(10,4) DEFAULT 0.01,
+            current_revenue DECIMAL(10,2) DEFAULT 0,
+            performance_metrics JSONB,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+    END IF;
+
+    -- 3. Fallback drops creation if missing
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'drops') THEN
+        CREATE TABLE drops (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            creator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            drop_type VARCHAR(50),
+            status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled')),
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+    END IF;
+
+    -- 4. Fallback events creation if missing
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'events') THEN
+        CREATE TABLE events (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            creator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            starts_at TIMESTAMPTZ,
+            ends_at TIMESTAMPTZ,
+            location TEXT,
+            status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled')),
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+    END IF;
+
+    -- 5. Fallback coupons creation if missing
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'coupons') THEN
+        CREATE TABLE coupons (
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+            code VARCHAR(50) UNIQUE NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            discount_type VARCHAR(20) NOT NULL,
+            discount_value DECIMAL(10, 2) NOT NULL,
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+    END IF;
+END $$;
+
 -- 1. SEASONS TABLE
 -- Operator-managed hubs grouping Drops, Campaigns, Events
 CREATE TABLE IF NOT EXISTS seasons (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    operator_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
+    operator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL, -- Logical name (e.g. "Summer Splash 2026")
+    title VARCHAR(255), -- Alias for name if needed
+    slug VARCHAR(100) UNIQUE, -- URL-friendly identifier
     description TEXT,
     start_date TIMESTAMPTZ NOT NULL,
     end_date TIMESTAMPTZ NOT NULL,
-    status VARCHAR(20) DEFAULT 'planned' CHECK (status IN ('planned', 'active', 'completed', 'archived')),
+    status VARCHAR(20) DEFAULT 'planned' CHECK (status IN ('planned', 'active', 'completed', 'archived', 'draft')),
+    
+    -- UI/UX Config
+    theme_config JSONB DEFAULT '{}',
+    access_type VARCHAR(20) DEFAULT 'open', -- 'open', 'private', 'invite_only'
     
     -- Relay Configuration
     relay_enabled BOOLEAN DEFAULT true,
-    relay_constraints JSONB DEFAULT '{}', -- e.g., { "min_trust_score": 50 }
+    relay_constraints JSONB DEFAULT '{}',
     relay_weight DECIMAL(5,2) DEFAULT 1.0,
     
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Ensure columns exist if table was created previously
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'seasons' AND column_name = 'operator_id') THEN
+        ALTER TABLE seasons ADD COLUMN operator_id UUID REFERENCES users(id) ON DELETE CASCADE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'seasons' AND column_name = 'slug') THEN
+        ALTER TABLE seasons ADD COLUMN slug VARCHAR(100) UNIQUE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'seasons' AND column_name = 'status') THEN
+        ALTER TABLE seasons ADD COLUMN status VARCHAR(20) DEFAULT 'planned' CHECK (status IN ('planned', 'active', 'completed', 'archived', 'draft'));
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'seasons' AND column_name = 'theme_config') THEN
+        ALTER TABLE seasons ADD COLUMN theme_config JSONB DEFAULT '{}';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'seasons' AND column_name = 'access_type') THEN
+        ALTER TABLE seasons ADD COLUMN access_type VARCHAR(20) DEFAULT 'open';
+    END IF;
+END $$;
+
 CREATE INDEX IF NOT EXISTS idx_seasons_operator_id ON seasons(operator_id);
+CREATE INDEX IF NOT EXISTS idx_seasons_slug ON seasons(slug);
 CREATE INDEX IF NOT EXISTS idx_seasons_status ON seasons(status);
 
 -- 2. PREDICTIONS TABLE
@@ -56,6 +161,14 @@ CREATE TABLE IF NOT EXISTS predictions (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure status exists if table was created previously without it
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'predictions' AND column_name = 'status') THEN
+        ALTER TABLE predictions ADD COLUMN status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'resolved', 'cancelled'));
+    END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_predictions_creator ON predictions(creator_id);
 CREATE INDEX IF NOT EXISTS idx_predictions_target ON predictions(target_type, target_id);

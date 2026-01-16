@@ -28,6 +28,8 @@ export interface User {
   level?: string | number;
   xp?: number;
   badges?: string[];
+  brand_name?: string;
+  brand_logo_url?: string;
 }
 
 export interface Task {
@@ -35,6 +37,11 @@ export interface Task {
   title: string;
   description: string;
   reward: number;
+  gem_reward_base?: number; // Web parity
+  key_cost?: number; // Web parity
+  gem_pool_remaining?: number; // Web parity
+  preview_image?: string; // Web parity
+  content_url?: string; // Web parity
   creator: {
     id: string;
     name: string;
@@ -43,11 +50,16 @@ export interface Task {
   category: string;
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: string;
-  requirements: string[];
+  requirements: string[] | string;
+  deliverables?: string;
   completions: number;
+  current_participants?: number;
+  max_participants?: number;
   deadline?: string;
-  status: 'active' | 'completed' | 'expired';
+  status: 'active' | 'completed' | 'expired' | 'pending';
   createdAt: string;
+  is_proof_drop?: boolean;
+  is_paid_drop?: boolean;
 }
 
 export interface Post {
@@ -61,22 +73,35 @@ export interface Post {
   content: {
     text?: string;
     media?: string[];
+    media_url?: string; // Web parity
     type: 'image' | 'video' | 'text';
   };
+  title?: string;
+  description?: string;
   likes: number;
   comments: number;
   shares: number;
+  views_count?: number; // Web parity
+  current_revenue?: number; // Web parity
+  total_shares?: number; // Web parity
+  available_shares?: number; // Web parity
+  engagement_shares_remaining?: number; // Web parity
   createdAt: string;
   isLiked: boolean;
   isShared: boolean;
   isBacked: boolean;
+  is_demo?: boolean;
+  is_sponsored?: boolean;
   backPrice?: number;
   currentValue?: number;
   sourceUrl?: string;
   sourcePlatform?: 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'twitter' | 'facebook';
+  platform?: string;
+  platform_url?: string;
   enableContentShares?: boolean;
   enableBetting?: boolean;
   initialSharePrice?: number;
+  share_price?: number;
 }
 
 export interface Campaign {
@@ -94,7 +119,7 @@ export interface Campaign {
   category: string;
   shares: number;
   conversions: number;
-  status: 'active' | 'completed' | 'expired';
+  status: 'active' | 'completed' | 'expired' | 'pending';
   expiresAt?: string;
   createdAt: string;
 }
@@ -119,7 +144,7 @@ export interface Bet {
   pool: number;
   participants: number;
   expiresAt: string;
-  status: 'active' | 'completed' | 'expired';
+  status: 'active' | 'completed' | 'expired' | 'pending';
   createdAt: string;
 }
 
@@ -196,4 +221,105 @@ export interface PromoGem {
   status: 'available' | 'staked' | 'spent';
   createdAt: string;
   expiresAt?: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  image?: string;
+  type: 'live' | 'creator' | 'drop' | 'community';
+  attendees: number;
+  isRegistered?: boolean;
+  organizer: {
+    name: string;
+    avatar: string;
+  };
+}
+
+export interface Coupon {
+  id: string;
+  title: string;
+  description: string;
+  code: string;
+  discount: string;
+  brand: {
+    name: string;
+    logo: string;
+  };
+  expiresAt: string;
+  isClaimed: boolean;
+  category: string;
+  terms?: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  short_description?: string;
+  price_usd: number | null;
+  price_gems: number | null;
+  price_gold: number | null;
+  images: string[];
+  category_id?: string;
+  category_name?: string;
+  is_digital: boolean;
+  inventory_count: number;
+  status: string;
+  rating: number;
+  review_count: number;
+  sales_count: number;
+  is_featured: boolean;
+  merchant_stores?: {
+    store_name: string;
+    store_slug: string;
+    logo_url: string;
+    rating: number;
+  };
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+}
+
+export interface CartItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  price_usd: number | null;
+  price_gems: number | null;
+  price_gold: number | null;
+  products?: Product;
+}
+
+export interface ShoppingCart {
+  id: string;
+  cart_items: CartItem[];
+}
+
+export interface Store {
+  id: string;
+  store_name: string;
+  store_slug: string;
+  description: string;
+  logo_url: string;
+  banner_url: string;
+  rating: number;
+  review_count: number;
+  total_sales?: number;
+  total_products?: number;
+  contact_email?: string;
+  contact_phone?: string;
+  social_links?: Record<string, string>;
+  users?: {
+    username: string;
+    display_name: string;
+  };
 }

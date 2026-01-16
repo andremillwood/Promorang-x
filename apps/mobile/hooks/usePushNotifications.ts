@@ -5,34 +5,48 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useAuthStore } from '@/store/authStore';
 
+// Note: Push notifications require a development build in SDK 53+
+// This is a simplified version that works with Expo Go
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
     }),
 });
 
 export function usePushNotifications() {
     const [expoPushToken, setExpoPushToken] = useState<string | undefined>(undefined);
     const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationListener = useRef<Notifications.EventSubscription | null>(null);
+    const responseListener = useRef<Notifications.EventSubscription | null>(null);
     const { user } = useAuthStore();
 
     async function registerForPushNotificationsAsync() {
         let token;
 
-        if (Platform.OS === 'android') {
-            await Notifications.setNotificationChannelAsync('default', {
-                name: 'default',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
-            });
+        // Skip on simulators and in Expo Go (SDK 53+ doesn't support remote notifications in Expo Go)
+        if (!Device.isDevice) {
+            console.log('Push notifications require a physical device');
+            return undefined;
         }
 
-        if (Device.isDevice) {
+        if (Platform.OS === 'android') {
+            try {
+                await Notifications.setNotificationChannelAsync('default', {
+                    name: 'default',
+                    importance: Notifications.AndroidImportance.MAX,
+                    vibrationPattern: [0, 250, 250, 250],
+                    lightColor: '#FF231F7C',
+                });
+            } catch (e) {
+                console.log('Failed to set notification channel:', e);
+            }
+        }
+
+        try {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             let finalStatus = existingStatus;
             if (existingStatus !== 'granted') {
@@ -40,23 +54,22 @@ export function usePushNotifications() {
                 finalStatus = status;
             }
             if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
-                return;
+                console.log('Push notification permission not granted');
+                return undefined;
             }
 
-            try {
-                const projectId =
-                    Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+            const projectId =
+                Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
 
-                token = (await Notifications.getExpoPushTokenAsync({
-                    projectId,
-                })).data;
-            } catch (e) {
-                token = (await Notifications.getExpoPushTokenAsync()).data;
+            if (!projectId) {
+                console.log('No projectId found - push notifications require EAS configuration');
+                return undefined;
             }
-        } else {
-            // Simulator
-            console.log('Must use physical device for Push Notifications');
+
+            token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+        } catch (e) {
+            console.log('Failed to get push token:', e);
+            return undefined;
         }
 
         return token;
@@ -67,8 +80,6 @@ export function usePushNotifications() {
             setExpoPushToken(token);
             if (token) {
                 console.log('Expo Push Token:', token);
-                // TODO: Send token to backend
-                // if (user) sendTokenToBackend(user.id, token);
             }
         });
 
@@ -77,15 +88,16 @@ export function usePushNotifications() {
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response);
+            console.log('Notification response:', response);
         });
 
         return () => {
+            // Use the modern cleanup API
             if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
+                notificationListener.current.remove();
             }
             if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
+                responseListener.current.remove();
             }
         };
     }, []);

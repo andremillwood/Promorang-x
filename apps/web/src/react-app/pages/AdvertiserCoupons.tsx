@@ -1,32 +1,96 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Gift, Calendar, Users, BarChart2 } from 'lucide-react';
+import { Plus, Gift, Calendar, Users, BarChart2, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import advertiserService from '@/react-app/services/advertiser';
 import type { CouponType } from '@/shared/types';
+
+type FormState = {
+  title: string;
+  description: string;
+  reward_type: 'coupon' | 'giveaway' | 'discount' | 'credit';
+  value: number;
+  value_unit: 'percentage' | 'fixed' | 'item' | 'usd' | 'gems' | 'keys';
+  quantity_total: number;
+  start_date: string;
+  end_date: string;
+};
+
+const defaultFormState = (): FormState => {
+  const now = new Date();
+  const inThirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  return {
+    title: '',
+    description: '',
+    reward_type: 'coupon',
+    value: 10,
+    value_unit: 'percentage',
+    quantity_total: 10,
+    start_date: now.toISOString().split('T')[0],
+    end_date: inThirtyDays.toISOString().split('T')[0],
+  };
+};
 
 export default function AdvertiserCoupons() {
   const navigate = useNavigate();
   const [coupons, setCoupons] = useState<CouponType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [formState, setFormState] = useState<FormState>(defaultFormState);
+  const [creating, setCreating] = useState(false);
+
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true);
+      const data = await advertiserService.listCoupons();
+      setCoupons(data.coupons || []);
+    } catch (err) {
+      console.error('Failed to fetch coupons:', err);
+      setError('Failed to load coupons. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCoupons = async () => {
-      try {
-        setLoading(true);
-        const data = await advertiserService.listCoupons();
-        setCoupons(data.coupons || []);
-      } catch (err) {
-        console.error('Failed to fetch coupons:', err);
-        setError('Failed to load coupons. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCoupons();
   }, []);
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formState.title.trim()) {
+      alert('Please enter a coupon title');
+      return;
+    }
+    
+    setCreating(true);
+    try {
+      await advertiserService.createCoupon({
+        title: formState.title,
+        description: formState.description,
+        discount_type: formState.value_unit === 'percentage' ? 'percentage' : 'fixed_amount',
+        discount_value: Number(formState.value),
+        total_quantity: Number(formState.quantity_total),
+        start_date: formState.start_date,
+        end_date: formState.end_date,
+      });
+      setFormState(defaultFormState());
+      setShowCreateModal(false);
+      await fetchCoupons();
+    } catch (err) {
+      console.error('Failed to create coupon:', err);
+      alert('Failed to create coupon. Please try again.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openCreateModal = () => {
+    setFormState(defaultFormState());
+    setShowCreateModal(true);
+  };
 
   const getStatusBadge = (status: string) => {
     const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
@@ -94,12 +158,131 @@ export default function AdvertiserCoupons() {
             <Plus className="h-4 w-4" />
             <span>Bulk Create</span>
           </Button>
-          <Button className="flex items-center space-x-2">
+          <Button onClick={openCreateModal} className="flex items-center space-x-2">
             <Plus className="h-4 w-4" />
             <span>Create Coupon</span>
           </Button>
         </div>
       </div>
+
+      {/* Create Coupon Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold">Create New Coupon</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-1 hover:bg-gray-100 rounded">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateCoupon} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={formState.title}
+                  onChange={(e) => setFormState(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="e.g. 25% Off First Purchase"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={formState.description}
+                  onChange={(e) => setFormState(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  rows={2}
+                  placeholder="Describe what this coupon offers"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reward Type</label>
+                  <select
+                    value={formState.reward_type}
+                    onChange={(e) => setFormState(prev => ({ ...prev, reward_type: e.target.value as FormState['reward_type'] }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  >
+                    <option value="coupon">Coupon</option>
+                    <option value="discount">Discount</option>
+                    <option value="giveaway">Giveaway</option>
+                    <option value="credit">Credit</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Value Unit</label>
+                  <select
+                    value={formState.value_unit}
+                    onChange={(e) => setFormState(prev => ({ ...prev, value_unit: e.target.value as FormState['value_unit'] }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount</option>
+                    <option value="usd">USD</option>
+                    <option value="gems">Gems</option>
+                    <option value="keys">Keys</option>
+                    <option value="item">Item</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formState.value}
+                    onChange={(e) => setFormState(prev => ({ ...prev, value: Number(e.target.value) }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                  <input
+                    type="number"
+                    min={1}
+                    required
+                    value={formState.quantity_total}
+                    onChange={(e) => setFormState(prev => ({ ...prev, quantity_total: Number(e.target.value) }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={formState.start_date}
+                    onChange={(e) => setFormState(prev => ({ ...prev, start_date: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={formState.end_date}
+                    onChange={(e) => setFormState(prev => ({ ...prev, end_date: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <Button type="button" variant="outline" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={creating} className="flex items-center space-x-2">
+                  {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  <span>{creating ? 'Creating...' : 'Create Coupon'}</span>
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Info Card */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -176,7 +359,7 @@ export default function AdvertiserCoupons() {
           <h3 className="mt-2 text-sm font-medium text-pr-text-1">No coupons yet</h3>
           <p className="mt-1 text-sm text-pr-text-2">Get started by creating your first coupon.</p>
           <div className="mt-6">
-            <Button className="flex items-center space-x-2">
+            <Button onClick={openCreateModal} className="flex items-center space-x-2">
               <Plus className="h-4 w-4" />
               <span>Create Coupon</span>
             </Button>

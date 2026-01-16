@@ -7,9 +7,12 @@ import {
     Bell,
     Scan,
     Loader2,
-    Award
+    Award,
+    Ticket,
+    QrCode
 } from 'lucide-react';
 import eventsService from '@/react-app/services/events';
+import TicketScanner from './TicketScanner';
 
 interface OrganizerDashboardProps {
     eventId: string;
@@ -17,7 +20,7 @@ interface OrganizerDashboardProps {
 }
 
 export default function OrganizerDashboard({ eventId, event }: OrganizerDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'overview' | 'attendees' | 'submissions' | 'updates'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'attendees' | 'tickets' | 'submissions' | 'updates'>('overview');
     const [updateText, setUpdateText] = useState('');
     const [sendingUpdate, setSendingUpdate] = useState(false);
 
@@ -30,10 +33,15 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
 
     const [attendees, setAttendees] = useState<any[]>([]);
     const [fetchingAttendees, setFetchingAttendees] = useState(false);
+    const [ticketHolders, setTicketHolders] = useState<any[]>([]);
+    const [fetchingTickets, setFetchingTickets] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
 
     useEffect(() => {
         if (activeTab === 'attendees') {
             fetchAttendees();
+        } else if (activeTab === 'tickets') {
+            fetchTicketHolders();
         }
     }, [activeTab]);
 
@@ -49,6 +57,21 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
         }
     };
 
+    const fetchTicketHolders = async () => {
+        try {
+            setFetchingTickets(true);
+            const response = await fetch(`/api/events/${eventId}/ticket-holders`);
+            const result = await response.json();
+            if (result.status === 'success') {
+                setTicketHolders(result.data.tickets || []);
+            }
+        } catch (error) {
+            console.error('Error fetching ticket holders:', error);
+        } finally {
+            setFetchingTickets(false);
+        }
+    };
+
     const handleCheckIn = async (attendee: any) => {
         try {
             await eventsService.checkInAttendee(eventId, { user_id: attendee.user_id });
@@ -56,6 +79,25 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
             fetchAttendees();
         } catch (error) {
             alert('Check-in failed');
+        }
+    };
+
+    const handleActivateTicket = async (activationCode: string) => {
+        try {
+            const response = await fetch(`/api/events/${eventId}/tickets/activate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activation_code: activationCode })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Ticket activated successfully!');
+                fetchTicketHolders();
+            } else {
+                alert(result.error || 'Failed to activate ticket');
+            }
+        } catch (error) {
+            alert('Failed to activate ticket');
         }
     };
 
@@ -132,7 +174,10 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
                         Start checking in attendees at the venue door.
                         Each scan will automatically track attendance and reward users.
                     </p>
-                    <button className="w-full py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-colors flex items-center justify-center gap-2 shadow-inner">
+                    <button 
+                        onClick={() => setShowScanner(true)}
+                        className="w-full py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-colors flex items-center justify-center gap-2 shadow-inner"
+                    >
                         <Scan className="w-5 h-5" />
                         Launch Scanner
                     </button>
@@ -236,7 +281,7 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
         <div className="space-y-6">
             {/* Nav */}
             <div className="flex border-b border-pr-border">
-                {['overview', 'attendees', 'submissions', 'updates'].map((tab) => (
+                {['overview', 'attendees', 'tickets', 'submissions', 'updates'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab as any)}
@@ -252,6 +297,19 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
 
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'attendees' && renderAttendees()}
+            {activeTab === 'tickets' && renderTicketHolders()}
+
+            {/* Ticket Scanner Modal */}
+            {showScanner && (
+                <TicketScanner
+                    eventId={eventId}
+                    onClose={() => setShowScanner(false)}
+                    onSuccess={() => {
+                        fetchTicketHolders();
+                        fetchAttendees();
+                    }}
+                />
+            )}
             {(activeTab === 'submissions' || activeTab === 'updates') && (
                 <div className="flex flex-col items-center justify-center py-20 text-pr-text-3">
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
@@ -260,4 +318,99 @@ export default function OrganizerDashboard({ eventId, event }: OrganizerDashboar
             )}
         </div>
     );
+
+    function renderTicketHolders() {
+        return (
+            <div className="bg-white border border-pr-border rounded-2xl overflow-hidden animate-in fade-in duration-300">
+                <div className="p-4 border-b border-pr-border bg-gradient-to-r from-purple-50 to-pink-50 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Ticket className="w-5 h-5 text-purple-600" />
+                        <h3 className="font-bold text-pr-text-1">Ticket Holders ({ticketHolders.length})</h3>
+                    </div>
+                    <button onClick={fetchTicketHolders} className="text-xs text-purple-500 font-bold hover:underline">Refresh</button>
+                </div>
+                {fetchingTickets ? (
+                    <div className="p-12 flex flex-col items-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                    </div>
+                ) : ticketHolders.length === 0 ? (
+                    <div className="p-12 text-center text-pr-text-3">
+                        <Ticket className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                        <p className="font-bold">No tickets sold yet.</p>
+                        <p className="text-sm mt-1">Ticket holders will appear here once they purchase.</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-pr-surface-1 text-pr-text-3 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th className="px-6 py-3">Holder</th>
+                                    <th className="px-6 py-3">Tier</th>
+                                    <th className="px-6 py-3">Code</th>
+                                    <th className="px-6 py-3">Status</th>
+                                    <th className="px-6 py-3">Purchased</th>
+                                    <th className="px-6 py-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-pr-border">
+                                {ticketHolders.map((ticket) => (
+                                    <tr key={ticket.id} className="hover:bg-pr-surface-1 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                {ticket.user?.profile_image ? (
+                                                    <img src={ticket.user.profile_image} className="w-8 h-8 rounded-full" />
+                                                ) : (
+                                                    <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
+                                                        {ticket.user?.display_name?.[0] || 'U'}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <p className="font-bold text-pr-text-1">{ticket.user?.display_name || 'Anonymous'}</p>
+                                                    <p className="text-[10px] text-pr-text-3">@{ticket.user?.username || 'unknown'}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">
+                                                {ticket.tier?.name || 'Standard'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <code className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">
+                                                {ticket.activation_code}
+                                            </code>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {ticket.status === 'used' ? (
+                                                <span className="text-green-600 font-medium flex items-center gap-1">
+                                                    <CheckCircle className="w-4 h-4" /> Used
+                                                </span>
+                                            ) : ticket.status === 'expired' ? (
+                                                <span className="text-red-500 font-medium">Expired</span>
+                                            ) : (
+                                                <span className="text-blue-600 font-medium">Valid</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-pr-text-2">
+                                            {new Date(ticket.created_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            {ticket.status === 'valid' && (
+                                                <button
+                                                    onClick={() => handleActivateTicket(ticket.activation_code)}
+                                                    className="px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-bold hover:bg-green-600 flex items-center gap-1 ml-auto"
+                                                >
+                                                    <QrCode className="w-3 h-3" /> Validate
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+        );
+    }
 }

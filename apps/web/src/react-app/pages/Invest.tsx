@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { TrendingUp, Users, DollarSign, Plus, Target, ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link as _Link } from 'react-router-dom';
+import { TrendingUp as _TrendingUp, DollarSign as _DollarSign, Plus as _Plus, Target as _Target } from 'lucide-react';
+
+const Link = _Link as any;
+const TrendingUp = _TrendingUp as any;
+const DollarSign = _DollarSign as any;
+const Plus = _Plus as any;
+const Target = _Target as any;
 import CreateForecastModal from '../components/CreateForecastModal';
 import PlaceForecastModal from '../components/PlaceForecastModal';
 import ForecastCard, { type SocialForecast } from '../components/ForecastCard';
@@ -32,13 +37,12 @@ interface UserForecast {
 }
 
 export default function Invest() {
-  const [activeTab, setActiveTab] = useState<'forecasts' | 'my-forecasts' | 'my-created' | 'content' | 'market'>('forecasts');
+  const [activeTab, setActiveTab] = useState<'positions' | 'holdings' | 'explore'>('positions');
   const [forecasts, setForecasts] = useState<SocialForecast[]>([]);
   const [myForecasts, setMyForecasts] = useState<UserForecast[]>([]);
   const [myCreatedForecasts, setMyCreatedForecasts] = useState<SocialForecast[]>([]);
   const [content, setContent] = useState<ContentPieceType[]>([]);
-  const [marketShares, setMarketShares] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [selectedForecast, setSelectedForecast] = useState<SocialForecast | null>(null);
@@ -53,31 +57,34 @@ export default function Invest() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'forecasts') {
-        const data = await api.get<SocialForecast[]>('/social-forecasts');
-        setForecasts(Array.isArray(data) ? data : []);
-      } else if (activeTab === 'my-forecasts') {
-        const data = await api.get<UserForecast[]>('/users/forecasts');
-        setMyForecasts(Array.isArray(data) ? data : []);
-      } else if (activeTab === 'my-created') {
-        const data = await api.get<SocialForecast[]>('/users/created-forecasts');
-        setMyCreatedForecasts(Array.isArray(data) ? data : []);
-      } else if (activeTab === 'content') {
-        const [contentData, walletData] = await Promise.all([
-          api.get<ContentPieceType[]>('/content'),
-          api.get<WalletType[]>('/users/me/wallets').catch(() => [])
-        ]);
-        setContent(Array.isArray(contentData) ? contentData : []);
-        setWallets(Array.isArray(walletData) ? walletData : []);
-      } else if (activeTab === 'market') {
-        const data = await api.get<any[]>('/shares/listings?object_type=product');
-        setMarketShares(Array.isArray(data?.listings) ? data.listings : []);
-      }
+      // Always fetch user's positions and holdings for portfolio summary
+      const [forecastsData, myForecastsData, myCreatedData, contentData, walletData] = await Promise.all([
+        api.get<SocialForecast[]>('/social-forecasts').catch(() => []),
+        api.get<UserForecast[]>('/users/forecasts').catch(() => []),
+        api.get<SocialForecast[]>('/users/created-forecasts').catch(() => []),
+        api.get<ContentPieceType[]>('/content').catch(() => []),
+        api.get<WalletType[]>('/users/me/wallets').catch(() => [])
+      ]);
+      
+      setForecasts(Array.isArray(forecastsData) ? forecastsData : []);
+      setMyForecasts(Array.isArray(myForecastsData) ? myForecastsData : []);
+      setMyCreatedForecasts(Array.isArray(myCreatedData) ? myCreatedData : []);
+      setContent(Array.isArray(contentData) ? contentData : []);
+      setWallets(Array.isArray(walletData) ? walletData : []);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Calculate portfolio stats
+  const portfolioStats = {
+    totalValue: myForecasts.reduce((sum, f) => sum + f.prediction_amount, 0) + 
+                content.reduce((sum, c) => sum + (c.share_price || 0) * ((c as any).shares_owned || 0), 0),
+    activePositions: myForecasts.filter(f => f.forecast_status === 'active').length,
+    totalHoldings: content.filter(c => ((c as any).shares_owned || 0) > 0).length,
+    pendingPayout: myForecasts.filter(f => f.forecast_status === 'active').reduce((sum, f) => sum + f.potential_payout, 0),
   };
 
   const handleBuyShares = async (contentPiece: ContentPieceType, sharesCount: number) => {
@@ -266,43 +273,59 @@ export default function Invest() {
     <>
       <div className="min-h-screen-dynamic bg-pr-surface-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-pr-text-1">Investment Hub</h1>
-              <p className="text-pr-text-2">Create forecasts, make predictions, and invest in creator success</p>
+              <h1 className="text-3xl font-bold text-pr-text-1">My Portfolio</h1>
+              <p className="text-pr-text-2">Track your predictions and content holdings</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Plus className="w-4 h-4" />
               <span>Create Forecast</span>
             </button>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="border-b border-pr-surface-3 mb-8">
-            <nav className="-mb-px flex space-x-8">
-              {[
-                { id: 'forecasts', label: 'All Forecasts', icon: TrendingUp },
-                { id: 'my-forecasts', label: 'My Predictions', icon: Users },
-                { id: 'my-created', label: 'My Forecasts', icon: Target },
-                { id: 'content', label: 'Content Shares', icon: DollarSign },
-                { id: 'market', label: 'Marketplace', icon: ShoppingCart },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-pr-text-2 hover:text-pr-text-1 hover:border-pr-surface-3'
-                    }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </nav>
+          {/* Portfolio Summary */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-4">
+              <p className="text-xs text-pr-text-2 mb-1">Total Value</p>
+              <p className="text-2xl font-bold text-pr-text-1">${portfolioStats.totalValue.toFixed(2)}</p>
+            </div>
+            <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-4">
+              <p className="text-xs text-pr-text-2 mb-1">Active Positions</p>
+              <p className="text-2xl font-bold text-pr-text-1">{portfolioStats.activePositions}</p>
+            </div>
+            <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-4">
+              <p className="text-xs text-pr-text-2 mb-1">Content Holdings</p>
+              <p className="text-2xl font-bold text-pr-text-1">{portfolioStats.totalHoldings}</p>
+            </div>
+            <div className="bg-pr-surface-card rounded-xl border border-pr-surface-3 p-4">
+              <p className="text-xs text-pr-text-2 mb-1">Pending Payout</p>
+              <p className="text-2xl font-bold text-green-600">${portfolioStats.pendingPayout.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Tab Navigation - Consolidated to 3 tabs */}
+          <div className="flex items-center gap-1 bg-pr-surface-1 rounded-xl p-1 mb-6 w-fit border border-pr-surface-3">
+            {[
+              { id: 'positions', label: 'My Positions', icon: Target },
+              { id: 'holdings', label: 'Content Holdings', icon: DollarSign },
+              { id: 'explore', label: 'Explore', icon: TrendingUp },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
+                  ? 'bg-blue-600 text-white'
+                  : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
+                  }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Content */}
@@ -312,49 +335,34 @@ export default function Invest() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeTab === 'forecasts' && forecasts.map((forecast) => (
-                <ForecastCard
-                  key={forecast.id}
-                  forecast={forecast}
-                  onPlacePrediction={handlePlacePrediction}
-                />
-              ))}
+              {/* My Positions Tab - Shows user's forecasts and predictions */}
+              {activeTab === 'positions' && (
+                <>
+                  {myForecasts.map((forecast) => (
+                    <MyForecastCard key={forecast.id} forecast={forecast} />
+                  ))}
+                  {myCreatedForecasts.map((forecast) => (
+                    <ForecastCard
+                      key={`created-${forecast.id}`}
+                      forecast={forecast}
+                      onPlacePrediction={handlePlacePrediction}
+                    />
+                  ))}
+                </>
+              )}
 
-              {activeTab === 'my-forecasts' && myForecasts.map((forecast) => (
-                <MyForecastCard key={forecast.id} forecast={forecast} />
-              ))}
-
-              {activeTab === 'my-created' && myCreatedForecasts.map((forecast) => (
-                <ForecastCard
-                  key={forecast.id}
-                  forecast={forecast}
-                  onPlacePrediction={handlePlacePrediction}
-                />
-              ))}
-
-              {activeTab === 'content' && content.map((contentPiece) => (
+              {/* Holdings Tab - Shows content shares owned */}
+              {activeTab === 'holdings' && content.filter(c => ((c as any).shares_owned || 0) > 0).map((contentPiece) => (
                 <ContentShareCard key={contentPiece.id} content={contentPiece} />
               ))}
 
-              {activeTab === 'market' && marketShares.map((share) => (
-                <div key={share.id} className="bg-pr-surface-card rounded-lg border border-pr-surface-3 p-6">
-                  <div className="relative pb-[100%] rounded-lg overflow-hidden mb-4 bg-pr-surface-2">
-                    <img src={share.content_thumbnail} className="absolute inset-0 w-full h-full object-cover" />
-                  </div>
-                  <h3 className="font-bold text-pr-text-1 mb-1">{share.content_title}</h3>
-                  <p className="text-xs text-pr-text-2 mb-4">Seller: {share.owner_name}</p>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <p className="text-[10px] uppercase text-pr-text-2">Price/Share</p>
-                      <p className="font-black text-pr-text-1">${share.price_per_share}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-pr-text-2">Available</p>
-                      <p className="font-black text-pr-text-1">{share.remaining_quantity}</p>
-                    </div>
-                  </div>
-                  <Button className="w-full bg-blue-600">Buy Now</Button>
-                </div>
+              {/* Explore Tab - Shows available forecasts to join */}
+              {activeTab === 'explore' && forecasts.map((forecast) => (
+                <ForecastCard
+                  key={forecast.id}
+                  forecast={forecast}
+                  onPlacePrediction={handlePlacePrediction}
+                />
               ))}
             </div>
           )}
@@ -362,51 +370,59 @@ export default function Invest() {
           {/* Empty States */}
           {!loading && (
             <>
-              {activeTab === 'forecasts' && forecasts.length === 0 && (
-                <div className="text-center py-12">
-                  <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              {activeTab === 'positions' && myForecasts.length === 0 && myCreatedForecasts.length === 0 && (
+                <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+                  <Target className="w-12 h-12 text-pr-text-2 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Active Positions</h3>
+                  <p className="text-pr-text-2 mb-4 max-w-md mx-auto">
+                    You haven't made any predictions yet. Explore active forecasts or create your own!
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => setActiveTab('explore')}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors"
+                    >
+                      Explore Forecasts
+                    </button>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-pr-surface-2 text-pr-text-1 px-4 py-2 rounded-xl hover:bg-pr-surface-3 transition-colors"
+                    >
+                      Create Forecast
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'holdings' && content.filter(c => ((c as any).shares_owned || 0) > 0).length === 0 && (
+                <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+                  <DollarSign className="w-12 h-12 text-pr-text-2 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Content Holdings</h3>
+                  <p className="text-pr-text-2 mb-4 max-w-md mx-auto">
+                    You don't own any content shares yet. Visit the market to discover and invest in creator content.
+                  </p>
+                  <a
+                    href="/market"
+                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors"
+                  >
+                    Explore Market
+                  </a>
+                </div>
+              )}
+
+              {activeTab === 'explore' && forecasts.length === 0 && (
+                <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+                  <TrendingUp className="w-12 h-12 text-pr-text-2 mx-auto mb-4 opacity-50" />
                   <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Active Forecasts</h3>
-                  <p className="text-pr-text-2 mb-4">
-                    Be the first to create a prediction market! Put up your own stake and let others predict on your forecast.
+                  <p className="text-pr-text-2 mb-4 max-w-md mx-auto">
+                    Be the first to create a prediction market! Put up your stake and let others predict.
                   </p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors"
                   >
                     Create First Forecast
                   </button>
-                </div>
-              )}
-
-              {activeTab === 'my-forecasts' && myForecasts.length === 0 && (
-                <div className="text-center py-12">
-                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Predictions Yet</h3>
-                  <p className="text-pr-text-2">Browse active forecasts and make your first prediction to start earning!</p>
-                </div>
-              )}
-
-              {activeTab === 'my-created' && myCreatedForecasts.length === 0 && (
-                <div className="text-center py-12">
-                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Created Forecasts</h3>
-                  <p className="text-pr-text-2 mb-4">
-                    Create your first prediction market by putting up initial stake and letting others predict against you!
-                  </p>
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Create Forecast
-                  </button>
-                </div>
-              )}
-
-              {activeTab === 'content' && content.length === 0 && (
-                <div className="text-center py-12">
-                  <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-pr-text-1 mb-2">No Content Available</h3>
-                  <p className="text-pr-text-2">No content shares are currently available for investment.</p>
                 </div>
               )}
             </>

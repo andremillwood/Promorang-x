@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const supabaseAdmin = require('../lib/supabase');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
+const ticketService = require('../services/ticketService');
+const dailyLayerService = require('../services/dailyLayerService');
 
 // ============================================
 // LIST EVENTS (public)
@@ -361,6 +363,17 @@ router.post('/:id/rsvp', requireAuth, async (req, res) => {
             .from('events')
             .update({ total_rsvps: (event.total_rsvps || 0) + 1 })
             .eq('id', eventId);
+
+        // Record verified action for Daily Layer
+        dailyLayerService.recordVerifiedAction({
+            userId,
+            actionType: 'CONTENT_PARTICIPATION',
+            verificationMode: 'SYSTEM_EVENT',
+            actionLabel: 'event_rsvp',
+            referenceType: 'event',
+            referenceId: eventId,
+            metadata: { eventStatus: event.status }
+        }).catch(err => console.warn('[Events] Failed to record verified action:', err));
 
         res.json({
             status: 'success',
@@ -778,6 +791,143 @@ router.patch('/:id/check-in', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error in PATCH /events/:id/check-in:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// ============================================
+// GET TICKET HOLDERS FOR EVENT (organizer only)
+// ============================================
+router.get('/:id/ticket-holders', requireAuth, async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const userId = req.user?.id || req.user?.sub;
+
+        // Verify user is the event creator
+        const { data: event, error: eventError } = await supabaseAdmin
+            .from('events')
+            .select('creator_id')
+            .eq('id', eventId)
+            .single();
+
+        if (eventError || !event) {
+            return res.status(404).json({ status: 'error', error: 'Event not found' });
+        }
+
+        if (event.creator_id !== userId) {
+            return res.status(403).json({ status: 'error', error: 'Not authorized to view ticket holders' });
+        }
+
+        const { data: tickets, error } = await supabaseAdmin
+            .from('event_tickets')
+            .select(`
+                *,
+                tier:event_ticket_tiers!inner (*),
+                user:users (id, display_name, username, profile_image)
+            `)
+            .eq('tier.event_id', eventId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.json({ status: 'success', data: { tickets: tickets || [] } });
+    } catch (error) {
+        console.error('Error in GET /events/:id/ticket-holders:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch ticket holders' });
+    }
+});
+
+// ============================================
+// GET TICKET TIERS
+// ============================================
+router.get('/:id/ticket-tiers', async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const { data: tiers, error } = await supabaseAdmin
+            .from('event_ticket_tiers')
+            .select('*')
+            .eq('event_id', eventId);
+
+        if (error) throw error;
+        res.json({ status: 'success', data: { tiers: tiers || [] } });
+    } catch (error) {
+        console.error('Error in GET /events/:id/ticket-tiers:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch ticket tiers' });
+    }
+});
+
+// ============================================
+// PURCHASE TICKET (requires auth)
+// ============================================
+router.post('/:id/tickets/purchase', requireAuth, async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?.sub;
+        const { tier_id } = req.body;
+
+        if (!tier_id) {
+            return res.status(400).json({ success: false, error: 'tier_id is required' });
+        }
+
+        const ticket = await ticketService.issueTicket(userId, tier_id);
+        res.json({ status: 'success', data: { ticket }, message: 'Ticket purchased successfully' });
+    } catch (error) {
+        console.error('Error in POST /events/:id/tickets/purchase:', error);
+        res.status(500).json({ success: false, error: error.message || 'Failed to purchase ticket' });
+    }
+});
+
+// ============================================
+// GET SINGLE TICKET BY ID
+// ============================================
+router.get('/tickets/:ticketId', requireAuth, async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?.sub;
+        const { ticketId } = req.params;
+
+        const { data: ticket, error } = await supabaseAdmin
+            .from('event_tickets')
+            .select(`
+                *,
+                tier:event_ticket_tiers (
+                    *,
+                    event:events (*)
+                )
+            `)
+            .eq('id', ticketId)
+            .eq('user_id', userId)
+            .single();
+
+        if (error || !ticket) {
+            return res.status(404).json({ status: 'error', error: 'Ticket not found' });
+        }
+
+        res.json({ status: 'success', data: { ticket } });
+    } catch (error) {
+        console.error('Error in GET /events/tickets/:ticketId:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch ticket' });
+    }
+});
+
+// ============================================
+// ACTIVATE TICKET / CHECK-IN VIA CODE
+// ============================================
+router.post('/:id/tickets/activate', requireAuth, async (req, res) => {
+    try {
+        const organizerId = req.user?.id || req.user?.sub;
+        const { activation_code } = req.body;
+
+        if (!activation_code) {
+            return res.status(400).json({ success: false, error: 'activation_code is required' });
+        }
+
+        const result = await ticketService.activateTicket(activation_code, organizerId);
+        if (result.success) {
+            res.json({ status: 'success', message: 'Ticket activated and user checked in' });
+        } else {
+            res.status(400).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in POST /events/:id/tickets/activate:', error);
+        res.status(500).json({ success: false, error: 'Failed to activate ticket' });
     }
 });
 

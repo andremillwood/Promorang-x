@@ -20,8 +20,8 @@ class ApiError extends Error {
   originalMessage?: string;
 
   constructor(
-    message: string, 
-    status: number, 
+    message: string,
+    status: number,
     options: {
       code?: string;
       details?: any;
@@ -87,22 +87,61 @@ export function removeAccessToken(): void {
   localStorage.removeItem('access_token');
 }
 
+// Advertiser account context management
+const ADVERTISER_ACCOUNT_KEY = 'active_advertiser_account_id';
+
+export function getActiveAdvertiserAccountId(): string | null {
+  return localStorage.getItem(ADVERTISER_ACCOUNT_KEY);
+}
+
+export function setActiveAdvertiserAccountId(accountId: string | null): void {
+  if (accountId) {
+    localStorage.setItem(ADVERTISER_ACCOUNT_KEY, accountId);
+  } else {
+    localStorage.removeItem(ADVERTISER_ACCOUNT_KEY);
+  }
+}
+
+// Merchant account context management
+const MERCHANT_ACCOUNT_KEY = 'active_merchant_account_id';
+
+export function getActiveMerchantAccountId(): string | null {
+  return localStorage.getItem(MERCHANT_ACCOUNT_KEY);
+}
+
+export function setActiveMerchantAccountId(accountId: string | null): void {
+  if (accountId) {
+    localStorage.setItem(MERCHANT_ACCOUNT_KEY, accountId);
+  } else {
+    localStorage.removeItem(MERCHANT_ACCOUNT_KEY);
+  }
+}
+
 // Get auth headers
 export function getAuthHeaders(): HeadersInit {
   const token = getAccessToken();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json'
+  };
+
   if (token) {
     if (process.env.NODE_ENV === 'development') {
       console.log('Including auth token in request headers');
     }
-    return { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
+    headers['Authorization'] = `Bearer ${token}`;
   }
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('No auth token available for request');
+
+  const accountId = getActiveAdvertiserAccountId();
+  if (accountId) {
+    headers['X-Advertiser-Account-Id'] = accountId;
   }
-  return { 'Content-Type': 'application/json' };
+
+  const merchantAccountId = getActiveMerchantAccountId();
+  if (merchantAccountId) {
+    headers['X-Merchant-Account-Id'] = merchantAccountId;
+  }
+
+  return headers;
 }
 
 
@@ -112,34 +151,34 @@ interface ApiFetchOptions extends RequestInit {
 
 // Main API fetch function with JWT authentication
 export async function apiFetch<T = any>(
-  endpoint: string, 
+  endpoint: string,
   options: ApiFetchOptions = {}
 ): Promise<T> {
   const { returnRawResponse = false, ...fetchOptions } = options;
   try {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log(`API Request: ${options.method || 'GET'} ${url}`);
-    
+
     // Always get fresh token for each request
     const authHeaders = getAuthHeaders();
-    
+
     // Prepare headers
     const headers = new Headers({
       'Content-Type': 'application/json',
       ...authHeaders,
       ...(options.headers || {})
     });
-    
+
     // Log request details for debugging
     console.log('Request headers:', Object.fromEntries(headers.entries()));
-    
+
     // Make the request
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
       credentials: 'include',
     });
-    
+
     // Log response status and headers for debugging
     console.log(`API Response: ${response.status} ${response.statusText} for ${url}`);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
@@ -155,7 +194,7 @@ export async function apiFetch<T = any>(
     // Clone the response so we can read it multiple times
     const responseClone = response.clone();
     let responseBody: any;
-    
+
     try {
       const text = await responseClone.text();
       // Try to parse as JSON if possible
@@ -176,9 +215,9 @@ export async function apiFetch<T = any>(
       // Don't force redirect here - let the calling code handle it
       // This prevents redirect loops during session checks
       throw new ApiError(
-        responseBody.message || 'Unauthorized - Please log in again', 
-        response.status, 
-        { 
+        responseBody.message || 'Unauthorized - Please log in again',
+        response.status,
+        {
           code: responseBody.code || 'UNAUTHORIZED',
           details: responseBody.details || 'Authentication required',
           endpoint,
@@ -190,11 +229,11 @@ export async function apiFetch<T = any>(
 
     // Handle other error statuses
     if (!response.ok) {
-      const errorMessage = responseBody?.message || 
-                         responseBody?.error || 
-                         response.statusText || 
-                         'An error occurred';
-      
+      const errorMessage = responseBody?.message ||
+        responseBody?.error ||
+        response.statusText ||
+        'An error occurred';
+
       throw new ApiError(
         errorMessage,
         response.status,
@@ -224,7 +263,7 @@ export async function apiFetch<T = any>(
       console.error('API Error:', error);
       throw error;
     }
-    
+
     console.error('API request failed:', error);
     throw new ApiError(
       error instanceof Error ? error.message : 'An unknown error occurred',
@@ -241,10 +280,10 @@ export async function apiFetch<T = any>(
 
 // Helper methods for common HTTP methods
 const api = {
-  get: <T = any>(endpoint: string, options: RequestInit = {}) => 
+  get: <T = any>(endpoint: string, options: RequestInit = {}) =>
     apiFetch<ApiResponse<T>>(endpoint, { ...options, method: 'GET' }),
 
-  post: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) => 
+  post: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) =>
     apiFetch<ApiResponse<T>>(endpoint, {
       ...options,
       method: 'POST',
@@ -255,7 +294,7 @@ const api = {
       body: data ? JSON.stringify(data) : undefined
     }),
 
-  put: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) => 
+  put: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) =>
     apiFetch<ApiResponse<T>>(endpoint, {
       ...options,
       method: 'PUT',
@@ -266,13 +305,13 @@ const api = {
       body: data ? JSON.stringify(data) : undefined
     }),
 
-  delete: <T = any>(endpoint: string, options: RequestInit = {}) => 
-    apiFetch<ApiResponse<T>>(endpoint, { 
-      ...options, 
-      method: 'DELETE' 
+  delete: <T = any>(endpoint: string, options: RequestInit = {}) =>
+    apiFetch<ApiResponse<T>>(endpoint, {
+      ...options,
+      method: 'DELETE'
     }),
 
-  patch: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) => 
+  patch: <T = any>(endpoint: string, data?: any, options: RequestInit = {}) =>
     apiFetch<ApiResponse<T>>(endpoint, {
       ...options,
       method: 'PATCH',
@@ -284,10 +323,10 @@ const api = {
     }),
 
   // Raw fetch for non-JSON responses or custom handling
-  raw: <T = any>(endpoint: string, options: RequestInit = {}) => 
-    apiFetch<T>(endpoint, { 
-      ...options, 
-      returnRawResponse: true 
+  raw: <T = any>(endpoint: string, options: RequestInit = {}) =>
+    apiFetch<T>(endpoint, {
+      ...options,
+      returnRawResponse: true
     })
 };
 

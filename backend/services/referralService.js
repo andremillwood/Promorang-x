@@ -6,6 +6,7 @@
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
+const { sendReferralSignupEmail, sendReferralActivationEmail, sendReferralCommissionEmail } = require('./resendService');
 
 // Commission rates by earning type
 const COMMISSION_RATES = {
@@ -151,6 +152,29 @@ async function trackReferral(referredUserId, referralCode, signupMetadata = {}) 
       .update({ referred_by_id: codeData.user_id })
       .eq('id', referredUserId);
 
+    // Send email notification to referrer (async)
+    try {
+      const { data: referrer } = await supabase
+        .from('users')
+        .select('email, display_name, username')
+        .eq('id', codeData.user_id)
+        .single();
+      const { data: referred } = await supabase
+        .from('users')
+        .select('display_name, username')
+        .eq('id', referredUserId)
+        .single();
+      if (referrer?.email) {
+        sendReferralSignupEmail(
+          referrer.email,
+          referrer.display_name || referrer.username,
+          referred?.display_name || referred?.username || 'New User'
+        ).catch(err => console.error('Failed to send referral signup email:', err));
+      }
+    } catch (emailErr) {
+      console.error('Error sending referral signup email:', emailErr);
+    }
+
     return referral;
   } catch (error) {
     console.error('[Referral Service] Error tracking referral:', error);
@@ -255,7 +279,31 @@ async function awardActivationBonus(referrerId, referredUserId) {
       })
       .eq('id', referrerId);
 
+    // Send activation bonus email (async)
+    try {
+      const { data: referrer } = await supabase
+        .from('users')
+        .select('email, display_name, username')
+        .eq('id', referrerId)
+        .single();
+      const { data: referred } = await supabase
+        .from('users')
+        .select('display_name, username')
+        .eq('id', referredUserId)
+        .single();
+      if (referrer?.email) {
+        sendReferralActivationEmail(referrer.email, referrer.display_name || referrer.username, {
+          referredUserName: referred?.display_name || referred?.username || 'Your referral',
+          gemsEarned: ACTIVATION_BONUS.gems,
+          pointsEarned: ACTIVATION_BONUS.points,
+        }).catch(err => console.error('Failed to send activation bonus email:', err));
+      }
+    } catch (emailErr) {
+      console.error('Error sending activation bonus email:', emailErr);
+    }
+
     console.log(`[Referral Service] Activation bonus awarded to ${referrerId}`);
+
   } catch (error) {
     console.error('[Referral Service] Error awarding activation bonus:', error);
   }
@@ -396,7 +444,7 @@ async function processCommission(commissionId) {
     return data;
   } catch (error) {
     console.error('[Referral Service] Error processing commission:', error);
-    
+
     // Mark as failed
     await supabase
       .from('referral_commissions')

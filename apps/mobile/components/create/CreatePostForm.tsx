@@ -19,7 +19,7 @@ export const CreatePostForm: React.FC = () => {
   const [sourcePlatform, setSourcePlatform] = useState('');
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
   const [enableContentShares, setEnableContentShares] = useState(false);
-  const [enableBetting, setEnableBetting] = useState(false);
+  const [enableForecasts, setEnableForecasts] = useState(false);
   const [initialSharePrice, setInitialSharePrice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -87,7 +87,7 @@ export const CreatePostForm: React.FC = () => {
         content,
         mediaUrl: mediaUri || undefined,
         enableContentShares,
-        enableBetting,
+        enableBetting: enableForecasts, // API uses enableBetting, UI shows "Forecasts"
       });
 
       console.log('Post created:', result);
@@ -204,13 +204,13 @@ export const CreatePostForm: React.FC = () => {
       <View style={styles.toggleContainer}>
         <View style={styles.toggleInfo}>
           <TrendingUp size={20} color={colors.primary} />
-          <Text style={styles.toggleLabel}>Enable Social Betting</Text>
+          <Text style={styles.toggleLabel}>Enable Social Forecasts</Text>
         </View>
         <Switch
-          value={enableBetting}
-          onValueChange={setEnableBetting}
+          value={enableForecasts}
+          onValueChange={setEnableForecasts}
           trackColor={{ false: colors.lightGray, true: `${colors.primary}80` }}
-          thumbColor={enableBetting ? colors.primary : colors.darkGray}
+          thumbColor={enableForecasts ? colors.primary : colors.darkGray}
         />
       </View>
 

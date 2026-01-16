@@ -102,13 +102,13 @@ export default function ProductImporter() {
         <div className="space-y-6">
             <div className="flex items-center justify-between gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pr-text-2" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pr-text-2 pointer-events-none" />
                     <input
                         type="text"
                         placeholder={`Search ${activePlatform} products...`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-pr-surface-card border border-pr-border rounded-lg"
+                        className="w-full pl-11 pr-4 py-2 bg-pr-surface-card border border-pr-border rounded-lg"
                     />
                 </div>
                 <Button

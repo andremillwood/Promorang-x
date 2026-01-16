@@ -31,7 +31,7 @@ const invalidateCache = (prefix) => {
   }
 };
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || 'your-secret-key-change-in-production';
 
 const createDemoWallet = (userId, balance = 0) => ({
   id: `demo-wallet-${userId}`,
@@ -195,6 +195,7 @@ const generateToken = (user) => {
     username: user.username,
     display_name: user.display_name,
     user_type: user.user_type,
+    onboarding_completed: user.onboarding_completed !== undefined ? user.onboarding_completed : true,
     points_balance: user.points_balance,
     keys_balance: user.keys_balance,
     gems_balance: user.gems_balance,
@@ -215,43 +216,7 @@ const decodeToken = (token) => {
 };
 
 // Auth middleware - extract user from JWT token or use mock for development
-const authMiddleware = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const decoded = decodeToken(token);
-      if (decoded) {
-        // Map userId or sub to id for compatibility
-        req.user = {
-          ...decoded,
-          id: decoded.userId || decoded.id || decoded.sub
-        };
-        return next();
-      }
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-      req.user = {
-        id: 'demo-creator-id',
-        email: 'creator@demo.com',
-        username: 'demo_creator',
-        display_name: 'Demo Creator',
-        user_type: 'creator',
-        points_balance: 1000,
-        keys_balance: 50,
-        gems_balance: 100,
-        gold_collected: 0,
-        user_tier: 'free'
-      };
-      return next();
-    }
-
-    return res.status(401).json({ success: false, error: 'Unauthorized' });
-  } catch (error) {
-    res.status(401).json({ success: false, error: 'Authentication failed' });
-  }
-};
+const { requireAuth } = require('../middleware/auth');
 
 // Public profile routes (no auth required)
 router.get('/public/:username', async (req, res) => {
@@ -355,7 +320,7 @@ router.get('/public/id/:id', async (req, res) => {
 });
 
 // Apply auth to all routes
-router.use(authMiddleware);
+router.use(requireAuth);
 
 // Get current user profile
 router.get('/me', async (req, res) => {
@@ -616,6 +581,40 @@ router.get('/transactions', async (req, res) => {
   } catch (error) {
     console.error('Error fetching transactions list:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch transactions' });
+  }
+});
+
+// Get user's event tickets
+router.get('/me/tickets', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ status: 'error', error: 'User context missing' });
+    }
+
+    if (!supabase) {
+      return res.json({ status: 'success', data: { tickets: [] } });
+    }
+
+    const { data: tickets, error } = await supabase
+      .from('event_tickets')
+      .select(`
+        *,
+        tier:event_ticket_tiers (
+          *,
+          event:events (*)
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ status: 'success', data: { tickets: tickets || [] } });
+  } catch (error) {
+    console.error('Error fetching user tickets:', error);
+    res.status(500).json({ status: 'error', error: 'Failed to fetch tickets' });
   }
 });
 

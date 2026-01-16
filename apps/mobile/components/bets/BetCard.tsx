@@ -48,9 +48,9 @@ export const BetCard: React.FC<BetCardProps> = ({ bet, onPress }) => {
             </View>
           </View>
           <Avatar
-            source={bet.creator.avatar}
+            source={bet.creator?.avatar}
             size="sm"
-            name={bet.creator.name}
+            name={bet.creator?.name || 'Promorang'}
           />
         </View>
 
@@ -86,7 +86,7 @@ export const BetCard: React.FC<BetCardProps> = ({ bet, onPress }) => {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.creator}>{bet.creator.name}</Text>
+          <Text style={styles.creator}>{bet.creator?.name || 'Promorang'}</Text>
           <View style={styles.timeContainer}>
             <Clock size={14} color={colors.error} />
             <Text style={styles.timeText}>

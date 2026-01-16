@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS user_balances (
 );
 
 -- Trigger to update updated_at
+DROP TRIGGER IF EXISTS update_user_balances_updated_at ON user_balances;
 CREATE TRIGGER update_user_balances_updated_at
     BEFORE UPDATE ON user_balances
     FOR EACH ROW

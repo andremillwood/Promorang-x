@@ -8,7 +8,8 @@ const router = express.Router();
 const marketplaceService = require('../services/marketplaceService');
 const ecommerceService = require('../services/ecommerceService');
 const { supabase: serviceSupabase } = require('../lib/supabase');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, resolveMerchantContext } = require('../middleware/auth');
+const maturityService = require('../services/maturityService');
 const supabase = global.supabase || serviceSupabase || null;
 
 // Helper functions
@@ -128,6 +129,7 @@ router.get('/stores/:identifier/public', async (req, res) => {
 // =====================================================
 // Auth middleware
 router.use(requireAuth);
+router.use(resolveMerchantContext);
 
 /**
  * GET /api/marketplace/categories
@@ -164,10 +166,14 @@ router.post('/stores', async (req, res) => {
  */
 router.get('/my-store', async (req, res) => {
   try {
+    if (!req.merchantAccount) {
+      return sendSuccess(res, { store: null });
+    }
+
     const { data: store, error } = await supabase
       .from('merchant_stores')
       .select('*')
-      .eq('user_id', req.user.id)
+      .eq('merchant_account_id', req.merchantAccount.id)
       .maybeSingle();
 
     if (error) throw error;
@@ -382,22 +388,25 @@ router.post('/products', async (req, res) => {
   try {
     const { store_id } = req.body;
 
-    // Verify user owns the store
-    if (!supabase) {
-      return sendError(res, 503, 'Database not available', 'SERVICE_UNAVAILABLE');
+    if (!req.merchantAccount) {
+      return sendError(res, 403, 'Merchant account required', 'FORBIDDEN');
     }
 
+    // Verify store belongs to the active merchant account
     const { data: store } = await supabase
       .from('merchant_stores')
-      .select('user_id')
+      .select('merchant_account_id')
       .eq('id', store_id)
       .single();
 
-    if (!store || store.user_id !== req.user.id) {
-      return sendError(res, 403, 'Not authorized to add products to this store', 'FORBIDDEN');
+    if (!store || store.merchant_account_id !== req.merchantAccount.id) {
+      return sendError(res, 403, 'Not authorized for this merchant account', 'FORBIDDEN');
     }
 
-    const product = await marketplaceService.createProduct(store_id, req.body);
+    const product = await marketplaceService.createProduct(store_id, {
+      ...req.body,
+      merchant_account_id: req.merchantAccount.id
+    });
     return sendSuccess(res, { product }, 'Product created successfully');
   } catch (error) {
     console.error('[Marketplace API] Error creating product:', error);
@@ -574,8 +583,28 @@ router.get('/products/:productId/reviews', async (req, res) => {
 // Product shares status
 router.get('/products/:id/shares-status', async (req, res) => {
   const { id } = req.params;
+  const userId = req.user?.id;
+
   if (!supabase) {
     return res.json({ status: 'success', data: { supporter_count: 5, available_shares: 500 } });
+  }
+
+  // Enforce Rank 2 for performance data
+  if (userId) {
+    try {
+      const maturityData = await maturityService.getUserMaturityData(userId);
+      const maturityState = maturityData?.maturity_state || 0;
+
+      if (maturityState < 2) {
+        return res.status(403).json({
+          status: 'error',
+          message: 'Reach Rank 2 to unlock product performance data.',
+          code: 'INSUFFICIENT_RANK'
+        });
+      }
+    } catch (maturityError) {
+      console.warn('[Marketplace API] Maturity check failed:', maturityError);
+    }
   }
 
   try {

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 import { API_BASE_URL } from '../config';
+import { apiFetch } from '@/react-app/lib/api';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Edit3,
@@ -19,7 +21,11 @@ import {
   Image,
   Video,
   MapPin,
-  User
+  User,
+  Sparkles,
+  ArrowRight,
+  Gift,
+  Target
 } from 'lucide-react';
 import type { UserType, ContentPieceType, DropType, DropApplicationType, ContentHolding, PredictionSummary } from '../../shared/types';
 import type { ProfileUser, ProfileDrop } from '../../types/profile';
@@ -34,6 +40,105 @@ import EditProfileModal from '@/react-app/components/EditProfileModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import MakeOfferModal from '@/react-app/components/MakeOfferModal';
 import { getPortfolioHoldings, getPortfolioPredictions } from '@/react-app/services/portfolioService';
+
+/**
+ * Simplified Profile View for State 0/1 users
+ * Shows essential profile info with focus on getting started
+ */
+function ProfileSimplified() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden">
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-10 h-10 text-white" />
+          )}
+        </div>
+        <h1 className="text-2xl font-bold text-pr-text-1 mb-1">
+          {user?.display_name || user?.username || 'Welcome!'}
+        </h1>
+        <p className="text-pr-text-2">@{user?.username || 'your_username'}</p>
+      </div>
+
+      {/* Quick Stats - Simplified */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-pr-surface-card rounded-xl p-4 text-center border border-pr-border">
+          <Star className="w-5 h-5 text-blue-500 mx-auto mb-2" />
+          <p className="text-xl font-bold text-pr-text-1">0</p>
+          <p className="text-xs text-pr-text-2">Points</p>
+        </div>
+        <div className="bg-pr-surface-card rounded-xl p-4 text-center border border-pr-border">
+          <Trophy className="w-5 h-5 text-yellow-500 mx-auto mb-2" />
+          <p className="text-xl font-bold text-pr-text-1">1</p>
+          <p className="text-xs text-pr-text-2">Level</p>
+        </div>
+        <div className="bg-pr-surface-card rounded-xl p-4 text-center border border-pr-border">
+          <Zap className="w-5 h-5 text-orange-500 mx-auto mb-2" />
+          <p className="text-xl font-bold text-pr-text-1">0</p>
+          <p className="text-xs text-pr-text-2">Drops</p>
+        </div>
+      </div>
+
+      {/* Progress Card */}
+      <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-border">
+        <h2 className="text-lg font-semibold text-pr-text-1 mb-4 flex items-center gap-2">
+          <Target className="w-5 h-5 text-orange-500" />
+          Your Journey
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-pr-text-1">Account created</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-pr-surface-3 rounded-full flex items-center justify-center">
+              <span className="text-xs text-pr-text-2">2</span>
+            </div>
+            <span className="text-pr-text-2">Complete your first drop</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-pr-surface-3 rounded-full flex items-center justify-center">
+              <span className="text-xs text-pr-text-2">3</span>
+            </div>
+            <span className="text-pr-text-2">Earn your first reward</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Get Started CTA */}
+      <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-xl p-6 text-white">
+        <div className="flex items-center gap-2 mb-3">
+          <Gift className="w-5 h-5" />
+          <span className="text-sm font-medium opacity-90">Start building your profile</span>
+        </div>
+        <h3 className="text-xl font-bold mb-2">Complete Your First Drop</h3>
+        <p className="text-white/80 text-sm mb-4">
+          Earn points, level up, and unlock new features by completing drops
+        </p>
+        <button
+          onClick={() => navigate('/today')}
+          className="w-full bg-white text-orange-600 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors"
+        >
+          Go to Today
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Coming Soon */}
+      <div className="text-center text-sm text-pr-text-2">
+        <p>Complete drops to unlock achievements, leaderboards, and more</p>
+      </div>
+    </div>
+  );
+}
 
 type TabType = 'overview' | 'content' | 'drops' | 'applications' | 'achievements';
 
@@ -110,6 +215,7 @@ function profileToUserType(profile: ProfileUser | null): UserType | null {
 
 export default function Profile({ isPublicProfile = false, useUserId = false }: ProfileProps) {
   const { user: authUser } = useAuth();
+  const { maturityState, isLoading: maturityLoading } = useMaturity();
   const { slug: urlUsername, id: urlUserId } = useParams();
   const navigate = useNavigate();
   const apiBase = API_BASE_URL || '';
@@ -119,6 +225,26 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+
+
+
+  // Derived state to securely check if we are viewing the logged-in user's profile
+  const isOwnProfile = useMemo(() => {
+    // If strict public view is enforced, never show private controls/data
+    if (isPublicProfile) return false;
+
+    // If no user loaded or no auth user, not own profile
+    if (!user || !authUser) return false;
+
+    // Strict ID check
+    return String(user.id) === String(authUser.id);
+  }, [isPublicProfile, user, authUser]);
+
+  // State 0/1: Show simplified view (only for own profile, not public profiles)
+  const isOwnUsernameUrl = urlUsername && authUser && (urlUsername === authUser.username || urlUsername === 'me');
+  if (!maturityLoading && maturityState <= 1 && !isPublicProfile && (isOwnProfile || isOwnUsernameUrl || (!urlUsername && !urlUserId))) {
+    return <ProfileSimplified />;
+  }
 
   // New state for profile data
   const [userContent, setUserContent] = useState<ContentPieceType[]>([]);
@@ -140,17 +266,6 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const [offerModalOpen, setOfferModalOpen] = useState(false);
   const [offerHolding, setOfferHolding] = useState<ContentHolding | null>(null);
 
-  // Derived state to securely check if we are viewing the logged-in user's profile
-  const isOwnProfile = useMemo(() => {
-    // If strict public view is enforced, never show private controls/data
-    if (isPublicProfile) return false;
-
-    // If no user loaded or no auth user, not own profile
-    if (!user || !authUser) return false;
-
-    // Strict ID check
-    return String(user.id) === String(authUser.id);
-  }, [isPublicProfile, user, authUser]);
 
   // Define fetch callbacks before useEffect hooks that depend on them
   const fetchUserContent = useCallback(async (userId: string | null) => {
@@ -162,9 +277,8 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setContentLoading(true);
     try {
-      const response = await fetch(withApiBase(`/api/users/${userId}/content`), { credentials: 'include' });
-      if (response.ok) {
-        const content = await response.json();
+      const content = await apiFetch(`/users/${userId}/content`);
+      if (content) {
         setUserContent(Array.isArray(content) ? content : []);
       } else {
         setUserContent([]);
@@ -185,9 +299,8 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setDropsLoading(true);
     try {
-      const response = await fetch(withApiBase(`/api/users/${userId}/drops`), { credentials: 'include' });
-      if (response.ok) {
-        const drops = await response.json();
+      const drops = await apiFetch(`/users/${userId}/drops`);
+      if (drops) {
         const normalized: ProfileDrop[] = Array.isArray(drops)
           ? drops.map((drop: DropType) => mapDrop(drop as any))
           : [];
@@ -210,11 +323,8 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     }
 
     try {
-      const response = await fetch(withApiBase(`/api/users/${userId}/leaderboard-position`), {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const position = await response.json();
+      const position = await apiFetch(`/users/${userId}/leaderboard-position`);
+      if (position) {
         setLeaderboardPosition(
           typeof position === 'object' && position !== null ? (position as LeaderboardSummary) : null
         );
@@ -233,11 +343,8 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     setApplicationsLoading(true);
     try {
-      const response = await fetch(withApiBase('/api/users/drop-applications'), {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const applications = await response.json();
+      const applications = await apiFetch('/users/drop-applications');
+      if (applications) {
         setUserApplications(Array.isArray(applications) ? applications : []);
       } else {
         setUserApplications([]);
@@ -254,28 +361,26 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     if (!urlUsername && !urlUserId) return;
 
     try {
-      let apiPath;
+      let endpoint;
       if (useUserId && urlUserId) {
-        apiPath = `/api/users/public/id/${urlUserId}`;
+        endpoint = `/users/public/id/${urlUserId}`;
       } else if (urlUsername) {
-        apiPath = `/api/users/public/${urlUsername}`;
+        endpoint = `/users/public/${urlUsername}`;
       } else {
         throw new Error('No user identifier provided');
       }
 
-      const response = await fetch(withApiBase(apiPath));
-      if (!response.ok) {
-        throw new Error('User not found');
+      const data = await apiFetch(endpoint);
+      if (data) {
+        setUser(adaptLegacyUser(data.user));
+        setUserContent(Array.isArray(data.content) ? data.content : []);
+        setUserDrops(Array.isArray(data.drops) ? data.drops.map((d: DropType) => mapDrop(d as any)) : []);
+        setLeaderboardPosition(
+          typeof data.leaderboard_position === 'object' && data.leaderboard_position !== null
+            ? (data.leaderboard_position as LeaderboardSummary)
+            : null
+        );
       }
-      const data = await response.json();
-      setUser(adaptLegacyUser(data.user));
-      setUserContent(Array.isArray(data.content) ? data.content : []);
-      setUserDrops(Array.isArray(data.drops) ? data.drops.map((d: DropType) => mapDrop(d as any)) : []);
-      setLeaderboardPosition(
-        typeof data.leaderboard_position === 'object' && data.leaderboard_position !== null
-          ? (data.leaderboard_position as LeaderboardSummary)
-          : null
-      );
     } catch (error) {
       console.error('Failed to fetch public profile:', error);
     } finally {
@@ -293,13 +398,13 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
 
     // Fallback: make API call only if authUser is not available
     try {
-      const authToken = localStorage.getItem('authToken');
+      const accessToken = localStorage.getItem('access_token');
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
       const response = await fetch(withApiBase('/api/users/me'), { headers, credentials: 'include' });
@@ -848,17 +953,22 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
                 </div>
               )}
 
-              <PublicHoldingsSection
-                holdings={publicHoldings}
-                isOwner={isOwnProfile}
-                onOffer={openOfferModal}
-                onView={(holding) => navigate(`/portfolio/holdings/${holding.content_id}`)}
-              />
+              {/* Hide complex sections for State 0/1 */}
+              {maturityState > 1 && (
+                <>
+                  <PublicHoldingsSection
+                    holdings={publicHoldings}
+                    isOwner={isOwnProfile}
+                    onOffer={openOfferModal}
+                    onView={(holding) => navigate(`/portfolio/holdings/${holding.content_id}`)}
+                  />
 
-              <PublicPredictionsSection
-                predictions={publicPredictions}
-                onView={(prediction) => navigate(`/prediction/${prediction.id}`)}
-              />
+                  <PublicPredictionsSection
+                    predictions={publicPredictions}
+                    onView={(prediction) => navigate(`/prediction/${prediction.id}`)}
+                  />
+                </>
+              )}
             </div>
           )}
 
@@ -1065,41 +1175,56 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
           {activeTab === 'achievements' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-pr-text-1">Achievements</h3>
+                <h3 className="text-xl font-semibold text-pr-text-1">Your Badges & Achievements</h3>
                 <button
                   onClick={() => setShowAchievementsModal(true)}
                   className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
                 >
-                  View All
+                  View Progress
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Mock achievements for demo */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-100 text-center">
-                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Trophy className="w-8 h-8 text-yellow-600" />
-                  </div>
-                  <h4 className="font-semibold text-yellow-900 mb-2">First Steps</h4>
-                  <p className="text-sm text-yellow-700">Complete your first drop application</p>
+              {loading ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full"></div>
                 </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Content Creator</h4>
-                  <p className="text-sm text-blue-700">Share your first piece of content</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {/* Real badges would be fetched here, showing mock completed ones for now if API not ready */}
+                  {[
+                    { key: 'first_steps', name: 'First Steps', icon: 'Trophy', color: 'yellow', completed: true },
+                    { key: 'pioneer', name: 'Pioneer', icon: 'Award', color: 'purple', completed: true },
+                    { key: 'social', name: 'Social Butterfly', icon: 'Users', color: 'blue', completed: false },
+                    { key: 'streak', name: 'Hot Streak', icon: 'Zap', color: 'orange', completed: false },
+                    { key: 'creator', name: 'Creator', icon: 'Star', color: 'emerald', completed: false },
+                  ].map((badge) => (
+                    <div
+                      key={badge.key}
+                      className={`relative group p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center text-center ${badge.completed
+                        ? 'bg-white dark:bg-slate-800 border-pr-surface-3 shadow-sm scale-100 opacity-100 hover:-translate-y-1'
+                        : 'bg-slate-50 dark:bg-slate-900 border-transparent opacity-40 grayscale group-hover:grayscale-0'
+                        }`}
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${badge.completed ? `bg-${badge.color}-100 text-${badge.color}-600` : 'bg-slate-200 text-slate-400'
+                        }`}>
+                        {badge.icon === 'Trophy' && <Trophy className="w-6 h-6" />}
+                        {badge.icon === 'Award' && <Award className="w-6 h-6" />}
+                        {badge.icon === 'Users' && <Users className="w-6 h-6" />}
+                        {badge.icon === 'Zap' && <Zap className="w-6 h-6" />}
+                        {badge.icon === 'Star' && <Star className="w-6 h-6" />}
+                      </div>
+                      <h4 className="font-bold text-xs text-pr-text-1 mb-1">{badge.name}</h4>
+                      {badge.completed && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                            <Check className="w-2 h-2 text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100 text-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Award className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h4 className="font-semibold text-purple-900 mb-2">Influencer</h4>
-                  <p className="text-sm text-purple-700">Reach 100 followers</p>
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>

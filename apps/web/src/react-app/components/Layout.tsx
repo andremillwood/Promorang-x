@@ -1,32 +1,51 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link as _Link, useLocation, useNavigate } from "react-router-dom";
+const Link = _Link as any;
 import SuccessGuide from '@/react-app/components/SuccessGuide';
 import { useAuth } from '../hooks/useAuth';
 import { API_BASE_URL } from '../config';
 import {
-  User,
-  LogOut,
-  Coins,
-  Key,
-  Star,
-  Trophy,
-  Megaphone,
-  Search,
-  X,
-  Wallet,
-  ChevronDown,
-  Crown,
-  Bell,
-  ShoppingBag,
-  Rocket
+  User as _User,
+  LogOut as _LogOut,
+  Coins as _Coins,
+  Key as _Key,
+  Star as _Star,
+  Trophy as _Trophy,
+  Megaphone as _Megaphone,
+  Search as _Search,
+  X as _X,
+  Wallet as _Wallet,
+  ChevronDown as _ChevronDown,
+  Crown as _Crown,
+  Bell as _Bell,
+  ShoppingBag as _ShoppingBag,
+  Rocket as _Rocket
 } from 'lucide-react';
+
+const User = _User as any;
+const LogOut = _LogOut as any;
+const Coins = _Coins as any;
+const Key = _Key as any;
+const Star = _Star as any;
+const Trophy = _Trophy as any;
+const Megaphone = _Megaphone as any;
+const Search = _Search as any;
+const X = _X as any;
+const Wallet = _Wallet as any;
+const ChevronDown = _ChevronDown as any;
+const Crown = _Crown as any;
+const Bell = _Bell as any;
+const ShoppingBag = _ShoppingBag as any;
+const Rocket = _Rocket as any;
+
 import UserLink from '@/react-app/components/UserLink';
 import Tooltip from '@/react-app/components/Tooltip';
 import NotificationCenter from '@/react-app/components/NotificationCenter';
 import DesktopSidebar from '@/react-app/components/DesktopSidebar';
 import RightSidebar from '@/react-app/components/RightSidebar';
 import MobileNav from '@/react-app/components/MobileNav';
+import QuickActionsButton from '@/react-app/components/QuickActionsButton';
 import CurrencyConversionModal from '@/react-app/components/CurrencyConversionModal';
 import MasterKeyModal from '@/react-app/components/MasterKeyModal';
 import InstagramVerificationModal from '@/react-app/components/InstagramVerificationModal';
@@ -34,6 +53,8 @@ import UserTierUpgradeModal from '@/react-app/components/UserTierUpgradeModal';
 import SearchModal from '@/react-app/components/SearchModal';
 import GoldShopModal from '@/react-app/components/GoldShopModal';
 import AchievementsModal from '@/react-app/components/AchievementsModal';
+import AccountSwitcher from '@/react-app/components/AccountSwitcher';
+import MerchantAccountSwitcher from '@/react-app/components/MerchantAccountSwitcher';
 import { useNotifications } from '@/react-app/hooks/useNotifications';
 import { buildAuthHeaders } from '@/react-app/utils/api';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
@@ -45,30 +66,19 @@ import {
   isPathActive,
   type NavigationItem,
 } from '@/react-app/config/navigation';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 
-interface UserType {
-  id?: string;
-  email?: string;
-  username?: string;
-  display_name?: string;
-  avatar_url?: string;
-  points_balance?: number;
-  keys_balance?: number;
-  gems_balance?: number;
-  gold_collected?: number;
-  user_tier?: string;
-  user_type?: string;
-}
+
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth() as any;
   const location = useLocation();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showMasterKeyModal, setShowMasterKeyModal] = useState(false);
   const [showInstagramModal, setShowInstagramModal] = useState(false);
@@ -145,9 +155,12 @@ export default function Layout({ children }: LayoutProps) {
 
   const userRole = (userData as { user_type?: string } | null)?.user_type ?? undefined;
 
-  const sidebarGroups = getSidebarNavigationGroups(userRole);
-  const mobileNavItems = getMobileDrawerNavigation(userRole);
-  const bottomNavItems = getBottomNavigation(userRole);
+  // Get user's progression state for state-aware navigation
+  const { maturityState } = useMaturity();
+
+  const sidebarGroups = getSidebarNavigationGroups(userRole, maturityState);
+  const mobileNavItems = getMobileDrawerNavigation(userRole, maturityState);
+  const bottomNavItems = getBottomNavigation(userRole, maturityState);
 
   const quickActionNavNames = new Set([
     'Marketplace',
@@ -297,6 +310,14 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <>
+      {/* Skip to content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* DESKTOP: TRUE 3-COLUMN GRID LAYOUT */}
       <div className="min-h-screen bg-pr-surface-background grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_300px]">
         {/* LEFT SIDEBAR - Desktop Only (260px fixed) */}
@@ -329,6 +350,16 @@ export default function Layout({ children }: LayoutProps) {
                       className="h-8 w-8 sm:h-10 sm:w-10 transition-transform group-hover:scale-105"
                     />
                   </Link>
+                  {userRole === 'advertiser' && (
+                    <div className="ml-2">
+                      <AccountSwitcher />
+                    </div>
+                  )}
+                  {userRole === 'merchant' && (
+                    <div className="ml-2">
+                      <MerchantAccountSwitcher />
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Side - Actions & User Menu */}
@@ -475,107 +506,123 @@ export default function Layout({ children }: LayoutProps) {
                     </div>
                   )}
 
-                  {/* Desktop User Menu */}
-                  <div className="relative user-menu hidden md:block">
-                    <button
-                      onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-pr-surface-2 transition-all duration-200 group"
-                    >
-                      <UserLink
-                        username={userData?.username || user?.email?.split('@')[0]}
-                        displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name}
-                        avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
-                        className="flex items-center space-x-2"
-                        size="sm"
-                      />
-                      <div className="hidden lg:block text-left ml-1 sm:ml-2">
-                        <div className="text-xs sm:text-sm font-medium text-pr-text-1 truncate max-w-24 xl:max-w-32">
-                          {user?.google_user_data?.given_name || user?.google_user_data?.name || user?.email?.split('@')[0] || 'User'}
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
-                          {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
-                          {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
-                          <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
-                            (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
-                            }`}>
-                            {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-pr-text-2 ${showUserMenu ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {/* User Dropdown */}
-                    {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
-                        <div className="px-4 py-2 border-b border-pr-border">
-                          <div className="text-sm font-medium text-pr-text-1">
-                            {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
+                  {/* Desktop User Menu - Show login buttons if not authenticated */}
+                  {!user ? (
+                    <div className="hidden md:flex items-center space-x-2">
+                      <Link
+                        to="/auth"
+                        className="px-4 py-2 text-sm font-medium text-pr-text-1 hover:bg-pr-surface-2 rounded-lg transition-colors"
+                      >
+                        Log In
+                      </Link>
+                      <Link
+                        to="/auth?mode=signup"
+                        className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg transition-colors"
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="relative user-menu hidden md:block">
+                      <button
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-pr-surface-2 transition-all duration-200 group"
+                      >
+                        <UserLink
+                          username={userData?.username || user?.email?.split('@')[0]}
+                          displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name}
+                          avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
+                          className="flex items-center space-x-2"
+                          size="sm"
+                        />
+                        <div className="hidden lg:block text-left ml-1 sm:ml-2">
+                          <div className="text-xs sm:text-sm font-medium text-pr-text-1 truncate max-w-24 xl:max-w-32">
+                            {user?.google_user_data?.given_name || user?.google_user_data?.name || user?.email?.split('@')[0] || 'User'}
                           </div>
-                          <div className="text-xs text-pr-text-2">{user?.email}</div>
+                          <div className="flex items-center space-x-1">
+                            {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
+                            {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
+                            {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
+                            <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
+                              (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
+                              }`}>
+                              {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)}
+                            </span>
+                          </div>
                         </div>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-hover:text-pr-text-2 ${showUserMenu ? 'rotate-180' : ''}`} />
+                      </button>
 
-                        <div className="py-2">
-                          <button
-                            onClick={() => handleUserAction('profile')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
-                          >
-                            <User className="w-4 h-4 text-pr-text-2" />
-                            <span className="text-sm text-pr-text-1">Profile</span>
-                          </button>
+                      {/* User Dropdown */}
+                      {showUserMenu && (
+                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#141414] rounded-lg shadow-lg border border-pr-surface-3 py-2 z-50">
+                          <div className="px-4 py-2 border-b border-pr-border">
+                            <div className="text-sm font-medium text-pr-text-1">
+                              {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
+                            </div>
+                            <div className="text-xs text-pr-text-2">{user?.email}</div>
+                          </div>
 
-                          {!showSuccessGuide && (
+                          <div className="py-2">
                             <button
-                              onClick={() => {
-                                setShowSuccessGuide(true);
-                                setShowUserMenu(false);
-                              }}
+                              onClick={() => handleUserAction('profile')}
                               className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
                             >
-                              <Trophy className="w-4 h-4 text-green-600" />
-                              <span className="text-sm text-pr-text-1">Show Success Guide</span>
+                              <User className="w-4 h-4 text-pr-text-2" />
+                              <span className="text-sm text-pr-text-1">Profile</span>
                             </button>
-                          )}
 
-                          {userData && (
-                            <Tooltip content="Upgrade to Premium or Super tier for better rewards" position="left">
+                            {!showSuccessGuide && (
                               <button
-                                onClick={() => handleUserAction('upgrade')}
+                                onClick={() => {
+                                  setShowSuccessGuide(true);
+                                  setShowUserMenu(false);
+                                }}
                                 className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
                               >
-                                <Crown className="w-4 h-4 text-purple-600" />
-                                <span className="text-sm text-pr-text-1">Upgrade Tier</span>
+                                <Trophy className="w-4 h-4 text-green-600" />
+                                <span className="text-sm text-pr-text-1">Show Success Guide</span>
+                              </button>
+                            )}
+
+                            {userData && (
+                              <Tooltip content="Upgrade to Premium or Super tier for better rewards" position="left">
+                                <button
+                                  onClick={() => handleUserAction('upgrade')}
+                                  className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                                >
+                                  <Crown className="w-4 h-4 text-purple-600" />
+                                  <span className="text-sm text-pr-text-1">Upgrade Tier</span>
+                                </button>
+                              </Tooltip>
+                            )}
+
+                            <Tooltip content="Create and manage marketing drops for your business" position="left">
+                              <button
+                                onClick={() => handleUserAction('advertiser')}
+                                className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              >
+                                <Megaphone className="w-4 h-4 text-orange-600" />
+                                <span className="text-sm text-pr-text-1">
+                                  {(!userData || (userData as any).user_type !== 'advertiser') ? 'Become Advertiser' : 'Advertiser Dashboard'}
+                                </span>
                               </button>
                             </Tooltip>
-                          )}
+                          </div>
 
-                          <Tooltip content="Create and manage marketing drops for your business" position="left">
+                          <div className="border-t border-pr-border pt-2">
                             <button
-                              onClick={() => handleUserAction('advertiser')}
-                              className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3"
+                              onClick={() => handleUserAction('logout')}
+                              className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3 text-red-600"
                             >
-                              <Megaphone className="w-4 h-4 text-orange-600" />
-                              <span className="text-sm text-pr-text-1">
-                                {(!userData || (userData as any).user_type !== 'advertiser') ? 'Become Advertiser' : 'Advertiser Dashboard'}
-                              </span>
+                              <LogOut className="w-4 h-4" />
+                              <span className="text-sm">Sign Out</span>
                             </button>
-                          </Tooltip>
+                          </div>
                         </div>
-
-                        <div className="border-t border-pr-border pt-2">
-                          <button
-                            onClick={() => handleUserAction('logout')}
-                            className="w-full px-4 py-2 text-left hover:bg-pr-surface-2 flex items-center space-x-3 text-red-600"
-                          >
-                            <LogOut className="w-4 h-4" />
-                            <span className="text-sm">Sign Out</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
+                      )}
+                    </div>
+                  )}
 
                 </div>
               </div>
@@ -610,31 +657,51 @@ export default function Layout({ children }: LayoutProps) {
                 </button>
               </div>
 
-              {/* User Profile Section */}
-              <div className="flex items-center space-x-3">
-                <UserLink
-                  username={userData?.username || user?.email?.split('@')[0]}
-                  displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || 'User'}
-                  avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
-                  className="flex items-center space-x-3"
-                  size="md"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-pr-text-1 truncate">
-                    {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
-                    {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
-                    {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
-                    <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
-                      (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
-                      }`}>
-                      {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)} Tier
-                    </span>
+              {/* User Profile Section - or Login buttons for guests */}
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <UserLink
+                    username={userData?.username || user?.email?.split('@')[0]}
+                    displayName={userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || 'User'}
+                    avatarUrl={userData?.avatar_url || user?.google_user_data?.picture}
+                    className="flex items-center space-x-3"
+                    size="md"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-pr-text-1 truncate">
+                      {userData?.display_name || user?.google_user_data?.name || user?.google_user_data?.given_name || user?.email?.split('@')[0] || 'User'}
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {(userData?.user_tier || 'free') === 'super' && <Crown className="w-3 h-3 text-yellow-600" />}
+                      {(userData?.user_tier || 'free') === 'premium' && <Star className="w-3 h-3 text-purple-600" />}
+                      {(userData?.user_tier || 'free') === 'free' && <Star className="w-3 h-3 text-pr-text-2" />}
+                      <span className={`text-xs font-medium ${(userData?.user_tier || 'free') === 'super' ? 'text-yellow-700' :
+                        (userData?.user_tier || 'free') === 'premium' ? 'text-purple-700' : 'text-pr-text-1'
+                        }`}>
+                        {(userData?.user_tier || 'free').charAt(0).toUpperCase() + (userData?.user_tier || 'free').slice(1)} Tier
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col space-y-2">
+                  <p className="text-sm text-pr-text-2 mb-2">Sign in to access all features</p>
+                  <Link
+                    to="/auth"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="w-full py-3 text-center text-sm font-medium text-pr-text-1 bg-pr-surface-2 hover:bg-pr-surface-3 rounded-lg transition-colors"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/auth?mode=signup"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="w-full py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg transition-colors"
+                  >
+                    Sign Up Free
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}
@@ -822,7 +889,7 @@ export default function Layout({ children }: LayoutProps) {
                 <h3 className="text-sm font-medium text-pr-text-2 uppercase tracking-wide mb-3">{group.label}</h3>
                 <div className="space-y-1">
                   {group.items.map((item) => {
-                    const Icon = item.icon;
+                    const IconIcon = item.icon as any;
                     return (
                       <Link
                         key={item.name}
@@ -830,7 +897,7 @@ export default function Layout({ children }: LayoutProps) {
                         onClick={() => setShowMobileMenu(false)}
                         className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-pr-text-1 hover:bg-pr-surface-2 transition-colors"
                       >
-                        <Icon className="w-4 h-4 text-pr-text-2" />
+                        <IconIcon className="w-4 h-4 text-pr-text-2" />
                         <span className="text-sm">{item.name}</span>
                       </Link>
                     );
@@ -936,6 +1003,9 @@ export default function Layout({ children }: LayoutProps) {
         onClose={() => setShowAchievementsModal(false)}
       />
       <SuccessGuide isOpen={showSuccessGuide} onClose={() => setShowSuccessGuide(false)} />
+
+      {/* Quick Actions FAB - Mobile Only */}
+      <QuickActionsButton />
     </>
   );
 }

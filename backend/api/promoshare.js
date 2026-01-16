@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const promoShareService = require('../services/promoShareService');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, resolveAdvertiserContext } = require('../middleware/auth');
 const advertiserService = require('../api/advertisers'); // Or service if separated
 
 // Apply auth to all routes
@@ -70,15 +70,15 @@ router.post('/admin/draw/:id', async (req, res) => {
  * POST /api/promoshare/sponsorship
  * Advertisers sponsor a cycle
  */
-router.post('/sponsorship', async (req, res) => {
+router.post('/sponsorship', resolveAdvertiserContext, async (req, res) => {
     try {
         const { cycle_id, reward_type, amount, description } = req.body;
-        const advertiserId = req.user.id; // User must be advertiser
 
-        // Basic check if user is advertiser (or rely on UI roles, strict check better)
-        if (req.user.user_type !== 'advertiser') {
+        if (!req.advertiserAccount && req.user.user_type !== 'advertiser') {
             return res.status(403).json({ success: false, error: 'Only advertisers can sponsor' });
         }
+
+        const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : req.user.id;
 
         // Insert into promoshare_sponsorships (using raw supabase for now or service)
         // Ideally we should add a method in promoShareService for this.

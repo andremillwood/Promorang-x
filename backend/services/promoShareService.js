@@ -2,10 +2,18 @@ const { supabase } = require('../lib/supabase');
 
 const promoShareService = {
     /**
-     * Get the currently active cycle
+     * Get the currently active cycle (legacy - returns first active)
      */
     async getActiveCycle() {
-        if (!supabase) return null;
+        const cycles = await this.getActiveCycles();
+        return cycles.length > 0 ? cycles[0] : null;
+    },
+
+    /**
+     * Get ALL currently active cycles (daily, weekly, monthly, grand)
+     */
+    async getActiveCycles() {
+        if (!supabase) return [];
 
         const { data, error } = await supabase
             .from('promoshare_cycles')
@@ -13,12 +21,35 @@ const promoShareService = {
             .eq('status', 'active')
             .lte('start_at', new Date().toISOString())
             .gte('end_at', new Date().toISOString())
+            .order('cycle_type', { ascending: true });
+
+        if (error) {
+            console.error('Error fetching active cycles:', error);
+            return [];
+        }
+
+        return data || [];
+    },
+
+    /**
+     * Get active cycle by type
+     */
+    async getActiveCycleByType(cycleType) {
+        if (!supabase) return null;
+
+        const { data, error } = await supabase
+            .from('promoshare_cycles')
+            .select('*')
+            .eq('status', 'active')
+            .eq('cycle_type', cycleType)
+            .lte('start_at', new Date().toISOString())
+            .gte('end_at', new Date().toISOString())
             .order('end_at', { ascending: true })
             .limit(1)
             .maybeSingle();
 
         if (error) {
-            console.error('Error fetching active cycle:', error);
+            console.error(`Error fetching ${cycleType} cycle:`, error);
             return null;
         }
 
@@ -82,30 +113,75 @@ const promoShareService = {
     },
 
     /**
-     * Get dashboard data for a user
+     * Get dashboard data for a user - now supports multiple concurrent draws
      */
     async getDashboardData(userId) {
         if (!supabase) {
-            // Mock data for dev without DB
+            // Mock data for dev without DB - now includes all 4 draw types
+            const now = Date.now();
             return {
+                draws: [
+                    {
+                        id: 1,
+                        cycle_type: 'daily',
+                        end_at: new Date(now + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
+                        jackpot_amount: 50,
+                        is_rollover: false,
+                        userTickets: 3,
+                        totalTickets: 89,
+                        poolItems: [{ id: 'd1', reward_type: 'gem', amount: 50, description: 'Daily Gems' }]
+                    },
+                    {
+                        id: 2,
+                        cycle_type: 'weekly',
+                        end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days
+                        jackpot_amount: 500,
+                        is_rollover: false,
+                        userTickets: 12,
+                        totalTickets: 450,
+                        poolItems: [{ id: 'w1', reward_type: 'gem', amount: 500, description: 'Weekly Jackpot' }]
+                    },
+                    {
+                        id: 3,
+                        cycle_type: 'monthly',
+                        end_at: new Date(now + 18 * 24 * 60 * 60 * 1000).toISOString(), // 18 days
+                        jackpot_amount: 2500,
+                        is_rollover: false,
+                        userTickets: 45,
+                        totalTickets: 2100,
+                        poolItems: [{ id: 'm1', reward_type: 'gem', amount: 2500, description: 'Monthly Grand Prize' }]
+                    },
+                    {
+                        id: 4,
+                        cycle_type: 'grand',
+                        end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days (weekly)
+                        jackpot_amount: 10000,
+                        is_rollover: true,
+                        userTickets: 12,
+                        totalTickets: 450,
+                        poolItems: [{ id: 'g1', reward_type: 'gem', amount: 10000, description: 'GRAND JACKPOT' }]
+                    }
+                ],
+                // Legacy fields for backward compatibility
                 activeCycle: {
-                    id: 1,
-                    end_at: new Date(Date.now() + 86400000).toISOString(),
+                    id: 2,
+                    end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(),
                     cycle_type: 'weekly'
                 },
-                userTickets: 5,
-                totalTickets: 150,
-                poolItems: [
-                    { type: 'gem', amount: 1000, description: 'Weekly Gem Jackpot' },
-                    { type: 'key', amount: 10, description: 'Runner-up Keys' }
-                ]
+                userTickets: 12,
+                totalTickets: 450,
+                poolItems: [{ id: 'w1', reward_type: 'gem', amount: 500, description: 'Weekly Jackpot' }],
+                currentJackpot: 500,
+                isRollover: false
             };
         }
 
-        const cycle = await this.getActiveCycle();
+        // Get all active cycles
+        const cycles = await this.getActiveCycles();
 
-        if (!cycle) {
+        if (!cycles || cycles.length === 0) {
             return {
+                draws: [],
                 activeCycle: null,
                 userTickets: 0,
                 totalTickets: 0,
@@ -113,46 +189,69 @@ const promoShareService = {
             };
         }
 
-        // Get user tickets count
-        const { count: userTickets } = await supabase
-            .from('promoshare_tickets')
-            .select('*', { count: 'exact', head: true })
-            .eq('cycle_id', cycle.id)
-            .eq('user_id', userId);
+        // Build draw data for each cycle
+        const draws = await Promise.all(cycles.map(async (cycle) => {
+            // Get user tickets count for this cycle
+            const { count: userTickets } = await supabase
+                .from('promoshare_tickets')
+                .select('*', { count: 'exact', head: true })
+                .eq('cycle_id', cycle.id)
+                .eq('user_id', userId);
 
-        // Get total tickets count (optional, maybe cached or estimated)
-        const { count: totalTickets } = await supabase
-            .from('promoshare_tickets')
-            .select('*', { count: 'exact', head: true })
-            .eq('cycle_id', cycle.id);
+            // Get total tickets count
+            const { count: totalTickets } = await supabase
+                .from('promoshare_tickets')
+                .select('*', { count: 'exact', head: true })
+                .eq('cycle_id', cycle.id);
 
-        // Get pool items
-        const { data: poolItems } = await supabase
-            .from('promoshare_pool_items')
-            .select('*')
-            .eq('cycle_id', cycle.id);
+            // Get pool items for this cycle
+            const { data: poolItems } = await supabase
+                .from('promoshare_pool_items')
+                .select('*')
+                .eq('cycle_id', cycle.id);
 
-        // Get user ticket numbers
-        const { data: userTicketsData } = await supabase
-            .from('promoshare_tickets')
-            .select('ticket_number')
-            .eq('cycle_id', cycle.id)
-            .eq('user_id', userId);
+            // Get user ticket numbers for this cycle
+            const { data: userTicketsData } = await supabase
+                .from('promoshare_tickets')
+                .select('ticket_number')
+                .eq('cycle_id', cycle.id)
+                .eq('user_id', userId);
 
-        const ticketNumbers = userTicketsData ? userTicketsData.map(t => t.ticket_number) : [];
+            const ticketNumbers = userTicketsData ? userTicketsData.map(t => t.ticket_number) : [];
 
-        // Estimate Jackpot (Base + Revenue Share)
-        // For MVP, just use cycle.jackpot_amount
-        const currentJackpot = Number(cycle.jackpot_amount) || 0;
+            return {
+                id: cycle.id,
+                cycle_type: cycle.cycle_type,
+                status: cycle.status,
+                start_at: cycle.start_at,
+                end_at: cycle.end_at,
+                jackpot_amount: Number(cycle.jackpot_amount) || 0,
+                is_rollover: cycle.is_rollover || false,
+                userTickets: userTickets || 0,
+                totalTickets: totalTickets || 0,
+                ticketNumbers,
+                poolItems: poolItems || []
+            };
+        }));
+
+        // Legacy support - use first cycle (or weekly if available)
+        const primaryCycle = draws.find(d => d.cycle_type === 'weekly') || draws[0];
 
         return {
-            activeCycle: cycle,
-            userTickets: userTickets || 0,
-            ticketNumbers,
-            totalTickets: totalTickets || 0,
-            poolItems: poolItems || [],
-            currentJackpot,
-            isRollover: cycle.is_rollover
+            draws,
+            // Legacy fields
+            activeCycle: primaryCycle ? {
+                id: primaryCycle.id,
+                cycle_type: primaryCycle.cycle_type,
+                end_at: primaryCycle.end_at,
+                status: primaryCycle.status
+            } : null,
+            userTickets: primaryCycle?.userTickets || 0,
+            totalTickets: primaryCycle?.totalTickets || 0,
+            ticketNumbers: primaryCycle?.ticketNumbers || [],
+            poolItems: primaryCycle?.poolItems || [],
+            currentJackpot: primaryCycle?.jackpot_amount || 0,
+            isRollover: primaryCycle?.is_rollover || false
         };
     },
 
@@ -367,7 +466,7 @@ const promoShareService = {
         } catch (e) {
             console.error(`Failed to distribute prize ${item.id} to user ${userId}`, e);
         }
-    }
+    },
     async sponsorCycle(advertiserId, data) {
         if (!supabase) return null;
         const { cycle_id, reward_type, amount, description } = data;

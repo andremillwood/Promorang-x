@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { apiFetch } from '../utils/api';
+import { useMaturity } from '@/react-app/context/MaturityContext';
+import { Sparkles } from 'lucide-react';
 
 interface CartItem {
   id: string;
@@ -31,6 +33,7 @@ interface Cart {
 export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { maturityState } = useMaturity();
   const [couponCode, setCouponCode] = useState('');
   const [couponData, setCouponData] = useState<any>(null);
   const [couponError, setCouponError] = useState('');
@@ -239,6 +242,17 @@ export default function Checkout() {
           }
         }
 
+        // Get affiliate attribution from sessionStorage (set by ProductDetail when user arrived via affiliate link)
+        let affiliateAttribution = null;
+        try {
+          const storedAttribution = sessionStorage.getItem('affiliate_attribution');
+          if (storedAttribution) {
+            affiliateAttribution = JSON.parse(storedAttribution);
+          }
+        } catch (e) {
+          console.error('Error parsing affiliate attribution:', e);
+        }
+
         const orderResponse = await apiFetch('/api/marketplace/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -248,6 +262,9 @@ export default function Checkout() {
             shipping_address: shippingAddress,
             customer_notes: '',
             coupon_code: applyCouponCode,
+            // Include affiliate attribution for commission tracking
+            affiliate_referral_code: affiliateAttribution?.referral_code || null,
+            affiliate_product_id: affiliateAttribution?.product_id || null,
           }),
         });
 
@@ -558,6 +575,18 @@ export default function Checkout() {
                   <span className="font-black text-xl">Total</span>
                   <span className="text-3xl font-black text-blue-600 tracking-tighter">${finalTotals.usd.toFixed(2)}</span>
                 </div>
+
+                {maturityState < 2 && (
+                  <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 mt-4 mb-2">
+                    <p className="text-[10px] font-bold text-blue-600 mb-1 flex items-center gap-1 uppercase">
+                      <Sparkles className="w-3 h-3" />
+                      Rank Up Reward
+                    </p>
+                    <p className="text-[10px] text-blue-700/80 leading-tight">
+                      Did you know? Users at Rank 2+ earn back 5% in Gems on every purchase. Rank up to start earning.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <Button

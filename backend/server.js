@@ -91,6 +91,7 @@ global.supabase = supabaseClient || null;
 // API routes
 app.use('/api/auth', require('./api/auth'));
 app.use('/api/users', require('./api/users'));
+app.use('/api/users/preferences', require('./api/preferences')); // User preferences for personalization
 app.use('/api/content', require('./api/content'));
 app.use('/api/drops', require('./api/drops'));
 app.use('/api/social-forecasts', require('./api/social-forecasts'));
@@ -119,6 +120,7 @@ app.use('/api/withdrawal', require('./api/withdrawal'));
 app.use('/api/kyc', require('./api/kyc'));
 app.use('/api/admin', require('./api/admin'));
 app.use('/api/support', require('./api/support'));
+app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
 const errorHandlers = require('./api/errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
 app.post('/api/log-error', errorHandlers.handleLogError);
@@ -217,6 +219,23 @@ app.listen(PORT, HOST, () => {
       console.log('⏰ Cron jobs started');
     } catch (error) {
       console.warn('⚠️ Failed to start cron jobs:', error.message);
+    }
+
+    // Start email campaign scheduler
+    try {
+      const emailScheduler = require('./jobs/emailScheduler');
+      emailScheduler.start();
+      console.log('📧 Email campaign scheduler started');
+    } catch (error) {
+      console.warn('⚠️ Failed to start email scheduler:', error.message);
+    }
+
+    // Start Daily Layer cron jobs (10:00 UTC reset)
+    try {
+      require('./jobs/dailyLayerJob');
+      console.log('📅 Daily Layer cron jobs started (reset: 10:00 UTC)');
+    } catch (error) {
+      console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);
     }
   } else {
     console.log('⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)');

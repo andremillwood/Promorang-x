@@ -1,16 +1,39 @@
-import { Trophy, Gift, Users, Rocket, Target } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Trophy as _Trophy, Gift as _Gift, Users as _Users, Rocket as _Rocket, Target as _Target } from 'lucide-react';
+import { Link as _Link, useLocation } from 'react-router-dom';
+import OnboardingChecklist from './OnboardingChecklist';
+
+const Trophy = _Trophy as any;
+const Gift = _Gift as any;
+const Users = _Users as any;
+const Rocket = _Rocket as any;
+const Target = _Target as any;
+const Link = _Link as any;
 
 interface RightSidebarProps {
   userData?: any;
 }
 
 export default function RightSidebar({ userData }: RightSidebarProps) {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Determine if user is new (for showing onboarding checklist)
+  const isNewUser = userData && (
+    !userData.instagram_connected &&
+    (userData.total_drops_completed || 0) === 0 &&
+    (userData.total_shares_owned || 0) === 0
+  );
+
   return (
     <div className="flex flex-col w-full h-full overflow-y-auto">
       <div className="p-6 space-y-6">
+        {/* Onboarding Checklist - Show for new users */}
+        {isNewUser && (
+          <OnboardingChecklist userData={userData} />
+        )}
+
         {/* Referral Progress - HIGH VALUE (Platform Growth) */}
-        {userData && (
+        {userData && !isNewUser && (
           <div className="bg-gradient-to-br from-orange-500 to-pink-600 rounded-xl p-4 text-white shadow-lg">
             <div className="flex items-center space-x-2 mb-3">
               <Users className="w-5 h-5" />

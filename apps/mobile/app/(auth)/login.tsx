@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import colors from '@/constants/colors';
+import { safeBack } from '@/lib/navigation';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function LoginScreen() {
   };
 
   const handleBack = () => {
-    router.back();
+    safeBack(router);
   };
 
   return (

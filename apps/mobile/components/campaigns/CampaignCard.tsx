@@ -39,9 +39,9 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
               />
             </View>
             <Avatar
-              source={campaign.merchant.avatar}
+              source={campaign.merchant?.avatar}
               size="sm"
-              name={campaign.merchant.name}
+              name={campaign.merchant?.name || 'Promorang'}
             />
           </View>
 
@@ -71,7 +71,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.merchant}>{campaign.merchant.name}</Text>
+            <Text style={styles.merchant}>{campaign.merchant?.name || 'Promorang'}</Text>
             {campaign.expiresAt && (
               <Text style={styles.expiry}>
                 Ends: {new Date(campaign.expiresAt).toLocaleDateString()}

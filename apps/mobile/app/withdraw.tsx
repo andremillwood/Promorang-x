@@ -8,11 +8,12 @@ import { TabBar } from '@/components/ui/TabBar';
 import { useWalletStore } from '@/store/walletStore';
 import { DollarSign, CreditCard, Smartphone } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import { safeBack } from '@/lib/navigation';
 
 export default function WithdrawScreen() {
   const router = useRouter();
   const { balance, withdraw, isLoading } = useWalletStore();
-  
+
   const [activeMethod, setActiveMethod] = useState('bank');
   const [amount, setAmount] = useState('');
   const [accountName, setAccountName] = useState('');
@@ -51,12 +52,12 @@ export default function WithdrawScreen() {
         newErrors.accountName = 'Account name is required';
         isValid = false;
       }
-      
+
       if (!accountNumber) {
         newErrors.accountNumber = 'Account number is required';
         isValid = false;
       }
-      
+
       if (!bankName) {
         newErrors.bankName = 'Bank name is required';
         isValid = false;
@@ -75,7 +76,7 @@ export default function WithdrawScreen() {
       Alert.alert(
         'Withdrawal Initiated',
         `Your withdrawal of $${amount} has been initiated and will be processed soon.`,
-        [{ text: 'OK', onPress: () => router.back() }]
+        [{ text: 'OK', onPress: () => safeBack(router) }]
       );
     } catch (error) {
       Alert.alert('Error', 'Failed to process withdrawal. Please try again.');
@@ -97,7 +98,7 @@ export default function WithdrawScreen() {
 
       <Card style={styles.formCard}>
         <Text style={styles.formTitle}>Withdraw Funds</Text>
-        
+
         <TabBar
           tabs={methods}
           activeTab={activeMethod}
@@ -125,7 +126,7 @@ export default function WithdrawScreen() {
               onChangeText={setAccountName}
               error={errors.accountName}
             />
-            
+
             <Input
               label="Account Number"
               placeholder="Enter account number"
@@ -134,7 +135,7 @@ export default function WithdrawScreen() {
               keyboardType="numeric"
               error={errors.accountNumber}
             />
-            
+
             <Input
               label="Bank Name"
               placeholder="Enter bank name"

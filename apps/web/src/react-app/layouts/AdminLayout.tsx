@@ -7,7 +7,8 @@ import {
     ChevronRight,
     Menu,
     LifeBuoy,
-    Settings
+    Settings,
+    Map
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,6 +24,7 @@ export default function AdminLayout() {
         { icon: ShieldCheck, label: 'KYC Verification', path: '/admin/kyc' },
         { icon: LifeBuoy, label: 'Support Tickets', path: '/admin/support' },
         { icon: Settings, label: 'Roles & Settings', path: '/admin/settings' },
+        { icon: Map, label: 'Site Map', path: '/admin/sitemap' },
     ];
 
     const handleLogout = () => {

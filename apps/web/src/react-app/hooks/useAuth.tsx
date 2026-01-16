@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { setAccessToken } from '@/react-app/lib/api';
 
@@ -39,7 +39,17 @@ interface AuthContextType {
     advertiser: () => Promise<AuthResponse>;
     operator: () => Promise<AuthResponse>;
     merchant: () => Promise<AuthResponse>;
+    matrix: () => Promise<AuthResponse>;
+    samplingMerchant: () => Promise<AuthResponse>;
+    activeSampling: () => Promise<AuthResponse>;
+    graduatedMerchant: () => Promise<AuthResponse>;
+    state0: () => Promise<AuthResponse>;
+    state1: () => Promise<AuthResponse>;
+    state2: () => Promise<AuthResponse>;
+    state3: () => Promise<AuthResponse>;
   };
+  checkDemoHealth: () => Promise<{ success: boolean; status: string; missing?: number }>;
+  initializeDemo: () => Promise<{ success: boolean; results?: any[] }>;
 }
 
 // Using AuthResponse from authService
@@ -292,9 +302,165 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    operator: async () => signIn('operator@demo.com', 'demo123'), // Fallback to normal signin as not in backend demo list
-    merchant: async () => signIn('merchant@demo.com', 'demo123'),
+    operator: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/operator');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    merchant: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/merchant');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    matrix: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/matrix');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/matrix');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Matrix demo login failed' } };
+      }
+    },
+    samplingMerchant: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/sampling-merchant');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    activeSampling: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/active-sampling');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    graduatedMerchant: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/graduated-merchant');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/dashboard');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    state0: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/demo/state-0');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/today');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    state1: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/demo/state-1');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/today');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    state2: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/demo/state-2');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/today');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
+    state3: async () => {
+      try {
+        const response = await api.post<{ token: string, user: User }>('/demo/state-3');
+        if (response && response.token) {
+          setAccessToken(response.token);
+          if (response.user) setUser(response.user);
+          navigate('/today');
+          return { success: true, user: response.user, token: response.token };
+        }
+        return { success: false, error: { message: 'Failed to get demo token' } };
+      } catch (e: any) {
+        return { success: false, error: { message: e.message || 'Demo login failed' } };
+      }
+    },
   };
+
+  const checkDemoHealth = useCallback(async () => {
+    try {
+      const response = await api.get<{ status: string; missing: number }>('/auth/demo-health');
+      return { success: true, status: response.status, missing: response.missing };
+    } catch (error) {
+      return { success: false, status: 'error' };
+    }
+  }, []);
+
+  const initializeDemo = useCallback(async () => {
+    try {
+      const response = await api.post<{ results: any[] }>('/auth/demo-initialize');
+      return { success: true, results: response.results };
+    } catch (error) {
+      return { success: false };
+    }
+  }, []);
 
   const signOut = useCallback(async () => {
     try {
@@ -321,15 +487,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [navigate]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     isLoading,
     signIn,
     signUp,
     signOut,
     demoLogin,
+    checkDemoHealth,
+    initializeDemo,
     isAuthenticated: !!user,
-  };
+  }), [user, isLoading, signIn, signUp, signOut, demoLogin, checkDemoHealth, initializeDemo]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

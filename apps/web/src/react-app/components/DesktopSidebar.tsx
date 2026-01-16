@@ -1,5 +1,10 @@
-import { Link } from 'react-router-dom';
-import { LogOut, Search } from 'lucide-react';
+import { Link as _Link } from 'react-router-dom';
+import { LogOut as _LogOut, Search as _Search } from 'lucide-react';
+const Link = _Link as any;
+const LogOut = _LogOut as any;
+const Search = _Search as any;
+import AccountSwitcher from '@/react-app/components/AccountSwitcher';
+import MerchantAccountSwitcher from '@/react-app/components/MerchantAccountSwitcher';
 import type { NavigationGroup, NavigationItem } from '@/react-app/config/navigation';
 
 interface DesktopSidebarProps {
@@ -21,7 +26,10 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
     <div className="flex flex-col w-full h-full">
       {/* Logo */}
       <div className="p-6 border-b border-pr-surface-3">
-        <Link to="/dashboard" className="flex items-center space-x-3 group">
+        <Link
+          to={isActive('/today') || !groups.some(g => g.items.some(i => i.href === '/feed')) ? "/today" : "/feed"}
+          className="flex items-center space-x-3 group"
+        >
           <img
             src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png"
             alt="Promorang"
@@ -79,6 +87,18 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
         </div>
       )}
 
+      {/* Account Switcher */}
+      {userData?.user_type === 'advertiser' && (
+        <div className="px-5 py-3 border-b border-pr-surface-3">
+          <AccountSwitcher />
+        </div>
+      )}
+      {userData?.user_type === 'merchant' && (
+        <div className="px-5 py-3 border-b border-pr-surface-3">
+          <MerchantAccountSwitcher />
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         <div className="space-y-4">
@@ -90,13 +110,13 @@ export default function DesktopSidebar({ groups, isActive, onNavClick, onLogout,
                 </p>
               )}
               {group.items.map((item) => {
-                const Icon = item.icon;
+                const Icon = item.icon as any;
                 const active = isActive(item.href);
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
-                    onClick={(e) => {
+                    onClick={(e: any) => {
                       if (onNavClick && onNavClick(item)) {
                         e.preventDefault();
                       }

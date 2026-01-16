@@ -235,23 +235,19 @@ router.get('/coupons/:assignmentId', async (req, res) => {
     }
 
     res.json({
-      assignment_id: assignment.id,
-      coupon_id: assignment.coupon_id,
-      title: assignment.advertiser_coupons.title,
-      description: assignment.advertiser_coupons.description,
-      reward_type: assignment.advertiser_coupons.reward_type,
-      value: assignment.advertiser_coupons.value,
-      value_unit: assignment.advertiser_coupons.value_unit,
-      source: assignment.target_type,
-      source_label: assignment.target_label,
-      earned_at: assignment.assigned_at,
-      is_redeemed: assignment.is_redeemed,
-      redeemed_at: assignment.redeemed_at,
-      expires_at: assignment.advertiser_coupons.end_date,
-      status: getCouponStatus(assignment),
-      metadata: assignment.metadata,
-      conditions: assignment.advertiser_coupons.conditions,
-      instructions: getRedemptionInstructions(assignment.advertiser_coupons),
+      coupon: {
+        id: assignment.id,
+        coupon_id: assignment.coupon_id,
+        is_redeemed: assignment.is_redeemed,
+        redeemed_at: assignment.redeemed_at,
+        assigned_at: assignment.assigned_at,
+        target_label: assignment.target_label,
+        redemption_code: assignment.id.slice(0, 8).toUpperCase(),
+        advertiser_coupons: {
+          ...assignment.advertiser_coupons,
+          redemption_instructions: getRedemptionInstructions(assignment.advertiser_coupons),
+        }
+      }
     });
   } catch (error) {
     console.error('Error in GET /api/rewards/coupons/:assignmentId:', error);

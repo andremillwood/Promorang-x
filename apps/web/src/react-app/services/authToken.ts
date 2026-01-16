@@ -2,8 +2,8 @@
  * Service for managing authentication tokens in the browser's storage
  */
 
-const ACCESS_TOKEN_KEY = 'promorang_access_token';
-const REFRESH_TOKEN_KEY = 'promorang_refresh_token';
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Get the access token from storage
@@ -93,7 +93,7 @@ export function parseJwt<T>(token: string): T | null {
 export function isTokenExpired(token: string): boolean {
   const decoded = parseJwt<{ exp?: number }>(token);
   if (!decoded?.exp) return true;
-  
+
   // Convert exp to milliseconds and check if it's in the past
   return Date.now() >= decoded.exp * 1000;
 }
@@ -105,7 +105,7 @@ export function isTokenExpired(token: string): boolean {
 export function getTokenExpirationTime(token: string): number | null {
   const decoded = parseJwt<{ exp?: number }>(token);
   if (!decoded?.exp) return null;
-  
+
   const expiresIn = decoded.exp * 1000 - Date.now();
   return expiresIn > 0 ? Math.floor(expiresIn / 1000) : null;
 }
@@ -117,7 +117,7 @@ export function getTokenExpirationTime(token: string): number | null {
 export function getUserIdFromToken(): string | null {
   const token = getAccessToken();
   if (!token) return null;
-  
+
   const decoded = parseJwt<{ sub?: string }>(token);
   return decoded?.sub || null;
 }

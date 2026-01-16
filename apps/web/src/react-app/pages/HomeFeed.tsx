@@ -32,11 +32,13 @@ import TipModal from '@/react-app/components/TipModal';
 import FeedItemWrapper from '@/react-app/components/FeedItemWrapper';
 import ForecastCard, { type SocialForecast } from '@/react-app/components/ForecastCard';
 import MovementCard from '@/react-app/components/MovementCard';
+import WelcomeBanner from '@/react-app/components/WelcomeBanner';
 
 import type { ContentPieceType, DropType, WalletType, UserType, EventType, ProductType } from '../../shared/types';
 import { Routes as RoutePaths } from '@/react-app/utils/url';
 import { logEvent } from '@/react-app/services/telemetry';
 import api from '@/react-app/lib/api';
+import { apiFetch } from '@/react-app/utils/api';
 import rewardsService, { type UserCoupon } from '@/react-app/services/rewards';
 import eventsService from '@/react-app/services/events';
 import EventCard from '@/react-app/components/EventCard';
@@ -57,6 +59,7 @@ export default function HomeFeed() {
   const [, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'for-you' | 'social' | 'drops' | 'rewards'>('for-you');
   const [sponsoredContent, setSponsoredContent] = useState<any[]>([]);
+  const [userInterests, setUserInterests] = useState<string[]>([]);
 
   // Generalized infinite scroll state for all tabs
   const [pagination, setPagination] = useState({
@@ -97,10 +100,54 @@ export default function HomeFeed() {
   const profilePath = RoutePaths.profile(profileSlug);
 
   useEffect(() => {
+    fetchUserPreferences();
     fetchFeeds();
     fetchUserData();
 
   }, []);
+
+  // Refetch feeds when interests change
+  useEffect(() => {
+    if (userInterests.length > 0) {
+      // Refetch drops and for-you with personalization
+      fetchPersonalizedData();
+    }
+  }, [userInterests]);
+
+  const fetchUserPreferences = async () => {
+    if (!user) return;
+    try {
+      const response = await apiFetch('/api/users/preferences');
+      const data = await response.json();
+      if (data.success && data.preferences?.interests) {
+        setUserInterests(data.preferences.interests);
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    }
+  };
+
+  const fetchPersonalizedData = async () => {
+    try {
+      const interestsParam = userInterests.length > 0 ? `&interests=${userInterests.join(',')}` : '';
+
+      const [dropsData, feedResponse] = await Promise.all([
+        api.get<DropType[]>(`/drops?limit=10${interestsParam}`),
+        api.get<{ data?: { feed: any[] }, feed?: any[] }>(`/feed/for-you?limit=${FEED_PAGE_SIZE}&offset=0${interestsParam}`)
+      ]);
+
+      if (Array.isArray(dropsData)) {
+        setDropFeed(dropsData.slice(0, 5));
+      }
+
+      const feedData = feedResponse?.data?.feed || feedResponse?.feed || [];
+      if (feedData.length > 0) {
+        setUnifiedFeed(feedData);
+      }
+    } catch (error) {
+      console.error('Error fetching personalized data:', error);
+    }
+  };
 
   useEffect(() => {
     logEvent('growth_feed_view', {
@@ -131,9 +178,12 @@ export default function HomeFeed() {
 
   const fetchFeeds = async () => {
     try {
+      // Build interests param for personalization
+      const interestsParam = userInterests.length > 0 ? `&interests=${userInterests.join(',')}` : '';
+
       const [contentData, dropsData, walletsData, sponsoredData, couponsData, eventsData, productsResponse] = await Promise.all([
         api.get<ContentPieceType[]>('/content'),
-        api.get<DropType[]>('/drops?limit=10'),
+        api.get<DropType[]>(`/drops?limit=10${interestsParam}`),
         api.get<WalletType[]>('/users/me/wallets'),
         api.get('/content/sponsored'),
         rewardsService.getAvailableCoupons().catch(() => []),
@@ -162,7 +212,8 @@ export default function HomeFeed() {
 
       // Fetch unified feed separately - reset pagination
       try {
-        const feedResponse = await api.get<{ data?: { feed: any[] }, feed?: any[] }>(`/feed/for-you?limit=${FEED_PAGE_SIZE}&offset=0`);
+        const interestsParam = userInterests.length > 0 ? `&interests=${userInterests.join(',')}` : '';
+        const feedResponse = await api.get<{ data?: { feed: any[] }, feed?: any[] }>(`/feed/for-you?limit=${FEED_PAGE_SIZE}&offset=0${interestsParam}`);
         const feedData = feedResponse?.data?.feed || feedResponse?.feed || [];
         setUnifiedFeed(feedData);
 
@@ -209,7 +260,8 @@ export default function HomeFeed() {
           break;
         case 'drops':
           limit = 10;
-          endpoint = `/drops?limit=${limit}&offset=${offset}`;
+          const dropsInterests = userInterests.length > 0 ? `&interests=${userInterests.join(',')}` : '';
+          endpoint = `/drops?limit=${limit}&offset=${offset}${dropsInterests}`;
           break;
         case 'rewards':
           endpoint = `/rewards/coupons?limit=${limit}&offset=${offset}`;
@@ -536,10 +588,26 @@ export default function HomeFeed() {
     }
   };
 
+  // Check if user is new (for showing welcome banner)
+  const isNewUser = userData && (
+    !userData.master_key_activated_at &&
+    (userData.total_drops_completed || 0) === 0 &&
+    (userData.total_content_created || 0) === 0
+  );
+
+  const showWelcomeBanner = isNewUser && !localStorage.getItem('welcome_banner_dismissed');
+
   return (
     <div className="bg-pr-surface-2">
       {/* Main Dashboard Content */}
       <div className="max-w-4xl mx-auto space-y-6 px-0 sm:px-0">
+        {/* Welcome Banner for New Users */}
+        {showWelcomeBanner && (
+          <WelcomeBanner
+            userName={user?.google_user_data?.given_name || userData?.display_name}
+          />
+        )}
+
         {/* Personalized Dashboard Header */}
         <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
           {/* Background Pattern */}

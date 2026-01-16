@@ -294,6 +294,7 @@ async function createCoupon(userId, couponData) {
     max_uses_per_user,
     starts_at,
     expires_at,
+    advertiser_account_id,
   } = couponData;
 
   try {
@@ -307,6 +308,19 @@ async function createCoupon(userId, couponData) {
 
       if (!store || store.user_id !== userId) {
         throw new Error('Not authorized to create coupons for this store');
+      }
+    }
+
+    // Verify advertiser account permission if provided
+    if (advertiser_account_id) {
+      const advertiserTeamService = require('./advertiserTeamService');
+      const hasPermission = await advertiserTeamService.checkPermission(
+        userId,
+        advertiser_account_id,
+        'edit_coupons'
+      );
+      if (!hasPermission) {
+        throw new Error('Not authorized to create coupons for this advertiser account');
       }
     }
 
@@ -333,6 +347,7 @@ async function createCoupon(userId, couponData) {
         max_uses_per_user: max_uses_per_user || 1,
         starts_at: starts_at || new Date(),
         expires_at,
+        advertiser_account_id,
         is_active: true,
       })
       .select()
@@ -384,14 +399,27 @@ async function updateCoupon(couponId, userId, updates) {
   }
 
   try {
-    // Verify ownership
+    // Verify ownership/permission
     const { data: coupon } = await supabase
       .from('coupons')
-      .select('created_by, store_id, merchant_stores(user_id)')
+      .select('created_by, store_id, advertiser_account_id, merchant_stores(user_id)')
       .eq('id', couponId)
       .single();
 
-    if (!coupon || (coupon.created_by !== userId && coupon.merchant_stores?.user_id !== userId)) {
+    if (!coupon) throw new Error('Coupon not found');
+
+    let isAuthorized = coupon.created_by === userId || coupon.merchant_stores?.user_id === userId;
+
+    if (!isAuthorized && coupon.advertiser_account_id) {
+      const advertiserTeamService = require('./advertiserTeamService');
+      isAuthorized = await advertiserTeamService.checkPermission(
+        userId,
+        coupon.advertiser_account_id,
+        'edit_coupons'
+      );
+    }
+
+    if (!isAuthorized) {
       throw new Error('Not authorized to update this coupon');
     }
 
@@ -422,14 +450,27 @@ async function deleteCoupon(couponId, userId) {
   }
 
   try {
-    // Verify ownership
+    // Verify ownership/permission
     const { data: coupon } = await supabase
       .from('coupons')
-      .select('created_by, store_id, merchant_stores(user_id)')
+      .select('created_by, store_id, advertiser_account_id, merchant_stores(user_id)')
       .eq('id', couponId)
       .single();
 
-    if (!coupon || (coupon.created_by !== userId && coupon.merchant_stores?.user_id !== userId)) {
+    if (!coupon) throw new Error('Coupon not found');
+
+    let isAuthorized = coupon.created_by === userId || coupon.merchant_stores?.user_id === userId;
+
+    if (!isAuthorized && coupon.advertiser_account_id) {
+      const advertiserTeamService = require('./advertiserTeamService');
+      isAuthorized = await advertiserTeamService.checkPermission(
+        userId,
+        coupon.advertiser_account_id,
+        'edit_coupons'
+      );
+    }
+
+    if (!isAuthorized) {
       throw new Error('Not authorized to delete this coupon');
     }
 
@@ -556,20 +597,30 @@ async function createCampaignCoupon(userId, campaignId, couponData) {
   }
 
   try {
-    // Verify user owns the campaign
+    // Verify user has permission for the campaign's account
     const { data: campaign } = await supabase
       .from('advertiser_campaigns')
-      .select('advertiser_id')
+      .select('advertiser_account_id')
       .eq('id', campaignId)
       .single();
 
-    if (!campaign || campaign.advertiser_id !== userId) {
+    if (!campaign) throw new Error('Campaign not found');
+
+    const advertiserTeamService = require('./advertiserTeamService');
+    const hasPermission = await advertiserTeamService.checkPermission(
+      userId,
+      campaign.advertiser_account_id,
+      'edit_coupons'
+    );
+
+    if (!hasPermission) {
       throw new Error('Not authorized to create coupons for this campaign');
     }
 
     return await createCoupon(userId, {
       ...couponData,
       campaign_id: campaignId,
+      advertiser_account_id: campaign.advertiser_account_id,
       source_type: 'advertiser',
     });
   } catch (error) {
@@ -587,9 +638,30 @@ async function createDropCoupon(userId, dropId, couponData) {
   }
 
   try {
+    // Verify user has permission for the drop's account
+    const { data: drop } = await supabase
+      .from('drops')
+      .select('advertiser_account_id')
+      .eq('id', dropId)
+      .single();
+
+    if (!drop) throw new Error('Drop not found');
+
+    const advertiserTeamService = require('./advertiserTeamService');
+    const hasPermission = await advertiserTeamService.checkPermission(
+      userId,
+      drop.advertiser_account_id,
+      'edit_coupons'
+    );
+
+    if (!hasPermission) {
+      throw new Error('Not authorized to create coupons for this drop');
+    }
+
     return await createCoupon(userId, {
       ...couponData,
       drop_id: dropId,
+      advertiser_account_id: drop.advertiser_account_id,
       source_type: 'advertiser',
     });
   } catch (error) {
@@ -674,7 +746,7 @@ async function getPublicCoupon(id) {
   try {
     const { data, error } = await supabase
       .from('coupons')
-      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url, description), conditions')
+      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url, description), conditions, redemption_type, redemption_instructions')
       .eq('id', id)
       .eq('is_active', true)
       .eq('is_public', true)
@@ -684,6 +756,197 @@ async function getPublicCoupon(id) {
     return data;
   } catch (error) {
     console.error('[Coupon Service] Error getting public coupon:', error);
+    throw error;
+  }
+}
+
+/**
+ * Redeem/Claim a coupon for a user
+ */
+async function redeemCoupon(userId, couponId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    // 1. Get coupon and check validity
+    const { data: coupon, error: couponError } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('id', couponId)
+      .single();
+
+    if (couponError || !coupon) throw new Error('Coupon not found');
+    if (!coupon.is_active) throw new Error('Coupon is not active');
+
+    // Check expiry
+    if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+      throw new Error('Coupon has expired');
+    }
+
+    // Check max uses
+    if (coupon.max_uses && coupon.current_uses >= coupon.max_uses) {
+      throw new Error('Coupon has reached its usage limit');
+    }
+
+    // Check if user already claimed it (if capped per user)
+    if (coupon.max_uses_per_user) {
+      const { count } = await supabase
+        .from('coupon_redemptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('coupon_id', couponId)
+        .eq('user_id', userId)
+        .in('status', ['claimed', 'redeemed']);
+
+      if (count >= coupon.max_uses_per_user) {
+        throw new Error('You have already claimed this coupon the maximum number of times');
+      }
+    }
+
+    // 2. Generate unique claim code
+    const claimCode = `RED-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+
+    // 3. Create redemption record
+    const { data: redemption, error: redemptionError } = await supabase
+      .from('coupon_redemptions')
+      .insert({
+        coupon_id: couponId,
+        user_id: userId,
+        claim_code: claimCode,
+        status: 'claimed',
+        expires_at: coupon.expires_at,
+        metadata: {
+          claimed_via: 'web_app',
+          original_coupon_code: coupon.code
+        }
+      })
+      .select()
+      .single();
+
+    if (redemptionError) throw redemptionError;
+
+    // 4. Increment coupon usage if it's auto-redeem or just tracking claims
+    // For standalone, we usually increment on actual validation, but we can track claims too
+
+    return redemption;
+  } catch (error) {
+    console.error('[Coupon Service] Error redeeming coupon:', error);
+    throw error;
+  }
+}
+
+/**
+ * Validate a redemption (Merchant side)
+ */
+async function validateRedemption(merchantUserId, claimCodeOrId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    // 1. Find the redemption
+    let query = supabase
+      .from('coupon_redemptions')
+      .select('*, coupons(*, merchant_stores(id, user_id, store_name))');
+
+    if (claimCodeOrId.includes('-')) {
+      query = query.eq('claim_code', claimCodeOrId.toUpperCase());
+    } else {
+      query = query.eq('id', claimCodeOrId);
+    }
+
+    const { data: redemption, error } = await query.single();
+
+    if (error || !redemption) throw new Error('Redemption record not found');
+    if (redemption.status !== 'claimed') throw new Error(`Coupon is already ${redemption.status}`);
+
+    // Check expiry
+    if (redemption.expires_at && new Date(redemption.expires_at) < new Date()) {
+      // Auto-expire it
+      await supabase.from('coupon_redemptions').update({ status: 'expired' }).eq('id', redemption.id);
+      throw new Error('Coupon has expired');
+    }
+
+    // 2. Verify merchant authorization
+    const store = redemption.coupons?.merchant_stores;
+    if (!store || store.user_id !== merchantUserId) {
+      throw new Error('You are not authorized to validate coupons for this store');
+    }
+
+    // 3. Mark as redeemed
+    const { data: updated, error: updateError } = await supabase
+      .from('coupon_redemptions')
+      .update({
+        status: 'redeemed',
+        redeemed_at: new Date(),
+        validated_by_user_id: merchantUserId,
+        validation_method: 'code_entry' // Default, caller can specify QR
+      })
+      .eq('id', redemption.id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // 4. Increment parent coupon usage count
+    await supabase.rpc('increment_coupon_usage', { coupon_id: redemption.coupon_id });
+
+    return updated;
+  } catch (error) {
+    console.error('[Coupon Service] Error validating redemption:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get redemptions for a user
+ */
+async function getUserRedemptions(userId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('coupon_redemptions')
+      .select(`
+        *,
+        coupons(id, code, name, description, discount_type, discount_value, expires_at, store_id, merchant_stores(store_name, logo_url))
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('[Coupon Service] Error getting user redemptions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get redemptions for a merchant
+ */
+async function getMerchantRedemptions(merchantUserId) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('coupon_redemptions')
+      .select(`
+        *,
+        users(id, username, display_name, profile_image),
+        coupons!inner(id, name, code, store_id, merchant_stores!inner(user_id))
+      `)
+      .eq('coupons.merchant_stores.user_id', merchantUserId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('[Coupon Service] Error getting merchant redemptions:', error);
     throw error;
   }
 }
@@ -705,4 +968,8 @@ module.exports = {
   getUnifiedCouponAnalytics,
   listPublicCoupons,
   getPublicCoupon,
+  redeemCoupon,
+  validateRedemption,
+  getUserRedemptions,
+  getMerchantRedemptions,
 };

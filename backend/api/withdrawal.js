@@ -3,6 +3,7 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { getUserProfile } = require('./mockStore');
+const { sendWithdrawalRequestedEmail } = require('../services/resendService');
 
 router.use(requireAuth);
 
@@ -106,6 +107,28 @@ router.post('/request', async (req, res) => {
             }
 
             // TODO: Create withdrawal record in DB
+
+            // Send confirmation email (async)
+            const { data: userData } = await supabase
+                .from('users')
+                .select('email, display_name, username')
+                .eq('id', userId)
+                .single();
+
+            if (userData?.email) {
+                const methods = {
+                    stripe: { name: 'Stripe Payout', time: '1-3 business days' },
+                    paypal: { name: 'PayPal', time: 'Instant' },
+                    crypto_usdc: { name: 'USDC Transfer', time: '10-30 minutes' }
+                };
+                const methodInfo = methods[payment_method] || { name: payment_method, time: '1-3 business days' };
+
+                sendWithdrawalRequestedEmail(userData.email, userData.display_name || userData.username, {
+                    amount,
+                    paymentMethod: methodInfo.name,
+                    estimatedTime: methodInfo.time,
+                }).catch(err => console.error('Failed to send withdrawal email:', err));
+            }
 
             return res.json({ success: true, message: 'Withdrawal request submitted' });
         } else {

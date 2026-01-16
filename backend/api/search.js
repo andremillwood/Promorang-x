@@ -1,93 +1,136 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
+
+// Helper for fuzzy search
+const fuzzySearch = (query) => `%${query}%`;
 
 /**
- * @route   GET /api/search/public
- * @desc    Public global search across drops, products, content, and forecasts
- * @access  Public
+ * GET /api/search
+ * Global search across Users, Drops, Products, and Stores
+ * Query params: q (search term), type (optional filter)
  */
-router.get('/public', async (req, res) => {
-    const { q } = req.query;
-
-    if (!q || q.length < 2) {
-        return res.status(400).json({ error: 'Search query must be at least 2 characters' });
-    }
-
+router.get('/', async (req, res) => {
     try {
-        const searchTerm = `%${q}%`;
+        const { q } = req.query;
 
-        // Parallel searches for better performance
-        const [dropsRes, productsRes, contentRes, forecastsRes] = await Promise.all([
-            // 1. Search Drops
+        if (!q || q.length < 2) {
+            return res.json({
+                success: true,
+                data: { users: [], drops: [], products: [], stores: [] }
+            });
+        }
+
+        const searchTerm = fuzzySearch(q);
+        const limit = 5; // Limit per category for "All" view
+
+        // Run queries in parallel
+        const [usersResult, dropsResult, productsResult, storesResult, eventsResult] = await Promise.all([
+            // 1. Search Users
+            supabase
+                .from('users')
+                .select('id, username, display_name, avatar_url, role')
+                .or(`username.ilike.${searchTerm},display_name.ilike.${searchTerm}`)
+                .limit(limit),
+
+            // 2. Search Drops
             supabase
                 .from('drops')
-                .select('id, title, promo_points_reward, preview_image')
-                .ilike('title', searchTerm)
-                .limit(5),
+                .select('id, title, description, preview_image, gem_reward_base, status')
+                .eq('status', 'active')
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
+                .limit(limit),
 
-            // 2. Search Products
+            // 3. Search Products
             supabase
-                .from('marketplace_products')
-                .select('id, name, price, images')
-                .ilike('name', searchTerm)
-                .limit(5),
+                .from('products')
+                .select('id, name, price_usd, price_gems, images, store_id')
+                .eq('status', 'active')
+                .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
+                .limit(limit),
 
-            // 3. Search Content (Shares)
+            // 4. Search Stores
             supabase
-                .from('content')
-                .select('id, title, media_url, engagement_rate')
-                .ilike('title', searchTerm)
-                .limit(5),
+                .from('merchant_stores')
+                .select('id, store_name, store_slug, logo_url, rating')
+                .eq('status', 'active')
+                .ilike('store_name', searchTerm)
+                .limit(limit),
 
-            // 4. Search Forecasts
+            // 5. Search Events
             supabase
-                .from('social_forecasts')
-                .select('id, content_title, odds, media_url')
-                .ilike('content_title', searchTerm)
-                .limit(5)
+                .from('events')
+                .select('id, title, description, event_date, location_name, banner_url')
+                .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},location_name.ilike.${searchTerm}`)
+                .limit(limit)
         ]);
 
-        // Format results for frontend consumption
-        const results = [
-            ...(dropsRes.data || []).map(d => ({
-                id: d.id,
-                title: d.title,
-                type: 'drop',
-                meta: `${d.promo_points_reward} PP`,
-                image: d.preview_image,
-                link: `/d/${d.id}`
-            })),
-            ...(productsRes.data || []).map(p => ({
-                id: p.id,
-                title: p.name,
-                type: 'product',
-                meta: `$${p.price}`,
-                image: p.images?.[0],
-                link: `/p/${p.id}`
-            })),
-            ...(contentRes.data || []).map(c => ({
-                id: c.id,
-                title: c.title,
-                type: 'content',
-                meta: `${(c.engagement_rate * 100).toFixed(1)}% Engagement`,
-                image: c.media_url,
-                link: `/c/${c.id}`
-            })),
-            ...(forecastsRes.data || []).map(f => ({
-                id: f.id,
-                title: f.content_title,
-                type: 'forecast',
-                meta: `${f.odds}x Odds`,
-                image: f.media_url,
-                link: `/f/${f.id}`
-            }))
-        ];
+        // Aggregate results
+        const results = {
+            users: usersResult.data || [],
+            drops: dropsResult.data || [],
+            products: productsResult.data || [],
+            stores: storesResult.data || [],
+            events: eventsResult.data || []
+        };
 
-        res.json(results);
+        // Mock data logic if Supabase returns nothing or errors out (Dev/Demo mode)
+        const hasResults = results.users.length > 0 || results.drops.length > 0 || results.products.length > 0 || results.stores.length > 0 || results.events.length > 0;
+
+        if (!hasResults && process.env.NODE_ENV === 'development') {
+            // Mock Users
+            if (q.toLowerCase().includes('creator') || q.toLowerCase().includes('demo') || q.toLowerCase().includes('advertiser')) {
+                results.users.push({
+                    id: 'demo-creator-1',
+                    username: 'demo_creator',
+                    display_name: 'Demo Creator',
+                    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo',
+                    role: 'creator'
+                });
+                if (q.toLowerCase().includes('advertiser')) {
+                    results.users.push({
+                        id: 'demo-advertiser-1',
+                        username: 'demo_brand',
+                        display_name: 'Demo Brand',
+                        avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=brand',
+                        role: 'advertiser'
+                    });
+                }
+            }
+
+            // Mock Drops
+            if (q.toLowerCase().includes('drop') || q.toLowerCase().includes('earn')) {
+                results.drops.push({
+                    id: 'demo-drop-1',
+                    title: 'Example Drop Campaign',
+                    description: 'Earn gems by creating content',
+                    preview_image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=400&q=80',
+                    gem_reward_base: 50,
+                    status: 'active'
+                });
+            }
+
+            // Mock Products
+            if (q.toLowerCase().includes('product') || q.toLowerCase().includes('shop') || q.toLowerCase().includes('shoe')) {
+                results.products.push({
+                    id: 'demo-product-1',
+                    name: 'Limited Edition Sneakers',
+                    price_usd: 120,
+                    price_gems: 1200,
+                    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80'],
+                    store_id: 'demo-store-1'
+                });
+            }
+        }
+
+        res.json({
+            success: true,
+            data: results
+        });
+
     } catch (error) {
-        console.error('Public search error:', error);
-        res.status(500).json({ error: 'Search failed' });
+        console.error('Global search error:', error);
+        res.status(500).json({ success: false, error: 'Search failed' });
     }
 });
 

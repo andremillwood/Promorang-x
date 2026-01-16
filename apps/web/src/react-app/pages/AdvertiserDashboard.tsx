@@ -22,7 +22,10 @@ import {
   TicketPercent,
   Crown,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Gift,
+  Rocket,
+  PartyPopper
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type DropType, type AdvertiserAnalyticsType } from '@/shared/types';
@@ -153,6 +156,14 @@ export default function AdvertiserDashboard() {
   const [defaultPaymentProvider, setDefaultPaymentProvider] = useState<PaymentProvider>('mock');
   const [loadingProviders, setLoadingProviders] = useState(false);
   const [paymentProviderError, setPaymentProviderError] = useState<string | null>(null);
+
+  // Merchant sampling state
+  const [merchantState, setMerchantState] = useState<'NEW' | 'SAMPLING' | 'GRADUATED' | 'PAID'>('NEW');
+  const [samplingMetrics, setSamplingMetrics] = useState<{
+    participants?: number;
+    redemptions?: number;
+    engagementRate?: number;
+  } | null>(null);
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -311,6 +322,38 @@ export default function AdvertiserDashboard() {
       void fetchDashboardData();
       void fetchSuggestedContent();
       void fetchCoupons();
+
+      // Fetch merchant sampling state
+      (async () => {
+        try {
+          const response = await apiFetch('/api/merchant-sampling/state');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+              setMerchantState(data.data.merchant_state || 'NEW');
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch merchant state:', err);
+        }
+
+        // Fetch sampling metrics if in SAMPLING state
+        try {
+          const metricsResponse = await apiFetch('/api/merchant-sampling/activation');
+          if (metricsResponse.ok) {
+            const metricsData = await metricsResponse.json();
+            if (metricsData.success && metricsData.data?.metrics) {
+              setSamplingMetrics({
+                participants: metricsData.data.metrics.total_participations || 0,
+                redemptions: metricsData.data.metrics.total_redemptions || 0,
+                engagementRate: metricsData.data.metrics.engagement_rate || 0
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch sampling metrics:', err);
+        }
+      })();
     }
   }, [userData, fetchDashboardData, fetchSuggestedContent, fetchCoupons]);
 
@@ -661,7 +704,7 @@ export default function AdvertiserDashboard() {
               <p className="text-sm text-pr-text-2">Manage your marketing campaigns and track performance</p>
             </div>
             <Button
-              onClick={() => navigate('/campaigns/new')}
+              onClick={() => navigate('/advertiser/campaigns/new')}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200"
             >
               <PlusCircle className="w-4 h-4" />
@@ -672,6 +715,124 @@ export default function AdvertiserDashboard() {
         </div>
       ) : (
         <>
+          {/* Merchant Progress Stepper */}
+          <div className="bg-pr-surface-card border border-pr-surface-3 rounded-2xl p-6 mb-6 shadow-sm overflow-hidden relative">
+            <div className="flex items-center justify-between mb-8 relative z-10">
+              {[
+                { id: 'NEW', label: 'Test', icon: Gift, color: 'emerald' },
+                { id: 'SAMPLING', label: 'Results', icon: Rocket, color: 'blue' },
+                { id: 'GRADUATED', label: 'Scale', icon: PartyPopper, color: 'purple' }
+              ].map((s, i, arr) => {
+                const isActive = merchantState === s.id;
+                const isPast = arr.findIndex(x => x.id === merchantState) > i;
+                const isLast = i === arr.length - 1;
+
+                return (
+                  <div key={s.id} className="flex-1 flex items-center relative">
+                    <div className="flex flex-col items-center relative z-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? `bg-${s.color}-500 text-white shadow-lg shadow-${s.color}-500/30 scale-110` :
+                          isPast ? `bg-${s.color}-100 text-${s.color}-600` : 'bg-pr-surface-2 text-pr-text-3'
+                        }`}>
+                        {isPast ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className="w-5 h-5" />}
+                      </div>
+                      <span className={`text-xs font-bold mt-2 transition-colors ${isActive ? `text-${s.color}-600` : isPast ? 'text-pr-text-2' : 'text-pr-text-3'
+                        }`}>
+                        {s.label}
+                      </span>
+                    </div>
+                    {!isLast && (
+                      <div className="flex-1 h-0.5 mx-4 bg-pr-surface-2 relative">
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-r from-${s.color}-500 to-${arr[i + 1].color}-500 transition-all duration-700 ease-in-out`}
+                          style={{ width: isPast ? '100%' : '0%' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Content for each state */}
+            <div className="relative z-10">
+              {merchantState === 'NEW' && (
+                <div className="animate-fade-in">
+                  <h3 className="text-lg font-bold text-pr-text-1">Ready to See Promorang in Action?</h3>
+                  <p className="text-sm text-pr-text-2 mt-1">
+                    Create your first sampling offer and experience real user engagement—no commitment required.
+                  </p>
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={() => navigate('/advertiser/sampling/create')}
+                      className="btn-spring bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl font-medium transition-colors flex items-center gap-2"
+                    >
+                      <Gift className="w-4 h-4" />
+                      Create Sampling Offer
+                    </button>
+                    <Link
+                      to="/advertiser/sampling/learn"
+                      className="text-emerald-600 hover:text-emerald-800 px-4 py-2 font-medium text-sm"
+                    >
+                      Learn How It Works
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {merchantState === 'SAMPLING' && (
+                <div className="animate-fade-in">
+                  <h3 className="text-lg font-bold text-pr-text-1">Your Sampling is Live! 🚀</h3>
+                  <div className="flex flex-wrap gap-6 mt-4">
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-blue-600">{samplingMetrics?.participants || 0}</span>
+                      <span className="text-xs text-pr-text-3 font-medium uppercase tracking-wider">Participants</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-blue-600">{samplingMetrics?.redemptions || 0}</span>
+                      <span className="text-xs text-pr-text-3 font-medium uppercase tracking-wider">Redemptions</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-blue-600">{(samplingMetrics?.engagementRate || 0).toFixed(1)}%</span>
+                      <span className="text-xs text-pr-text-3 font-medium uppercase tracking-wider">Engagement</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-pr-text-2 mt-4 italic opacity-70">
+                    Watching your real results come in. Graduation unlocks paid activations.
+                  </p>
+                </div>
+              )}
+
+              {merchantState === 'GRADUATED' && (
+                <div className="animate-fade-in">
+                  <h3 className="text-lg font-bold text-pr-text-1">You've Graduated! 🎉</h3>
+                  <p className="text-sm text-pr-text-2 mt-1">
+                    You saw real results. Now choose how you want to scale your impact.
+                  </p>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    <button
+                      onClick={() => navigate('/advertiser/campaigns/new')}
+                      className="btn-spring bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl font-medium transition-colors"
+                    >
+                      Run a Paid Activation
+                    </button>
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="btn-spring bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-xl font-medium transition-colors"
+                    >
+                      Subscribe & Scale
+                    </button>
+                    <button
+                      onClick={() => {/* Handle walk away */ }}
+                      className="text-pr-text-2 hover:text-pr-text-1 px-4 py-2 font-medium text-sm"
+                    >
+                      Maybe Later
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Move Depletion Warning Banner */}
           {(() => {
             const movesUsed = dashboardData?.monthly_inventory?.moves_used ?? dashboardData?.weekly_inventory?.moves_used ?? 0;
@@ -1038,6 +1199,31 @@ export default function AdvertiserDashboard() {
             />
           </div>
 
+          {/* Community Impact Card */}
+          <div className="bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border border-blue-500/20 rounded-2xl p-6 shadow-sm overflow-hidden relative">
+            <div className="absolute -right-4 -bottom-4 opacity-10">
+              <DollarSign className="w-32 h-32" />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 text-blue-600 font-bold text-sm mb-1 uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Community Impact</span>
+                </div>
+                <h3 className="text-2xl font-bold text-pr-text-1">Your Growth Powers the Ecosystem</h3>
+                <p className="text-pr-text-2 mt-1 max-w-xl">
+                  As you scale, so does the community. 5% of every dollar you spend is automatically added to the global **PromoShare Jackpot**, rewarding the users who believe in your brand.
+                </p>
+              </div>
+              <div className="flex flex-col items-center md:items-end">
+                <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                  ${(totals.totalGems * 0.05).toFixed(2)}
+                </div>
+                <span className="text-xs text-pr-text-3 font-medium">Contributed to PromoShare</span>
+              </div>
+            </div>
+          </div>
+
           {/* Suggested Content */}
           <div className="bg-pr-surface-card rounded-xl shadow-sm border border-pr-surface-3">
             <div className="p-6 border-b border-pr-surface-3">
@@ -1066,56 +1252,56 @@ export default function AdvertiserDashboard() {
                   {suggestedContent.slice(0, 6).map(content => {
                     const packageDetails = getPackageDetails(content.suggested_package);
                     return (
-                      <div key={content.id} className="border border-pr-surface-3 rounded-lg p-4 hover:border-purple-300 transition-colors">
+                      <div key={content.id} className="interactive-card border border-pr-surface-3 rounded-xl p-4 bg-pr-surface-card shadow-sm">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
-                              <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+                              <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
                                 {content.platform}
                               </span>
                               {content.is_trending && (
-                                <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+                                <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse">
                                   Trending
                                 </span>
                               )}
                             </div>
-                            <h4 className="font-semibold text-pr-text-1">{content.title}</h4>
-                            <p className="text-sm text-pr-text-2 line-clamp-2 mt-1">{content.description}</p>
+                            <h4 className="font-bold text-pr-text-1">{content.title}</h4>
+                            <p className="text-xs text-pr-text-2 line-clamp-2 mt-1 leading-relaxed">{content.description}</p>
                           </div>
                           <button
-                            className="text-gray-400 hover:text-pr-text-2 transition-colors"
+                            className="text-gray-400 hover:text-pr-text-2 transition-colors p-1"
                             onClick={() => window.open(content.platform_url, '_blank')}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-3 text-center text-sm mb-3">
-                          <div>
-                            <p className="font-semibold text-pr-text-1">{content.total_engagement}</p>
-                            <p className="text-xs text-pr-text-2">Engagement</p>
+                        <div className="grid grid-cols-3 gap-3 text-center text-sm mb-4">
+                          <div className="bg-pr-surface-2 p-2 rounded-lg">
+                            <p className="font-bold text-pr-text-1 text-xs">{content.total_engagement}</p>
+                            <p className="text-[10px] text-pr-text-3 uppercase font-medium">Engage</p>
                           </div>
-                          <div>
-                            <p className="font-semibold text-pr-text-1">{content.engagement_rate}%</p>
-                            <p className="text-xs text-pr-text-2">Eng. Rate</p>
+                          <div className="bg-pr-surface-2 p-2 rounded-lg">
+                            <p className="font-bold text-pr-text-1 text-xs">{content.engagement_rate}%</p>
+                            <p className="text-[10px] text-pr-text-3 uppercase font-medium">Rate</p>
                           </div>
-                          <div>
-                            <p className="font-semibold text-pr-text-1">{content.roi_potential}%</p>
-                            <p className="text-xs text-pr-text-2">ROI Potential</p>
+                          <div className="bg-pr-surface-2 p-2 rounded-lg">
+                            <p className="font-bold text-pr-text-1 text-xs">{content.roi_potential}%</p>
+                            <p className="text-[10px] text-pr-text-3 uppercase font-medium">ROI</p>
                           </div>
                         </div>
 
-                        <div className="bg-pr-surface-2 rounded-lg p-3 mb-3">
-                          <div className="text-xs text-pr-text-2 mb-1">Suggested Package:</div>
+                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-3 mb-4 border border-purple-100">
+                          <div className="text-[10px] text-purple-600 font-bold uppercase tracking-wider mb-1">Recommended Boost</div>
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="font-medium text-pr-text-1">{packageDetails.name}</div>
-                              <div className="text-xs text-pr-text-2">
-                                {packageDetails.hours}h • {packageDetails.multiplier}x boost
+                              <div className="font-bold text-purple-900 text-sm">{packageDetails.name}</div>
+                              <div className="text-[10px] text-purple-700">
+                                {packageDetails.hours}h • {packageDetails.multiplier}x leverage
                               </div>
                             </div>
-                            <div className="flex items-center space-x-1 text-purple-600 font-semibold">
-                              <Diamond className="w-3 h-3" />
+                            <div className="flex items-center space-x-1 text-purple-700 font-bold">
+                              <Diamond className="w-3.5 h-3.5" />
                               <span>{packageDetails.gems}</span>
                             </div>
                           </div>
@@ -1123,9 +1309,9 @@ export default function AdvertiserDashboard() {
 
                         <button
                           onClick={() => handleSponsorContent(content)}
-                          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-2 px-4 rounded-lg font-medium transition-all duration-200 text-sm"
+                          className="btn-spring w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-2.5 rounded-xl font-bold transition-all text-sm shadow-md shadow-purple-500/20"
                         >
-                          Sponsor This Content
+                          Boost This Post
                         </button>
                       </div>
                     );

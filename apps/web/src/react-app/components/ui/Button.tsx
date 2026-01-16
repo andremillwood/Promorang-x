@@ -1,7 +1,8 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import type { ButtonHTMLAttributes } from 'react';
+import { forwardRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'orange';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -45,6 +46,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-transparent text-blue-600 underline-offset-4',
         'hover:underline',
         'dark:text-blue-400',
+      ],
+      orange: [
+        'bg-orange-600 text-white',
+        'hover:bg-orange-700',
+        'active:bg-orange-800',
+        'shadow-[0_0_15px_rgba(234,88,12,0.3)]',
       ],
     };
 

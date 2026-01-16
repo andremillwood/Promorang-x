@@ -54,7 +54,7 @@ router.get('/hubs/:slug', async (req, res) => {
     }
 
     const { data: hub, error } = await supabase
-      .from('season_hubs')
+      .from('seasons')
       .select(`
         id,
         slug,
@@ -63,8 +63,8 @@ router.get('/hubs/:slug', async (req, res) => {
         status,
         access_type,
         theme_config,
-        operator:operators(
-          handle,
+        operator:users!operator_id(
+          username,
           display_name
         )
       `)
@@ -246,9 +246,9 @@ router.get('/hubs', async (req, res) => {
     }
 
     const { data: hubs, error } = await supabase
-      .from('season_hubs')
+      .from('seasons')
       .select('*')
-      .eq('operator_id', operator.id)
+      .eq('operator_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -308,10 +308,10 @@ router.post('/hubs', async (req, res) => {
     const now = new Date().toISOString();
 
     const { data: created, error: insertError } = await supabase
-      .from('season_hubs')
+      .from('seasons')
       .insert([
         {
-          operator_id: operator.id,
+          operator_id: userId,
           slug,
           name,
           description: description || null,

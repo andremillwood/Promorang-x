@@ -6,7 +6,7 @@
   "scripts": {
     "build": "echo 'Building backend (API only)...'",
     "start": "vercel dev",
-    "dev": "ts-node-dev --respawn --transpile-only api/index.ts",
+    "dev": "node --watch api/index.js",
     "test": "jest --runInBand",
     "deploy": "vercel --prod",
     "test:cors": "node scripts/test-cors.js",
@@ -26,8 +26,10 @@
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "hono": "^4.10.2",
+    "ipaddr.js": "^1.9.1",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^4.2.1",
+    "resend": "^6.7.0",
     "stripe": "^14.0.0",
     "zod": "^3.22.4"
   },

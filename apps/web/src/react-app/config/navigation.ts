@@ -1,5 +1,6 @@
 import {
   Home,
+  Sun,
   DollarSign,
   ShoppingBag,
   Plus,
@@ -17,6 +18,7 @@ import {
   BarChart3,
   CalendarDays,
   Ticket,
+  Gift,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -33,24 +35,58 @@ export interface NavigationItem {
   showInBottomNav?: boolean;
   requiredRole?: string;
   sidebarSection?: SidebarSection;
+  /** Minimum user state (0-3) required to see this item */
+  minState?: number;
 }
 
 /**
  * Unified Navigation Configuration
  * Single source of truth for all navigation across the app
+ * 
+ * State-aware visibility:
+ * - minState: 0 = visible to all
+ * - minState: 2 = visible after first reward (State 2+)
  */
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   // Primary Navigation (Sidebar + Bottom Nav)
+  // TODAY is the new behavioral home - always visible
   {
-    name: 'Home',
-    href: '/dashboard',
-    icon: Home,
-    description: 'Your personalized feed',
+    name: 'Today',
+    href: '/today',
+    icon: Sun,
+    description: "Today's opportunity",
     requiresAuth: true,
     showInSidebar: true,
     showInMobile: true,
     showInBottomNav: true,
     sidebarSection: 'primary',
+    minState: 0,
+  },
+  // FEED (formerly Home/Dashboard) - only for State 2+
+  {
+    name: 'Feed',
+    href: '/feed',
+    icon: Home,
+    description: 'Your personalized feed',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'primary',
+    minState: 2,
+  },
+  // HOME - Social Hub, always visible
+  {
+    name: 'Home',
+    href: '/dashboard',
+    icon: Home,
+    description: 'Your social hub',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'primary',
+    minState: 0,
   },
   {
     name: 'Earn',
@@ -86,10 +122,21 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     sidebarSection: 'primary',
   },
   {
-    name: 'Invest',
+    name: 'Portfolio',
     href: '/invest',
     icon: TrendingUp,
-    description: 'Invest in creators',
+    description: 'Your holdings & predictions',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'primary',
+  },
+  {
+    name: 'Explore',
+    href: '/market',
+    icon: BarChart3,
+    description: 'Explore content shares & forecasts',
     requiresAuth: true,
     showInSidebar: true,
     showInMobile: true,
@@ -97,7 +144,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     sidebarSection: 'primary',
   },
   {
-    name: 'Growth Hub',
+    name: 'Grow',
     href: '/growth-hub',
     icon: Rocket,
     description: 'Grow your presence',
@@ -106,6 +153,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Referrals',
@@ -117,12 +165,24 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Events',
     href: '/events',
     icon: CalendarDays,
     description: 'Discover and attend events',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'primary',
+  },
+  {
+    name: 'My Coupons',
+    href: '/my-coupons',
+    icon: Gift,
+    description: 'Your earned coupons and rewards',
     requiresAuth: true,
     showInSidebar: true,
     showInMobile: true,
@@ -165,7 +225,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     sidebarSection: 'wallet',
   },
 
-  // Gamification & Social (Mobile Drawer)
+  // Gamification & Social (Mobile Drawer) - State 2+ only
   {
     name: 'Leaderboard',
     href: '/leaderboard',
@@ -176,6 +236,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'community',
+    minState: 2,
   },
   {
     name: 'PromoShare',
@@ -187,6 +248,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'community',
+    minState: 2,
   },
   {
     name: 'Instagram Rewards',
@@ -237,12 +299,47 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
 
   // Advertiser Dashboard (Conditional)
   {
+    name: 'Growth Partners',
+    href: '/matrix',
+    icon: Rocket,
+    description: 'Build your team and earn bonuses',
+    requiresAuth: true,
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'business',
+  },
+  {
     name: 'Advertiser Dashboard',
     href: '/advertiser',
     icon: BarChart3,
     description: 'Manage campaigns',
     requiresAuth: true,
     requiredRole: 'advertiser',
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'business',
+  },
+  {
+    name: 'Team Settings',
+    href: '/advertiser/settings/team',
+    icon: Users,
+    description: 'Manage your team members',
+    requiresAuth: true,
+    requiredRole: 'advertiser',
+    showInSidebar: true,
+    showInMobile: true,
+    showInBottomNav: false,
+    sidebarSection: 'business',
+  },
+  {
+    name: 'Store Team',
+    href: '/merchant/settings/team',
+    icon: Users,
+    description: 'Manage store team',
+    requiresAuth: true,
+    requiredRole: 'merchant',
     showInSidebar: true,
     showInMobile: true,
     showInBottomNav: false,
@@ -273,11 +370,15 @@ const SIDEBAR_SECTION_ORDER: SidebarSection[] = ['primary', 'wallet', 'community
 
 /**
  * Get navigation items for sidebar
+ * @param userRole - User role (advertiser, merchant, etc.)
+ * @param userState - User progression state (0-3)
  */
-export function getSidebarNavigation(userRole?: string): NavigationItem[] {
+export function getSidebarNavigation(userRole?: string, userState: number = 0): NavigationItem[] {
   return NAVIGATION_ITEMS.filter(item => {
     if (!item.showInSidebar) return false;
     if (item.requiredRole && item.requiredRole !== userRole) return false;
+    // State-aware filtering
+    if (item.minState !== undefined && userState < item.minState) return false;
     return true;
   });
 }
@@ -308,18 +409,19 @@ export function groupNavigationBySection(items: NavigationItem[]): NavigationGro
     }));
 }
 
-export function getSidebarNavigationGroups(userRole?: string): NavigationGroup[] {
-  const items = getSidebarNavigation(userRole);
+export function getSidebarNavigationGroups(userRole?: string, userState: number = 0): NavigationGroup[] {
+  const items = getSidebarNavigation(userRole, userState);
   return groupNavigationBySection(items);
 }
 
 /**
  * Get navigation items for mobile drawer
  */
-export function getMobileDrawerNavigation(userRole?: string): NavigationItem[] {
+export function getMobileDrawerNavigation(userRole?: string, userState: number = 0): NavigationItem[] {
   return NAVIGATION_ITEMS.filter(item => {
     if (!item.showInMobile) return false;
     if (item.requiredRole && item.requiredRole !== userRole) return false;
+    if (item.minState !== undefined && userState < item.minState) return false;
     return true;
   });
 }
@@ -327,10 +429,11 @@ export function getMobileDrawerNavigation(userRole?: string): NavigationItem[] {
 /**
  * Get navigation items for bottom nav (mobile)
  */
-export function getBottomNavigation(userRole?: string): NavigationItem[] {
+export function getBottomNavigation(userRole?: string, userState: number = 0): NavigationItem[] {
   return NAVIGATION_ITEMS.filter(item => {
     if (!item.showInBottomNav) return false;
     if (item.requiredRole && item.requiredRole !== userRole) return false;
+    if (item.minState !== undefined && userState < item.minState) return false;
     return true;
   });
 }

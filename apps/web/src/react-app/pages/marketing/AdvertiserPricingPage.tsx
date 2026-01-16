@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import CTASection from '@/react-app/components/marketing/CTASection';
@@ -108,6 +109,8 @@ export default function AdvertiserPricingPage() {
         },
     ];
 
+    const [pricingType, setPricingType] = useState<'individual' | 'business'>('business');
+
     return (
         <div className="min-h-screen-dynamic bg-pr-surface-background">
             <MarketingNav />
@@ -120,11 +123,30 @@ export default function AdvertiserPricingPage() {
                         FOR ADVERTISERS
                     </span>
                     <h1 className="text-4xl md:text-6xl font-extrabold text-pr-text-1 tracking-tight mb-6">
-                        Move-Based Pricing
+                        Business Solutions
                     </h1>
-                    <p className="text-xl text-pr-text-2 max-w-2xl mx-auto">
-                        Every user action you request consumes a Move. Choose the plan that matches your campaign velocity.
+                    <p className="text-xl text-pr-text-2 max-w-2xl mx-auto mb-10">
+                        Reach verified, active users with precision.
                     </p>
+
+                    {/* Pricing Toggle */}
+                    <div className="flex items-center justify-center p-1 bg-pr-surface-2 rounded-xl w-fit mx-auto mb-12 border border-pr-border">
+                        <Link
+                            to="/pricing"
+                            className="px-6 py-2 rounded-lg text-sm font-bold text-pr-text-2 hover:text-pr-text-1 transition-all"
+                        >
+                            Individuals
+                        </Link>
+                        <button
+                            onClick={() => setPricingType('business')}
+                            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${pricingType === 'business'
+                                    ? 'bg-pr-surface-card text-pr-text-1 shadow-sm'
+                                    : 'text-pr-text-2 hover:text-pr-text-1'
+                                }`}
+                        >
+                            Businesses
+                        </button>
+                    </div>
                 </div>
             </section>
 

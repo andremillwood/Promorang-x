@@ -1,4 +1,8 @@
-StyleSheet,
+import React from 'react';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
@@ -15,7 +19,7 @@ interface ButtonProps extends TouchableOpacityProps {
   isLoading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
-  textStyle?: TextStyle;
+  textStyle?: StyleProp<TextStyle>;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }

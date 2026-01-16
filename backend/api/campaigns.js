@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { requireAuth, resolveAdvertiserContext } = require('../middleware/auth');
 const { calculateCampaignCost, getMoveCostBreakdown } = require('../config/moveCosts');
 
 // Calculate move cost for a campaign
@@ -29,18 +30,36 @@ router.post('/calculate-move-cost', (req, res) => {
   }
 });
 
+// Apply auth for creation
+router.use(requireAuth);
+router.use(resolveAdvertiserContext);
+
 // Create a new campaign
 router.post('/', async (req, res) => {
   try {
-    const { 
-      userId,
+    const {
       campaignType = 'standard',
-      ...campaignData 
+      ...campaignData
     } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
+    const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
+
+    if (!advertiserId) {
+      return res.status(403).json({ error: 'Advertiser account required' });
     }
+
+    const advertiserTeamService = require('../services/advertiserTeamService');
+    const hasPermission = await advertiserTeamService.checkPermission(
+      req.user.id,
+      advertiserId,
+      'edit_campaigns'
+    );
+
+    if (!hasPermission) {
+      return res.status(403).json({ error: 'You do not have permission to create campaigns for this account' });
+    }
+
+    const finalAdvertiserId = advertiserId;
 
     // Calculate move cost
     const moveCost = calculateCampaignCost(campaignType, {
@@ -58,7 +77,8 @@ router.post('/', async (req, res) => {
     // Create campaign (placeholder - replace with your actual campaign creation logic)
     const newCampaign = {
       id: `campaign_${Date.now()}`,
-      userId,
+      advertiser_id: finalAdvertiserId,
+      user_id: req.user.id,
       type: campaignType,
       status: 'draft',
       moveCost,

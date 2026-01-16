@@ -19,6 +19,7 @@ const OBJECT_TYPES = {
     SEASON: 'season',
     PRODUCT: 'product',
     STORE: 'store',
+    BLOG_POST: 'blog_post',
 };
 
 const TABLE_MAP = {
@@ -31,6 +32,7 @@ const TABLE_MAP = {
     season: 'seasons',
     product: 'products',
     store: 'merchant_stores',
+    blog_post: 'blog_posts',
 };
 
 /**
@@ -130,8 +132,9 @@ async function createRelay(userId, objectType, objectId, parentRelayId = null, c
         const creatorField = objectType === 'season' ? 'operator_id' :
             objectType === 'coupon' ? 'created_by' :
                 objectType === 'campaign' ? 'advertiser_id' :
-                    objectType === 'product' ? 'store_id' : // Store ID initially, we'll map to user_id next
-                        'creator_id';
+                    objectType === 'product' ? 'store_id' :
+                        objectType === 'blog_post' ? 'author_id' :
+                            'creator_id';
 
         const selectQuery = objectType === 'product' ? `${creatorField}, merchant_stores(user_id)` : creatorField;
 
@@ -222,13 +225,21 @@ async function trackRelayEngagement(relayId, actionType = 'view') {
     if (!supabase) return;
 
     try {
-        // Increment count
-        // Currently simple increment. In future: new table `relay_engagements`
+        // Increment count - use RPC or direct update
+        // Get current count first, then increment
+        const { data: currentRelay } = await supabase
+            .from('relays')
+            .select('downstream_engagement_count')
+            .eq('id', relayId)
+            .single();
+
+        const newCount = (currentRelay?.downstream_engagement_count || 0) + 1;
+
         const { error } = await supabase
             .from('relays')
             .update({
-                downstream_engagement_count: supabase.raw('downstream_engagement_count + 1'),
-                updated_at: new Date()
+                downstream_engagement_count: newCount,
+                updated_at: new Date().toISOString()
             })
             .eq('id', relayId);
 

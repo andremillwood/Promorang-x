@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import CTASection from '@/react-app/components/marketing/CTASection';
@@ -6,15 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 export default function PricingPage() {
+    const [pricingType, setPricingType] = useState<'individual' | 'business'>('individual');
+
     const plans = [
         {
-            name: "Starter",
-            price: "Free",
+            name: "Free",
+            price: "$0",
             description: "Perfect for new creators getting started. Build habits and earn your first Gems.",
             features: [
                 "Access to public Drops",
                 "Limited daily Move participation",
-                "Earn Gems via interactions & Proof Drops",
+                "Earn Gems via interactions",
                 "Basic analytics",
                 "Community support"
             ],
@@ -23,12 +26,12 @@ export default function PricingPage() {
             highlight: false
         },
         {
-            name: "Professional",
-            price: "$10",
+            name: "Pro",
+            price: "$15",
             period: "/month",
             description: "For serious creators scaling their engagement velocity.",
             features: [
-                "All Starter features",
+                "All Free features",
                 "Increased daily participation",
                 "Weekly PromoKeys",
                 "Priority Drop access",
@@ -36,22 +39,38 @@ export default function PricingPage() {
                 "Advanced analytics"
             ],
             cta: "Start Free Trial",
-            highlight: true
+            highlight: false
         },
         {
-            name: "Power User",
-            price: "$30",
+            name: "Premium",
+            price: "$50",
             period: "/month",
             description: "Maximum participation for system drivers and top performers.",
             features: [
-                "All Professional features",
+                "All Pro features",
                 "Maximum participation limits",
                 "Full PromoKey access",
                 "Master Key eligibility",
                 "Leaderboard multipliers",
                 "Highest PromoShare yield"
             ],
-            cta: "Upgrade Now",
+            cta: "Go Premium",
+            highlight: true
+        },
+        {
+            name: "Super",
+            price: "$100",
+            period: "/month",
+            description: "The ultimate platform dominance. Everything unlocked.",
+            features: [
+                "All Premium features",
+                "Guaranteed High Access Rank",
+                "Direct platform support",
+                "Early access to new features",
+                "Custom profile perks",
+                "Social Shield max coverage"
+            ],
+            cta: "Join Super Tier",
             highlight: false
         }
     ];
@@ -65,18 +84,37 @@ export default function PricingPage() {
                 <div className="absolute inset-0 bg-blue-600/5 blur-[120px] pointer-events-none" />
                 <div className="relative z-10">
                     <h1 className="text-4xl md:text-6xl font-extrabold text-pr-text-1 tracking-tight mb-6">
-                        Simple, transparent pricing
+                        Transparent Pricing
                     </h1>
-                    <p className="text-xl text-pr-text-2 max-w-2xl mx-auto">
-                        Start for free, upgrade as you grow. No hidden fees.
+                    <p className="text-xl text-pr-text-2 max-w-2xl mx-auto mb-10">
+                        Choose the plan that fits your journey.
                     </p>
+
+                    {/* Pricing Toggle */}
+                    <div className="flex items-center justify-center p-1 bg-pr-surface-2 rounded-xl w-fit mx-auto mb-12">
+                        <button
+                            onClick={() => setPricingType('individual')}
+                            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${pricingType === 'individual'
+                                    ? 'bg-pr-surface-card text-pr-text-1 shadow-sm'
+                                    : 'text-pr-text-2 hover:text-pr-text-1'
+                                }`}
+                        >
+                            Individuals
+                        </button>
+                        <Link
+                            to="/advertiser-pricing"
+                            className="px-6 py-2 rounded-lg text-sm font-bold text-pr-text-2 hover:text-pr-text-1 transition-all"
+                        >
+                            Businesses
+                        </Link>
+                    </div>
                 </div>
             </section>
 
             {/* Pricing Cards */}
             <section className="py-12 pb-24">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {plans.map((plan, index) => (
                             <div
                                 key={index}

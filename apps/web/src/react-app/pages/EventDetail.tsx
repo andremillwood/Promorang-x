@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Calendar,
     MapPin,
@@ -20,7 +20,7 @@ import {
 import { useAuth } from '@/react-app/hooks/useAuth';
 import eventsService from '@/react-app/services/events';
 import type { EventDetailResponse } from '@/react-app/services/events';
-import type { EventTaskType } from '@/shared/types';
+import { Button } from '@/components/ui/button';
 
 // New Components
 import CheckInQR from '../components/events/CheckInQR';
@@ -29,9 +29,19 @@ import EventGallery from '../components/events/EventGallery';
 import OrganizerDashboard from '../components/events/OrganizerDashboard';
 
 export default function EventDetail() {
-    const { id } = useParams<{ id: string }>();
+    const { eventCode: id } = useParams<{ eventCode: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
+
+    // Determine where to go back to
+    const getBackPath = () => {
+        // Check if we came from events-entry
+        if (location.state?.from?.includes('events-entry') || document.referrer.includes('events-entry')) {
+            return '/events-entry';
+        }
+        return '/events';
+    };
 
     const [data, setData] = useState<EventDetailResponse | null>(null);
     const [loading, setLoading] = useState(true);
@@ -40,14 +50,55 @@ export default function EventDetail() {
 
     // UI State
     const [activeTab, setActiveTab] = useState<'about' | 'tasks' | 'gallery' | 'dashboard'>('about');
-    const [selectedTask, setSelectedTask] = useState<EventTaskType | null>(null);
+    const [selectedTask, setSelectedTask] = useState<any | null>(null);
     const [showTaskModal, setShowTaskModal] = useState(false);
+    const [tiers, setTiers] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) {
             fetchEvent();
+            fetchTiers();
         }
     }, [id]);
+
+    const fetchTiers = async () => {
+        try {
+            const response = await fetch(`/api/events/${id}/ticket-tiers`);
+            const result = await response.json();
+            if (result.status === 'success') {
+                setTiers(result.data.tiers);
+            }
+        } catch (error) {
+            console.error('Error fetching tiers:', error);
+        }
+    };
+
+    const handlePurchase = async (tierId: string) => {
+        if (!user) {
+            navigate(`/auth?redirect=/events/${id}`);
+            return;
+        }
+
+        try {
+            setActionLoading(true);
+            const response = await fetch(`/api/events/${id}/tickets/purchase`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tier_id: tierId }),
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Ticket purchased successfully!');
+                fetchTiers(); // Refresh tiers to show updated quantity
+            } else {
+                alert(result.error || 'Failed to purchase ticket');
+            }
+        } catch (error) {
+            console.error('Error purchasing ticket:', error);
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const fetchEvent = async () => {
         try {
@@ -57,6 +108,7 @@ export default function EventDetail() {
             setHasRsvp(eventData.hasRsvp);
         } catch (error) {
             console.error('Error fetching event:', error);
+            setData(null); // Ensure we show "Event not found"
         } finally {
             setLoading(false);
         }
@@ -111,13 +163,15 @@ export default function EventDetail() {
 
     if (!data) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen">
-                <h1 className="text-2xl font-bold text-pr-text-1 mb-4">Event not found</h1>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-pr-surface-background">
+                <div className="text-6xl mb-4">📅</div>
+                <h1 className="text-2xl font-bold text-pr-text-1 mb-2">Event not found</h1>
+                <p className="text-pr-text-2 mb-6">This event may have ended or doesn't exist.</p>
                 <button
-                    onClick={() => navigate('/events')}
-                    className="text-purple-500 hover:underline"
+                    onClick={() => navigate(-1)}
+                    className="px-6 py-3 bg-purple-500 text-white rounded-xl font-medium hover:bg-purple-600 transition-colors"
                 >
-                    Back to Events
+                    ← Go Back
                 </button>
             </div>
         );
@@ -462,6 +516,45 @@ export default function EventDetail() {
 
                     {/* Right Column (Sidebar) */}
                     <div className="space-y-6">
+                        {/* Tickets Section */}
+                        {tiers.length > 0 && (
+                            <div className="bg-pr-surface-card border-2 border-purple-500 rounded-2xl p-6 shadow-lg overflow-hidden relative">
+                                <div className="absolute top-0 right-0 p-2 opacity-10">
+                                    <Ticket size={80} />
+                                </div>
+                                <h3 className="text-xl font-black text-pr-text-1 mb-4 flex items-center gap-2">
+                                    <Ticket className="text-purple-500" />
+                                    Get Your Access
+                                </h3>
+                                <div className="space-y-4">
+                                    {tiers.map(tier => (
+                                        <div key={tier.id} className="p-4 bg-pr-surface-2 rounded-xl border border-pr-border hover:border-purple-300 transition-colors">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="font-bold text-pr-text-1">{tier.name}</h4>
+                                                <div className="text-right">
+                                                    <p className="text-lg font-black text-purple-600">{tier.price_gems} Gems</p>
+                                                    {tier.price_gold > 0 && <p className="text-[10px] font-bold text-orange-500">{tier.price_gold} Gold</p>}
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-pr-text-2 mb-3 leading-tight opacity-80">
+                                                {tier.perks_json?.description || 'Exclusive access and multipliers.'}
+                                            </p>
+                                            <Button
+                                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg h-10"
+                                                disabled={actionLoading || tier.sold_quantity >= tier.max_quantity}
+                                                onClick={() => handlePurchase(tier.id)}
+                                            >
+                                                {tier.sold_quantity >= tier.max_quantity ? 'Sold Out' : 'Purchase Access'}
+                                            </Button>
+                                            <div className="mt-2 text-[10px] text-center font-bold text-pr-text-3 uppercase">
+                                                {tier.max_quantity - tier.sold_quantity} Left
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Entry Pass Card (Attendee Only) */}
                         {hasRsvp && !isCreator && (
                             <CheckInQR

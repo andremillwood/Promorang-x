@@ -8,13 +8,13 @@ export default function MarketingFooter() {
         <footer className="bg-pr-surface-1 border-t border-pr-border">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                    {/* Product */}
+                    {/* Getting Started */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Product</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Getting Started</h3>
                         <ul className="space-y-3">
                             <li>
                                 <Link to="/explore" className="text-sm font-bold text-blue-500 hover:text-blue-400 transition-colors">
-                                    Explore Ecosystem
+                                    Explore
                                 </Link>
                             </li>
                             <li>
@@ -23,35 +23,30 @@ export default function MarketingFooter() {
                                 </Link>
                             </li>
                             <li>
+                                <Link to="/catalog" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    See What You'll Unlock
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/pricing" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
                                     Pricing
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/about" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    About
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/promo-points" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    Promo Points
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Solutions */}
+                    {/* For Business */}
                     <div>
-                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">Solutions</h3>
+                        <h3 className="text-sm font-bold text-pr-text-1 mb-4">For Business</h3>
                         <ul className="space-y-3">
                             <li>
-                                <Link to="/creators" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    For Creators
+                                <Link to="/advertisers" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Advertisers
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/investors" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    For Investors
+                                <Link to="/merchants" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    For Merchants
                                 </Link>
                             </li>
                             <li>
@@ -60,8 +55,8 @@ export default function MarketingFooter() {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/merchants" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
-                                    For Merchants
+                                <Link to="/advertiser-pricing" className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors">
+                                    Business Pricing
                                 </Link>
                             </li>
                         </ul>

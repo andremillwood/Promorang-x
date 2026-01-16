@@ -35,5 +35,19 @@
   "license": "ISC",
   "devDependencies": {
     "husky": "^9.1.7"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native-worklets": "0.5.1",
+    "expo-app": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0",
+      "react-native-worklets": "0.5.1"
+    }
+  },
+  "dependencies": {
+    "react-native-worklets": "0.5.1",
+    "react-native-qrcode-svg": "^6.3.21"
   }
 }

@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react';
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import SEO from '@/react-app/components/SEO';
-import KeyGateModal from '@/react-app/components/KeyGateModal';
 import { useAuth } from '@/react-app/hooks/useAuth';
-import { Share2, Eye, Heart, MessageCircle, TrendingUp, ArrowRight, Clock, User, Key, Lock } from 'lucide-react';
+import { ArrowRight, Clock, User, Lock, Timer, AlertCircle } from 'lucide-react';
 import { API_BASE_URL } from '@/react-app/config';
 
 interface DropData {
@@ -22,17 +21,223 @@ interface DropData {
     key_cost: number;
     created_at: string;
     status: string;
+    starts_at?: string;
+    ends_at?: string;
+    min_access_rank?: number;
+}
+
+type AccessState = 'LOCKED' | 'COUNTDOWN' | 'AVAILABLE' | 'MISSED';
+
+// Determine the access state based on drop data and user status
+function getAccessState(drop: DropData, user: any, userAccessRank: number): AccessState {
+    const now = new Date();
+    const startsAt = drop.starts_at ? new Date(drop.starts_at) : null;
+    const endsAt = drop.ends_at ? new Date(drop.ends_at) : null;
+    const minRank = drop.min_access_rank || 0;
+
+    // Check if ended (MISSED state)
+    if (endsAt && now > endsAt) {
+        return 'MISSED';
+    }
+
+    // Check if not started yet (COUNTDOWN state)
+    if (startsAt && now < startsAt) {
+        return 'COUNTDOWN';
+    }
+
+    // Check if user doesn't meet rank requirement (LOCKED state)
+    if (!user || userAccessRank < minRank) {
+        return 'LOCKED';
+    }
+
+    // Otherwise available
+    return 'AVAILABLE';
+}
+
+// LOCKED State Component
+function LockedState({ drop, navigate }: { drop: DropData; navigate: (path: string) => void }) {
+    return (
+        <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden">
+            {/* Blurred Preview */}
+            {drop.preview_image && (
+                <div className="aspect-video bg-pr-surface-2 relative">
+                    <img
+                        src={drop.preview_image}
+                        alt=""
+                        className="w-full h-full object-cover blur-md opacity-50"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-pr-surface-card to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/80 backdrop-blur-sm px-6 py-4 rounded-2xl flex items-center gap-3">
+                            <Lock className="w-6 h-6 text-yellow-500" />
+                            <span className="text-white font-bold">Access Rank Required</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="p-8 text-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-pr-text-1 mb-4">{drop.title}</h1>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8">
+                    <Lock className="w-10 h-10 text-yellow-500 mx-auto mb-4" />
+                    <p className="text-pr-text-1 font-semibold mb-2">
+                        This opportunity requires Day {drop.min_access_rank || 7}+ Access Rank
+                    </p>
+                    <p className="text-pr-text-2 text-sm">
+                        Active users unlock access to opportunities like this. Start building your rank today.
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => navigate('/auth')}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 mx-auto"
+                >
+                    Start Day 1 to Unlock Future Access <ArrowRight className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// COUNTDOWN State Component  
+function CountdownState({ drop, startsAt, navigate }: { drop: DropData; startsAt: Date; navigate: (path: string) => void }) {
+    const [timeLeft, setTimeLeft] = useState('');
+
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = new Date();
+            const diff = startsAt.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                setTimeLeft('Starting now...');
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            if (days > 0) {
+                setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+            } else if (hours > 0) {
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+            } else {
+                setTimeLeft(`${minutes}m ${seconds}s`);
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [startsAt]);
+
+    return (
+        <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden">
+            {/* Preview with countdown overlay */}
+            {drop.preview_image && (
+                <div className="aspect-video bg-pr-surface-2 relative">
+                    <img
+                        src={drop.preview_image}
+                        alt=""
+                        className="w-full h-full object-cover opacity-70"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-pr-surface-card via-transparent to-transparent" />
+                </div>
+            )}
+
+            <div className="p-8 text-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-pr-text-1 mb-4">{drop.title}</h1>
+
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 mb-8">
+                    <Timer className="w-10 h-10 text-blue-500 mx-auto mb-4" />
+                    <p className="text-pr-text-1 font-semibold mb-2">
+                        Available to Day {drop.min_access_rank || 1}+ users in:
+                    </p>
+                    <div className="text-4xl font-mono font-bold text-blue-500 mb-4">
+                        {timeLeft}
+                    </div>
+                    <p className="text-pr-text-2 text-sm">
+                        Higher Access Rank users get notified first when this goes live.
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => navigate('/auth')}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 mx-auto"
+                >
+                    Join to Start Building Access Rank <ArrowRight className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// MISSED State Component
+function MissedState({ drop, endedAt, navigate }: { drop: DropData; endedAt: Date; navigate: (path: string) => void }) {
+    const formattedDate = endedAt.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    return (
+        <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden">
+            {/* Greyed out preview */}
+            {drop.preview_image && (
+                <div className="aspect-video bg-pr-surface-2 relative">
+                    <img
+                        src={drop.preview_image}
+                        alt=""
+                        className="w-full h-full object-cover grayscale opacity-50"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-pr-surface-card to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/80 backdrop-blur-sm px-6 py-4 rounded-2xl flex items-center gap-3">
+                            <AlertCircle className="w-6 h-6 text-red-500" />
+                            <span className="text-white font-bold">Opportunity Closed</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="p-8 text-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-pr-text-1 mb-4 opacity-70">{drop.title}</h1>
+
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8">
+                    <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
+                    <p className="text-pr-text-1 font-semibold mb-2">
+                        This opportunity was available to active users on {formattedDate}
+                    </p>
+                    <p className="text-pr-text-2 text-sm">
+                        This opportunity has ended and cannot be replayed. Active users saw it first.
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => navigate('/auth')}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 mx-auto"
+                >
+                    Don't Miss the Next One <ArrowRight className="w-5 h-5" />
+                </button>
+
+                <p className="text-pr-text-muted text-sm mt-4">
+                    <a href="/explore" className="text-blue-500 hover:underline">See what's available now →</a>
+                </p>
+            </div>
+        </div>
+    );
 }
 
 export default function PublicDropPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { user, isLoading: authLoading } = useAuth();
+    const { user } = useAuth();
     const [drop, setDrop] = useState<DropData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [showKeyModal, setShowKeyModal] = useState(false);
-    const [userKeys, setUserKeys] = useState(0);
+    const [userAccessRank] = useState(0); // Would come from user profile
 
     useEffect(() => {
         async function fetchDrop() {
@@ -54,44 +259,6 @@ export default function PublicDropPage() {
             fetchDrop();
         }
     }, [id]);
-
-    // Fetch user's key balance if logged in
-    useEffect(() => {
-        async function fetchUserKeys() {
-            if (!user) return;
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserKeys(data.user?.currencies?.promokeys || 0);
-                }
-            } catch (err) {
-                console.error('Failed to fetch user keys:', err);
-            }
-        }
-        fetchUserKeys();
-    }, [user]);
-
-    const handleEngage = () => {
-        if (!user) {
-            setShowKeyModal(true);
-            return;
-        }
-
-        const keyCost = drop?.key_cost || 0;
-        if (userKeys < keyCost) {
-            setShowKeyModal(true);
-            return;
-        }
-
-        // User has enough keys, redirect to app view
-        navigate(`/drops/${id}`);
-    };
 
     if (loading) {
         return (
@@ -115,169 +282,106 @@ export default function PublicDropPage() {
         );
     }
 
+    const accessState = getAccessState(drop, user, userAccessRank);
     const ogImage = drop.preview_image || 'https://promorang.co/promorang-logo.png';
-    const formattedDate = new Date(drop.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-
-    const keyCost = drop.key_cost || 0;
-    const canEngage = user && userKeys >= keyCost;
 
     return (
         <div className="min-h-screen-dynamic bg-pr-surface-background">
             <SEO
-                title={`${drop.title} | Promorang Drop`}
-                description={drop.description?.slice(0, 160) || `Check out this Drop on Promorang and earn Promo Points!`}
+                title={`${drop.title} | Promorang`}
+                description={drop.description?.slice(0, 160) || `Opportunity on Promorang - available to active users.`}
                 ogImage={ogImage}
                 ogType="article"
                 canonicalUrl={`https://promorang.co/d/${drop.id}`}
-                keywords={`promorang drop, ${drop.title}, earn promo points, content engagement`}
+                keywords={`promorang, opportunity, ${drop.title}`}
             />
             <MarketingNav />
 
-            {/* Drop Hero */}
             <section className="py-12 md:py-20">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden">
-                        {/* Drop Image */}
-                        {drop.preview_image && (
-                            <div className="aspect-video bg-pr-surface-2 relative">
-                                <img
-                                    src={drop.preview_image}
-                                    alt={drop.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                {/* Key Cost Badge */}
-                                {keyCost > 0 && (
-                                    <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
-                                        <Key className="w-4 h-4 text-yellow-500" />
-                                        <span className="text-white font-bold">{keyCost} Keys</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                    {accessState === 'LOCKED' && (
+                        <LockedState drop={drop} navigate={navigate} />
+                    )}
 
-                        {/* Drop Content */}
-                        <div className="p-8">
-                            {/* Creator Info */}
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                                    {drop.creator_avatar ? (
-                                        <img src={drop.creator_avatar} alt="" className="w-full h-full rounded-full object-cover" />
-                                    ) : (
-                                        <User className="w-6 h-6" />
-                                    )}
-                                </div>
-                                <div>
-                                    <div className="font-bold text-pr-text-1">{drop.creator_name || 'Anonymous Creator'}</div>
-                                    <div className="text-sm text-pr-text-2 flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        {formattedDate}
-                                    </div>
-                                </div>
-                            </div>
+                    {accessState === 'COUNTDOWN' && drop.starts_at && (
+                        <CountdownState
+                            drop={drop}
+                            startsAt={new Date(drop.starts_at)}
+                            navigate={navigate}
+                        />
+                    )}
 
-                            {/* Title */}
-                            <h1 className="text-2xl md:text-4xl font-bold text-pr-text-1 mb-4">{drop.title}</h1>
+                    {accessState === 'MISSED' && drop.ends_at && (
+                        <MissedState
+                            drop={drop}
+                            endedAt={new Date(drop.ends_at)}
+                            navigate={navigate}
+                        />
+                    )}
 
-                            {/* Description */}
-                            <p className="text-pr-text-2 text-lg leading-relaxed mb-8">{drop.description}</p>
-
-                            {/* Stats */}
-                            <div className="grid grid-cols-4 gap-4 mb-8">
-                                <div className="text-center p-4 bg-pr-surface-2 rounded-lg">
-                                    <Eye className="w-5 h-5 text-pr-text-2 mx-auto mb-1" />
-                                    <div className="text-xl font-bold text-pr-text-1">{drop.views_count?.toLocaleString() || 0}</div>
-                                    <div className="text-xs text-pr-text-2">Views</div>
-                                </div>
-                                <div className="text-center p-4 bg-pr-surface-2 rounded-lg">
-                                    <Heart className="w-5 h-5 text-red-500 mx-auto mb-1" />
-                                    <div className="text-xl font-bold text-pr-text-1">{drop.likes_count?.toLocaleString() || 0}</div>
-                                    <div className="text-xs text-pr-text-2">Likes</div>
-                                </div>
-                                <div className="text-center p-4 bg-pr-surface-2 rounded-lg">
-                                    <Share2 className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-                                    <div className="text-xl font-bold text-pr-text-1">{drop.shares_count?.toLocaleString() || 0}</div>
-                                    <div className="text-xs text-pr-text-2">Shares</div>
-                                </div>
-                                <div className="text-center p-4 bg-pr-surface-2 rounded-lg">
-                                    <TrendingUp className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                                    <div className="text-xl font-bold text-pr-text-1">{drop.promo_points_reward?.toLocaleString() || 0}</div>
-                                    <div className="text-xs text-pr-text-2">Promo Points</div>
-                                </div>
-                            </div>
-
-                            {/* CTA - Auth-aware */}
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <button
-                                    onClick={handleEngage}
-                                    className={`flex-1 px-8 py-4 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${canEngage
-                                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 shadow-xl shadow-green-500/20'
-                                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 shadow-xl shadow-blue-500/20'
-                                        }`}
-                                >
-                                    {!user ? (
-                                        <>Sign Up to Engage <ArrowRight className="w-5 h-5" /></>
-                                    ) : canEngage ? (
-                                        <>Engage & Earn <ArrowRight className="w-5 h-5" /></>
-                                    ) : (
-                                        <><Lock className="w-5 h-5" /> {keyCost} Keys Required</>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(window.location.href);
-                                        alert('Link copied!');
-                                    }}
-                                    className="px-8 py-4 bg-pr-surface-2 border border-pr-border text-pr-text-1 rounded-lg font-semibold hover:bg-pr-surface-3 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Share2 className="w-5 h-5" /> Share
-                                </button>
-                            </div>
-
-                            {/* Key Info */}
-                            {user && keyCost > 0 && (
-                                <div className="mt-4 p-4 bg-pr-surface-2 rounded-lg flex items-center justify-between">
-                                    <div className="text-pr-text-2 text-sm">Your Keys</div>
-                                    <div className={`font-bold ${userKeys >= keyCost ? 'text-green-500' : 'text-yellow-500'}`}>
-                                        {userKeys} / {keyCost} required
-                                    </div>
+                    {accessState === 'AVAILABLE' && (
+                        <div className="bg-pr-surface-card border border-pr-border rounded-2xl overflow-hidden">
+                            {drop.preview_image && (
+                                <div className="aspect-video bg-pr-surface-2 relative">
+                                    <img
+                                        src={drop.preview_image}
+                                        alt={drop.title}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                             )}
+
+                            <div className="p-8">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                        {drop.creator_avatar ? (
+                                            <img src={drop.creator_avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                                        ) : (
+                                            <User className="w-6 h-6" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-pr-text-1">{drop.creator_name || 'Anonymous'}</div>
+                                        <div className="text-sm text-pr-text-2 flex items-center gap-2">
+                                            <Clock className="w-4 h-4" />
+                                            {new Date(drop.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h1 className="text-2xl md:text-4xl font-bold text-pr-text-1 mb-4">{drop.title}</h1>
+                                <p className="text-pr-text-2 text-lg leading-relaxed mb-8">{drop.description}</p>
+
+                                <button
+                                    onClick={() => navigate(`/drops/${id}`)}
+                                    className="w-full px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-xl shadow-green-500/20 flex items-center justify-center gap-2"
+                                >
+                                    Participate Now <ArrowRight className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
-            {/* What is Promorang? */}
+            {/* What is Promorang? - Simplified */}
             <section className="py-16 bg-pr-surface-1 border-y border-pr-border">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-2xl font-bold text-pr-text-1 mb-4">What is Promorang?</h2>
+                    <h2 className="text-2xl font-bold text-pr-text-1 mb-4">How Access Works</h2>
                     <p className="text-pr-text-2 mb-8 max-w-2xl mx-auto">
-                        Promorang is a platform where you earn Promo Points by engaging with content you love.
-                        Share drops, make forecasts, and build your way to Partner tier with revenue share.
+                        Promorang gives priority access to active users. The more consistently you participate,
+                        the earlier you see opportunities and the more you can access.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="/content-shares" className="text-green-500 hover:underline">Learn about Content Shares →</a>
-                        <a href="/forecasts" className="text-blue-500 hover:underline">Learn about Forecasts →</a>
-                        <a href="/about/growth-hub" className="text-purple-500 hover:underline">Learn about Growth Hub →</a>
-                    </div>
+                    <a
+                        href="/how-it-works"
+                        className="text-blue-500 hover:underline font-semibold"
+                    >
+                        Learn how Access Rank works →
+                    </a>
                 </div>
             </section>
 
             <MarketingFooter />
-
-            {/* Key Gate Modal */}
-            <KeyGateModal
-                isOpen={showKeyModal}
-                onClose={() => setShowKeyModal(false)}
-                keyCost={keyCost}
-                userKeys={userKeys}
-                isLoggedIn={!!user}
-                dropTitle={drop.title}
-            />
         </div>
     );
 }

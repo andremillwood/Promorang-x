@@ -120,4 +120,36 @@ router.post('/mark-all-read', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/notifications/push-token
+ * Register or update push token for push notifications
+ */
+router.post('/push-token', async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { push_token } = req.body;
+
+        if (!push_token) {
+            return res.status(400).json({ success: false, error: 'push_token is required' });
+        }
+
+        // Validate Expo token format
+        if (!push_token.startsWith('ExponentPushToken')) {
+            return res.status(400).json({ success: false, error: 'Invalid push token format' });
+        }
+
+        const notificationService = require('../services/notificationService');
+        const result = await notificationService.registerPushToken(userId, push_token);
+
+        if (result.success) {
+            res.json({ success: true, message: 'Push token registered' });
+        } else {
+            res.status(500).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error registering push token:', error);
+        res.status(500).json({ success: false, error: 'Failed to register push token' });
+    }
+});
+
 module.exports = router;

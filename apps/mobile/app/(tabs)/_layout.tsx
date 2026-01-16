@@ -1,17 +1,25 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
-import { Home, ShoppingBag, Wallet, TrendingUp, User, Plus } from 'lucide-react-native';
+import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import { Home, Compass, Coins, User, Settings } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
 
 export default function TabLayout() {
+  const router = useRouter();
+  const theme = useThemeColors();
+
   return (
+    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.darkGray,
+        tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: colors.lightGray,
+          borderTopColor: theme.border,
+          backgroundColor: theme.surface,
           paddingTop: 8,
           paddingBottom: 8,
           height: 70,
@@ -22,61 +30,45 @@ export default function TabLayout() {
           marginTop: 4,
         },
         headerStyle: {
-          backgroundColor: colors.white,
+          backgroundColor: theme.surface,
         },
         headerTitleStyle: {
           fontWeight: '600',
           fontSize: 18,
+          color: theme.text,
         },
-        headerTintColor: colors.black,
+        headerTintColor: theme.text,
       }}
     >
+      {/* Main 4 Tabs */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Home',
           tabBarLabel: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Home size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Discover',
+          tabBarLabel: 'Discover',
+          tabBarIcon: ({ color, size }) => (
+            <Compass size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="marketplace"
         options={{
-          title: 'Earn & Create',
+          title: 'Earn',
           tabBarLabel: 'Earn',
           tabBarIcon: ({ color, size }) => (
-            <ShoppingBag size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="growth"
-        options={{
-          title: 'Growth Hub',
-          tabBarLabel: 'Growth',
-          tabBarIcon: ({ color, size }) => (
-            <TrendingUp size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="bets"
-        options={{
-          title: 'Invest & Trade',
-          tabBarLabel: 'Invest',
-          tabBarIcon: ({ color, size }) => (
-            <Plus size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="wallet"
-        options={{
-          title: 'Wallet',
-          tabBarIcon: ({ color, size }) => (
-            <Wallet size={size} color={color} />
+            <Coins size={size} color={color} />
           ),
         }}
       />
@@ -84,11 +76,47 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push('/settings')}
+              style={{ marginRight: 16 }}
+            >
+              <Settings size={22} color={colors.primary} />
+            </TouchableOpacity>
+          ),
           tabBarIcon: ({ color, size }) => (
             <User size={size} color={color} />
           ),
         }}
       />
+
+      {/* Hidden tabs - still accessible via navigation but not in tab bar */}
+      <Tabs.Screen
+        name="growth"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="forecasts"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="shop"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="wallet"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
+    <FloatingActionButton />
+    </View>
   );
 }

@@ -21,7 +21,8 @@ import {
   Settings,
   Crown,
   Bell,
-  Rocket
+  Rocket,
+  BarChart3
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import Tooltip from '@/react-app/components/Tooltip';
@@ -118,6 +119,7 @@ export default function Layout({ children }: LayoutProps) {
       { name: 'Earn', href: '/earn', icon: DollarSign },
       { name: 'Create', href: '/create', icon: Plus },
       { name: 'Invest', href: '/invest', icon: TrendingUp },
+      { name: 'Market', href: '/market', icon: BarChart3 },
       { name: 'Growth Hub', href: '/growth-hub', icon: Rocket },
     ];
     
@@ -721,7 +723,7 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Desktop Navigation */}
-      <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">
+      <nav className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             {navigation.map((item) => {
@@ -746,7 +748,7 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
         <div className="flex">
           {/* Core Navigation - Main sections */}
           <Link

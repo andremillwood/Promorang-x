@@ -7,9 +7,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const { trackCampaignSpend } = require('../utils/referralTracker');
+const merchantSamplingService = require('../services/merchantSamplingService');
 
 const DEMO_ADVERTISER_FALLBACK_ID = 'demo-advertiser-id';
 const DEMO_ADVERTISER_SUPABASE_ID = '00000000-0000-0000-0000-00000000ad01';
+
+const { requireAuth, resolveAdvertiserContext } = require('../middleware/auth');
 
 const advertiserIdCache = new Map();
 
@@ -34,7 +37,14 @@ const parseJsonField = (input, fallback = {}) => {
   }
 };
 
-const resolveAdvertiserId = async (user = {}) => {
+const resolveAdvertiserId = async (req) => {
+  // Use the context resolved by middleware
+  if (req.advertiserAccount) {
+    return req.advertiserAccount.id;
+  }
+
+  // Fallback for development/legacy if middleware hasn't run
+  const user = req.user;
   if (!supabase) {
     return user?.id || DEMO_ADVERTISER_FALLBACK_ID;
   }
@@ -44,32 +54,25 @@ const resolveAdvertiserId = async (user = {}) => {
     return advertiserIdCache.get(cacheKey);
   }
 
-  const candidates = [];
-
-  if (user?.id) {
-    candidates.push({ column: 'id', value: user.id });
-  }
-  if (user?.username) {
-    candidates.push({ column: 'username', value: user.username });
+  if (!user || !user.id) {
+    console.warn('resolveAdvertiserId: No user found in request');
+    return DEMO_ADVERTISER_FALLBACK_ID;
   }
 
-  // Always try the seeded demo advertiser as a fallback when Supabase is available.
-  candidates.push({ column: 'username', value: 'demo_advertiser' });
+  // Look for the user's primary/first advertiser account in the DB
+  const { data: teamMember, error } = await supabase
+    .from('advertiser_team_members')
+    .select('account_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle();
 
-  for (const candidate of candidates) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id')
-      .eq(candidate.column, candidate.value)
-      .limit(1);
-
-    if (!error && Array.isArray(data) && data.length > 0) {
-      const resolvedId = data[0].id;
-      advertiserIdCache.set(cacheKey, resolvedId);
-      return resolvedId;
-    }
+  if (!error && teamMember) {
+    advertiserIdCache.set(cacheKey, teamMember.account_id);
+    return teamMember.account_id;
   }
 
+  // Final fallback to the seeded demo advertiser ID for safety
   advertiserIdCache.set(cacheKey, DEMO_ADVERTISER_SUPABASE_ID);
   return DEMO_ADVERTISER_SUPABASE_ID;
 };
@@ -563,48 +566,16 @@ const decodeToken = (token) => {
   }
 };
 
-// Simple auth middleware mirroring behaviour from users route
+// Apply shared authentication and advertiser context resolution
+router.use(requireAuth);
+router.use(resolveAdvertiserContext);
+
+// Optional: verify they actually HAVE an advertiser account
 router.use((req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const decoded = decodeToken(authHeader.substring(7));
-    if (decoded) {
-      req.user = decoded;
-    }
+  if (!req.advertiserAccount && (req.user.user_type !== 'advertiser' && req.user.role !== 'advertiser')) {
+    return sendError(res, 403, 'Advertiser account required', 'NOT_ADVERTISER');
   }
-
-  if (!req.user && process.env.NODE_ENV === 'development') {
-    req.user = {
-      id: 'demo-advertiser-id',
-      email: 'advertiser@demo.com',
-      username: 'demo_advertiser',
-      display_name: 'Demo Advertiser',
-      user_type: 'advertiser',
-      advertiser_tier: 'free',
-      points_balance: 10000,
-      gems_balance: 2000,
-      keys_balance: 500,
-    };
-  }
-
-  if (!req.user) {
-    return sendError(res, 401, 'Unauthorized', 'UNAUTHENTICATED');
-  }
-
-  console.log('[Advertiser Auth] User:', {
-    id: req.user.id,
-    username: req.user.username,
-    user_type: req.user.user_type,
-    role: req.user.role
-  });
-
-  if ((req.user.user_type || req.user.role) !== 'advertiser') {
-    console.log('[Advertiser Auth] Access denied - user_type:', req.user.user_type, 'role:', req.user.role);
-    return sendError(res, 403, 'Advertiser privileges required', 'NOT_ADVERTISER');
-  }
-
-  return next();
+  next();
 });
 
 router.get('/subscription/plans', (req, res) => {
@@ -635,7 +606,20 @@ router.post('/subscription/upgrade', (req, res) => {
 
 router.get('/dashboard', async (req, res) => {
   const userTier = getUserTier(req.user);
-  const advertiserId = await resolveAdvertiserId(req.user);
+  const advertiserId = await resolveAdvertiserId(req);
+
+  // Get merchant sampling state and visibility rules
+  const { state: merchantState, profile: merchantProfile } = await merchantSamplingService.getMerchantState(advertiserId);
+  const merchantVisibility = merchantSamplingService.getMerchantVisibilityRules(merchantState);
+
+  // Get sampling metrics if in sampling state
+  let samplingData = null;
+  if (merchantState === merchantSamplingService.MerchantState.SAMPLING) {
+    const { has_activation, metrics } = await merchantSamplingService.getSamplingMetrics(advertiserId);
+    if (has_activation) {
+      samplingData = metrics;
+    }
+  }
 
   const inventory = {
     free: {
@@ -683,6 +667,9 @@ router.get('/dashboard', async (req, res) => {
       drops: mockDrops,
       analytics: [],
       user_tier: userTier,
+      merchant_state: merchantState,
+      merchant_visibility: merchantVisibility,
+      sampling_data: samplingData,
       ...tierInventory
     });
   }
@@ -691,7 +678,7 @@ router.get('/dashboard', async (req, res) => {
     const { data: campaigns, error: campaignsError } = await supabase
       .from('advertiser_campaigns')
       .select('*')
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -713,8 +700,8 @@ router.get('/dashboard', async (req, res) => {
 
     const { data: metrics, error: metricsError } = await supabase
       .from('advertiser_campaign_metrics')
-      .select('*, advertiser_campaigns!inner(advertiser_id)')
-      .eq('advertiser_campaigns.advertiser_id', advertiserId)
+      .select('*, advertiser_campaigns!inner(advertiser_account_id)')
+      .eq('advertiser_campaigns.advertiser_account_id', advertiserId)
       .order('metric_date', { ascending: false })
       .limit(10);
 
@@ -724,7 +711,7 @@ router.get('/dashboard', async (req, res) => {
 
     const analytics = (metrics || []).map((metric) => ({
       id: metric.id,
-      advertiser_id: advertiserId,
+      advertiser_account_id: advertiserId,
       period_start: metric.metric_date,
       period_end: metric.metric_date,
       drops_created: 1,
@@ -742,6 +729,9 @@ router.get('/dashboard', async (req, res) => {
       drops,
       analytics,
       user_tier: userTier,
+      merchant_state: merchantState,
+      merchant_visibility: merchantVisibility,
+      sampling_data: samplingData,
       ...tierInventory
     });
   } catch (error) {
@@ -750,6 +740,9 @@ router.get('/dashboard', async (req, res) => {
       drops: [],
       analytics: [],
       user_tier: userTier,
+      merchant_state: merchantState,
+      merchant_visibility: merchantVisibility,
+      sampling_data: samplingData,
       ...tierInventory
     });
   }
@@ -835,7 +828,7 @@ router.get('/coupons', async (req, res) => {
     const { data: coupons, error: couponsError } = await supabase
       .from('advertiser_coupons')
       .select('*')
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .order('created_at', { ascending: false });
 
     if (couponsError) {
@@ -904,7 +897,7 @@ router.post('/coupons', async (req, res) => {
     const id = `coupon-${Date.now()}`;
     const coupon = {
       id,
-      advertiser_id: advertiserId,
+      advertiser_account_id: advertiserId,
       title,
       description,
       reward_type,
@@ -927,7 +920,7 @@ router.post('/coupons', async (req, res) => {
     const { data: coupon, error } = await supabase
       .from('advertiser_coupons')
       .insert({
-        advertiser_id: advertiserId,
+        advertiser_account_id: advertiserId,
         title,
         description,
         reward_type,
@@ -1013,62 +1006,178 @@ router.post('/coupons/:couponId/assign', async (req, res) => {
 });
 
 router.post('/campaigns', async (req, res) => {
-  const advertiserId = await resolveAdvertiserId(req.user);
+  const advertiserId = await resolveAdvertiserId(req);
   const {
     name,
-    objective,
+    description,
     start_date,
     end_date,
-    total_budget,
-    target_audience = {}
+    content_items = [],
+    drops = [],
+    coupons = [],
+    budget_gems = 0,
+    promoshare_contribution = 0
   } = req.body || {};
 
-  if (!name || !total_budget) {
-    return sendError(res, 422, 'Campaign name and budget are required', 'VALIDATION_ERROR');
+  if (!name) {
+    return sendError(res, 422, 'Campaign name is required', 'VALIDATION_ERROR');
   }
 
+  // Calculate total gem budget from drops
+  const totalDropRewards = drops.reduce((sum, drop) => {
+    return sum + ((drop.gemReward || 10) * (drop.maxParticipants || 100));
+  }, 0);
+  const totalGemBudget = totalDropRewards + promoshare_contribution;
+
   if (!supabase) {
+    // Mock response for development
+    const campaignId = `campaign-${Date.now()}`;
     const campaign = {
-      id: `campaign-${Date.now()}`,
+      id: campaignId,
       advertiser_id: advertiserId,
       name,
-      objective: objective || 'Drive engagement',
+      description,
       status: 'active',
       start_date: start_date || new Date().toISOString(),
-      end_date: end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      total_budget,
-      budget_spent: 0,
-      target_audience,
-      created_at: new Date().toISOString()
+      end_date: end_date || null,
+      total_gem_budget: totalGemBudget,
+      gems_spent: 0,
+      promoshare_contribution,
+      created_at: new Date().toISOString(),
+      content_items: content_items.map((item, i) => ({ ...item, id: `content-${i}` })),
+      drops: drops.map((drop, i) => ({ ...drop, id: `drop-${i}`, status: 'active', current_participants: 0 })),
+      coupons: coupons.map((coupon, i) => ({ ...coupon, id: `coupon-${i}`, quantity_remaining: coupon.quantity }))
     };
-    return res.status(201).json({ status: 'success', data: { campaign }, message: 'Campaign created successfully' });
+    return res.status(201).json({ 
+      status: 'success', 
+      data: { campaign, id: campaignId }, 
+      message: 'Campaign created successfully' 
+    });
   }
 
   try {
-    const { data: campaign, error } = await supabase
+    // 1. Create the campaign
+    const { data: campaign, error: campaignError } = await supabase
       .from('advertiser_campaigns')
       .insert({
         advertiser_id: advertiserId,
         name,
-        objective: objective || 'Drive engagement',
+        description,
         status: 'active',
         start_date: start_date || new Date().toISOString(),
-        end_date: end_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        total_budget,
-        budget_spent: 0,
-        target_audience: JSON.stringify(target_audience)
+        end_date: end_date || null,
+        total_gem_budget: totalGemBudget,
+        gems_spent: 0,
+        promoshare_contribution
       })
       .select()
       .single();
 
-    if (error) {
-      console.error('Error creating campaign:', error);
+    if (campaignError) {
+      console.error('Error creating campaign:', campaignError);
       return sendError(res, 500, 'Failed to create campaign', 'DATABASE_ERROR');
+    }
+
+    const campaignId = campaign.id;
+
+    // 2. Create content items
+    if (content_items.length > 0) {
+      const contentToInsert = content_items.map((item, index) => ({
+        campaign_id: campaignId,
+        content_type: item.type || 'link',
+        title: item.title || `Content ${index + 1}`,
+        url: item.url || null,
+        description: item.description || null,
+        sort_order: index
+      }));
+
+      const { error: contentError } = await supabase
+        .from('campaign_content_items')
+        .insert(contentToInsert);
+
+      if (contentError) {
+        console.error('Error creating content items:', contentError);
+      }
+    }
+
+    // 3. Create drops
+    if (drops.length > 0) {
+      const dropsToInsert = drops.map(drop => ({
+        campaign_id: campaignId,
+        title: drop.title || 'Untitled Drop',
+        description: drop.description || null,
+        drop_type: drop.type || 'share',
+        gem_reward: drop.gemReward || 10,
+        keys_cost: drop.keysCost || 1,
+        max_participants: drop.maxParticipants || 100,
+        current_participants: 0,
+        requirements: drop.requirements || null,
+        status: 'active',
+        promoshare_tickets_per_completion: 1
+      }));
+
+      const { error: dropsError } = await supabase
+        .from('campaign_drops')
+        .insert(dropsToInsert);
+
+      if (dropsError) {
+        console.error('Error creating drops:', dropsError);
+      }
+    }
+
+    // 4. Create coupons
+    if (coupons.length > 0) {
+      const couponsToInsert = coupons.map(coupon => ({
+        campaign_id: campaignId,
+        title: coupon.title || 'Discount',
+        description: coupon.description || null,
+        discount_type: coupon.discountType || 'percent',
+        discount_value: coupon.discountValue || 10,
+        quantity_total: coupon.quantity || 100,
+        quantity_remaining: coupon.quantity || 100,
+        expires_at: coupon.expiresAt || null
+      }));
+
+      const { error: couponsError } = await supabase
+        .from('campaign_coupons')
+        .insert(couponsToInsert);
+
+      if (couponsError) {
+        console.error('Error creating coupons:', couponsError);
+      }
+    }
+
+    // 5. If there's a PromoShare contribution, add to the active grand jackpot
+    if (promoshare_contribution > 0) {
+      const { data: grandCycle } = await supabase
+        .from('promoshare_cycles')
+        .select('id, jackpot_amount')
+        .eq('cycle_type', 'grand')
+        .eq('status', 'active')
+        .single();
+
+      if (grandCycle) {
+        await supabase
+          .from('promoshare_cycles')
+          .update({ jackpot_amount: (grandCycle.jackpot_amount || 0) + promoshare_contribution })
+          .eq('id', grandCycle.id);
+
+        // Add as pool item
+        await supabase
+          .from('promoshare_pool_items')
+          .insert({
+            cycle_id: grandCycle.id,
+            reward_type: 'gem',
+            amount: promoshare_contribution,
+            description: `Sponsored by ${name}`,
+            sponsor_name: name
+          });
+      }
     }
 
     return res.status(201).json({
       status: 'success',
-      data: { campaign: { ...campaign, target_audience: parseJsonField(campaign.target_audience, {}) } },
+      data: { campaign, id: campaignId },
       message: 'Campaign created successfully'
     });
   } catch (error) {
@@ -1093,7 +1202,7 @@ router.get('/campaigns', async (req, res) => {
     const { data: campaigns, error: campaignsError } = await supabase
       .from('advertiser_campaigns')
       .select('*')
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .order('created_at', { ascending: false });
 
     if (campaignsError) {
@@ -1134,17 +1243,44 @@ router.get('/campaigns', async (req, res) => {
 
 router.get('/campaigns/:campaignId', async (req, res) => {
   const { campaignId } = req.params;
-  const advertiserId = await resolveAdvertiserId(req.user);
+  const advertiserId = await resolveAdvertiserId(req);
 
   if (!supabase) {
-    const demoResponse = buildDemoCampaignResponse(campaignId);
-    if (!demoResponse) {
-      return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
-    }
-    return sendSuccess(res, demoResponse);
+    // Mock response for development
+    const mockCampaign = {
+      id: campaignId,
+      name: 'Demo Campaign',
+      description: 'A sample campaign with drops and content',
+      status: 'active',
+      start_date: new Date().toISOString(),
+      end_date: null,
+      total_gem_budget: 1500,
+      gems_spent: 250,
+      promoshare_contribution: 100,
+      created_at: new Date().toISOString(),
+      content_items: [
+        { id: 'c1', content_type: 'link', title: 'Product Launch Post', url: 'https://instagram.com/p/example' }
+      ],
+      drops: [
+        { id: 'd1', title: 'Share our launch post', drop_type: 'share', gem_reward: 10, keys_cost: 1, max_participants: 100, current_participants: 25, status: 'active' },
+        { id: 'd2', title: 'Create a review video', drop_type: 'create', gem_reward: 50, keys_cost: 3, max_participants: 20, current_participants: 5, status: 'active' }
+      ],
+      coupons: [
+        { id: 'cp1', title: '20% Off First Order', discount_type: 'percent', discount_value: 20, quantity_total: 100, quantity_remaining: 85 }
+      ],
+      stats: {
+        total_drops: 2,
+        total_applications: 30,
+        completed_applications: 20,
+        total_gems_awarded: 250,
+        total_tickets_awarded: 20
+      }
+    };
+    return sendSuccess(res, { campaign: mockCampaign });
   }
 
   try {
+    // Fetch campaign
     const { data: campaign, error: campaignError } = await supabase
       .from('advertiser_campaigns')
       .select('*')
@@ -1157,47 +1293,46 @@ router.get('/campaigns/:campaignId', async (req, res) => {
       return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
     }
 
-    const { data: metrics, error: metricsError } = await supabase
-      .from('advertiser_campaign_metrics')
+    // Fetch content items
+    const { data: contentItems } = await supabase
+      .from('campaign_content_items')
       .select('*')
       .eq('campaign_id', campaignId)
-      .order('metric_date', { ascending: false });
+      .order('sort_order', { ascending: true });
 
-    if (metricsError) {
-      console.error('Error fetching metrics:', metricsError);
-    }
-
-    const { data: content, error: contentError } = await supabase
-      .from('content_items')
+    // Fetch drops with application counts
+    const { data: drops } = await supabase
+      .from('campaign_drops')
       .select('*')
-      .eq('drop_id', campaignId)
-      .order('posted_at', { ascending: false });
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: true });
 
-    if (contentError) {
-      console.error('Error fetching content:', contentError);
-    }
+    // Fetch coupons
+    const { data: coupons } = await supabase
+      .from('campaign_coupons')
+      .select('*')
+      .eq('campaign_id', campaignId);
 
-    const { data: assignments, error: assignmentsError } = await supabase
-      .from('advertiser_coupon_assignments')
-      .select('*, advertiser_coupons!inner(*)')
-      .eq('target_type', 'campaign')
-      .eq('target_id', campaignId);
-
-    if (assignmentsError) {
-      console.error('Error fetching coupon assignments:', assignmentsError);
-    }
-
-    const coupons = (assignments || []).map((assignment) => ({
-      ...assignment.advertiser_coupons,
-      conditions: parseJsonField(assignment.advertiser_coupons.conditions, {}),
-      assignments: [assignment],
-    }));
+    // Get campaign stats
+    const { data: stats } = await supabase
+      .rpc('get_campaign_stats', { p_campaign_id: campaignId });
 
     return sendSuccess(res, {
-      campaign: formatCampaignRecord(campaign),
-      metrics: (metrics || []).map(formatMetricRecord),
-      content: (content || []).map(formatContentRecord),
-      coupons: coupons.map(formatCouponRecord),
+      campaign: {
+        ...campaign,
+        content_items: contentItems || [],
+        drops: drops || [],
+        coupons: coupons || [],
+        stats: stats?.[0] || {
+          total_drops: drops?.length || 0,
+          total_applications: 0,
+          completed_applications: 0,
+          total_gems_awarded: 0,
+          total_tickets_awarded: 0,
+          total_coupons: coupons?.length || 0,
+          coupons_claimed: 0
+        }
+      }
     });
   } catch (error) {
     console.error('Campaign detail error:', error);
@@ -1255,7 +1390,7 @@ router.patch('/campaigns/:campaignId', async (req, res) => {
       .from('advertiser_campaigns')
       .update(updates)
       .eq('id', campaignId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .select()
       .single();
 
@@ -1297,7 +1432,7 @@ router.delete('/campaigns/:campaignId', async (req, res) => {
       .from('advertiser_campaigns')
       .delete()
       .eq('id', campaignId)
-      .eq('advertiser_id', advertiserId);
+      .eq('advertiser_account_id', advertiserId);
 
     if (error) {
       console.error('Error deleting campaign:', error);
@@ -1342,7 +1477,7 @@ router.post('/campaigns/:campaignId/funds', async (req, res) => {
       .from('advertiser_campaigns')
       .select('*')
       .eq('id', campaignId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .single();
 
     if (fetchError || !campaign) {
@@ -1429,7 +1564,7 @@ router.post('/campaigns/:campaignId/content', async (req, res) => {
       .from('advertiser_campaigns')
       .select('id')
       .eq('id', campaignId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .single();
 
     if (fetchError || !campaign) {
@@ -1490,7 +1625,7 @@ router.get('/campaigns/:campaignId/drops', async (req, res) => {
       .from('advertiser_campaigns')
       .select('id')
       .eq('id', campaignId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .single();
 
     if (fetchError || !campaign) {
@@ -1527,7 +1662,7 @@ router.get('/coupons/:couponId', async (req, res) => {
       .from('advertiser_coupons')
       .select('*')
       .eq('id', couponId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .single();
 
     if (couponError || !coupon) {
@@ -1625,7 +1760,7 @@ router.patch('/coupons/:couponId', async (req, res) => {
       .from('advertiser_coupons')
       .update(updates)
       .eq('id', couponId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .select()
       .single();
 
@@ -1663,7 +1798,7 @@ router.delete('/coupons/:couponId', async (req, res) => {
       .from('advertiser_coupons')
       .delete()
       .eq('id', couponId)
-      .eq('advertiser_id', advertiserId);
+      .eq('advertiser_account_id', advertiserId);
 
     if (error) {
       console.error('Error deleting coupon:', error);
@@ -1706,7 +1841,7 @@ router.post('/coupons/:couponId/replenish', async (req, res) => {
       .from('advertiser_coupons')
       .select('*')
       .eq('id', couponId)
-      .eq('advertiser_id', advertiserId)
+      .eq('advertiser_account_id', advertiserId)
       .single();
 
     if (fetchError || !coupon) {

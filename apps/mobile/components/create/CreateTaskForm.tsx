@@ -12,7 +12,7 @@ import { trpc } from '@/lib/trpc';
 export const CreateTaskForm: React.FC = () => {
   const router = useRouter();
 
-  
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [reward, setReward] = useState('');
@@ -31,11 +31,11 @@ export const CreateTaskForm: React.FC = () => {
 
   const validateForm = () => {
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a task title');
+      Alert.alert('Error', 'Please enter a drop title');
       return false;
     }
     if (!description.trim()) {
-      Alert.alert('Error', 'Please enter a task description');
+      Alert.alert('Error', 'Please enter a drop description');
       return false;
     }
     if (!reward || isNaN(Number(reward)) || Number(reward) <= 0) {
@@ -60,17 +60,17 @@ export const CreateTaskForm: React.FC = () => {
         requirements: requirements ? requirements.split('\n').filter(r => r.trim()) : [],
         deadline: deadline || undefined,
       });
-      
+
       console.log('Task created:', result);
-      
+
       Alert.alert(
         'Success',
-        'Your task has been created successfully!',
+        'Your drop has been created successfully!',
         [{ text: 'OK', onPress: () => router.push('/(tabs)/marketplace') }]
       );
     } catch (error) {
       console.error('Create task error:', error);
-      Alert.alert('Error', 'Failed to create task. Please try again.');
+      Alert.alert('Error', 'Failed to create drop. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -78,15 +78,15 @@ export const CreateTaskForm: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Task Details</Text>
-      
+      <Text style={styles.sectionTitle}>Drop Details</Text>
+
       <Input
-        label="Task Title"
+        label="Drop Title"
         placeholder="Enter a clear, concise title"
         value={title}
         onChangeText={setTitle}
       />
-      
+
       <Input
         label="Description"
         placeholder="Describe what needs to be done"
@@ -96,7 +96,7 @@ export const CreateTaskForm: React.FC = () => {
         numberOfLines={4}
         inputStyle={styles.textArea}
       />
-      
+
       <Input
         label="Reward Amount"
         placeholder="Enter amount in $"
@@ -105,7 +105,7 @@ export const CreateTaskForm: React.FC = () => {
         keyboardType="numeric"
         leftIcon={<DollarSign size={20} color={colors.darkGray} />}
       />
-      
+
       <Input
         label="Estimated Time"
         placeholder="e.g., 1-2 hours, 30 minutes"
@@ -113,14 +113,14 @@ export const CreateTaskForm: React.FC = () => {
         onChangeText={setEstimatedTime}
         leftIcon={<Clock size={20} color={colors.darkGray} />}
       />
-      
+
       <Input
         label="Category"
         placeholder="e.g., Content Creation, Social Sharing"
         value={category}
         onChangeText={setCategory}
       />
-      
+
       <Text style={styles.label}>Difficulty Level</Text>
       <TabBar
         tabs={difficultyOptions}
@@ -129,7 +129,7 @@ export const CreateTaskForm: React.FC = () => {
         variant="pills"
         containerStyle={styles.difficultyTabs}
       />
-      
+
       <Input
         label="Requirements"
         placeholder="List requirements separated by new lines"
@@ -139,18 +139,18 @@ export const CreateTaskForm: React.FC = () => {
         numberOfLines={4}
         inputStyle={styles.textArea}
       />
-      
+
       <Input
         label="Deadline (Optional)"
         placeholder="MM/DD/YYYY"
         value={deadline}
         onChangeText={setDeadline}
       />
-      
+
       <Divider style={styles.divider} />
-      
+
       <Button
-        title="Create Task"
+        title="Create Drop"
         onPress={handleSubmit}
         variant="primary"
         size="lg"

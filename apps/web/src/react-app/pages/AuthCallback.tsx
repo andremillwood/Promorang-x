@@ -23,9 +23,32 @@ export default function AuthCallback() {
 
       if (code) {
         try {
+          // Check for pending referral code stored before OAuth redirect
+          const pendingReferralCode = localStorage.getItem('pending_referral_code');
+
           // For demo purposes, simulate successful OAuth
           // In production, you'd send the code to your backend to exchange for tokens
           setStatus('success');
+
+          // Track referral if there was a pending code
+          if (pendingReferralCode) {
+            try {
+              // Get user ID from session/auth state
+              // For now, we'll call a special endpoint that tracks for the current authenticated user
+              await fetch('/api/referrals/track-oauth-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ referral_code: pendingReferralCode }),
+                credentials: 'include',
+              });
+              console.log('[AuthCallback] Tracked referral from OAuth signup:', pendingReferralCode);
+            } catch (refError) {
+              console.error('[AuthCallback] Error tracking OAuth referral:', refError);
+            } finally {
+              // Clear the pending referral code
+              localStorage.removeItem('pending_referral_code');
+            }
+          }
 
           // Redirect to home after a short delay
           setTimeout(() => {

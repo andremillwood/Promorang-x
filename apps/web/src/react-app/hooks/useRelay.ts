@@ -6,7 +6,7 @@ export type RelayEligibility = {
     reason?: string;
 };
 
-export type RelayObjectType = 'content' | 'prediction' | 'drop' | 'campaign' | 'event' | 'coupon' | 'season';
+export type RelayObjectType = 'content' | 'prediction' | 'drop' | 'campaign' | 'event' | 'coupon' | 'season' | 'blog_post';
 
 export type RelayParams = {
     objectType: RelayObjectType;

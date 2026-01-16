@@ -40,7 +40,7 @@ const corsMiddleware = cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Api-Version']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Api-Version', 'X-Advertiser-Account-Id', 'X-Merchant-Account-Id']
 });
 
 app.use(corsMiddleware);
@@ -152,11 +152,13 @@ app.use('/api/social-forecasts', require('./social-forecasts'));
 app.use('/api/growth', require('./growth'));
 app.use('/api/operator', require('./operator'));
 app.use('/api/advertisers', require('./advertisers'));
+app.use('/api/advertisers', requireAuth, require('./advertiserTeam')); // Team management routes
 app.use('/api/campaigns', require('./campaigns'));
 app.use('/api/leaderboard', require('./leaderboard'));
 app.use('/api/rewards', require('./rewards'));
 app.use('/api/manychat', require('./manychat'));
 app.use('/api/marketplace', require('./marketplace'));
+app.use('/api/merchant-team', requireAuth, require('./merchantTeam'));
 app.use('/api/coupons', require('./coupons'));
 app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
@@ -170,6 +172,31 @@ app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare', require('./promoshare'));
 app.use('/api/relays', require('./relays'));
+app.use('/api/streaks', require('./streaks'));
+app.use('/api/quests', require('./quests'));
+app.use('/api/activity', require('./activity'));
+app.use('/api/achievements', require('./achievements'));
+app.use('/api/bonuses', require('./bonuses'));
+app.use('/api/sounds', require('./sounds'));
+app.use('/api/blog', require('./blog'));
+app.use('/api/search', require('./search'));
+app.use('/api/market', require('./market'));
+app.use('/api/matrix', requireAuth, require('./matrix'));
+app.use('/api/maturity', require('./maturity'));
+app.use('/api/merchant-sampling', require('./merchantSampling'));
+app.use('/api/today', require('./today')); // Daily Layer Today Screen
+app.use('/api/demo', require('./demo-login')); // Demo state shortcuts
+
+// Start Daily Layer Cron Jobs if enabled (Local/Dev only)
+if (process.env.ENABLE_CRON_JOBS === 'true') {
+  try {
+    const cronPath = require('path').join(__dirname, '../jobs/dailyLayerJob');
+    require(cronPath);
+    console.log('📅 Daily Layer cron jobs started (reset: 10:00 UTC)');
+  } catch (error) {
+    console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);
+  }
+}
 
 app.get('/api/referrals/stats', (req, res) => {
   res.json({

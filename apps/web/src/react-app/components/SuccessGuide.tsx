@@ -23,15 +23,15 @@ export default function SuccessGuide({ isOpen, onClose }: SuccessGuideProps) {
     const fetchProgress = async () => {
         try {
             // setLoading(true);
-            const token = localStorage.getItem('authToken');
-            if (!token) {
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
                 // setLoading(false);
                 return;
             }
 
             const response = await fetch('/api/users/guide-progress', {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 }
             });
 
@@ -74,7 +74,7 @@ export default function SuccessGuide({ isOpen, onClose }: SuccessGuideProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 },
                 body: JSON.stringify({
                     guide_id: 'success_guide',

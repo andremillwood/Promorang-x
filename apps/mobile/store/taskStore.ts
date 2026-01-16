@@ -10,8 +10,8 @@ interface TaskState {
   isLoading: boolean;
   fetchTasks: () => Promise<void>;
   fetchMyTasks: () => Promise<void>;
-  applyForTask: (taskId: string) => Promise<void>;
-  completeTask: (taskId: string) => Promise<void>;
+  applyForTask: (taskId: string, applicationMessage?: string) => Promise<void>;
+  completeTask: (taskId: string, submissionUrl?: string, submissionNotes?: string) => Promise<void>;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -33,6 +33,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         title: drop.title,
         description: drop.description,
         reward: drop.gem_reward_base || drop.current_gem_reward || 0,
+        gem_reward_base: drop.gem_reward_base,
+        key_cost: drop.key_cost,
+        gem_pool_remaining: drop.gem_pool_remaining,
+        preview_image: drop.preview_image,
+        content_url: drop.content_url,
         creator: {
           id: drop.creator_id,
           name: drop.creator_name,
@@ -41,11 +46,16 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         category: drop.drop_type || 'General',
         difficulty: drop.difficulty || 'medium',
         estimatedTime: drop.time_commitment || '30 mins',
-        requirements: [drop.requirements],
+        requirements: drop.requirements,
+        deliverables: drop.deliverables,
         completions: drop.current_participants || 0,
+        current_participants: drop.current_participants,
+        max_participants: drop.max_participants,
         deadline: drop.deadline_at,
         status: drop.status,
         createdAt: drop.created_at,
+        is_proof_drop: drop.is_proof_drop,
+        is_paid_drop: drop.is_paid_drop,
       })) : [];
 
       set({ tasks: mappedTasks });
@@ -56,22 +66,29 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     }
   },
   fetchMyTasks: async () => {
-    // For now, we will just filter from the tasks list if we can't fetch "my applications" directly
-    // Ideally we would fetch /api/drops/my-applications if it existed
-    // Or we rely on local optimistic updates from applyForTask
     set({ isLoading: true });
     try {
-      // Placeholder until we have a dedicated endpoint
       const token = useAuthStore.getState().token;
-      // Optionally fetch all drops and filter client side if needed, 
-      // or just rely on global task fetch.
-      // For parity, let's just fetch all tasks again or do nothing if we want to save bandwidth
-      // set({ myTasks: [] }); 
+      const response = await fetch(`${API_URL}/api/drops/my-applications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.applications)) {
+        const myTasks = data.applications.map((app: any) => ({
+          ...app.drop,
+          status: app.status === 'approved' ? 'completed' : app.status,
+          id: app.drop_id,
+        }));
+        set({ myTasks });
+      }
+    } catch (error) {
+      console.error('Fetch my tasks error:', error);
     } finally {
       set({ isLoading: false });
     }
   },
-  applyForTask: async (taskId: string) => {
+  applyForTask: async (taskId: string, applicationMessage: string = 'Applied from mobile app') => {
     set({ isLoading: true });
 
     try {
@@ -82,7 +99,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ application_message: 'Applied from mobile app' })
+        body: JSON.stringify({ application_message: applicationMessage })
       });
 
       const data = await response.json();
@@ -91,7 +108,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       // Optimistically add to myTasks
       const task = get().tasks.find(t => t.id === taskId);
       if (task) {
-        set({ myTasks: [...get().myTasks, task] });
+        set({ myTasks: [...get().myTasks, { ...task, status: 'pending' }] });
       }
     } catch (error) {
       console.error('Apply for task error:', error);
@@ -100,12 +117,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-  completeTask: async (taskId: string) => {
+  completeTask: async (taskId: string, submissionUrl?: string, submissionNotes?: string) => {
     set({ isLoading: true });
 
     try {
       const token = useAuthStore.getState().token;
-      // Note: Endpoint expects submission_url and submission_notes
       const response = await fetch(`${API_URL}/api/drops/${taskId}/submit`, {
         method: 'POST',
         headers: {
@@ -113,8 +129,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          submission_url: 'https://placehold.co/mobile-submission', // Placeholder
-          submission_notes: 'Completed via mobile app'
+          submission_url: submissionUrl || 'https://placehold.co/mobile-submission',
+          submission_notes: submissionNotes || 'Completed via mobile app'
         })
       });
 

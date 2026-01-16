@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import colors from '@/constants/colors';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface BadgeProps {
   text: string;
-  variant?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'default';
+  variant?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'default' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
   style?: ViewStyle;
   textStyle?: TextStyle;
@@ -17,10 +18,14 @@ export const Badge: React.FC<BadgeProps> = ({
   style,
   textStyle,
 }) => {
+  const theme = useThemeColors();
+
   const getVariantStyle = () => {
     switch (variant) {
       case 'primary':
         return { backgroundColor: colors.primary, textColor: colors.white };
+      case 'secondary':
+        return { backgroundColor: theme.background, textColor: theme.text };
       case 'success':
         return { backgroundColor: colors.success, textColor: colors.white };
       case 'warning':
@@ -31,7 +36,7 @@ export const Badge: React.FC<BadgeProps> = ({
         return { backgroundColor: colors.info, textColor: colors.white };
       case 'default':
       default:
-        return { backgroundColor: colors.lightGray, textColor: colors.black };
+        return { backgroundColor: theme.border, textColor: theme.textSecondary };
     }
   };
 

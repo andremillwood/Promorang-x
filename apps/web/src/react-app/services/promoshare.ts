@@ -1,8 +1,10 @@
 import { apiFetch } from '../utils/api';
 
+export type DrawType = 'daily' | 'weekly' | 'monthly' | 'grand';
+
 export interface PromoShareCycle {
     id: string;
-    cycle_type: 'daily' | 'weekly' | 'monthly';
+    cycle_type: DrawType;
     status: 'active' | 'completed' | 'cancelled';
     start_at: string;
     end_at: string;
@@ -18,12 +20,28 @@ export interface PoolItem {
     sponsor_id?: string;
 }
 
+export interface DrawData {
+    id: string | number;
+    cycle_type: DrawType;
+    status?: string;
+    start_at?: string;
+    end_at: string;
+    jackpot_amount: number;
+    is_rollover: boolean;
+    userTickets: number;
+    totalTickets: number;
+    ticketNumbers?: number[];
+    poolItems: PoolItem[];
+}
+
 export interface PromoShareDashboardData {
+    // New multi-draw support
+    draws?: DrawData[];
+    // Legacy fields for backward compatibility
     activeCycle: PromoShareCycle | null;
     userTickets: number;
     totalTickets: number;
     poolItems: PoolItem[];
-    // V2 Added Fields
     currentJackpot?: number;
     ticketNumbers?: number[];
     isRollover?: boolean;

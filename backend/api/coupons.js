@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const couponService = require('../services/couponService');
-const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth, resolveAdvertiserContext } = require('../middleware/auth');
 
 // Helper functions
 const sendSuccess = (res, data = {}, message) => {
@@ -65,6 +65,7 @@ router.get('/public/:id', async (req, res) => {
 
 // Apply auth middleware to all subsequent routes
 router.use(requireAuth);
+router.use(resolveAdvertiserContext);
 
 /**
  * POST /api/coupons/validate
@@ -108,7 +109,11 @@ router.post('/validate', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   try {
-    const coupon = await couponService.createCoupon(req.user.id, req.body);
+    const couponData = {
+      ...req.body,
+      advertiser_account_id: req.advertiserAccount ? req.advertiserAccount.id : req.body.advertiser_account_id
+    };
+    const coupon = await couponService.createCoupon(req.user.id, couponData);
     return sendSuccess(res, { coupon }, 'Coupon created successfully');
   } catch (error) {
     console.error('[Coupon API] Error creating coupon:', error);
@@ -144,6 +149,67 @@ router.get('/:couponId', async (req, res) => {
   } catch (error) {
     console.error('[Coupon API] Error getting coupon:', error);
     return sendError(res, 500, error.message || 'Failed to get coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/my-redemptions
+ * Get user's claimed/redeemed coupons
+ */
+router.get('/my-redemptions', async (req, res) => {
+  try {
+    const redemptions = await couponService.getUserRedemptions(req.user.id);
+    return sendSuccess(res, { redemptions });
+  } catch (error) {
+    console.error('[Coupon API] Error getting user redemptions:', error);
+    return sendError(res, 500, 'Failed to get redemptions', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/merchant/redemptions
+ * Get redemptions for a merchant's store
+ */
+router.get('/merchant/redemptions', async (req, res) => {
+  try {
+    const redemptions = await couponService.getMerchantRedemptions(req.user.id);
+    return sendSuccess(res, { redemptions });
+  } catch (error) {
+    console.error('[Coupon API] Error getting merchant redemptions:', error);
+    return sendError(res, 500, 'Failed to get redemptions', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons/:id/redeem
+ * User claims a coupon
+ */
+router.post('/:id/redeem', async (req, res) => {
+  try {
+    const redemption = await couponService.redeemCoupon(req.user.id, req.params.id);
+    return sendSuccess(res, { redemption }, 'Coupon claimed successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error redeeming coupon:', error);
+    return sendError(res, 400, error.message || 'Failed to redeem coupon', 'REDEMPTION_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons/merchant/validate
+ * Merchant validates a user's coupon code
+ */
+router.post('/merchant/validate', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) {
+      return sendError(res, 400, 'Redemption code is required', 'MISSING_CODE');
+    }
+
+    const redemption = await couponService.validateRedemption(req.user.id, code);
+    return sendSuccess(res, { redemption }, 'Coupon validated successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error validating redemption:', error);
+    return sendError(res, 400, error.message || 'Failed to validate coupon', 'VALIDATION_ERROR');
   }
 });
 

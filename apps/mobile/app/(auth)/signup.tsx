@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { User, Mail, Lock, ArrowLeft, Tag } from 'lucide-react-native';
+import { User, Mail, Lock, ArrowLeft, Tag, Shield, CheckCircle } from 'lucide-react-native';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import colors from '@/constants/colors';
+import { safeBack } from '@/lib/navigation';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -86,7 +87,7 @@ export default function SignupScreen() {
   };
 
   const handleBack = () => {
-    router.back();
+    safeBack(router);
   };
 
   return (
@@ -103,6 +104,33 @@ export default function SignupScreen() {
           <Text style={styles.subtitle}>
             Join Promorang and start earning from your social media presence
           </Text>
+        </View>
+
+        {/* Social Shield Value Prop */}
+        <View style={styles.socialShieldBanner}>
+          <View style={styles.socialShieldIconContainer}>
+            <Shield size={20} color="#10B981" />
+          </View>
+          <View style={styles.socialShieldContent}>
+            <Text style={styles.socialShieldTitle}>Social Shield Protection Included</Text>
+            <Text style={styles.socialShieldDescription}>
+              Your earnings are protected when content underperforms. Algorithm changes? We cover the difference.
+            </Text>
+            <View style={styles.socialShieldFeatures}>
+              <View style={styles.socialShieldFeature}>
+                <CheckCircle size={12} color="#10B981" />
+                <Text style={styles.socialShieldFeatureText}>Auto-protection</Text>
+              </View>
+              <View style={styles.socialShieldFeature}>
+                <CheckCircle size={12} color="#10B981" />
+                <Text style={styles.socialShieldFeatureText}>No claims</Text>
+              </View>
+              <View style={styles.socialShieldFeature}>
+                <CheckCircle size={12} color="#10B981" />
+                <Text style={styles.socialShieldFeatureText}>All members</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         <View style={styles.formContainer}>
@@ -246,5 +274,54 @@ const styles = StyleSheet.create({
     color: colors.darkGray,
     textAlign: 'center',
     marginBottom: 24,
+  },
+  // Social Shield Styles
+  socialShieldBanner: {
+    flexDirection: 'row',
+    backgroundColor: '#10B98110',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#10B98130',
+  },
+  socialShieldIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#10B98120',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  socialShieldContent: {
+    flex: 1,
+  },
+  socialShieldTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#10B981',
+    marginBottom: 4,
+  },
+  socialShieldDescription: {
+    fontSize: 11,
+    color: colors.darkGray,
+    marginBottom: 8,
+    lineHeight: 16,
+  },
+  socialShieldFeatures: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  socialShieldFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  socialShieldFeatureText: {
+    fontSize: 10,
+    color: '#10B981',
+    fontWeight: '500',
   },
 });

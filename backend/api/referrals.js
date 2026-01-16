@@ -517,4 +517,180 @@ router.post('/track-earning', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/referrals/track-oauth-signup
+ * Track referral for OAuth signups (Google, etc.)
+ * Called after OAuth callback when user is authenticated
+ */
+router.post('/track-oauth-signup', async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { referral_code } = req.body;
+
+    if (!referral_code) {
+      return sendSuccess(res, {
+        tracked: false,
+        message: 'No referral code provided',
+      });
+    }
+
+    if (!supabase) {
+      return sendSuccess(res, {
+        tracked: true,
+        message: 'Demo mode - OAuth referral tracked',
+      });
+    }
+
+    // Check if user already has a referrer
+    const { data: existingReferral } = await supabase
+      .from('user_referrals')
+      .select('id')
+      .eq('referred_id', userId)
+      .single();
+
+    if (existingReferral) {
+      return sendSuccess(res, {
+        tracked: false,
+        message: 'User already has a referrer',
+      });
+    }
+
+    const referral = await referralService.trackReferral(
+      userId,
+      referral_code,
+      {
+        signup_source: 'oauth_google',
+        user_agent: req.headers['user-agent'],
+      }
+    );
+
+    return sendSuccess(res, {
+      tracked: true,
+      referral
+    }, 'OAuth referral tracked successfully');
+  } catch (error) {
+    console.error('[Referrals API] Error tracking OAuth referral:', error);
+    // Don't fail the auth flow if referral tracking fails
+    return sendSuccess(res, {
+      tracked: false,
+      message: error.message || 'Failed to track referral',
+    });
+  }
+});
+
+/**
+ * GET /api/referrals/affiliate-link
+ * Generate an affiliate link for a product, store, or any URL
+ */
+router.get('/affiliate-link', async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { product_id, store_id, url, type = 'product' } = req.query;
+
+    // Get user's referral code
+    let code;
+    if (!supabase) {
+      code = 'PROMO-DEMO1234';
+    } else {
+      const { data: user } = await supabase
+        .from('users')
+        .select('primary_referral_code')
+        .eq('id', userId)
+        .single();
+
+      code = user?.primary_referral_code;
+
+      // Generate if doesn't exist
+      if (!code) {
+        code = await referralService.generateReferralCode(userId);
+      }
+    }
+
+    const baseUrl = process.env.APP_URL || 'https://promorang.co';
+    let affiliateLink;
+
+    if (product_id) {
+      affiliateLink = `${baseUrl}/marketplace/${product_id}?ref=${code}`;
+    } else if (store_id) {
+      affiliateLink = `${baseUrl}/store/${store_id}?ref=${code}`;
+    } else if (url) {
+      // For custom URLs, append ref param
+      const separator = url.includes('?') ? '&' : '?';
+      affiliateLink = `${url}${separator}ref=${code}`;
+    } else {
+      // General signup link
+      affiliateLink = `${baseUrl}/auth?ref=${code}`;
+    }
+
+    return sendSuccess(res, {
+      affiliate_link: affiliateLink,
+      referral_code: code,
+      type,
+      product_id,
+      store_id,
+    });
+  } catch (error) {
+    console.error('[Referrals API] Error generating affiliate link:', error);
+    return sendError(res, 500, 'Failed to generate affiliate link', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/referrals/track-click
+ * Track affiliate link clicks (for analytics)
+ */
+router.post('/track-click', async (req, res) => {
+  try {
+    const { referral_code, product_id, store_id, target_url } = req.body;
+
+    if (!referral_code) {
+      return sendError(res, 422, 'Referral code is required', 'VALIDATION_ERROR');
+    }
+
+    if (!supabase) {
+      return sendSuccess(res, { tracked: true });
+    }
+
+    // Find the referrer
+    const { data: codeData } = await supabase
+      .from('referral_codes')
+      .select('user_id')
+      .eq('code', referral_code.toUpperCase())
+      .single();
+
+    if (!codeData) {
+      return sendSuccess(res, { tracked: false, message: 'Invalid code' });
+    }
+
+    // Log the click for analytics (use affiliate_clicks table if exists, or log to console)
+    console.log('[Affiliate] Click tracked:', {
+      referrer: codeData.user_id,
+      product_id,
+      store_id,
+      target_url,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Optionally store in affiliate_clicks table if it exists
+    try {
+      await supabase.from('affiliate_clicks').insert({
+        affiliate_user_id: codeData.user_id,
+        product_id,
+        store_id,
+        target_url,
+        ip_hash: req.ip ? require('crypto').createHash('sha256').update(req.ip).digest('hex').substring(0, 16) : null,
+        user_agent: req.headers['user-agent']?.substring(0, 255),
+      });
+    } catch (insertError) {
+      // Table might not exist yet, that's okay
+      console.log('[Affiliate] Could not store click (table may not exist):', insertError.message);
+    }
+
+    return sendSuccess(res, { tracked: true });
+  } catch (error) {
+    console.error('[Referrals API] Error tracking click:', error);
+    return sendSuccess(res, { tracked: false });
+  }
+});
+
 module.exports = router;

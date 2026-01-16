@@ -1,39 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, ScrollView, Text } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TabBar } from '@/components/ui/TabBar';
-import { Card } from '@/components/ui/Card';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { CampaignCard } from '@/components/campaigns/CampaignCard';
 import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { CreateTaskForm } from '@/components/create/CreateTaskForm';
-import { CreateCampaignForm } from '@/components/create/CreateCampaignForm';
-import { CreatePostForm } from '@/components/create/CreatePostForm';
 import { useTaskStore } from '@/store/taskStore';
 import { useCampaignStore } from '@/store/campaignStore';
-import { Briefcase, ShoppingBag, Plus } from 'lucide-react-native';
+import { Briefcase, ShoppingBag } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('tasks');
+  const theme = useThemeColors();
+  const [activeTab, setActiveTab] = useState('drops');
   const [refreshing, setRefreshing] = useState(false);
-  
+
   const { tasks, isLoading: tasksLoading, fetchTasks } = useTaskStore();
   const { campaigns, isLoading: campaignsLoading, fetchCampaigns } = useCampaignStore();
 
   useEffect(() => {
-    if (activeTab === 'tasks') {
+    if (activeTab === 'drops') {
       fetchTasks();
     } else if (activeTab === 'campaigns') {
       fetchCampaigns();
     }
   }, [activeTab]);
 
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    if (activeTab === 'tasks') {
+    if (activeTab === 'drops') {
       await fetchTasks();
     } else if (activeTab === 'campaigns') {
       await fetchCampaigns();
@@ -49,59 +48,21 @@ export default function MarketplaceScreen() {
     router.push({ pathname: '/campaign/[id]', params: { id: campaignId } } as any);
   };
 
+
   const tabs = [
-    { key: 'tasks', label: 'Tasks' },
+    { key: 'drops', label: 'Drops' },
     { key: 'campaigns', label: 'Campaigns' },
-    { key: 'create', label: 'Create' },
   ];
 
-  const [createTab, setCreateTab] = useState('post');
-  const createTabs = [
-    { key: 'post', label: 'Post' },
-    { key: 'task', label: 'Task' },
-    { key: 'campaign', label: 'Campaign' },
-  ];
-
-  const isLoading = activeTab === 'tasks' ? tasksLoading : activeTab === 'campaigns' ? campaignsLoading : false;
-  const data = activeTab === 'tasks' ? tasks : activeTab === 'campaigns' ? campaigns : [];
-
-  const renderCreateContent = () => {
-    switch (createTab) {
-      case 'post':
-        return <CreatePostForm />;
-      case 'task':
-        return <CreateTaskForm />;
-      case 'campaign':
-        return <CreateCampaignForm />;
-      default:
-        return <CreatePostForm />;
-    }
-  };
+  const isLoading = activeTab === 'drops' ? tasksLoading :
+    activeTab === 'campaigns' ? campaignsLoading : false;
 
   const renderContent = () => {
-    if (activeTab === 'create') {
-      return (
-        <ScrollView style={styles.createContainer}>
-          <Card style={styles.createCard}>
-            <Text style={styles.createTitle}>Create New</Text>
-            <TabBar
-              tabs={createTabs}
-              activeTab={createTab}
-              onTabChange={setCreateTab}
-              variant="pills"
-              containerStyle={styles.createTabBar}
-            />
-            {renderCreateContent()}
-          </Card>
-        </ScrollView>
-      );
-    }
-
-    if (isLoading && !refreshing && data.length === 0) {
+    if (isLoading && !refreshing) {
       return <LoadingIndicator fullScreen text={`Loading ${activeTab}...`} />;
     }
 
-    if (activeTab === 'tasks') {
+    if (activeTab === 'drops') {
       return (
         <FlatList
           data={tasks}
@@ -120,9 +81,9 @@ export default function MarketplaceScreen() {
           }
           ListEmptyComponent={
             <EmptyState
-              title="No Tasks Available"
-              description="Check back later for new tasks to complete."
-              icon={<Briefcase size={48} color={colors.darkGray} />}
+              title="No Drops Available"
+              description="Check back later for new drops to complete."
+              icon={<Briefcase size={48} color={theme.textSecondary} />}
               style={styles.emptyState}
             />
           }
@@ -149,7 +110,7 @@ export default function MarketplaceScreen() {
             <EmptyState
               title="No Campaigns Available"
               description="Check back later for new campaigns to promote."
-              icon={<ShoppingBag size={48} color={colors.darkGray} />}
+              icon={<ShoppingBag size={48} color={theme.textSecondary} />}
               style={styles.emptyState}
             />
           }
@@ -161,13 +122,13 @@ export default function MarketplaceScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <TabBar
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         variant="underlined"
-        containerStyle={styles.tabBar}
+        containerStyle={[styles.tabBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }] as any}
       />
       {renderContent()}
     </View>
@@ -177,12 +138,10 @@ export default function MarketplaceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.gray,
   },
   tabBar: {
-    backgroundColor: colors.white,
     elevation: 2,
-    shadowColor: colors.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -193,21 +152,5 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     marginTop: 100,
-  },
-  createContainer: {
-    flex: 1,
-    padding: 16,
-  },
-  createCard: {
-    marginBottom: 24,
-  },
-  createTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.black,
-    marginBottom: 16,
-  },
-  createTabBar: {
-    marginBottom: 24,
   },
 });

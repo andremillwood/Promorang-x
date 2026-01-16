@@ -80,8 +80,9 @@ async function requireAuth(req, res, next) {
     }
 
     // Special handling for demo users to bypass database lookups
-    if (String(userId).startsWith('demo-')) {
-      const role = decoded.user_metadata?.role || 'creator';
+    const isStateDemo = String(userId).startsWith('a0000000');
+    if (String(userId).startsWith('demo-') || isStateDemo) {
+      const role = decoded.user_metadata?.role || decoded.user_type || 'creator';
 
       // Map demo IDs to valid UUIDs for database operations
       const DEMO_UUID_MAP = {
@@ -90,14 +91,15 @@ async function requireAuth(req, res, next) {
         'demo-pro-id': '00000000-0000-0000-0000-000000000003'
       };
 
-      const mappedId = DEMO_UUID_MAP[userId] || DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff';
+      const mappedId = DEMO_UUID_MAP[userId] ||
+        (isStateDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
 
       req.user = {
         id: mappedId,
         original_demo_id: userId,
         email: decoded.email || `${role}@demo.com`,
-        username: decoded.user_metadata?.username || `demo-${role}`,
-        display_name: decoded.user_metadata?.full_name || `Demo ${role}`,
+        username: decoded.username || decoded.user_metadata?.username || `demo-${role}`,
+        display_name: decoded.display_name || decoded.user_metadata?.full_name || `Demo ${role}`,
         user_type: role,
         role: role,
         points_balance: 1000,
@@ -106,7 +108,7 @@ async function requireAuth(req, res, next) {
         is_verified: true,
         token_payload: decoded
       };
-      console.log(`[Auth] ✅ Authenticated as Demo User: ${req.user.email} (Mapped to UUID: ${mappedId})`);
+      console.log(`[Auth] ✅ Authenticated as Demo User: ${req.user.email} (ID: ${userId})`);
       return next();
     }
 
@@ -155,6 +157,160 @@ async function requireAuth(req, res, next) {
   }
 }
 
+/**
+ * Middleware to resolve the active advertiser account context
+ * Checks X-Advertiser-Account-Id header or falls back to the user's primary/first account
+ */
+async function resolveAdvertiserContext(req, res, next) {
+  if (!req.user) return next();
+
+  // Skip if already resolved
+  if (req.advertiserAccount) return next();
+
+  const headerAccountId = req.headers['x-advertiser-account-id'];
+
+  try {
+    if (!supabase) {
+      // Mock mode: if demo advertiser, give them a mock account
+      if (req.user.user_type === 'advertiser' || req.user.role === 'advertiser') {
+        req.advertiserAccount = {
+          id: 'demo-advertiser-account-id',
+          role: 'owner',
+          name: 'Demo Account',
+          company_name: 'Demo Corp',
+          status: 'active'
+        };
+      }
+      return next();
+    }
+
+    // Fetch the advertiser accounts this user belongs to
+    const { data: teamMembers, error } = await supabase
+      .from('advertiser_team_members')
+      .select(`
+        account_id,
+        role,
+        advertiser_accounts (
+          id,
+          name
+        )
+      `)
+      .eq('user_id', req.user.id);
+
+    if (error) {
+      console.error('[Auth] Error fetching advertiser team relations:', error);
+      return next();
+    }
+
+    if (teamMembers && teamMembers.length > 0) {
+      let activeMember;
+
+      if (headerAccountId) {
+        activeMember = teamMembers.find(m => m.account_id === headerAccountId);
+      }
+
+      // Fallback to first account if none specified or not found
+      if (!activeMember) {
+        activeMember = teamMembers[0];
+      }
+
+      if (activeMember && activeMember.advertiser_accounts) {
+        req.advertiserAccount = {
+          id: activeMember.account_id,
+          role: activeMember.role,
+          name: activeMember.advertiser_accounts.name,
+          company_name: activeMember.advertiser_accounts.company_name,
+          status: activeMember.advertiser_accounts.status
+        };
+
+        // Also set legacy advertiser_id for compatibility if needed
+        req.advertiser_id = activeMember.account_id;
+      }
+    }
+
+    next();
+  } catch (err) {
+    console.error('[Auth] Unexpected error in resolveAdvertiserContext:', err);
+    next();
+  }
+}
+
+
+/**
+ * Middleware to resolve the active merchant account context
+ * Checks X-Merchant-Account-Id header or falls back to the user's primary/first account
+ */
+async function resolveMerchantContext(req, res, next) {
+  if (!req.user) return next();
+
+  // Skip if already resolved
+  if (req.merchantAccount) return next();
+
+  const headerAccountId = req.headers['x-merchant-account-id'];
+
+  try {
+    if (!supabase) {
+      // Mock mode
+      if (req.user.user_type === 'merchant' || req.user.has_store) {
+        req.merchantAccount = {
+          id: 'demo-merchant-account-id',
+          role: 'owner',
+          name: 'Demo Store Account',
+          status: 'active'
+        };
+      }
+      return next();
+    }
+
+    // Fetch the merchant accounts this user belongs to
+    const { data: teamMembers, error } = await supabase
+      .from('merchant_team_members')
+      .select(`
+        merchant_account_id,
+        role,
+        merchant_accounts (
+          id,
+          name,
+          slug,
+          status
+        )
+      `)
+      .eq('user_id', req.user.id);
+
+    if (error) {
+      console.error('[Auth] Error fetching merchant team relations:', error);
+      return next();
+    }
+
+    if (teamMembers && teamMembers.length > 0) {
+      let activeMember;
+
+      if (headerAccountId) {
+        activeMember = teamMembers.find(m => m.merchant_account_id === headerAccountId);
+      }
+
+      if (!activeMember) {
+        activeMember = teamMembers[0];
+      }
+
+      if (activeMember && activeMember.merchant_accounts) {
+        req.merchantAccount = {
+          id: activeMember.merchant_account_id,
+          role: activeMember.role,
+          name: activeMember.merchant_accounts.name,
+          slug: activeMember.merchant_accounts.slug,
+          status: activeMember.merchant_accounts.status
+        };
+      }
+    }
+
+    next();
+  } catch (err) {
+    console.error('[Auth] Unexpected error in resolveMerchantContext:', err);
+    next();
+  }
+}
+
 async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -171,21 +327,24 @@ async function optionalAuth(req, res, next) {
     if (!userId) return next();
 
     // Special handling for demo users to bypass database lookups
-    if (String(userId).startsWith('demo-')) {
-      const role = decoded.user_metadata?.role || 'creator';
+    const isStateDemo = String(userId).startsWith('a0000000');
+    if (String(userId).startsWith('demo-') || isStateDemo) {
+      const role = decoded.user_metadata?.role || decoded.user_type || 'creator';
       const DEMO_UUID_MAP = {
         'demo-creator-id': '00000000-0000-0000-0000-000000000001',
         'demo-advertiser-id': '00000000-0000-0000-0000-000000000002',
         'demo-pro-id': '00000000-0000-0000-0000-000000000003'
       };
-      const mappedId = DEMO_UUID_MAP[userId] || DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff';
+
+      const mappedId = DEMO_UUID_MAP[userId] ||
+        (isStateDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
 
       req.user = {
         id: mappedId,
         original_demo_id: userId,
         email: decoded.email || `${role}@demo.com`,
         username: decoded.user_metadata?.username || `demo-${role}`,
-        display_name: decoded.user_metadata?.full_name || `Demo ${role}`,
+        display_name: decoded.display_name || decoded.user_metadata?.full_name || `Demo ${role}`,
         user_type: role,
         role: role,
         points_balance: 1000,
@@ -271,4 +430,4 @@ const requireMasterAdmin = async (req, res, next) => {
   return res.status(403).json({ error: 'Master Admin privileges required' });
 };
 
-module.exports = { requireAuth, requireAdmin, requireMasterAdmin, optionalAuth };
+module.exports = { requireAuth, requireAdmin, requireMasterAdmin, optionalAuth, resolveAdvertiserContext, resolveMerchantContext };

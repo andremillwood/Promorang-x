@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import {
     Rocket,
     CheckCircle,
@@ -45,11 +44,19 @@ export default function Onboarding() {
     const handleComplete = async () => {
         setLoading(true);
         try {
+            // Claim welcome bonus
+            await fetch('/api/bonuses/claim-welcome', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
             await fetch('/api/users/onboarding/complete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 }
             });
             setTimeout(() => {
@@ -220,14 +227,27 @@ export default function Onboarding() {
                                         </p>
                                     </div>
 
-                                    <div className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl p-6 max-w-sm mx-auto transform rotate-1 hover:rotate-0 transition-transform cursor-pointer border border-orange-200 dark:border-orange-800 shadow-sm">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
-                                            <span className="text-orange-700 dark:text-orange-300 font-bold">WELCOME50</span>
+                                    <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                                        <div className="flex-1 bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-2xl p-6 transform rotate-1 hover:rotate-0 transition-transform cursor-pointer border border-orange-200 dark:border-orange-800 shadow-sm">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+                                                <span className="text-orange-700 dark:text-orange-300 font-bold">WELCOME50</span>
+                                            </div>
+                                            <div className="text-center py-2">
+                                                <span className="text-4xl font-bold text-slate-800 dark:text-slate-100">50% OFF</span>
+                                                <p className="text-orange-800 dark:text-orange-200 font-medium">Your First Purchase</p>
+                                            </div>
                                         </div>
-                                        <div className="text-center py-2">
-                                            <span className="text-4xl font-bold text-slate-800 dark:text-slate-100">50% OFF</span>
-                                            <p className="text-orange-800 dark:text-orange-200 font-medium">Your First Purchase</p>
+
+                                        <div className="flex-1 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-6 transform -rotate-1 hover:rotate-0 transition-transform cursor-pointer border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">GIFT</span>
+                                                <span className="text-emerald-700 dark:text-emerald-300 font-bold">+100 GEMS</span>
+                                            </div>
+                                            <div className="text-center py-2">
+                                                <span className="text-4xl font-bold text-slate-800 dark:text-slate-100">FREE</span>
+                                                <p className="text-emerald-800 dark:text-emerald-200 font-medium">Activate Dashboard</p>
+                                            </div>
                                         </div>
                                     </div>
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import colors from '@/constants/colors';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface CardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   variant?: 'default' | 'elevated' | 'outlined';
   padding?: 'none' | 'small' | 'medium' | 'large';
 }
@@ -15,16 +16,18 @@ export const Card: React.FC<CardProps> = ({
   variant = 'default',
   padding = 'medium',
 }) => {
+  const theme = useThemeColors();
+
   const getVariantStyle = () => {
     switch (variant) {
       case 'default':
-        return styles.defaultCard;
+        return [styles.defaultCard, { backgroundColor: theme.card }];
       case 'elevated':
-        return styles.elevatedCard;
+        return [styles.elevatedCard, { backgroundColor: theme.card }];
       case 'outlined':
-        return styles.outlinedCard;
+        return [styles.outlinedCard, { backgroundColor: theme.card, borderColor: theme.border }];
       default:
-        return styles.defaultCard;
+        return [styles.defaultCard, { backgroundColor: theme.card }];
     }
   };
 
@@ -44,7 +47,7 @@ export const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <View style={[styles.card, getVariantStyle(), getPaddingStyle(), style]}>
+    <View style={[styles.card, { backgroundColor: theme.card }, getVariantStyle(), getPaddingStyle(), style]}>
       {children}
     </View>
   );
@@ -53,7 +56,6 @@ export const Card: React.FC<CardProps> = ({
 const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
-    backgroundColor: colors.white,
     overflow: 'hidden',
   },
   // Variants

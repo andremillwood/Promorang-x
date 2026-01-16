@@ -47,10 +47,10 @@ async function trackEarning(params) {
 
     if (commission) {
       console.log(`[Referral Tracker] Commission calculated for user ${userId}: ${commission.commission_amount} ${commission.commission_currency}`);
-      
+
       // Check if user should be activated
       await referralService.activateReferral(userId);
-      
+
       // Update referrer's tier if needed
       await referralService.updateReferralTier(commission.referrer_id);
     }
@@ -148,11 +148,77 @@ async function trackContentMonetization(userId, earnings, contentId) {
   });
 }
 
+/**
+ * Track affiliate product sale
+ * This is used when a sale comes from a specific affiliate link
+ * (different from the user's original referrer)
+ * @param {string} affiliateCode - The referral code from the affiliate link
+ * @param {number} saleAmount - The sale amount in USD
+ * @param {string} orderId - The order ID
+ * @param {string} productId - The product ID (optional, for tracking)
+ */
+async function trackAffiliateProductSale(affiliateCode, saleAmount, orderId, productId = null) {
+  if (!affiliateCode || !saleAmount) {
+    console.warn('[Referral Tracker] Missing affiliate code or sale amount');
+    return null;
+  }
+
+  try {
+    // Find the affiliate user who owns this referral code
+    const { supabase } = require('../lib/supabase');
+    if (!supabase) {
+      console.warn('[Referral Tracker] Supabase not available for affiliate tracking');
+      return null;
+    }
+
+    // Look up the referral code to find the affiliate user
+    const { data: codeData } = await supabase
+      .from('referral_codes')
+      .select('user_id, code')
+      .eq('code', affiliateCode.toUpperCase())
+      .eq('is_active', true)
+      .single();
+
+    if (!codeData) {
+      console.log(`[Referral Tracker] Affiliate code not found or inactive: ${affiliateCode}`);
+      return null;
+    }
+
+    // Calculate commission directly for the affiliate
+    const commission = await referralService.calculateCommission({
+      referredUserId: null, // Not a referred user, it's an affiliate sale
+      earningType: 'affiliate_product_sale',
+      earningAmount: saleAmount,
+      earningCurrency: 'usd',
+      sourceTransactionId: orderId,
+      sourceTable: 'orders',
+      metadata: {
+        order_id: orderId,
+        product_id: productId,
+        affiliate_code: affiliateCode,
+        affiliate_user_id: codeData.user_id, // Explicitly specify who gets the commission
+      },
+      // Override: specify the affiliate user directly
+      forceReferrerId: codeData.user_id,
+    });
+
+    if (commission) {
+      console.log(`[Referral Tracker] Affiliate commission for code ${affiliateCode}: ${commission.commission_amount} ${commission.commission_currency}`);
+    }
+
+    return commission;
+  } catch (error) {
+    console.error('[Referral Tracker] Error tracking affiliate sale:', error);
+    return null;
+  }
+}
+
 module.exports = {
   trackEarning,
   trackDropCompletion,
   trackCampaignSpend,
   trackProductSale,
+  trackAffiliateProductSale,
   trackSubscription,
   trackContentMonetization,
 };

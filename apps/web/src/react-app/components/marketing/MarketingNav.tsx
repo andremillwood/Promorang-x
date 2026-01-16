@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { ChevronDown, Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import { useUnauthenticatedTheme } from '@/react-app/hooks/useUnauthenticatedTheme';
@@ -10,25 +10,15 @@ export default function MarketingNav() {
     const { theme, setTheme } = useUnauthenticatedTheme();
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [personaDropdownOpen, setPersonaDropdownOpen] = useState(false);
 
     const isActive = (path: string) => location.pathname === path;
 
-    const personaLinks = [
-        { label: 'For Creators', path: '/creators' },
-        { label: 'For Investors', path: '/investors' },
-        { label: 'For Brands', path: '/brands' },
-        { label: 'For Merchants', path: '/merchants' },
-        { label: 'For Operators', path: '/for-operators' },
-    ];
-
-    const industryLinks = [
-        { label: 'Tourism & Hospitality', path: '/for-tourism' },
-        { label: 'Restaurants & F&B', path: '/for-restaurants' },
-        { label: 'E-commerce & DTC', path: '/for-ecommerce' },
-        { label: 'Events & Festivals', path: '/for-events' },
-        { label: 'Corporate & Enterprise', path: '/for-enterprise' },
-        { label: 'Universities & Students', path: '/for-universities' },
+    // Simplified navigation links
+    const navLinks = [
+        { label: 'Explore', path: '/explore' },
+        { label: 'How It Works', path: '/how-it-works' },
+        { label: 'For Business', path: '/advertisers' },
+        { label: 'Pricing', path: '/pricing' },
     ];
 
     return (
@@ -44,82 +34,20 @@ export default function MarketingNav() {
                         />
                     </Link>
 
-                    {/* Desktop Navigation */}
+                    {/* Desktop Navigation - Simplified */}
                     <div className="hidden md:flex items-center gap-8">
-                        <Link
-                            to="/explore"
-                            className={`text-sm font-bold transition-colors ${isActive('/explore') ? 'text-blue-500' : 'text-pr-text-2 hover:text-blue-500'
-                                }`}
-                        >
-                            Explore
-                        </Link>
-                        <Link
-                            to="/about"
-                            className={`text-sm font-medium transition-colors ${isActive('/about') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
-                                }`}
-                        >
-                            About
-                        </Link>
-                        <Link
-                            to="/how-it-works"
-                            className={`text-sm font-medium transition-colors ${isActive('/how-it-works') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
-                                }`}
-                        >
-                            How It Works
-                        </Link>
-
-                        {/* Persona Dropdown */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setPersonaDropdownOpen(!personaDropdownOpen)}
-                                className="flex items-center gap-1 text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.path}
+                                to={link.path}
+                                className={`text-sm font-medium transition-colors ${isActive(link.path)
+                                        ? 'text-blue-500'
+                                        : 'text-pr-text-2 hover:text-pr-text-1'
+                                    }`}
                             >
-                                Solutions
-                                <ChevronDown className={`w-4 h-4 transition-transform ${personaDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            {personaDropdownOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-pr-surface-card border border-pr-border rounded-lg shadow-xl py-2 z-50">
-                                    <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-pr-text-muted">By Role</div>
-                                    {personaLinks.map((link) => (
-                                        <Link
-                                            key={link.path}
-                                            to={link.path}
-                                            onClick={() => setPersonaDropdownOpen(false)}
-                                            className="block px-4 py-2 text-sm text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2 transition-colors"
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ))}
-                                    <div className="border-t border-pr-border my-2" />
-                                    <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-pr-text-muted">By Industry</div>
-                                    {industryLinks.map((link) => (
-                                        <Link
-                                            key={link.path}
-                                            to={link.path}
-                                            onClick={() => setPersonaDropdownOpen(false)}
-                                            className="block px-4 py-2 text-sm text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2 transition-colors"
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <Link
-                            to="/pricing"
-                            className={`text-sm font-medium transition-colors ${isActive('/pricing') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
-                                }`}
-                        >
-                            Pricing
-                        </Link>
-                        <Link
-                            to="/contact"
-                            className={`text-sm font-medium transition-colors ${isActive('/contact') ? 'text-pr-text-1' : 'text-pr-text-2 hover:text-pr-text-1'
-                                }`}
-                        >
-                            Contact
-                        </Link>
+                                {link.label}
+                            </Link>
+                        ))}
                     </div>
 
                     {/* Right Side Actions */}
@@ -160,69 +88,35 @@ export default function MarketingNav() {
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
+                {/* Mobile Menu - Simplified */}
                 {mobileMenuOpen && (
                     <div className="md:hidden py-4 border-t border-pr-border">
                         <div className="flex flex-col gap-4">
-                            <Link
-                                to="/explore"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`text-sm font-bold ${isActive('/explore') ? 'text-blue-500' : 'text-pr-text-2'}`}
-                            >
-                                Explore Ecosystem
-                            </Link>
-                            <Link
-                                to="/about"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                            >
-                                About
-                            </Link>
-                            <Link
-                                to="/how-it-works"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                            >
-                                How It Works
-                            </Link>
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.path}
+                                    to={link.path}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`text-sm font-medium ${isActive(link.path)
+                                            ? 'text-blue-500'
+                                            : 'text-pr-text-2 hover:text-pr-text-1'
+                                        }`}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+
+                            {/* More Options - Link to Catalog */}
                             <div className="border-t border-pr-border pt-4">
-                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2">By Role</div>
-                                {personaLinks.map((link) => (
-                                    <Link
-                                        key={link.path}
-                                        to={link.path}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="block py-2 text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                                    >
-                                        {link.label}
-                                    </Link>
-                                ))}
-                                <div className="text-xs font-bold uppercase tracking-wider text-pr-text-2 mb-2 mt-4">By Industry</div>
-                                {industryLinks.map((link) => (
-                                    <Link
-                                        key={link.path}
-                                        to={link.path}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="block py-2 text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                                    >
-                                        {link.label}
-                                    </Link>
-                                ))}
+                                <Link
+                                    to="/catalog"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-sm text-pr-text-2 hover:text-pr-text-1 transition-colors"
+                                >
+                                    Browse All Solutions →
+                                </Link>
                             </div>
-                            <Link
-                                to="/pricing"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                            >
-                                Pricing
-                            </Link>
-                            <Link
-                                to="/contact"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="text-sm font-medium text-pr-text-2 hover:text-pr-text-1 transition-colors"
-                            >
-                                Contact
-                            </Link>
+
                             <div className="border-t border-pr-border pt-4 flex flex-col gap-2">
                                 {user ? (
                                     <Button onClick={() => window.location.href = '/dashboard'} variant="primary" className="w-full">

@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuthStore } from '@/store/authStore';
 import { Camera, X } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import { safeBack } from '@/lib/navigation';
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function EditProfileScreen() {
       });
 
       Alert.alert('Success', 'Profile updated successfully', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => safeBack(router) }
       ]);
     } catch (error) {
       console.error('Update profile error:', error);

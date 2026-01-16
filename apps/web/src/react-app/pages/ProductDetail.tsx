@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Star, Store, Heart, Share2, Check, Sparkles } from 'lucide-react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ShoppingCart, Star, Store, Heart, Share2, Check, Sparkles, Link2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { apiFetch } from '../utils/api';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 
 interface Product {
   id: string;
@@ -49,7 +50,9 @@ interface Review {
 export default function ProductDetail() {
   const { id: productId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { maturityState } = useMaturity();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +61,35 @@ export default function ProductDetail() {
   const [sharesData, setSharesData] = useState<{ supporter_count: number; available_shares: number } | null>(null);
   const [relayId, setRelayId] = useState<string | null>(null);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
+  const [isGeneratingAffiliateLink, setIsGeneratingAffiliateLink] = useState(false);
+
+  // Capture affiliate/referral code from URL and store for checkout attribution
+  useEffect(() => {
+    const refCode = searchParams.get('ref') || searchParams.get('aff');
+    if (refCode && productId) {
+      setAffiliateCode(refCode);
+
+      // Store in sessionStorage for checkout attribution
+      const attribution = {
+        referral_code: refCode,
+        product_id: productId,
+        timestamp: new Date().toISOString(),
+      };
+      sessionStorage.setItem('affiliate_attribution', JSON.stringify(attribution));
+
+      // Track the click (fire and forget)
+      apiFetch('/api/referrals/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          referral_code: refCode,
+          product_id: productId,
+          target_url: window.location.href,
+        }),
+      }).catch(console.error);
+    }
+  }, [searchParams, productId]);
 
   useEffect(() => {
     if (productId) {
@@ -348,7 +380,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Market Shares / Supporter Hub */}
-            <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100 mb-6 shadow-sm">
+            <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100 mb-6 shadow-sm overflow-hidden relative">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-indigo-600 rounded-lg">
@@ -356,35 +388,86 @@ export default function ProductDetail() {
                   </div>
                   <h3 className="font-black text-indigo-900 uppercase text-sm tracking-tight">Supporter Hub</h3>
                 </div>
-                <div className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded border border-indigo-200 uppercase">
-                  Early Access
-                </div>
+                {maturityState < 2 ? (
+                  <div className="px-2 py-1 bg-pr-surface-2 text-pr-text-2 text-[10px] font-black rounded border border-pr-border uppercase flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" />
+                    Rank 2 Required
+                  </div>
+                ) : (
+                  <div className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded border border-indigo-200 uppercase">
+                    {maturityState === 2 ? 'View Only' : 'Active'}
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-white/60 p-3 rounded-xl border border-white">
-                  <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Supporters</p>
-                  <p className="text-xl font-black text-indigo-900">{sharesData?.supporter_count ?? 0}</p>
+              {maturityState < 2 ? (
+                /* Rank 0-1: Locked & Blurred Card Content */
+                <div className="relative">
+                  <div className="grid grid-cols-2 gap-4 mb-4 filter blur-sm opacity-50 select-none pointer-events-none">
+                    <div className="bg-white/60 p-3 rounded-xl border border-white">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Supporters</p>
+                      <p className="text-xl font-black text-indigo-900">--</p>
+                    </div>
+                    <div className="bg-white/60 p-3 rounded-xl border border-white">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Available Shares</p>
+                      <p className="text-xl font-black text-indigo-900">----</p>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-white/40 backdrop-blur-[2px] rounded-xl border border-indigo-100/50">
+                    <Lock className="w-8 h-8 text-indigo-400 mb-2" />
+                    <h4 className="font-bold text-indigo-900 text-sm">Product Shares Locked</h4>
+                    <p className="text-[10px] text-indigo-700/70 mt-1 max-w-[180px]">
+                      Complete your first task to reach Rank 2 and see the performance of products.
+                    </p>
+                  </div>
+                  <Button
+                    disabled
+                    className="w-full bg-slate-200 text-slate-400 font-black mt-4"
+                  >
+                    Locked for Early Explorers
+                  </Button>
                 </div>
-                <div className="bg-white/60 p-3 rounded-xl border border-white">
-                  <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Available Shares</p>
-                  <p className="text-xl font-black text-indigo-900">{sharesData?.available_shares ?? 1000}</p>
-                </div>
-              </div>
+              ) : (
+                /* Rank 2+: Visible Content */
+                <>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-white/60 p-3 rounded-xl border border-white">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Supporters</p>
+                      <p className="text-xl font-black text-indigo-900">{sharesData?.supporter_count ?? 0}</p>
+                    </div>
+                    <div className="bg-white/60 p-3 rounded-xl border border-white">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase leading-none mb-1">Available Shares</p>
+                      <p className="text-xl font-black text-indigo-900">{sharesData?.available_shares ?? 1000}</p>
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <p className="text-xs text-indigo-700/80 font-medium leading-relaxed">
-                  Join the <span className="font-bold">Supporter Circle</span>. The first 10 buyers earn 100 tradeable shares in this product's performance.
-                </p>
-                <Button
-                  onClick={generateShareLink}
-                  disabled={isGeneratingLink}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-200"
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  {isGeneratingLink ? 'Generating...' : 'Share & Earn Market Shares'}
-                </Button>
-              </div>
+                  <div className="space-y-2">
+                    <p className="text-xs text-indigo-700/80 font-medium leading-relaxed">
+                      Join the <span className="font-bold">Supporter Circle</span>. The first 10 buyers earn 100 tradeable shares in this product's performance.
+                    </p>
+                    {maturityState >= 3 ? (
+                      <Button
+                        onClick={generateShareLink}
+                        disabled={isGeneratingLink}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-200"
+                      >
+                        <Share2 className="mr-2 h-4 w-4" />
+                        {isGeneratingLink ? 'Generating...' : 'Share & Earn Market Shares'}
+                      </Button>
+                    ) : (
+                      <div className="p-3 bg-indigo-100/50 rounded-xl border border-indigo-200 border-dashed text-center">
+                        <p className="text-[10px] font-bold text-indigo-600 mb-1 flex items-center justify-center gap-1 uppercase">
+                          <Sparkles className="w-3 h-3" />
+                          Rank 3 Bonus
+                        </p>
+                        <p className="text-[10px] text-indigo-700/80">
+                          Reach Rank 3 to unlock affiliate links and earn commission on every sale.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </Card>
 
             {/* Store */}

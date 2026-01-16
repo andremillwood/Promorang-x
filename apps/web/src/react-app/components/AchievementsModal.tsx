@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X, Trophy, Star, Award, Lock, CheckCircle, Gift } from 'lucide-react';
 import ModalBase from '@/react-app/components/ModalBase';
+import ShareAchievementModal from '@/react-app/components/ShareAchievementModal';
 import type { UserType } from '../../shared/types';
 
 interface Achievement {
   id: number;
+  key: string;
   name: string;
   description: string;
   icon: string;
@@ -28,6 +30,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [sharingAchievement, setSharingAchievement] = useState<Achievement | null>(null);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -63,6 +66,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
     return [
       {
         id: 1,
+        key: 'first_steps',
         name: 'First Steps',
         description: 'Complete your first drop application',
         icon: 'star',
@@ -77,6 +81,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
       },
       {
         id: 2,
+        key: 'content_creator',
         name: 'Content Creator',
         description: 'Share your first piece of content',
         icon: 'file-text',
@@ -91,6 +96,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
       },
       {
         id: 3,
+        key: 'social_butterfly',
         name: 'Social Butterfly',
         description: 'Reach 100 followers',
         icon: 'users',
@@ -101,10 +107,11 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
         gold_reward: 25,
         xp_reward: 500,
         is_completed: false,
-        progress: user?.follower_count || 0
+        progress: Number(user?.follower_count || 0)
       },
       {
         id: 4,
+        key: 'level_5',
         name: 'Level Up',
         description: 'Reach level 5',
         icon: 'arrow-up',
@@ -119,6 +126,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
       },
       {
         id: 5,
+        key: 'points_1000',
         name: 'Big Spender',
         description: 'Earn 1000 points',
         icon: 'coins',
@@ -133,6 +141,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
       },
       {
         id: 6,
+        key: 'master_creator',
         name: 'Master Creator',
         description: 'Create 5 pieces of content',
         icon: 'crown',
@@ -219,15 +228,15 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
   const categories = achievements && achievements.length > 0 ? ['all', ...new Set(achievements.map(a => a.category))] : ['all'];
   const filteredAchievements = achievements && achievements.length > 0
     ? (activeCategory === 'all'
-        ? achievements
-        : achievements.filter(a => a.category === activeCategory))
+      ? achievements
+      : achievements.filter(a => a.category === activeCategory))
     : [];
 
   const completedCount = achievements && achievements.length > 0 ? achievements.filter(a => a.is_completed).length : 0;
   const totalGoldEarned = achievements && achievements.length > 0
     ? achievements
-        .filter(a => a.is_completed)
-        .reduce((sum, a) => sum + a.gold_reward, 0)
+      .filter(a => a.is_completed)
+      .reduce((sum, a) => sum + a.gold_reward, 0)
     : 0;
 
   if (!isOpen) return null;
@@ -281,11 +290,10 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${
-                activeCategory === category
-                  ? 'bg-pr-surface-2 border border-orange-500/60 text-pr-text-1'
-                  : 'text-pr-text-2 hover:text-pr-text-1'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${activeCategory === category
+                ? 'bg-pr-surface-2 border border-orange-500/60 text-pr-text-1'
+                : 'text-pr-text-2 hover:text-pr-text-1'
+                }`}
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}
             </button>
@@ -304,11 +312,10 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
             {filteredAchievements && filteredAchievements.length > 0 ? filteredAchievements.map((achievement) => (
               <div
                 key={achievement.id}
-                className={`relative p-6 rounded-2xl border transition-all duration-200 ${
-                  achievement.is_completed
-                    ? 'border-green-500/60 bg-pr-surface-2'
-                    : 'border-pr-surface-3 bg-pr-surface-card hover:shadow-md'
-                }`}
+                className={`relative p-6 rounded-2xl border transition-all duration-200 ${achievement.is_completed
+                  ? 'border-green-500/60 bg-pr-surface-2'
+                  : 'border-pr-surface-3 bg-pr-surface-card hover:shadow-md'
+                  }`}
               >
                 {/* Achievement Icon */}
                 <div className="flex items-start space-x-4">
@@ -323,7 +330,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
                         <CheckCircle className="w-5 h-5 text-green-600" />
                       )}
                     </div>
-                    
+
                     <p className="text-sm text-pr-text-2 mb-3">{achievement.description}</p>
 
                     {/* Progress Bar */}
@@ -342,7 +349,7 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
                       </div>
                     )}
 
-                    {/* Rewards */}
+                    {/* Rewards & Actions */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3 text-sm">
                         {achievement.gold_reward > 0 && (
@@ -359,15 +366,31 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
                         )}
                       </div>
 
-                      {/* Claim Button */}
-                      {achievement.progress >= achievement.criteria_value && !achievement.is_completed && (
-                        <button
-                          onClick={() => claimAchievement(achievement.id)}
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                        >
-                          Claim
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {/* Share Button (Completed only) */}
+                        {achievement.is_completed && (
+                          <button
+                            onClick={() => setSharingAchievement(achievement)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
+                            title="Share achievement"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 100-2.684 3 3 0 000 2.684zm0 12.684a3 3 0 100-2.684 3 3 0 000 2.684z" />
+                            </svg>
+                            Share
+                          </button>
+                        )}
+
+                        {/* Claim Button */}
+                        {achievement.progress >= achievement.criteria_value && !achievement.is_completed && (
+                          <button
+                            onClick={() => claimAchievement(achievement.id)}
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                          >
+                            Claim
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -389,6 +412,15 @@ export default function AchievementsModal({ user, isOpen, onClose }: Achievement
           </div>
         )}
       </div>
+
+      {sharingAchievement && (
+        <ShareAchievementModal
+          achievement={sharingAchievement}
+          isOpen={!!sharingAchievement}
+          onClose={() => setSharingAchievement(null)}
+          userId={user?.id || ''}
+        />
+      )}
     </ModalBase>
   );
 }

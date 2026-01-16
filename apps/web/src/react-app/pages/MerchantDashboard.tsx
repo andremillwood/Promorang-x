@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, Package, DollarSign, ShoppingBag, Plus, TrendingUp, Users, Star } from 'lucide-react';
+import { Store, Package, DollarSign, ShoppingBag, Plus, TrendingUp, Users, Star, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -232,6 +232,14 @@ export default function MerchantDashboard() {
             <div className="flex gap-3">
               <Button
                 variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                onClick={() => navigate('/merchant/validate-coupon')}
+              >
+                <QrCode className="mr-2 h-4 w-4" />
+                Validate Coupon
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => navigate(`/marketplace/store/${store.store_slug}`)}
               >
                 <Store className="mr-2 h-4 w-4" />
@@ -344,21 +352,34 @@ export default function MerchantDashboard() {
                         <span>Stock: {product.inventory_count}</span>
                         <span>{product.sales_count} sold</span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => navigate(`/merchant/products/${product.id}/edit`)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => navigate(`/marketplace/product/${product.id}`)}
+                          >
+                            View
+                          </Button>
+                        </div>
                         <Button
-                          variant="outline"
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                           size="sm"
-                          className="flex-1"
-                          onClick={() => navigate(`/merchant/products/${product.id}/edit`)}
+                          onClick={() => navigate('/advertiser/sampling/create', {
+                            state: { productId: product.id, productName: product.name }
+                          })}
                         >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/marketplace/product/${product.id}`)}
-                        >
-                          View
+                          <Rocket className="mr-2 h-4 w-4" />
+                          Promote
                         </Button>
                       </div>
                     </div>

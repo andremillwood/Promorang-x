@@ -20,7 +20,7 @@ interface WalletState {
 
 export const useWalletStore = create<WalletState>()(
   persist(
-    (set: (state: Partial<WalletState>) => void, get: () => WalletState) => ({
+    (set, get) => ({
       balance: 0,
       pendingBalance: 0,
       promoGems: 0,

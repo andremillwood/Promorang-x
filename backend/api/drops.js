@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { trackDropCompletion } = require('../utils/referralTracker');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, resolveAdvertiserContext } = require('../middleware/auth');
 const { ADVERTISER_TIERS, MOVE_RULES } = require('../constants/pricing');
+const dailyLayerService = require('../services/dailyLayerService');
+const { sendDropApprovedEmail, sendDropRejectedEmail, sendDropCompletedEmail } = require('../services/resendService');
+const merchantSamplingService = require('../services/merchantSamplingService');
 
 /**
  * Check if advertiser has available Moves for the requested action.
@@ -40,10 +43,11 @@ const checkMoveAvailability = async (userId, userTier = 'free') => {
     }
 
     // Count moves used in current period
+    // Check both legacy creator_id and new advertiser_account_id
     const { count, error } = await supabase
       .from('drops')
       .select('*', { count: 'exact', head: true })
-      .eq('creator_id', userId)
+      .or(`creator_id.eq.${userId},advertiser_account_id.eq.${userId}`)
       .gte('created_at', periodStart.toISOString());
 
     if (error) {
@@ -101,6 +105,7 @@ const invalidateCache = (prefix) => {
 
 // =====================================================
 // PUBLIC LIST ENDPOINT - No auth required (for homepage/marketing)
+// Includes sampling activations from merchants alongside regular drops
 // =====================================================
 router.get('/public', async (req, res) => {
   try {
@@ -108,9 +113,34 @@ router.get('/public', async (req, res) => {
 
     const cacheKey = `drops:public:list:${limit}`;
     const payload = await getCachedValue(cacheKey, async () => {
+      // Get active sampling activations for deals surface
+      let samplingDeals = [];
+      try {
+        samplingDeals = await merchantSamplingService.getActiveSamplingForSurface('deals');
+      } catch (err) {
+        console.error('Error fetching sampling activations:', err);
+      }
+
+      // Transform sampling activations to drop format
+      const samplingDrops = samplingDeals.map(activation => ({
+        id: `sampling-${activation.id}`,
+        title: activation.name,
+        description: activation.description || 'Special merchant offer',
+        preview_image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400',
+        creator_name: activation.advertiser_profiles?.company_name || 'Local Business',
+        promo_points_reward: 25, // Base points for sampling participation
+        current_participants: activation.current_redemptions || 0,
+        status: 'active',
+        is_sampling: true,
+        sampling_activation_id: activation.id,
+        value_type: activation.value_type,
+        max_redemptions: activation.max_redemptions,
+        expires_at: activation.expires_at
+      }));
+
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
-        // Return demo drops for homepage
-        return [
+        // Return demo drops + sampling drops for homepage
+        const demoDrops = [
           {
             id: 'demo-1',
             title: 'Summer Fashion Drop',
@@ -151,7 +181,9 @@ router.get('/public', async (req, res) => {
             current_participants: 156,
             status: 'active'
           }
-        ].slice(0, limit);
+        ];
+        // Combine sampling drops with demo drops, sampling first
+        return [...samplingDrops, ...demoDrops].slice(0, limit);
       }
 
       const { data: drops, error } = await supabase
@@ -176,7 +208,7 @@ router.get('/public', async (req, res) => {
         return [];
       }
 
-      return drops.map(drop => ({
+      const regularDrops = drops.map(drop => ({
         id: drop.id,
         title: drop.title,
         description: drop.description,
@@ -186,6 +218,9 @@ router.get('/public', async (req, res) => {
         current_participants: drop.current_participants || 0,
         status: drop.status
       }));
+
+      // Combine sampling drops with regular drops, sampling first
+      return [...samplingDrops, ...regularDrops].slice(0, limit);
     });
 
     res.json(payload);
@@ -285,16 +320,24 @@ router.get('/:id/public', async (req, res) => {
 // PROTECTED ROUTES - Auth required below this line
 // =====================================================
 router.use(requireAuth);
+router.use(resolveAdvertiserContext);
 
 // Get all drops
 router.get('/', async (req, res) => {
   try {
-    const { limit = 10, offset = 0, type } = req.query;
-    const cacheKey = `drops:list:${limit}:${offset}:${type || 'all'}`;
+    const { limit = 10, offset = 0, type, interests } = req.query;
+
+    // Parse interests if provided (comma-separated string or array)
+    let userInterests = [];
+    if (interests) {
+      userInterests = typeof interests === 'string' ? interests.split(',').map(i => i.trim().toLowerCase()) : interests;
+    }
+
+    const cacheKey = `drops:list:${limit}:${offset}:${type || 'all'}:${userInterests.join(',') || 'none'}`;
 
     const drops = await getCachedValue(cacheKey, async () => {
       if (!supabase || process.env.USE_DEMO_DROPS === 'true') {
-        return Array.from({ length: parseInt(limit) }, (_, i) => ({
+        const demoDrops = Array.from({ length: parseInt(limit) }, (_, i) => ({
           id: i + parseInt(offset) + 1,
           creator_id: Math.floor(Math.random() * 100) + 1,
           creator_name: `Drop Creator ${i + parseInt(offset) + 1}`,
@@ -302,6 +345,7 @@ router.get('/', async (req, res) => {
           title: `Earn ${Math.floor(Math.random() * 100) + 10} Gems - ${['Instagram Post', 'TikTok Video', 'YouTube Review', 'Twitter Thread'][Math.floor(Math.random() * 4)]}`,
           description: `Complete this task to earn gems and boost your profile. ${['Share your experience', 'Create engaging content', 'Review a product', 'Participate in discussion'][Math.floor(Math.random() * 4)]} and get rewarded!`,
           drop_type: ['content_clipping', 'reviews', 'ugc_creation', 'affiliate_referral'][Math.floor(Math.random() * 4)],
+          category: ['food', 'tech', 'fashion', 'entertainment', 'fitness', 'beauty', 'travel'][Math.floor(Math.random() * 7)],
           difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)],
           key_cost: Math.floor(Math.random() * 10) + 1,
           gem_reward_base: Math.floor(Math.random() * 50) + 10,
@@ -326,6 +370,19 @@ router.get('/', async (req, res) => {
           created_at: new Date(Date.now() - (i + parseInt(offset)) * 3600000).toISOString(),
           updated_at: new Date(Date.now() - (i + parseInt(offset)) * 3600000).toISOString()
         }));
+
+        // Client-side preference sorting for demo data
+        if (userInterests.length > 0) {
+          demoDrops.sort((a, b) => {
+            const aMatch = userInterests.includes(a.category);
+            const bMatch = userInterests.includes(b.category);
+            if (aMatch && !bMatch) return -1;
+            if (!aMatch && bMatch) return 1;
+            return 0;
+          });
+        }
+
+        return demoDrops;
       }
 
       let query = supabase
@@ -346,6 +403,9 @@ router.get('/', async (req, res) => {
         query = query.eq('drop_type', type);
       }
 
+      // Note: For true preference-based filtering, we'd need a `category` or `tags` column on drops.
+      // For now, we fetch all and sort client-side. In a production system, add a GIN index on tags.
+
       const queryStart = Date.now();
       const { data: rows, error } = await query;
       const durationMs = Date.now() - queryStart;
@@ -358,11 +418,29 @@ router.get('/', async (req, res) => {
         throw new Error('Failed to fetch drops');
       }
 
-      const processedDrops = (rows || []).map(drop => ({
+      let processedDrops = (rows || []).map(drop => ({
         ...drop,
         creator_name: drop.creator?.display_name || drop.creator?.username || drop.creator_name || 'Unknown Creator',
         creator_avatar: drop.creator?.avatar_url || drop.creator_avatar
       }));
+
+      // Preference-aware sorting: Prioritize drops matching user interests
+      if (userInterests.length > 0 && processedDrops.length > 0) {
+        processedDrops.sort((a, b) => {
+          // Check if drop category or tags match user interests
+          const aCategory = (a.category || a.drop_type || '').toLowerCase();
+          const bCategory = (b.category || b.drop_type || '').toLowerCase();
+          const aTags = (a.tags || []).map(t => t.toLowerCase());
+          const bTags = (b.tags || []).map(t => t.toLowerCase());
+
+          const aMatch = userInterests.includes(aCategory) || userInterests.some(i => aTags.includes(i));
+          const bMatch = userInterests.includes(bCategory) || userInterests.some(i => bTags.includes(i));
+
+          if (aMatch && !bMatch) return -1;
+          if (!aMatch && bMatch) return 1;
+          return 0; // Keep original order for ties
+        });
+      }
 
       return processedDrops;
     });
@@ -481,18 +559,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Get drops created by current user
+// Get drops created by current user or active advertiser account
 router.get('/my-drops', async (req, res) => {
   try {
     if (!supabase) {
       return res.json([]);
     }
 
-    const { data: drops, error } = await supabase
-      .from('drops')
-      .select('*')
-      .eq('creator_id', 1) // TODO: Get from authenticated user
-      .order('created_at', { ascending: false });
+    const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
+
+    let query = supabase.from('drops').select('*');
+
+    if (advertiserId) {
+      query = query.eq('advertiser_account_id', advertiserId);
+    } else {
+      query = query.eq('creator_id', req.user.id);
+    }
+
+    const { data: drops, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Database error fetching user drops:', error);
@@ -607,8 +691,28 @@ router.post('/:id/apply', async (req, res) => {
       console.error('Database error updating participant count:', updateError);
     }
 
+    // 4. Sound Attribution (if applicable)
+    if (drop.required_sound_id) {
+      const soundService = require('../services/soundService');
+      await soundService.incrementUsage(drop.required_sound_id).catch(err => {
+        console.error('Error incrementing sound usage:', err);
+      });
+    }
+
     invalidateCache('drops:list');
     invalidateCache(`drops:item:${id}`);
+
+    // Record verified action for Daily Layer (ecosystem integration)
+    // Fire and forget - don't block response
+    dailyLayerService.recordVerifiedAction({
+      userId: req.user.id,
+      actionType: 'PROMORANG_DROP',
+      verificationMode: 'SYSTEM_EVENT',
+      actionLabel: 'apply_drop',
+      referenceType: 'drop',
+      referenceId: parseInt(id), // drops use numeric IDs currently? mixed? parseInt just in case
+      metadata: { dropTitle: drop.title }
+    }).catch(err => console.warn('[Drops] Failed to record verified action:', err));
 
     res.json({
       success: true,
@@ -670,8 +774,12 @@ router.post('/', async (req, res) => {
 
     if (isEngagementDrop) {
       const userId = req.user?.id;
+      const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
       const userTier = req.user?.advertiser_tier || req.user?.user_tier || 'free';
-      const moveCheck = await checkMoveAvailability(userId, userTier);
+
+      // If we have an advertiser account, use its ID for move tracking
+      const checkId = advertiserId || userId;
+      const moveCheck = await checkMoveAvailability(checkId, userTier);
 
       if (!moveCheck.allowed) {
         return res.status(403).json({
@@ -733,10 +841,13 @@ router.post('/', async (req, res) => {
       }
     }
 
+    const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
+
     const { data: drop, error } = await supabase
       .from('drops')
       .insert({
         creator_id: req.user.id,
+        advertiser_account_id: advertiserId,
         creator_name: creatorName,
         title,
         description,
@@ -910,6 +1021,40 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
       application,
       message: `Application ${action}d successfully`
     });
+
+    // Send email notification (async, after response)
+    try {
+      // Fetch user email and drop details
+      const { data: user } = await supabase
+        .from('users')
+        .select('email, display_name, username')
+        .eq('id', application.user_id)
+        .single();
+
+      const { data: drop } = await supabase
+        .from('drops')
+        .select('title, gem_reward_base, deadline_at')
+        .eq('id', dropId)
+        .single();
+
+      if (user?.email && drop) {
+        const userName = user.display_name || user.username;
+        if (action === 'approve') {
+          sendDropApprovedEmail(user.email, userName, {
+            title: drop.title,
+            gemReward: drop.gem_reward_base,
+            deadline: drop.deadline_at,
+          }).catch(err => console.error('Failed to send drop approved email:', err));
+        } else {
+          sendDropRejectedEmail(user.email, userName, {
+            title: drop.title,
+            reason: req.body.rejection_reason || null,
+          }).catch(err => console.error('Failed to send drop rejected email:', err));
+        }
+      }
+    } catch (emailErr) {
+      console.error('Error sending application email:', emailErr);
+    }
   } catch (error) {
     console.error('Error updating application:', error);
     res.status(500).json({ success: false, error: 'Failed to update application' });

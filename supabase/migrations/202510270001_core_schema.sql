@@ -1,6 +1,3 @@
--- Ensure Supabase CLI stores migration history in the correct schema
-alter database postgres set supabase_migrations.schema = 'supabase_migrations';
-
 -- Enable required extensions
 create extension if not exists "uuid-ossp";
 create extension if not exists "pgcrypto";

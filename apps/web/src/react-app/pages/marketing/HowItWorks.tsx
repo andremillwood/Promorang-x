@@ -1,29 +1,31 @@
 import MarketingNav from '@/react-app/components/marketing/MarketingNav';
 import MarketingFooter from '@/react-app/components/marketing/MarketingFooter';
 import CTASection from '@/react-app/components/marketing/CTASection';
-import { Share2, TrendingUp, DollarSign, ShieldCheck } from 'lucide-react';
+import { Activity, TrendingUp, Unlock, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function HowItWorks() {
     const steps = [
         {
-            icon: <Share2 className="w-8 h-8 text-blue-500" />,
-            title: "1. Discover & Share",
-            description: "Browse high-converting content from top brands. Share what aligns with your audience using your unique link.",
+            number: '1',
+            icon: <Activity className="w-8 h-8 text-blue-500" />,
+            title: 'Show Up',
+            description: 'Your Access Rank increases every time you participate. Daily engagement, completing tasks, and being active all contribute to your rank.',
+            color: 'blue',
         },
         {
+            number: '2',
             icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
-            title: "2. Track Performance",
-            description: "Watch your impact via real-time analytics. See clicks, conversions, and engagement grow.",
+            title: 'Higher Rank → Earlier Access',
+            description: 'Users with higher Access Ranks get priority when new opportunities appear. The more consistent you are, the earlier you see them.',
+            color: 'purple',
         },
         {
-            icon: <DollarSign className="w-8 h-8 text-green-500" />,
-            title: "3. Earn Rewards",
-            description: "Get paid for your influence. Earn cash commissions and Promo Points for every successful referral.",
-        },
-        {
-            icon: <ShieldCheck className="w-8 h-8 text-orange-500" />,
-            title: "4. Build Equity",
-            description: "Top performers earn equity in the platform. Become a true partner in the ecosystem you help build.",
+            number: '3',
+            icon: <Unlock className="w-8 h-8 text-green-500" />,
+            title: 'Access → Opportunities',
+            description: "Opportunities are time-limited and rank-gated. Active users get in first. Inactive users miss out. It's that simple.",
+            color: 'green',
         },
     ];
 
@@ -40,90 +42,106 @@ export default function HowItWorks() {
 
                 <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
                     <h1 className="text-4xl md:text-6xl font-extrabold text-pr-text-1 tracking-tight mb-6 leading-tight">
-                        Turn Your Taste Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Income</span>
+                        Consistency Creates <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Access</span>
                     </h1>
                     <p className="text-xl text-pr-text-2 max-w-2xl mx-auto leading-relaxed">
-                        Promorang bridges the gap between brands and everyday influencers. Share what you love, earn what you deserve.
+                        Promorang rewards users who show up. Your Access Rank determines what opportunities you see and when you see them.
                     </p>
                 </div>
             </section>
 
-            {/* Steps */}
+            {/* Steps - Simplified 3-step flow */}
             <section className="py-24 bg-pr-surface-1">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="space-y-8">
                         {steps.map((step, index) => (
-                            <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 hover:border-blue-500/50 transition-all relative group">
-                                <div className="absolute -top-6 left-8 bg-pr-surface-2 w-12 h-12 rounded-xl flex items-center justify-center border border-pr-border group-hover:scale-110 transition-transform">
-                                    {step.icon}
+                            <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-8 relative">
+                                {/* Step number */}
+                                <div className={`absolute -top-4 left-8 w-8 h-8 rounded-full bg-${step.color}-500 flex items-center justify-center text-white font-bold text-sm`}>
+                                    {step.number}
                                 </div>
-                                <h3 className="text-xl font-bold text-pr-text-1 mt-6 mb-3">{step.title}</h3>
-                                <p className="text-pr-text-2 leading-relaxed">{step.description}</p>
+
+                                <div className="flex items-start gap-6 pt-2">
+                                    <div className={`w-16 h-16 rounded-2xl bg-${step.color}-500/10 flex items-center justify-center flex-shrink-0`}>
+                                        {step.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-pr-text-1 mb-3">{step.title}</h3>
+                                        <p className="text-pr-text-2 leading-relaxed text-lg">{step.description}</p>
+                                    </div>
+                                </div>
+
+                                {/* Connector line */}
+                                {index < steps.length - 1 && (
+                                    <div className="absolute left-12 bottom-0 w-0.5 h-8 bg-pr-border translate-y-full" />
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* For Creator vs Brand */}
+            {/* The Access Principle */}
             <section className="py-24 bg-pr-surface-background">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid md:grid-cols-2 gap-16">
-                        {/* For Creators */}
-                        <div className="space-y-6">
-                            <span className="text-blue-500 font-bold tracking-wide uppercase text-sm">For Creators</span>
-                            <h2 className="text-3xl font-bold text-pr-text-1">Monetize Your Influence</h2>
-                            <p className="text-lg text-pr-text-2">
-                                You don't need millions of followers to be influential. Whether you're a micro-influencer or a community leader, Promorang gives you the tools to monetize your recommendations directly.
-                            </p>
-                            <ul className="space-y-3">
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                    Access exclusive brand deals
-                                </li>
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                    Real-time tracking and payouts
-                                </li>
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                    Community-first rewards
-                                </li>
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl font-bold text-pr-text-1 mb-6">The Access Principle</h2>
+                    <div className="grid md:grid-cols-2 gap-8 text-left">
+                        <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-8">
+                            <div className="text-red-500 font-bold mb-4">❌ Low Access Rank</div>
+                            <ul className="space-y-3 text-pr-text-2">
+                                <li>• See opportunities after active users</li>
+                                <li>• Often find opportunities already claimed</li>
+                                <li>• Miss time-sensitive drops</li>
+                                <li>• Limited visibility into what's available</li>
                             </ul>
                         </div>
-
-                        {/* For Brands */}
-                        <div className="space-y-6">
-                            <span className="text-purple-500 font-bold tracking-wide uppercase text-sm">For Brands</span>
-                            <h2 className="text-3xl font-bold text-pr-text-1">Scale Authentic Word-of-Mouth</h2>
-                            <p className="text-lg text-pr-text-2">
-                                Stop burning budget on generic ads. Tap into a network of authentic advocates who already love your product and can speak directly to their communities.
-                            </p>
-                            <ul className="space-y-3">
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                                    Performance-based pricing
-                                </li>
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                                    Access niche communities
-                                </li>
-                                <li className="flex items-center gap-3 text-pr-text-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                                    Automated attribution
-                                </li>
+                        <div className="bg-pr-surface-card border border-green-500/30 rounded-2xl p-8">
+                            <div className="text-green-500 font-bold mb-4">✓ High Access Rank</div>
+                            <ul className="space-y-3 text-pr-text-2">
+                                <li>• First to see new opportunities</li>
+                                <li>• Priority access before they fill up</li>
+                                <li>• Early notification of drops</li>
+                                <li>• Full visibility into the platform</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
 
+            {/* For Business Section */}
+            <section className="py-24 bg-pr-surface-1 border-y border-pr-border">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <span className="text-purple-500 font-bold tracking-wide uppercase text-sm">For Businesses</span>
+                        <h2 className="text-3xl font-bold text-pr-text-1 mt-4">Guaranteed Actions from Verified Users</h2>
+                        <p className="text-lg text-pr-text-2 mt-4 max-w-2xl mx-auto">
+                            When you create an opportunity on Promorang, you're not paying for impressions.
+                            You're paying for verified actions from users who have proven they complete what they start.
+                        </p>
+                    </div>
+
+                    <div className="bg-pr-surface-card border border-pr-border rounded-2xl p-8">
+                        <h3 className="text-xl font-bold text-pr-text-1 mb-4">Action Windows</h3>
+                        <p className="text-pr-text-2 mb-6">
+                            Set a time window for users to complete your action. Only users who have demonstrated
+                            reliability (high Access Rank) can participate. No bots. No ghost accounts. Real people, real actions.
+                        </p>
+                        <Link
+                            to="/advertisers"
+                            className="inline-flex items-center gap-2 text-purple-500 font-semibold hover:underline"
+                        >
+                            Learn more about advertising <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
             <CTASection
-                headline="Ready to start?"
-                subheadline="Join thousands of creators and brands growing together."
+                headline="Start Building Your Access Rank"
+                subheadline="The sooner you start, the higher you climb."
                 ctaText="Create Account"
                 ctaLink="/auth"
-                secondaryCta={{ text: "View Pricing", link: '/pricing' }}
+                secondaryCta={{ text: "Explore Opportunities", link: '/explore' }}
             />
 
             <MarketingFooter />

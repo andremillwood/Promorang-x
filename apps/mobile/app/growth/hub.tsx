@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useGrowthStore, StakingChannel, FundingProject, ShieldPolicy } from '@/store/growthStore';
-import { useAdvertiserStore, AdvertiserDrop } from '@/store/advertiserStore';
 import { TabBar } from '@/components/ui/TabBar';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
-import { Zap, TrendingUp, Shield, HelpCircle, ArrowRight } from 'lucide-react-native';
+import { Zap, TrendingUp, Shield, HelpCircle, ArrowRight, Star, Target, Crown, Trophy } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import { HubNode } from '@/components/growth/HubNode';
+
+const { width } = Dimensions.get('window');
 
 export default function GrowthHubScreen() {
-    const [activeTab, setActiveTab] = useState('staking');
+    const [activeTab, setActiveTab] = useState('path');
     const [refreshing, setRefreshing] = useState(false);
     const { channels, fundingProjects, shieldPolicies, fetchChannels, fetchFunding, fetchShield, isLoading } = useGrowthStore();
 
@@ -19,9 +21,9 @@ export default function GrowthHubScreen() {
     }, [activeTab]);
 
     const loadData = async () => {
-        if (activeTab === 'staking') await fetchChannels();
-        else if (activeTab === 'funding') await fetchFunding();
-        else if (activeTab === 'shield') await fetchShield();
+        if (activeTab === 'staking' || activeTab === 'path') await fetchChannels();
+        if (activeTab === 'funding' || activeTab === 'path') await fetchFunding();
+        if (activeTab === 'shield' || activeTab === 'path') await fetchShield();
     };
 
     const onRefresh = async () => {
@@ -31,10 +33,57 @@ export default function GrowthHubScreen() {
     };
 
     const tabs = [
-        { key: 'staking', label: 'The Channel' },
-        { key: 'funding', label: 'Kickstarter' },
+        { key: 'path', label: 'The Path' },
+        { key: 'staking', label: 'Staking' },
+        { key: 'funding', label: 'Projects' },
         { key: 'shield', label: 'Shield' },
     ];
+
+    const pathNodes = useMemo(() => {
+        return [
+            { id: 'start', name: 'Identity', icon: Target, status: 'completed' },
+            { id: 'staking', name: 'First Stake', icon: TrendingUp, status: 'unlocked' },
+            { id: 'funding', name: 'Backer', icon: Star, status: 'locked' },
+            { id: 'shield', name: 'Defender', icon: Shield, status: 'locked' },
+            { id: 'elite', name: 'Elite', icon: Crown, status: 'locked' },
+        ];
+    }, []);
+
+    const renderPath = () => (
+        <ScrollView
+            style={styles.pathContainer}
+            contentContainerStyle={styles.pathContent}
+            showsVerticalScrollIndicator={false}
+        >
+            <View style={styles.pathHeader}>
+                <Text style={styles.pathTitle}>Your Growth Journey</Text>
+                <Text style={styles.pathSubtitle}>Complete milestones to unlock new features and higher tiers.</Text>
+            </View>
+
+            <View style={styles.road}>
+                {pathNodes.map((node, index) => {
+                    // Zigzag calculation
+                    const offset = index % 4; // 0, 1, 2, 3
+                    let horizontalPosition = 0;
+                    if (offset === 1) horizontalPosition = 40;
+                    if (offset === 2) horizontalPosition = 0;
+                    if (offset === 3) horizontalPosition = -40;
+
+                    return (
+                        <HubNode
+                            key={node.id}
+                            id={node.id}
+                            name={node.name}
+                            icon={node.icon}
+                            status={node.status as any}
+                            onPress={() => setActiveTab(node.id === 'staking' ? 'staking' : activeTab)}
+                            style={{ transform: [{ translateX: horizontalPosition }] }}
+                        />
+                    );
+                })}
+            </View>
+        </ScrollView>
+    );
 
     const renderStaking = () => (
         <View style={styles.section}>
@@ -111,6 +160,10 @@ export default function GrowthHubScreen() {
         </View>
     );
 
+    if (isLoading && !refreshing) {
+        return <LoadingIndicator fullScreen text="Loading Growth Hub..." />;
+    }
+
     return (
         <View style={styles.container}>
             <TabBar
@@ -124,6 +177,7 @@ export default function GrowthHubScreen() {
                 style={styles.content}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
+                {activeTab === 'path' && renderPath()}
                 {activeTab === 'staking' && renderStaking()}
                 {activeTab === 'funding' && renderFunding()}
                 {activeTab === 'shield' && renderShield()}
@@ -147,6 +201,32 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+    },
+    pathContainer: {
+        flex: 1,
+    },
+    pathContent: {
+        paddingBottom: 40,
+    },
+    pathHeader: {
+        padding: 24,
+        alignItems: 'center',
+    },
+    pathTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: colors.black,
+        textAlign: 'center',
+    },
+    pathSubtitle: {
+        fontSize: 14,
+        color: colors.darkGray,
+        textAlign: 'center',
+        marginTop: 8,
+    },
+    road: {
+        alignItems: 'center',
+        marginTop: 20,
     },
     section: {
         padding: 20,

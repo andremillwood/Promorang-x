@@ -6,6 +6,8 @@ import HomeFeedPage from "@/react-app/pages/HomeFeed";
 import EarnPage from "@/react-app/pages/Earn";
 import CreatePage from "@/react-app/pages/Create";
 import InvestPage from "@/react-app/pages/Invest";
+import ContentSharesMarket from "@/react-app/pages/ContentSharesMarket";
+import ShareDetail from "@/react-app/pages/ShareDetail";
 import WalletPage from "@/react-app/pages/Wallet";
 import GrowthHubPage from "@/react-app/pages/GrowthHub";
 import ProfilePage from "@/react-app/pages/Profile";
@@ -85,6 +87,9 @@ export default function App() {
               <Route path="/earn" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePage /></ProtectedRoute>} />
               <Route path="/invest/*" element={<ProtectedRoute><InvestPage /></ProtectedRoute>} />
+              <Route path="/market" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
+              <Route path="/market/:category" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
+              <Route path="/shares/:id" element={<ProtectedRoute><ShareDetail /></ProtectedRoute>} />
               <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
               <Route path="/growth-hub" element={<ProtectedRoute><GrowthHubPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

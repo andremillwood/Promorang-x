@@ -4,6 +4,7 @@ const router = express.Router();
 const supabase = require('../lib/supabase');
 // Use the working auth middleware from _core/auth.ts
 const { requireAuth } = require('../middleware/auth');
+const dailyLayerService = require('../services/dailyLayerService');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -114,9 +115,9 @@ router.get('/public', async (req, res) => {
       }
 
       let query = supabase
-        .from('content_items')
-        .select('id, title, description, platform, media_url, thumbnail_url, impressions, engagement_rate, creator_name, posted_at')
-        .order('posted_at', { ascending: false })
+        .from('content_pieces')
+        .select('id, title, description, platform, media_url, creator_name, creator_username, creator_avatar, share_price, current_revenue, created_at')
+        .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (type) {
@@ -164,8 +165,8 @@ router.get('/:id/public', async (req, res) => {
 
       const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
       let query = supabase
-        .from('content_items')
-        .select('id, title, description, platform, media_url, thumbnail_url, creator_name, impressions, engagements, shares, share_price, posted_at');
+        .from('content_pieces')
+        .select('id, title, description, platform, media_url, creator_name, creator_username, creator_avatar, share_price, current_revenue, created_at');
 
       if (isUuid) {
         query = query.eq('id', id).single();
@@ -503,7 +504,7 @@ router.get('/', async (req, res) => {
 
       const queryStart = Date.now();
       let query = supabase
-        .from('content_items')
+        .from('content_pieces')
         .select('*')
         .order('posted_at', { ascending: false })
         .range(offset, offset + limit - 1);
@@ -562,7 +563,7 @@ router.get('/sponsored', async (req, res) => {
 
       const queryStart = Date.now();
       const { data: rows, error } = await supabase
-        .from('content_items')
+        .from('content_pieces')
         .select('*')
         .eq('status', 'sponsored')
         .order('posted_at', { ascending: false })
@@ -619,7 +620,7 @@ router.get('/:id', async (req, res) => {
       const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
 
       let query = supabase
-        .from('content_items')
+        .from('content_pieces')
         .select('*');
 
       if (isUuid) {
@@ -1061,7 +1062,7 @@ router.post('/buy-shares', async (req, res) => {
 
     // Fallback path when legacy table is unavailable – simply acknowledge purchase
     const { data: modernContent, error: modernError } = await supabase
-      .from('content_items')
+      .from('content_pieces')
       .select('id')
       .eq('id', content_id)
       .single();
@@ -1302,7 +1303,7 @@ router.post('/', async (req, res) => {
     };
 
     const { data: itemData, error: itemError } = await supabase
-      .from('content_items')
+      .from('content_pieces')
       .insert(contentItemsPayload)
       .select()
       .single();
@@ -1428,8 +1429,23 @@ router.post('/', async (req, res) => {
     const mintResult = await mintInitialSharePosition({
       contentItemsId: contentItemsRecord?.id || (primarySource === 'content_items' ? primaryRecord?.id : null),
       shareCount,
+      shareCount,
       userId
     });
+
+    // Record Verified Action for Daily Layer ecosystem
+    if (userId) {
+      // noawait - fire and forget to not block response
+      dailyLayerService.recordVerifiedAction({
+        userId,
+        actionType: 'CONTENT_CONTRIBUTION',
+        verificationMode: 'PROOF_UPLOAD',
+        actionLabel: 'submit_proof',
+        referenceType: 'content',
+        referenceId: primaryRecord?.id || (primarySource === 'content_items' ? primaryRecord?.id : null),
+        metadata: { platform, title }
+      }).catch(err => console.warn('[Content] Failed to record verified action:', err));
+    }
 
     invalidateCache('content:list');
     invalidateCache('content:item');
@@ -1496,7 +1512,7 @@ router.put('/:id', async (req, res) => {
 
     if (Object.keys(contentItemsUpdates).length > 0) {
       const { data, error } = await supabase
-        .from('content_items')
+        .from('content_pieces')
         .update(contentItemsUpdates)
         .eq('id', id)
         .select()

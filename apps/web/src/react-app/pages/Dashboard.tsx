@@ -9,14 +9,18 @@ import {
   Eye,
   Clock,
   Diamond,
-  Activity,
   Target,
-  Zap,
   Users,
-  ClipboardList,
-  CreditCard
+  Music,
+  Shield,
+  ChevronRight,
+  CheckCircle
 } from 'lucide-react';
 import type { TaskType, WalletType, TransactionType } from '../../shared/types';
+import StreakWidget from '@/react-app/components/StreakWidget';
+import QuestsWidget from '@/react-app/components/QuestsWidget';
+import NewUserProgress from '@/react-app/components/NewUserProgress';
+import { apiFetch } from '@/react-app/lib/api';
 import {
   EarningsChart,
   PerformanceMetrics,
@@ -24,7 +28,6 @@ import {
   MultiMetricChart,
   KPICard
 } from '@/react-app/components/AnalyticsCharts';
-import SuccessGuide from '../components/SuccessGuide';
 
 export default function Dashboard() {
   const { user: authUser } = useAuth();
@@ -38,34 +41,28 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         // Try to fetch real data first
-        const [walletsResponse, tasksResponse, transactionsResponse] = await Promise.allSettled([
-          fetch('/api/users/me/wallets', { credentials: 'include' }),
-          fetch('/api/tasks?limit=5'),
-          fetch('/api/users/transactions?limit=5', { credentials: 'include' })
+        const [walletsData, tasksData, transactionsData] = await Promise.all([
+          apiFetch('/users/me/wallets'),
+          apiFetch('/tasks?limit=5'),
+          apiFetch('/users/transactions?limit=5')
         ]);
 
-        // Handle wallets response
-        if (walletsResponse.status === 'fulfilled' && walletsResponse.value.ok) {
-          const walletsData = await walletsResponse.value.json();
-          setWallets(Array.isArray(walletsData) ? walletsData : []);
+        if (walletsData && Array.isArray(walletsData)) {
+          setWallets(walletsData);
         } else {
           const { mockWallets } = await import('../mocks/dashboardMocks');
           setWallets(mockWallets);
         }
 
-        // Handle tasks response
-        if (tasksResponse.status === 'fulfilled' && tasksResponse.value.ok) {
-          const tasksData = await tasksResponse.value.json();
-          setRecentTasks(Array.isArray(tasksData) ? tasksData.slice(0, 5) : []);
+        if (tasksData && Array.isArray(tasksData)) {
+          setRecentTasks(tasksData.slice(0, 5));
         } else {
           const { mockTasks } = await import('../mocks/dashboardMocks');
           setRecentTasks(mockTasks);
         }
 
-        // Handle transactions response
-        if (transactionsResponse.status === 'fulfilled' && transactionsResponse.value.ok) {
-          const transactionsData = await transactionsResponse.value.json();
-          setRecentTransactions(Array.isArray(transactionsData) ? transactionsData.slice(0, 5) : []);
+        if (transactionsData && Array.isArray(transactionsData)) {
+          setRecentTransactions(transactionsData.slice(0, 5));
         } else {
           const { mockTransactions } = await import('../mocks/dashboardMocks');
           setRecentTransactions(mockTransactions);
@@ -160,6 +157,17 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Growth Widgets Section */}
+      <NewUserProgress />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="lg:col-span-1">
+          <StreakWidget />
+        </div>
+        <div className="lg:col-span-2">
+          <QuestsWidget />
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
@@ -194,6 +202,53 @@ export default function Dashboard() {
           icon={<Award className="w-5 h-5" />}
           trend={[]}
         />
+      </div>
+
+      {/* Social Shield Status Widget */}
+      <div className="bg-gradient-to-r from-emerald-500/10 via-pr-surface-card to-teal-500/10 border border-emerald-500/30 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Shield className="w-7 h-7 text-emerald-500" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg font-bold text-pr-text-1">Social Shield</h3>
+                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-500 text-xs font-bold rounded-full">ACTIVE</span>
+              </div>
+              <p className="text-sm text-pr-text-2 mb-3">
+                Your earnings are protected when content underperforms. Algorithm changes won't hurt your income.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { label: 'Coverage', value: '70%', sublabel: 'Pro tier' },
+                  { label: 'Protected', value: '$0', sublabel: 'This month' },
+                  { label: 'Shield Pool', value: '250 Gems', sublabel: 'Available' }
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-pr-surface-2 rounded-lg px-3 py-2 border border-pr-border">
+                    <div className="text-xs text-pr-text-muted">{stat.label}</div>
+                    <div className="font-bold text-pr-text-1">{stat.value}</div>
+                    <div className="text-xs text-emerald-500">{stat.sublabel}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 md:items-end">
+            <button
+              onClick={() => navigate('/growth-hub')}
+              className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:opacity-90 transition-all flex items-center gap-2 text-sm"
+            >
+              Upgrade Coverage <ChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate('/growth-hub/social-shield')}
+              className="text-sm text-emerald-500 hover:underline flex items-center gap-1"
+            >
+              Learn how it works <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Analytics Dashboard */}
@@ -251,11 +306,6 @@ export default function Dashboard() {
             <p className="text-2xl font-bold text-purple-900">127</p>
             <p className="text-sm text-purple-600">Gems Earned</p>
           </div>
-          <div className="text-center p-4 bg-orange-50 rounded-lg">
-            <Zap className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-orange-900">3</p>
-            <p className="text-sm text-orange-600">Streak Days</p>
-          </div>
           <div className="text-center p-4 bg-yellow-50 rounded-lg">
             <Eye className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
             <p className="text-2xl font-bold text-yellow-900">156</p>
@@ -280,6 +330,10 @@ export default function Dashboard() {
           <button onClick={() => navigate('/marketplace')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors">
             <Eye className="w-5 h-5 text-green-600" />
             <span className="font-medium text-green-700">Browse Tasks</span>
+          </button>
+          <button onClick={() => navigate('/sounds')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg hover:from-orange-100 hover:to-red-100 transition-colors">
+            <Music className="w-5 h-5 text-orange-600" />
+            <span className="font-medium text-orange-700">Sound Discovery</span>
           </button>
           <button onClick={() => navigate('/invest')} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors">
             <TrendingUp className="w-5 h-5 text-purple-600" />

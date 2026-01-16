@@ -1,10 +1,144 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Ticket, Gift } from 'lucide-react';
-import { promoShareService, type PromoShareDashboardData } from '../services/promoshare';
+import { Ticket, Gift, Clock, Trophy, Sparkles, Calendar, Star } from 'lucide-react';
+import { promoShareService, type PromoShareDashboardData, type DrawData, type DrawType } from '../services/promoshare';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { SponsorshipModal } from '../components/promoshare/SponsorshipModal';
+
+// Draw type configurations
+const DRAW_CONFIG: Record<DrawType, { 
+    label: string; 
+    icon: string; 
+    gradient: string; 
+    border: string;
+    description: string;
+}> = {
+    daily: {
+        label: 'Daily Draw',
+        icon: '☀️',
+        gradient: 'from-orange-500 to-amber-500',
+        border: 'border-orange-500/30',
+        description: 'Drawn every day at midnight'
+    },
+    weekly: {
+        label: 'Weekly Draw',
+        icon: '📅',
+        gradient: 'from-blue-500 to-cyan-500',
+        border: 'border-blue-500/30',
+        description: 'Drawn every Sunday'
+    },
+    monthly: {
+        label: 'Monthly Draw',
+        icon: '🗓️',
+        gradient: 'from-purple-500 to-pink-500',
+        border: 'border-purple-500/30',
+        description: 'Drawn on the 1st of each month'
+    },
+    grand: {
+        label: 'GRAND JACKPOT',
+        icon: '🏆',
+        gradient: 'from-yellow-400 via-amber-500 to-orange-500',
+        border: 'border-yellow-500/50',
+        description: 'Weekly mega draw - rolls over until won!'
+    }
+};
+
+// Helper to format time remaining
+function formatTimeLeft(endAt: string): { days: number; hours: number; minutes: number; label: string } {
+    const timeLeft = new Date(endAt).getTime() - Date.now();
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    
+    let label = '';
+    if (days > 0) label = `${days}d ${hours}h`;
+    else if (hours > 0) label = `${hours}h ${minutes}m`;
+    else label = `${minutes}m`;
+    
+    return { days, hours, minutes, label };
+}
+
+// Individual Draw Card Component
+function DrawCard({ draw, index }: { draw: DrawData; index: number }) {
+    const config = DRAW_CONFIG[draw.cycle_type];
+    const time = formatTimeLeft(draw.end_at);
+    const probability = draw.totalTickets > 0 ? ((draw.userTickets / draw.totalTickets) * 100).toFixed(2) : '0';
+    
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className={`bg-pr-surface-1 rounded-2xl p-5 border ${config.border} relative overflow-hidden`}
+        >
+            {/* Rollover Badge */}
+            {draw.is_rollover && (
+                <div className="absolute top-3 right-3">
+                    <span className="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded-full font-medium border border-yellow-500/30">
+                        🔥 ROLLOVER
+                    </span>
+                </div>
+            )}
+            
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-2xl shadow-lg`}>
+                    {config.icon}
+                </div>
+                <div>
+                    <h3 className="font-bold text-pr-text-1">{config.label}</h3>
+                    <p className="text-xs text-pr-text-2">{config.description}</p>
+                </div>
+            </div>
+            
+            {/* Jackpot Amount */}
+            <div className="mb-4">
+                <p className="text-xs text-pr-text-2 uppercase tracking-wider mb-1">Jackpot</p>
+                <div className={`text-3xl font-black bg-gradient-to-r ${config.gradient} bg-clip-text text-transparent`}>
+                    {draw.jackpot_amount.toLocaleString()} 💎
+                </div>
+            </div>
+            
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-pr-surface-2 rounded-lg p-3">
+                    <p className="text-xs text-pr-text-2 mb-1">Your Tickets</p>
+                    <p className="text-xl font-bold text-pr-text-1">{draw.userTickets}</p>
+                </div>
+                <div className="bg-pr-surface-2 rounded-lg p-3">
+                    <p className="text-xs text-pr-text-2 mb-1">Win Chance</p>
+                    <p className="text-xl font-bold text-pr-text-1">{probability}%</p>
+                </div>
+            </div>
+            
+            {/* Countdown */}
+            <div className={`bg-gradient-to-r ${config.gradient} rounded-xl p-3 text-white`}>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm font-medium">Next Draw</span>
+                    </div>
+                    <span className="font-bold text-lg">{time.label}</span>
+                </div>
+            </div>
+            
+            {/* Pool Items Preview */}
+            {draw.poolItems.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-pr-surface-3">
+                    <p className="text-xs text-pr-text-2 mb-2">Prize Pool</p>
+                    <div className="flex flex-wrap gap-1">
+                        {draw.poolItems.slice(0, 3).map((item) => (
+                            <span key={item.id} className="text-xs bg-pr-surface-2 px-2 py-1 rounded text-pr-text-2">
+                                {item.amount} {item.reward_type}s
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </motion.div>
+    );
+}
 
 export default function PromoShareDashboard() {
     const { user } = useAuth();
@@ -29,192 +163,210 @@ export default function PromoShareDashboard() {
         loadDashboard();
     }, [user]);
 
-    if (loading) return <div className="flex justify-center p-8">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="animate-pulse space-y-6">
+                    <div className="h-12 bg-pr-surface-3 rounded-lg w-64 mx-auto" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-64 bg-pr-surface-3 rounded-2xl" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
-    const activeCycle = data?.activeCycle;
-    const timeLeft = activeCycle ? new Date(activeCycle.end_at).getTime() - Date.now() : 0;
+    // Get draws array (use new format or create from legacy)
+    const draws: DrawData[] = data?.draws || (data?.activeCycle ? [{
+        id: data.activeCycle.id,
+        cycle_type: data.activeCycle.cycle_type,
+        end_at: data.activeCycle.end_at,
+        jackpot_amount: data.currentJackpot || 0,
+        is_rollover: data.isRollover || false,
+        userTickets: data.userTickets,
+        totalTickets: data.totalTickets,
+        ticketNumbers: data.ticketNumbers,
+        poolItems: data.poolItems
+    }] : []);
 
-    // Format time left
-    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    // Sort draws: grand first, then by end time
+    const sortedDraws = [...draws].sort((a, b) => {
+        if (a.cycle_type === 'grand') return -1;
+        if (b.cycle_type === 'grand') return 1;
+        return new Date(a.end_at).getTime() - new Date(b.end_at).getTime();
+    });
+
+    // Calculate total tickets across all draws
+    const totalUserTickets = draws.reduce((sum, d) => sum + d.userTickets, 0);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             {/* Header Section */}
             <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+                <motion.h1 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-orange-400"
+                >
                     PromoShare
-                </h1>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                    Participate in the ecosystem where effort compounds. Earn tickets for every action and win big in weekly draws.
+                </motion.h1>
+                <p className="text-lg text-pr-text-2 max-w-2xl mx-auto">
+                    Every action earns tickets. Four draws running simultaneously. 
+                    <span className="text-yellow-500 font-semibold"> Win daily, weekly, monthly, or hit the GRAND JACKPOT!</span>
                 </p>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Cycle Timer */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-gray-800 rounded-2xl p-6 border border-gray-700 relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
+            {/* Quick Stats Bar */}
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl p-6 text-white shadow-xl"
+            >
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <Ticket className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <p className="text-white/80 text-sm">Your Total Tickets</p>
+                            <p className="text-4xl font-black">{totalUserTickets}</p>
+                        </div>
                     </div>
-                    <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wider">Next Draw</h3>
-                    <div className="mt-4 flex items-baseline space-x-2">
-                        {activeCycle ? (
-                            <div className="text-3xl font-bold text-white">
-                                {days}d {hours}h {minutes}m
-                            </div>
-                        ) : (
-                            <div className="text-2xl font-bold text-yellow-500">No Active Draw</div>
-                        )}
+                    <div className="flex items-center gap-6">
+                        <div className="text-center">
+                            <p className="text-white/80 text-sm">Active Draws</p>
+                            <p className="text-2xl font-bold">{draws.length}</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-white/80 text-sm">Combined Jackpot</p>
+                            <p className="text-2xl font-bold">{draws.reduce((sum, d) => sum + d.jackpot_amount, 0).toLocaleString()} 💎</p>
+                        </div>
                     </div>
-                    <p className="mt-2 text-sm text-gray-500">Weekly Cycle</p>
-                </motion.div>
+                </div>
+            </motion.div>
 
-                {/* User Tickets */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-gray-800 rounded-2xl p-6 border border-blue-500/30 relative overflow-hidden bg-gradient-to-br from-gray-800 to-blue-900/20"
-                >
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z" /></svg>
+            {/* All Draws Grid */}
+            <div>
+                <h2 className="text-2xl font-bold text-pr-text-1 mb-4 flex items-center gap-2">
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                    Active Draws
+                </h2>
+                
+                {draws.length === 0 ? (
+                    <div className="bg-pr-surface-1 rounded-2xl p-12 text-center border border-pr-surface-3">
+                        <Sparkles className="w-16 h-16 text-pr-text-2 mx-auto mb-4" />
+                        <h3 className="text-xl font-bold text-pr-text-1 mb-2">No Active Draws</h3>
+                        <p className="text-pr-text-2">New draws are coming soon! Keep earning tickets.</p>
                     </div>
-                    <h3 className="text-blue-400 text-sm font-medium uppercase tracking-wider">Your Tickets</h3>
-                    <div className="mt-4 flex items-baseline space-x-2">
-                        <span className="text-5xl font-extrabold text-white tracking-tight">
-                            {data?.userTickets || 0}
-                        </span>
-                        <span className="text-lg text-gray-400">entries</span>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-400">
-                        Current probability: {data?.totalTickets && data?.userTickets ? ((data.userTickets / data.totalTickets) * 100).toFixed(2) : 0}%
-                    </p>
-                </motion.div>
-
-                {/* Prize Pool */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-gray-800 rounded-2xl p-6 border border-purple-500/30 relative overflow-hidden bg-gradient-to-br from-gray-800 to-purple-900/20"
-                >
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 9a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zm7-9a-1 1 0 00-1 1v2H9a1 1 0 000 2h2v2a1 1 0 102 0V6h2a1 1 0 100-2h-2V3a1 1 0 00-1-1zm-1 9a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2H9a1 1 0 110-2h2v-2a1 1 0 011-1z" clipRule="evenodd" /></svg>
-                    </div>
-                    <h3 className="text-purple-400 text-sm font-medium uppercase tracking-wider">Estimate Prize Pool</h3>
-                    <div className="mt-4 space-y-1">
-                        {data?.poolItems.map((item) => (
-                            <div key={item.id} className="flex items-center space-x-2 text-white">
-                                <span className="text-xl font-bold">{item.amount}</span>
-                                <span className="text-gray-300 capitalize">{item.reward_type}s</span>
-                            </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {sortedDraws.map((draw, index) => (
+                            <DrawCard key={draw.id} draw={draw} index={index} />
                         ))}
-                        {(!data?.poolItems || data.poolItems.length === 0) && (
-                            <div className="text-gray-400">Pool is accumulating...</div>
-                        )}
                     </div>
-                </motion.div>
+                )}
             </div>
 
-            {/* Main Content Area */}
-            <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-lg p-6 text-white mb-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <Ticket size={120} />
-                </div>
-
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-purple-500/30 px-3 py-1 rounded-full text-sm font-medium border border-purple-400/20">
-                                {data?.activeCycle ? `${data.activeCycle.cycle_type.toUpperCase()} DRAW` : 'NO ACTIVE DRAW'}
-                            </span>
-                            {data?.isRollover && (
-                                <span className="bg-yellow-500/30 px-3 py-1 rounded-full text-sm font-medium border border-yellow-400/20 text-yellow-300">
-                                    ROLLOVER JACKPOT
-                                </span>
-                            )}
-                        </div>
-                        <h2 className="text-4xl font-bold mb-1">
-                            {data?.activeCycle
-                                ? new Date(data.activeCycle.end_at).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
-                                : 'Coming Soon'}
-                        </h2>
-                        <p className="text-purple-200">Next draw date</p>
-                    </div>
-
-                    <div className="text-center md:text-right">
-                        <p className="text-purple-200 text-sm uppercase tracking-wider mb-1">Estimated Jackpot</p>
-                        <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 drop-shadow-lg">
-                            {data?.currentJackpot ? `$${data.currentJackpot.toLocaleString()}` : 'Calculating...'}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                            <Ticket className="w-5 h-5" />
-                        </div>
-                        <h3 className="font-semibold text-gray-900">Your Tickets</h3>
-                    </div>
-                    <div className="mb-2">
-                        <span className="text-3xl font-bold text-gray-900">{data?.userTickets || 0}</span>
-                        <span className="text-gray-500 ml-2">entries</span>
-                    </div>
-                    {data?.ticketNumbers && data.ticketNumbers.length > 0 && (
-                        <div className="mt-4">
-                            <p className="text-xs text-gray-500 mb-2 uppercase">Your Numbers</p>
-                            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                                {data.ticketNumbers.map(num => (
-                                    <span key={num} className="bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded border border-indigo-100 font-mono">
-                                        #{num.toString().padStart(6, '0')}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    <p className="text-sm text-gray-500 mt-2">More tickets = higher chance!</p>
-                </div>
+            {/* Ways to Earn & Winners Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Ways to Earn */}
-                <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-4">Ways to Earn Tickets</h3>
-                    <ul className="space-y-4">
-                        <li className="flex items-center p-3 bg-gray-700/50 rounded-xl">
+                <div className="bg-pr-surface-1 rounded-2xl p-6 border border-pr-surface-3">
+                    <h3 className="text-xl font-bold text-pr-text-1 mb-4 flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-500" />
+                        Ways to Earn Tickets
+                    </h3>
+                    <ul className="space-y-3">
+                        <li className="flex items-center p-3 bg-pr-surface-2 rounded-xl">
                             <div className="bg-blue-500/20 p-2 rounded-lg mr-4">
                                 <span className="text-xl">💧</span>
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-semibold text-white">Complete Drops</h4>
-                                <p className="text-sm text-gray-400">Earn 1 ticket for every completed drop</p>
+                                <h4 className="font-semibold text-pr-text-1">Complete Drops</h4>
+                                <p className="text-sm text-pr-text-2">1 ticket per completed drop</p>
                             </div>
-                            <Link to="/earn" className="text-blue-400 text-sm font-medium hover:text-blue-300">Go</Link>
+                            <Link to="/earn" className="text-blue-500 text-sm font-medium hover:text-blue-400">Go →</Link>
                         </li>
-                        <li className="flex items-center p-3 bg-gray-700/50 rounded-xl">
+                        <li className="flex items-center p-3 bg-pr-surface-2 rounded-xl">
                             <div className="bg-pink-500/20 p-2 rounded-lg mr-4">
                                 <span className="text-xl">❤️</span>
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-semibold text-white">Social Engagement</h4>
-                                <p className="text-sm text-gray-400">Likes and comments earn tickets</p>
+                                <h4 className="font-semibold text-pr-text-1">Social Engagement</h4>
+                                <p className="text-sm text-pr-text-2">Likes & comments earn tickets</p>
                             </div>
-                            <Link to="/feed" className="text-blue-400 text-sm font-medium hover:text-blue-300">Feed</Link>
+                            <Link to="/feed" className="text-blue-500 text-sm font-medium hover:text-blue-400">Feed →</Link>
+                        </li>
+                        <li className="flex items-center p-3 bg-pr-surface-2 rounded-xl">
+                            <div className="bg-green-500/20 p-2 rounded-lg mr-4">
+                                <span className="text-xl">🎯</span>
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-semibold text-pr-text-1">Daily Login</h4>
+                                <p className="text-sm text-pr-text-2">Bonus ticket every day</p>
+                            </div>
+                        </li>
+                        <li className="flex items-center p-3 bg-pr-surface-2 rounded-xl">
+                            <div className="bg-purple-500/20 p-2 rounded-lg mr-4">
+                                <span className="text-xl">👥</span>
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-semibold text-pr-text-1">Refer Friends</h4>
+                                <p className="text-sm text-pr-text-2">5 tickets per referral</p>
+                            </div>
+                            <Link to="/referrals" className="text-blue-500 text-sm font-medium hover:text-blue-400">Invite →</Link>
                         </li>
                     </ul>
                 </div>
 
-                {/* Recent Activity / Winners (Placeholder for now) */}
-                <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-4">Last Draw Winners</h3>
-                    <div className="text-center py-8 text-gray-500">
-                        First draw coming soon! Be the first to win.
+                {/* Recent Winners */}
+                <div className="bg-pr-surface-1 rounded-2xl p-6 border border-pr-surface-3">
+                    <h3 className="text-xl font-bold text-pr-text-1 mb-4 flex items-center gap-2">
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                        Recent Winners
+                    </h3>
+                    <div className="text-center py-8">
+                        <div className="w-20 h-20 bg-pr-surface-2 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Gift className="w-10 h-10 text-pr-text-2" />
+                        </div>
+                        <p className="text-pr-text-2 mb-2">First draws coming soon!</p>
+                        <p className="text-sm text-pr-text-2">Be among the first to win big.</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="bg-gradient-to-br from-pr-surface-1 to-pr-surface-2 rounded-2xl p-6 border border-pr-surface-3">
+                <h3 className="text-xl font-bold text-pr-text-1 mb-4">How PromoShare Works</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl">1️⃣</span>
+                        </div>
+                        <h4 className="font-semibold text-pr-text-1 mb-1">Earn Tickets</h4>
+                        <p className="text-sm text-pr-text-2">Complete drops, engage socially, refer friends</p>
+                    </div>
+                    <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl">2️⃣</span>
+                        </div>
+                        <h4 className="font-semibold text-pr-text-1 mb-1">Enter Draws</h4>
+                        <p className="text-sm text-pr-text-2">Tickets auto-enter all 4 draw types</p>
+                    </div>
+                    <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl">3️⃣</span>
+                        </div>
+                        <h4 className="font-semibold text-pr-text-1 mb-1">Wait for Draw</h4>
+                        <p className="text-sm text-pr-text-2">Random lottery number drawn</p>
+                    </div>
+                    <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl">4️⃣</span>
+                        </div>
+                        <h4 className="font-semibold text-pr-text-1 mb-1">Win Big!</h4>
+                        <p className="text-sm text-pr-text-2">No winner? Jackpot rolls over!</p>
                     </div>
                 </div>
             </div>

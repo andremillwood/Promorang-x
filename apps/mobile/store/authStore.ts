@@ -9,7 +9,9 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
+  hasSeenWelcome: boolean;
   initializeUser: () => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -17,19 +19,34 @@ interface AuthState {
   demoLogin: (type: 'creator' | 'investor' | 'advertiser') => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
   becomeAdvertiser: (brandName: string, brandLogoUrl?: string) => Promise<void>;
+  becomeMerchant: (storeName: string, description?: string, contactEmail?: string) => Promise<void>;
+  enterGuestMode: () => void;
+  exitGuestMode: () => void;
+  setHasSeenWelcome: (seen: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set: (state: Partial<AuthState>) => void, get: () => AuthState) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: false,
+      hasSeenWelcome: false,
       initializeUser: async () => {
         if (get().user && get().isAuthenticated) {
           return;
         }
+      },
+      enterGuestMode: () => {
+        set({ isGuest: true, isAuthenticated: false, user: null, token: null });
+      },
+      exitGuestMode: () => {
+        set({ isGuest: false });
+      },
+      setHasSeenWelcome: (seen: boolean) => {
+        set({ hasSeenWelcome: seen });
       },
       login: async (email: string, password: string) => {
         set({ isLoading: true });
@@ -68,8 +85,10 @@ export const useAuthStore = create<AuthState>()(
             xp: data.user.xp_points,
             instagram_handle: data.user.instagram_handle,
             instagram_verified: data.user.instagram_verified,
+            brand_name: data.user.brand_name,
+            brand_logo_url: data.user.brand_logo_url,
           };
-          set({ user: mappedUser, token: data.token, isAuthenticated: true });
+          set({ user: mappedUser, token: data.token, isAuthenticated: true, isGuest: false });
         } catch (error: any) {
           console.error('Login error:', error);
           throw error;
@@ -114,8 +133,10 @@ export const useAuthStore = create<AuthState>()(
             xp: data.user.xp_points,
             instagram_handle: data.user.instagram_handle,
             instagram_verified: data.user.instagram_verified,
+            brand_name: data.user.brand_name,
+            brand_logo_url: data.user.brand_logo_url,
           };
-          set({ user: mappedUser, token: data.token, isAuthenticated: true });
+          set({ user: mappedUser, token: data.token, isAuthenticated: true, isGuest: false });
         } catch (error: any) {
           console.error('Demo login error:', error);
           throw error;
@@ -129,11 +150,9 @@ export const useAuthStore = create<AuthState>()(
           const { user, token } = get();
           if (!user || !token) throw new Error('Not authenticated');
 
-          // Map frontend fields back to backend expected fields if necessary
-          // For now passing updates directly assuming matching keys (display_name etc)
           const payload = {
             ...updates,
-            display_name: updates.name || updates.display_name, // Map 'name' to 'display_name' if needed
+            display_name: updates.name || updates.display_name,
           };
 
           const response = await fetch(`${API_URL}/api/users/${user.id}`, {
@@ -174,7 +193,6 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
           if (!data.success) throw new Error(data.error);
 
-          // Update local user with new role/fields
           set({ user: { ...user, ...data.user } });
         } catch (error) {
           console.error('Become advertiser error:', error);
@@ -183,8 +201,36 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
         }
       },
+      becomeMerchant: async (storeName: string, description?: string, contactEmail?: string) => {
+        set({ isLoading: true });
+        try {
+          const { user, token } = get();
+          if (!user || !token) throw new Error('Not authenticated');
+
+          const response = await fetch(`${API_URL}/api/marketplace/stores`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ store_name: storeName, description, contact_email: contactEmail })
+          });
+
+          const result = await response.json();
+          if (result.status !== 'success') throw new Error(result.message || 'Failed to create store');
+
+          // Update user role to merchant locally
+          const updatedUser = user ? { ...user, role: 'merchant' as const } : null;
+          set({ user: updatedUser });
+        } catch (error) {
+          console.error('Become merchant error:', error);
+          throw error;
+        } finally {
+          set({ isLoading: false });
+        }
+      },
       logout: () => {
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, token: null, isAuthenticated: false, isGuest: false });
       },
       signUp: async (name: string, email: string, password: string, referralCode?: string, username?: string) => {
         set({ isLoading: true });
@@ -229,8 +275,10 @@ export const useAuthStore = create<AuthState>()(
             xp: data.user.xp_points,
             instagram_handle: data.user.instagram_handle,
             instagram_verified: data.user.instagram_verified,
+            brand_name: data.user.brand_name,
+            brand_logo_url: data.user.brand_logo_url,
           };
-          set({ user: mappedUser, token: data.token, isAuthenticated: true });
+          set({ user: mappedUser, token: data.token, isAuthenticated: true, isGuest: false });
         } catch (error) {
           console.error('Registration error:', error);
           throw error;

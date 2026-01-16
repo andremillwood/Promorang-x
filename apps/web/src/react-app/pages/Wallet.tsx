@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 import {
   Wallet as WalletIcon,
   DollarSign,
@@ -13,7 +14,10 @@ import {
   Diamond,
   TrendingUp,
   Activity,
-  Target
+  Target,
+  Sparkles,
+  ArrowRight,
+  Gift
 } from 'lucide-react';
 import type { WalletType, TransactionType, UserType, ContentHolding, ShareListing, ShareOffer } from '../../shared/types';
 import CurrencyConversionModal from '@/react-app/components/CurrencyConversionModal';
@@ -35,6 +39,102 @@ import {
   TrendLine,
   KPICard
 } from '@/react-app/components/AnalyticsCharts';
+
+/**
+ * Simplified Wallet View for State 0/1 users
+ * Shows educational content about the currency system
+ */
+function WalletSimplified() {
+  const navigate = useNavigate();
+
+  const currencies = [
+    {
+      name: 'Points',
+      icon: <Coins className="w-6 h-6" />,
+      color: 'blue',
+      description: 'Earned from daily activities and social actions',
+      howToEarn: 'Complete your Today tasks',
+    },
+    {
+      name: 'PromoKeys',
+      icon: <Key className="w-6 h-6" />,
+      color: 'orange',
+      description: 'Used to unlock premium drops and opportunities',
+      howToEarn: 'Convert 500 Points into 1 Key',
+    },
+    {
+      name: 'Gems',
+      icon: <Diamond className="w-6 h-6" />,
+      color: 'purple',
+      description: 'Premium currency earned from completed drops',
+      howToEarn: 'Complete drops and tasks',
+    },
+  ];
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <WalletIcon className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-pr-text-1 mb-2">Your Wallet</h1>
+        <p className="text-pr-text-2">Earn and manage multiple currencies</p>
+      </div>
+
+      {/* Currency Cards - Simple Version */}
+      <div className="space-y-4">
+        {currencies.map((currency) => (
+          <div
+            key={currency.name}
+            className={`bg-pr-surface-card rounded-xl p-5 border border-pr-border`}
+          >
+            <div className="flex items-start gap-4">
+              <div className={`w-12 h-12 bg-${currency.color}-100 dark:bg-${currency.color}-900/30 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                <div className={`text-${currency.color}-600`}>{currency.icon}</div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-semibold text-pr-text-1">{currency.name}</h3>
+                  <span className="text-2xl font-bold text-pr-text-1">0</span>
+                </div>
+                <p className="text-sm text-pr-text-2 mb-2">{currency.description}</p>
+                <p className="text-xs text-pr-text-3 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  {currency.howToEarn}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Get Started CTA */}
+      <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl p-6 text-white">
+        <div className="flex items-center gap-2 mb-3">
+          <Gift className="w-5 h-5" />
+          <span className="text-sm font-medium opacity-90">Start earning</span>
+        </div>
+        <h3 className="text-xl font-bold mb-2">Complete Your First Task</h3>
+        <p className="text-white/80 text-sm mb-4">
+          Head to Today to start earning points and unlock the full wallet features
+        </p>
+        <button
+          onClick={() => navigate('/today')}
+          className="w-full bg-white text-blue-600 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
+        >
+          Go to Today
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Coming Soon Preview */}
+      <div className="text-center text-sm text-pr-text-2">
+        <p>Unlock analytics, withdrawals, and more as you earn</p>
+      </div>
+    </div>
+  );
+}
 
 // Wallet Analytics Component
 function WalletAnalyticsOverview({ userData }: { userData: UserType | null; transactions: TransactionType[] }) {
@@ -582,6 +682,7 @@ function OffersSection({
 
 export default function Wallet() {
   const navigate = useNavigate();
+  const { maturityState, isLoading: maturityLoading } = useMaturity();
   const [wallets, setWallets] = useState<WalletType[]>([]);
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [userData, setUserData] = useState<UserType | null>(null);
@@ -603,6 +704,11 @@ export default function Wallet() {
   const [showPaymentPreferencesModal, setShowPaymentPreferencesModal] = useState(false);
   const [showGemStoreModal, setShowGemStoreModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+
+  // State 0/1: Show simplified view
+  if (!maturityLoading && maturityState <= 1) {
+    return <WalletSimplified />;
+  }
 
   // Debug logging
   console.log('Wallet component rendered, modal states:', {
@@ -1123,8 +1229,8 @@ export default function Wallet() {
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-4 border-b-2 font-medium text-sm ${activeTab === 'overview'
-                  ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
                 }`}
             >
               Overview
@@ -1132,8 +1238,8 @@ export default function Wallet() {
             <button
               onClick={() => setActiveTab('transactions')}
               className={`py-4 border-b-2 font-medium text-sm ${activeTab === 'transactions'
-                  ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-transparent text-pr-text-2 hover:text-pr-text-1'
                 }`}
             >
               Transactions

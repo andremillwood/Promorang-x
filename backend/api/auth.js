@@ -3,17 +3,18 @@ const router = express.Router();
 const supabase = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
+const { sendWelcomeEmail } = require('../services/resendService');
 
 // Body is already parsed by express.json() in api/index.js
 
 // JWT secret - in production, this should be in environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || 'your-secret-key-change-in-production';
 
 // Demo accounts for local testing - must match seeded UUIDs in migration
 const DEMO_ACCOUNTS = [
   {
     id: '00000000-0000-0000-0000-00000000c001',
-    email: 'creator@demo.com',
+    email: 'creator@promorang.co',
     password: 'demo123',
     username: 'demo_creator',
     display_name: 'Demo Creator',
@@ -21,7 +22,7 @@ const DEMO_ACCOUNTS = [
   },
   {
     id: '00000000-0000-0000-0000-00000000b001',
-    email: 'investor@demo.com',
+    email: 'investor@promorang.co',
     password: 'demo123',
     username: 'demo_investor',
     display_name: 'Demo Investor',
@@ -29,25 +30,59 @@ const DEMO_ACCOUNTS = [
   },
   {
     id: '00000000-0000-0000-0000-00000000ad01',
-    email: 'advertiser@demo.com',
+    email: 'advertiser@promorang.co',
     password: 'demo123',
     username: 'demo_advertiser',
     display_name: 'Demo Advertiser',
     user_type: 'advertiser'
   },
   {
-    email: 'operator@demo.com',
+    id: '00000000-0000-0000-0000-000000000404',
+    email: 'operator@promorang.co',
     password: 'demo123',
     username: 'demo_operator',
     display_name: 'Demo Operator',
     user_type: 'operator'
   },
   {
-    email: 'merchant@demo.com',
+    id: '00000000-0000-0000-0000-000000000505',
+    email: 'merchant@promorang.co',
     password: 'demo123',
     username: 'demo_merchant',
     display_name: 'Demo Merchant',
     user_type: 'merchant'
+  },
+  {
+    id: 'a0000000-0000-0000-0000-000000000100',
+    email: 'matrix_demo@promorang.co',
+    password: 'demo123',
+    username: 'matrix_builder',
+    display_name: 'Matrix Builder Demo',
+    user_type: 'matrix_builder'
+  },
+  {
+    id: 'b0000000-0000-0000-0000-000000000200',
+    email: 'sampling_merchant@promorang.co',
+    password: 'demo123',
+    username: 'sampling_merchant',
+    display_name: 'Sample Coffee Shop',
+    user_type: 'advertiser'
+  },
+  {
+    id: 'b0000000-0000-0000-0000-000000000201',
+    email: 'active_sampling@promorang.co',
+    password: 'demo123',
+    username: 'active_sampling',
+    display_name: 'Downtown Boutique',
+    user_type: 'advertiser'
+  },
+  {
+    id: 'b0000000-0000-0000-0000-000000000202',
+    email: 'graduated_merchant@promorang.co',
+    password: 'demo123',
+    username: 'graduated_merchant',
+    display_name: 'Fitness Studio Pro',
+    user_type: 'advertiser'
   }
 ];
 
@@ -58,7 +93,8 @@ const generateToken = (user) => {
       id: user.id,
       email: user.email,
       username: user.username,
-      user_type: user.user_type
+      user_type: user.user_type,
+      onboarding_completed: user.onboarding_completed
     },
     JWT_SECRET,
     { expiresIn: '7d' }
@@ -310,6 +346,11 @@ router.post('/register', async (req, res) => {
 
       const token = generateToken(data.user);
 
+      // Send welcome email (async, don't block response)
+      sendWelcomeEmail(email, display_name || username).catch(err => {
+        console.error('Failed to send welcome email:', err);
+      });
+
       return res.json({
         success: true,
         user: {
@@ -432,23 +473,104 @@ router.get('/oauth/google/url', async (req, res) => {
   }
 });
 
-// Demo login endpoints for easy testing
-router.post('/demo/creator', async (req, res) => {
+// Demo system health and initialization
+router.get('/demo-health', async (req, res) => {
   try {
-    // Log the request body for debugging
-    console.log('Demo creator login request received');
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers);
+    if (!supabase) {
+      return res.json({ success: true, status: 'mock', message: 'Running in mock mode' });
+    }
 
-    const demoAccount = DEMO_ACCOUNTS[0];
+    const { count, error } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .in('id', DEMO_ACCOUNTS.map(a => a.id));
+
+    if (error) throw error;
+
+    const isReady = count === DEMO_ACCOUNTS.length;
+    res.json({
+      success: true,
+      status: isReady ? 'ready' : 'incomplete',
+      count,
+      total: DEMO_ACCOUNTS.length,
+      missing: DEMO_ACCOUNTS.length - count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/demo-initialize', async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.json({ success: true, message: 'Mock mode: No initialization needed' });
+    }
+
+    console.log('Initializing demo environment...');
+    const results = [];
+
+    for (const account of DEMO_ACCOUNTS) {
+      // Use robust find-or-create logic for each
+      const { data: existing } = await supabase.from('users').select('id').eq('id', account.id).maybeSingle();
+
+      if (!existing) {
+        // Try deleting by email/username first to avoid unique constraint violations
+        await supabase.from('users').delete().or(`email.eq.${account.email},username.eq.${account.username}`);
+
+        const { error } = await supabase.from('users').insert([{
+          id: account.id,
+          email: account.email,
+          username: account.username,
+          display_name: account.display_name,
+          user_type: account.user_type,
+          points_balance: 1000,
+          keys_balance: 50,
+          gems_balance: 100,
+          user_tier: 'free',
+          created_at: new Date().toISOString()
+        }]);
+
+        results.push({ email: account.email, status: error ? 'failed' : 'created', error: error?.message });
+      } else {
+        results.push({ email: account.email, status: 'exists' });
+      }
+    }
+
+    res.json({ success: true, results });
+  } catch (error) {
+    console.error('Demo initialization failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Demo login endpoints for easy testing
+router.post('/demo/:role', async (req, res) => {
+  try {
+    const role = req.params.role;
+    console.log(`Demo login request received for role: ${role}`);
+
+    const roleMap = {
+      'creator': 0,
+      'investor': 1,
+      'advertiser': 2,
+      'operator': 3,
+      'merchant': 4,
+      'matrix': 5,
+      'sampling-merchant': 6,
+      'active-sampling': 7,
+      'graduated-merchant': 8
+    };
+
+    const index = roleMap[role];
+    if (index === undefined) {
+      return res.status(400).json({ success: false, error: 'Invalid demo role' });
+    }
+
+    const demoAccount = DEMO_ACCOUNTS[index];
 
     if (!supabase) {
       const token = generateToken({
-        id: 'demo-creator-id',
-        email: demoAccount.email,
-        username: demoAccount.username,
-        display_name: demoAccount.display_name,
-        user_type: demoAccount.user_type,
+        ...demoAccount,
         points_balance: 1000,
         keys_balance: 50,
         gems_balance: 100,
@@ -456,41 +578,42 @@ router.post('/demo/creator', async (req, res) => {
         user_tier: 'free'
       });
 
-      res.cookie('auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
       return res.status(200).json({
         success: true,
-        user: {
-          id: 'demo-creator-id',
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 1000,
-          keys_balance: 50,
-          gems_balance: 100,
-          gold_collected: 0,
-          user_tier: 'free'
-        },
+        user: demoAccount,
         token
       });
     }
 
-    let { data: user, error: userError } = await supabase
+    // Standardized robust find-or-create logic
+    // 1. Try finding by ID first (most reliable for demo accounts)
+    let { data: user, error: findError } = await supabase
       .from('users')
       .select('*')
-      .eq('email', demoAccount.email)
-      .single();
+      .eq('id', demoAccount.id)
+      .maybeSingle();
 
-    if (userError || !user) {
+    // 2. If not found by ID, try email (handles cases where record exists but ID differs)
+    if (!user) {
+      let { data: userByEmail } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', demoAccount.email)
+        .maybeSingle();
+
+      if (userByEmail) {
+        user = userByEmail;
+        console.log(`Found existing user by email ${demoAccount.email} with different ID: ${user.id}`);
+      }
+    }
+
+    // 3. If still not found, create the user with the guaranteed ID
+    if (!user) {
+      console.log(`Creating new demo user for role ${role} with ID ${demoAccount.id}`);
       const { data: newUser, error: createError } = await supabase
         .from('users')
         .insert([{
+          id: demoAccount.id,
           email: demoAccount.email,
           username: demoAccount.username,
           display_name: demoAccount.display_name,
@@ -506,32 +629,33 @@ router.post('/demo/creator', async (req, res) => {
         .single();
 
       if (createError) {
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to create demo account'
-        });
-      }
+        console.error(`Failed to create demo user ${role}:`, createError);
+        // Last ditch effort: find by username if email check also missed it somehow
+        let { data: userByUsername } = await supabase
+          .from('users')
+          .select('*')
+          .eq('username', demoAccount.username)
+          .maybeSingle();
 
-      user = newUser;
+        if (userByUsername) {
+          user = userByUsername;
+        } else {
+          return res.status(500).json({
+            success: false,
+            error: 'Failed to create demo account',
+            details: createError.message
+          });
+        }
+      } else {
+        user = newUser;
+      }
     }
 
     const token = generateToken(user);
 
     return res.json({
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        display_name: user.display_name,
-        user_type: user.user_type,
-        points_balance: user.points_balance,
-        keys_balance: user.keys_balance,
-        gems_balance: user.gems_balance,
-        gold_collected: user.gold_collected,
-        user_tier: user.user_tier,
-        avatar_url: user.avatar_url
-      },
+      user,
       token
     });
 
@@ -980,6 +1104,219 @@ router.post('/demo/merchant', async (req, res) => {
       success: false,
       error: 'Demo login failed'
     });
+  }
+});
+
+// Demo Matrix Builder login - for MLM dashboard testing
+router.post('/demo/matrix', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[5]; // matrix_builder account
+
+    if (!supabase) {
+      const demoToken = generateToken({
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type,
+        points_balance: 15000,
+        keys_balance: 250,
+        gems_balance: 500,
+        gold_collected: 1200,
+        user_tier: 'premium'
+      });
+
+      res.cookie('auth_token', demoToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      return res.json({
+        success: true,
+        user: {
+          id: demoAccount.id,
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 15000,
+          keys_balance: 250,
+          gems_balance: 500,
+          gold_collected: 1200,
+          user_tier: 'premium'
+        },
+        token: demoToken
+      });
+    }
+
+    let { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', demoAccount.email)
+      .single();
+
+    if (userError || !user) {
+      const { data: newUser, error: createError } = await supabase
+        .from('users')
+        .insert([{
+          id: demoAccount.id,
+          email: demoAccount.email,
+          username: demoAccount.username,
+          display_name: demoAccount.display_name,
+          user_type: demoAccount.user_type,
+          points_balance: 15000,
+          keys_balance: 250,
+          gems_balance: 500,
+          gold_collected: 1200,
+          user_tier: 'premium',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create demo account'
+        });
+      }
+
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+
+    return res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        display_name: user.display_name,
+        user_type: user.user_type,
+        points_balance: user.points_balance,
+        keys_balance: user.keys_balance,
+        gems_balance: user.gems_balance,
+        gold_collected: user.gold_collected,
+        user_tier: user.user_tier,
+        avatar_url: user.avatar_url
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error('Demo Matrix login error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Demo login failed'
+    });
+  }
+});
+
+// Demo Sampling Merchant login
+router.post('/demo/sampling-merchant', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[6]; // sampling_merchant
+
+    if (!supabase) {
+      const token = generateToken({
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      });
+      return res.json({ success: true, user: demoAccount, token });
+    }
+
+    let { data: user, error } = await supabase.from('users').select('*').eq('email', demoAccount.email).single();
+    if (error || !user) {
+      const { data: newUser } = await supabase.from('users').insert([{
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      }]).select().single();
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+    return res.json({ success: true, user, token });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Demo login failed' });
+  }
+});
+
+// Demo Active Sampling login
+router.post('/demo/active-sampling', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[7]; // active_sampling
+
+    if (!supabase) {
+      const token = generateToken({
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      });
+      return res.json({ success: true, user: demoAccount, token });
+    }
+
+    let { data: user, error } = await supabase.from('users').select('*').eq('email', demoAccount.email).single();
+    if (error || !user) {
+      const { data: newUser } = await supabase.from('users').insert([{
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      }]).select().single();
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+    return res.json({ success: true, user, token });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Demo login failed' });
+  }
+});
+
+// Demo Graduated Merchant login
+router.post('/demo/graduated-merchant', async (req, res) => {
+  try {
+    const demoAccount = DEMO_ACCOUNTS[8]; // graduated_merchant
+
+    if (!supabase) {
+      const token = generateToken({
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      });
+      return res.json({ success: true, user: demoAccount, token });
+    }
+
+    let { data: user, error } = await supabase.from('users').select('*').eq('email', demoAccount.email).single();
+    if (error || !user) {
+      const { data: newUser } = await supabase.from('users').insert([{
+        id: demoAccount.id,
+        email: demoAccount.email,
+        username: demoAccount.username,
+        display_name: demoAccount.display_name,
+        user_type: demoAccount.user_type
+      }]).select().single();
+      user = newUser;
+    }
+
+    const token = generateToken(user);
+    return res.json({ success: true, user, token });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Demo login failed' });
   }
 });
 

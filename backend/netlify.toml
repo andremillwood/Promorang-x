@@ -1,0 +1,8 @@
+[build]
+  command = "echo 'No build step for backend API'"
+  publish = "."
+
+[[redirects]]
+  from = "/api/*"
+  to = "/api/index.js"
+  status = 200

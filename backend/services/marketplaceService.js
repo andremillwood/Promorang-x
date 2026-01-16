@@ -6,7 +6,7 @@
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
-const { trackProductSale } = require('../utils/referralTracker');
+const { trackProductSale, trackAffiliateProductSale } = require('../utils/referralTracker');
 const couponService = require('./couponService');
 
 const slugify = (value = '') =>
@@ -117,11 +117,27 @@ async function createStore(userId, storeData) {
       counter++;
     }
 
-    // Create store
-    const { data: store, error } = await supabase
+    // Create merchant account first
+    const { data: account, error: accountError } = await supabase
+      .from('merchant_accounts')
+      .insert({
+        name: store_name,
+        slug,
+        description,
+        logo_url,
+        owner_id: userId,
+      })
+      .select()
+      .single();
+
+    if (accountError) throw accountError;
+
+    // Create store linked to account
+    const { data: store, error: storeError } = await supabase
       .from('merchant_stores')
       .insert({
         user_id: userId,
+        merchant_account_id: account.id,
         store_name,
         store_slug: slug,
         description,
@@ -134,7 +150,18 @@ async function createStore(userId, storeData) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (storeError) throw storeError;
+
+    // Create team membership for owner
+    await supabase
+      .from('merchant_team_members')
+      .insert({
+        merchant_account_id: account.id,
+        user_id: userId,
+        role: 'owner',
+        status: 'active',
+        accepted_at: new Date().toISOString(),
+      });
 
     // Update user's has_store flag
     await supabase
@@ -228,6 +255,7 @@ async function createProduct(storeId, productData) {
       .from('products')
       .insert({
         store_id: storeId,
+        merchant_account_id: productData.merchant_account_id,
         name,
         slug,
         description,
@@ -441,6 +469,8 @@ async function createOrder(userId, orderData) {
     shipping_address,
     customer_notes,
     coupon_code,
+    affiliate_referral_code, // Affiliate/referrer code for commission tracking
+    affiliate_product_id, // Product that was linked to via affiliate link
   } = orderData;
 
   try {
@@ -504,6 +534,7 @@ async function createOrder(userId, orderData) {
       .insert({
         buyer_id: userId,
         store_id,
+        merchant_account_id: storeItems[0]?.products?.merchant_account_id || null,
         payment_method,
         payment_status: 'pending',
         subtotal_usd,
@@ -519,7 +550,8 @@ async function createOrder(userId, orderData) {
         shipping_address,
         customer_notes,
         status: 'pending',
-        relay_id: orderData.relay_id || null, // Track the relay that drove this sale
+        relay_id: orderData.relay_id || null,
+        affiliate_referral_code: affiliate_referral_code || null,
       })
       .select()
       .single();
@@ -631,9 +663,21 @@ async function processPayment(orderId, userId) {
 
     if (error) throw error;
 
-    // Track referral commission
+    // Track commissions
     if (order.total_usd > 0) {
+      // Track standard referral commission (if buyer was referred by someone)
       await trackProductSale(userId, order.total_usd, orderId);
+
+      // Track affiliate commission (if order came from an affiliate link)
+      // This is separate from the user's referrer - it rewards whoever shared the product link
+      if (order.affiliate_referral_code) {
+        await trackAffiliateProductSale(
+          order.affiliate_referral_code,
+          order.total_usd,
+          orderId
+        );
+        console.log(`[Marketplace Service] Affiliate commission triggered for code: ${order.affiliate_referral_code}`);
+      }
     }
 
     // Award Market Shares (Early Supporter & Performance)

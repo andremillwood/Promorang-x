@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
+const { sendSupportTicketCreatedEmail } = require('../services/resendService');
 
 router.use(requireAuth);
 
@@ -53,7 +54,7 @@ router.post('/', async (req, res) => {
             return res.json({ success: true, message: 'Ticket created (Mock)' });
         }
 
-        const { error } = await supabase
+        const { data: ticket, error } = await supabase
             .from('support_tickets')
             .insert({
                 user_id: req.user.id,
@@ -61,11 +62,32 @@ router.post('/', async (req, res) => {
                 category,
                 message,
                 priority
-            });
+            })
+            .select()
+            .single();
 
         if (error) throw error;
 
-        res.json({ success: true, message: 'Ticket submitted successfully' });
+        // Send confirmation email (async)
+        try {
+            const { data: user } = await supabase
+                .from('users')
+                .select('email, display_name, username')
+                .eq('id', req.user.id)
+                .single();
+
+            if (user?.email && ticket) {
+                sendSupportTicketCreatedEmail(user.email, user.display_name || user.username, {
+                    ticketId: ticket.id,
+                    subject: subject,
+                    category: category || 'General',
+                }).catch(err => console.error('Failed to send support ticket email:', err));
+            }
+        } catch (emailErr) {
+            console.error('Error sending support ticket email:', emailErr);
+        }
+
+        res.json({ success: true, message: 'Ticket submitted successfully', ticketId: ticket?.id });
 
     } catch (error) {
         console.error('Create ticket error:', error);

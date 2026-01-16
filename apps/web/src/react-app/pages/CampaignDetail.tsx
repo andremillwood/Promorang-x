@@ -4,70 +4,86 @@ import { useToast } from "@/react-app/components/ui/use-toast";
 import advertiserService from '@/react-app/services/advertiser';
 import { 
   ArrowLeft, 
-  BarChart2, 
   Calendar, 
-  DollarSign, 
   Edit, 
   ExternalLink, 
-  MoreVertical, 
   Pause, 
   Play, 
   RefreshCw, 
-  Settings, 
-  Target, 
   Trash2, 
   Users,
-  Plus,
-  Save
+  Sparkles,
+  Gift,
+  Ticket,
+  Image,
+  Link as LinkIcon,
+  CheckCircle,
+  Clock,
+  Diamond
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { AddFundsModal } from '@/react-app/components/AddFundsModal';
-import { AddContentModal } from '@/react-app/components/AddContentModal';
 
 type CampaignStatus = 'active' | 'paused' | 'draft' | 'completed';
+
+interface ContentItem {
+  id: string;
+  content_type: string;
+  title: string;
+  url?: string;
+  description?: string;
+}
+
+interface DropItem {
+  id: string;
+  title: string;
+  description?: string;
+  drop_type: string;
+  gem_reward: number;
+  keys_cost: number;
+  max_participants: number;
+  current_participants: number;
+  status: string;
+}
+
+interface CouponItem {
+  id: string;
+  title: string;
+  description?: string;
+  discount_type: string;
+  discount_value: number;
+  quantity_total: number;
+  quantity_remaining: number;
+}
+
+interface CampaignStats {
+  total_drops: number;
+  total_applications: number;
+  completed_applications: number;
+  total_gems_awarded: number;
+  total_tickets_awarded: number;
+  total_coupons: number;
+  coupons_claimed: number;
+}
 
 type Campaign = {
   id: string;
   name: string;
   status: CampaignStatus;
-  objective: string;
   description?: string;
-  startDate: string;
-  endDate?: string;
-  budget: number;
-  spent: number;
-  dailyBudget: number;
-  impressions: number;
-  clicks: number;
-  ctr: number;
-  cpc: number;
-  drops: number;
-  participants: number;
-  bidStrategy: string;
-  bidAmount: number;
-  targetCtr: number;
-  targetCpc: number;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type CampaignContent = {
-  id: string;
-  title: string;
-  platform: string;
-  creator: string;
-  status: 'pending' | 'approved' | 'rejected' | 'live' | 'completed';
-  budget: number;
-  spent: number;
-  impressions: number;
-  clicks: number;
-  ctr: number;
-  cpc: number;
-  startDate: string;
-  endDate?: string;
+  start_date: string;
+  end_date?: string;
+  total_gem_budget: number;
+  gems_spent: number;
+  promoshare_contribution: number;
+  created_at: string;
+  updated_at?: string;
+  content_items: ContentItem[];
+  drops: DropItem[];
+  coupons: CouponItem[];
+  stats: CampaignStats;
 };
 
 const statusStyles: Record<CampaignStatus, string> = {
@@ -77,14 +93,19 @@ const statusStyles: Record<CampaignStatus, string> = {
   completed: 'bg-pr-surface-2 text-pr-text-1',
 };
 
+const dropTypeLabels: Record<string, string> = {
+  share: 'Share Content',
+  create: 'Create Content',
+  engage: 'Engage',
+  review: 'Write Review'
+};
+
 export default function CampaignDetail() {
   const { id, campaignId } = useParams<{ id?: string; campaignId?: string }>();
   const resolvedId = id ?? campaignId;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [content, setContent] = useState<CampaignContent[]>([]);
-  const [drops, setDrops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
@@ -108,38 +129,32 @@ export default function CampaignDetail() {
           return;
         }
 
-        // Map backend data to frontend Campaign type
-        const mappedCampaign: Campaign = {
+        // New Promorang-style campaign structure
+        setCampaign({
           id: data.campaign.id,
           name: data.campaign.name,
           status: data.campaign.status as CampaignStatus,
-          objective: data.campaign.objective || '',
-          description: '',
-          startDate: data.campaign.start_date,
-          endDate: data.campaign.end_date || '',
-          budget: data.campaign.total_budget,
-          spent: data.campaign.budget_spent,
-          dailyBudget: 0,
-          impressions: data.campaign.performance?.impressions || 0,
-          clicks: data.campaign.performance?.clicks || 0,
-          ctr: data.campaign.performance?.impressions > 0 
-            ? (data.campaign.performance.clicks / data.campaign.performance.impressions) * 100 
-            : 0,
-          cpc: data.campaign.performance?.clicks > 0
-            ? data.campaign.performance.spend / data.campaign.performance.clicks
-            : 0,
-          drops: 0,
-          participants: 0,
-          bidStrategy: 'lowest_cost',
-          bidAmount: 0,
-          targetCtr: 2.0,
-          targetCpc: 0.5,
-          createdAt: data.campaign.created_at,
-          updatedAt: data.campaign.updated_at,
-        };
-        
-        setCampaign(mappedCampaign);
-        setContent(data.content || []);
+          description: data.campaign.description || '',
+          start_date: data.campaign.start_date,
+          end_date: data.campaign.end_date || undefined,
+          total_gem_budget: data.campaign.total_gem_budget || 0,
+          gems_spent: data.campaign.gems_spent || 0,
+          promoshare_contribution: data.campaign.promoshare_contribution || 0,
+          created_at: data.campaign.created_at,
+          updated_at: data.campaign.updated_at,
+          content_items: data.campaign.content_items || [],
+          drops: data.campaign.drops || [],
+          coupons: data.campaign.coupons || [],
+          stats: data.campaign.stats || {
+            total_drops: 0,
+            total_applications: 0,
+            completed_applications: 0,
+            total_gems_awarded: 0,
+            total_tickets_awarded: 0,
+            total_coupons: 0,
+            coupons_claimed: 0
+          }
+        });
       } catch (err) {
         console.error('Failed to fetch campaign:', err);
         setError('Failed to load campaign details. Please try again later.');
@@ -405,817 +420,275 @@ export default function CampaignDetail() {
     );
   }
 
-  const daysRemaining = campaign.endDate ? getDaysRemaining(campaign.endDate) : null;
-  const progress = (campaign.spent / campaign.budget) * 100;
-  const dailySpendRate = campaign.spent / (Math.ceil((new Date().getTime() - new Date(campaign.startDate).getTime()) / (1000 * 60 * 60 * 24)) || 1);
-  const estimatedEndDate = campaign.dailyBudget > 0 
-    ? new Date(Date.now() + ((campaign.budget - campaign.spent) / campaign.dailyBudget) * 24 * 60 * 60 * 1000)
-    : null;
+  const daysRemaining = campaign.end_date ? getDaysRemaining(campaign.end_date) : null;
+  const budgetProgress = campaign.total_gem_budget > 0 
+    ? (campaign.gems_spent / campaign.total_gem_budget) * 100 
+    : 0;
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(-1)}
-              className="h-8 w-8 p-0" 
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Back</span>
-            </Button>
+    <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-pr-text-1">{campaign.name}</h1>
-            <div className="flex items-center mt-1 space-x-2">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[campaign.status]}`}>
+            <div className="flex items-center mt-1 gap-2">
+              <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-medium", statusStyles[campaign.status])}>
                 {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
               </span>
               <span className="text-sm text-pr-text-2">
-                {formatDate(campaign.startDate)}
-                {campaign.endDate && ` - ${formatDate(campaign.endDate)}`}
-                {daysRemaining !== null && (
-                  <span className="ml-1">
-                    ({daysRemaining > 0 ? `${daysRemaining} days left` : 'Ended'})
-                  </span>
+                {formatDate(campaign.start_date)}
+                {campaign.end_date && ` - ${formatDate(campaign.end_date)}`}
+                {daysRemaining !== null && daysRemaining > 0 && (
+                  <span className="ml-1">({daysRemaining} days left)</span>
                 )}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex gap-2">
           {campaign.status === 'active' && (
-            <Button 
-              variant="outline" 
-              onClick={() => handleStatusChange('paused')}
-              disabled={isUpdating}
-            >
-              <Pause className="mr-2 h-4 w-4" />
-              Pause
+            <Button variant="outline" onClick={() => handleStatusChange('paused')} disabled={isUpdating}>
+              <Pause className="mr-2 h-4 w-4" /> Pause
             </Button>
           )}
-          
           {(campaign.status === 'paused' || campaign.status === 'draft') && (
-            <Button 
-              onClick={() => handleStatusChange('active')}
-              disabled={isUpdating}
-            >
-              <Play className="mr-2 h-4 w-4" />
-              {campaign.status === 'paused' ? 'Resume' : 'Activate'}
+            <Button onClick={() => handleStatusChange('active')} disabled={isUpdating}>
+              <Play className="mr-2 h-4 w-4" /> {campaign.status === 'paused' ? 'Resume' : 'Activate'}
             </Button>
           )}
-          
           <Button variant="outline" asChild>
-            <Link to={`/campaigns/${campaign.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
+            <Link to={`/advertiser/campaigns/${campaign.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" /> Edit
             </Link>
           </Button>
-          
-          <Button variant="outline" size="icon">
-            <MoreVertical className="h-4 w-4" />
-            <span className="sr-only">More</span>
-          </Button>
         </div>
       </div>
 
-      {/* Campaign Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-pr-surface-card overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                <DollarSign className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-pr-text-2 truncate">Total Budget</dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-pr-text-1">
-                      {formatCurrency(campaign.budget)}
-                    </div>
-                  </dd>
-                </dl>
-              </div>
+      {/* Stats Cards - Promorang Style */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Gem Budget */}
+        <div className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Diamond className="h-5 w-5 text-purple-600" />
             </div>
-            <div className="mt-4">
-              <div className="text-sm text-pr-text-2">
-                <span className="font-medium text-pr-text-1">{formatCurrency(campaign.spent)}</span> spent
-                <span className="mx-1">•</span>
-                <span>{formatCurrency(campaign.budget - campaign.spent)} remaining</span>
-              </div>
-              <div className="mt-2 w-full bg-pr-surface-3 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min(100, progress)}%` }}
-                />
-              </div>
+            <div>
+              <p className="text-sm text-pr-text-2">Gem Budget</p>
+              <p className="text-xl font-bold text-pr-text-1">{campaign.total_gem_budget} 💎</p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex justify-between text-xs text-pr-text-2 mb-1">
+              <span>{campaign.gems_spent} spent</span>
+              <span>{campaign.total_gem_budget - campaign.gems_spent} remaining</span>
+            </div>
+            <div className="w-full bg-pr-surface-3 rounded-full h-2">
+              <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${Math.min(100, budgetProgress)}%` }} />
             </div>
           </div>
         </div>
 
-        <div className="bg-pr-surface-card overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-pr-text-2 truncate">Participants</dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-pr-text-1">
-                      {formatNumber(campaign.participants)}
-                    </div>
-                  </dd>
-                </dl>
-              </div>
+        {/* Drops */}
+        <div className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Sparkles className="h-5 w-5 text-blue-600" />
             </div>
-            <div className="mt-4">
-              <div className="text-sm text-pr-text-2">
-                <span className="font-medium text-pr-text-1">{campaign.drops}</span> drops
-              </div>
+            <div>
+              <p className="text-sm text-pr-text-2">Drops</p>
+              <p className="text-xl font-bold text-pr-text-1">{campaign.drops.length}</p>
             </div>
           </div>
+          <p className="mt-2 text-xs text-pr-text-2">
+            {campaign.stats.completed_applications} / {campaign.stats.total_applications} completed
+          </p>
         </div>
 
-        <div className="bg-pr-surface-card overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                <BarChart2 className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-pr-text-2 truncate">Impressions</dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-pr-text-1">
-                      {formatNumber(campaign.impressions)}
-                    </div>
-                  </dd>
-                </dl>
-              </div>
+        {/* Participants */}
+        <div className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Users className="h-5 w-5 text-green-600" />
             </div>
-            <div className="mt-4">
-              <div className="text-sm text-pr-text-2">
-                <span className="font-medium text-pr-text-1">{formatNumber(campaign.clicks)}</span> clicks
-                <span className="mx-1">•</span>
-                <span>{campaign.ctr}% CTR</span>
-              </div>
+            <div>
+              <p className="text-sm text-pr-text-2">Participants</p>
+              <p className="text-xl font-bold text-pr-text-1">{campaign.stats.total_applications}</p>
             </div>
           </div>
+          <p className="mt-2 text-xs text-pr-text-2">
+            {campaign.stats.total_gems_awarded} 💎 awarded
+          </p>
         </div>
 
-        <div className="bg-pr-surface-card overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                <Target className="h-6 w-6 text-white" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-pr-text-2 truncate">Performance</dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-pr-text-1">
-                      {formatCurrency(campaign.cpc)}
-                    </div>
-                    <div className="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-                      <span>{(campaign.cpc < campaign.targetCpc ? '↓ ' : '↑ ') + Math.abs(campaign.cpc - campaign.targetCpc).toFixed(2)}</span>
-                    </div>
-                  </dd>
-                </dl>
-              </div>
+        {/* PromoShare */}
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-200 rounded-lg">
+              <Ticket className="h-5 w-5 text-purple-700" />
             </div>
-            <div className="mt-4">
-              <div className="text-sm text-pr-text-2">
-                <span>Target: {formatCurrency(campaign.targetCpc)} CPC</span>
-              </div>
+            <div>
+              <p className="text-sm text-purple-700">PromoShare</p>
+              <p className="text-xl font-bold text-purple-900">{campaign.promoshare_contribution} 💎</p>
             </div>
           </div>
+          <p className="mt-2 text-xs text-purple-600">
+            {campaign.stats.total_tickets_awarded} tickets awarded
+          </p>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-lg">
-        <Tabs defaultValue="overview" onValueChange={setActiveTab} className="w-full">
-          <div className="border-b border-pr-surface-3">
-            <TabsList className="bg-transparent p-0 rounded-none">
-              <TabsTrigger 
-                value="overview" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
-              >
-                Overview
-              </TabsTrigger>
-              <TabsTrigger 
-                value="performance" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
-              >
-                Performance
-              </TabsTrigger>
-              <TabsTrigger 
-                value="content" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
-              >
-                Content ({content.length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none rounded-none"
-              >
-                Settings
-              </TabsTrigger>
-            </TabsList>
+      {/* Tabs */}
+      <Tabs defaultValue="overview" onValueChange={setActiveTab} className="w-full">
+        <TabsList className="bg-pr-surface-2 p-1 rounded-lg">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="content">Content ({campaign.content_items.length})</TabsTrigger>
+          <TabsTrigger value="drops">Drops ({campaign.drops.length})</TabsTrigger>
+          <TabsTrigger value="coupons">Coupons ({campaign.coupons.length})</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="mt-6">
+          <div className="bg-pr-surface-card rounded-xl p-6 border border-pr-surface-3">
+            <h3 className="text-lg font-semibold text-pr-text-1 mb-2">Description</h3>
+            <p className="text-pr-text-2">{campaign.description || 'No description provided.'}</p>
+            
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <div>
+                <p className="text-sm text-pr-text-2">Created</p>
+                <p className="font-medium text-pr-text-1">{formatDate(campaign.created_at)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-pr-text-2">Status</p>
+                <p className="font-medium text-pr-text-1 capitalize">{campaign.status}</p>
+              </div>
+            </div>
           </div>
+        </TabsContent>
 
-          <div className="p-6">
-            <TabsContent value="overview">
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-8">
-                  <section className="bg-pr-surface-2 p-4 rounded-lg">
-                    <h3 className="text-lg font-medium text-pr-text-1 mb-4">Campaign Summary</h3>
-                    <p className="text-pr-text-1">{campaign.description || 'No description provided.'}</p>
-
-                    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div>
-                        <h4 className="text-sm font-medium text-pr-text-2">Objective</h4>
-                        <p className="mt-1 text-sm text-pr-text-1 capitalize">
-                          {campaign.objective.replace('_', ' ')}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-pr-text-2">Bid Strategy</h4>
-                        <p className="mt-1 text-sm text-pr-text-1 capitalize">
-                          {campaign.bidStrategy === 'lowest_cost'
-                            ? 'Lowest Cost'
-                            : campaign.bidStrategy === 'cost_cap'
-                            ? 'Cost Cap'
-                            : 'Bid Cap'}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-pr-text-2">Daily Budget</h4>
-                        <p className="mt-1 text-sm text-pr-text-1">
-                          {formatCurrency(campaign.dailyBudget)}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-pr-text-2">Est. End Date</h4>
-                        <p className="mt-1 text-sm text-pr-text-1">
-                          {estimatedEndDate ? formatDate(estimatedEndDate.toISOString()) : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-medium text-pr-text-1 mb-4">Recent Activity</h3>
-                    <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-md">
-                      <ul className="divide-y divide-gray-200">
-                        <li className="px-4 py-4 sm:px-6">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-indigo-600 truncate">Campaign created</p>
-                            <div className="ml-2 flex-shrink-0">
-                              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                {formatDate(campaign.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="px-4 py-4 sm:px-6">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-indigo-600 truncate">Campaign started</p>
-                            <div className="ml-2 flex-shrink-0">
-                              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                {formatDate(campaign.startDate)}
-                              </p>
-                            </div>
-                          </div>
-                        </li>
-                        {campaign.updatedAt !== campaign.createdAt && (
-                          <li className="px-4 py-4 sm:px-6">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-indigo-600 truncate">Campaign updated</p>
-                              <div className="ml-2 flex-shrink-0">
-                                <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                  {formatDate(campaign.updatedAt)}
-                                </p>
-                              </div>
-                            </div>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  </section>
+        {/* Content Tab */}
+        <TabsContent value="content" className="mt-6 space-y-4">
+          {campaign.content_items.length === 0 ? (
+            <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+              <Image className="w-12 h-12 mx-auto text-pr-text-2 mb-4" />
+              <p className="text-pr-text-2">No content items in this campaign</p>
+            </div>
+          ) : (
+            campaign.content_items.map((item) => (
+              <div key={item.id} className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3 flex items-center gap-4">
+                <div className="p-2 bg-pr-surface-2 rounded-lg">
+                  {item.content_type === 'link' && <LinkIcon className="h-5 w-5 text-pr-text-2" />}
+                  {item.content_type === 'image' && <Image className="h-5 w-5 text-pr-text-2" />}
+                  {item.content_type === 'video' && <Image className="h-5 w-5 text-pr-text-2" />}
                 </div>
-
-                <div className="space-y-8">
-                  <section>
-                    <h3 className="text-lg font-medium text-pr-text-1 mb-4">Quick Actions</h3>
-                    <div className="space-y-3">
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start"
-                        onClick={handleRefresh}
-                      >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Refresh Data
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start"
-                        onClick={handleAddFunds}
-                      >
-                        <DollarSign className="mr-2 h-4 w-4" />
-                        Add Funds
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start"
-                        onClick={handleAddContent}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Content
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start text-red-600 hover:text-red-600"
-                        onClick={handleDelete}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {showDeleteConfirm ? 'Confirm Delete?' : 'Delete Campaign'}
-                      </Button>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h3 className="text-lg font-medium text-pr-text-1 mb-4">Performance Summary</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm text-pr-text-2 mb-1">
-                          <span>Spend</span>
-                          <span className="font-medium">
-                            {formatCurrency(campaign.spent)} / {formatCurrency(campaign.budget)}
-                          </span>
-                        </div>
-                        <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                          <div
-                            className="bg-blue-500 h-2 rounded-full"
-                            style={{ width: `${Math.min(100, progress)}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between text-sm text-pr-text-2 mb-1">
-                          <span>Daily Spend</span>
-                          <span className="font-medium">{formatCurrency(dailySpendRate)} / day</span>
-                        </div>
-                        <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                          <div
-                            className={cn(
-                              'h-2 rounded-full',
-                              dailySpendRate <= campaign.dailyBudget * 1.1 ? 'bg-green-500' : 'bg-yellow-500'
-                            )}
-                            style={{ width: `${Math.min(100, (dailySpendRate / campaign.dailyBudget) * 100)}%` }}
-                          />
-                        </div>
-                        <p className="mt-1 text-xs text-pr-text-2">
-                          {dailySpendRate > campaign.dailyBudget * 1.1
-                            ? 'Spending faster than daily budget'
-                            : dailySpendRate < campaign.dailyBudget * 0.9
-                            ? 'Spending slower than daily budget'
-                            : 'On track with daily budget'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between text-sm text-pr-text-2 mb-1">
-                          <span>CPC</span>
-                          <span className="font-medium">
-                            {formatCurrency(campaign.cpc)}
-                            <span
-                              className={cn(
-                                'ml-1',
-                                campaign.cpc <= campaign.targetCpc * 1.1 ? 'text-green-600' : 'text-red-600'
-                              )}
-                            >
-                              ({campaign.cpc <= campaign.targetCpc ? '↓' : '↑'}
-                              {Math.abs(campaign.cpc - campaign.targetCpc).toFixed(2)})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                          <div
-                            className={cn(
-                              'h-2 rounded-full',
-                              campaign.cpc <= campaign.targetCpc * 1.1 ? 'bg-green-500' : 'bg-yellow-500'
-                            )}
-                            style={{ width: `${Math.min(100, (campaign.cpc / (campaign.targetCpc * 2)) * 100)}%` }}
-                          />
-                        </div>
-                        <p className="mt-1 text-xs text-pr-text-2">Target: {formatCurrency(campaign.targetCpc)}</p>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between text-sm text-pr-text-2 mb-1">
-                          <span>CTR</span>
-                          <span className="font-medium">
-                            {campaign.ctr}%
-                            <span
-                              className={cn(
-                                'ml-1',
-                                campaign.ctr >= campaign.targetCtr * 0.9 ? 'text-green-600' : 'text-red-600'
-                              )}
-                            >
-                              ({campaign.ctr >= campaign.targetCtr ? '↑' : '↓'}
-                              {Math.abs(campaign.ctr - campaign.targetCtr).toFixed(1)}%)
-                            </span>
-                          </span>
-                        </div>
-                        <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                          <div
-                            className={cn(
-                              'h-2 rounded-full',
-                              campaign.ctr >= campaign.targetCtr * 0.9 ? 'bg-green-500' : 'bg-yellow-500'
-                            )}
-                            style={{ width: `${Math.min(100, (campaign.ctr / (campaign.targetCtr * 1.5)) * 100)}%` }}
-                          />
-                        </div>
-                        <p className="mt-1 text-xs text-pr-text-2">Target: {campaign.targetCtr}%</p>
-                      </div>
-                    </div>
-                  </section>
+                <div className="flex-1">
+                  <p className="font-medium text-pr-text-1">{item.title}</p>
+                  {item.url && (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                      {item.url.substring(0, 50)}... <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </div>
               </div>
-            </TabsContent>
+            ))
+          )}
+        </TabsContent>
 
-                  <TabsContent value="performance">
-                    <div className="space-y-6">
-                      <div>
-                            <h3 className="text-lg font-medium text-pr-text-1 mb-4">Performance Over Time</h3>
-                            <div className="bg-pr-surface-2 p-4 rounded-lg h-64 flex items-center justify-center">
-                              <p className="text-pr-text-2">Performance chart will be displayed here</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <div>
-                              <h4 className="text-sm font-medium text-pr-text-2 mb-2">Top Performing Content</h4>
-                              <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-md">
-                                <ul className="divide-y divide-gray-200">
-                                  {content.slice(0, 3).map((item) => (
-                                    <li key={item.id} className="px-4 py-4 sm:px-6">
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium text-indigo-600 truncate">{item.title}</p>
-                                          <div className="flex mt-1">
-                                            <p className="text-xs text-pr-text-2">
-                                              {item.platform} • {item.creator}
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <div className="ml-4 flex-shrink-0">
-                                          <p className="text-sm font-medium text-pr-text-1">{item.ctr}% CTR</p>
-                                        </div>
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <h4 className="text-sm font-medium text-pr-text-2 mb-2">Performance by Platform</h4>
-                              <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-md">
-                                <ul className="divide-y divide-gray-200">
-                                  {Array.from(new Set(content.map(c => c.platform))).map((platform) => {
-                                    const platformContent = content.filter(c => c.platform === platform);
-                                    const totalSpent = platformContent.reduce((sum, c) => sum + c.spent, 0);
-                                    const totalClicks = platformContent.reduce((sum, c) => sum + c.clicks, 0);
-                                    const avgCtr = platformContent.reduce((sum, c) => sum + c.ctr, 0) / platformContent.length;
-                                    
-                                    return (
-                                      <li key={platform} className="px-4 py-4 sm:px-6">
-                                        <div className="flex items-center justify-between">
-                                          <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-pr-text-1">{platform}</p>
-                                            <div className="flex mt-1">
-                                              <p className="text-xs text-pr-text-2">
-                                                {platformContent.length} {platformContent.length === 1 ? 'item' : 'items'}
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <div className="ml-4 flex-shrink-0">
-                                            <p className="text-sm text-pr-text-1">{formatCurrency(totalSpent)}</p>
-                                            <p className="text-xs text-pr-text-2">{totalClicks} clicks • {avgCtr.toFixed(1)}% CTR</p>
-                                          </div>
-                                        </div>
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-pr-text-2 mb-2">Recommendations</h4>
-                            <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-md">
-                              <ul className="divide-y divide-gray-200">
-                                <li className="px-4 py-4 sm:px-6">
-                                  <div className="flex items-start">
-                                    <div className="flex-shrink-0 pt-0.5">
-                                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-600">
-                                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                        </svg>
-                                      </div>
-                                    </div>
-                                    <div className="ml-3 flex-1">
-                                      <p className="text-sm text-pr-text-1">
-                                        Your campaign is performing well! Consider increasing your daily budget to reach more people.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </li>
-                                <li className="px-4 py-4 sm:px-6">
-                                  <div className="flex items-start">
-                                    <div className="flex-shrink-0 pt-0.5">
-                                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-600">
-                                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                        </svg>
-                                      </div>
-                                    </div>
-                                    <div className="ml-3 flex-1">
-                                      <p className="text-sm text-pr-text-1">
-                                        Try A/B testing different ad creatives to improve your click-through rate.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="content">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-medium text-pr-text-1">Campaign Content</h3>
-                          <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Content
-                          </Button>
-                        </div>
-                        
-                        <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-md">
-                          <ul className="divide-y divide-gray-200">
-                            {content.map((item) => (
-                              <li key={item.id} className="hover:bg-pr-surface-2">
-                                <Link to={`/content/${item.id}`} className="block">
-                                  <div className="px-4 py-4 sm:px-6">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center">
-                                        <p className="text-lg font-medium text-indigo-600 truncate">
-                                          {item.title}
-                                        </p>
-                                        <div className="ml-2">
-                                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                            item.status === 'live' ? 'bg-green-100 text-green-800' :
-                                            item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                            item.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                                            item.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                            'bg-pr-surface-2 text-pr-text-1'
-                                          }`}>
-                                            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="ml-2 flex-shrink-0 flex">
-                                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                          {formatCurrency(item.spent)} of {formatCurrency(item.budget)}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="mt-2 sm:flex sm:justify-between">
-                                      <div className="sm:flex">
-                                        <p className="flex items-center text-sm text-pr-text-2">
-                                          <span className="font-medium text-pr-text-1">{item.platform}</span>
-                                          <span className="mx-1">•</span>
-                                          <span>by @{item.creator}</span>
-                                        </p>
-                                      </div>
-                                      <div className="mt-2 flex items-center text-sm text-pr-text-2 sm:mt-0">
-                                        <BarChart2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                                        <p>{formatNumber(item.impressions)} impressions</p>
-                                        <span className="mx-1">•</span>
-                                        <p>{formatNumber(item.clicks)} clicks</p>
-                                        <span className="mx-1">•</span>
-                                        <p>{item.ctr}% CTR</p>
-                                      </div>
-                                    </div>
-                                    <div className="mt-2">
-                                      <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                                        <div 
-                                          className="bg-blue-500 h-2 rounded-full" 
-                                          style={{ width: `${Math.min(100, (item.spent / item.budget) * 100)}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                            
-                            {content.length === 0 && (
-                              <div className="text-center py-12">
-                                <BarChart2 className="mx-auto h-12 w-12 text-gray-400" />
-                                <h3 className="mt-2 text-lg font-medium text-pr-text-1">No content added yet</h3>
-                                <p className="mt-1 text-sm text-pr-text-2">
-                                  Get started by adding content to your campaign.
-                                </p>
-                                <div className="mt-6">
-                                  <Button>
-                                    <Plus className="-ml-1 mr-2 h-5 w-5" />
-                                    Add Content
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </ul>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="settings">
-                        <div className="space-y-8">
-                          <div>
-                            <h3 className="text-lg font-medium text-pr-text-1 mb-4">Campaign Settings</h3>
-                            
-                            <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-lg">
-                              <div className="px-4 py-5 sm:px-6">
-                                <h4 className="text-lg font-medium text-pr-text-1">Basic Information</h4>
-                              </div>
-                              <div className="border-t border-pr-surface-3 px-4 py-5 sm:px-6">
-                                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Campaign Name</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{campaign.name}</dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Status</dt>
-                                    <dd className="mt-1">
-                                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[campaign.status]}`}>
-                                        {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                                      </span>
-                                    </dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Start Date</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{formatDate(campaign.startDate)}</dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">End Date</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">
-                                      {campaign.endDate ? formatDate(campaign.endDate) : 'No end date'}
-                                      {campaign.endDate && daysRemaining !== null && (
-                                        <span className="ml-2 text-pr-text-2">
-                                          ({daysRemaining > 0 ? `${daysRemaining} days left` : 'Ended'})
-                                        </span>
-                                      )}
-                                    </dd>
-                                  </div>
-                                  <div className="sm:col-span-2">
-                                    <dt className="text-sm font-medium text-pr-text-2">Description</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">
-                                      {campaign.description || 'No description provided.'}
-                                    </dd>
-                                  </div>
-                                </dl>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-lg font-medium text-pr-text-1 mb-4">Budget & Bidding</h3>
-                            
-                            <div className="bg-pr-surface-card shadow overflow-hidden sm:rounded-lg">
-                              <div className="px-4 py-5 sm:px-6">
-                                <h4 className="text-lg font-medium text-pr-text-1">Budget Settings</h4>
-                              </div>
-                              <div className="border-t border-pr-surface-3 px-4 py-5 sm:px-6">
-                                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Total Budget</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{formatCurrency(campaign.budget)}</dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Daily Budget</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{formatCurrency(campaign.dailyBudget)}</dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Amount Spent</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{formatCurrency(campaign.spent)}</dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Remaining Budget</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">{formatCurrency(campaign.budget - campaign.spent)}</dd>
-                                  </div>
-                                </dl>
-                                
-                                <div className="mt-6">
-                                  <div className="flex justify-between text-sm text-pr-text-2 mb-1">
-                                    <span>Budget Spent</span>
-                                    <span>{Math.round(progress)}%</span>
-                                  </div>
-                                  <div className="w-full bg-pr-surface-3 rounded-full h-2">
-                                    <div 
-                                      className="bg-blue-500 h-2 rounded-full" 
-                                      style={{ width: `${Math.min(100, progress)}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-6 bg-pr-surface-card shadow overflow-hidden sm:rounded-lg">
-                              <div className="px-4 py-5 sm:px-6">
-                                <h4 className="text-lg font-medium text-pr-text-1">Bidding Strategy</h4>
-                              </div>
-                              <div className="border-t border-pr-surface-3 px-4 py-5 sm:px-6">
-                                <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Bid Strategy</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1 capitalize">
-                                      {campaign.bidStrategy === 'lowest_cost' ? 'Lowest Cost' : 
-                                       campaign.bidStrategy === 'cost_cap' ? 'Cost Cap' : 'Bid Cap'}
-                                    </dd>
-                                  </div>
-                                  {campaign.bidStrategy !== 'lowest_cost' && (
-                                    <div className="sm:col-span-1">
-                                      <dt className="text-sm font-medium text-pr-text-2">
-                                        {campaign.bidStrategy === 'cost_cap' ? 'Cost Cap' : 'Bid Cap'}
-                                      </dt>
-                                      <dd className="mt-1 text-sm text-pr-text-1">
-                                        {formatCurrency(campaign.bidAmount)}
-                                      </dd>
-                                    </div>
-                                  )}
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Target CPC</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">
-                                      {formatCurrency(campaign.targetCpc)}
-                                    </dd>
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <dt className="text-sm font-medium text-pr-text-2">Target CTR</dt>
-                                    <dd className="mt-1 text-sm text-pr-text-1">
-                                      {campaign.targetCtr}%
-                                    </dd>
-                                  </div>
-                                </dl>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="pt-5">
-                            <div className="flex justify-end space-x-3">
-                              <Button variant="outline" type="button" onClick={() => navigate(-1)}>
-                                Cancel
-                              </Button>
-                              <Button type="button" variant="destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Campaign
-                              </Button>
-                              <Button type="submit">
-                                <Save className="mr-2 h-4 w-4" />
-                                Save Changes
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
+        {/* Drops Tab */}
+        <TabsContent value="drops" className="mt-6 space-y-4">
+          {campaign.drops.length === 0 ? (
+            <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+              <Sparkles className="w-12 h-12 mx-auto text-pr-text-2 mb-4" />
+              <p className="text-pr-text-2">No drops in this campaign</p>
+            </div>
+          ) : (
+            campaign.drops.map((drop) => (
+              <div key={drop.id} className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-pr-text-1">{drop.title}</h4>
+                      <span className={cn(
+                        "px-2 py-0.5 rounded-full text-xs",
+                        drop.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                      )}>
+                        {drop.status}
+                      </span>
                     </div>
-                  </Tabs>
+                    <p className="text-sm text-pr-text-2 mt-1">{drop.description}</p>
+                    <div className="flex items-center gap-4 mt-2 text-sm">
+                      <span className="text-purple-600">{drop.gem_reward} 💎 reward</span>
+                      <span className="text-pr-text-2">{drop.keys_cost} 🔑 cost</span>
+                      <span className="text-pr-text-2">{dropTypeLabels[drop.drop_type] || drop.drop_type}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-pr-text-1">{drop.current_participants}</p>
+                    <p className="text-xs text-pr-text-2">/ {drop.max_participants} participants</p>
+                  </div>
+                </div>
+                <div className="mt-3 w-full bg-pr-surface-3 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full" 
+                    style={{ width: `${(drop.current_participants / drop.max_participants) * 100}%` }} 
+                  />
                 </div>
               </div>
+            ))
+          )}
+        </TabsContent>
 
-              {/* Modals */}
-              <AddFundsModal
-                isOpen={showAddFundsModal}
-                onClose={() => setShowAddFundsModal(false)}
-                onSubmit={handleSubmitFunds}
-                isSubmitting={isAddingFunds}
-              />
-              
-              <AddContentModal
-                isOpen={showAddContentModal}
-                onClose={() => setShowAddContentModal(false)}
-                onSubmit={handleSubmitContent}
-                isSubmitting={isAddingContent}
-              />
-            </>
-          );
-        }
+        {/* Coupons Tab */}
+        <TabsContent value="coupons" className="mt-6 space-y-4">
+          {campaign.coupons.length === 0 ? (
+            <div className="text-center py-12 bg-pr-surface-card rounded-xl border border-pr-surface-3">
+              <Gift className="w-12 h-12 mx-auto text-pr-text-2 mb-4" />
+              <p className="text-pr-text-2">No coupons in this campaign</p>
+            </div>
+          ) : (
+            campaign.coupons.map((coupon) => (
+              <div key={coupon.id} className="bg-pr-surface-card rounded-xl p-4 border border-pr-surface-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-medium text-pr-text-1">{coupon.title}</h4>
+                    <p className="text-sm text-pr-text-2 mt-1">{coupon.description}</p>
+                    <div className="mt-2">
+                      <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                        {coupon.discount_type === 'percent' && `${coupon.discount_value}% Off`}
+                        {coupon.discount_type === 'fixed' && `$${coupon.discount_value} Off`}
+                        {coupon.discount_type === 'freebie' && 'Free Item'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-pr-text-1">{coupon.quantity_remaining}</p>
+                    <p className="text-xs text-pr-text-2">/ {coupon.quantity_total} remaining</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Quick Actions */}
+      {/* Quick Actions */}
+      <div className="flex gap-3 pt-4 border-t border-pr-surface-3">
+        <Button variant="outline" onClick={handleRefresh}>
+          <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+        </Button>
+        <Button 
+          variant="outline" 
+          className="text-red-600 hover:text-red-700"
+          onClick={handleDelete}
+        >
+          <Trash2 className="mr-2 h-4 w-4" /> {showDeleteConfirm ? 'Confirm Delete?' : 'Delete'}
+        </Button>
+      </div>
+    </div>
+  );
+}
