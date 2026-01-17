@@ -27,15 +27,15 @@ export default function ForCreators() {
             <MarketingNav />
 
             <PersonaHero
-                headline="Monetize Your Influence"
-                subheadline="Turn your passion into a profession. Connect with brands, create content you love, and get paid instantly."
+                headline="Get Paid for What You're Already Doing"
+                subheadline="Stop working for Big Tech for free. Your likes, comments, and presence are valuable assets. Every social action you take now builds your wealth and rank."
                 ctaText="Start Earning"
                 ctaLink="/auth"
                 stats={[
                     { value: '$1,247', label: 'Avg. Earnings' },
                     { value: '0', label: 'Followers Needed' },
-                    { value: '2 min', label: 'Setup Time' },
-                    { value: '100%', label: 'Keep First $1k' },
+                    { value: 'Everyday', label: 'Actions' },
+                    { value: '100%', label: 'Your Ownership' },
                 ]}
                 backgroundGradient="from-yellow-600/20 to-orange-600/20"
                 icon={<Sparkles className="w-10 h-10 text-yellow-500" />}
@@ -91,6 +91,51 @@ export default function ForCreators() {
                                         <div className="text-sm text-pr-text-2">{item.solution}</div>
                                     </div>
                                 </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* The Value of Your Digital Life */}
+            <section className="py-24 bg-pr-surface-background border-t border-pr-border">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
+                            You're Already a Pro
+                        </h2>
+                        <p className="text-xl text-pr-text-2 max-w-3xl mx-auto">
+                            The actions you take every day on social media have massive value. On Promorang, they translate into real influence and rewards.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-4 gap-6">
+                        {[
+                            {
+                                action: "Liking & Commenting",
+                                value: "Builds brand sentiment and community engagement.",
+                                icon: "💬"
+                            },
+                            {
+                                action: "Sharing Content",
+                                value: "Drives organic reach and authentic discovery.",
+                                icon: "🚀"
+                            },
+                            {
+                                action: "Visiting Locations",
+                                value: "Proves real-world presence and foot traffic.",
+                                icon: "📍"
+                            },
+                            {
+                                action: "Promoting Deals",
+                                value: "Helps your network save while you earn.",
+                                icon: "🎟️"
+                            }
+                        ].map((item, index) => (
+                            <div key={index} className="bg-pr-surface-card border border-pr-border rounded-2xl p-6 text-center hover:translate-y-[-4px] transition-transform">
+                                <div className="text-4xl mb-4">{item.icon}</div>
+                                <h3 className="text-lg font-bold text-pr-text-1 mb-2">{item.action}</h3>
+                                <p className="text-sm text-pr-text-2">{item.value}</p>
                             </div>
                         ))}
                     </div>

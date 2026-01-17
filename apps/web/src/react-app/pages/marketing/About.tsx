@@ -40,10 +40,10 @@ export default function About() {
 
                 <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
                     <h1 className="text-5xl md:text-7xl font-extrabold text-pr-text-1 tracking-tight mb-6 leading-tight">
-                        Building the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Curator Economy</span>
+                        Ending the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Invisible Economy</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-pr-text-2 max-w-3xl mx-auto leading-relaxed">
-                        We're on a mission to democratize influence and help anyone monetize their taste.
+                        Every time you like, comment, or share, you're working for Big Tech for free. We're here to help you own that value.
                     </p>
                 </div>
             </section>
@@ -54,7 +54,7 @@ export default function About() {
                     <div className="max-w-3xl mx-auto text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">Our Mission</h2>
                         <p className="text-xl text-pr-text-2 leading-relaxed">
-                            To empower individuals to own their audience and their income.
+                            To flip the script on social media and ensure every user is compensated for the attention and data they provide.
                         </p>
                     </div>
 

@@ -9,22 +9,22 @@ export default function HowItWorks() {
         {
             number: '1',
             icon: <Activity className="w-8 h-8 text-blue-500" />,
-            title: 'Show Up',
-            description: 'Your Access Rank increases every time you participate. Daily engagement, completing tasks, and being active all contribute to your rank.',
+            title: 'Monetize Your Routine',
+            description: "The likes, comments, and check-ins you're already doing are valuable. Every time you engage authentically, you're building your rank and proving your influence.",
             color: 'blue',
         },
         {
             number: '2',
             icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
-            title: 'Higher Rank → Earlier Access',
-            description: 'Users with higher Access Ranks get priority when new opportunities appear. The more consistent you are, the earlier you see them.',
+            title: 'Higher Rank → Priority Access',
+            description: 'Your consistency is your currency. Users with higher Access Ranks get the first look at new deals and high-paying content opportunities.',
             color: 'purple',
         },
         {
             number: '3',
             icon: <Unlock className="w-8 h-8 text-green-500" />,
-            title: 'Access → Opportunities',
-            description: "Opportunities are time-limited and rank-gated. Active users get in first. Inactive users miss out. It's that simple.",
+            title: 'First Access → Guaranteed Rewards',
+            description: "Opportunities are rank-gated. By showing up daily, you ensure you're at the front of the line for Gems, equity rewards, and exclusive invites.",
             color: 'green',
         },
     ];

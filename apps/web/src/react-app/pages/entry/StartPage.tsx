@@ -40,29 +40,29 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const ECONOMY_STEPS = [
   {
     icon: Coins,
-    label: 'Earn Points',
-    description: 'Get verified for the attention and presence you already have',
+    label: 'Monetize Your Routine',
+    description: 'Get recognized for the likes, comments, and shares you already do',
     color: 'text-amber-500',
     bgColor: 'bg-amber-500/10'
   },
   {
     icon: Key,
-    label: 'Buy Keys',
-    description: 'Keys are earned access, not a paywall',
+    label: 'Build Access Rank',
+    description: 'Every action builds your reputation and unlocks premium rewards',
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10'
   },
   {
     icon: Gift,
-    label: 'Access Drops',
-    description: 'Drops are real deals, events, and content opportunities',
+    label: 'Exclusive Drops',
+    description: 'Get priority access to the best deals, events, and products',
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10'
   },
   {
     icon: Diamond,
-    label: 'Earn Gems',
-    description: 'Complete actions, earn real money you can withdraw',
+    label: 'Withdraw Gems',
+    description: 'Turn your consistency into real earnings you can spend anywhere',
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10'
   }
@@ -378,11 +378,11 @@ export default function StartPage() {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-pr-text-1">
-            Turn What You Already Do Into Income
+            Get Paid for the Social Life You Already Have
           </h1>
 
-          <p className="text-base text-pr-text-2 max-w-xl mx-auto italic">
-            Showing up, sharing, and participating now earns real rewards.
+          <p className="text-base text-pr-text-2 max-w-xl mx-auto">
+            You already like, share, and visit cool places. Promorang is the first platform that translates that consistency into <span className="text-orange-500 font-bold">real income and priority access</span>.
           </p>
           <p className="text-xs text-pr-text-2 opacity-60">
             No upfront cost. No experience required.
@@ -423,7 +423,7 @@ export default function StartPage() {
 
         {/* How It Works - Economy Flow */}
         <section>
-          <h2 className="text-lg font-semibold text-pr-text-1 mb-4 text-center">How Promorang Works</h2>
+          <h2 className="text-lg font-semibold text-pr-text-1 mb-4 text-center">Your Path to Rewards</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {ECONOMY_STEPS.map((step, index) => (
               <div key={index} className="relative">
@@ -439,6 +439,28 @@ export default function StartPage() {
                     <ArrowRight className="h-4 w-4 text-pr-text-2" />
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Already a pro section */}
+        <section className="bg-pr-surface-2 rounded-2xl p-6 border border-pr-border">
+          <h2 className="text-xl font-bold text-pr-text-1 text-center mb-6">You're already a pro at this</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { icon: '📱', action: 'Liking & saving posts', result: 'Builds your social capital' },
+              { icon: '💬', action: 'Tagging friends in comments', result: 'Expands your influence' },
+              { icon: '📍', action: 'Visiting local businesses', result: 'Proves your real-world presence' },
+              { icon: '🤳', action: 'Sharing what you love', result: 'Drives authentic discovery' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-4 bg-pr-surface-card p-4 rounded-xl border border-pr-border">
+                <div className="text-2xl">{item.icon}</div>
+                <div>
+                  <div className="font-bold text-pr-text-1">{item.action}</div>
+                  <div className="text-xs text-pr-text-2">{item.result}</div>
+                </div>
+                <div className="ml-auto text-green-500 font-bold">✓</div>
               </div>
             ))}
           </div>

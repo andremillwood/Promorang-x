@@ -47,14 +47,14 @@ const HeroSection = ({ navigate, user }: { navigate: (path: string) => void; use
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-black text-pr-text-1 tracking-tight mb-6 leading-[1.1]">
-            Show up consistently.{' '}
+            Get Paid for the{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-              Get access others don't.
+              Social Life You Already Have.
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-pr-text-2 mb-12 leading-relaxed max-w-2xl mx-auto">
-            Promorang tracks active users and gives them priority when opportunities appear.
+            Stop working for Big Tech for free. Your likes, comments, and presence are valuable assets that earn you real rewards and priority access.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -95,22 +95,22 @@ const HeroSection = ({ navigate, user }: { navigate: (path: string) => void; use
               <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
                 <Activity className="w-5 h-5 text-blue-500" />
               </div>
-              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Show Up</h3>
-              <p className="text-sm text-pr-text-2">Your Access Rank increases every day you participate.</p>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Monetize Routine</h3>
+              <p className="text-sm text-pr-text-2">Every like, comment, and check-in builds your digital equity.</p>
             </div>
             <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left">
               <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
                 <TrendingUp className="w-5 h-5 text-purple-500" />
               </div>
-              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Higher Rank</h3>
-              <p className="text-sm text-pr-text-2">See opportunities before others. Get notified first.</p>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Build Reputation</h3>
+              <p className="text-sm text-pr-text-2">Increase your Access Rank to prove you're a high-value community member.</p>
             </div>
             <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left">
               <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
                 <Unlock className="w-5 h-5 text-green-500" />
               </div>
-              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Access</h3>
-              <p className="text-sm text-pr-text-2">Unlock opportunities that inactive users miss.</p>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Priority Access</h3>
+              <p className="text-sm text-pr-text-2">Get first look at exclusive drops, rewards, and brand invites.</p>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@ const PreviewDropsSection = ({ navigate }: { navigate: (path: string) => void })
                   src={drop.image}
                   alt=""
                   className={`w-full h-full object-cover ${drop.status === 'LOCKED' ? 'blur-sm opacity-60' :
-                      drop.status === 'MISSED' ? 'grayscale opacity-50' : 'opacity-80'
+                    drop.status === 'MISSED' ? 'grayscale opacity-50' : 'opacity-80'
                     }`}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -212,6 +212,42 @@ const PreviewDropsSection = ({ navigate }: { navigate: (path: string) => void })
               For Businesses <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Already a Pro section
+const AlreadyAProSection = () => {
+  return (
+    <section className="py-24 bg-pr-surface-2 border-y border-pr-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-pr-text-1 mb-6">
+            You're already a pro at this
+          </h2>
+          <p className="text-xl text-pr-text-2 max-w-2xl mx-auto">
+            The social actions you take every day have massive value. On Promorang, they finally work for you.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { icon: '📱', action: 'Liking & saving posts', result: 'Builds your social capital' },
+            { icon: '💬', action: 'Tagging friends', result: 'Expands your influence' },
+            { icon: '📍', action: 'Visiting favorite spots', result: 'Proves real-world footprint' },
+            { icon: '🤳', action: 'Sharing what you love', result: 'Drives authentic commerce' }
+          ].map((item, i) => (
+            <div key={i} className="bg-pr-surface-card border border-pr-border rounded-2xl p-6 text-center hover:translate-y-[-4px] transition-transform shadow-sm">
+              <div className="text-4xl mb-4">{item.icon}</div>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">{item.action}</h3>
+              <p className="text-sm text-pr-text-2 mb-4 leading-relaxed">{item.result}</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 text-[10px] font-black uppercase tracking-widest">
+                Valued Asset
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -320,6 +356,7 @@ export default function Home() {
       <MarketingNav />
 
       <HeroSection navigate={navigate} user={user} />
+      <AlreadyAProSection />
       <PreviewDropsSection navigate={navigate} />
       <AccessPrincipleSection />
       <ForBusinessSection navigate={navigate} />
