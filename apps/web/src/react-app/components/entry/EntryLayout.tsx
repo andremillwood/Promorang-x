@@ -21,7 +21,11 @@ import {
   Home,
   ChevronRight,
   Sparkles,
-  Shield
+  Shield,
+  Store,
+  BarChart3,
+  Star,
+  ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -41,6 +45,8 @@ export default function EntryLayout({ children, showBackToStart = true }: EntryL
 
   const navItems = [
     { label: 'Today', path: '/today', icon: Sparkles, color: 'text-amber-500' },
+    { label: 'Shop', path: '/marketplace', icon: Store, color: 'text-amber-500' },
+    { label: 'Market', path: '/market', icon: BarChart3, color: 'text-green-500' },
     { label: 'Deals', path: '/deals', icon: Gift, color: 'text-emerald-500' },
     { label: 'Events', path: '/events-entry', icon: Calendar, color: 'text-blue-500' },
     { label: 'Post', path: '/post', icon: Camera, color: 'text-purple-500' },

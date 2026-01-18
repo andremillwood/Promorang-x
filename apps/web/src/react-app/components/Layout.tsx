@@ -67,6 +67,7 @@ import {
   type NavigationItem,
 } from '@/react-app/config/navigation';
 import { useMaturity } from '@/react-app/context/MaturityContext';
+import { useCart } from '@/react-app/hooks/useCart';
 
 
 
@@ -161,6 +162,7 @@ export default function Layout({ children }: LayoutProps) {
   const sidebarGroups = getSidebarNavigationGroups(userRole, maturityState);
   const mobileNavItems = getMobileDrawerNavigation(userRole, maturityState);
   const bottomNavItems = getBottomNavigation(userRole, maturityState);
+  const { itemCount } = useCart();
 
   const quickActionNavNames = new Set([
     'Marketplace',
@@ -388,6 +390,21 @@ export default function Layout({ children }: LayoutProps) {
                       {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                           {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
+                  </Tooltip>
+
+                  {/* Desktop Shopping Cart */}
+                  <Tooltip content="Your Cart" position="bottom" compact={true}>
+                    <button
+                      onClick={() => navigate('/cart')}
+                      className="hidden md:flex relative p-2 text-gray-400 hover:text-pr-text-2 transition-colors rounded-lg hover:bg-pr-surface-2"
+                    >
+                      <ShoppingBag className="w-5 h-5" />
+                      {itemCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                          {itemCount}
                         </span>
                       )}
                     </button>
@@ -747,6 +764,25 @@ export default function Layout({ children }: LayoutProps) {
                 {unreadCount > 0 && (
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                     {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Shopping Cart (Mobile Menu) */}
+              <button
+                onClick={() => {
+                  navigate('/cart');
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-3 rounded-lg text-pr-text-1 hover:bg-pr-surface-2 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <ShoppingBag className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium">My Cart</span>
+                </div>
+                {itemCount > 0 && (
+                  <span className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {itemCount}
                   </span>
                 )}
               </button>

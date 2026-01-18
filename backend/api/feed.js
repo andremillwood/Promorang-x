@@ -75,7 +75,7 @@ router.get('/for-you', requireAuth, async (req, res) => {
         const [events, drops, content, forecasts, coupons, relays] = await Promise.all([
             supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30),
             supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30),
-            supabaseAdmin.from('content_items').select('*').eq('status', 'published').order('posted_at', { ascending: false }).limit(30),
+            supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30),
             supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20),
             supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10),
             supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20)

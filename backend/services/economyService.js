@@ -9,6 +9,7 @@ const supabase = global.supabase || serviceSupabase || null;
 // Economy Configuration (v3.2)
 const CONFIG = {
     currencies: ['points', 'promokeys', 'gems', 'gold'],
+    transaction_types: ['earn', 'spend', 'yield_dividend', 'conversion'],
     conversion: {
         points_to_promokeys: {
             rate: 500, // 500 Points = 1 PromoKey

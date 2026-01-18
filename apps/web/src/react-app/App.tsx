@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { ReactNode } from "react";
 import { BrowserRouter as Router, Routes as OriginalRoutes, Route as OriginalRoute, Navigate as OriginalNavigate, useLocation, Link } from "react-router-dom";
+import { Sparkles, Store, Gift, User as UserIcon, BarChart3 } from 'lucide-react';
 
 const Routes = OriginalRoutes as any;
 const Route = OriginalRoute as any;
@@ -88,7 +89,7 @@ import TodayOpportunity from "@/react-app/pages/TodayOpportunity";
 import SamplingCreateWizard from "@/react-app/pages/SamplingCreateWizard";
 
 // Entry Surface Pages (State-Aware Experience Layer)
-import { ContributePage, DealsPage, EventsEntryPage, PostProofPage, StartPage } from "@/react-app/pages/entry";
+import { ContributePage, DealsPage, EventsEntryPage, PostProofPage, StartPage, BountyHuntHub } from "@/react-app/pages/entry";
 import { MaturityProvider, useMaturity } from "@/react-app/context/MaturityContext";
 import MaturityStateController from "@/react-app/components/MaturityStateController";
 // Guard and UserMaturityState available for route protection if needed
@@ -144,7 +145,6 @@ import ExploreLegacy from "@/react-app/pages/marketing/ExploreLegacy";
 
 // Public Pages (for SEO/sharing)
 import PublicDropPage from "@/react-app/pages/public/PublicDropPage";
-import PublicMarketplacePage from "@/react-app/pages/public/PublicMarketplacePage";
 import PublicProductPage from "@/react-app/pages/public/PublicProductPage";
 import PublicContentPage from "@/react-app/pages/public/PublicContentPage";
 import PublicForecastPage from "@/react-app/pages/public/PublicForecastPage";
@@ -207,7 +207,7 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => (
  * - State 0/1 (new users): Minimal layout without sidebar (focused experience)
  * - State 2+ (engaged users): Full layout with sidebar
  */
-const TodayLayout = ({ children }: { children: ReactNode }) => {
+const TodayLayout = ({ children, title }: { children: ReactNode; title?: string }) => {
   const { maturityState, isLoading } = useMaturity();
 
   if (isLoading) {
@@ -231,8 +231,8 @@ const TodayLayout = ({ children }: { children: ReactNode }) => {
                 alt="Promorang"
                 className="h-8 w-8"
               />
-              <span className="text-sm font-bold text-pr-text-1">Today</span>
-              <div className="w-8" /> {/* Spacer for balance */}
+              <span className="text-sm font-bold text-pr-text-1">{title || 'Today'}</span>
+              <div className="w-8" />
             </div>
           </header>
 
@@ -244,32 +244,24 @@ const TodayLayout = ({ children }: { children: ReactNode }) => {
           {/* Minimal bottom nav for State 0/1 */}
           <nav className="fixed bottom-0 inset-x-0 z-50 bg-pr-surface-card/95 backdrop-blur-lg border-t border-pr-border/50 safe-area-bottom">
             <div className="max-w-md mx-auto px-6 py-3 flex items-center justify-around">
-              <Link to="/today" className="flex flex-col items-center gap-1 text-orange-500">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="4" strokeWidth="2" />
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" strokeWidth="2" strokeLinecap="round" />
-                </svg>
+              <Link to="/today" className={`flex flex-col items-center gap-1 ${location.pathname === '/today' ? 'text-orange-500' : 'text-pr-text-2'}`}>
+                <Sparkles className="w-6 h-6" />
                 <span className="text-[10px] font-bold">Today</span>
               </Link>
-              <Link to="/earn" className="flex flex-col items-center gap-1 text-pr-text-2 hover:text-pr-text-1">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="text-[10px] font-bold">Earn</span>
+              <Link to="/marketplace" className={`flex flex-col items-center gap-1 ${location.pathname === '/marketplace' ? 'text-orange-500' : 'text-pr-text-2'}`}>
+                <Store className="w-6 h-6" />
+                <span className="text-[10px] font-bold">Shop</span>
               </Link>
-              <Link to="/wallet" className="flex flex-col items-center gap-1 text-pr-text-2 hover:text-pr-text-1">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M18 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" strokeWidth="2" />
-                </svg>
-                <span className="text-[10px] font-bold">Wallet</span>
+              <Link to="/market" className={`flex flex-col items-center gap-1 ${location.pathname.startsWith('/market') ? 'text-orange-500' : 'text-pr-text-2'}`}>
+                <BarChart3 className="w-6 h-6" />
+                <span className="text-[10px] font-bold">Market</span>
               </Link>
-              <Link to="/profile" className="flex flex-col items-center gap-1 text-pr-text-2 hover:text-pr-text-1">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="8" r="4" strokeWidth="2" />
-                  <path d="M5.5 21a8.38 8.38 0 0 1 13 0" strokeWidth="2" strokeLinecap="round" />
-                </svg>
+              <Link to="/deals" className={`flex flex-col items-center gap-1 ${location.pathname === '/deals' ? 'text-orange-500' : 'text-pr-text-2'}`}>
+                <Gift className="w-6 h-6" />
+                <span className="text-[10px] font-bold">Deals</span>
+              </Link>
+              <Link to="/profile" className={`flex flex-col items-center gap-1 ${location.pathname.startsWith('/profile') ? 'text-orange-500' : 'text-pr-text-2'}`}>
+                <UserIcon className="w-6 h-6" />
                 <span className="text-[10px] font-bold">Profile</span>
               </Link>
             </div>
@@ -360,6 +352,7 @@ function App() {
                   <Route path="/events-entry" element={<EventsEntryPage />} />
                   <Route path="/post" element={<PostProofPage />} />
                   <Route path="/contribute" element={<ContributePage />} />
+                  <Route path="/bounty-hunt" element={<TodayLayout><BountyHuntHub /></TodayLayout>} />
                   <Route path="/e/:eventCode" element={<EventDetail />} />
 
                   {/* Public Marketing Routes */}
@@ -443,7 +436,7 @@ function App() {
 
                   {/* Public Coupon Pages */}
                   <Route path="/coupons" element={<ExploreCoupons />} />
-                  <Route path="/coupons/:id" element={<PublicCouponDetail />} />
+                  <Route path="/coupons/:id" element={<TodayLayout title="Coupon"><PublicCouponDetail /></TodayLayout>} />
 
                   {/* Events Routes (Public listing, protected create) */}
                   {/* Now using default Layout for public event pages instead of ProtectedLayout,
@@ -603,17 +596,17 @@ function App() {
                   <Route
                     path="/market"
                     element={
-                      <ProtectedLayout>
+                      <TodayLayout title="Market">
                         <ContentSharesMarket />
-                      </ProtectedLayout>
+                      </TodayLayout>
                     }
                   />
                   <Route
                     path="/market/:category"
                     element={
-                      <ProtectedLayout>
+                      <TodayLayout title="Market">
                         <ContentSharesMarket />
-                      </ProtectedLayout>
+                      </TodayLayout>
                     }
                   />
                   <Route
@@ -748,9 +741,9 @@ function App() {
                   <Route
                     path="/marketplace"
                     element={
-                      <Layout>
+                      <TodayLayout title="Market">
                         <MarketplaceBrowse />
-                      </Layout>
+                      </TodayLayout>
                     }
                   />
                   <Route
@@ -764,9 +757,9 @@ function App() {
                   <Route
                     path="/product/:id"
                     element={
-                      <Layout>
+                      <TodayLayout title="Product">
                         <ProductDetail />
-                      </Layout>
+                      </TodayLayout>
                     }
                   />
                   <Route

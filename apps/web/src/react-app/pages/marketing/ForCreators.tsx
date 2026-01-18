@@ -28,7 +28,7 @@ export default function ForCreators() {
 
             <PersonaHero
                 headline="Get Paid for What You're Already Doing"
-                subheadline="Stop working for Big Tech for free. Your likes, comments, and presence are valuable assets. Every social action you take now builds your wealth and rank."
+                subheadline="Your taste, your engagement, your presence — they all have real value. Every social action you take now builds your wealth, reputation, and access to exclusive opportunities."
                 ctaText="Start Earning"
                 ctaLink="/auth"
                 stats={[

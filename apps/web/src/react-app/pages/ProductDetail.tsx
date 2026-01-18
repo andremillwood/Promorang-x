@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Star, Store, Heart, Share2, Check, Sparkles, Link2, Lock } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Heart, Share2, Check, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -59,17 +59,12 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [sharesData, setSharesData] = useState<{ supporter_count: number; available_shares: number } | null>(null);
-  const [relayId, setRelayId] = useState<string | null>(null);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
-  const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
-  const [isGeneratingAffiliateLink, setIsGeneratingAffiliateLink] = useState(false);
 
   // Capture affiliate/referral code from URL and store for checkout attribution
   useEffect(() => {
     const refCode = searchParams.get('ref') || searchParams.get('aff');
     if (refCode && productId) {
-      setAffiliateCode(refCode);
-
       // Store in sessionStorage for checkout attribution
       const attribution = {
         referral_code: refCode,
@@ -183,6 +178,7 @@ export default function ProductDetail() {
       const data = await response.json();
 
       if (data.status === 'success') {
+        window.dispatchEvent(new CustomEvent('cart-updated'));
         toast({
           title: 'Added to cart',
           description: `${quantity} item(s) added to your cart`,
@@ -415,14 +411,14 @@ export default function ProductDetail() {
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-white/40 backdrop-blur-[2px] rounded-xl border border-indigo-100/50">
                     <Lock className="w-8 h-8 text-indigo-400 mb-2" />
-                    <h4 className="font-bold text-indigo-900 text-sm">Product Shares Locked</h4>
-                    <p className="text-[10px] text-indigo-700/70 mt-1 max-w-[180px]">
-                      Complete your first task to reach Rank 2 and see the performance of products.
+                    <h4 className="font-bold text-indigo-900 text-sm">Growth Hub Locked</h4>
+                    <p className="text-[10px] text-indigo-700/80 mt-1 max-w-[200px] font-medium">
+                      Complete your first daily tasks to reach <span className="font-black text-indigo-600">Rank 2</span> and unlock product tradeable shares.
                     </p>
                   </div>
                   <Button
                     disabled
-                    className="w-full bg-slate-200 text-slate-400 font-black mt-4"
+                    className="w-full bg-slate-200 text-slate-400 font-black mt-4 uppercase tracking-widest text-[10px]"
                   >
                     Locked for Early Explorers
                   </Button>
@@ -443,8 +439,19 @@ export default function ProductDetail() {
 
                   <div className="space-y-2">
                     <p className="text-xs text-indigo-700/80 font-medium leading-relaxed">
-                      Join the <span className="font-bold">Supporter Circle</span>. The first 10 buyers earn 100 tradeable shares in this product's performance.
+                      Join the <span className="font-bold">Supporter Circle</span>. The first {sharesData?.available_shares ? '10' : 'X'} buyers earn tradeable shares in this product's performance.
                     </p>
+                    <div className="p-3 bg-indigo-100 rounded-xl border border-indigo-200">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] font-black uppercase text-indigo-600">Your Rank Perk</p>
+                        <span className="text-[10px] font-bold text-indigo-400">Rank {maturityState}</span>
+                      </div>
+                      <p className="text-xs font-bold text-indigo-900">
+                        {maturityState === 2 ? '5% Points Multiplier' :
+                          maturityState === 3 ? '15% Commission + Shares' :
+                            maturityState >= 4 ? 'Priority Access + Pro Profits' : 'Basic Supporter Benefits'}
+                      </p>
+                    </div>
                     {maturityState >= 3 ? (
                       <Button
                         onClick={generateShareLink}
@@ -452,7 +459,7 @@ export default function ProductDetail() {
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-200"
                       >
                         <Share2 className="mr-2 h-4 w-4" />
-                        {isGeneratingLink ? 'Generating...' : 'Share & Earn Market Shares'}
+                        {isGeneratingLink ? 'Generating...' : 'Share & Earn Commissions'}
                       </Button>
                     ) : (
                       <div className="p-3 bg-indigo-100/50 rounded-xl border border-indigo-200 border-dashed text-center">

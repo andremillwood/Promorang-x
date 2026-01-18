@@ -15,7 +15,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import { useMaturity } from '@/react-app/context/MaturityContext';
 import api from '@/react-app/lib/api';
-import { Flame, RefreshCw, Rocket, Trophy, ArrowRight, Sparkles as SparklesIcon, Store, Gift, Calendar, HelpCircle, LogOut, Settings, User } from 'lucide-react';
+import { Flame, RefreshCw, Rocket, Trophy, ArrowRight, Sparkles as SparklesIcon, Store, Gift, Calendar, HelpCircle, LogOut, TrendingUp, User, BarChart3 } from 'lucide-react';
 import TodayHeadline from '@/react-app/components/today/TodayHeadline';
 import TodayMultiplier from '@/react-app/components/today/TodayMultiplier';
 import TodayRank from '@/react-app/components/today/TodayRank';
@@ -307,32 +307,69 @@ export default function Today() {
                 />
             )}
 
+            {/* Everyday Value - Always Visible */}
+            <div className="space-y-4">
+                <h3 className="text-sm font-bold text-pr-text-2 uppercase tracking-widest px-1">Everyday Value</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Deals CTA */}
+                    <button
+                        onClick={() => {
+                            if (!hasClickedDeals) {
+                                localStorage.setItem('promorang_clicked_deals', 'true');
+                                setHasClickedDeals(true);
+                            }
+                            navigate('/deals');
+                        }}
+                        className="interactive-card p-4 bg-white dark:bg-pr-surface-card border border-pr-border rounded-xl flex items-center gap-4 hover:border-orange-400 shadow-sm"
+                    >
+                        <div className="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-500/20">
+                            <Gift className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h4 className="font-bold text-pr-text-1">Claim Deals</h4>
+                            <p className="text-xs text-pr-text-2">Earn rewards from brands</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-pr-text-3" />
+                    </button>
+
+                    {/* Shop CTA */}
+                    <button
+                        onClick={() => navigate('/marketplace')}
+                        className="interactive-card p-4 bg-white dark:bg-pr-surface-card border border-pr-border rounded-xl flex items-center gap-4 hover:border-amber-400 shadow-sm"
+                    >
+                        <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/20">
+                            <Store className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h4 className="font-bold text-pr-text-1">Shop & Promote</h4>
+                            <p className="text-xs text-pr-text-2">Buy items & earn commission</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-pr-text-3" />
+                    </button>
+
+                    {/* Forecast CTA */}
+                    <button
+                        onClick={() => navigate('/market')}
+                        className="interactive-card p-4 bg-white dark:bg-pr-surface-card border border-pr-border rounded-xl flex items-center gap-4 hover:border-blue-400 shadow-sm sm:col-span-2"
+                    >
+                        <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/20">
+                            <BarChart3 className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h4 className="font-bold text-pr-text-1">Forecast Trends</h4>
+                            <p className="text-xs text-pr-text-2">Spot viral hits & earn shares in culture</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-pr-text-3" />
+                    </button>
+                </div>
+            </div>
+
             {/* Access Rank Opportunities - Only for State 0/1 */}
             {maturityState <= 1 && (
                 <div className="space-y-4 mb-6">
                     <h3 className="text-sm font-bold text-pr-text-2 uppercase tracking-widest px-1">Rank Up Actions</h3>
 
                     <div className="grid grid-cols-1 gap-3">
-                        {/* Deals CTA */}
-                        <button
-                            onClick={() => {
-                                if (!hasClickedDeals) {
-                                    localStorage.setItem('promorang_clicked_deals', 'true');
-                                    setHasClickedDeals(true);
-                                }
-                                navigate('/deals');
-                            }}
-                            className="interactive-card animate-slide-up p-4 bg-white dark:bg-pr-surface-card border border-orange-200 dark:border-orange-500/30 rounded-xl flex items-center gap-4 hover:border-orange-400 shadow-sm"
-                        >
-                            <div className="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-500/20">
-                                <Gift className="w-5 h-5 text-orange-600" />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <h4 className="font-bold text-pr-text-1">{hasClickedDeals ? 'Claim a Deal' : 'Claim Your First Deal'}</h4>
-                                <p className="text-xs text-pr-text-2">Unlock rank rewards & community access</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-pr-text-3" />
-                        </button>
 
                         {/* Events CTA */}
                         <button
@@ -372,6 +409,21 @@ export default function Today() {
                             <div className="flex-1 text-left">
                                 <h4 className="font-bold text-pr-text-1">{hasClickedProof ? 'Share & Rank Up' : 'Share Content, Rank Up'}</h4>
                                 <p className="text-xs text-pr-text-2">Build your rank & enter the daily draw</p>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-pr-text-3" />
+                        </button>
+
+                        {/* Bounty Hunter CTA */}
+                        <button
+                            onClick={() => navigate('/bounty-hunt')}
+                            className="interactive-card animate-slide-up-delay-3 p-4 bg-gradient-to-br from-orange-500/5 to-pink-500/5 border border-orange-200 dark:border-orange-500/30 rounded-xl flex items-center gap-4 hover:border-orange-400 shadow-sm"
+                        >
+                            <div className="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-500/20">
+                                <TrendingUp className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 text-left">
+                                <h4 className="font-bold text-pr-text-1">Spot a Hit</h4>
+                                <p className="text-xs text-pr-text-2">See something cool online? Tag it here and earn for finding it first</p>
                             </div>
                             <ArrowRight className="w-4 h-4 text-pr-text-3" />
                         </button>
@@ -450,6 +502,20 @@ export default function Today() {
                     </button>
 
                     <button
+                        onClick={() => navigate('/marketplace')}
+                        className="p-4 bg-gradient-to-br from-pr-surface-2 to-pr-surface-3 rounded-xl border border-pr-border/50 text-left group hover:scale-[1.01] transition-all"
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+                                <Store className="w-5 h-5" />
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-pr-text-3 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        <h4 className="font-bold text-pr-text-1">Marketplace</h4>
+                        <p className="text-xs text-pr-text-2">Shop curated hits</p>
+                    </button>
+
+                    <button
                         onClick={() => navigate('/promoshare')}
                         className="p-4 bg-gradient-to-br from-pr-surface-2 to-pr-surface-3 rounded-xl border border-pr-border/50 text-left group hover:scale-[1.01] transition-all"
                     >
@@ -460,7 +526,7 @@ export default function Today() {
                             <ArrowRight className="w-4 h-4 text-pr-text-3 group-hover:translate-x-1 transition-transform" />
                         </div>
                         <h4 className="font-bold text-pr-text-1">PromoShare V2</h4>
-                        <p className="text-xs text-pr-text-2">Check the global jackpot</p>
+                        <p className="text-xs text-pr-text-2">Jackpot & draws</p>
                     </button>
 
                     {maturityState >= 2 && (

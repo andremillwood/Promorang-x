@@ -5,6 +5,7 @@ const supabase = require('../lib/supabase');
 // Use the working auth middleware from _core/auth.ts
 const { requireAuth } = require('../middleware/auth');
 const dailyLayerService = require('../services/dailyLayerService');
+const bountyService = require('../services/bountyService');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -1805,6 +1806,147 @@ router.post('/:id/engage', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error in POST /api/content/:id/engage:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// --- BOUNTY HUNTER & SOCIAL EQUITY ENDPOINTS ---
+
+/**
+ * POST /api/content/scout
+ * Index a piece of external content (YouTube/TikTok)
+ */
+router.post('/scout', requireAuth, async (req, res) => {
+  try {
+    const { url } = req.body;
+    const userId = req.user.id;
+
+    if (!url) {
+      return res.status(400).json({ success: false, error: 'URL is required' });
+    }
+
+    const result = await bountyService.scoutContent(userId, url);
+    res.json({
+      success: true,
+      data: result,
+      message: 'Content scouted successfully! You are now the official Finder of this asset.'
+    });
+  } catch (error) {
+    console.error('[Content API] Scouting error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/content/my-findings
+ * Retrieve content found by the current user with equity data
+ */
+router.get('/my-findings', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!supabase) {
+      return res.json({
+        success: true,
+        data: [
+          { id: 1, title: 'Viral TikTok Dance (Demo)', source: 'TikTok', yield: '1,240 Gems', status: 'Active' },
+          { id: 2, title: 'ASMR Cooking (Demo)', source: 'YouTube', yield: '450 Gems', status: 'Pending' },
+        ]
+      });
+    }
+
+    const { data: findings, error } = await supabase
+      .from('bounty_scout_records')
+      .select(`
+        *,
+        content:content_pieces(*),
+        equity:content_equity_ledger(*)
+      `)
+      .eq('scout_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      data: findings.map(f => ({
+        id: f.id,
+        title: f.content?.title || 'Unknown Content',
+        source: f.source_platform,
+        status: f.status,
+        yield: `${f.equity?.total_yield_accumulated || 0} Gems`,
+        content_id: f.content_id,
+        views: f.content?.view_count || 0
+      }))
+    });
+  } catch (error) {
+    console.error('[Content API] Error fetching findings:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch your findings' });
+  }
+});
+
+/**
+ * POST /api/content/:id/claim
+ * Verify ownership and claim ghost content equity
+ */
+router.post('/:id/claim', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { verificationType, evidence } = req.body;
+    const userId = req.user.id;
+
+    const result = await bountyService.claimContent(id, userId, { verificationType, evidence });
+
+    res.json({
+      success: true,
+      data: result,
+      message: 'Claim verified! You have successfully reclaimed your content and accrued equity.'
+    });
+  } catch (error) {
+    console.error('[Content API] Claim error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/content/generate-bio-code
+ * Generate a unique code for profile verification
+ */
+router.post('/generate-bio-code', requireAuth, async (req, res) => {
+  try {
+    const code = await bountyService.generateBioCode(req.user.id);
+    res.json({ success: true, code });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/content/admin/distribute-yield
+ * Manually trigger a yield distribution cycle (Admin only)
+ */
+router.post('/admin/distribute-yield', requireAuth, async (req, res) => {
+  try {
+    // Basic admin check (could be more robust)
+    if (req.user.role !== 'admin' && req.user.email !== 'andremillwood@gmail.com') {
+      return res.status(403).json({ error: 'Unauthorized. Admin access required.' });
+    }
+
+    const { amount = 1000 } = req.body;
+
+    // 1. Create a cycle
+    const cycle = await bountyService.createYieldCycle(amount);
+
+    // 2. Distribute
+    const result = await bountyService.closeAndDistributeCycle(cycle.id);
+
+    res.json({
+      success: true,
+      message: `Successfully distributed ${amount} Gems across active content equity ledgers.`,
+      cycle_id: cycle.id
+    });
+  } catch (error) {
+    console.error('[Admin API] Yield error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

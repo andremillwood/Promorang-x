@@ -98,6 +98,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: true,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Marketplace',
@@ -120,6 +121,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: true,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Portfolio',
@@ -131,6 +133,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Explore',
@@ -142,6 +145,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: true,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'Grow',
@@ -177,6 +181,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'primary',
+    minState: 2,
   },
   {
     name: 'My Coupons',
@@ -201,6 +206,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'wallet',
+    minState: 2,
   },
   {
     name: 'Convert Currency',
@@ -212,6 +218,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'wallet',
+    minState: 2,
   },
   {
     name: 'Master Key',
@@ -223,6 +230,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'wallet',
+    minState: 2,
   },
 
   // Gamification & Social (Mobile Drawer) - State 2+ only
@@ -260,6 +268,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'community',
+    minState: 2,
   },
   {
     name: 'Achievements',
@@ -271,6 +280,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'community',
+    minState: 2,
   },
 
   // Account & Settings (Mobile Drawer)
@@ -284,6 +294,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     showInMobile: true,
     showInBottomNav: false,
     sidebarSection: 'account',
+    minState: 2,
   },
   {
     name: 'Settings',

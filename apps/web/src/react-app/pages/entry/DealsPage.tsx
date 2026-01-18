@@ -12,8 +12,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import { useMaturity } from '@/react-app/context/MaturityContext';
 import { EntryLayout } from '@/react-app/components/entry';
-import { Gift, Clock, Users, ChevronRight, Sparkles, Shield, Star, Tag, Trophy, ArrowRight } from 'lucide-react';
+import { Gift, Clock, Users, ChevronRight, Sparkles, Shield, Star, Tag, Trophy, ArrowRight, Store } from 'lucide-react';
 import { apiFetch } from '@/react-app/utils/api';
+import advertiserService from '@/react-app/services/advertiser';
 import { WhatsNextTooltip } from '@/react-app/components/WhatsNextCard';
 import { markCompleted, STORAGE_KEYS } from '@/react-app/hooks/useWhatsNext';
 
@@ -107,18 +108,23 @@ function DealCard({ deal, onClaim }: { deal: Deal; onClaim: (id: string) => void
   };
 
   return (
-    <div className="bg-pr-surface-1 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-pr-surface-3/50">
+    <div
+      onClick={() => onClaim(deal.id)}
+      className="bg-pr-surface-1 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-pr-surface-3/50 cursor-pointer group active:scale-[0.98]"
+    >
       {/* Card Header */}
       <div className="p-4 pb-3">
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
+          {deal.brand_logo ? (
+            <img src={deal.brand_logo} className="w-10 h-10 rounded-full object-cover border border-pr-surface-3" alt="" />
+          ) : (
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
               {deal.brand.charAt(0)}
             </div>
-            <div>
-              <p className="text-sm text-pr-text-2">{deal.brand}</p>
-              <h3 className="font-semibold text-pr-text-1 line-clamp-1">{deal.title}</h3>
-            </div>
+          )}
+          <div>
+            <p className="text-sm text-pr-text-2">{deal.brand}</p>
+            <h3 className="font-semibold text-pr-text-1 line-clamp-1">{deal.title}</h3>
           </div>
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${difficultyColors[deal.difficulty]}`}>
             {deal.difficulty}
@@ -180,7 +186,7 @@ function DealCard({ deal, onClaim }: { deal: Deal; onClaim: (id: string) => void
 
 export default function DealsPage() {
   const { user } = useAuth();
-  const { recordAction, visibility, maturityState } = useMaturity();
+  const { visibility, maturityState } = useMaturity();
   const navigate = useNavigate();
   const [deals, setDeals] = useState<Deal[]>(MOCK_DEALS);
   const [filter, setFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
@@ -209,35 +215,26 @@ export default function DealsPage() {
     const fetchDeals = async () => {
       setIsLoading(true);
       try {
-        // Build URL with interests if available
-        let apiUrl = `${API_BASE}/api/drops?status=active&limit=20`;
-        if (userInterests.length > 0) {
-          apiUrl += `&interests=${userInterests.join(',')}`;
-        }
+        const data = await advertiserService.listPublicCoupons(20);
+        const couponsData = data.coupons || [];
 
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const result = await response.json();
-          // The API might return just an array or { data: [...] }
-          const dropsData = Array.isArray(result) ? result : result.data || [];
-
-          if (dropsData.length > 0) {
-            // Map API response to Deal format
-            const apiDeals = dropsData.map((drop: any) => ({
-              id: drop.id,
-              title: drop.title || drop.name,
-              brand: drop.brand_name || drop.advertiser_name || drop.creator_name || 'Promorang',
-              description: drop.description || '',
-              reward_amount: drop.gem_reward_base || drop.gem_reward || drop.reward_amount || 50,
-              reward_type: 'gems' as const,
-              participants_count: drop.current_participants || drop.applications_count || 0,
-              max_participants: drop.max_participants,
-              expires_at: drop.deadline_at || drop.end_date || drop.expires_at,
-              difficulty: drop.difficulty || 'easy',
-              tags: drop.tags || [drop.category || drop.drop_type || 'deal']
-            }));
-            setDeals([...apiDeals, ...MOCK_DEALS.slice(0, 2)]);
-          }
+        if (couponsData.length > 0) {
+          // Map API response to Deal format
+          const apiDeals = couponsData.map((coupon: any) => ({
+            id: coupon.id,
+            title: coupon.title,
+            brand: coupon.merchant_stores?.store_name || 'Partner Brand',
+            brand_logo: coupon.merchant_stores?.logo_url,
+            description: coupon.description || '',
+            reward_amount: coupon.value || 0,
+            reward_type: coupon.value_unit === '%' ? 'coupon' : 'gems',
+            participants_count: 0,
+            max_participants: 1000,
+            expires_at: coupon.expires_at,
+            difficulty: 'easy' as const,
+            tags: [coupon.category || 'deal']
+          }));
+          setDeals(apiDeals);
         }
       } catch (error) {
         console.error('Error fetching deals:', error);
@@ -249,20 +246,12 @@ export default function DealsPage() {
     fetchDeals();
   }, [userInterests]); // Re-fetch when interests change
 
-  const handleClaimDeal = async (dealId: string) => {
-    if (!user) {
-      navigate('/auth', { state: { from: `/deals`, action: 'claim', dealId } });
-      return;
-    }
+  const handleClaimDeal = (dealId: string) => {
+    // Record the action if needed
+    console.log('Claiming deal/coupon:', dealId);
 
-    // Record the action
-    await recordAction('deal_claimed', { deal_id: dealId });
-
-    // Mark as completed for What's Next
-    markCompleted(STORAGE_KEYS.claimedDeal);
-
-    // Navigate to deal detail
-    navigate(`/d/${dealId}`);
+    // Navigate to coupon detail
+    navigate(`/coupons/${dealId}`);
   };
 
   const filteredDeals = filter === 'all'

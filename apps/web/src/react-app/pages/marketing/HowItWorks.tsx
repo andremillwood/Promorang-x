@@ -9,22 +9,22 @@ export default function HowItWorks() {
         {
             number: '1',
             icon: <Activity className="w-8 h-8 text-blue-500" />,
-            title: 'Monetize Your Routine',
-            description: "The likes, comments, and check-ins you're already doing are valuable. Every time you engage authentically, you're building your rank and proving your influence.",
+            title: 'Earn in 3 Ways',
+            description: "Daily engagement (likes, check-ins, posts), Bounty Hunting (spot viral content early for finder's fees), and Shopping (buy products and earn cashback when you promote them). Every action builds your reputation.",
             color: 'blue',
         },
         {
             number: '2',
             icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
-            title: 'Higher Rank → Priority Access',
-            description: 'Your consistency is your currency. Users with higher Access Ranks get the first look at new deals and high-paying content opportunities.',
+            title: 'Build Your Access Rank',
+            description: 'Visit /today every day. Complete at least one action. The more consistent you are, the higher you climb. Higher rank = first access to opportunities before they fill up.',
             color: 'purple',
         },
         {
             number: '3',
             icon: <Unlock className="w-8 h-8 text-green-500" />,
-            title: 'First Access → Guaranteed Rewards',
-            description: "Opportunities are rank-gated. By showing up daily, you ensure you're at the front of the line for Gems, equity rewards, and exclusive invites.",
+            title: 'Priority Access → Real Rewards',
+            description: "High-rank users see opportunities first and convert their activity into Gems ($1 each). Withdraw to PayPal/Venmo or reinvest into content you believe in.",
             color: 'green',
         },
     ];
@@ -141,10 +141,11 @@ export default function HowItWorks() {
                 subheadline="The sooner you start, the higher you climb."
                 ctaText="Create Account"
                 ctaLink="/auth"
-                secondaryCta={{ text: "Explore Opportunities", link: '/explore' }}
+                secondaryCta={{ text: "Sign In", link: '/auth?mode=signin' }}
             />
 
             <MarketingFooter />
         </div>
     );
 }
+

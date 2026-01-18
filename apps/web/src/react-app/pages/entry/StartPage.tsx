@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import { useMaturity } from '@/react-app/context/MaturityContext';
 import { EntryLayout } from '@/react-app/components/entry';
@@ -28,43 +28,55 @@ import {
   Diamond,
   Users,
   ExternalLink,
-  Store
+  Store,
+  BarChart3,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import WhatsNextCard from '@/react-app/components/WhatsNextCard';
+import InstagramConnectModal from '@/react-app/components/InstagramConnectModal';
+import FirstContactView from '@/react-app/components/entry/FirstContactView';
+import OnboardingFlow from '@/react-app/components/entry/OnboardingFlow';
+import type { UserPreferences } from '@/react-app/components/entry/OnboardingFlow';
+import EconomyStepModal from '@/react-app/components/entry/EconomyStepModal';
+import type { EconomyStep } from '@/react-app/components/entry/EconomyStepModal';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // The Promorang Economy Flow
-const ECONOMY_STEPS = [
+const ECONOMY_STEPS: { icon: any; label: string; description: string; color: string; bgColor: string; modalKey: EconomyStep }[] = [
   {
     icon: Coins,
     label: 'Monetize Your Routine',
     description: 'Get recognized for the likes, comments, and shares you already do',
     color: 'text-amber-500',
-    bgColor: 'bg-amber-500/10'
+    bgColor: 'bg-amber-500/10',
+    modalKey: 'monetize'
+  },
+  {
+    icon: TrendingUp,
+    label: 'Spot Trends First',
+    description: 'Spot a viral post? Tag it early and earn a lifetime finder\'s fee',
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+    modalKey: 'spot_trends'
   },
   {
     icon: Key,
     label: 'Build Access Rank',
     description: 'Every action builds your reputation and unlocks premium rewards',
     color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10'
-  },
-  {
-    icon: Gift,
-    label: 'Exclusive Drops',
-    description: 'Get priority access to the best deals, events, and products',
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10'
+    bgColor: 'bg-purple-500/10',
+    modalKey: 'build_rank'
   },
   {
     icon: Diamond,
     label: 'Withdraw Gems',
     description: 'Turn your consistency into real earnings you can spend anywhere',
     color: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10'
+    bgColor: 'bg-emerald-500/10',
+    modalKey: 'withdraw'
   }
 ];
 
@@ -80,6 +92,13 @@ const DROP_CATEGORIES = [
     caption: 'Simple brand actions with guaranteed rewards'
   },
   {
+    title: 'Spot Hits',
+    path: '/bounty-hunt',
+    icon: TrendingUp,
+    color: 'from-orange-500 to-pink-500',
+    caption: 'Spot cool content and earn a finder\'s fee'
+  },
+  {
     title: 'Events',
     path: '/events-entry',
     icon: Calendar,
@@ -91,7 +110,21 @@ const DROP_CATEGORIES = [
     path: '/post',
     icon: Camera,
     color: 'from-purple-500 to-pink-500',
-    caption: 'Share content and submit proof when asked'
+    caption: 'Post proof of your social activity'
+  },
+  {
+    title: 'Market',
+    path: '/market',
+    icon: BarChart3,
+    color: 'from-blue-600 to-cyan-500',
+    caption: 'Forecast viral hits & earn shares'
+  },
+  {
+    title: 'Shop',
+    path: '/marketplace',
+    icon: Store,
+    color: 'from-amber-500 to-orange-500',
+    caption: 'Shop curated products & earn for promoting'
   }
 ];
 
@@ -105,8 +138,63 @@ export default function StartPage() {
   const { user } = useAuth();
   const { recordAction, maturityState } = useMaturity();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [balances, setBalances] = useState<UserBalances>({ points_balance: 0, keys_balance: 0, gems_balance: 0 });
   const [loading, setLoading] = useState(true);
+  const [showRankDetails, setShowRankDetails] = useState(false);
+  const [showInstagramModal, setShowInstagramModal] = useState(false);
+  const [activeEconomyModal, setActiveEconomyModal] = useState<EconomyStep | null>(null);
+
+
+  // Check for reset_onboarding param (for demo/testing)
+  const shouldReset = searchParams.get('reset_onboarding') === 'true';
+  if (shouldReset) {
+    localStorage.removeItem('promorang_onboarding_complete');
+    localStorage.removeItem('promorang_show_hub');
+    localStorage.removeItem('promorang_user_preferences');
+    // Clear the param from URL
+    searchParams.delete('reset_onboarding');
+    setSearchParams(searchParams, { replace: true });
+  }
+
+  const [showHubView, setShowHubView] = useState(() => {
+    // Check localStorage to see if user has previously opted into hub view
+
+    return localStorage.getItem('promorang_show_hub') === 'true';
+  });
+
+  // Handle expanding to hub view
+  const handleExpandHub = () => {
+    localStorage.setItem('promorang_show_hub', 'true');
+    setShowHubView(true);
+  };
+
+  // Check if user has completed onboarding
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(() => {
+    return localStorage.getItem('promorang_onboarding_complete') === 'true';
+  });
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = async (preferences: UserPreferences) => {
+    // Save to localStorage
+    localStorage.setItem('promorang_onboarding_complete', 'true');
+    localStorage.setItem('promorang_user_preferences', JSON.stringify(preferences));
+    setHasCompletedOnboarding(true);
+
+    // Also try to save to backend if user is logged in
+    if (user) {
+      try {
+        await fetch(`${API_BASE}/api/users/preferences`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(preferences),
+        });
+      } catch (error) {
+        console.error('Failed to save preferences to backend:', error);
+      }
+    }
+  };
 
   // Fetch user balances
   useEffect(() => {
@@ -146,10 +234,9 @@ export default function StartPage() {
   const pointsToFirstKey = Math.max(0, POINTS_PER_KEY - balances.points_balance);
   const progressToKey = Math.min((balances.points_balance / POINTS_PER_KEY) * 100, 100);
 
-  // Instagram connect handler - opens ManyChat flow
+  // Instagram connect handler - now opens modal instead of direct link
   const handleInstagramConnect = () => {
-    // This would open the Instagram DM flow via ManyChat
-    window.open('https://ig.me/m/promorang', '_blank');
+    setShowInstagramModal(true);
   };
 
   // -----------------------------------------
@@ -252,7 +339,8 @@ export default function StartPage() {
           {/* Quick Links */}
           <section>
             <h2 className="text-lg font-semibold text-pr-text-1 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {/* Today - Primary with pulse */}
               <Link to="/today" className="group">
                 <Card className="p-4 bg-pr-surface-card border border-orange-500/30 hover:border-orange-500/50 transition-all text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0">
@@ -261,32 +349,33 @@ export default function StartPage() {
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                    <TrendingUp className="h-6 w-6 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="font-semibold text-pr-text-1 group-hover:text-orange-500 transition-colors">Today</h3>
-                  <p className="text-xs text-pr-text-2 mt-1">View daily opportunities</p>
+                  <h3 className="font-semibold text-pr-text-1 text-sm group-hover:text-orange-500 transition-colors">Today</h3>
+                  <p className="text-[10px] text-pr-text-2 mt-1">Daily opportunities</p>
                 </Card>
               </Link>
-              {DROP_CATEGORIES.map((category) => (
+              {/* Auto-generate from DROP_CATEGORIES */}
+              {DROP_CATEGORIES.slice(0, 5).map((category) => (
                 <Link key={category.path} to={category.path} className="group">
-                  <Card className="p-4 bg-pr-surface-card border border-pr-border hover:border-transparent hover:shadow-lg transition-all text-center">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
-                      <category.icon className="h-6 w-6 text-white" />
+                  <Card className="p-4 bg-pr-surface-card border border-pr-border hover:border-transparent hover:shadow-lg transition-all text-center h-full">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
+                      <category.icon className="h-5 w-5 text-white" />
                     </div>
-                    <h3 className="font-semibold text-pr-text-1 group-hover:text-orange-500 transition-colors">{category.title}</h3>
-                    <p className="text-xs text-pr-text-2 mt-1">Explore {category.title.toLowerCase()}</p>
+                    <h3 className="font-semibold text-pr-text-1 text-sm group-hover:text-orange-500 transition-colors">{category.title}</h3>
+                    <p className="text-[10px] text-pr-text-2 mt-1 truncate">{category.caption.split(' ').slice(0, 4).join(' ')}</p>
                   </Card>
                 </Link>
               ))}
-              {/* Contribute Card */}
+              {/* Contribute */}
               <Link to="/contribute" className="group">
-                <Card className="p-4 bg-pr-surface-card border border-purple-500/30 hover:border-purple-500/50 transition-all text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                    <Users className="h-6 w-6 text-white" />
+                <Card className="p-4 bg-pr-surface-card border border-purple-500/30 hover:border-purple-500/50 transition-all text-center h-full">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                    <Users className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="font-semibold text-pr-text-1 group-hover:text-purple-500 transition-colors">Contribute</h3>
-                  <p className="text-xs text-pr-text-2 mt-1">Grow your network</p>
+                  <h3 className="font-semibold text-pr-text-1 text-sm group-hover:text-purple-500 transition-colors">Contribute</h3>
+                  <p className="text-[10px] text-pr-text-2 mt-1">Grow the network</p>
                 </Card>
               </Link>
             </div>
@@ -362,8 +451,32 @@ export default function StartPage() {
   }
 
   // -----------------------------------------
-  // State 0 Users: Show Full Onboarding
+  // State 0 Users: Show First Contact or Full Hub
   // -----------------------------------------
+
+  // First, show onboarding questionnaire if not completed
+  if (!hasCompletedOnboarding) {
+    const displayName = user ? (user as any).user_metadata?.display_name : undefined;
+    return (
+      <OnboardingFlow
+        onComplete={handleOnboardingComplete}
+        userName={displayName}
+      />
+    );
+  }
+
+  // Show simplified First Contact View if user hasn't opted into hub
+  if (!showHubView) {
+    const displayName = user ? (user as any).user_metadata?.display_name : undefined;
+    return (
+      <FirstContactView
+        onExpandHub={handleExpandHub}
+        userName={displayName}
+      />
+    );
+  }
+
+  // Full Hub View (user has clicked "Explore all options")
   return (
     <EntryLayout showBackToStart={false}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
@@ -427,13 +540,18 @@ export default function StartPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {ECONOMY_STEPS.map((step, index) => (
               <div key={index} className="relative">
-                <Card className="p-4 bg-pr-surface-card border border-pr-border text-center h-full">
-                  <div className={`w-10 h-10 rounded-xl ${step.bgColor} flex items-center justify-center mx-auto mb-2`}>
-                    <step.icon className={`h-5 w-5 ${step.color}`} />
-                  </div>
-                  <h3 className="text-sm font-semibold text-pr-text-1">{step.label}</h3>
-                  <p className="text-xs text-pr-text-2 mt-1">{step.description}</p>
-                </Card>
+                <button
+                  onClick={() => setActiveEconomyModal(step.modalKey)}
+                  className="w-full text-left group"
+                >
+                  <Card className="p-4 bg-pr-surface-card border border-pr-border text-center h-full hover:border-orange-500/50 hover:shadow-lg transition-all cursor-pointer">
+                    <div className={`w-10 h-10 rounded-xl ${step.bgColor} flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
+                      <step.icon className={`h-5 w-5 ${step.color}`} />
+                    </div>
+                    <h3 className="text-sm font-semibold text-pr-text-1">{step.label}</h3>
+                    <p className="text-xs text-pr-text-2 mt-1">{step.description}</p>
+                  </Card>
+                </button>
                 {index < ECONOMY_STEPS.length - 1 && (
                   <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
                     <ArrowRight className="h-4 w-4 text-pr-text-2" />
@@ -444,21 +562,22 @@ export default function StartPage() {
           </div>
         </section>
 
+
         {/* Already a pro section */}
         <section className="bg-pr-surface-2 rounded-2xl p-6 border border-pr-border">
           <h2 className="text-xl font-bold text-pr-text-1 text-center mb-6">You're already a pro at this</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {[
               { icon: '📱', action: 'Liking & saving posts', result: 'Builds your social capital' },
               { icon: '💬', action: 'Tagging friends in comments', result: 'Expands your influence' },
               { icon: '📍', action: 'Visiting local businesses', result: 'Proves your real-world presence' },
               { icon: '🤳', action: 'Sharing what you love', result: 'Drives authentic discovery' }
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-4 bg-pr-surface-card p-4 rounded-xl border border-pr-border">
-                <div className="text-2xl">{item.icon}</div>
-                <div>
-                  <div className="font-bold text-pr-text-1">{item.action}</div>
-                  <div className="text-xs text-pr-text-2">{item.result}</div>
+              <div key={i} className="flex items-center gap-3 bg-pr-surface-card p-3 rounded-xl border border-pr-border">
+                <div className="text-xl">{item.icon}</div>
+                <div className="min-w-0">
+                  <div className="font-bold text-pr-text-1 text-sm">{item.action}</div>
+                  <div className="text-xs text-pr-text-2 truncate">{item.result}</div>
                 </div>
                 <div className="ml-auto text-green-500 font-bold">✓</div>
               </div>
@@ -466,60 +585,97 @@ export default function StartPage() {
           </div>
         </section>
 
-        {/* Access Rank Journey - Visual Timeline */}
-        <section className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-6 border border-indigo-500/20">
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-bold text-pr-text-1 flex items-center justify-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-500" />
-              Your Access Rank Journey
-            </h2>
-            <p className="text-sm text-pr-text-2 mt-1">
-              Show up consistently → Unlock more opportunities
-            </p>
-          </div>
-
-          {/* Rank Timeline */}
-          <div className="space-y-3">
-            {[
-              { emoji: '🌱', name: 'New', days: 'Day 0', unlocks: 'Today page, Entry surfaces', current: maturityState === 0 },
-              { emoji: '🔍', name: 'Explorer', days: 'Day 1+', unlocks: 'Daily Draw, Post Proof', current: maturityState === 1 },
-              { emoji: '⭐', name: 'Member', days: 'Day 7+', unlocks: 'Leaderboard, PromoShare, Referrals', current: maturityState === 2 },
-              { emoji: '💎', name: 'Insider', days: 'Day 14+', unlocks: 'Growth Hub, Priority Access', current: maturityState >= 3 },
-            ].map((rank, index) => (
-              <div
-                key={rank.name}
-                className={`flex items-center gap-4 p-3 rounded-xl transition-all ${rank.current
-                  ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-400'
-                  : maturityState > index
-                    ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-                    : 'bg-pr-surface-2 border border-pr-border opacity-60'
-                  }`}
-              >
-                <div className="text-2xl">{rank.emoji}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-pr-text-1">{rank.name}</span>
-                    <span className="text-xs text-pr-text-3">{rank.days}</span>
-                    {rank.current && (
-                      <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded-full">
-                        You
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-pr-text-2 truncate">{rank.unlocks}</p>
-                </div>
-                {maturityState > index && !rank.current && (
-                  <div className="text-green-500 text-sm font-medium">✓</div>
-                )}
+        {/* MOVED: Instagram Connect CTA - Now appears early */}
+        <section className="bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600 rounded-2xl p-6 text-white">
+          <div className="flex flex-col md:flex-row items-center gap-5">
+            <div className="flex-shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                <Instagram className="h-7 w-7" />
               </div>
-            ))}
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-lg md:text-xl font-bold mb-1">
+                Verify Your Presence & Get Started
+              </h2>
+              <p className="text-white/80 text-sm">
+                We verify real accounts so brands reward real people.
+              </p>
+              <p className="text-[10px] text-white/60 mt-1">
+                Connecting does not post on your behalf.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={handleInstagramConnect}
+              className="bg-white text-purple-600 hover:bg-white/90 font-semibold px-5 flex-shrink-0"
+            >
+              <Instagram className="h-5 w-5 mr-2" />
+              Connect Instagram
+              <ExternalLink className="h-4 w-4 ml-2" />
+            </Button>
           </div>
+        </section>
+
+        {/* Access Rank Journey - Collapsible */}
+        <section className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-5 border border-indigo-500/20">
+          <button
+            onClick={() => setShowRankDetails(!showRankDetails)}
+            className="w-full flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-purple-500" />
+              <h2 className="text-lg font-bold text-pr-text-1">Your Access Rank Journey</h2>
+            </div>
+            <ChevronDown className={`h-5 w-5 text-pr-text-2 transition-transform ${showRankDetails ? 'rotate-180' : ''}`} />
+          </button>
+          <p className="text-sm text-pr-text-2 mt-1 ml-7">
+            Show up consistently → Unlock more opportunities
+          </p>
+
+          {/* Rank Timeline - Collapsible */}
+          {showRankDetails && (
+            <div className="space-y-3 mt-4">
+              {[
+                { emoji: '🌱', name: 'New', days: 'Day 0', unlocks: 'Today page, Entry surfaces', current: maturityState === 0 },
+                { emoji: '🔍', name: 'Explorer', days: 'Day 1+', unlocks: 'Daily Draw, Post Proof', current: maturityState === 1 },
+                { emoji: '⭐', name: 'Member', days: 'Day 7+', unlocks: 'Leaderboard, PromoShare, Referrals', current: maturityState === 2 },
+                { emoji: '💎', name: 'Insider', days: 'Day 14+', unlocks: 'Growth Hub, Priority Access', current: maturityState >= 3 },
+              ].map((rank, index) => (
+                <div
+                  key={rank.name}
+                  className={`flex items-center gap-4 p-3 rounded-xl transition-all ${rank.current
+                    ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-400'
+                    : maturityState > index
+                      ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                      : 'bg-pr-surface-2 border border-pr-border opacity-60'
+                    }`}
+                >
+                  <div className="text-2xl">{rank.emoji}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-pr-text-1">{rank.name}</span>
+                      <span className="text-xs text-pr-text-3">{rank.days}</span>
+                      {rank.current && (
+                        <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded-full">
+                          You
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-pr-text-2 truncate">{rank.unlocks}</p>
+                  </div>
+                  {maturityState > index && !rank.current && (
+                    <div className="text-green-500 text-sm font-medium">✓</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* CTA */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <Link
               to="/access-rank"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-xl hover:opacity-90 transition-opacity text-sm"
+              className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-xl hover:opacity-90 transition-opacity text-sm"
             >
               View Full Progress
               <ArrowRight className="w-4 h-4" />
@@ -560,37 +716,6 @@ export default function StartPage() {
           </section>
         )}
 
-        {/* Instagram Connect CTA - Primary Action */}
-        <section className="bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600 rounded-2xl p-6 md:p-8 text-white">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
-                <Instagram className="h-8 w-8" />
-              </div>
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-xl md:text-2xl font-bold mb-2">
-                Verify Your Presence & Get Started Instantly
-              </h2>
-              <p className="text-white/80 text-sm md:text-base">
-                We verify real accounts so brands reward real people. Your following becomes your starting advantage.
-              </p>
-              <p className="text-[10px] text-white/60 mt-2">
-                Connecting does not post on your behalf.
-              </p>
-            </div>
-            <Button
-              size="lg"
-              onClick={handleInstagramConnect}
-              className="bg-white text-purple-600 hover:bg-white/90 font-semibold px-6 flex-shrink-0"
-            >
-              <Instagram className="h-5 w-5 mr-2" />
-              Connect Instagram
-              <ExternalLink className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </section>
-
         {/* Personalization Preferences - Replaces old profile/referral CTAs */}
         {user && (
           <section>
@@ -606,11 +731,11 @@ export default function StartPage() {
         )}
 
 
-        {/* Explore Drops */}
+        {/* Ways to Earn */}
         <section>
-          <h2 className="text-lg font-semibold text-pr-text-1 mb-2">Explore Drops</h2>
-          <p className="text-sm text-pr-text-2 mb-4">These are the three ways people earn on Promorang.</p>
-          <div className="grid grid-cols-3 gap-4">
+          <h2 className="text-lg font-semibold text-pr-text-1 mb-2">Ways to Earn</h2>
+          <p className="text-sm text-pr-text-2 mb-4">Discover the different ways to get rewarded on Promorang.</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {DROP_CATEGORIES.map((category) => (
               <Link
                 key={category.path}
@@ -739,6 +864,23 @@ export default function StartPage() {
           </Card>
         </section>
       </div>
+
+      {/* Instagram Connect Modal */}
+      <InstagramConnectModal
+        isOpen={showInstagramModal}
+        onClose={() => setShowInstagramModal(false)}
+      />
+
+      {/* Economy Step Modals */}
+      {activeEconomyModal && (
+        <EconomyStepModal
+          step={activeEconomyModal}
+          isOpen={true}
+          onClose={() => setActiveEconomyModal(null)}
+          onOpenInstagramModal={() => setShowInstagramModal(true)}
+        />
+      )}
     </EntryLayout>
+
   );
 }

@@ -35,6 +35,7 @@ import Tooltip from '@/react-app/components/Tooltip';
 import CommentSystem from '@/react-app/components/CommentSystem';
 import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import TipModal from '@/react-app/components/TipModal';
+import ClaimContentModal from '@/react-app/components/ClaimContentModal';
 import { buildAuthHeaders } from '@/react-app/utils/api';
 import { API_BASE_URL } from '../config';
 
@@ -52,6 +53,7 @@ interface ExtendedContentPieceType extends ContentPieceType {
   total_shares?: number;
   is_demo?: boolean;
   is_sponsored?: boolean;
+  is_claimed?: boolean;
   [key: string]: any;
 }
 
@@ -147,6 +149,7 @@ const normalizeContent = (raw: any, seed: number): ExtendedContentPieceType => {
     reposts_count: Number(raw.reposts_count ?? raw.shares ?? fallback.reposts_count),
     is_demo: Boolean(raw.is_demo ?? fallback.is_demo),
     is_sponsored: Boolean(raw.is_sponsored ?? fallback.is_sponsored),
+    is_claimed: Boolean(raw.is_claimed ?? (raw.status === 'published')),
     created_at: raw.created_at ?? fallback.created_at,
     updated_at: raw.updated_at ?? raw.created_at ?? fallback.updated_at,
   };
@@ -182,6 +185,7 @@ export default function ContentDetail() {
   const [sponsorshipModalOpen, setSponsorshipModalOpen] = useState(false);
   const [sponsorshipData, setSponsorshipData] = useState<any>(null);
   const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
 
   // Check if this is demo content
   const isDemo = content?.title?.toLowerCase().includes('[demo]') ||
@@ -704,6 +708,19 @@ export default function ContentDetail() {
                 <span className="hidden sm:inline">Delete</span>
               </button>
             </Tooltip>
+          </div>
+        )}
+
+        {/* Claim Action for Ghost Content */}
+        {!content.is_claimed && !isOwner && userData?.user_type === 'creator' && (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setClaimModalOpen(true)}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold transition-all shadow-md flex items-center space-x-2"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Claim Ownership</span>
+            </button>
           </div>
         )}
       </div>
@@ -1356,6 +1373,21 @@ export default function ContentDetail() {
             isOpen={tipModalOpen}
             onClose={() => setTipModalOpen(false)}
             onTip={handleTip}
+          />
+
+          <ClaimContentModal
+            isOpen={claimModalOpen}
+            onClose={() => setClaimModalOpen(false)}
+            content={{
+              id: content.id,
+              title: content.title,
+              platform: content.platform,
+              media_url: content.media_url
+            }}
+            onSuccess={() => {
+              fetchContentDetail();
+              fetchUserData();
+            }}
           />
         </>
       )

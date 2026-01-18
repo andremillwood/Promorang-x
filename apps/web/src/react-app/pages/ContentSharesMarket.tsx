@@ -33,6 +33,7 @@ import {
   Layers,
 } from 'lucide-react';
 import Breadcrumbs from '@/react-app/components/ui/Breadcrumbs';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 
 interface Category {
   id: string;
@@ -153,18 +154,18 @@ const formatVolume = (value: number) => {
 // Mini sparkline chart component
 const MiniChart = ({ data, color, height = 40 }: { data: number[]; color: string; height?: number }) => {
   if (!data || data.length < 2) return null;
-  
+
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
   const width = 100;
-  
+
   const points = data.map((value, index) => {
     const x = (index / (data.length - 1)) * width;
     const y = height - ((value - min) / range) * height;
     return `${x},${y}`;
   }).join(' ');
-  
+
   return (
     <svg width={width} height={height} className="overflow-visible">
       <polyline
@@ -180,12 +181,12 @@ const MiniChart = ({ data, color, height = 40 }: { data: number[]; color: string
 };
 
 // Candlestick chart component
-const CandlestickChart = ({ 
-  data, 
+const CandlestickChart = ({
+  data,
   height = 200,
-  showVolume = true 
-}: { 
-  data: OHLCData[]; 
+  showVolume = true
+}: {
+  data: OHLCData[];
   height?: number;
   showVolume?: boolean;
 }) => {
@@ -273,12 +274,12 @@ const CandlestickChart = ({
 };
 
 // Category card component
-const CategoryCard = ({ 
-  category, 
+const CategoryCard = ({
+  category,
   index: categoryIndex,
-  onClick 
-}: { 
-  category: Category; 
+  onClick
+}: {
+  category: Category;
   index?: CategoryIndex;
   onClick: () => void;
 }) => {
@@ -322,7 +323,7 @@ const ShareRow = ({ share, onClick }: { share: ContentShare; onClick: () => void
   const isPositive = share.change_24h >= 0;
 
   return (
-    <tr 
+    <tr
       onClick={onClick}
       className="border-b border-pr-surface-3 hover:bg-pr-surface-2 cursor-pointer transition-colors"
     >
@@ -365,11 +366,11 @@ const ShareRow = ({ share, onClick }: { share: ContentShare; onClick: () => void
 };
 
 // Mover card component
-const MoverCard = ({ 
-  mover, 
-  type 
-}: { 
-  mover: Mover; 
+const MoverCard = ({
+  mover,
+  type
+}: {
+  mover: Mover;
   type: 'gainer' | 'loser' | 'traded';
 }) => {
   const isGainer = type === 'gainer';
@@ -400,9 +401,9 @@ const ForecastCard = ({ forecast, onClick }: { forecast: SocialForecast; onClick
   const timeLeft = new Date(forecast.expires_at).getTime() - Date.now();
   const hoursLeft = Math.max(0, Math.floor(timeLeft / (1000 * 60 * 60)));
   const progress = forecast.target_value > 0 ? (forecast.current_value / forecast.target_value) * 100 : 0;
-  
+
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-pr-surface-1 rounded-xl p-4 border border-pr-surface-3 hover:border-blue-500/50 transition-all cursor-pointer"
     >
@@ -411,29 +412,28 @@ const ForecastCard = ({ forecast, onClick }: { forecast: SocialForecast; onClick
           <Target className="w-4 h-4 text-purple-500" />
           <span className="text-xs font-medium text-purple-500 uppercase">{forecast.forecast_type}</span>
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full ${
-          forecast.status === 'active' ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'
-        }`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${forecast.status === 'active' ? 'bg-green-500/20 text-green-500' : 'bg-gray-500/20 text-gray-500'
+          }`}>
           {forecast.status}
         </span>
       </div>
-      
+
       <h3 className="font-medium text-pr-text-1 mb-1 line-clamp-1">{forecast.content_title}</h3>
       <p className="text-xs text-pr-text-2 mb-3">{forecast.creator_name} • {forecast.platform}</p>
-      
+
       <div className="mb-3">
         <div className="flex justify-between text-xs mb-1">
           <span className="text-pr-text-2">Progress</span>
           <span className="text-pr-text-1">{forecast.current_value.toLocaleString()} / {forecast.target_value.toLocaleString()}</span>
         </div>
         <div className="h-2 bg-pr-surface-3 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all"
             style={{ width: `${Math.min(100, progress)}%` }}
           />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-2 text-center">
         <div>
           <p className="text-xs text-pr-text-2">Odds</p>
@@ -458,7 +458,9 @@ const ForecastCard = ({ forecast, onClick }: { forecast: SocialForecast; onClick
 export default function ContentSharesMarket() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+  const { maturityState } = useMaturity();
+  const isExplorerView = maturityState <= 1;
+
   const [activeTab, setActiveTab] = useState<'shares' | 'forecasts'>(
     searchParams.get('tab') === 'forecasts' ? 'forecasts' : 'shares'
   );
@@ -570,7 +572,7 @@ export default function ContentSharesMarket() {
   // Handle search
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+
     try {
       const res = await fetch(`/api/market/search?q=${encodeURIComponent(searchQuery)}`);
       if (res.ok) {
@@ -628,9 +630,9 @@ export default function ContentSharesMarket() {
   // Build breadcrumb items
   const breadcrumbItems = selectedCategory
     ? [
-        { label: 'Explore', href: '/market' },
-        { label: categories.find(c => c.slug === selectedCategory)?.name || selectedCategory },
-      ]
+      { label: 'Explore', href: '/market' },
+      { label: categories.find(c => c.slug === selectedCategory)?.name || selectedCategory },
+    ]
     : [{ label: 'Explore' }];
 
   return (
@@ -642,53 +644,72 @@ export default function ContentSharesMarket() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-pr-text-1">Explore Market</h1>
-            <p className="text-pr-text-2 mt-1">Discover content shares and social forecasts</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-pr-text-1">
+              {isExplorerView ? 'Trending Hits' : 'Explore Market'}
+            </h1>
+            <p className="text-pr-text-2 mt-1">
+              {isExplorerView
+                ? 'Discover what\'s going viral & invest in culture'
+                : 'Discover content shares and social forecasts'}
+            </p>
           </div>
-          
-          {/* Search */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1 md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pr-text-2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder={activeTab === 'shares' ? "Search shares..." : "Search forecasts..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-11 pr-4 py-2 bg-pr-surface-1 border border-pr-surface-3 rounded-lg text-pr-text-1 placeholder-pr-text-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+          {/* Search - Hide for Explorer View */}
+          {!isExplorerView && (
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pr-text-2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder={activeTab === 'shares' ? "Search shares..." : "Search forecasts..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  className="w-full pl-11 pr-4 py-2 bg-pr-surface-1 border border-pr-surface-3 rounded-lg text-pr-text-1 placeholder-pr-text-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <button
+                onClick={() => navigate('/invest')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <Star className="w-4 h-4" />
+                <span className="hidden sm:inline">My Portfolio</span>
+              </button>
             </div>
-            <button
-              onClick={() => navigate('/invest')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <Star className="w-4 h-4" />
-              <span className="hidden sm:inline">My Portfolio</span>
-            </button>
-          </div>
+          )}
         </div>
+
+        {/* Rank Up Banner for Explorer View */}
+        {isExplorerView && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-blue-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-pr-text-1">New to Trend Investing?</p>
+                <p className="text-xs text-pr-text-2">Complete daily actions to rank up and unlock advanced trading tools!</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex items-center gap-1 bg-pr-surface-1 rounded-xl p-1 mb-6 w-fit border border-pr-surface-3">
           <button
             onClick={() => handleTabChange('shares')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'shares'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'shares'
                 ? 'bg-blue-600 text-white'
                 : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
-            }`}
+              }`}
           >
             <Layers className="w-4 h-4" />
             Content Shares
           </button>
           <button
             onClick={() => handleTabChange('forecasts')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'forecasts'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'forecasts'
                 ? 'bg-purple-600 text-white'
                 : 'text-pr-text-2 hover:text-pr-text-1 hover:bg-pr-surface-2'
-            }`}
+              }`}
           >
             <Target className="w-4 h-4" />
             Social Forecasts
@@ -703,206 +724,205 @@ export default function ContentSharesMarket() {
         {/* Content Shares Tab */}
         {activeTab === 'shares' && (
           <>
-        {/* Market Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Main Index Chart */}
-          <div className="lg:col-span-2 bg-pr-surface-1 rounded-xl p-6 border border-pr-surface-3">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold text-pr-text-1">Promorang Content Index</h2>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-2xl font-bold text-pr-text-1">
-                    {marketOverview?.index_value?.toFixed(2) || '1,000.00'}
-                  </span>
-                  <span className={`flex items-center text-sm font-medium ${isMarketUp ? 'text-green-500' : 'text-red-500'}`}>
-                    {isMarketUp ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-                    {isMarketUp ? '+' : ''}{indexChange.toFixed(2)}%
-                  </span>
+            {/* Market Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Main Index Chart */}
+              <div className="lg:col-span-2 bg-pr-surface-1 rounded-xl p-6 border border-pr-surface-3">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-pr-text-1">Promorang Content Index</h2>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-2xl font-bold text-pr-text-1">
+                        {marketOverview?.index_value?.toFixed(2) || '1,000.00'}
+                      </span>
+                      <span className={`flex items-center text-sm font-medium ${isMarketUp ? 'text-green-500' : 'text-red-500'}`}>
+                        {isMarketUp ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
+                        {isMarketUp ? '+' : ''}{indexChange.toFixed(2)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Timeframe selector */}
+                  <div className="flex items-center gap-1 bg-pr-surface-2 rounded-lg p-1">
+                    {(['1h', '4h', '1d', '1w'] as const).map((tf) => (
+                      <button
+                        key={tf}
+                        onClick={() => setTimeframe(tf)}
+                        className={`px-3 py-1 text-sm rounded-md transition-colors ${timeframe === tf
+                            ? 'bg-blue-600 text-white'
+                            : 'text-pr-text-2 hover:text-pr-text-1'
+                          }`}
+                      >
+                        {tf.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Candlestick Chart */}
+                <div className="h-64">
+                  <CandlestickChart data={indexHistory} height={200} showVolume={true} />
+                </div>
+
+                {/* Market Stats */}
+                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-pr-surface-3">
+                  <div>
+                    <p className="text-xs text-pr-text-2">Market Cap</p>
+                    <p className="font-semibold text-pr-text-1">{formatCurrency(marketOverview?.total_market_cap || 0)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-pr-text-2">24h Volume</p>
+                    <p className="font-semibold text-pr-text-1">{formatVolume(marketOverview?.total_volume || 0)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-pr-text-2">Active Shares</p>
+                    <p className="font-semibold text-pr-text-1">{marketOverview?.active_shares || 0}</p>
+                  </div>
                 </div>
               </div>
-              
-              {/* Timeframe selector */}
-              <div className="flex items-center gap-1 bg-pr-surface-2 rounded-lg p-1">
-                {(['1h', '4h', '1d', '1w'] as const).map((tf) => (
-                  <button
-                    key={tf}
-                    onClick={() => setTimeframe(tf)}
-                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                      timeframe === tf
-                        ? 'bg-blue-600 text-white'
-                        : 'text-pr-text-2 hover:text-pr-text-1'
-                    }`}
+
+              {/* Top Movers */}
+              <div className="bg-pr-surface-1 rounded-xl border border-pr-surface-3 overflow-hidden">
+                <div className="p-4 border-b border-pr-surface-3">
+                  <h3 className="font-semibold text-pr-text-1 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    Top Movers
+                  </h3>
+                </div>
+
+                <div className="divide-y divide-pr-surface-3">
+                  {/* Gainers */}
+                  <div className="p-3">
+                    <p className="text-xs font-medium text-green-500 mb-2 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3" /> Top Gainers
+                    </p>
+                    {(marketOverview?.top_gainers || []).slice(0, 3).map((mover, i) => (
+                      <MoverCard key={i} mover={mover} type="gainer" />
+                    ))}
+                  </div>
+
+                  {/* Losers */}
+                  <div className="p-3">
+                    <p className="text-xs font-medium text-red-500 mb-2 flex items-center gap-1">
+                      <TrendingDown className="w-3 h-3" /> Top Losers
+                    </p>
+                    {(marketOverview?.top_losers || []).slice(0, 3).map((mover, i) => (
+                      <MoverCard key={i} mover={mover} type="loser" />
+                    ))}
+                  </div>
+
+                  {/* Most Traded */}
+                  <div className="p-3">
+                    <p className="text-xs font-medium text-pr-text-2 mb-2 flex items-center gap-1">
+                      <Activity className="w-3 h-3" /> Most Traded
+                    </p>
+                    {(marketOverview?.most_traded || []).slice(0, 3).map((mover, i) => (
+                      <MoverCard key={i} mover={mover} type="traded" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Categories Grid */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-pr-text-1">Browse by Category</h2>
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSearchParams({});
+                  }}
+                  className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                >
+                  View All <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {categories.slice(0, 12).map((category) => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    index={getCategoryIndex(category.id)}
+                    onClick={() => handleCategoryClick(category.slug)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Shares Table */}
+            <div className="bg-pr-surface-1 rounded-xl border border-pr-surface-3 overflow-hidden">
+              <div className="p-4 border-b border-pr-surface-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h3 className="font-semibold text-pr-text-1">
+                  {selectedCategory
+                    ? `${categories.find(c => c.slug === selectedCategory)?.name || 'Category'} Shares`
+                    : 'All Content Shares'
+                  }
+                </h3>
+
+                {/* Sort controls */}
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-pr-text-2" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    className="bg-pr-surface-2 border border-pr-surface-3 rounded-lg px-3 py-1.5 text-sm text-pr-text-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {tf.toUpperCase()}
+                    <option value="volume">Volume</option>
+                    <option value="change">24h Change</option>
+                    <option value="price">Price</option>
+                    <option value="market_cap">Market Cap</option>
+                  </select>
+                  <button
+                    onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                    className="p-1.5 bg-pr-surface-2 border border-pr-surface-3 rounded-lg hover:bg-pr-surface-3 transition-colors"
+                  >
+                    {sortOrder === 'desc' ? (
+                      <ArrowDownRight className="w-4 h-4 text-pr-text-2" />
+                    ) : (
+                      <ArrowUpRight className="w-4 h-4 text-pr-text-2" />
+                    )}
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-            
-            {/* Candlestick Chart */}
-            <div className="h-64">
-              <CandlestickChart data={indexHistory} height={200} showVolume={true} />
-            </div>
-            
-            {/* Market Stats */}
-            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-pr-surface-3">
-              <div>
-                <p className="text-xs text-pr-text-2">Market Cap</p>
-                <p className="font-semibold text-pr-text-1">{formatCurrency(marketOverview?.total_market_cap || 0)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-pr-text-2">24h Volume</p>
-                <p className="font-semibold text-pr-text-1">{formatVolume(marketOverview?.total_volume || 0)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-pr-text-2">Active Shares</p>
-                <p className="font-semibold text-pr-text-1">{marketOverview?.active_shares || 0}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Top Movers */}
-          <div className="bg-pr-surface-1 rounded-xl border border-pr-surface-3 overflow-hidden">
-            <div className="p-4 border-b border-pr-surface-3">
-              <h3 className="font-semibold text-pr-text-1 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                Top Movers
-              </h3>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : sortedShares.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-pr-text-2">
+                  <BarChart3 className="w-12 h-12 mb-3 opacity-50" />
+                  <p>No shares found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-pr-surface-2 text-xs text-pr-text-2 uppercase">
+                      <tr>
+                        <th className="py-3 px-4 text-left">Content</th>
+                        <th className="py-3 px-4 text-right">Price</th>
+                        <th className="py-3 px-4 text-right">24h Change</th>
+                        <th className="py-3 px-4 text-right">Volume</th>
+                        <th className="py-3 px-4 text-right">Market Cap</th>
+                        <th className="py-3 px-4 text-right">Holders</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedShares.map((share) => (
+                        <ShareRow
+                          key={share.id}
+                          share={share}
+                          onClick={() => navigate(`/invest?content=${share.content_id}`)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-            
-            <div className="divide-y divide-pr-surface-3">
-              {/* Gainers */}
-              <div className="p-3">
-                <p className="text-xs font-medium text-green-500 mb-2 flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" /> Top Gainers
-                </p>
-                {(marketOverview?.top_gainers || []).slice(0, 3).map((mover, i) => (
-                  <MoverCard key={i} mover={mover} type="gainer" />
-                ))}
-              </div>
-              
-              {/* Losers */}
-              <div className="p-3">
-                <p className="text-xs font-medium text-red-500 mb-2 flex items-center gap-1">
-                  <TrendingDown className="w-3 h-3" /> Top Losers
-                </p>
-                {(marketOverview?.top_losers || []).slice(0, 3).map((mover, i) => (
-                  <MoverCard key={i} mover={mover} type="loser" />
-                ))}
-              </div>
-              
-              {/* Most Traded */}
-              <div className="p-3">
-                <p className="text-xs font-medium text-pr-text-2 mb-2 flex items-center gap-1">
-                  <Activity className="w-3 h-3" /> Most Traded
-                </p>
-                {(marketOverview?.most_traded || []).slice(0, 3).map((mover, i) => (
-                  <MoverCard key={i} mover={mover} type="traded" />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Categories Grid */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-pr-text-1">Browse by Category</h2>
-            <button
-              onClick={() => {
-                setSelectedCategory(null);
-                setSearchParams({});
-              }}
-              className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1"
-            >
-              View All <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {categories.slice(0, 12).map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                index={getCategoryIndex(category.id)}
-                onClick={() => handleCategoryClick(category.slug)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Shares Table */}
-        <div className="bg-pr-surface-1 rounded-xl border border-pr-surface-3 overflow-hidden">
-          <div className="p-4 border-b border-pr-surface-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h3 className="font-semibold text-pr-text-1">
-              {selectedCategory 
-                ? `${categories.find(c => c.slug === selectedCategory)?.name || 'Category'} Shares`
-                : 'All Content Shares'
-              }
-            </h3>
-            
-            {/* Sort controls */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-pr-text-2" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="bg-pr-surface-2 border border-pr-surface-3 rounded-lg px-3 py-1.5 text-sm text-pr-text-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="volume">Volume</option>
-                <option value="change">24h Change</option>
-                <option value="price">Price</option>
-                <option value="market_cap">Market Cap</option>
-              </select>
-              <button
-                onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-                className="p-1.5 bg-pr-surface-2 border border-pr-surface-3 rounded-lg hover:bg-pr-surface-3 transition-colors"
-              >
-                {sortOrder === 'desc' ? (
-                  <ArrowDownRight className="w-4 h-4 text-pr-text-2" />
-                ) : (
-                  <ArrowUpRight className="w-4 h-4 text-pr-text-2" />
-                )}
-              </button>
-            </div>
-          </div>
-          
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : sortedShares.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-pr-text-2">
-              <BarChart3 className="w-12 h-12 mb-3 opacity-50" />
-              <p>No shares found</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-pr-surface-2 text-xs text-pr-text-2 uppercase">
-                  <tr>
-                    <th className="py-3 px-4 text-left">Content</th>
-                    <th className="py-3 px-4 text-right">Price</th>
-                    <th className="py-3 px-4 text-right">24h Change</th>
-                    <th className="py-3 px-4 text-right">Volume</th>
-                    <th className="py-3 px-4 text-right">Market Cap</th>
-                    <th className="py-3 px-4 text-right">Holders</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedShares.map((share) => (
-                    <ShareRow
-                      key={share.id}
-                      share={share}
-                      onClick={() => navigate(`/invest?content=${share.content_id}`)}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-        </>
+          </>
         )}
 
         {/* Forecasts Tab */}
@@ -929,7 +949,7 @@ export default function ContentSharesMarket() {
               <div className="bg-pr-surface-1 rounded-xl p-4 border border-pr-surface-3">
                 <p className="text-xs text-pr-text-2 mb-1">Avg Odds</p>
                 <p className="text-2xl font-bold text-pr-text-1">
-                  {forecasts.length > 0 
+                  {forecasts.length > 0
                     ? (forecasts.reduce((sum, f) => sum + (f.odds || 0), 0) / forecasts.length).toFixed(2)
                     : '0.00'}x
                 </p>

@@ -576,14 +576,24 @@ export default function Checkout() {
                   <span className="text-3xl font-black text-blue-600 tracking-tighter">${finalTotals.usd.toFixed(2)}</span>
                 </div>
 
-                {maturityState < 2 && (
+                {maturityState < 2 ? (
                   <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 mt-4 mb-2">
                     <p className="text-[10px] font-bold text-blue-600 mb-1 flex items-center gap-1 uppercase">
                       <Sparkles className="w-3 h-3" />
                       Rank Up Reward
                     </p>
                     <p className="text-[10px] text-blue-700/80 leading-tight">
-                      Did you know? Users at Rank 2+ earn back 5% in Gems on every purchase. Rank up to start earning.
+                      Increase your rank to unlock <span className="font-bold">5% Gems Cashback</span> and <span className="font-bold">Priority Processing</span> on future orders.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-green-50 rounded-xl border border-green-100 mt-4 mb-2">
+                    <p className="text-[10px] font-bold text-green-600 mb-1 flex items-center gap-1 uppercase">
+                      <Sparkles className="w-3 h-3" />
+                      Rank {maturityState} Perk Applied
+                    </p>
+                    <p className="text-[10px] text-green-700/80 leading-tight">
+                      You're earning <span className="font-bold">5% Gems Cashback</span> and <span className="font-bold">Priority Rewards</span> on this purchase!
                     </p>
                   </div>
                 )}

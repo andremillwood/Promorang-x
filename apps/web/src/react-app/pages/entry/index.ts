@@ -10,3 +10,4 @@ export { default as DealsPage } from './DealsPage';
 export { default as EventsEntryPage } from './EventsEntryPage';
 export { default as PostProofPage } from './PostProofPage';
 export { default as StartPage } from './StartPage';
+export { default as BountyHuntHub } from './BountyHuntHub';

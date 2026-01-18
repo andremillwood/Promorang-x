@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { apiFetch } from '../utils/api';
+import { useMaturity } from '@/react-app/context/MaturityContext';
 
 interface Product {
   id: string;
@@ -40,6 +41,7 @@ interface Category {
 export default function MarketplaceBrowse() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { maturityState } = useMaturity();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,25 +58,30 @@ export default function MarketplaceBrowse() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch products
       const params = new URLSearchParams({
         status: 'active',
         sort_by: sortBy,
         limit: '50',
       });
-      
-      if (selectedCategory) {
+
+      // Rank 0-1: Forced Featured-Only View
+      if (maturityState < 2) {
+        params.append('is_featured', 'true');
+      }
+
+      if (selectedCategory && maturityState >= 2) {
         params.append('category_id', selectedCategory);
       }
-      
-      if (searchTerm) {
+
+      if (searchTerm && maturityState >= 2) {
         params.append('search', searchTerm);
       }
 
       const productsResponse = await apiFetch(`/api/marketplace/products?${params.toString()}`);
       const productsData = await productsResponse.json();
-      
+
       if (productsData.status === 'success') {
         setProducts(productsData.data.products);
       }
@@ -82,7 +89,7 @@ export default function MarketplaceBrowse() {
       // Fetch categories
       const categoriesResponse = await apiFetch('/api/marketplace/categories');
       const categoriesData = await categoriesResponse.json();
-      
+
       if (categoriesData.status === 'success') {
         setCategories(categoriesData.data.categories);
       }
@@ -111,8 +118,9 @@ export default function MarketplaceBrowse() {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
+        window.dispatchEvent(new CustomEvent('cart-updated'));
         toast({
           title: 'Added to cart',
           description: 'Product added to your cart',
@@ -181,110 +189,149 @@ export default function MarketplaceBrowse() {
         <div className="mb-8">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-pr-text-1">Marketplace</h1>
-              <p className="text-pr-text-2 mt-1">Discover products from creators and brands</p>
+              <h1 className="text-3xl font-bold text-pr-text-1">
+                {maturityState < 2 ? 'Featured Drops' : 'Marketplace'}
+              </h1>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-pr-text-2">
+                  {maturityState < 2 ? 'Exclusive items selected for your rank' : 'Discover products from creators and brands'}
+                </p>
+                {maturityState >= 2 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-700 uppercase tracking-tight border border-blue-200">
+                    Rank {maturityState} Bonus Active
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                onClick={() => setIsFilterOpen(true)}
-                className="bg-pr-surface-card text-pr-text-1 border border-pr-surface-3 hover:bg-pr-surface-2 md:hidden"
-                variant="ghost"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-              <Button onClick={() => navigate('/merchant/dashboard')} className="bg-gradient-to-r from-purple-600 to-blue-600">
-                <Store className="mr-2 h-4 w-4" />
-                Sell on Promorang
-              </Button>
+              {maturityState >= 3 && (
+                <Button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="bg-pr-surface-card text-pr-text-1 border border-pr-surface-3 hover:bg-pr-surface-2 md:hidden"
+                  variant="ghost"
+                >
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              )}
+              {maturityState >= 2 && (
+                <Button onClick={() => navigate('/merchant/dashboard')} className="bg-gradient-to-r from-purple-600 to-blue-600">
+                  <Store className="mr-2 h-4 w-4" />
+                  Sell on Promorang
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-11 pr-4 py-3 bg-pr-surface-1 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-pr-text-1 placeholder:text-gray-400"
-              />
+          {/* Rank Banners */}
+          {maturityState < 2 && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg border border-white/10 text-white flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 backdrop-blur rounded-xl">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-black text-lg">Market Explorer View</p>
+                  <p className="text-blue-100 text-sm">Reach Rank 2 to unlock the full 5,000+ item marketplace and search.</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => navigate('/catalog')}
+                variant="ghost"
+                className="text-white hover:bg-white/10 font-bold"
+              >
+                Learn More
+              </Button>
             </div>
-            <Button onClick={handleSearch} className="md:w-auto">
-              Search
-            </Button>
-          </div>
+          )}
+
+          {/* Search and Filters - Rank Restricted */}
+          {maturityState >= 2 && (
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  className="w-full pl-11 pr-4 py-3 bg-pr-surface-1 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-pr-text-1 placeholder:text-gray-400"
+                />
+              </div>
+              <Button onClick={handleSearch} className="md:w-auto">
+                Search
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Categories */}
-        <div className="mb-8 hidden md:block">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setSelectedCategory('')}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
-                !selectedCategory
+        {/* Categories - Rank Restricted */}
+        {maturityState >= 3 && (
+          <div className="mb-8 hidden md:block">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => setSelectedCategory('')}
+                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${!selectedCategory
                   ? 'bg-blue-600 text-white'
                   : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
-              }`}
-            >
-              All Products
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 ${
-                  selectedCategory === category.id
+                  }`}
+              >
+                All Products
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 ${selectedCategory === category.id
                     ? 'bg-blue-600 text-white'
                     : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
-                }`}
-              >
-                <span>{category.icon}</span>
-                <span>{category.name}</span>
-              </button>
-            ))}
+                    }`}
+                >
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Toolbar */}
-        <div className="hidden md:flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="created_at">Newest</option>
-              <option value="sales_count">Best Selling</option>
-              <option value="rating">Top Rated</option>
-              <option value="price_usd">Price: Low to High</option>
-            </select>
-            <span className="text-sm text-pr-text-2">
-              {products.length} products
-            </span>
+        {/* Toolbar - Rank Restricted */}
+        {maturityState >= 2 && (
+          <div className="hidden md:flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border border-pr-surface-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="created_at">Newest</option>
+                <option value="sales_count">Best Selling</option>
+                <option value="rating">Top Rated</option>
+                <option value="price_usd">Price: Low to High</option>
+              </select>
+              <span className="text-sm text-pr-text-2">
+                {products.length} products
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-pr-text-2 hover:bg-pr-surface-2'
+                  }`}
+              >
+                <Grid className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-pr-text-2 hover:bg-pr-surface-2'
+                  }`}
+              >
+                <List className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg ${
-                viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-pr-text-2 hover:bg-pr-surface-2'
-              }`}
-            >
-              <Grid className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg ${
-                viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-pr-text-2 hover:bg-pr-surface-2'
-              }`}
-            >
-              <List className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+        )}
 
         {/* Mobile Drawer */}
         {isFilterOpen && (
@@ -326,11 +373,10 @@ export default function MarketplaceBrowse() {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setSelectedCategory('')}
-                      className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                        !selectedCategory
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm transition-colors ${!selectedCategory
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
+                        }`}
                     >
                       All Products
                     </button>
@@ -338,11 +384,10 @@ export default function MarketplaceBrowse() {
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
-                          selectedCategory === category.id
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
-                        }`}
+                        className={`px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${selectedCategory === category.id
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-pr-surface-card text-pr-text-1 hover:bg-pr-surface-2 border border-pr-surface-3'
+                          }`}
                       >
                         <span>{category.icon}</span>
                         <span>{category.name}</span>
@@ -382,9 +427,8 @@ export default function MarketplaceBrowse() {
             {products.map((product) => (
               <Card
                 key={product.id}
-                className={`overflow-hidden hover:shadow-xl transition-shadow cursor-pointer ${
-                  viewMode === 'list' ? 'flex flex-row' : ''
-                }`}
+                className={`overflow-hidden hover:shadow-xl transition-shadow cursor-pointer ${viewMode === 'list' ? 'flex flex-row' : ''
+                  }`}
                 onClick={() => navigate(`/marketplace/product/${product.id}`)}
               >
                 {product.is_featured && (
@@ -395,7 +439,7 @@ export default function MarketplaceBrowse() {
                     </span>
                   </div>
                 )}
-                
+
                 <div className={viewMode === 'list' ? 'w-48 flex-shrink-0' : 'relative pb-[100%]'}>
                   <img
                     src={product.images[0] || 'https://via.placeholder.com/400'}
@@ -434,6 +478,11 @@ export default function MarketplaceBrowse() {
                   <div className="flex items-center justify-between">
                     <div className="font-bold text-lg text-pr-text-1">
                       {formatPrice(product)}
+                      {maturityState >= 3 && (
+                        <p className="text-[10px] text-green-600 font-bold mt-1">
+                          +5% Pro Cashback active
+                        </p>
+                      )}
                     </div>
                     <Button
                       size="sm"

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart as CartIcon, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Sparkles, Timer } from 'lucide-react';
+import { ShoppingCart as CartIcon, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Sparkles, Timer, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
@@ -98,6 +98,7 @@ export default function ShoppingCart() {
       const data = await response.json();
 
       if (data.status === 'success') {
+        window.dispatchEvent(new CustomEvent('cart-updated'));
         await fetchCart();
       }
     } catch (error) {
@@ -122,6 +123,7 @@ export default function ShoppingCart() {
       const data = await response.json();
 
       if (data.status === 'success') {
+        window.dispatchEvent(new CustomEvent('cart-updated'));
         await fetchCart();
         toast({
           title: 'Removed',

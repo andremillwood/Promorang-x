@@ -54,8 +54,9 @@ const HeroSection = ({ navigate, user }: { navigate: (path: string) => void; use
           </h1>
 
           <p className="text-xl md:text-2xl text-pr-text-2 mb-12 leading-relaxed max-w-2xl mx-auto">
-            Stop working for Big Tech for free. Your likes, comments, and presence are valuable assets that earn you real rewards and priority access.
+            Your likes, comments, and presence are worth more than you think. Turn the time you already spend online into real income and priority access to exclusive opportunities.
           </p>
+
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             {!user ? (
@@ -89,28 +90,34 @@ const HeroSection = ({ navigate, user }: { navigate: (path: string) => void; use
             )}
           </div>
 
-          {/* Access Rank Steps - Inline */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left">
+          <div className="grid md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left hover:border-blue-500/30 transition-colors">
               <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
                 <Activity className="w-5 h-5 text-blue-500" />
               </div>
               <h3 className="text-lg font-bold text-pr-text-1 mb-2">Monetize Routine</h3>
-              <p className="text-sm text-pr-text-2">Every like, comment, and check-in builds your digital equity.</p>
+              <p className="text-sm text-pr-text-2">Every like and check-in builds your digital equity.</p>
             </div>
-            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left">
-              <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-5 h-5 text-purple-500" />
+            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left hover:border-orange-500/30 transition-colors">
+              <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
+                <TrendingUp className="w-5 h-5 text-orange-500" />
               </div>
-              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Build Reputation</h3>
-              <p className="text-sm text-pr-text-2">Increase your Access Rank to prove you're a high-value community member.</p>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Spot Early Hits</h3>
+              <p className="text-sm text-pr-text-2">Find cool posts before they go viral and earn a piece of the pie.</p>
             </div>
-            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left">
+            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left hover:border-purple-500/30 transition-colors">
+              <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+                <Activity className="w-5 h-5 text-purple-500" />
+              </div>
+              <h3 className="text-lg font-bold text-pr-text-1 mb-2">Build Rank</h3>
+              <p className="text-sm text-pr-text-2">Increase your Access Rank to prove your value.</p>
+            </div>
+            <div className="bg-pr-surface-card border border-pr-border rounded-xl p-6 text-left hover:border-green-500/30 transition-colors">
               <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
                 <Unlock className="w-5 h-5 text-green-500" />
               </div>
               <h3 className="text-lg font-bold text-pr-text-1 mb-2">Priority Access</h3>
-              <p className="text-sm text-pr-text-2">Get first look at exclusive drops, rewards, and brand invites.</p>
+              <p className="text-sm text-pr-text-2">Get first look at exclusive drops and rewards.</p>
             </div>
           </div>
         </div>
@@ -232,9 +239,10 @@ const AlreadyAProSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {[
             { icon: '📱', action: 'Liking & saving posts', result: 'Builds your social capital' },
+            { icon: '🔍', action: 'Finding cool posts', result: 'Earns you finder\'s equity' },
             { icon: '💬', action: 'Tagging friends', result: 'Expands your influence' },
             { icon: '📍', action: 'Visiting favorite spots', result: 'Proves real-world footprint' },
             { icon: '🤳', action: 'Sharing what you love', result: 'Drives authentic commerce' }
@@ -242,7 +250,7 @@ const AlreadyAProSection = () => {
             <div key={i} className="bg-pr-surface-card border border-pr-border rounded-2xl p-6 text-center hover:translate-y-[-4px] transition-transform shadow-sm">
               <div className="text-4xl mb-4">{item.icon}</div>
               <h3 className="text-lg font-bold text-pr-text-1 mb-2">{item.action}</h3>
-              <p className="text-sm text-pr-text-2 mb-4 leading-relaxed">{item.result}</p>
+              <p className="text-xs text-pr-text-2 mb-4 leading-relaxed">{item.result}</p>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-600 text-[10px] font-black uppercase tracking-widest">
                 Valued Asset
               </div>
