@@ -45,13 +45,30 @@ function RootLayoutNav() {
   const { fetchTasks } = useTaskStore();
   const pathname = usePathname();
   const rootNavigationState = useRootNavigationState();
+  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState<boolean | null>(null);
 
   usePushNotifications();
+
+  // Check questionnaire completion on mount
+  useEffect(() => {
+    const checkQuestionnaire = async () => {
+      try {
+        const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+        const completed = await AsyncStorage.getItem('promorang_questionnaire_complete');
+        setHasCompletedQuestionnaire(completed === 'true');
+      } catch (e) {
+        setHasCompletedQuestionnaire(true); // Assume completed if error
+      }
+    };
+    checkQuestionnaire();
+  }, []);
 
   // Auth gate: redirect based on auth state
   useEffect(() => {
     // Wait for the navigation tree to be ready
     if (!rootNavigationState?.key) return;
+    // Wait for questionnaire check to complete
+    if (hasCompletedQuestionnaire === null) return;
 
     // Use a small timeout to ensure the navigator is fully committed
     const timeout = setTimeout(() => {
@@ -59,16 +76,22 @@ function RootLayoutNav() {
       if (!segments || segments.length === 0) return;
 
       const inAuthGroup = segments[0] === '(auth)';
+      const inOnboarding = segments[0] === 'onboarding';
 
       if (isAuthenticated || isGuest) {
         if (inAuthGroup) {
-          router.replace('/(tabs)');
+          // Check if user needs to complete questionnaire
+          if (!hasCompletedQuestionnaire) {
+            router.replace('/onboarding/questionnaire' as any);
+          } else {
+            router.replace('/(tabs)');
+          }
         }
         return;
       }
 
       // User is not authenticated and not a guest
-      if (!inAuthGroup) {
+      if (!inAuthGroup && !inOnboarding) {
         if (!hasSeenWelcome) {
           router.replace('/(auth)/welcome');
         } else {
@@ -78,7 +101,8 @@ function RootLayoutNav() {
     }, 1);
 
     return () => clearTimeout(timeout);
-  }, [isAuthenticated, isGuest, hasSeenWelcome, segments, rootNavigationState?.key]);
+  }, [isAuthenticated, isGuest, hasSeenWelcome, segments, rootNavigationState?.key, hasCompletedQuestionnaire]);
+
 
   useEffect(() => {
     analytics.screen(pathname);
@@ -99,6 +123,8 @@ function RootLayoutNav() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding/questionnaire" options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen name="onboarding/first-contact" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="onboarding/index" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="profile/[id]" options={{ title: 'Profile' }} />
       <Stack.Screen name="profile/edit" options={{ title: 'Edit Profile' }} />
@@ -113,6 +139,7 @@ function RootLayoutNav() {
       <Stack.Screen name="matrix/training" options={{ title: 'Training', headerStyle: { backgroundColor: '#7c3aed' }, headerTintColor: '#fff' }} />
       <Stack.Screen name="matrix/join" options={{ headerShown: false }} />
       <Stack.Screen name="deals/index" options={{ headerShown: false }} />
+      <Stack.Screen name="bounty/index" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
     </Stack>
   );

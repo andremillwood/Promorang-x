@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Card } from '@/components/ui/Card';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { FeedTabBar, FeedTab } from '@/components/feed/FeedTabBar';
-import { FileText, Coins, Diamond, Target, Flame, ArrowRight, Trophy, Shield } from 'lucide-react-native';
+import { FileText, Coins, Diamond, Target, Flame, ArrowRight, Trophy, Shield, TrendingUp, DollarSign, Sparkles } from 'lucide-react-native';
 import colors from '@/constants/colors';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { FlashList } from '@shopify/flash-list';
@@ -28,8 +28,18 @@ import { useForecastStore, Forecast } from '@/store/forecastStore';
 import { useProductStore } from '@/store/productStore';
 import { ForecastCard } from '@/components/feed/ForecastCard';
 import { Plus } from 'lucide-react-native';
+import EconomyStepModal, { EconomyStep } from '@/components/EconomyStepModal';
+import InstagramConnectModal from '@/components/InstagramConnectModal';
 
 const API_URL = 'https://promorang-api.vercel.app';
+
+// Economy steps for the "Your Path" section
+const ECONOMY_STEPS = [
+  { id: 'monetize' as EconomyStep, label: 'Monetize', icon: Sparkles, color: '#F97316' },
+  { id: 'spot_trends' as EconomyStep, label: 'Scout', icon: TrendingUp, color: '#EC4899' },
+  { id: 'build_rank' as EconomyStep, label: 'Rank Up', icon: Trophy, color: '#8B5CF6' },
+  { id: 'withdraw' as EconomyStep, label: 'Withdraw', icon: DollarSign, color: '#10B981' },
+];
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -45,6 +55,10 @@ export default function DashboardScreen() {
   const [isLoadingOther, setIsLoadingOther] = useState(false);
   const { forecasts, fetchForecasts, isLoading: isForecastsLoading } = useForecastStore();
   const { products, fetchProducts, isLoading: isProductsLoading } = useProductStore();
+
+  // Economy modal state
+  const [activeEconomyModal, setActiveEconomyModal] = useState<EconomyStep | null>(null);
+  const [showInstagramModal, setShowInstagramModal] = useState(false);
 
   const isLoading = isFeedLoading || isTasksLoading || isLoadingOther || isForecastsLoading || isProductsLoading;
 
@@ -308,9 +322,38 @@ export default function DashboardScreen() {
       )}
       {renderUserStatsHeader()}
 
+      {/* Your Path to Rewards - Economy Flow Cards */}
+      {!isGuest && activeTab === 'for-you' && (
+        <View style={styles.economyFlowContainer}>
+          <Text style={[styles.economyFlowTitle, { color: theme.text }]}>Your Path to Rewards</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.economyFlowScroll}
+          >
+            {ECONOMY_STEPS.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <TouchableOpacity
+                  key={step.id}
+                  style={[styles.economyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                  onPress={() => setActiveEconomyModal(step.id)}
+                >
+                  <View style={[styles.economyIconCircle, { backgroundColor: `${step.color}20` }]}>
+                    <Icon size={20} color={step.color} />
+                  </View>
+                  <Text style={[styles.economyCardLabel, { color: theme.text }]}>{step.label}</Text>
+                  <Text style={[styles.economyCardStep, { color: theme.textSecondary }]}>Step {index + 1}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Personalized Recommendations - Spotify/Duolingo style */}
       {activeTab === 'for-you' && !isGuest && (
-        <PersonalizedSection 
+        <PersonalizedSection
           title="Picked For You"
           subtitle="Based on your activity"
         />
@@ -458,6 +501,25 @@ export default function DashboardScreen() {
             style={styles.emptyState}
           />
         }
+      />
+
+      {/* Economy Step Modal */}
+      {activeEconomyModal && (
+        <EconomyStepModal
+          step={activeEconomyModal}
+          visible={true}
+          onClose={() => setActiveEconomyModal(null)}
+          onOpenInstagramModal={() => {
+            setActiveEconomyModal(null);
+            setShowInstagramModal(true);
+          }}
+        />
+      )}
+
+      {/* Instagram Connect Modal */}
+      <InstagramConnectModal
+        visible={showInstagramModal}
+        onClose={() => setShowInstagramModal(false)}
       />
     </View>
   );
@@ -770,5 +832,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
     marginTop: 2,
+  },
+  // Economy Flow Cards
+  economyFlowContainer: {
+    marginBottom: 16,
+  },
+  economyFlowTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  economyFlowScroll: {
+    gap: 10,
+  },
+  economyCard: {
+    width: 90,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 6,
+  },
+  economyIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  economyCardLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  economyCardStep: {
+    fontSize: 10,
   },
 });
