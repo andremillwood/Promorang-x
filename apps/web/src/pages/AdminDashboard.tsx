@@ -29,6 +29,7 @@ import { AdminCreateMomentTab } from "@/components/admin/AdminCreateMomentTab";
 import { AdminEconomyTab } from "@/components/admin/AdminEconomyTab";
 import { AdminModerationTab } from "@/components/admin/AdminModerationTab";
 import { AdminConfigTab } from "@/components/admin/AdminConfigTab";
+import { AdminCampaignCompiler } from "@/components/admin/AdminCampaignCompiler";
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -147,6 +148,10 @@ const AdminDashboard = () => {
                 <Settings className="w-4 h-4" />
                 Config
               </TabsTrigger>
+              <TabsTrigger value="compiler" className="flex items-center gap-2 text-primary font-bold">
+                <Zap className="w-4 h-4 fill-primary" />
+                Compiler
+              </TabsTrigger>
               <TabsTrigger value="create-moment" className="flex items-center gap-2 text-primary font-bold">
                 <Sparkles className="w-4 h-4" />
                 Create Moment
@@ -183,6 +188,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="config">
               <AdminConfigTab />
+            </TabsContent>
+
+            <TabsContent value="compiler">
+              <AdminCampaignCompiler />
             </TabsContent>
 
             <TabsContent value="create-moment">

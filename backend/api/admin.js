@@ -751,4 +751,92 @@ router.post('/users/:id/suspend', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/admin/campaigns/compiler-launch
+ * Launch a campaign compiled by the deterministic rule engine
+ */
+router.post('/campaigns/compiler-launch', async (req, res) => {
+    try {
+        const { moment, drop, moves, proof, reward, outcome, compiler_metadata } = req.body;
+
+        if (!moment || !moment.name) {
+            return res.status(400).json({ error: 'Valid compiled campaign data is required' });
+        }
+
+        if (!supabase) {
+            return res.json({ success: true, message: 'Mock launch successful (No DB)' });
+        }
+
+        // 1. Determine Identity (Use Admin or special System account)
+        const adminId = req.user.id;
+
+        // 2. Create the Campaign Record
+        const { data: campaign, error: campaignError } = await supabase
+            .from('campaigns')
+            .insert({
+                advertiser_id: adminId,
+                name: moment.name,
+                description: moment.description,
+                campaign_type: 'activation',
+                status: 'active',
+                compiler_metadata: compiler_metadata,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (campaignError) throw campaignError;
+
+        // 3. Create the Moment Record
+        // Mapping proof type to mechanic_proof_type enum
+        const proofMapping = {
+            'Link': 'API',
+            'OCR': 'Photo',
+            'Upload': 'Photo'
+        };
+
+        const { data: newMoment, error: momentError } = await supabase
+            .from('moments')
+            .insert({
+                organizer_id: adminId,
+                title: moment.name,
+                description: moment.description,
+                type: 'digital_drop',
+                status: 'live',
+                sku_type: moment.tier || 'A3',
+                proof_type: proofMapping[proof] || 'Photo',
+                expected_action_unit: 'Submission',
+                created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (momentError) throw momentError;
+
+        // 4. Link Campaign to Moment (if sponsorship table exists)
+        try {
+            await supabase.from('campaign_sponsorships').insert({
+                campaign_id: campaign.id,
+                moment_id: newMoment.id,
+                status: 'active',
+                sponsorship_amount: 0 // Admin/System sponsored
+            });
+        } catch (e) {
+            console.warn('Optional sponsorship link failed:', e.message);
+        }
+
+        res.json({
+            success: true,
+            campaign_id: campaign.id,
+            moment_id: newMoment.id,
+            message: 'Campaign compiled and launched successfully.'
+        });
+
+    } catch (error) {
+        console.error('Compiler Launch Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
