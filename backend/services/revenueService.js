@@ -109,6 +109,132 @@ const revenueService = {
         } catch (error) {
             console.error('[Revenue Service] Error updating jackpot:', error);
         }
+    },
+
+    /**
+     * Calculate settlement fee for a redemption
+     * @param {number} amount - Redemption amount in USD
+     * @returns {number} - Calculated fee
+     */
+    calculateSettlementFee(amount) {
+        // Standard platform fee of 1%
+        const FEE_PERCENTAGE = 0.01;
+        return Number((amount * FEE_PERCENTAGE).toFixed(2));
+    },
+
+    /**
+     * Record revenue specifically from a settlement event
+     * @param {number} redemptionAmount - Total redemption value
+     * @param {string} momentId - The moment being settled
+     * @param {string} userId - The user settling
+     */
+    async recordRevenueFromRedemption(redemptionAmount, momentId, userId) {
+        if (!redemptionAmount || redemptionAmount <= 0) return null;
+
+        const fee = this.calculateSettlementFee(redemptionAmount);
+        if (fee <= 0) return null;
+
+        return await this.trackRevenue(fee, momentId, 'redemption_settlement');
+    },
+
+    /**
+     * Track revenue from a Moment (SKU-based)
+     */
+    async trackMomentRevenue(momentId, skuType, platformFee, brandCost, metadata = {}) {
+        if (!supabase) {
+            console.warn('[Revenue Service] Supabase not available, skipping revenue tracking');
+            return { success: false };
+        }
+
+        try {
+            const activeCycle = await this.getActiveCycle();
+            if (!activeCycle) {
+                console.warn('[Revenue Service] No active PromoShare cycle');
+                return { success: false };
+            }
+
+            // Calculate PromoShare allocation (5% of platform fee)
+            const promoShareAmount = platformFee * PROMOSHARE_PERCENTAGE;
+
+            // Record revenue transaction
+            const { error: txError } = await supabase
+                .from('revenue_transactions')
+                .insert({
+                    amount: platformFee,
+                    source_id: momentId,
+                    source_type: 'moment',
+                    promoshare_cycle_id: activeCycle.id,
+                    promoshare_allocated: promoShareAmount,
+                    metadata: {
+                        sku_type: skuType,
+                        brand_cost: brandCost,
+                        platform_fee: platformFee,
+                        ...metadata
+                    },
+                    created_at: new Date().toISOString()
+                });
+
+            if (txError) throw txError;
+
+            // Add to PromoShare jackpot
+            await this.addToJackpot(activeCycle.id, promoShareAmount);
+
+            console.log(`[Revenue Service] Tracked Moment revenue: $${platformFee} (SKU: ${skuType}), PromoShare: $${promoShareAmount}`);
+
+            return {
+                success: true,
+                platform_fee: platformFee,
+                promoshare_allocated: promoShareAmount,
+                cycle_id: activeCycle.id
+            };
+        } catch (error) {
+            console.error('[Revenue Service] Error tracking Moment revenue:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    /**
+     * Get revenue breakdown by SKU type
+     */
+    async getRevenueBySKU(startDate, endDate) {
+        if (!supabase) {
+            return { success: false, error: 'Database not available' };
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('revenue_transactions')
+                .select('metadata, amount')
+                .eq('source_type', 'moment')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate);
+
+            if (error) throw error;
+
+            // Aggregate by SKU type
+            const breakdown = {};
+            let total = 0;
+
+            data.forEach(tx => {
+                const skuType = tx.metadata?.sku_type || 'unknown';
+                if (!breakdown[skuType]) {
+                    breakdown[skuType] = { revenue: 0, count: 0 };
+                }
+                breakdown[skuType].revenue += parseFloat(tx.amount);
+                breakdown[skuType].count += 1;
+                total += parseFloat(tx.amount);
+            });
+
+            return {
+                success: true,
+                breakdown,
+                total,
+                period: { start: startDate, end: endDate }
+            };
+        } catch (error) {
+            console.error('[Revenue Service] Error getting SKU revenue:', error);
+            return { success: false, error: error.message };
+        }
     }
 };
 

@@ -262,4 +262,208 @@ router.post('/users/role', requireMasterAdmin, async (req, res) => {
     }
 });
 
+/**
+ * GET /api/admin/proofs/pending
+ * Get list of pending mission proof submissions
+ */
+router.get('/proofs/pending', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json([
+                {
+                    id: 'mock-proof-1',
+                    drop_id: '1',
+                    user_id: 'mock-user-1',
+                    status: 'pending',
+                    proof_url: 'https://via.placeholder.com/400x600?text=Receipt+Sample',
+                    submission_text: 'Order #12345',
+                    applied_at: new Date().toISOString(),
+                    user: {
+                        display_name: 'John Doe',
+                        email: 'john@example.com'
+                    },
+                    drop: {
+                        title: 'Summer Fashion Drop',
+                        gem_reward_base: 50
+                    }
+                }
+            ]);
+        }
+
+        const { data, error } = await supabase
+            .from('drop_applications')
+            .select(`
+                *,
+                user:users (
+                    id,
+                    display_name,
+                    email,
+                    avatar_url
+                ),
+                drop:drops (
+                    id,
+                    title,
+                    gem_reward_base,
+                    drop_role
+                )
+            `)
+            .eq('status', 'pending')
+            .not('proof_url', 'is', null) // Only interested in proofs
+            .order('applied_at', { ascending: true });
+
+        if (error) throw error;
+
+        res.json(data);
+    } catch (error) {
+        console.error('Admin Proof List Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * POST /api/admin/proofs/:id/review
+ * Approve or Reject a mission proof
+ */
+router.post('/proofs/:id/review', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action, reason } = req.body;
+
+        if (!['approve', 'reject'].includes(action)) {
+            return res.status(400).json({ error: 'Invalid action' });
+        }
+
+        if (!supabase) {
+            return res.json({ success: true, message: `Mock ${action} successful` });
+        }
+
+        const newStatus = action === 'approve' ? 'approved' : 'rejected';
+
+        const { data: application, error: fetchError } = await supabase
+            .from('drop_applications')
+            .select('*, drop:drops(*)')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !application) {
+            return res.status(404).json({ error: 'Submission not found' });
+        }
+
+        const { error: updateError } = await supabase
+            .from('drop_applications')
+            .update({
+                status: newStatus,
+                submission_notes: reason || application.submission_notes,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id);
+
+        if (updateError) throw updateError;
+
+        // If approved, you might want to trigger additional rewards or maturity checks here
+        if (action === 'approve') {
+            // Check if maturityService or campaignService needs to be notified
+            try {
+                const campaignService = require('../services/campaignService');
+                if (application.drop.campaign_id) {
+                    await campaignService.checkMaturityTransition(application.drop.campaign_id);
+                }
+            } catch (serviceErr) {
+                console.warn('Maturity transition check failed (service might be missing):', serviceErr.message);
+            }
+        }
+
+        res.json({ success: true, message: `Proof ${action} successful` });
+    } catch (error) {
+        console.error('Admin Proof Action Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * GET /api/admin/withdrawals/pending
+ * Get list of pending withdrawal requests
+ */
+router.get('/withdrawals/pending', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json([
+                {
+                    id: 'mock-withdrawal-1',
+                    user_id: 'mock-user-1',
+                    gems_amount: 5000,
+                    usd_value: 50.00,
+                    payment_method: 'paypal',
+                    payment_details: { email: 'john@example.com' },
+                    status: 'pending',
+                    created_at: new Date().toISOString(),
+                    user: {
+                        display_name: 'John Doe',
+                        email: 'john@example.com'
+                    }
+                }
+            ]);
+        }
+
+        const { data, error } = await supabase
+            .from('withdrawal_requests')
+            .select(`
+                *,
+                user:users (
+                    id,
+                    display_name,
+                    email,
+                    avatar_url
+                )
+            `)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        res.json(data);
+    } catch (error) {
+        console.error('Admin Withdrawal List Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * POST /api/admin/withdrawals/:id/review
+ * Approve or Reject a withdrawal request
+ */
+router.post('/withdrawals/:id/review', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action, notes } = req.body;
+
+        if (!['approve', 'reject'].includes(action)) {
+            return res.status(400).json({ error: 'Invalid action' });
+        }
+
+        if (!supabase) {
+            return res.json({ success: true, message: `Mock withdrawal ${action} successful` });
+        }
+
+        const newStatus = action === 'approve' ? 'completed' : 'rejected';
+
+        const { error } = await supabase
+            .from('withdrawal_requests')
+            .update({
+                status: newStatus,
+                notes: notes || null,
+                processed_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: `Withdrawal ${action === 'approve' ? 'completed' : 'rejected'} successfully` });
+    } catch (error) {
+        console.error('Admin Withdrawal Action Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;

@@ -13,7 +13,7 @@
  * IMPORTANT: This service NEVER downgrades maturity state automatically.
  */
 
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 
 // Enum for maturity states
 const UserMaturityState = {
@@ -238,7 +238,7 @@ async function recalculateMaturityState(userId, options = {}) {
       }
     }
 
-    // State 2 → 3: Power user criteria
+    // State 2 → 3: Power user criteria (engagement-based only, no subscription)
     if (currentState === UserMaturityState.REWARDED) {
       // Check for 5+ gems earned
       if (gemsBalance >= GEMS_FOR_POWER_USER) {
@@ -258,13 +258,7 @@ async function recalculateMaturityState(userId, options = {}) {
         triggerReason = 'completed_3_drops';
       }
 
-      // Check for subscription
-      if (options.hasSubscription) {
-        newState = UserMaturityState.POWER_USER;
-        triggerReason = 'subscribed';
-      }
-
-      // Check for advanced feature access attempt
+      // Check for advanced feature access attempt (engagement signal)
       if (options.accessedAdvancedFeature) {
         newState = UserMaturityState.POWER_USER;
         triggerReason = 'accessed_advanced_feature';

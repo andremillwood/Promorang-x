@@ -1,352 +1,119 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    RefreshControl,
-    TextInput,
-    Dimensions,
-    Image,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import {
-    Search,
-    TrendingUp,
-    Calendar,
-    ShoppingBag,
-    BarChart3,
-    Ticket,
-    Gift,
-    Users,
-    Sparkles,
-    ChevronRight,
-    Play,
-    Star,
-    MapPin,
-    Clock,
-} from 'lucide-react-native';
-import { useThemeColors } from '@/hooks/useThemeColors';
-import { haptics } from '@/lib/haptics';
-import colors from '@/constants/colors';
+import { useState } from 'react';
+import { StyleSheet, ScrollView, Pressable, TextInput, Platform, Dimensions } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import { Text, View } from '@/components/Themed';
+import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/DesignTokens';
+import { useColorScheme } from '@/components/useColorScheme';
+import { useMoments } from '@/hooks/useMoments';
 
-const { width } = Dimensions.get('window');
-const API_URL = 'https://promorang-api.vercel.app';
-
-interface Category {
-    id: string;
-    name: string;
-    icon: any;
-    color: string;
-    route: string;
-    description: string;
-}
-
-interface FeaturedItem {
-    id: string;
-    type: 'event' | 'content' | 'drop' | 'product';
-    title: string;
-    subtitle: string;
-    image: string;
-    badge?: string;
-}
-
-const CATEGORIES: Category[] = [
-    { id: 'events', name: 'Events', icon: Calendar, color: '#EC4899', route: '/events', description: 'Upcoming experiences' },
-    { id: 'invest', name: 'Invest', icon: TrendingUp, color: '#3B82F6', route: '/(tabs)/forecasts', description: 'Forecasts & shares' },
-    { id: 'growth', name: 'Growth Hub', icon: Sparkles, color: '#10B981', route: '/(tabs)/growth', description: 'Stake & grow' },
-    { id: 'shop', name: 'Shop', icon: ShoppingBag, color: '#F59E0B', route: '/(tabs)/shop', description: 'Products & merch' },
-    { id: 'promoshare', name: 'PromoShare', icon: Ticket, color: '#8B5CF6', route: '/promoshare', description: 'Weekly draws' },
-    { id: 'leaderboard', name: 'Leaderboard', icon: BarChart3, color: '#EF4444', route: '/leaderboard', description: 'Top creators' },
-    { id: 'referrals', name: 'Referrals', icon: Users, color: '#6366F1', route: '/referrals', description: 'Invite & earn' },
-    { id: 'market', name: 'Market', icon: BarChart3, color: '#14B8A6', route: '/market', description: 'Trade content shares' },
-];
-
-const QUICK_ACTIONS = [
-    { id: 'trending', name: 'Trending', icon: Sparkles, color: '#F59E0B' },
-    { id: 'new', name: 'New', icon: Star, color: '#10B981' },
-    { id: 'nearby', name: 'Nearby', icon: MapPin, color: '#EC4899' },
-    { id: 'live', name: 'Live', icon: Play, color: '#EF4444' },
+const categories = [
+    { id: 'all', label: 'All', icon: 'apps' },
+    { id: 'community', label: 'Community', icon: 'people' },
+    { id: 'activation', label: 'Brand', icon: 'flash' },
+    { id: 'digital', label: 'Digital', icon: 'globe' },
+    { id: 'bounty', label: 'Bounties', icon: 'cash' },
 ];
 
 export default function DiscoverScreen() {
-    const router = useRouter();
-    const theme = useThemeColors();
-
-    const [searchQuery, setSearchQuery] = useState('');
-    const [refreshing, setRefreshing] = useState(false);
-    const [featuredEvents, setFeaturedEvents] = useState<FeaturedItem[]>([]);
-    const [trendingContent, setTrendingContent] = useState<FeaturedItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        fetchDiscoverData();
-    }, []);
-
-    const fetchDiscoverData = async () => {
-        try {
-            setIsLoading(true);
-
-            // Fetch events
-            try {
-                const eventsRes = await fetch(`${API_URL}/api/events?limit=5`);
-                if (eventsRes.ok) {
-                    const eventsData = await eventsRes.json();
-                    const events = Array.isArray(eventsData?.events) ? eventsData.events
-                        : Array.isArray(eventsData?.data) ? eventsData.data
-                        : Array.isArray(eventsData) ? eventsData : [];
-                    
-                    setFeaturedEvents(events.slice(0, 4).map((e: any) => ({
-                        id: e.id,
-                        type: 'event',
-                        title: e.title || 'Upcoming Event',
-                        subtitle: e.location || 'Virtual',
-                        image: e.image_url || 'https://picsum.photos/seed/event/400/200',
-                        badge: e.ticket_price ? `$${e.ticket_price}` : 'Free',
-                    })));
-                }
-            } catch (e) {
-                console.log('Events fetch failed');
-            }
-
-            // Fetch trending content
-            try {
-                const contentRes = await fetch(`${API_URL}/api/content?limit=6&sort=trending`);
-                if (contentRes.ok) {
-                    const contentData = await contentRes.json();
-                    const content = Array.isArray(contentData?.content) ? contentData.content
-                        : Array.isArray(contentData?.data) ? contentData.data
-                        : Array.isArray(contentData) ? contentData : [];
-                    
-                    setTrendingContent(content.slice(0, 6).map((c: any) => ({
-                        id: c.id,
-                        type: 'content',
-                        title: c.title || 'Content',
-                        subtitle: c.creator_name || 'Creator',
-                        image: c.thumbnail_url || c.image_url || 'https://picsum.photos/seed/content/200/200',
-                    })));
-                }
-            } catch (e) {
-                console.log('Content fetch failed');
-            }
-
-            // Fallback mock data if APIs fail
-            if (featuredEvents.length === 0) {
-                setFeaturedEvents([
-                    { id: '1', type: 'event', title: 'Creator Meetup NYC', subtitle: 'New York, NY', image: 'https://picsum.photos/seed/event1/400/200', badge: '$25' },
-                    { id: '2', type: 'event', title: 'Music Festival 2026', subtitle: 'Los Angeles, CA', image: 'https://picsum.photos/seed/event2/400/200', badge: '$50' },
-                    { id: '3', type: 'event', title: 'Tech Conference', subtitle: 'San Francisco, CA', image: 'https://picsum.photos/seed/event3/400/200', badge: 'Free' },
-                ]);
-            }
-
-            if (trendingContent.length === 0) {
-                setTrendingContent([
-                    { id: '1', type: 'content', title: 'iPhone 16 Review', subtitle: 'TechReviewer', image: 'https://picsum.photos/seed/c1/200/200' },
-                    { id: '2', type: 'content', title: 'Summer Fashion', subtitle: 'StyleQueen', image: 'https://picsum.photos/seed/c2/200/200' },
-                    { id: '3', type: 'content', title: 'Viral Dance', subtitle: 'DancePro', image: 'https://picsum.photos/seed/c3/200/200' },
-                    { id: '4', type: 'content', title: 'Cooking Tips', subtitle: 'ChefMaster', image: 'https://picsum.photos/seed/c4/200/200' },
-                ]);
-            }
-
-        } catch (error) {
-            console.error('Error fetching discover data:', error);
-        } finally {
-            setIsLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    const handleRefresh = () => {
-        setRefreshing(true);
-        fetchDiscoverData();
-    };
-
-    const handleSearch = () => {
-        if (searchQuery.trim()) {
-            haptics.light();
-            router.push({ pathname: '/search', params: { q: searchQuery } } as any);
-        }
-    };
-
-    const navigateToCategory = async (route: string) => {
-        await haptics.light();
-        router.push(route as any);
-    };
-
-    const navigateToItem = async (item: FeaturedItem) => {
-        await haptics.light();
-        if (item.type === 'event') {
-            router.push({ pathname: '/events/[id]', params: { id: item.id } } as any);
-        } else if (item.type === 'content') {
-            router.push({ pathname: '/post/[id]', params: { id: item.id } } as any);
-        }
-    };
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const { moments, loading } = useMoments(selectedCategory);
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={handleRefresh}
-                        tintColor={colors.primary}
+        <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
+            {/* Absolute Search Header */}
+            <BlurView intensity={Platform.OS === 'ios' ? 80 : 100} tint={isDark ? 'dark' : 'light'} style={styles.header}>
+                <View style={styles.searchContainer}>
+                    <Ionicons name="search" size={20} color={DesignColors.gray[400]} style={styles.searchIcon} />
+                    <TextInput
+                        placeholder="Search moments, hosts, cities..."
+                        placeholderTextColor={DesignColors.gray[500]}
+                        style={[styles.searchInput, { color: isDark ? DesignColors.white : DesignColors.black }]}
                     />
-                }
-            >
-                {/* Search Bar */}
-                <View style={styles.searchSection}>
-                    <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
-                        <Search size={20} color={theme.textSecondary} />
-                        <TextInput
-                            style={[styles.searchInput, { color: theme.text }]}
-                            placeholder="Search events, content, creators..."
-                            placeholderTextColor={theme.textSecondary}
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            onSubmitEditing={handleSearch}
-                            returnKeyType="search"
-                        />
-                    </View>
+                    <Ionicons name="options" size={20} color={DesignColors.primary} style={styles.filterIcon} />
                 </View>
 
-                {/* Quick Actions */}
-                <View style={styles.quickActionsRow}>
-                    {QUICK_ACTIONS.map((action) => (
-                        <TouchableOpacity
-                            key={action.id}
-                            style={styles.quickAction}
-                            onPress={() => haptics.light()}
-                            activeOpacity={0.7}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll} contentContainerStyle={styles.categoryContent}>
+                    {categories.map((cat) => (
+                        <Pressable
+                            key={cat.id}
+                            onPress={() => setSelectedCategory(cat.id)}
+                            style={[
+                                styles.categoryPill,
+                                cat.id === selectedCategory && { backgroundColor: DesignColors.primary }
+                            ]}
                         >
-                            <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15` }]}>
-                                <action.icon size={20} color={action.color} />
-                            </View>
-                            <Text style={[styles.quickActionText, { color: theme.text }]}>{action.name}</Text>
-                        </TouchableOpacity>
+                            <Ionicons name={cat.icon as any} size={14} color={cat.id === selectedCategory ? DesignColors.white : isDark ? DesignColors.gray[400] : DesignColors.gray[600]} />
+                            <Text style={[
+                                styles.categoryLabel,
+                                cat.id === selectedCategory && { color: DesignColors.white, fontWeight: 'bold' },
+                                cat.id !== selectedCategory && { color: isDark ? DesignColors.gray[400] : DesignColors.gray[600] }
+                            ]}>
+                                {cat.label}
+                            </Text>
+                        </Pressable>
                     ))}
-                </View>
+                </ScrollView>
+            </BlurView>
 
-                {/* Categories Grid */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Explore</Text>
-                    <View style={styles.categoriesGrid}>
-                        {CATEGORIES.map((category) => (
-                            <TouchableOpacity
-                                key={category.id}
-                                style={[styles.categoryCard, { backgroundColor: theme.surface }]}
-                                onPress={() => navigateToCategory(category.route)}
-                                activeOpacity={0.7}
-                            >
-                                <View style={[styles.categoryIcon, { backgroundColor: `${category.color}15` }]}>
-                                    <category.icon size={24} color={category.color} />
-                                </View>
-                                <Text style={[styles.categoryName, { color: theme.text }]}>{category.name}</Text>
-                                <Text style={[styles.categoryDesc, { color: theme.textSecondary }]} numberOfLines={1}>
-                                    {category.description}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                {loading ? (
+                    <View style={styles.centered}>
+                        <Text style={{ color: DesignColors.gray[500] }}>Loading moments...</Text>
                     </View>
-                </View>
-
-                {/* Featured Events */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Upcoming Events</Text>
-                        <TouchableOpacity onPress={() => navigateToCategory('/events')}>
-                            <Text style={styles.seeAllText}>See All</Text>
-                        </TouchableOpacity>
+                ) : moments.length === 0 ? (
+                    <View style={styles.centered}>
+                        <Ionicons name="search-outline" size={48} color={DesignColors.gray[300]} />
+                        <Text style={{ color: DesignColors.gray[500], marginTop: 12 }}>No moments found</Text>
                     </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-                        {featuredEvents.map((event) => (
-                            <TouchableOpacity
-                                key={event.id}
-                                style={styles.eventCard}
-                                onPress={() => navigateToItem(event)}
-                                activeOpacity={0.8}
-                            >
-                                <Image source={{ uri: event.image }} style={styles.eventImage} />
-                                <LinearGradient
-                                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                                    style={styles.eventGradient}
-                                >
-                                    {event.badge && (
-                                        <View style={styles.eventBadge}>
-                                            <Text style={styles.eventBadgeText}>{event.badge}</Text>
-                                        </View>
-                                    )}
-                                    <Text style={styles.eventTitle} numberOfLines={1}>{event.title}</Text>
-                                    <View style={styles.eventLocationRow}>
-                                        <MapPin size={12} color="rgba(255,255,255,0.8)" />
-                                        <Text style={styles.eventLocation}>{event.subtitle}</Text>
-                                    </View>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-
-                {/* Trending Content */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Now</Text>
-                        <TouchableOpacity onPress={() => navigateToCategory('/market')}>
-                            <Text style={styles.seeAllText}>See All</Text>
-                        </TouchableOpacity>
+                ) : (
+                    <View style={styles.masonryGrid}>
+                        {/* Left Column */}
+                        <View style={styles.column}>
+                            {moments.filter((_, i) => i % 2 === 0).map((item) => (
+                                <MomentCard key={item.id} item={item} isDark={isDark} />
+                            ))}
+                        </View>
+                        {/* Right Column */}
+                        <View style={styles.column}>
+                            {moments.filter((_, i) => i % 2 !== 0).map((item) => (
+                                <MomentCard key={item.id} item={item} isDark={isDark} />
+                            ))}
+                        </View>
                     </View>
-                    <View style={styles.contentGrid}>
-                        {trendingContent.map((content) => (
-                            <TouchableOpacity
-                                key={content.id}
-                                style={[styles.contentCard, { backgroundColor: theme.surface }]}
-                                onPress={() => navigateToItem(content)}
-                                activeOpacity={0.8}
-                            >
-                                <Image source={{ uri: content.image }} style={styles.contentImage} />
-                                <View style={styles.contentInfo}>
-                                    <Text style={[styles.contentTitle, { color: theme.text }]} numberOfLines={1}>
-                                        {content.title}
-                                    </Text>
-                                    <Text style={[styles.contentSubtitle, { color: theme.textSecondary }]} numberOfLines={1}>
-                                        {content.subtitle}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
-                {/* PromoShare Banner */}
-                <View style={styles.section}>
-                    <TouchableOpacity
-                        style={styles.promoBanner}
-                        onPress={() => navigateToCategory('/promoshare')}
-                        activeOpacity={0.9}
-                    >
-                        <LinearGradient
-                            colors={['#6366F1', '#8B5CF6', '#EC4899']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.promoBannerGradient}
-                        >
-                            <View style={styles.promoBannerContent}>
-                                <Ticket size={32} color="#FFF" />
-                                <View style={styles.promoBannerText}>
-                                    <Text style={styles.promoBannerTitle}>PromoShare Weekly Draw</Text>
-                                    <Text style={styles.promoBannerSubtitle}>Earn tickets & win prizes!</Text>
-                                </View>
-                                <ChevronRight size={24} color="#FFF" />
-                            </View>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={{ height: 40 }} />
+                )}
+                <View style={{ height: 100 }} />
             </ScrollView>
+
+            {/* Floating Map Button */}
+            <Pressable style={styles.mapButton}>
+                <Ionicons name="map" size={20} color={DesignColors.white} />
+                <Text style={styles.mapButtonText}>Map</Text>
+            </Pressable>
         </View>
+    );
+}
+
+function MomentCard({ item, isDark }: { item: any, isDark: boolean }) {
+    return (
+        <Pressable style={[styles.card, { height: item.height }]}>
+            <View style={[styles.cardImagePlaceholder, { height: item.height - 50 }]}>
+                <Ionicons name="images-outline" size={32} color={DesignColors.gray[700]} />
+                <View style={styles.cardOverlay}>
+                    <BlurView intensity={30} tint="dark" style={styles.cardCategoryBlur}>
+                        <Text style={styles.cardCategoryText}>{item.category}</Text>
+                    </BlurView>
+                </View>
+            </View>
+            <View style={styles.cardFooter}>
+                <Text style={[styles.cardTitle, { color: isDark ? DesignColors.white : DesignColors.black }]} numberOfLines={1}>
+                    {item.title}
+                </Text>
+                <Text style={styles.cardHost}>by {item.host}</Text>
+            </View>
+        </Pressable>
     );
 }
 
@@ -354,198 +121,138 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    // Search
-    searchSection: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 8,
+    header: {
+        paddingTop: Platform.OS === 'ios' ? 50 : 30,
+        paddingBottom: Spacing.md,
+        zIndex: 10,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: 'rgba(0,0,0,0.1)',
     },
-    searchBar: {
+    searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 14,
-        gap: 12,
+        marginHorizontal: Spacing.container,
+        paddingHorizontal: Spacing.md,
+        height: 44,
+        borderRadius: BorderRadius.full,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    searchIcon: {
+        marginRight: Spacing.sm,
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
+        fontSize: Typography.sizes.base,
+        paddingVertical: 8,
+        backgroundColor: 'transparent',
     },
-    // Quick Actions
-    quickActionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+    filterIcon: {
+        marginLeft: Spacing.sm,
     },
-    quickAction: {
-        alignItems: 'center',
+    categoryScroll: {
+        marginTop: Spacing.md,
+        paddingHorizontal: Spacing.container,
+        backgroundColor: 'transparent',
     },
-    quickActionIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 6,
+    categoryContent: {
+        gap: Spacing.sm,
+        paddingRight: Spacing.container * 2,
+        backgroundColor: 'transparent',
     },
-    quickActionText: {
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    // Sections
-    section: {
-        paddingHorizontal: 16,
-        marginTop: 20,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 12,
-    },
-    seeAllText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: colors.primary,
-        marginBottom: 12,
-    },
-    // Categories Grid
-    categoriesGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 10,
-    },
-    categoryCard: {
-        width: (width - 42) / 2,
-        padding: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-    },
-    categoryIcon: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    categoryName: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    categoryDesc: {
-        fontSize: 12,
-    },
-    // Events
-    horizontalScroll: {
-        paddingRight: 16,
-    },
-    eventCard: {
-        width: 260,
-        height: 150,
-        borderRadius: 16,
-        overflow: 'hidden',
-        marginRight: 12,
-    },
-    eventImage: {
-        width: '100%',
-        height: '100%',
-    },
-    eventGradient: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: 12,
-        paddingTop: 40,
-    },
-    eventBadge: {
-        position: 'absolute',
-        top: -30,
-        right: 12,
-        backgroundColor: colors.primary,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    eventBadgeText: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: '#FFF',
-    },
-    eventTitle: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: '#FFF',
-        marginBottom: 4,
-    },
-    eventLocationRow: {
+    categoryPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: 6,
+        borderRadius: BorderRadius.full,
+        backgroundColor: 'rgba(0,0,0,0.03)',
+        gap: 6,
     },
-    eventLocation: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.8)',
+    categoryLabel: {
+        fontSize: Typography.sizes.sm,
     },
-    // Content Grid
-    contentGrid: {
+    scrollContent: {
+        paddingHorizontal: Spacing.container,
+        paddingTop: Spacing.md,
+    },
+    masonryGrid: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 10,
+        gap: Spacing.md,
+        backgroundColor: 'transparent',
     },
-    contentCard: {
-        width: (width - 42) / 2,
-        borderRadius: 14,
-        overflow: 'hidden',
-    },
-    contentImage: {
-        width: '100%',
-        height: 100,
-    },
-    contentInfo: {
-        padding: 10,
-    },
-    contentTitle: {
-        fontSize: 13,
-        fontWeight: '600',
-        marginBottom: 2,
-    },
-    contentSubtitle: {
-        fontSize: 11,
-    },
-    // Promo Banner
-    promoBanner: {
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    promoBannerGradient: {
-        padding: 20,
-    },
-    promoBannerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    promoBannerText: {
+    column: {
         flex: 1,
-        marginLeft: 16,
+        gap: Spacing.md,
+        backgroundColor: 'transparent',
     },
-    promoBannerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#FFF',
-        marginBottom: 4,
+    card: {
+        width: COLUMN_WIDTH,
+        borderRadius: BorderRadius.xl,
+        overflow: 'hidden',
+        backgroundColor: 'transparent',
     },
-    promoBannerSubtitle: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.9)',
+    cardImagePlaceholder: {
+        width: '100%',
+        backgroundColor: DesignColors.gray[900],
+        borderRadius: BorderRadius.xl,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cardOverlay: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: 'transparent',
+    },
+    cardCategoryBlur: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        overflow: 'hidden',
+    },
+    cardCategoryText: {
+        color: DesignColors.white,
+        fontSize: 10,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    cardFooter: {
+        paddingVertical: 8,
+        paddingHorizontal: 4,
+        backgroundColor: 'transparent',
+    },
+    cardTitle: {
+        fontSize: Typography.sizes.sm,
+        fontWeight: 'bold',
+    },
+    cardHost: {
+        fontSize: Typography.sizes.xs,
+        color: DesignColors.gray[500],
+        marginTop: 2,
+    },
+    mapButton: {
+        position: 'absolute',
+        bottom: 100,
+        left: '50%',
+        transform: [{ translateX: -40 }],
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: DesignColors.secondary,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: BorderRadius.full,
+        gap: 8,
+        ...Shadows.medium,
+    },
+    mapButtonText: {
+        color: DesignColors.white,
+        fontWeight: 'bold',
+        fontSize: Typography.sizes.sm,
+    },
+    centered: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 100,
     },
 });

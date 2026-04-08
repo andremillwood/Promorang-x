@@ -30,6 +30,7 @@ const MULTIPLIER_RULES = {
     catchup_3_days: { type: 'catchup_boost', value: 2.0, reason: 'Welcome back! Catch-up boost active' },
     weekend: { type: 'weekend_wave', value: 1.25, reason: 'Weekend wave bonus!' },
     welcome_boost: { type: 'welcome_boost', value: 1.5, reason: 'New user welcome boost!' },
+    house_bonus: { type: 'house_bonus', value: 1.1, reason: 'Affiliation bonus active!' },
 };
 
 // Phase 0 prize pool: NO GEMS
@@ -173,7 +174,7 @@ async function initDailyHeadline() {
                 title: headlineDrop?.title || "Today's Featured Opportunity",
                 subtitle: headlineDrop?.description || "Explore today's featured drop",
                 cta_text: "Explore",
-                cta_action: '/today/opportunity', // Dedicated wrapper page
+                cta_action: `/moments/${headlineDrop?.id}`, // Dedicated moment page
                 drop_id: headlineDrop?.id || null,
                 reward_amount: headlineDrop?.gem_reward_base || 0,
             };
@@ -183,7 +184,7 @@ async function initDailyHeadline() {
                 subtitle: "All dynamic points doubled today. Get ahead of the pack!",
                 multiplier: 2.0,
                 cta_text: "Start Earning",
-                cta_action: '/today/opportunity', // Multiplier missions also go here
+                cta_action: '/moments', // Direct to moments list
             };
         } else if (headlineType === 'chance') {
             payload = {
@@ -191,7 +192,7 @@ async function initDailyHeadline() {
                 subtitle: "Earn bonus draw tickets today. Higher chance of winning!",
                 extra_tickets: 1,
                 cta_text: "Get Tickets",
-                cta_action: '/today/opportunity', // Chance missions also go here
+                cta_action: '/moments', // Direct to moments list
             };
         }
 
@@ -419,7 +420,7 @@ async function calculateMultiplier(userId) {
         // Get user data
         const { data: user } = await supabase
             .from('users')
-            .select('created_at')
+            .select('created_at, house_id')
             .eq('id', userId)
             .single();
 
@@ -445,18 +446,63 @@ async function calculateMultiplier(userId) {
 
         const currentStreak = streak?.current_streak || 0;
 
-        // Priority-ordered multiplier selection (highest wins)
-        if (currentStreak >= 30) return MULTIPLIER_RULES.streak_30_plus;
-        if (currentStreak >= 14) return MULTIPLIER_RULES.streak_14_plus;
-        if (currentStreak >= 7) return MULTIPLIER_RULES.streak_7_plus;
-        if (daysSinceActivity >= 3) return MULTIPLIER_RULES.catchup_3_days;
-        if (accountAgeDays <= 7) return MULTIPLIER_RULES.welcome_boost;
-        if (isWeekend) return MULTIPLIER_RULES.weekend;
+        // Base multiplier logic
+        let baseRule = { type: 'base', value: 1.0, reason: null };
 
-        return { type: 'base', value: 1.0, reason: null };
+        // Priority-ordered multiplier selection (highest wins)
+        if (currentStreak >= 30) baseRule = MULTIPLIER_RULES.streak_30_plus;
+        else if (currentStreak >= 14) baseRule = MULTIPLIER_RULES.streak_14_plus;
+        else if (currentStreak >= 7) baseRule = MULTIPLIER_RULES.streak_7_plus;
+        else if (daysSinceActivity >= 3) baseRule = MULTIPLIER_RULES.catchup_3_days;
+        else if (accountAgeDays <= 7) baseRule = MULTIPLIER_RULES.welcome_boost;
+        else if (isWeekend) baseRule = MULTIPLIER_RULES.weekend;
+
+        // Add House Bonus (Additive/Stackable)
+        if (user?.house_id) {
+            return {
+                type: 'combined_boost',
+                value: Number((baseRule.value * MULTIPLIER_RULES.house_bonus.value).toFixed(2)),
+                reason: baseRule.reason ? `${baseRule.reason} + House Bonus!` : 'House affiliation bonus!'
+            };
+        }
+
+        return baseRule;
     } catch (error) {
         console.error('[DailyLayer] Error calculating multiplier:', error);
         return { type: 'base', value: 1.0, reason: null };
+    }
+}
+
+/**
+ * Ensure user is assigned to a House
+ */
+async function ensureUserHouse(userId) {
+    if (!supabase) return null;
+
+    try {
+        const { data: user } = await supabase
+            .from('users')
+            .select('house_id')
+            .eq('id', userId)
+            .single();
+
+        if (user?.house_id) return user.house_id;
+
+        // Randomly assign one of the 4 Houses
+        const houses = ['Solis', 'Luna', 'Terra', 'Aether'];
+        const randomHouse = houses[Math.floor(Math.random() * houses.length)];
+
+        console.log(`[DailyLayer] Assigning user ${userId} to House ${randomHouse}`);
+
+        await supabase
+            .from('users')
+            .update({ house_id: randomHouse })
+            .eq('id', userId);
+
+        return randomHouse;
+    } catch (error) {
+        console.error('[DailyLayer] Error ensuring user house:', error);
+        return null;
     }
 }
 
@@ -680,6 +726,9 @@ async function getOrCreateDailyState(userId) {
                 draw = await initDailyDraw();
             }
 
+            // Ensure user has a House assigned
+            await ensureUserHouse(userId);
+
             // Calculate multiplier for this user
             const multiplier = await calculateMultiplier(userId);
 
@@ -778,29 +827,29 @@ function getDailyChecklist(state, maturityState = 1, todayActions = []) {
     if (maturityState <= 1) {
         checklist.push({
             id: 'view_headline',
-            label: "View Today's Headline",
+            label: "View Today's Realm Quest",
             completed: state.headline_viewed,
             points: 5,
             priority: 1,
             cta_action: '/today/opportunity',
-            subtitle: "See what's new today"
+            subtitle: "See what's new in the Realm"
         });
 
         checklist.push({
             id: 'complete_first_drop',
-            label: "Complete Your First Drop",
+            label: "Complete Your First Side Quest",
             completed: state.headline_engaged || hasProof,
             points: 50,
             priority: 2,
             cta_action: '/today/opportunity',
-            subtitle: "Earn your first reward!"
+            subtitle: "Earn your first treasure!"
         });
 
         checklist.push({
             id: 'draw_entry',
             label: "Enter Daily Draw",
             completed: state.tickets_earned >= 1,
-            subtitle: state.tickets_earned >= 1 ? "Entered!" : "Complete a drop to enter",
+            subtitle: state.tickets_earned >= 1 ? "Entered!" : "Complete a side quest to enter",
             priority: 3
         });
     }
@@ -812,12 +861,12 @@ function getDailyChecklist(state, maturityState = 1, todayActions = []) {
     else if (maturityState === 2) {
         checklist.push({
             id: 'view_headline',
-            label: "Check Today's Opportunity",
+            label: "Check Today's Questline",
             completed: state.headline_viewed,
             points: 5,
             priority: 1,
             cta_action: '/today/opportunity',
-            subtitle: "A special opportunity awaits"
+            subtitle: "A special questline awaits"
         });
 
         if (state.daily_featured && state.daily_featured.headline_type === 'reward') {
@@ -839,7 +888,7 @@ function getDailyChecklist(state, maturityState = 1, todayActions = []) {
             points: 100,
             priority: 3,
             cta_action: '/post',
-            subtitle: "Engage with content"
+            subtitle: "Post a Quest result"
         });
 
         checklist.push({
@@ -973,22 +1022,31 @@ async function snapshotLeaderboard(date = null) {
             return existing;
         }
 
-        // Get all users' dynamic points for the day
+        // Get all users' daily activity for ranking
         const { data: dailyStates, error } = await supabase
             .from('daily_state')
-            .select('user_id, dynamic_points_earned')
-            .eq('state_date', snapshotDate)
-            .order('dynamic_points_earned', { ascending: false });
+            .select('user_id, dynamic_points_earned, weighted_gems_earned')
+            .eq('state_date', snapshotDate);
 
         if (error) throw error;
+
+        // Calculate a composite score for ranking
+        // Formula: score = (Dynamic Points) + (Weighted Gems * 10)
+        // This gives high-value missions (buys) significant leaderboard weight
+        const rankedUsers = (dailyStates || []).map(row => ({
+            ...row,
+            composite_score: (Number(row.dynamic_points_earned) || 0) + (Number(row.weighted_gems_earned) || 0) * 10
+        })).sort((a, b) => b.composite_score - a.composite_score);
 
         const totalUsers = dailyStates?.length || 0;
 
         // Build ranks array
-        const ranksData = (dailyStates || []).map((row, index) => ({
+        const ranksData = rankedUsers.map((row, index) => ({
             user_id: row.user_id,
             rank: index + 1,
             dynamic_points: row.dynamic_points_earned,
+            weighted_gems: row.weighted_gems_earned,
+            composite_score: row.composite_score,
             percentile: totalUsers > 0
                 ? ((totalUsers - (index + 1)) / totalUsers) * 100
                 : 0,
@@ -1080,6 +1138,35 @@ async function recordEngagement(userId, action, referenceId = null) {
     } catch (error) {
         console.error('[DailyLayer] Error recording engagement:', error);
         throw error;
+    }
+}
+
+/**
+ * Record weighted gems earned for daily ranking
+ */
+async function recordWeightedGems(userId, amount) {
+    if (!supabase) return { success: true };
+
+    const today = getPromorangDate();
+
+    try {
+        const state = await getOrCreateDailyState(userId);
+
+        const newWeightedTotal = (Number(state.weighted_gems_earned) || 0) + Number(amount);
+
+        await supabase
+            .from('daily_state')
+            .update({
+                weighted_gems_earned: newWeightedTotal,
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId)
+            .eq('state_date', today);
+
+        return { success: true, new_total: newWeightedTotal };
+    } catch (error) {
+        console.error('[DailyLayer] Error recording weighted gems:', error);
+        return { success: false, error };
     }
 }
 
@@ -1336,6 +1423,7 @@ module.exports = {
 
     // Engagement
     recordEngagement,
+    recordWeightedGems,
     autoEnterDraw,
 
     // Being Seen

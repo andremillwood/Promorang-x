@@ -233,188 +233,31 @@ const mockOffers = (currentUser) => [
 ];
 
 router.get('/listings', async (req, res) => {
-  const ownerOnly = req.query.owner === 'true';
-
-  if (!supabase) {
-    return res.json({ listings: mockListings() });
-  }
-
-  try {
-    let query = supabase
-      .from('share_listings')
-      .select(`
-        *,
-        seller:seller_id (username, display_name)
-      `)
-      .eq('status', 'active');
-
-    if (ownerOnly) {
-      query = query.eq('seller_id', req.user.id);
-    }
-
-    const objectType = req.query.object_type;
-    if (objectType) {
-      query = query.eq('object_type', objectType);
-    }
-
-    const { data: listings, error } = await query;
-    if (error) throw error;
-
-    // For products, we want to join with product details
-    // This is a simplified merge for now
-    const enrichedListings = await Promise.all((listings || []).map(async (listing) => {
-      if (listing.object_type === 'product') {
-        const { data: product } = await supabase.from('products').select('name, images').eq('id', listing.object_id).single();
-        return {
-          ...listing,
-          content_title: product?.name || 'Product Share',
-          content_thumbnail: product?.images?.[0] || '/assets/demo/placeholder.png',
-          owner_name: listing.seller?.display_name || listing.seller?.username || 'Seller'
-        };
-      }
-      return {
-        ...listing,
-        owner_name: listing.seller?.display_name || listing.seller?.username || 'Seller'
-      };
-    }));
-
-    return res.json({ listings: enrichedListings });
-  } catch (error) {
-    console.error('[shares.listings] error:', error);
-    return res.status(500).json({ error: 'Failed to fetch listings' });
-  }
+  return res.status(403).json({
+    error: 'Market Frozen',
+    message: 'The secondary trading market is temporarily frozen during our strategic transition to a brand-funded model.'
+  });
 });
 
 router.post('/listings', async (req, res) => {
-  const { object_id, object_type, quantity, ask_price } = req.body || {};
-  if (!object_id || !object_type || !quantity || !ask_price) {
-    return res.status(400).json({ error: 'Missing listing fields' });
-  }
-
-  if (!supabase) {
-    return res.status(503).json({ error: 'Database unavailable' });
-  }
-
-  try {
-    // 1. Check if user has enough shares to list
-    const { data: shareBalance } = await supabase
-      .from('user_shares')
-      .select('total_shares, locked_shares')
-      .eq('user_id', req.user.id)
-      .eq('object_id', object_id)
-      .eq('object_type', object_type)
-      .single();
-
-    const available = (shareBalance?.total_shares || 0) - (shareBalance?.locked_shares || 0);
-    if (available < quantity) {
-      return res.status(400).json({ error: 'Insufficient shares available to list' });
-    }
-
-    // 2. Lock the shares
-    await supabase
-      .from('user_shares')
-      .update({ locked_shares: (shareBalance.locked_shares || 0) + quantity })
-      .eq('id', shareBalance.id);
-
-    // 3. Create listing
-    const { data: listing, error } = await supabase
-      .from('share_listings')
-      .insert({
-        seller_id: req.user.id,
-        object_id,
-        object_type,
-        quantity,
-        remaining_quantity: quantity,
-        price_per_share: ask_price,
-        status: 'active'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return res.status(201).json({ success: true, listing });
-  } catch (error) {
-    console.error('[shares.postListing] error:', error);
-    return res.status(500).json({ error: 'Failed to create listing' });
-  }
+  return res.status(403).json({
+    error: 'Market Frozen',
+    message: 'New secondary market listings are currently disabled.'
+  });
 });
 
 router.get('/offers', async (req, res) => {
-  const role = req.query.role;
-
-  if (!supabase) {
-    return res.json({ offers: mockOffers(req.user) });
-  }
-
-  try {
-    let query = supabase
-      .from('share_offers') // We'll assume a share_offers table exists or create it
-      .select(`
-        *,
-        buyer:buyer_id (username, display_name),
-        seller:seller_id (username, display_name)
-      `);
-
-    if (role === 'seller') {
-      query = query.eq('seller_id', req.user.id);
-    } else if (role === 'buyer') {
-      query = query.eq('buyer_id', req.user.id);
-    } else {
-      query = query.or(`seller_id.eq.${req.user.id},buyer_id.eq.${req.user.id}`);
-    }
-
-    const { data: offers, error } = await query;
-    if (error) throw error;
-
-    return res.json({ offers });
-  } catch (error) {
-    console.error('[shares.offers] error:', error);
-    return res.status(500).json({ error: 'Failed to fetch offers' });
-  }
+  return res.status(403).json({
+    error: 'Market Frozen',
+    message: 'Secondary market offers are currently disabled.'
+  });
 });
 
 router.post('/offers', async (req, res) => {
-  const { listing_id, object_id, object_type, quantity, bid_price } = req.body || {};
-  if (!quantity || !bid_price) {
-    return res.status(400).json({ error: 'Missing offer fields' });
-  }
-
-  if (!supabase) {
-    return res.status(503).json({ error: 'Database unavailable' });
-  }
-
-  try {
-    // 1. If it's an offer on a listing, get seller_id
-    let seller_id = req.body.seller_id || null;
-    if (listing_id) {
-      const { data: listing } = await supabase.from('share_listings').select('seller_id').eq('id', listing_id).single();
-      seller_id = listing?.seller_id;
-    }
-
-    // 2. Create offer
-    const { data: offer, error } = await supabase
-      .from('share_offers')
-      .insert({
-        buyer_id: req.user.id,
-        seller_id,
-        listing_id: listing_id || null,
-        object_id: object_id || null,
-        object_type: object_type || null,
-        quantity,
-        bid_price,
-        status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return res.status(201).json({ success: true, offer });
-  } catch (error) {
-    console.error('[shares.postOffer] error:', error);
-    return res.status(500).json({ error: 'Failed to create offer' });
-  }
+  return res.status(403).json({
+    error: 'Market Frozen',
+    message: 'Creating new offers is currently disabled.'
+  });
 });
 
 router.post('/create', async (req, res) => {

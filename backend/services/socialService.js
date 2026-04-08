@@ -31,12 +31,7 @@ async function followUser(followerId, followingId) {
 
     if (error) throw error;
 
-    // Economy: Award points for following (10 points)
-    try {
-      await economyService.addCurrency(followerId, 'points', 10, 'social_registration', data.id, 'Followed user');
-    } catch (ecoError) {
-      console.error('[Social Service] Failed to award points for follow:', ecoError.message);
-    }
+    // Economy: Points removed for Phase 3 refactor (Social Downgrade)
 
     return data;
   } catch (error) {
@@ -441,19 +436,8 @@ async function addReaction(userId, reactionData) {
 
     if (error) throw error;
 
-    // Economy: Award points for like (1 point)
-    try {
-      const points = reaction_type === 'like' ? 1 : 0;
-      if (points > 0) {
-        await economyService.addCurrency(userId, 'points', points, 'moves', data.id, `Reaction: ${reaction_type}`);
-
-        // PromoShare Ticket
-        const promoShareService = require('./promoShareService');
-        await promoShareService.awardTicket(userId, 'social_reaction', data.id);
-      }
-    } catch (ecoError) {
-      console.error('[Social Service] Failed to award rewards for reaction:', ecoError.message);
-    }
+    // Economy: Reaction points removed
+    // PromoShare Ticket: Removed
 
     return data;
   } catch (error) {
@@ -512,16 +496,8 @@ async function addComment(userId, commentData) {
 
     if (error) throw error;
 
-    // Economy: Award points for comment (5 points)
-    try {
-      await economyService.addCurrency(userId, 'points', 5, 'moves', data.id, 'Commented on content');
-
-      // PromoShare Ticket
-      const promoShareService = require('./promoShareService');
-      await promoShareService.awardTicket(userId, 'social_comment', data.id);
-    } catch (ecoError) {
-      console.error('[Social Service] Failed to award rewards for comment:', ecoError.message);
-    }
+    // Economy: Comment points removed
+    // PromoShare Ticket: Removed
 
     return data;
   } catch (error) {

@@ -32,6 +32,26 @@ const CONFIG = {
 };
 
 /**
+ * Get the current Gem to USD conversion rate
+ */
+async function getGemUSDRate() {
+    if (!supabase) return 0.01;
+
+    try {
+        const { data, error } = await supabase
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'GEM_USD_RATE')
+            .single();
+
+        if (error || !data) return 0.01;
+        return data.value.rate || 0.01;
+    } catch (error) {
+        return 0.01;
+    }
+}
+
+/**
  * Get user wallet balance
  */
 async function getBalance(userId) {
@@ -75,17 +95,26 @@ async function addCurrency(userId, currency, amount, source, referenceId = null,
 
     try {
         // 1. Record Transaction
+        const transactionData = {
+            user_id: userId,
+            currency,
+            amount,
+            transaction_type: 'earn',
+            source,
+            reference_id: referenceId,
+            description
+        };
+
+        // If currency is Gems, track the USD value
+        if (currency === 'gems') {
+            const rate = await getGemUSDRate();
+            transactionData.usd_rate_at_time = rate;
+            transactionData.usd_value = (amount * rate).toFixed(2);
+        }
+
         const { error: txError } = await supabase
             .from('transaction_history')
-            .insert({
-                user_id: userId,
-                currency,
-                amount,
-                transaction_type: 'earn',
-                source,
-                reference_id: referenceId,
-                description
-            });
+            .insert(transactionData);
 
         if (txError) throw txError;
 
@@ -134,17 +163,26 @@ async function spendCurrency(userId, currency, amount, source, referenceId = nul
         }
 
         // 1. Record Transaction
+        const transactionData = {
+            user_id: userId,
+            currency,
+            amount: -amount, // Negative for spend
+            transaction_type: 'spend',
+            source,
+            reference_id: referenceId,
+            description
+        };
+
+        // If currency is Gems, track the USD value
+        if (currency === 'gems') {
+            const rate = await getGemUSDRate();
+            transactionData.usd_rate_at_time = rate;
+            transactionData.usd_value = (-amount * rate).toFixed(2);
+        }
+
         const { error: txError } = await supabase
             .from('transaction_history')
-            .insert({
-                user_id: userId,
-                currency,
-                amount: -amount, // Negative for spend
-                transaction_type: 'spend',
-                source,
-                reference_id: referenceId,
-                description
-            });
+            .insert(transactionData);
 
         if (txError) throw txError;
 
@@ -259,6 +297,154 @@ async function unlockMasterKey(userId) {
     }
 }
 
+/**
+ * BRAND ACCOUNT MANAGEMENT
+ * For Moment-centric pricing model
+ */
+
+/**
+ * Get or create brand account
+ */
+async function getBrandAccount(brandId) {
+    if (!supabase) throw new Error('Database not available');
+
+    try {
+        let { data, error } = await supabase
+            .from('brand_accounts')
+            .select('*')
+            .eq('brand_id', brandId)
+            .single();
+
+        if (error && error.code === 'PGRST116') {
+            // Account not found, create one
+            const { data: newData, error: createError } = await supabase
+                .from('brand_accounts')
+                .insert({ brand_id: brandId })
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            data = newData;
+        } else if (error) {
+            throw error;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('[Economy Service] Error getting brand account:', error);
+        throw error;
+    }
+}
+
+/**
+ * Charge brand for Moment creation
+ */
+async function chargeBrand(brandId, amountUSD, momentId, metadata = {}) {
+    if (!supabase) throw new Error('Database not available');
+
+    try {
+        const account = await getBrandAccount(brandId);
+
+        // In production, this would integrate with Stripe
+        // For now, we'll track it in the database
+
+        // Update brand account stats
+        const { error: updateError } = await supabase
+            .from('brand_accounts')
+            .update({
+                total_spent_usd: parseFloat(account.total_spent_usd) + amountUSD,
+                moments_created: account.moments_created + 1,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', account.id);
+
+        if (updateError) throw updateError;
+
+        // Record transaction
+        await supabase
+            .from('brand_transactions')
+            .insert({
+                brand_id: brandId,
+                amount_usd: -amountUSD, // Negative for charge
+                transaction_type: 'moment_charge',
+                moment_id: momentId,
+                metadata,
+                created_at: new Date().toISOString()
+            });
+
+        return { success: true, charged_amount: amountUSD };
+    } catch (error) {
+        console.error('[Economy Service] Error charging brand:', error);
+        throw error;
+    }
+}
+
+/**
+ * Credit brand refund (unused escrow funds)
+ */
+async function creditBrandRefund(brandId, amountUSD, momentId, metadata = {}) {
+    if (!supabase) throw new Error('Database not available');
+
+    try {
+        const account = await getBrandAccount(brandId);
+
+        // Update brand account balance
+        const { error: updateError } = await supabase
+            .from('brand_accounts')
+            .update({
+                account_balance_usd: parseFloat(account.account_balance_usd) + amountUSD,
+                total_refunded_usd: parseFloat(account.total_refunded_usd) + amountUSD,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', account.id);
+
+        if (updateError) throw updateError;
+
+        // Record transaction
+        await supabase
+            .from('brand_transactions')
+            .insert({
+                brand_id: brandId,
+                amount_usd: amountUSD, // Positive for refund
+                transaction_type: 'escrow_refund',
+                moment_id: momentId,
+                metadata,
+                created_at: new Date().toISOString()
+            });
+
+        return { success: true, refunded_amount: amountUSD };
+    } catch (error) {
+        console.error('[Economy Service] Error crediting brand refund:', error);
+        throw error;
+    }
+}
+
+/**
+ * Update brand account after successful Moment
+ */
+async function incrementSuccessfulMoments(brandId) {
+    if (!supabase) throw new Error('Database not available');
+
+    try {
+        const account = await getBrandAccount(brandId);
+
+        const { error } = await supabase
+            .from('brand_accounts')
+            .update({
+                successful_moments: account.successful_moments + 1,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', account.id);
+
+        if (error) throw error;
+
+        return { success: true };
+    } catch (error) {
+        console.error('[Economy Service] Error incrementing successful moments:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     CONFIG,
     getBalance,
@@ -266,5 +452,10 @@ module.exports = {
     spendCurrency,
     convertPointsToPromoKeys,
     getMasterKeyStatus,
-    unlockMasterKey
+    unlockMasterKey,
+    // Brand account functions
+    getBrandAccount,
+    chargeBrand,
+    creditBrandRefund,
+    incrementSuccessfulMoments
 };

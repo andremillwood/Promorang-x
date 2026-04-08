@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 // Use the working auth middleware from _core/auth.ts
 const { requireAuth } = require('../middleware/auth');
 const dailyLayerService = require('../services/dailyLayerService');
@@ -959,6 +959,10 @@ router.post('/:id/sponsor', async (req, res) => {
 
 // Buy shares in content
 router.post('/buy-shares', async (req, res) => {
+  return res.status(403).json({
+    error: 'Market Frozen',
+    message: 'Buying shares is temporarily disabled during the platform transition.'
+  });
   try {
     const { content_id, shares_count } = req.body;
     const userId = req.user?.id || 1; // Fallback to demo user ID 1 if not auth

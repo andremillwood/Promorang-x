@@ -3,7 +3,7 @@
  * Handles team member management, invitations, and permission checks for merchant accounts
  */
 
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 const crypto = require('crypto');
 const { sendTeamInvitationEmail, sendInvitationAcceptedEmail } = require('./resendService');
 

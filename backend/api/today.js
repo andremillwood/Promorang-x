@@ -16,6 +16,7 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const dailyLayerService = require('../services/dailyLayerService');
 const dynamicPointsService = require('../services/dynamicPointsService');
+const seasonService = require('../services/seasonService');
 
 // =============================================
 // MIDDLEWARE
@@ -71,7 +72,7 @@ router.get('/', async (req, res) => {
                                 ? "Start earning with this quick mission"
                                 : "Complete this to boost your rank",
                         cta_text: stateNum <= 1 ? "Get Started" : "Complete Now",
-                        cta_action: '/today/opportunity',
+                        cta_action: '/moments',
                         reward_amount: stateNum >= 2 ? 25 : 10,
                     },
                     drop: null,
@@ -139,7 +140,24 @@ router.get('/', async (req, res) => {
                         preview: 'Meet the community & earn keys',
                         accent_color: 'blue',
                     } : null,
+                    stateNum >= 2 ? {
+                        id: 'season-quest-1',
+                        type: 'seasonal_quest',
+                        title: 'Genesis: Claim your legacy',
+                        preview: 'Time limited: Earn double XP',
+                        accent_color: 'amber',
+                        expires_at: new Date(Date.now() + 86400000 * 2).toISOString(),
+                    } : null,
                 ].filter(Boolean),
+                season: {
+                    id: 'season_of_dawn_v1',
+                    name: 'Season of the Dawn',
+                    banner_url: 'https://images.unsplash.com/photo-1470252649358-96752a78ecae?auto=format&fit=crop&q=80&w=2070',
+                    current_tier: stateNum === 0 ? 1 : stateNum === 3 ? 4 : 2,
+                    completion_percentage: stateNum === 0 ? 0 : stateNum === 3 ? 85 : 45,
+                    next_tier_xp: 2500,
+                    current_xp: stateNum === 3 ? 4250 : 1250,
+                },
                 state_date: new Date().toISOString().split('T')[0],
                 headline_viewed: stateNum >= 1,
                 headline_engaged: stateNum >= 2,
@@ -180,6 +198,7 @@ router.get('/', async (req, res) => {
                 dynamic_points: state.dynamic_points_earned || 0,
                 label: 'Progress today',
             },
+            season: await seasonService.getUserSeasonProgress(userId),
             draw: {
                 auto_entered: state.draw_auto_entered || false,
                 tickets: state.tickets_earned || 0,

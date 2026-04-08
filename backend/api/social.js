@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const socialService = require('../services/socialService');
+const crewService = require('../services/crewService');
 
 // Helper functions
 const sendSuccess = (res, data = {}, message) => {
@@ -80,6 +81,21 @@ router.get('/following/:userId', async (req, res) => {
   } catch (error) {
     console.error('[Social API] Error getting following:', error);
     return sendError(res, 500, 'Failed to get following', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/social/crew/stats/:userId
+ * Get user's Crew stats (Phase 5)
+ */
+router.get('/crew/stats/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user.id;
+    const stats = await crewService.getCrewStats(userId);
+    return sendSuccess(res, stats);
+  } catch (error) {
+    console.error('[Social API] Error getting crew stats:', error);
+    return sendError(res, 500, 'Failed to get crew stats', 'SERVER_ERROR');
   }
 });
 

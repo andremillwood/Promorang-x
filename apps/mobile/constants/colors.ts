@@ -1,42 +1,19 @@
-const common = {
-  primary: "#FF6600",
-  success: "#4CAF50",
-  error: "#F44336",
-  warning: "#FFC107",
-  info: "#2196F3",
-  transparent: "transparent",
-  overlay: "rgba(0, 0, 0, 0.5)",
-};
+const tintColorLight = '#2f95dc';
+const tintColorDark = '#fff';
 
-export const theme = {
+export default {
   light: {
-    ...common,
-    background: "#F2F2F2",
-    surface: "#FFFFFF",
-    text: "#000000",
-    textSecondary: "#8A8A8A",
-    border: "#E5E5E5",
-    card: "#FFFFFF",
+    text: '#000',
+    background: '#fff',
+    tint: tintColorLight,
+    tabIconDefault: '#ccc',
+    tabIconSelected: tintColorLight,
   },
   dark: {
-    ...common,
-    background: "#121212",
-    surface: "#1E1E1E",
-    text: "#FFFFFF",
-    textSecondary: "#AAAAAA",
-    border: "#333333",
-    card: "#252525",
-  }
+    text: '#fff',
+    background: '#000',
+    tint: tintColorDark,
+    tabIconDefault: '#ccc',
+    tabIconSelected: tintColorDark,
+  },
 };
-
-// Legacy support for direct color access (defaults to light)
-const colors = {
-  ...theme.light,
-  gray: theme.light.background,
-  darkGray: theme.light.textSecondary,
-  lightGray: theme.light.border,
-  black: theme.light.text,
-  white: theme.light.surface,
-};
-
-export default colors;

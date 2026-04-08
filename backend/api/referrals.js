@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const referralService = require('../services/referralService');
+const crewService = require('../services/crewService');
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const supabase = global.supabase || serviceSupabase || null;
@@ -418,6 +419,21 @@ router.get('/leaderboard', async (req, res) => {
   } catch (error) {
     console.error('[Referrals API] Error getting leaderboard:', error);
     return sendError(res, 500, 'Failed to get leaderboard', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/referrals/guild/:userId
+ * Get Guild hierarchy for a user (Phase 6)
+ */
+router.get('/guild/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user.id;
+    const guildStats = await crewService.getGuildStats(userId);
+    return sendSuccess(res, guildStats);
+  } catch (error) {
+    console.error('[Referrals API] Error getting guild stats:', error);
+    return sendError(res, 500, 'Failed to get guild stats', 'SERVER_ERROR');
   }
 });
 

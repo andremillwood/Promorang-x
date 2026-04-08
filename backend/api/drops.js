@@ -7,6 +7,11 @@ const { ADVERTISER_TIERS, MOVE_RULES } = require('../constants/pricing');
 const dailyLayerService = require('../services/dailyLayerService');
 const { sendDropApprovedEmail, sendDropRejectedEmail, sendDropCompletedEmail } = require('../services/resendService');
 const merchantSamplingService = require('../services/merchantSamplingService');
+const aiVerificationService = require('../services/aiVerificationService');
+const verificationService = require('../services/verificationService');
+const economyService = require('../services/economyService');
+const promoShareService = require('../services/promoShareService');
+
 
 /**
  * Check if advertiser has available Moves for the requested action.
@@ -316,6 +321,104 @@ router.get('/:id/public', async (req, res) => {
   }
 });
 
+// Get public outcome data for a drop (PLG)
+router.get('/:id/outcome', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!supabase) {
+      return res.json({
+        success: true,
+        drop: {
+          id: id,
+          title: 'Demo Activation Success',
+          description: 'A successful community activation demonstrating real-world impact.',
+          creator_name: 'Premium Brand',
+          status: 'completed'
+        },
+        stats: {
+          participants: 42,
+          creditsAwarded: 1200,
+          gpsVerifiedRate: 0.85
+        },
+        proofs: [
+          { url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800', type: 'image', user: { display_name: 'Alex J.' } },
+          { url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800', type: 'image', user: { display_name: 'Sam R.' } },
+          { url: 'https://images.unsplash.com/photo-1523240682765-e70d879990ee?w=800', type: 'image', user: { display_name: 'Jordan K.' } }
+        ]
+      });
+    }
+
+    // 1. Fetch drop/activation details
+    const { data: drop, error: dropError } = await supabase
+      .from('drops')
+      .select('id, title, description, creator_name, preview_image, starts_at, deadline_at, status')
+      .eq('id', id)
+      .single();
+
+    if (dropError || !drop) {
+      return res.status(404).json({ success: false, error: 'Drop not found' });
+    }
+
+    // 2. Fetch aggregated stats from applications
+    const { data: statsData, error: statsError } = await supabase
+      .from('drop_applications')
+      .select('status, weighted_gems_earned, metadata')
+      .eq('drop_id', id)
+      .eq('status', 'approved');
+
+    if (statsError) throw statsError;
+
+    const participants = statsData.length;
+    const creditsAwarded = statsData.reduce((sum, app) => sum + (app.weighted_gems_earned || 0), 0);
+    const gpsVerifiedCount = statsData.filter(app => app.metadata?.location).length;
+    const gpsVerifiedRate = participants > 0 ? gpsVerifiedCount / participants : 0;
+
+    // 3. Fetch curated list of approved proofs
+    const { data: proofsData, error: proofsError } = await supabase
+      .from('drop_applications')
+      .select('id, proof_url, submission_text, metadata, user:users(display_name, avatar_url)')
+      .eq('drop_id', id)
+      .eq('status', 'approved')
+      .not('proof_url', 'is', null)
+      .limit(20);
+
+    if (proofsError) throw proofsError;
+
+    // Flatten multi-proofs if they exist in metadata, otherwise use proof_url
+    const flattenedProofs = proofsData.flatMap(app => {
+      const multi = app.metadata?.proofs || [];
+      if (multi.length > 0) {
+        return multi.map(p => ({
+          url: p.url,
+          type: p.type,
+          user: app.user
+        }));
+      }
+      return [{
+        url: app.proof_url,
+        type: 'image',
+        user: app.user
+      }];
+    });
+
+    res.json({
+      success: true,
+      drop,
+      stats: {
+        participants,
+        creditsAwarded,
+        gpsVerifiedRate
+      },
+      proofs: flattenedProofs.slice(0, 50)
+    });
+
+  } catch (error) {
+    console.error('Error fetching drop outcome:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch outcome data' });
+  }
+});
+
 // =====================================================
 // PROTECTED ROUTES - Auth required below this line
 // =====================================================
@@ -590,6 +693,51 @@ router.get('/my-drops', async (req, res) => {
   }
 });
 
+// Get all pending applications across all advertiser drops
+router.get('/applications/pending', async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.json([]);
+    }
+
+    const userId = req.user.id;
+    const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
+
+    // 1. Get all drop IDs belonging to this advertiser
+    let dropsQuery = supabase.from('drops').select('id');
+    if (advertiserId) {
+      dropsQuery = dropsQuery.eq('advertiser_account_id', advertiserId);
+    } else {
+      dropsQuery = dropsQuery.eq('creator_id', userId);
+    }
+
+    const { data: drops, error: dropsError } = await dropsQuery;
+    if (dropsError) throw dropsError;
+
+    const dropIds = (drops || []).map(d => d.id);
+    if (dropIds.length === 0) return res.json([]);
+
+    // 2. Fetch pending applications for these drops
+    const { data: applications, error: appError } = await supabase
+      .from('drop_applications')
+      .select(`
+        *,
+        user:users!inner(id, username, display_name, avatar_url),
+        drop:drops!inner(id, title, drop_role, gem_reward_base)
+      `)
+      .in('drop_id', dropIds)
+      .eq('status', 'pending')
+      .order('applied_at', { ascending: false });
+
+    if (appError) throw appError;
+
+    res.json(applications || []);
+  } catch (error) {
+    console.error('Error fetching unified pending applications:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch pending applications' });
+  }
+});
+
 // Apply to drop
 router.post('/:id/apply', async (req, res) => {
   try {
@@ -722,6 +870,127 @@ router.post('/:id/apply', async (req, res) => {
   } catch (error) {
     console.error('Error applying to drop:', error);
     res.status(500).json({ success: false, error: 'Failed to apply to drop' });
+  }
+});
+
+// Submit proof for drop (receipt, order number, or content link)
+router.post('/:id/proof', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { proof_url, submission_text, metadata } = req.body;
+    const userId = req.user.id;
+
+    if (!supabase) {
+      return res.json({ success: true, message: 'Proof submitted (demo mode)' });
+    }
+
+    // 1. Check if application exists, if not create one
+    let { data: application, error: fetchError } = await supabase
+      .from('drop_applications')
+      .select('*')
+      .eq('drop_id', id)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error('Error fetching application:', fetchError);
+      return res.status(500).json({ success: false, error: 'Failed' });
+    }
+
+    if (!application) {
+      // Auto-apply (could deduct keys here, but let's assume it's part of the flow)
+      const { data: newApp, error: createError } = await supabase
+        .from('drop_applications')
+        .insert({
+          drop_id: id,
+          user_id: userId,
+          status: 'pending',
+          proof_url,
+          submission_text,
+          metadata: metadata || {}
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      application = newApp;
+    } else {
+      // Update existing application
+      const { data: updatedApp, error: updateError } = await supabase
+        .from('drop_applications')
+        .update({
+          proof_url: proof_url || application.proof_url,
+          submission_text: submission_text || application.submission_text,
+          metadata: { ...(application.metadata || {}), ...(metadata || {}) },
+          status: 'pending' // Reset to pending if it was rejected/rejected?
+        })
+        .eq('id', application.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      application = updatedApp;
+    }
+
+    // 2. Fetch drop details for contextual verification
+    const { data: drop } = await supabase
+      .from('drops')
+      .select('title, drop_type, requirements')
+      .eq('id', id)
+      .single();
+
+    // 3. Process with AI Verification if proof URL/meta is present
+    let verificationResult = null;
+    const multiProofs = metadata?.proofs || (proof_url ? [{ url: proof_url, type: 'image' }] : []);
+
+    if (multiProofs.length > 0) {
+      verificationResult = await verificationService.processProof(application.id, multiProofs, {
+        dropType: drop?.drop_type,
+        dropTitle: drop?.title,
+        expectedMerchant: drop?.requirements?.merchant_name, // Optional context
+        metadata: application.metadata
+      });
+
+      // Update local application object with new status from verificationService
+      if (verificationResult && verificationResult.status) {
+        application.verification_status = verificationResult.status;
+
+        // AUTO-PAYOUT: If AI automatically verified the proof, trigger completion logic immediately
+        if (verificationResult.status === 'verified' || verificationResult.status === 'auto_verified') {
+          console.log(`[Drops] AI Auto-verified application ${application.id}. Triggering payout.`);
+          await processBuyMissionApproval(application.id, 'system-ai');
+
+          // Refresh application data to show approved status in response
+          const { data: finalApp } = await supabase
+            .from('drop_applications')
+            .select('*')
+            .eq('id', application.id)
+            .single();
+          if (finalApp) application = finalApp;
+        }
+      }
+    }
+
+    // Trigger recordVerifiedAction for proof submission
+    dailyLayerService.recordVerifiedAction({
+      userId,
+      actionType: 'PROMORANG_DROP',
+      verificationMode: 'USER_SUBMISSION',
+      actionLabel: 'submit_proof',
+      referenceType: 'drop',
+      referenceId: id,
+      metadata: { ...metadata, proof_url, submission_text }
+    }).catch(err => console.error('Error recording verified action:', err));
+
+    res.json({
+      success: true,
+      application,
+      message: 'Proof submitted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error submitting proof:', error);
+    res.status(500).json({ success: false, error: 'Failed to submit proof' });
   }
 });
 
@@ -996,15 +1265,57 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
     if (action === 'approve' && application.user_id) {
       const promoShareService = require('../services/promoShareService'); // Lazy load
       try {
-        // Get drop details to find reward amount
+        // Get drop details to find reward amount and weight
         const { data: drop } = await supabase
           .from('drops')
-          .select('gem_reward_base')
+          .select('gem_reward_base, drop_weight, drop_role, gem_pool_remaining, title, campaign_id')
           .eq('id', dropId)
           .single();
 
         if (drop && drop.gem_reward_base) {
-          await trackDropCompletion(application.user_id, drop.gem_reward_base, dropId);
+          const economyService = require('../services/economyService');
+
+          // Apply weight if present, default to 1.0
+          const weight = parseFloat(drop.drop_weight) || 1.0;
+          const weightedReward = Math.floor(drop.gem_reward_base * weight);
+
+          console.log(`[Drops] Awarding weighted reward: ${weightedReward} Gems (Base: ${drop.gem_reward_base}, Weight: ${weight}, Role: ${drop.drop_role})`);
+
+          // Update application with weighted gems earned
+          await supabase
+            .from('drop_applications')
+            .update({ weighted_gems_earned: weightedReward })
+            .eq('id', applicationId);
+
+          // 1. Add Gems to user balance
+          await economyService.addCurrency(
+            application.user_id,
+            'gems',
+            weightedReward,
+            'drop_completion',
+            dropId,
+            `Completed Mission: ${drop.title}`
+          );
+
+          // 2. Track referral commission using the WEIGHTED amount
+          await trackDropCompletion(application.user_id, weightedReward, dropId);
+
+          // 3. Update drop's remaining pool
+          if (drop.gem_pool_remaining !== null) {
+            await supabase
+              .from('drops')
+              .update({ gem_pool_remaining: Math.max(0, drop.gem_pool_remaining - weightedReward) })
+              .eq('id', dropId);
+          }
+
+          // 4. Update daily state for leaderboard ranking
+          await dailyLayerService.recordWeightedGems(application.user_id, weightedReward);
+
+          // 5. Check for Campaign Maturity transition
+          if (drop.campaign_id) {
+            const campaignService = require('../services/campaignService');
+            await campaignService.checkMaturityTransition(drop.campaign_id);
+          }
         }
 
         // Award PromoShare Ticket
@@ -1058,6 +1369,342 @@ router.post('/:dropId/applications/:applicationId', async (req, res) => {
   } catch (error) {
     console.error('Error updating application:', error);
     res.status(500).json({ success: false, error: 'Failed to update application' });
+  }
+});
+
+// =====================================================
+// BUY MISSION PROOF SUBMISSION
+// Users submit receipt/order proof for Buy Missions
+// =====================================================
+router.post('/:id/submit-buy-proof', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const { proof_url, order_number, notes, metadata } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    if (!proof_url) {
+      return res.status(400).json({ success: false, error: 'Proof image required' });
+    }
+
+    // Get the drop and verify it's a Buy Mission
+    const { data: drop, error: dropError } = await supabase
+      .from('drops')
+      .select('id, title, drop_role, gem_reward_base, campaign_id')
+      .eq('id', id)
+      .single();
+
+    if (dropError || !drop) {
+      return res.status(404).json({ success: false, error: 'Drop not found' });
+    }
+
+    if (drop.drop_role !== 'buy') {
+      return res.status(400).json({ success: false, error: 'This is not a Buy Mission' });
+    }
+
+    // Check if user already submitted for this drop
+    const { data: existing } = await supabase
+      .from('drop_applications')
+      .select('id, verification_status')
+      .eq('drop_id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        error: 'You have already submitted proof for this mission',
+        verification_status: existing.verification_status
+      });
+    }
+
+    // AI ANALYSIS (Objective 1)
+    const multiProofs = metadata?.proofs || (proof_url ? [{ url: proof_url, type: 'image' }] : []);
+
+    const verificationResult = await verificationService.processProof(null, multiProofs, {
+      dropType: drop?.drop_type,
+      dropTitle: drop?.title,
+      dropRole: 'buy',
+      metadata: { ...(metadata || {}), order_number, notes }
+    });
+
+    // Create application with results (verificationService usually handles this if appId is provided, 
+    // but here we create the application for the first time in this endpoint)
+    const { data: application, error: appError } = await supabase
+      .from('drop_applications')
+      .insert({
+        drop_id: id,
+        user_id: userId,
+        status: verificationResult.status === 'verified' ? 'approved' : 'submitted',
+        proof_url: proof_url,
+        submission_text: notes || null,
+        verification_status: verificationResult.status,
+        metadata: {
+          order_number: order_number || null,
+          submitted_at: new Date().toISOString(),
+          drop_role: 'buy',
+          ai_confidence: verificationResult.aiResult?.confidence,
+          ai_result: verificationResult.aiResult,
+          ai_auto_verified: verificationResult.status === 'verified'
+        }
+      })
+      .select()
+      .single();
+
+    if (appError) {
+      console.error('Error creating buy proof application:', appError);
+      return res.status(500).json({ success: false, error: 'Failed to submit proof' });
+    }
+
+    // If AI auto-verified, trigger the distribution logic
+    if (verificationResult.status === 'verified') {
+      try {
+        await processBuyMissionApproval(application.id, 'AI_SYSTEM');
+        // Refresh to get final status
+        const { data: finalApp } = await supabase.from('drop_applications').select('*').eq('id', application.id).single();
+        if (finalApp) application.status = finalApp.status;
+      } catch (approveErr) {
+        console.error('[AIVerify] Error in automatic approval:', approveErr);
+      }
+    }
+
+    invalidateCache('drops');
+
+    res.json({
+      success: true,
+      application: {
+        id: application.id,
+        verification_status: application.verification_status,
+        auto_verified: aiResult.confidence >= 0.85,
+        message: aiResult.confidence >= 0.85
+          ? 'Quest verified! Treasures have been distributed.'
+          : 'Your proof has been submitted and is under review.'
+      }
+    });
+  } catch (error) {
+    console.error('Error submitting side quest proof:', error);
+    res.status(500).json({ success: false, error: 'Failed to submit proof' });
+  }
+});
+
+/**
+ * Reusable logic for processing a Side Quest approval
+ */
+async function processBuyMissionApproval(appId, actorId) {
+  if (!supabase) return;
+
+  // Fetch the app with drop details
+  const { data: application, error: fetchError } = await supabase
+    .from('drop_applications')
+    .select('*, drops(id, title, drop_role, gem_reward_base, drop_weight, campaign_id)')
+    .eq('id', appId)
+    .single();
+
+  if (fetchError || !application) throw new Error('Application not found');
+
+  const drop = application.drops;
+  const baseReward = drop?.gem_reward_base || 0;
+  const weight = drop?.drop_weight || 1.0;
+  const weightedReward = Math.round(baseReward * weight);
+
+  // 1. Update application with final weighted reward if not set
+  await supabase
+    .from('drop_applications')
+    .update({
+      weighted_gems_earned: weightedReward,
+      verification_status: 'verified',
+      status: 'approved',
+      reviewed_by: actorId,
+      reviewed_at: new Date().toISOString()
+    })
+    .eq('id', appId);
+
+  // 2. Award gems to user
+  await economyService.addCurrency(
+    application.user_id,
+    'gems',
+    weightedReward,
+    'drop_completion',
+    drop.id,
+    `Completed Quest: ${drop.title}`
+  );
+
+  // 3. Update daily state for leaderboard ranking
+  await dailyLayerService.recordWeightedGems(application.user_id, weightedReward);
+
+  // 4. Track referral commission using the WEIGHTED amount
+  await trackDropCompletion(application.user_id, weightedReward, drop.id);
+
+  // 5. Update drop's remaining pool
+  if (drop.gem_pool_remaining !== null) {
+    await supabase
+      .from('drops')
+      .update({ gem_pool_remaining: Math.max(0, drop.gem_pool_remaining - weightedReward) })
+      .eq('id', drop.id);
+  }
+
+  // 6. Check if campaign should advance maturity
+  if (drop?.campaign_id) {
+    const campaignService = require('../services/campaignService');
+    await campaignService.checkMaturityTransition(drop.campaign_id);
+  }
+
+  // 7. Award PromoShare Ticket
+  await promoShareService.awardTicket(application.user_id, 'drop_completion', drop.id);
+
+  // 8. Contribute to Campaign Prize Pool if it's "Funded" or "Dominant" (Objective 3)
+  try {
+    const { data: campaign } = await supabase
+      .from('advertiser_campaigns')
+      .select('campaign_maturity, is_pool_active')
+      .eq('id', drop.campaign_id)
+      .single();
+
+    if (campaign && (campaign.campaign_maturity === 'Funded' || campaign.campaign_maturity === 'Dominant' || campaign.is_pool_active)) {
+      const poolContribution = Math.round(weightedReward * 0.02); // 2% additional for the localized draw
+      if (poolContribution > 0) {
+        await supabase.rpc('contribute_to_campaign_pool', {
+          p_campaign_id: drop.campaign_id,
+          p_amount: poolContribution
+        }).catch(err => console.log('[PrizePool] Contribution error:', err));
+      }
+    }
+  } catch (err) {
+    console.log('[PrizePool] Failed to check campaign status:', err);
+  }
+
+  return { success: true, reward: weightedReward };
+}
+
+// =====================================================
+// ADMIN: VERIFY BUY PROOF
+// Approve or reject a Buy Mission proof submission
+// =====================================================
+router.post('/applications/:appId/verify', requireAuth, async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const reviewerId = req.user?.id;
+    const { action, notes } = req.body; // action: 'verified' | 'rejected' | 'escalated'
+
+    if (!['verified', 'rejected', 'escalated'].includes(action)) {
+      return res.status(400).json({ success: false, error: 'Invalid action' });
+    }
+
+    // Get the application
+    const { data: application, error: fetchError } = await supabase
+      .from('drop_applications')
+      .select('*, drops(id, title, drop_role, gem_reward_base, drop_weight, campaign_id)')
+      .eq('id', appId)
+      .single();
+
+    if (fetchError || !application) {
+      return res.status(404).json({ success: false, error: 'Application not found' });
+    }
+
+    // Update verification status
+    const updateData = {
+      verification_status: action,
+      reviewed_by: reviewerId,
+      reviewed_at: new Date().toISOString(),
+      review_notes: notes || null,
+      updated_at: new Date().toISOString()
+    };
+
+    // If verified, also approve the application and distribute rewards
+    if (action === 'verified') {
+      try {
+        await processBuyMissionApproval(appId, reviewerId);
+      } catch (approveErr) {
+        console.error('Error in manual approval process:', approveErr);
+        return res.status(500).json({ success: false, error: 'Failed to process approval' });
+      }
+    } else {
+      // Update verification status directly for rejection/escalation
+      const { error: updateError } = await supabase
+        .from('drop_applications')
+        .update({
+          verification_status: action,
+          status: action === 'rejected' ? 'rejected' : 'flagged',
+          reviewed_by: reviewerId,
+          reviewed_at: new Date().toISOString(),
+          review_notes: notes || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', appId);
+
+      if (updateError) {
+        return res.status(500).json({ success: false, error: 'Failed to update verification' });
+      }
+    }
+
+    if (updateError) {
+      return res.status(500).json({ success: false, error: 'Failed to update verification' });
+    }
+
+    // Log verification event
+    await supabase.from('verification_log').insert({
+      application_id: appId,
+      action: action,
+      actor_id: reviewerId,
+      reason: notes || `${action} by reviewer`,
+      metadata: { previous_status: application.verification_status }
+    }).catch(err => console.log('Verification log error:', err));
+
+    res.json({
+      success: true,
+      message: `Application ${action}`,
+      verification_status: action
+    });
+  } catch (error) {
+    console.error('Error verifying application:', error);
+    res.status(500).json({ success: false, error: 'Failed to verify application' });
+  }
+});
+
+// =====================================================
+// ADMIN: GET PENDING BUY PROOFS
+// List all Buy Mission proofs awaiting verification
+// =====================================================
+router.get('/buy-proofs/pending', requireAuth, async (req, res) => {
+  try {
+    const { data: pending, error } = await supabase
+      .from('drop_applications')
+      .select(`
+        id,
+        user_id,
+        drop_id,
+        proof_url,
+        submission_text,
+        verification_status,
+        metadata,
+        created_at,
+        users:user_id (id, username, display_name, email),
+        drops:drop_id (id, title, drop_role, gem_reward_base, campaign_id)
+      `)
+      .eq('verification_status', 'pending')
+      .not('proof_url', 'is', null)
+      .order('created_at', { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching pending proofs:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch pending proofs' });
+    }
+
+    // Filter to only buy missions
+    const buyProofs = (pending || []).filter(p => p.drops?.drop_role === 'buy');
+
+    res.json({
+      success: true,
+      pending: buyProofs,
+      count: buyProofs.length
+    });
+  } catch (error) {
+    console.error('Error fetching pending buy proofs:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch pending proofs' });
   }
 });
 

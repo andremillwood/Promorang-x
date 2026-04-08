@@ -10,7 +10,8 @@
  * - Apple Push Notification Service (for iOS)
  */
 
-const supabase = require('../supabase');
+const { supabase } = require('../lib/supabase');
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); // Ensure fetch is available if needed, though global fetch might exist in node 18+
 
 // Expo Push API endpoint
 const EXPO_PUSH_ENDPOINT = 'https://exp.host/--/api/v2/push/send';
@@ -222,6 +223,24 @@ async function registerPushToken(userId, pushToken) {
     }
 }
 
+/**
+ * Notify merchant about graduation and prompt for Pro upgrade
+ */
+async function notifyMerchantGraduation(userId, reason) {
+    const title = "🎓 You've Graduated!";
+    const body = "Your sampling period was a success. Upgrade to Pro to unlock advanced growth tools.";
+
+    return await sendToUser(userId, {
+        title,
+        body,
+        data: {
+            type: 'merchant_graduation',
+            route: '/advertiser-dashboard',
+            reason
+        }
+    });
+}
+
 module.exports = {
     sendToUser,
     notifyDailyReset,
@@ -229,4 +248,5 @@ module.exports = {
     notifyStreakAtRisk,
     notifyAllDailyReset,
     registerPushToken,
+    notifyMerchantGraduation,
 };

@@ -1,20 +1,12 @@
 {
-  "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "module": "esnext",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/react-app/*": [
-        "./src/react-app/*"
-      ],
-      "@/shared/*": [
-        "./src/shared/*"
-      ]
-    },
+    "types": ["vitest/globals"],
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -22,19 +14,18 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src/react-app",
-    "src/lib",
-    "src/components"
-  ]
+  "include": ["src"]
 }

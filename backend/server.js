@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const payments = require('./api/payments');
-const shares = require('./api/shares');
+// const shares = require('./api/shares');
 const { supabase: supabaseClient } = require('./lib/supabase');
 
 app.post('/api/payments/webhook/stripe', express.raw({ type: 'application/json' }), payments.stripeWebhook);
@@ -94,39 +94,44 @@ app.use('/api/users', require('./api/users'));
 app.use('/api/users/preferences', require('./api/preferences')); // User preferences for personalization
 app.use('/api/content', require('./api/content'));
 app.use('/api/drops', require('./api/drops'));
-app.use('/api/social-forecasts', require('./api/social-forecasts'));
+// app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
-app.use('/api/leaderboard', require('./api/leaderboard'));
+app.use('/api/maturity', require('./api/maturity'));
+
 app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
-app.use('/api/portfolio', require('./api/portfolio'));
+// app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/platform-drops', require('./api/platform-drops'));
-app.use('/api/shares', shares);
+// app.use('/api/shares', shares);
 app.use('/api/placeholder', require('./api/placeholder'));
 app.use('/api/payments', payments.router);
 app.use('/api/telemetry', require('./api/telemetry'));
 app.use('/api/feed', require('./api/feed'));
 app.use('/api/events', require('./api/events'));
-app.use('/api/marketplace', require('./api/marketplace'));
+
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/coupons', require('./api/coupons'));
 app.use('/api/notifications', require('./api/notifications'));
 app.use('/api/referrals', require('./api/referrals'));
+app.use('/api/activations', require('./api/activations'));
 app.use('/api/search', require('./api/search'));
+app.use('/api/matchmaking', require('./api/matchmaking'));
 app.use('/api/operator', require('./api/operator'));
 app.use('/api/campaigns', require('./api/campaigns'));
 app.use('/api/manychat', require('./api/manychat'));
-app.use('/api/withdrawal', require('./api/withdrawal'));
+
 app.use('/api/kyc', require('./api/kyc'));
 app.use('/api/admin', require('./api/admin'));
 app.use('/api/support', require('./api/support'));
+app.use('/api/moments', require('./api/moments'));
+app.use('/api/moments', require('./api/moment-pricing')); // Moment SKU pricing endpoints
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
 const errorHandlers = require('./api/errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
 app.post('/api/log-error', errorHandlers.handleLogError);
 app.get('/api/error-logs', errorHandlers.handleGetLogs);
 app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
-app.get('/s/:id', shares.redirectHandler);
+// app.get('/s/:id', shares.redirectHandler);
 
 // Demo login endpoint (bypasses default body parser)
 app.use('/api/demo', require('./api/demo-login'));

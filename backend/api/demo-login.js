@@ -91,14 +91,14 @@ router.post('/demo-creator', (req, res) => {
   }
 });
 
-// State 0: New User (Onboarding Incomplete)
+// Role 0: New Auditor (Initial Access)
 router.post('/state-0', (req, res) => {
   const userId = 'a0000000-0000-0000-0000-000000000000';
   const token = generateToken({
     id: userId,
     email: 'newbie@demo.com',
-    username: 'state0_user',
-    display_name: 'New User (State 0)',
+    username: 'auditor_new',
+    display_name: 'New Auditor (Trial)',
     user_type: 'creator',
     onboarding_completed: false,
     total_rewards_earned: 0,
@@ -107,14 +107,14 @@ router.post('/state-0', (req, res) => {
   res.json({ success: true, user: { id: userId, onboarding_completed: false }, token });
 });
 
-// State 1: Exploring (Onboarding Done, No Rewards)
+// Role 1: Verified Participant (Ready for Activation)
 router.post('/state-1', (req, res) => {
   const userId = 'a0000000-0000-0000-0000-000000000001';
   const token = generateToken({
     id: userId,
-    email: 'exploring@demo.com',
-    username: 'state1_user',
-    display_name: 'Explorer (State 1)',
+    email: 'verified@demo.com',
+    username: 'auditor_verified',
+    display_name: 'Verified Auditor',
     user_type: 'creator',
     onboarding_completed: true,
     total_rewards_earned: 0,
@@ -123,14 +123,14 @@ router.post('/state-1', (req, res) => {
   res.json({ success: true, user: { id: userId, onboarding_completed: true, total_rewards_earned: 0, verified_proofs_count: 0 }, token });
 });
 
-// State 2: Engaged (1+ Reward)
+// Role 2: Audit Manager (Active Settlement History)
 router.post('/state-2', (req, res) => {
   const userId = 'a0000000-0000-0000-0000-000000000002';
   const token = generateToken({
     id: userId,
-    email: 'engaged@demo.com',
-    username: 'state2_user',
-    display_name: 'Engaged (State 2)',
+    email: 'manager@demo.com',
+    username: 'audit_manager',
+    display_name: 'Audit Manager',
     user_type: 'creator',
     onboarding_completed: true,
     total_rewards_earned: 1,
@@ -139,14 +139,14 @@ router.post('/state-2', (req, res) => {
   res.json({ success: true, user: { id: userId, onboarding_completed: true, total_rewards_earned: 1, verified_proofs_count: 1 }, token });
 });
 
-// State 3: Power (Many Rewards)
+// Role 3: Protocol Lead (High-Credibility Node)
 router.post('/state-3', (req, res) => {
   const userId = 'a0000000-0000-0000-0000-000000000003';
   const token = generateToken({
     id: userId,
-    email: 'power@demo.com',
-    username: 'state3_user',
-    display_name: 'Power User (State 3)',
+    email: 'lead@demo.com',
+    username: 'protocol_lead',
+    display_name: 'Protocol Lead',
     user_type: 'creator',
     onboarding_completed: true,
     total_rewards_earned: 100,

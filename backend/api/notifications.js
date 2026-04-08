@@ -152,4 +152,62 @@ router.post('/push-token', async (req, res) => {
     }
 });
 
+/**
+ * GET /api/notifications/preferences
+ * Get user notification preferences
+ */
+router.get('/preferences', async (req, res) => {
+    try {
+        const notificationPreferencesService = require('../services/notificationPreferencesService');
+        const preferences = await notificationPreferencesService.getPreferences(req.user.id);
+        res.json({ success: true, preferences });
+    } catch (error) {
+        console.error('Error fetching preferences:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch preferences' });
+    }
+});
+
+/**
+ * PUT /api/notifications/preferences
+ * Update notification preferences
+ */
+router.put('/preferences', async (req, res) => {
+    try {
+        const notificationPreferencesService = require('../services/notificationPreferencesService');
+        const preferences = await notificationPreferencesService.updatePreferences(
+            req.user.id,
+            req.body
+        );
+        res.json({ success: true, preferences });
+    } catch (error) {
+        console.error('Error updating preferences:', error);
+        res.status(500).json({ success: false, error: 'Failed to update preferences' });
+    }
+});
+
+/**
+ * GET /api/notifications/history
+ * Get email history
+ */
+router.get('/history', async (req, res) => {
+    try {
+        const { limit, offset, emailType } = req.query;
+        const notificationPreferencesService = require('../services/notificationPreferencesService');
+
+        const history = await notificationPreferencesService.getEmailHistory(
+            req.user.id,
+            {
+                limit: parseInt(limit) || 50,
+                offset: parseInt(offset) || 0,
+                emailType
+            }
+        );
+
+        res.json({ success: true, history });
+    } catch (error) {
+        console.error('Error fetching email history:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch email history' });
+    }
+});
+
 module.exports = router;

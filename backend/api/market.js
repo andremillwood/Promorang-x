@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 
 // Demo categories for fallback
 const DEMO_CATEGORIES = [
@@ -23,7 +23,7 @@ const generateDemoOHLC = (basePrice, periods, volatility = 0.05) => {
   const data = [];
   let currentPrice = basePrice;
   const now = Date.now();
-  
+
   for (let i = periods - 1; i >= 0; i--) {
     const periodStart = new Date(now - i * 60 * 60 * 1000); // hourly periods
     const change = (Math.random() - 0.5) * 2 * volatility;
@@ -32,7 +32,7 @@ const generateDemoOHLC = (basePrice, periods, volatility = 0.05) => {
     const high = Math.max(open, close) * (1 + Math.random() * volatility * 0.5);
     const low = Math.min(open, close) * (1 - Math.random() * volatility * 0.5);
     const volume = Math.floor(Math.random() * 500) + 50;
-    
+
     data.push({
       period_start: periodStart.toISOString(),
       open: parseFloat(open.toFixed(4)),
@@ -41,10 +41,10 @@ const generateDemoOHLC = (basePrice, periods, volatility = 0.05) => {
       close: parseFloat(close.toFixed(4)),
       volume,
     });
-    
+
     currentPrice = close;
   }
-  
+
   return data;
 };
 
@@ -52,12 +52,12 @@ const generateDemoOHLC = (basePrice, periods, volatility = 0.05) => {
 const generateDemoShares = (category, count = 8) => {
   const creators = ['TechGuru', 'StyleQueen', 'MusicMaster', 'ComedyKing', 'FitnessPro', 'FoodieChef', 'TravelNomad', 'BizMogul'];
   const platforms = ['instagram', 'tiktok', 'youtube', 'twitter'];
-  
+
   return Array.from({ length: count }, (_, i) => {
     const basePrice = 5 + Math.random() * 45;
     const change24h = (Math.random() - 0.5) * 20;
     const volume = Math.floor(Math.random() * 10000) + 500;
-    
+
     return {
       id: `share-${category.slug}-${i + 1}`,
       content_id: `content-${category.slug}-${i + 1}`,
@@ -89,7 +89,7 @@ const generateDemoShares = (category, count = 8) => {
 const generateDemoMarketIndex = () => {
   const baseValue = 1000;
   const change = (Math.random() - 0.45) * 5;
-  
+
   return {
     index_value: parseFloat((baseValue * (1 + change / 100)).toFixed(2)),
     change_percent: parseFloat(change.toFixed(2)),
@@ -154,7 +154,7 @@ router.get('/overview', async (req, res) => {
         change_percent: parseFloat(((Math.random() - 0.45) * 10).toFixed(2)),
         total_volume: Math.floor(Math.random() * 50000) + 5000,
       }));
-      
+
       return res.json({
         market: overview,
         category_indices: categoryIndices,
@@ -234,7 +234,7 @@ router.get('/category/:slug', async (req, res) => {
     if (!supabase) {
       const shares = generateDemoShares(category, parseInt(limit));
       const indexData = generateDemoOHLC(1000, 24);
-      
+
       return res.json({
         category,
         shares,
@@ -299,7 +299,7 @@ router.get('/category/:slug', async (req, res) => {
       shares: formattedShares,
       index: {
         current_value: indexHistory?.[indexHistory.length - 1]?.close_value || 1000,
-        change_percent: indexHistory?.length > 0 
+        change_percent: indexHistory?.length > 0
           ? ((indexHistory[indexHistory.length - 1].close_value / indexHistory[0].open_value - 1) * 100).toFixed(2)
           : 0,
         history: indexHistory || [],
@@ -328,7 +328,7 @@ router.get('/shares/:id/history', async (req, res) => {
       const basePrice = 10 + Math.random() * 40;
       const periods = period === '1w' ? 168 : period === '1d' ? 24 : period === '4h' ? 24 : 60;
       const history = generateDemoOHLC(basePrice, Math.min(periods, parseInt(limit)));
-      
+
       return res.json({
         content_id: id,
         period_type: period,
@@ -500,10 +500,10 @@ router.get('/search', async (req, res) => {
 
     if (!supabase || !q) {
       const allShares = DEMO_CATEGORIES.flatMap(cat => generateDemoShares(cat, 3));
-      const filtered = q 
+      const filtered = q
         ? allShares.filter(s => s.title.toLowerCase().includes(q.toLowerCase()) || s.creator_name.toLowerCase().includes(q.toLowerCase()))
         : allShares.slice(0, parseInt(limit));
-      
+
       return res.json({ results: filtered, total: filtered.length });
     }
 

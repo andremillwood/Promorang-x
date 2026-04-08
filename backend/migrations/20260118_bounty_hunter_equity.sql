@@ -11,9 +11,6 @@ CREATE TABLE IF NOT EXISTS public.bounty_scout_records (
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'pending', 'claimed', 'inactive')),
     finder_fee_percentage DECIMAL(5,2) DEFAULT 5.00,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(source_platform, source_id) -- Only one person can "find" a piece of content
-);
-
 -- 2. Content Equity Ledger: Manages distribution of programmatic yield
 CREATE TABLE IF NOT EXISTS public.content_equity_ledger (
     content_id UUID PRIMARY KEY REFERENCES public.content_pieces(id),

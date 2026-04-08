@@ -1,4 +1,4 @@
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 const { incrementGems, decrementGems } = require('../lib/rpc');
 
 const demoChannels = () => ([

@@ -7,7 +7,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../config/database');
+const { supabase } = require('../lib/supabase');
 const { optionalAuth, requireAuth } = require('../middleware/auth');
 
 // Valid interest categories

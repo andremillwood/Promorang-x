@@ -8,7 +8,7 @@ const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const { sendReferralSignupEmail, sendReferralActivationEmail, sendReferralCommissionEmail } = require('./resendService');
 
-// Commission rates by earning type
+// Commission rates by earning type (Level 1)
 const COMMISSION_RATES = {
   drop_completion: 0.05, // 5% of drop reward
   campaign_spend: 0.05, // 5% of campaign spend
@@ -17,6 +17,13 @@ const COMMISSION_RATES = {
   content_monetization: 0.05, // 5% of content earnings
   default: 0.05, // 5% default rate
 };
+
+// Guild (Multi-level) rates for recursive growth
+const GUILD_RATES = [
+  0.05, // Level 1 (Immediate Referrer)
+  0.02, // Level 2 (Upline)
+  0.01, // Level 3 (Guild Master)
+];
 
 // Activation requirements for referrals to become "active"
 const ACTIVATION_REQUIREMENTS = {
@@ -310,7 +317,7 @@ async function awardActivationBonus(referrerId, referredUserId) {
 }
 
 /**
- * Calculate and record commission for a referral earning
+ * Calculate and record recursive commissions for a guild (multi-level)
  */
 async function calculateCommission(params) {
   const {
@@ -328,73 +335,72 @@ async function calculateCommission(params) {
   }
 
   try {
-    // Get referral relationship
-    const { data: referral, error: referralError } = await supabase
-      .from('user_referrals')
-      .select('id, referrer_id, status')
-      .eq('referred_id', referredUserId)
-      .eq('status', 'active')
-      .single();
+    const results = [];
+    let currentChildId = referredUserId;
 
-    if (referralError || !referral) {
-      // No active referral found
-      return null;
-    }
+    // Process up to 3 levels of Guild recursion (Objective 2)
+    for (let level = 0; level < GUILD_RATES.length; level++) {
+      // Find the referral relationship for the current child
+      const { data: referral, error: referralError } = await supabase
+        .from('user_referrals')
+        .select('id, referrer_id, status')
+        .eq('referred_id', currentChildId)
+        .eq('status', 'active')
+        .single();
 
-    // Get commission rate (check for tier-specific rate)
-    const { data: user } = await supabase
-      .from('users')
-      .select('referral_tier_id, referral_tiers(commission_rate, bonus_rate)')
-      .eq('id', referral.referrer_id)
-      .single();
-
-    let commissionRate = COMMISSION_RATES[earningType] || COMMISSION_RATES.default;
-
-    if (user?.referral_tiers) {
-      commissionRate = parseFloat(user.referral_tiers.commission_rate);
-      if (user.referral_tiers.bonus_rate) {
-        commissionRate += parseFloat(user.referral_tiers.bonus_rate);
+      if (referralError || !referral) {
+        // No active referrer for this level, stop recursion
+        break;
       }
+
+      // Calculate commission for this level
+      const commissionRate = GUILD_RATES[level];
+      const commissionAmount = parseFloat((earningAmount * commissionRate).toFixed(2));
+
+      // Determine commission currency (default to gems for non-USD earnings)
+      let commissionCurrency = earningCurrency;
+      if (earningCurrency !== 'usd' && earningCurrency !== 'gems' && earningCurrency !== 'points') {
+        commissionCurrency = 'gems';
+      }
+
+      // Create commission record
+      const { data: commission, error: commissionError } = await supabase
+        .from('referral_commissions')
+        .insert({
+          referral_id: referral.id,
+          referrer_id: referral.referrer_id,
+          referred_user_id: referredUserId, // Original user who generated the earning
+          earning_type: earningType,
+          earning_amount: earningAmount,
+          earning_currency: earningCurrency,
+          commission_rate: commissionRate,
+          commission_amount: commissionAmount,
+          commission_currency: commissionCurrency,
+          status: 'pending',
+          source_transaction_id: sourceTransactionId,
+          source_table: sourceTable,
+          metadata: {
+            ...metadata,
+            guild_level: level + 1,
+            recursive: true
+          },
+        })
+        .select()
+        .single();
+
+      if (!commissionError && commission) {
+        // Process commission immediately
+        await processCommission(commission.id);
+        results.push(commission);
+      }
+
+      // Move up the chain for the next level
+      currentChildId = referral.referrer_id;
     }
 
-    // Calculate commission amount
-    const commissionAmount = parseFloat((earningAmount * commissionRate).toFixed(2));
-
-    // Determine commission currency (default to gems for non-USD earnings)
-    let commissionCurrency = earningCurrency;
-    if (earningCurrency !== 'usd' && earningCurrency !== 'gems' && earningCurrency !== 'points') {
-      commissionCurrency = 'gems';
-    }
-
-    // Create commission record
-    const { data: commission, error: commissionError } = await supabase
-      .from('referral_commissions')
-      .insert({
-        referral_id: referral.id,
-        referrer_id: referral.referrer_id,
-        referred_user_id: referredUserId,
-        earning_type: earningType,
-        earning_amount: earningAmount,
-        earning_currency: earningCurrency,
-        commission_rate: commissionRate,
-        commission_amount: commissionAmount,
-        commission_currency: commissionCurrency,
-        status: 'pending',
-        source_transaction_id: sourceTransactionId,
-        source_table: sourceTable,
-        metadata,
-      })
-      .select()
-      .single();
-
-    if (commissionError) throw commissionError;
-
-    // Process commission immediately (or queue for batch processing)
-    await processCommission(commission.id);
-
-    return commission;
+    return results;
   } catch (error) {
-    console.error('[Referral Service] Error calculating commission:', error);
+    console.error('[Referral Service] Error calculating Guild commissions:', error);
     throw error;
   }
 }
@@ -425,6 +431,12 @@ async function processCommission(commissionId) {
         [updateField]: supabase.raw(`${updateField} + ${commission.commission_amount}`),
       })
       .eq('id', commission.referrer_id);
+
+    // Record weighted gems for leaderboard ranking if it's gems
+    if (commission.commission_currency === 'gems') {
+      const dailyLayerService = require('./dailyLayerService');
+      await dailyLayerService.recordWeightedGems(commission.referrer_id, commission.commission_amount);
+    }
 
     // Update commission status
     const { data, error } = await supabase

@@ -1,34 +1,22 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthContext } from '../contexts/AuthContext';
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  redirectTo?: string;
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+    const { user, loading } = useAuth();
+    const location = useLocation();
+
+    if (loading) {
+        return (
+            <div className="h-screen w-full flex items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return <Navigate to="/auth" state={{ from: location }} replace />;
+    }
+
+    return <>{children}</>;
 }
-
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  redirectTo = '/login',
-}) => {
-  const { isAuthenticated, loading } = useAuthContext();
-  const location = useLocation();
-
-  if (loading) {
-    // Show a loading spinner or placeholder while checking authentication
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    // Redirect to login page if not authenticated
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
-};
-
-export default ProtectedRoute;

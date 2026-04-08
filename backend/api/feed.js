@@ -3,7 +3,72 @@ const router = express.Router();
 const supabaseAdmin = require('../lib/supabase'); // Using admin client for broader access
 const { requireAuth } = require('../middleware/auth');
 
+// Demo feed content for unauthenticated users or when database is unavailable
+const DEMO_FEED = [
+    {
+        id: 'demo-event-1',
+        type: 'event',
+        title: '🎉 Welcome to Promorang!',
+        description: 'Join thousands of creators monetizing their content. This is your first step to earning rewards.',
+        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
+        date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        location: 'Virtual Event',
+        attendees: 1247,
+        score: 100
+    },
+    {
+        id: 'demo-drop-1',
+        type: 'drop',
+        title: 'Share Your First Post',
+        description: 'Complete this drop to earn 50 gems. Simply share any content and submit proof.',
+        gem_reward_base: 50,
+        key_cost: 1,
+        category: 'Getting Started',
+        difficulty: 'easy',
+        current_participants: 89,
+        max_participants: 500,
+        score: 95
+    },
+    {
+        id: 'demo-prediction-1',
+        type: 'prediction',
+        creator_name: 'TrendSpotter',
+        platform: 'instagram',
+        content_title: 'Viral Dance Challenge',
+        forecast_type: 'views',
+        target_value: 100000,
+        current_value: 67500,
+        odds: 1.8,
+        pool_size: 350.00,
+        expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        score: 90
+    },
+    {
+        id: 'demo-content-1',
+        type: 'content',
+        title: 'How Creators Earn on Promorang',
+        description: 'Learn the basics of the Promorang economy and start earning today.',
+        media_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80',
+        posted_at: new Date().toISOString(),
+        score: 85
+    }
+];
+
 // ============================================
+// PUBLIC DEMO FEED (no auth required)
+// ============================================
+router.get('/demo', async (req, res) => {
+    res.json({
+        status: 'success',
+        data: {
+            feed: DEMO_FEED,
+            meta: {
+                user_interests: [],
+                is_demo: true
+            }
+        }
+    });
+});
 // HELPER: SCORING ALGORITHM
 // ============================================
 const calculateScore = (item, userPrefs, interactions) => {
@@ -63,23 +128,35 @@ router.get('/for-you', requireAuth, async (req, res) => {
         // 1. Fetch User Preferences
         let userPrefs = {};
         if (userId) {
-            const { data: prefs } = await supabaseAdmin
-                .from('user_preferences')
-                .select('*')
-                .eq('user_id', userId)
-                .single();
-            userPrefs = prefs || {};
+            try {
+                const { data: prefs } = await supabaseAdmin
+                    .from('user_preferences')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+                userPrefs = prefs || {};
+            } catch (prefError) {
+                console.warn('Could not fetch user preferences:', prefError.message);
+            }
         }
 
-        // 2. Fetch Candidates (Parallel)
-        const [events, drops, content, forecasts, coupons, relays] = await Promise.all([
-            supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30),
-            supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30),
-            supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30),
-            supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20),
-            supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10),
-            supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20)
-        ]);
+        // 2. Fetch Candidates (Parallel) - with graceful error handling
+        let events = { data: [] }, drops = { data: [] }, content = { data: [] };
+        let forecasts = { data: [] }, coupons = { data: [] }, relays = { data: [] };
+
+        try {
+            [events, drops, content, forecasts, coupons, relays] = await Promise.all([
+                supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+                supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+                supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+                supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
+                supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
+                supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] }))
+            ]);
+        } catch (fetchError) {
+            console.error('Error fetching feed candidates:', fetchError);
+            // Continue with empty arrays - the feed will just be empty
+        }
 
         // 3. Normalize & Score
         let feedItems = [];
@@ -136,7 +213,15 @@ router.get('/for-you', requireAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching feed:', error);
-        res.status(500).json({ success: false, error: 'Failed to generate feed' });
+        // Return empty feed instead of 500
+        res.json({
+            status: 'success',
+            data: {
+                feed: [],
+                meta: { user_interests: [] }
+            },
+            warning: 'Feed could not be fully loaded'
+        });
     }
 });
 

@@ -25,6 +25,8 @@ try {
     console.warn('[Cron] Follower points service not available');
 }
 
+const automatedWorkflowService = require('../services/automatedWorkflowService');
+
 /**
  * Create daily buffer drops
  * Runs every day at 00:05 AM
@@ -82,6 +84,70 @@ const evaluateTrustTiers = cron.schedule('0 3 * * *', async () => {
 });
 
 /**
+ * Weekly payouts
+ * Runs every Friday at 05:00 PM
+ */
+const weeklyPayouts = cron.schedule('0 17 * * 5', async () => {
+    console.log('[Cron] Running weekly payouts job...');
+    try {
+        await automatedWorkflowService.processWeeklyPayouts();
+    } catch (error) {
+        console.error('[Cron] Error in weekly payouts job:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Daily inventory check
+ * Runs every day at 06:00 AM
+ */
+const dailyInventoryCheck = cron.schedule('0 6 * * *', async () => {
+    console.log('[Cron] Running daily inventory check...');
+    try {
+        await automatedWorkflowService.checkLowStockProducts();
+    } catch (error) {
+        console.error('[Cron] Error in daily inventory check:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Hourly budget alerts
+ * Runs every hour on the hour
+ */
+const hourlyBudgetAlerts = cron.schedule('0 * * * *', async () => {
+    console.log('[Cron] Running hourly budget alerts...');
+    try {
+        await automatedWorkflowService.checkBudgetThresholds();
+    } catch (error) {
+        console.error('[Cron] Error in hourly budget alerts:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Weekly performance reports
+ * Runs every Monday at 09:00 AM
+ */
+const weeklyPerformanceReports = cron.schedule('0 9 * * 1', async () => {
+    console.log('[Cron] Running weekly performance reports...');
+    try {
+        await automatedWorkflowService.sendWeeklyReports();
+    } catch (error) {
+        console.error('[Cron] Error in weekly performance reports:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
  * Start all cron jobs
  */
 function startCronJobs() {
@@ -91,10 +157,20 @@ function startCronJobs() {
     calculatePlatformMedianER.start();
     evaluateTrustTiers.start();
 
+    // Phase 33 Jobs
+    weeklyPayouts.start();
+    dailyInventoryCheck.start();
+    hourlyBudgetAlerts.start();
+    weeklyPerformanceReports.start();
+
     console.log('[Cron] All jobs scheduled');
     console.log('[Cron] - Daily buffer drops: 00:05 AM');
     console.log('[Cron] - Platform median ER: Sundays 02:00 AM');
     console.log('[Cron] - Trust tier evaluation: 03:00 AM');
+    console.log('[Cron] - Weekly payouts: Fridays 05:00 PM');
+    console.log('[Cron] - Daily inventory check: 06:00 AM');
+    console.log('[Cron] - Hourly budget alerts: every hour');
+    console.log('[Cron] - Weekly performance reports: Mondays 09:00 AM');
 }
 
 /**
@@ -106,6 +182,12 @@ function stopCronJobs() {
     createDailyBufferDrops.stop();
     calculatePlatformMedianER.stop();
     evaluateTrustTiers.stop();
+
+    // Phase 33 Jobs
+    weeklyPayouts.stop();
+    dailyInventoryCheck.stop();
+    hourlyBudgetAlerts.stop();
+    weeklyPerformanceReports.stop();
 }
 
 /**
@@ -127,6 +209,10 @@ module.exports = {
     jobs: {
         createDailyBufferDrops,
         calculatePlatformMedianER,
-        evaluateTrustTiers
+        evaluateTrustTiers,
+        weeklyPayouts,
+        dailyInventoryCheck,
+        hourlyBudgetAlerts,
+        weeklyPerformanceReports
     }
 };

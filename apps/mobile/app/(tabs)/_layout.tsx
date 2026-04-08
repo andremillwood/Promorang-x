@@ -1,122 +1,131 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet } from 'react-native';
-import { Tabs, useRouter } from 'expo-router';
-import { Home, Compass, Coins, User, Settings } from 'lucide-react-native';
-import colors from '@/constants/colors';
-import { useThemeColors } from '@/hooks/useThemeColors';
-import { FloatingActionButton } from '@/components/ui/FloatingActionButton';
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import { BlurView } from 'expo-blur';
+import { StyleSheet, Platform } from 'react-native';
+
+import { Colors as DesignColors } from '@/constants/DesignTokens';
+import { useColorScheme } from '@/components/useColorScheme';
+
+/**
+ * Premium Tab Bar Icon using Ionicons
+ */
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof Ionicons>['name'];
+  color: string;
+}) {
+  return <Ionicons size={24} style={{ marginBottom: -3 }} {...props} />;
+}
 
 export default function TabLayout() {
-  const router = useRouter();
-  const theme = useThemeColors();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
-    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: theme.textSecondary,
-        tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: theme.border,
-          backgroundColor: theme.surface,
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 70,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginTop: 4,
-        },
+        tabBarActiveTintColor: DesignColors.primary,
+        tabBarInactiveTintColor: isDark ? DesignColors.gray[600] : DesignColors.gray[400],
+        headerShown: true,
         headerStyle: {
-          backgroundColor: theme.surface,
+          backgroundColor: isDark ? DesignColors.black : DesignColors.white,
+          borderBottomWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         headerTitleStyle: {
-          fontWeight: '600',
+          fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
+          fontWeight: 'bold',
           fontSize: 18,
-          color: theme.text,
+          color: isDark ? DesignColors.white : DesignColors.black,
         },
-        headerTintColor: theme.text,
-      }}
-    >
-      {/* Main 4 Tabs */}
+        tabBarStyle: {
+          backgroundColor: 'transparent',
+          position: 'absolute',
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 85,
+          paddingBottom: 25,
+        },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={isDark ? 80 : 100}
+            tint={isDark ? 'dark' : 'light'}
+            style={StyleSheet.absoluteFill}
+          />
+        ),
+      }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarLabel: 'Home',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Home size={size} color={color} />
-          ),
+          title: 'Today',
+          headerTitle: 'Today',
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar-clear" color={color} />,
         }}
       />
       <Tabs.Screen
         name="discover"
         options={{
           title: 'Discover',
-          tabBarLabel: 'Discover',
-          tabBarIcon: ({ color, size }) => (
-            <Compass size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="marketplace"
-        options={{
-          title: 'Earn',
-          tabBarLabel: 'Earn',
-          tabBarIcon: ({ color, size }) => (
-            <Coins size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => router.push('/settings')}
-              style={{ marginRight: 16 }}
-            >
-              <Settings size={22} color={colors.primary} />
-            </TouchableOpacity>
-          ),
-          tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} />
-          ),
-        }}
-      />
-
-      {/* Hidden tabs - still accessible via navigation but not in tab bar */}
-      <Tabs.Screen
-        name="growth"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="forecasts"
-        options={{
-          href: null,
+          headerTitle: 'Explore Moments',
+          tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
-          href: null,
+          title: 'Shop',
+          headerTitle: 'Marketplace',
+          tabBarIcon: ({ color }) => <TabBarIcon name="storefront" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="wallet"
+        name="propose"
+        options={{
+          title: 'Propose',
+          headerTitle: 'Get Funded',
+          tabBarIcon: ({ color }) => <TabBarIcon name="sparkles" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="post"
+        options={{
+          title: 'Post',
+          headerTitle: 'Share Moment',
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name="add-circle"
+              size={48}
+              color={DesignColors.primary}
+              style={{ marginTop: -10 }}
+            />
+          ),
+          tabBarLabel: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="rewards"
+        options={{
+          title: 'Rewards',
+          headerTitle: 'My Perks',
+          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+          headerTitle: 'My Canon',
+          tabBarIcon: ({ color }) => <TabBarIcon name="stats-chart" color={color} />,
+        }}
+      />
+      {/* Hiding legacy tabs */}
+      <Tabs.Screen
+        name="two"
         options={{
           href: null,
         }}
       />
     </Tabs>
-    <FloatingActionButton />
-    </View>
   );
 }

@@ -1048,10 +1048,10 @@ router.post('/campaigns', async (req, res) => {
       drops: drops.map((drop, i) => ({ ...drop, id: `drop-${i}`, status: 'active', current_participants: 0 })),
       coupons: coupons.map((coupon, i) => ({ ...coupon, id: `coupon-${i}`, quantity_remaining: coupon.quantity }))
     };
-    return res.status(201).json({ 
-      status: 'success', 
-      data: { campaign, id: campaignId }, 
-      message: 'Campaign created successfully' 
+    return res.status(201).json({
+      status: 'success',
+      data: { campaign, id: campaignId },
+      message: 'Campaign created successfully'
     });
   }
 
@@ -1147,7 +1147,32 @@ router.post('/campaigns', async (req, res) => {
       }
     }
 
-    // 5. If there's a PromoShare contribution, add to the active grand jackpot
+    // 5. Create bundled events
+    if (events.length > 0) {
+      const eventsToInsert = events.map(event => ({
+        campaign_id: campaignId,
+        creator_id: req.user.id,
+        title: event.title || 'Untitled Event',
+        description: event.description || null,
+        event_date: event.eventDate || new Date().toISOString(),
+        location: event.location || null,
+        is_virtual: event.isVirtual || false,
+        virtual_url: event.virtualUrl || null,
+        max_attendees: event.maxAttendees || null,
+        is_public: true,
+        status: 'published'
+      }));
+
+      const { error: eventsError } = await supabase
+        .from('events')
+        .insert(eventsToInsert);
+
+      if (eventsError) {
+        console.error('Error creating bundled events:', eventsError);
+      }
+    }
+
+    // 6. If there's a PromoShare contribution, add to the active grand jackpot
     if (promoshare_contribution > 0) {
       const { data: grandCycle } = await supabase
         .from('promoshare_cycles')
@@ -1268,12 +1293,16 @@ router.get('/campaigns/:campaignId', async (req, res) => {
       coupons: [
         { id: 'cp1', title: '20% Off First Order', discount_type: 'percent', discount_value: 20, quantity_total: 100, quantity_remaining: 85 }
       ],
+      events: [
+        { id: 'e1', title: 'Community AMA', description: 'Join us for a live Q&A', event_date: new Date().toISOString(), is_virtual: true, virtual_url: 'https://zoom.short/xyz' }
+      ],
       stats: {
         total_drops: 2,
         total_applications: 30,
         completed_applications: 20,
         total_gems_awarded: 250,
-        total_tickets_awarded: 20
+        total_tickets_awarded: 20,
+        total_events: 1
       }
     };
     return sendSuccess(res, { campaign: mockCampaign });
@@ -1313,6 +1342,12 @@ router.get('/campaigns/:campaignId', async (req, res) => {
       .select('*')
       .eq('campaign_id', campaignId);
 
+    // Fetch events
+    const { data: events } = await supabase
+      .from('events')
+      .select('*')
+      .eq('campaign_id', campaignId);
+
     // Get campaign stats
     const { data: stats } = await supabase
       .rpc('get_campaign_stats', { p_campaign_id: campaignId });
@@ -1323,6 +1358,7 @@ router.get('/campaigns/:campaignId', async (req, res) => {
         content_items: contentItems || [],
         drops: drops || [],
         coupons: coupons || [],
+        events: events || [],
         stats: stats?.[0] || {
           total_drops: drops?.length || 0,
           total_applications: 0,
@@ -1330,6 +1366,7 @@ router.get('/campaigns/:campaignId', async (req, res) => {
           total_gems_awarded: 0,
           total_tickets_awarded: 0,
           total_coupons: coupons?.length || 0,
+          total_events: events?.length || 0,
           coupons_claimed: 0
         }
       }
@@ -1343,15 +1380,19 @@ router.get('/campaigns/:campaignId', async (req, res) => {
 // Update campaign
 router.patch('/campaigns/:campaignId', async (req, res) => {
   const { campaignId } = req.params;
-  const advertiserId = await resolveAdvertiserId(req.user);
+  const advertiserId = await resolveAdvertiserId(req);
   const {
     name,
-    objective,
+    description,
     status,
     start_date,
     end_date,
-    total_budget,
-    target_audience,
+    total_gem_budget,
+    promoshare_contribution,
+    content_items,
+    drops,
+    events,
+    coupons
   } = req.body || {};
 
   if (!supabase) {
@@ -1361,47 +1402,164 @@ router.patch('/campaigns/:campaignId', async (req, res) => {
     }
 
     if (name !== undefined) campaign.name = name;
-    if (objective !== undefined) campaign.objective = objective;
+    if (description !== undefined) campaign.description = description;
     if (status !== undefined) campaign.status = status;
     if (start_date !== undefined) campaign.start_date = start_date;
     if (end_date !== undefined) campaign.end_date = end_date;
-    if (total_budget !== undefined) campaign.total_budget = total_budget;
-    if (target_audience !== undefined) campaign.target_audience = target_audience;
+    if (total_gem_budget !== undefined) campaign.total_gem_budget = total_gem_budget;
+    if (promoshare_contribution !== undefined) campaign.promoshare_contribution = promoshare_contribution;
+
+    // Simple mock update for children
+    if (content_items) campaign.content_items = content_items;
+    if (drops) campaign.drops = drops;
+    if (events) campaign.events = events;
+    if (coupons) campaign.coupons = coupons;
+
     campaign.updated_at = new Date().toISOString();
 
     return sendSuccess(res, { campaign: formatCampaignRecord(campaign) }, 'Campaign updated successfully');
   }
 
   try {
+    // 1. Update basic campaign info
     const updates = {};
     if (name !== undefined) updates.name = name;
-    if (objective !== undefined) updates.objective = objective;
+    if (description !== undefined) updates.description = description;
     if (status !== undefined) updates.status = status;
     if (start_date !== undefined) updates.start_date = start_date;
     if (end_date !== undefined) updates.end_date = end_date;
-    if (total_budget !== undefined) updates.total_budget = total_budget;
-    if (target_audience !== undefined) updates.target_audience = JSON.stringify(target_audience);
+    if (total_gem_budget !== undefined) updates.total_gem_budget = total_gem_budget;
+    if (promoshare_contribution !== undefined) updates.promoshare_contribution = promoshare_contribution;
 
-    if (Object.keys(updates).length === 0) {
-      return sendError(res, 422, 'No fields to update', 'VALIDATION_ERROR');
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase
+        .from('advertiser_campaigns')
+        .update(updates)
+        .eq('id', campaignId)
+        .eq('advertiser_id', advertiserId);
+
+      if (error) throw error;
     }
 
-    const { data: campaign, error } = await supabase
-      .from('advertiser_campaigns')
-      .update(updates)
-      .eq('id', campaignId)
-      .eq('advertiser_account_id', advertiserId)
-      .select()
-      .single();
+    // 2. Sync Content Items
+    if (content_items && Array.isArray(content_items)) {
+      const incomingIds = content_items.filter(i => i.id && !i.id.startsWith('content-')).map(i => i.id);
 
-    if (error || !campaign) {
-      console.error('Error updating campaign:', error);
-      return sendError(res, 404, 'Campaign not found or update failed', 'CAMPAIGN_NOT_FOUND');
+      // Delete removed
+      await supabase.from('campaign_content_items')
+        .delete()
+        .eq('campaign_id', campaignId)
+        .not('id', 'in', `(${incomingIds.length > 0 ? incomingIds.join(',') : '00000000-0000-0000-0000-000000000000'})`);
+
+      for (const item of content_items) {
+        const itemData = {
+          campaign_id: campaignId,
+          content_type: item.type || item.content_type || 'link',
+          title: item.title,
+          url: item.url,
+          description: item.description
+        };
+
+        if (item.id && !item.id.startsWith('content-')) {
+          await supabase.from('campaign_content_items').update(itemData).eq('id', item.id);
+        } else {
+          await supabase.from('campaign_content_items').insert(itemData);
+        }
+      }
     }
 
-    return sendSuccess(res, {
-      campaign: formatCampaignRecord(campaign)
-    }, 'Campaign updated successfully');
+    // 3. Sync Drops
+    if (drops && Array.isArray(drops)) {
+      const incomingIds = drops.filter(d => d.id && !d.id.startsWith('drop-')).map(d => d.id);
+
+      await supabase.from('campaign_drops')
+        .delete()
+        .eq('campaign_id', campaignId)
+        .not('id', 'in', `(${incomingIds.length > 0 ? incomingIds.join(',') : '00000000-0000-0000-0000-000000000000'})`);
+
+      for (const drop of drops) {
+        const dropData = {
+          campaign_id: campaignId,
+          title: drop.title,
+          description: drop.description,
+          drop_type: drop.type || drop.drop_type || 'share',
+          gem_reward: drop.gemReward || drop.gem_reward || 10,
+          keys_cost: drop.keysCost || drop.keys_cost || 1,
+          max_participants: drop.maxParticipants || drop.max_participants || 100,
+          requirements: drop.requirements
+        };
+
+        if (drop.id && !drop.id.startsWith('drop-')) {
+          await supabase.from('campaign_drops').update(dropData).eq('id', drop.id);
+        } else {
+          await supabase.from('campaign_drops').insert({ ...dropData, status: 'active', current_participants: 0 });
+        }
+      }
+    }
+
+    // 4. Sync Events
+    if (events && Array.isArray(events)) {
+      const incomingIds = events.filter(e => e.id && !e.id.startsWith('event-')).map(e => e.id);
+
+      await supabase.from('events')
+        .delete()
+        .eq('campaign_id', campaignId)
+        .not('id', 'in', `(${incomingIds.length > 0 ? incomingIds.join(',') : '00000000-0000-0000-0000-000000000000'})`);
+
+      for (const event of events) {
+        const eventData = {
+          campaign_id: campaignId,
+          title: event.title,
+          description: event.description,
+          event_date: event.eventDate || event.event_date,
+          location: event.location,
+          is_virtual: event.isVirtual !== undefined ? event.isVirtual : event.is_virtual,
+          virtual_url: event.virtualUrl || event.virtual_url,
+          max_attendees: event.maxAttendees || event.max_attendees
+        };
+
+        if (event.id && !event.id.startsWith('event-')) {
+          await supabase.from('events').update(eventData).eq('id', event.id);
+        } else {
+          await supabase.from('events').insert({
+            ...eventData,
+            creator_id: req.user.id,
+            status: 'published',
+            is_public: true
+          });
+        }
+      }
+    }
+
+    // 5. Sync Coupons
+    if (coupons && Array.isArray(coupons)) {
+      const incomingIds = coupons.filter(c => c.id && !c.id.startsWith('coupon-')).map(c => c.id);
+
+      await supabase.from('campaign_coupons')
+        .delete()
+        .eq('campaign_id', campaignId)
+        .not('id', 'in', `(${incomingIds.length > 0 ? incomingIds.join(',') : '00000000-0000-0000-0000-000000000000'})`);
+
+      for (const coupon of coupons) {
+        const couponData = {
+          campaign_id: campaignId,
+          title: coupon.title,
+          description: coupon.description,
+          discount_type: coupon.discountType || coupon.discount_type || 'percent',
+          discount_value: coupon.discountValue || coupon.discount_value || 10,
+          quantity_total: coupon.quantity || coupon.quantity_total || 100,
+          expires_at: coupon.expiresAt || coupon.expires_at
+        };
+
+        if (coupon.id && !coupon.id.startsWith('coupon-')) {
+          await supabase.from('campaign_coupons').update(couponData).eq('id', coupon.id);
+        } else {
+          await supabase.from('campaign_coupons').insert({ ...couponData, quantity_remaining: couponData.quantity_total });
+        }
+      }
+    }
+
+    return sendSuccess(res, {}, 'Campaign updated successfully');
   } catch (error) {
     console.error('Campaign update error:', error);
     return sendError(res, 500, 'Failed to update campaign', 'SERVER_ERROR');
@@ -1950,6 +2108,56 @@ router.post('/coupons/:couponId/redeem', async (req, res) => {
   } catch (error) {
     console.error('Redemption error:', error);
     return sendError(res, 500, 'Failed to redeem coupon', 'SERVER_ERROR');
+  }
+});
+
+
+/**
+ * GET /accounts
+ * List all ad accounts user has access to
+ */
+router.get('/accounts', requireAuth, async (req, res) => {
+  try {
+    if (!supabase) {
+      return res.json([
+        {
+          id: DEMO_ADVERTISER_FALLBACK_ID,
+          name: 'Demo Advertiser',
+          role: 'admin',
+          status: 'active',
+          account_type: 'business',
+          verification_status: 'verified'
+        }
+      ]);
+    }
+
+    const { data: members, error } = await supabase
+      .from('advertiser_team_members')
+      .select(`
+        role,
+        advertiser_account:advertiser_accounts (
+          id,
+          name,
+          account_type,
+          verification_status
+        )
+      `)
+      .eq('user_id', req.user.id)
+      .eq('status', 'active');
+
+    if (error) throw error;
+
+    const formattedAccounts = members
+      .filter(m => m.advertiser_account) // Filter out any null accounts if integrity is off
+      .map(m => ({
+        ...m.advertiser_account,
+        role: m.role
+      }));
+
+    res.json(formattedAccounts);
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
+    res.status(500).json({ error: 'Failed to fetch accounts' });
   }
 });
 

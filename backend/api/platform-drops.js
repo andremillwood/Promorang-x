@@ -197,7 +197,7 @@ router.post('/community', async (req, res) => {
             });
         }
 
-        const supabase = require('../lib/supabase');
+        const { supabase } = require('../lib/supabase');
 
         if (!supabase) {
             // Demo mode
@@ -288,7 +288,7 @@ router.post('/community', async (req, res) => {
  */
 router.get('/community', async (req, res) => {
     try {
-        const supabase = require('../lib/supabase');
+        const { supabase } = require('../lib/supabase');
 
         if (!supabase) {
             return res.json({

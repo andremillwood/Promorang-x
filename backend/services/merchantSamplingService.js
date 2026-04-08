@@ -14,7 +14,7 @@
  * - No parallel or standalone user flows
  */
 
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 
 // Merchant state enum
 const MerchantState = {
@@ -550,6 +550,14 @@ async function checkGraduationTriggers(advertiserId, activationId) {
         }
       );
 
+      // Trigger graduation notification
+      try {
+        const notificationService = require('./notificationService');
+        await notificationService.notifyMerchantGraduation(advertiserId, graduationReason);
+      } catch (notifyError) {
+        console.error('[MerchantSampling] Error sending graduation notification:', notifyError);
+      }
+
       return { graduated: true, reason: graduationReason };
     }
 
@@ -601,6 +609,14 @@ async function requestGraduation(advertiserId, requestType) {
     `merchant_request_${requestType}`,
     { activation_id: activation.id, request_type: requestType }
   );
+
+  // Trigger graduation notification
+  try {
+    const notificationService = require('./notificationService');
+    await notificationService.notifyMerchantGraduation(advertiserId, `merchant_request_${requestType}`);
+  } catch (notifyError) {
+    console.error('[MerchantSampling] Error sending graduation notification:', notifyError);
+  }
 
   return { success: true };
 }

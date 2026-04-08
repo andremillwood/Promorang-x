@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
 const { sendWelcomeEmail } = require('../services/resendService');
@@ -385,24 +385,21 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Google OAuth callback
+// Google OAuth callback (Initiate flow)
 router.post('/oauth/google', async (req, res) => {
   try {
-    const { access_token } = req.body;
-
-    if (!access_token) {
-      return res.status(400).json({
-        success: false,
-        error: 'Access token required'
-      });
-    }
+    const { redirectTo } = req.body;
 
     if (supabase) {
-      // Verify the Google token and get user info
+      // Get the OAuth URL
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback`
+          redirectTo: redirectTo || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
 
@@ -437,11 +434,17 @@ router.post('/oauth/google', async (req, res) => {
 // Get Google OAuth URL
 router.get('/oauth/google/url', async (req, res) => {
   try {
+    const { redirectTo } = req.query;
+
     if (supabase) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback`
+          redirectTo: redirectTo || `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
 
@@ -557,8 +560,16 @@ router.post('/demo/:role', async (req, res) => {
       'merchant': 4,
       'matrix': 5,
       'sampling-merchant': 6,
+      'samplingMerchant': 6,
       'active-sampling': 7,
-      'graduated-merchant': 8
+      'activeSampling': 7,
+      'graduated-merchant': 8,
+      'graduatedMerchant': 8,
+      // Maturity state testing - all map to creator with different maturity context
+      'state0': 0,
+      'state1': 0,
+      'state2': 0,
+      'state3': 0
     };
 
     const index = roleMap[role];
@@ -618,10 +629,7 @@ router.post('/demo/:role', async (req, res) => {
           username: demoAccount.username,
           display_name: demoAccount.display_name,
           user_type: demoAccount.user_type,
-          points_balance: 1000,
-          keys_balance: 50,
-          gems_balance: 100,
-          gold_collected: 0,
+          reliability_score: 100, // Default PRI
           user_tier: 'free',
           created_at: new Date().toISOString()
         }])
@@ -663,342 +671,21 @@ router.post('/demo/:role', async (req, res) => {
     console.error('Demo login error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Demo login failed'
+      error: 'Demo login failed',
+      details: error.message
     });
   }
 });
 
-router.post('/demo/investor', async (req, res) => {
-  try {
-    if (!supabase) {
-      // Fallback when Supabase is not available
-      const demoAccount = DEMO_ACCOUNTS[1];
-      const demoToken = generateToken({
-        id: 'demo-investor-id',
-        email: demoAccount.email,
-        username: demoAccount.username,
-        display_name: demoAccount.display_name,
-        user_type: demoAccount.user_type,
-        points_balance: 5000,
-        keys_balance: 200,
-        gems_balance: 500,
-        gold_collected: 25,
-        user_tier: 'premium'
-      });
-
-      res.cookie('auth_token', demoToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
-      return res.json({
-        success: true,
-        user: {
-          id: 'demo-investor-id',
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 5000,
-          keys_balance: 200,
-          gems_balance: 500,
-          gold_collected: 25,
-          user_tier: 'premium'
-        },
-        token: demoToken
-      });
-    }
-
-    const demoAccount = DEMO_ACCOUNTS[1];
-
-    let { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', demoAccount.email)
-      .single();
-
-    if (userError || !user) {
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 5000,
-          keys_balance: 200,
-          gems_balance: 500,
-          gold_collected: 25,
-          user_tier: 'premium',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (createError) {
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to create demo account'
-        });
-      }
-
-      user = newUser;
-    }
-
-    const token = generateToken(user);
-
-    return res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        display_name: user.display_name,
-        user_type: user.user_type,
-        points_balance: user.points_balance,
-        keys_balance: user.keys_balance,
-        gems_balance: user.gems_balance,
-        gold_collected: user.gold_collected,
-        user_tier: user.user_tier,
-        avatar_url: user.avatar_url
-      },
-      token
-    });
-
-  } catch (error) {
-    console.error('Demo login error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Demo login failed'
-    });
-  }
-});
-
-router.post('/demo/advertiser', async (req, res) => {
-  try {
-    if (!supabase) {
-      // Fallback when Supabase is not available
-      const demoAccount = DEMO_ACCOUNTS[2];
-      const demoToken = generateToken({
-        id: 'demo-advertiser-id',
-        email: demoAccount.email,
-        username: demoAccount.username,
-        display_name: demoAccount.display_name,
-        user_type: demoAccount.user_type,
-        points_balance: 10000,
-        keys_balance: 1000,
-        gems_balance: 2000,
-        gold_collected: 100,
-        user_tier: 'super'
-      });
-
-      res.cookie('auth_token', demoToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
-      return res.json({
-        success: true,
-        user: {
-          id: 'demo-advertiser-id',
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 10000,
-          keys_balance: 1000,
-          gems_balance: 2000,
-          gold_collected: 100,
-          user_tier: 'super'
-        },
-        token: demoToken
-      });
-    }
-
-    const demoAccount = DEMO_ACCOUNTS[2];
-
-    let { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', demoAccount.email)
-      .single();
-
-    if (userError || !user) {
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 10000,
-          keys_balance: 1000,
-          gems_balance: 2000,
-          gold_collected: 100,
-          user_tier: 'super',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (createError) {
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to create demo account'
-        });
-      }
-
-      user = newUser;
-    }
-
-    const token = generateToken(user);
-
-    return res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        display_name: user.display_name,
-        user_type: user.user_type,
-        points_balance: user.points_balance,
-        keys_balance: user.keys_balance,
-        gems_balance: user.gems_balance,
-        gold_collected: user.gold_collected,
-        user_tier: user.user_tier,
-        avatar_url: user.avatar_url
-      },
-      token
-    });
-
-  } catch (error) {
-    console.error('Demo login error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Demo login failed'
-    });
-  }
-});
-
-// Logout (does not require auth header; frontends may just clear cookies/tokens)
+// Logout (does not require auth header)
 router.post('/logout', (req, res) => {
-  // In a real implementation, tokens could be revoked/blacklisted.
   res.json({
     success: true,
     message: 'Logged out successfully'
   });
 });
 
-// Demo operator login
-router.post('/demo/operator', async (req, res) => {
-  try {
-    const demoAccount = DEMO_ACCOUNTS[3]; // operator account
-
-    if (!supabase) {
-      const demoToken = generateToken({
-        id: 'demo-operator-id',
-        email: demoAccount.email,
-        username: demoAccount.username,
-        display_name: demoAccount.display_name,
-        user_type: demoAccount.user_type,
-        points_balance: 8000,
-        keys_balance: 500,
-        gems_balance: 1500,
-        gold_collected: 75,
-        user_tier: 'premium'
-      });
-
-      res.cookie('auth_token', demoToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
-      return res.json({
-        success: true,
-        user: {
-          id: 'demo-operator-id',
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 8000,
-          keys_balance: 500,
-          gems_balance: 1500,
-          gold_collected: 75,
-          user_tier: 'premium'
-        },
-        token: demoToken
-      });
-    }
-
-    let { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', demoAccount.email)
-      .single();
-
-    if (userError || !user) {
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          points_balance: 8000,
-          keys_balance: 500,
-          gems_balance: 1500,
-          gold_collected: 75,
-          user_tier: 'premium',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (createError) {
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to create demo account'
-        });
-      }
-
-      user = newUser;
-    }
-
-    const token = generateToken(user);
-
-    return res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        display_name: user.display_name,
-        user_type: user.user_type,
-        points_balance: user.points_balance,
-        keys_balance: user.keys_balance,
-        gems_balance: user.gems_balance,
-        gold_collected: user.gold_collected,
-        user_tier: user.user_tier,
-        avatar_url: user.avatar_url
-      },
-      token
-    });
-
-  } catch (error) {
-    console.error('Demo login error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Demo login failed'
-    });
-  }
-});
+module.exports = router;
 
 // Demo merchant login
 router.post('/demo/merchant', async (req, res) => {

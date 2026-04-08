@@ -2,7 +2,7 @@ const express = require('express');
 let supabaseAdmin = null;
 
 try {
-  const supabase = require('../lib/supabase');
+  const { supabase } = require('../lib/supabase');
   supabaseAdmin = supabase.supabase || supabase;
 } catch (error) {
   console.error('Failed to load supabase from ../lib/supabase:', error.message);

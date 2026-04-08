@@ -68,6 +68,47 @@ router.use(requireAuth);
 router.use(resolveAdvertiserContext);
 
 /**
+ * GET /api/coupons/validate/:code
+ * Merchant lookup: Check if a redemption code is valid
+ * Used by merchant staff to validate customer coupon codes before confirming
+ */
+router.get('/validate/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+
+    if (!code || code.length < 4) {
+      return sendError(res, 400, 'Valid redemption code is required (min 4 characters)', 'INVALID_CODE');
+    }
+
+    // Look up the redemption by code
+    const redemption = await couponService.lookupRedemptionByCode(code.toUpperCase());
+
+    if (!redemption) {
+      return sendError(res, 404, 'Invalid or expired code', 'NOT_FOUND');
+    }
+
+    // Return coupon details for merchant to confirm
+    return res.json({
+      success: true,
+      coupon: {
+        id: redemption.coupon_id,
+        code: redemption.redemption_code,
+        discount_type: redemption.coupon?.discount_type || 'percentage',
+        discount_value: redemption.coupon?.discount_value || 0,
+        description: redemption.coupon?.description,
+      },
+      customer: {
+        name: redemption.user?.username || redemption.user?.display_name || 'Customer',
+      },
+      redemption_id: redemption.id,
+    });
+  } catch (error) {
+    console.error('[Coupon API] Error looking up redemption code:', error);
+    return sendError(res, 500, 'Failed to validate code', 'SERVER_ERROR');
+  }
+});
+
+/**
  * POST /api/coupons/validate
  * Validate a coupon code
  */

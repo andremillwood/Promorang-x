@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 
 // Auth middleware - extract user ID from JWT token or use mock for development
 const authMiddleware = async (req, res, next) => {
@@ -215,7 +215,8 @@ router.get('/', async (req, res) => {
 
     if (error) {
       console.error('Database error fetching forecasts:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch forecasts' });
+      // Return empty array instead of 500 - graceful degradation
+      return res.json([]);
     }
 
     // Flatten the structure to put media_url at the top level
@@ -227,7 +228,8 @@ router.get('/', async (req, res) => {
     res.json(forecasts);
   } catch (error) {
     console.error('Error fetching forecasts:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch forecasts' });
+    // Return empty array instead of 500 - graceful degradation
+    res.json([]);
   }
 });
 
@@ -277,210 +279,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create new social forecast
+// Create new social forecast - DISABLED
 router.post('/', async (req, res) => {
-  try {
-    const {
-      content_id,
-      platform,
-      content_url,
-      forecast_type,
-      target_value,
-      odds,
-      expires_at,
-      initial_amount,
-      initial_side
-    } = req.body;
-
-    if (!content_url || !forecast_type || !target_value || !odds || !expires_at || !initial_amount || !initial_side) {
-      return res.status(400).json({
-        success: false,
-        error: 'All fields are required'
-      });
-    }
-
-    if (!supabase) {
-      // Mock creation for development
-      return res.json({
-        success: true,
-        forecast: {
-          id: Date.now(),
-          content_id: content_id || null,
-          creator_id: 1, // TODO: Get from authenticated user
-          creator_name: 'Demo User',
-          platform,
-          content_url,
-          content_title: 'Demo Content',
-          forecast_type,
-          target_value: parseInt(target_value),
-          current_value: 0,
-          odds: parseFloat(odds),
-          pool_size: parseFloat(initial_amount),
-          creator_initial_amount: parseFloat(initial_amount),
-          creator_side: initial_side,
-          expires_at,
-          created_at: new Date().toISOString(),
-          participants: 1,
-          status: 'active'
-        },
-        message: 'Forecast created successfully (development mode)'
-      });
-    }
-
-    // Create forecast in database
-    const { data: forecast, error } = await supabase
-      .from('social_forecasts')
-      .insert([{
-        content_id: content_id || null,
-        creator_id: 1, // TODO: Get from authenticated user
-        platform,
-        content_url,
-        forecast_type,
-        target_value: parseInt(target_value),
-        odds: parseFloat(odds),
-        expires_at,
-        initial_amount: parseFloat(initial_amount),
-        initial_side,
-        pool_size: parseFloat(initial_amount),
-        current_value: 0,
-        status: 'active',
-        participants: 1
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Database error creating forecast:', error);
-      return res.status(500).json({ success: false, error: 'Failed to create forecast' });
-    }
-
-    // Update user wallet balance
-    const { error: walletError } = await supabase
-      .from('wallets')
-      .update({
-        balance: supabase.raw(`balance - ${parseFloat(initial_amount)}`)
-      })
-      .eq('user_id', 1) // TODO: Get from authenticated user
-      .eq('currency_type', 'USD');
-
-    if (walletError) {
-      console.error('Database error updating wallet:', walletError);
-    }
-
-    res.json({
-      success: true,
-      forecast,
-      message: 'Forecast created successfully'
-    });
-  } catch (error) {
-    console.error('Error creating forecast:', error);
-    res.status(500).json({ success: false, error: 'Failed to create forecast' });
-  }
+  return res.status(403).json({
+    error: 'Forecasts Frozen',
+    message: 'Creating new social forecasts is currently disabled during our strategic realignment.'
+  });
 });
 
-// Place prediction on forecast
+// Place prediction on forecast - DISABLED
 router.post('/:id/predict', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { prediction_amount, prediction_side } = req.body;
-
-    if (!prediction_amount || !prediction_side) {
-      return res.status(400).json({
-        success: false,
-        error: 'Prediction amount and side are required'
-      });
-    }
-
-    if (!supabase) {
-      // Mock prediction for development
-      return res.json({
-        success: true,
-        prediction: {
-          id: Date.now(),
-          forecast_id: parseInt(id),
-          user_id: 1, // TODO: Get from authenticated user
-          prediction_amount: parseFloat(prediction_amount),
-          prediction_side,
-          potential_payout: (parseFloat(prediction_amount) * 2.0).toFixed(2), // Mock odds
-          created_at: new Date().toISOString()
-        },
-        message: 'Prediction placed successfully (development mode)'
-      });
-    }
-
-    // Get forecast details
-    const { data: forecast, error: forecastError } = await supabase
-      .from('social_forecasts')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (forecastError || !forecast) {
-      return res.status(404).json({ success: false, error: 'Forecast not found' });
-    }
-
-    if (forecast.status !== 'active') {
-      return res.status(400).json({ success: false, error: 'Forecast is no longer active' });
-    }
-
-    if (new Date(forecast.expires_at) < new Date()) {
-      return res.status(400).json({ success: false, error: 'Forecast has expired' });
-    }
-
-    // Create prediction
-    const { data: prediction, error: predictionError } = await supabase
-      .from('investor_predictions')
-      .insert([{
-        forecast_id: parseInt(id),
-        user_id: 1, // TODO: Get from authenticated user
-        prediction_amount: parseFloat(prediction_amount),
-        prediction_side,
-        potential_payout: parseFloat(prediction_amount) * forecast.odds,
-        status: 'active'
-      }])
-      .select()
-      .single();
-
-    if (predictionError) {
-      console.error('Database error creating prediction:', predictionError);
-      return res.status(500).json({ success: false, error: 'Failed to place prediction' });
-    }
-
-    // Update forecast pool size and participant count
-    const { error: updateError } = await supabase
-      .from('social_forecasts')
-      .update({
-        pool_size: supabase.raw(`pool_size + ${parseFloat(prediction_amount)}`),
-        participants: supabase.raw('participants + 1')
-      })
-      .eq('id', id);
-
-    if (updateError) {
-      console.error('Database error updating forecast:', updateError);
-    }
-
-    // Update user wallet balance
-    const { error: walletError } = await supabase
-      .from('wallets')
-      .update({
-        balance: supabase.raw(`balance - ${parseFloat(prediction_amount)}`)
-      })
-      .eq('user_id', 1) // TODO: Get from authenticated user
-      .eq('currency_type', 'USD');
-
-    if (walletError) {
-      console.error('Database error updating wallet:', walletError);
-    }
-
-    res.json({
-      success: true,
-      prediction,
-      message: 'Prediction placed successfully'
-    });
-  } catch (error) {
-    console.error('Error placing prediction:', error);
-    res.status(500).json({ success: false, error: 'Failed to place prediction' });
-  }
+  return res.status(403).json({
+    error: 'Forecasts Frozen',
+    message: 'Placing predictions is currently disabled.'
+  });
 });
 
 // Get forecasts for specific content
@@ -516,6 +328,10 @@ router.get('/content/:contentId', async (req, res) => {
 // Resolve forecast and distribute payouts (Admin/Oracle only)
 router.post('/:id/resolve', async (req, res) => {
   try {
+    return res.status(403).json({
+      error: 'Forecasts Frozen',
+      message: 'Forecast resolution is disabled.'
+    });
     const { id } = req.params;
     const { result, winning_side } = req.body; // result: 'over' | 'under', winning_side: 'over' | 'under'
 
@@ -549,27 +365,18 @@ router.post('/:id/resolve', async (req, res) => {
     }
 
     // 3. Calculate Pool Math (Parimutuel Logic)
-    // IMPORTANT: To ensure solvency, we must use the Total Pool divided by Winning Pool volume.
-    // If we strictly honored fixed odds, we might be insolvent. 
-    // For this hardening patch, we will prioritize Solvency over Fixed Odds fidelity if the pool is insufficient.
-
     const side = winning_side.toLowerCase();
     const winningPredictions = predictions.filter(p => p.prediction_side.toLowerCase() === side);
     const totalPool = forecast.pool_size;
 
-    // Sum of money bet on the winning side (excluding creator stake for now, assuming creator stake is in pool_size but logic handled separately or simplistically)
-    // Actually, let's treat the 'creator_initial_amount' as just another bet in the pool for simplicity of this v1 implementation
     let volumeOnWinner = winningPredictions.reduce((sum, p) => sum + p.prediction_amount, 0);
 
-    // If creator won, add their stake
     const creatorWon = forecast.creator_side === side;
     if (creatorWon) {
       volumeOnWinner += forecast.creator_initial_amount;
     }
 
-    // Avoid division by zero
     if (volumeOnWinner === 0) {
-      // House takes it all? Or refund? Let's just resolve state and exit.
       await supabase
         .from('social_forecasts')
         .update({ status: 'resolved', result, winning_side: side })
@@ -584,15 +391,12 @@ router.post('/:id/resolve', async (req, res) => {
     // 4. Distribute Payouts
     const payouts = [];
 
-    // Pay Creators
     if (creatorWon) {
-      // Share of pool = (MyStake / TotalWinningVolume)
       const share = forecast.creator_initial_amount / volumeOnWinner;
       const payout = share * totalPool;
       payouts.push({ user_id: forecast.creator_id, amount: payout, type: 'creator' });
     }
 
-    // Pay Predictors
     for (const p of winningPredictions) {
       const share = p.prediction_amount / volumeOnWinner;
       const payout = share * totalPool;
@@ -601,14 +405,12 @@ router.post('/:id/resolve', async (req, res) => {
 
     // 5. Execute Transactions
     for (const pay of payouts) {
-      // Credit User Wallet
       await supabase
         .from('wallets')
         .update({ balance: supabase.raw(`balance + ${pay.amount}`) })
         .eq('user_id', pay.user_id)
         .eq('currency_type', 'USD');
 
-      // Update Prediction Record
       if (pay.type === 'investor' && pay.prediction_id) {
         await supabase
           .from('investor_predictions')
@@ -621,7 +423,6 @@ router.post('/:id/resolve', async (req, res) => {
       }
     }
 
-    // Mark losing predictions as lost
     const losingPredictions = predictions.filter(p => p.prediction_side.toLowerCase() !== side);
     for (const p of losingPredictions) {
       await supabase

@@ -713,10 +713,8 @@ async function listPublicCoupons({ limit = 20, offset = 0, category } = {}) {
   try {
     let query = supabase
       .from('coupons')
-      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url)')
+      .select('id, code, name, description, discount_type, discount_value, expires_at, store_id, merchant_stores(store_name, logo_url)')
       .eq('is_active', true)
-      .eq('is_public', true)
-      .gt('quantity_remaining', 0)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -746,10 +744,9 @@ async function getPublicCoupon(id) {
   try {
     const { data, error } = await supabase
       .from('coupons')
-      .select('id, title, description, value, value_unit, expires_at, store_id, merchant_stores(store_name, logo_url, description), conditions, redemption_type, redemption_instructions')
+      .select('id, code, name, description, discount_type, discount_value, max_discount_usd, applies_to, min_purchase_usd, min_purchase_gems, expires_at, store_id, merchant_stores(store_name, logo_url, description), metadata')
       .eq('id', id)
       .eq('is_active', true)
-      .eq('is_public', true)
       .single();
 
     if (error) throw error;
@@ -951,6 +948,50 @@ async function getMerchantRedemptions(merchantUserId) {
   }
 }
 
+/**
+ * Lookup a redemption by code (read-only, for merchant validation preview)
+ * Does not modify status - just returns the redemption if valid
+ */
+async function lookupRedemptionByCode(code) {
+  if (!supabase) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    // Look up redemption by claim_code
+    const { data: redemption, error } = await supabase
+      .from('coupon_redemptions')
+      .select(`
+        *,
+        coupon:coupons(id, code, name, description, discount_type, discount_value, store_id, merchant_stores(store_name)),
+        user:users(id, username, display_name)
+      `)
+      .eq('claim_code', code)
+      .eq('status', 'claimed')
+      .single();
+
+    if (error || !redemption) {
+      return null;
+    }
+
+    // Check expiry
+    if (redemption.expires_at && new Date(redemption.expires_at) < new Date()) {
+      return null; // Expired
+    }
+
+    return {
+      id: redemption.id,
+      coupon_id: redemption.coupon_id,
+      redemption_code: redemption.claim_code,
+      coupon: redemption.coupon,
+      user: redemption.user,
+    };
+  } catch (error) {
+    console.error('[Coupon Service] Error looking up redemption by code:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   validateCoupon,
   calculateDiscount,
@@ -972,4 +1013,5 @@ module.exports = {
   validateRedemption,
   getUserRedemptions,
   getMerchantRedemptions,
+  lookupRedemptionByCode,
 };

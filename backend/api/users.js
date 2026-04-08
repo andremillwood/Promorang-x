@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../lib/supabase');
+const { supabase } = require('../lib/supabase');
 const jwt = require('jsonwebtoken');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
@@ -776,6 +776,9 @@ router.post('/onboarding/complete', async (req, res) => {
     if (!userId) return res.status(400).json({ success: false, error: 'User context missing' });
 
     if (!supabase) {
+      // For demo users, still record the action in maturity service
+      const maturityService = require('../services/maturityService');
+      await maturityService.recordVerifiedAction(userId, 'profile_completed');
       return res.json({ success: true, message: 'Onboarding marked complete (mock)' });
     }
 
@@ -788,6 +791,10 @@ router.post('/onboarding/complete', async (req, res) => {
       console.error('Error marking onboarding complete:', error);
       return res.status(500).json({ success: false, error: 'Failed to update onboarding status' });
     }
+
+    // Trigger maturity transition
+    const maturityService = require('../services/maturityService');
+    await maturityService.recordVerifiedAction(userId, 'profile_completed');
 
     res.json({ success: true });
   } catch (error) {
@@ -1417,6 +1424,182 @@ router.post('/tour-progress', async (req, res) => {
   } catch (error) {
     console.error('Error updating tour progress:', error);
     res.status(500).json({ success: false, error: 'Failed to update tour progress' });
+  }
+});
+
+// Send tip to a creator
+router.post('/tip', async (req, res) => {
+  try {
+    const senderId = req.user?.id;
+    if (!senderId) {
+      return res.status(400).json({ success: false, error: 'User context missing' });
+    }
+
+    const { recipient_id, amount, message } = req.body;
+
+    if (!recipient_id || !amount || amount < 1) {
+      return res.status(400).json({ success: false, error: 'Invalid tip request' });
+    }
+
+    if (recipient_id === senderId) {
+      return res.status(400).json({ success: false, error: 'Cannot tip yourself' });
+    }
+
+    if (!supabase) {
+      // Mock response
+      return res.json({
+        success: true,
+        tip: {
+          id: `tip_${Date.now()}`,
+          sender_id: senderId,
+          recipient_id,
+          amount,
+          message: message || null,
+          created_at: new Date().toISOString()
+        },
+        message: `Tipped ${amount} Gems successfully`
+      });
+    }
+
+    // Check sender balance
+    const { data: sender, error: senderError } = await supabase
+      .from('users')
+      .select('gems_balance')
+      .eq('id', senderId)
+      .single();
+
+    if (senderError || !sender) {
+      return res.status(500).json({ success: false, error: 'Failed to verify balance' });
+    }
+
+    if ((sender.gems_balance || 0) < amount) {
+      return res.status(400).json({ success: false, error: 'Insufficient Gems balance' });
+    }
+
+    // Transfer gems
+    const { error: deductError } = await supabase
+      .from('users')
+      .update({ gems_balance: (sender.gems_balance || 0) - amount })
+      .eq('id', senderId);
+
+    if (deductError) {
+      console.error('Error deducting gems:', deductError);
+      return res.status(500).json({ success: false, error: 'Failed to process tip' });
+    }
+
+    // Add to recipient
+    const { error: addError } = await supabase
+      .from('users')
+      .update({ gems_balance: supabase.raw(`gems_balance + ${amount}`) })
+      .eq('id', recipient_id);
+
+    if (addError) {
+      // Refund on failure
+      await supabase.from('users').update({ gems_balance: sender.gems_balance }).eq('id', senderId);
+      return res.status(500).json({ success: false, error: 'Failed to deliver tip' });
+    }
+
+    // Log the tip transaction
+    await supabase.from('transactions').insert({
+      user_id: senderId,
+      type: 'tip_sent',
+      amount: -amount,
+      currency: 'gems',
+      description: `Tip to user ${recipient_id}`,
+      metadata: { recipient_id, message }
+    });
+
+    await supabase.from('transactions').insert({
+      user_id: recipient_id,
+      type: 'tip_received',
+      amount: amount,
+      currency: 'gems',
+      description: `Tip from user ${senderId}`,
+      metadata: { sender_id: senderId, message }
+    });
+
+    invalidateCache(`users:${senderId}`);
+    invalidateCache(`users:${recipient_id}`);
+
+    res.json({
+      success: true,
+      tip: {
+        sender_id: senderId,
+        recipient_id,
+        amount,
+        message: message || null,
+        created_at: new Date().toISOString()
+      },
+      message: `Tipped ${amount} Gems successfully`
+    });
+  } catch (error) {
+    console.error('Error processing tip:', error);
+    res.status(500).json({ success: false, error: 'Failed to process tip' });
+  }
+});
+
+/**
+ * GET /me/earnings-breakdown
+ * Returns a breakdown of weighted gems earned by mission type
+ */
+router.get('/me/earnings-breakdown', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!supabase) {
+      return res.json({
+        total_weighted: 0,
+        breakdown: [
+          { type: 'buy', amount: 450, percentage: 60 },
+          { type: 'social', amount: 200, percentage: 26.6 },
+          { type: 'move', amount: 100, percentage: 13.4 }
+        ]
+      });
+    }
+
+    // Fetch approved applications with drop details
+    const { data: apps, error } = await supabase
+      .from('drop_applications')
+      .select(`
+        weighted_gems_earned,
+        drops (
+          drop_role,
+          title
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'approved');
+
+    if (error) throw error;
+
+    const breakdown = {};
+    let totalWeighted = 0;
+
+    (apps || []).forEach(app => {
+      const role = (app.drops?.drop_role || 'other').toLowerCase();
+      const weight = Number(app.weighted_gems_earned || 0);
+
+      if (!breakdown[role]) {
+        breakdown[role] = 0;
+      }
+      breakdown[role] += weight;
+      totalWeighted += weight;
+    });
+
+    // Format for frontend
+    const formattedBreakdown = Object.entries(breakdown).map(([type, amount]) => ({
+      type,
+      amount,
+      percentage: totalWeighted > 0 ? (amount / totalWeighted) * 100 : 0
+    }));
+
+    res.json({
+      total_weighted: totalWeighted,
+      breakdown: formattedBreakdown
+    });
+  } catch (error) {
+    console.error('Error fetching earnings breakdown:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch earnings breakdown' });
   }
 });
 

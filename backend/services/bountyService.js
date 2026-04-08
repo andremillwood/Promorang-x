@@ -133,14 +133,27 @@ async function scoutContent(userId, url) {
             platform_equity: 5.0 // 5% Platform Fee
         });
 
+    // 7. Genesis Engine: Create Seed Campaign (L1)
+    try {
+        const campaignService = require('./campaignService');
+        await campaignService.createFromScout(scout);
+    } catch (campaignError) {
+        console.error('[BountyService] Genesis Engine failed to create campaign:', campaignError);
+        // Don't fail the scouting process if campaign creation fails
+    }
+
     return { success: true, content_id: piece.id, scout_id: scout.id };
 }
 
 /**
- * Distribute Yield Dividends
+ * Distribute Yield Dividends - DISABLED
+ * The speculative dividend model is frozen.
  * @param {string} cycleId - The ID of the closed platform yield cycle
  */
 async function distributeYield(cycleId) {
+    console.warn(`[ECONOMY PIVOT] Blocked attempt to distribute yield for cycle ${cycleId}`);
+    return; // Hard exit
+
     if (!supabase) throw new Error('Database not available');
 
     // 1. Get Cycle Data
@@ -320,9 +333,11 @@ async function generateBioCode(userId) {
 }
 
 /**
- * Create a new Yield Cycle
+ * Create a new Yield Cycle - DISABLED
  */
 async function createYieldCycle(poolAmount) {
+    throw new Error('Yield Cycles are currently disabled during the platform transition.');
+
     if (!supabase) throw new Error('Database not available');
 
     const now = new Date();

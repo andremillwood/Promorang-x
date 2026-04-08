@@ -1,234 +1,215 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Card } from '@/components/ui/Card';
-import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { ProductCard } from '@/components/feed/ProductCard';
-import { useProductStore } from '@/store/productStore';
-import { Store, Search as SearchIcon, SlidersHorizontal, ChevronDown } from 'lucide-react-native';
-import colors from '@/constants/colors';
-import { useThemeColors } from '@/hooks/useThemeColors';
-import { Input } from '@/components/ui/Input';
+import { StyleSheet, ScrollView, Pressable, TextInput, Image, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Text, View } from '@/components/Themed';
+import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
+import { useColorScheme } from '@/components/useColorScheme';
+import { supabase } from '@/lib/supabase';
+import { useUserBalance } from '@/hooks/useEconomy';
 
-type SortOption = 'newest' | 'price_low' | 'price_high' | 'popular';
+interface Product {
+    id: string;
+    name: string;
+    description: string;
+    price_usd: number;
+    price_points: number;
+    image_url: string;
+    category: string;
+    inventory_count: number | null;
+    merchant_id: string;
+    venues?: {
+        name: string;
+        address: string;
+    };
+}
 
 export default function ShopScreen() {
-    const router = useRouter();
-    const theme = useThemeColors();
-    const { products, isLoading, fetchProducts, categories, fetchCategories } = useProductStore();
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+    const { balance } = useUserBalance();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [sortBy, setSortBy] = useState<SortOption>('newest');
-    const [showFilters, setShowFilters] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [priceRange, setPriceRange] = useState<{ min?: number; max?: number }>({});
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+
+    const categories = ['All', 'Food & Drink', 'Apparel', 'Experiences', 'Services'];
 
     useEffect(() => {
-        fetchProducts({ search: searchTerm, category_id: selectedCategory });
-        fetchCategories();
-    }, [selectedCategory]);
+        fetchProducts();
+    }, []);
 
-    const handleSearch = () => {
-        fetchProducts({ search: searchTerm, category_id: selectedCategory });
-    };
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('merchant_products')
+                .select(`
+          *,
+          venues (
+            name,
+            address
+          )
+        `)
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
 
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await fetchProducts({ search: searchTerm, category_id: selectedCategory });
-        await fetchCategories();
-        setRefreshing(false);
-    };
-
-    const handleProductPress = (productId: string) => {
-        router.push({ pathname: '/product/[id]', params: { id: productId } } as any);
-    };
-
-    const sortProducts = (items: typeof products) => {
-        const sorted = [...items];
-        switch (sortBy) {
-            case 'price_low':
-                return sorted.sort((a, b) => (a.price_usd || 0) - (b.price_usd || 0));
-            case 'price_high':
-                return sorted.sort((a, b) => (b.price_usd || 0) - (a.price_usd || 0));
-            case 'popular':
-                return sorted.sort((a, b) => (b.sales_count || 0) - (a.sales_count || 0));
-            case 'newest':
-            default:
-                return sorted.sort((a, b) => 
-                    new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-                );
+            if (error) throw error;
+            setProducts(data || []);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const filterByPrice = (items: typeof products) => {
-        return items.filter(item => {
-            const price = item.price_usd || 0;
-            if (priceRange.min && price < priceRange.min) return false;
-            if (priceRange.max && price > priceRange.max) return false;
-            return true;
-        });
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+
+    const handleProductPress = (productId: string) => {
+        router.push(`/product/${productId}`);
     };
 
-    const displayProducts = sortProducts(filterByPrice(products));
-
-    const sortOptions: { key: SortOption; label: string }[] = [
-        { key: 'newest', label: 'Newest' },
-        { key: 'popular', label: 'Popular' },
-        { key: 'price_low', label: 'Price: Low to High' },
-        { key: 'price_high', label: 'Price: High to Low' },
-    ];
-
-    const renderHeader = () => (
-        <View style={styles.headerContainer}>
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <Input
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChangeText={setSearchTerm}
-                    onSubmitEditing={handleSearch}
-                    containerStyle={styles.searchInput}
-                    leftIcon={<SearchIcon size={20} color={theme.textSecondary} />}
-                />
-                <TouchableOpacity
-                    style={[styles.filterButton, { backgroundColor: showFilters ? colors.primary : theme.card, borderColor: theme.border }]}
-                    onPress={() => setShowFilters(!showFilters)}
-                >
-                    <SlidersHorizontal size={20} color={showFilters ? '#FFF' : theme.textSecondary} />
-                </TouchableOpacity>
+    return (
+        <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
+            {/* Header */}
+            <View style={[styles.header, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
+                <View style={{ backgroundColor: 'transparent' }}>
+                    <Text style={styles.headerTitle}>Marketplace</Text>
+                    <Text style={styles.headerSubtitle}>Support local venues</Text>
+                </View>
+                <View style={styles.balanceCard}>
+                    <Ionicons name="wallet" size={16} color={DesignColors.primary} />
+                    <Text style={styles.balanceText}>{balance?.points || 0} pts</Text>
+                </View>
             </View>
 
-            {/* Filters Panel */}
-            {showFilters && (
-                <Card style={[styles.filtersPanel, { backgroundColor: theme.card }]}>
-                    <Text style={[styles.filterLabel, { color: theme.text }]}>Sort By</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sortOptions}>
-                        {sortOptions.map((option) => (
-                            <TouchableOpacity
-                                key={option.key}
-                                style={[
-                                    styles.sortChip,
-                                    sortBy === option.key && styles.activeSortChip
-                                ]}
-                                onPress={() => setSortBy(option.key)}
-                            >
-                                <Text style={[
-                                    styles.sortChipText,
-                                    sortBy === option.key && styles.activeSortChipText
-                                ]}>{option.label}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+            {/* Search Bar */}
+            <View style={[styles.searchContainer, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
+                <Ionicons name="search" size={20} color={DesignColors.gray[400]} style={styles.searchIcon} />
+                <TextInput
+                    style={[styles.searchInput, { color: isDark ? DesignColors.white : DesignColors.black }]}
+                    placeholder="Search products or venues..."
+                    placeholderTextColor={DesignColors.gray[400]}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+            </View>
 
-                    <Text style={[styles.filterLabel, { color: theme.text, marginTop: 12 }]}>Price Range</Text>
-                    <View style={styles.priceRangeRow}>
-                        <TouchableOpacity
-                            style={[styles.priceChip, !priceRange.max && !priceRange.min && styles.activePriceChip]}
-                            onPress={() => setPriceRange({})}
-                        >
-                            <Text style={[styles.priceChipText, !priceRange.max && !priceRange.min && styles.activePriceChipText]}>All</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.priceChip, priceRange.max === 25 && styles.activePriceChip]}
-                            onPress={() => setPriceRange({ max: 25 })}
-                        >
-                            <Text style={[styles.priceChipText, priceRange.max === 25 && styles.activePriceChipText]}>Under $25</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.priceChip, priceRange.min === 25 && priceRange.max === 50 && styles.activePriceChip]}
-                            onPress={() => setPriceRange({ min: 25, max: 50 })}
-                        >
-                            <Text style={[styles.priceChipText, priceRange.min === 25 && priceRange.max === 50 && styles.activePriceChipText]}>$25 - $50</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.priceChip, priceRange.min === 50 && styles.activePriceChip]}
-                            onPress={() => setPriceRange({ min: 50 })}
-                        >
-                            <Text style={[styles.priceChipText, priceRange.min === 50 && styles.activePriceChipText]}>$50+</Text>
-                        </TouchableOpacity>
-                    </View>
-                </Card>
-            )}
-
-            {/* Category Chips */}
+            {/* Category Filter */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 style={styles.categoryScroll}
-                contentContainerStyle={styles.categoryContent}
+                contentContainerStyle={styles.categoryContainer}
             >
-                <TouchableOpacity
-                    style={[
-                        styles.categoryChip,
-                        !selectedCategory && styles.activeCategoryChip
-                    ]}
-                    onPress={() => setSelectedCategory('')}
-                >
-                    <Text style={[
-                        styles.categoryText,
-                        !selectedCategory && styles.activeCategoryText
-                    ]}>All Products</Text>
-                </TouchableOpacity>
-                {categories.map((cat) => (
-                    <TouchableOpacity
-                        key={cat.id}
+                {categories.map((category) => (
+                    <Pressable
+                        key={category}
                         style={[
                             styles.categoryChip,
-                            selectedCategory === cat.id && styles.activeCategoryChip
+                            {
+                                backgroundColor: selectedCategory === category
+                                    ? DesignColors.primary
+                                    : isDark ? DesignColors.gray[800] : DesignColors.gray[100]
+                            }
                         ]}
-                        onPress={() => setSelectedCategory(cat.id)}
+                        onPress={() => setSelectedCategory(category)}
                     >
-                        <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                        <Text style={[
-                            styles.categoryText,
-                            selectedCategory === cat.id && styles.activeCategoryText
-                        ]}>{cat.name}</Text>
-                    </TouchableOpacity>
+                        <Text
+                            style={[
+                                styles.categoryText,
+                                {
+                                    color: selectedCategory === category
+                                        ? DesignColors.white
+                                        : isDark ? DesignColors.gray[300] : DesignColors.gray[700]
+                                }
+                            ]}
+                        >
+                            {category}
+                        </Text>
+                    </Pressable>
                 ))}
             </ScrollView>
 
-            {/* Results Count */}
-            <View style={styles.resultsRow}>
-                <Text style={[styles.resultsText, { color: theme.textSecondary }]}>
-                    {displayProducts.length} product{displayProducts.length !== 1 ? 's' : ''} found
-                </Text>
-            </View>
-        </View>
-    );
+            {/* Products Grid */}
+            <ScrollView
+                style={styles.productsScroll}
+                contentContainerStyle={styles.productsContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                {loading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={DesignColors.primary} />
+                    </View>
+                ) : filteredProducts.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="storefront-outline" size={64} color={DesignColors.gray[400]} />
+                        <Text style={styles.emptyText}>No products found</Text>
+                        <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
+                    </View>
+                ) : (
+                    <View style={styles.productsGrid}>
+                        {filteredProducts.map((product) => (
+                            <Pressable
+                                key={product.id}
+                                style={[styles.productCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}
+                                onPress={() => handleProductPress(product.id)}
+                            >
+                                {/* Product Image */}
+                                {product.image_url ? (
+                                    <Image source={{ uri: product.image_url }} style={styles.productImage} />
+                                ) : (
+                                    <View style={[styles.productImagePlaceholder, { backgroundColor: DesignColors.gray[200] }]}>
+                                        <Ionicons name="image-outline" size={32} color={DesignColors.gray[400]} />
+                                    </View>
+                                )}
 
-    if (isLoading && !refreshing && products.length === 0) {
-        return <LoadingIndicator fullScreen text="Loading shop..." />;
-    }
+                                {/* Stock Badge */}
+                                {product.inventory_count !== null && product.inventory_count < 10 && (
+                                    <View style={styles.stockBadge}>
+                                        <Text style={styles.stockBadgeText}>
+                                            {product.inventory_count === 0 ? 'Out of Stock' : `${product.inventory_count} left`}
+                                        </Text>
+                                    </View>
+                                )}
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <FlatList
-                data={displayProducts}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <ProductCard product={item} onPress={handleProductPress} />
+                                {/* Product Info */}
+                                <View style={styles.productInfo}>
+                                    <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
+
+                                    {product.venues && (
+                                        <View style={styles.venueInfo}>
+                                            <Ionicons name="location" size={12} color={DesignColors.gray[400]} />
+                                            <Text style={styles.venueName} numberOfLines={1}>{product.venues.name}</Text>
+                                        </View>
+                                    )}
+
+                                    {/* Pricing */}
+                                    <View style={styles.pricingRow}>
+                                        {product.price_points > 0 && (
+                                            <View style={styles.priceTag}>
+                                                <Ionicons name="diamond" size={12} color={DesignColors.primary} />
+                                                <Text style={styles.pricePoints}>{product.price_points}</Text>
+                                            </View>
+                                        )}
+                                        {product.price_usd > 0 && (
+                                            <View style={styles.priceTag}>
+                                                <Text style={styles.priceUsd}>${product.price_usd.toFixed(2)}</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+                            </Pressable>
+                        ))}
+                    </View>
                 )}
-                ListHeaderComponent={renderHeader}
-                contentContainerStyle={styles.listContent}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={handleRefresh}
-                        colors={[colors.primary]}
-                        tintColor={colors.primary}
-                    />
-                }
-                ListEmptyComponent={
-                    <EmptyState
-                        title="No Products Found"
-                        description="Try a different search or check back later."
-                        icon={<Store size={48} color={theme.textSecondary} />}
-                        style={styles.emptyState}
-                    />
-                }
-            />
+            </ScrollView>
         </View>
     );
 }
@@ -237,135 +218,188 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    headerContainer: {
-        paddingBottom: 8,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: Spacing.lg,
+        paddingTop: Spacing.xl,
+        paddingBottom: Spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: DesignColors.gray[800],
+    },
+    headerTitle: {
+        fontSize: Typography.sizes['2xl'],
+        fontWeight: Typography.weights.bold,
+        color: DesignColors.white,
+    },
+    headerSubtitle: {
+        fontSize: Typography.sizes.sm,
+        color: DesignColors.gray[400],
+        marginTop: 2,
+    },
+    balanceCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: DesignColors.gray[800],
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: BorderRadius.full,
+    },
+    balanceText: {
+        fontSize: Typography.sizes.sm,
+        fontWeight: Typography.weights.semibold,
+        color: DesignColors.white,
     },
     searchContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 8,
-        gap: 8,
+        alignItems: 'center',
+        marginHorizontal: Spacing.lg,
+        marginTop: Spacing.md,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
+        borderRadius: BorderRadius.lg,
+        borderWidth: 1,
+        borderColor: DesignColors.gray[800],
+    },
+    searchIcon: {
+        marginRight: Spacing.sm,
     },
     searchInput: {
         flex: 1,
-        marginBottom: 0,
-    },
-    filterButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-    },
-    filtersPanel: {
-        marginHorizontal: 16,
-        marginBottom: 12,
-        padding: 16,
-        borderRadius: 16,
-    },
-    filterLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-        marginBottom: 8,
-    },
-    sortOptions: {
-        flexDirection: 'row',
-    },
-    sortChip: {
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: '#F3F4F6',
-        marginRight: 8,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    activeSortChip: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
-    },
-    sortChipText: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#4B5563',
-    },
-    activeSortChipText: {
-        color: '#FFFFFF',
-    },
-    priceRangeRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    priceChip: {
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: '#F3F4F6',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    activePriceChip: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
-    },
-    priceChipText: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#4B5563',
-    },
-    activePriceChipText: {
-        color: '#FFFFFF',
+        fontSize: Typography.sizes.base,
+        padding: 0,
     },
     categoryScroll: {
-        maxHeight: 50,
-        marginBottom: 8,
+        marginTop: Spacing.md,
     },
-    categoryContent: {
-        paddingHorizontal: 12,
-        alignItems: 'center',
+    categoryContainer: {
+        paddingHorizontal: Spacing.lg,
+        gap: Spacing.sm,
     },
     categoryChip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: '#F3F4F6',
-        marginHorizontal: 4,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    activeCategoryChip: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
-    },
-    categoryIcon: {
-        marginRight: 6,
-        fontSize: 14,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
+        borderRadius: BorderRadius.full,
+        marginRight: Spacing.sm,
     },
     categoryText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#4B5563',
+        fontSize: Typography.sizes.sm,
+        fontWeight: Typography.weights.medium,
     },
-    activeCategoryText: {
-        color: '#FFFFFF',
+    productsScroll: {
+        flex: 1,
+        marginTop: Spacing.md,
     },
-    resultsRow: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+    productsContainer: {
+        paddingHorizontal: Spacing.lg,
+        paddingBottom: Spacing.xl,
     },
-    resultsText: {
-        fontSize: 13,
+    productsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: Spacing.md,
+        justifyContent: 'space-between',
     },
-    listContent: {
-        paddingHorizontal: 16,
-        paddingBottom: 32,
+    productCard: {
+        width: '48%',
+        borderRadius: BorderRadius.lg,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: DesignColors.gray[800],
     },
-    emptyState: {
-        marginTop: 60,
+    productImage: {
+        width: '100%',
+        height: 120,
+        resizeMode: 'cover',
+    },
+    productImagePlaceholder: {
+        width: '100%',
+        height: 120,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    stockBadge: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: DesignColors.red[500],
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: BorderRadius.sm,
+    },
+    stockBadgeText: {
+        fontSize: Typography.sizes.xs,
+        fontWeight: Typography.weights.bold,
+        color: DesignColors.white,
+    },
+    productInfo: {
+        padding: Spacing.md,
+        backgroundColor: 'transparent',
+    },
+    productName: {
+        fontSize: Typography.sizes.base,
+        fontWeight: Typography.weights.semibold,
+        color: DesignColors.white,
+        marginBottom: 4,
+    },
+    venueInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginBottom: 8,
+        backgroundColor: 'transparent',
+    },
+    venueName: {
+        fontSize: Typography.sizes.xs,
+        color: DesignColors.gray[400],
+        flex: 1,
+    },
+    pricingRow: {
+        flexDirection: 'row',
+        gap: 8,
+        backgroundColor: 'transparent',
+    },
+    priceTag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'transparent',
+    },
+    pricePoints: {
+        fontSize: Typography.sizes.sm,
+        fontWeight: Typography.weights.bold,
+        color: DesignColors.primary,
+    },
+    priceUsd: {
+        fontSize: Typography.sizes.sm,
+        fontWeight: Typography.weights.bold,
+        color: DesignColors.white,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: Spacing.xl * 2,
+        backgroundColor: 'transparent',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: Spacing.xl * 2,
+        backgroundColor: 'transparent',
+    },
+    emptyText: {
+        fontSize: Typography.sizes.lg,
+        fontWeight: Typography.weights.semibold,
+        color: DesignColors.gray[400],
+        marginTop: Spacing.md,
+    },
+    emptySubtext: {
+        fontSize: Typography.sizes.sm,
+        color: DesignColors.gray[500],
+        marginTop: 4,
     },
 });
