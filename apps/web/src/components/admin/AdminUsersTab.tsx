@@ -104,7 +104,7 @@ export function AdminUsersTab() {
               size="sm"
               onClick={() => setRoleFilter(role)}
             >
-              {role.charAt(0).toUpperCase() + role.slice(1)}
+              {(role || "User").charAt(0).toUpperCase() + (role || "User").slice(1)}
             </Button>
           ))}
         </div>
@@ -168,40 +168,51 @@ export function AdminUsersTab() {
                     <td className="p-4 text-sm text-muted-foreground">
                       {user.profile?.location || "—"}
                     </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      {format(new Date(user.created_at), "MMM d, yyyy")}
-                    </td>
-                    <td className="p-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Manage User</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setRoleDialog({ userId: user.id, action: "add" })}
+                    <td className="p-4 text-sm text-muted-foreground text-center">
+                      <div className="flex justify-end gap-2">
+                        {!user.roles.includes("host") && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 text-[10px] uppercase font-bold tracking-wider hover:bg-primary/10 hover:text-primary border-primary/20"
+                            onClick={() => handleAddRole(user.id, "host")}
+                            disabled={addRole.isPending}
                           >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Add Role
-                          </DropdownMenuItem>
-                          {user.roles.length > 0 && (
+                            <UserPlus className="w-3 h-3 mr-1" />
+                            Promote Host
+                          </Button>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Manage User</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}
+                              onClick={() => setRoleDialog({ userId: user.id, action: "add" })}
                             >
-                              <UserMinus className="w-4 h-4 mr-2" />
-                              Remove Role
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Add Role
                             </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-muted-foreground">
-                            <Shield className="w-4 h-4 mr-2" />
-                            View Activity
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            {user.roles.length > 0 && (
+                              <DropdownMenuItem
+                                onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}
+                              >
+                                <UserMinus className="w-4 h-4 mr-2" />
+                                Remove Role
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-muted-foreground">
+                              <Shield className="w-4 h-4 mr-2" />
+                              View Activity
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </td>
                   </tr>
                 ))

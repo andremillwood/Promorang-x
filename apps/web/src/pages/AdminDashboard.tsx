@@ -22,6 +22,7 @@ import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
 import { AdminAnalyticsTab } from "@/components/admin/AdminAnalyticsTab";
 import { AdminHostApplicationsTab } from "@/components/admin/AdminHostApplicationsTab";
 import { AdminPayoutsTab } from "@/components/admin/AdminPayoutsTab";
+import { AdminCreateMomentTab } from "@/components/admin/AdminCreateMomentTab";
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -128,6 +129,10 @@ const AdminDashboard = () => {
                 <DollarSign className="w-4 h-4" />
                 Payouts
               </TabsTrigger>
+              <TabsTrigger value="create-moment" className="flex items-center gap-2 text-primary font-bold">
+                <Sparkles className="w-4 h-4" />
+                Create Moment
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -148,6 +153,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="payouts">
               <AdminPayoutsTab />
+            </TabsContent>
+
+            <TabsContent value="create-moment">
+              <AdminCreateMomentTab />
             </TabsContent>
           </Tabs>
         </div>
