@@ -6,13 +6,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBrandCampaigns, useBrandStats } from "@/hooks/useCampaigns";
 import { useBrandBounties } from "@/hooks/useBounties";
 import { useBrandEconomy } from "@/hooks/useStakeholderEconomy";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BrandSponsorshipTab } from "@/components/brand/BrandSponsorshipTab";
 import { AmbassadorManagement } from "@/components/brand/AmbassadorManagement";
 import { LoyaltyProgramTab } from "@/components/brand/LoyaltyProgramTab";
 import { BrandFundingTab } from "@/components/brand/BrandFundingTab";
 import BudgetManager from "@/components/brand/BudgetManager";
+import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
+import { Zap, X } from "lucide-react";
 
 const BrandDashboard = () => {
   const { user } = useAuth();
@@ -20,7 +22,10 @@ const BrandDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useBrandStats();
   const { data: economy, isLoading: economyLoading } = useBrandEconomy();
   const { data: bounties, isLoading: bountiesLoading } = useBrandBounties();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [isFlashCompilerOpen, setIsFlashCompilerOpen] = useState(false);
 
   const activeCampaigns = campaigns?.filter((c) => c.is_active) || [];
 
@@ -36,13 +41,34 @@ const BrandDashboard = () => {
             Command your brand's presence and track every meaningful engagement.
           </p>
         </div>
-        <Button variant="hero" asChild>
-          <Link to="/dashboard/campaigns/create">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Event
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="border-primary/30 text-primary hover:bg-primary/5 font-black uppercase tracking-tighter italic"
+            onClick={() => setIsFlashCompilerOpen(!isFlashCompilerOpen)}
+          >
+            {isFlashCompilerOpen ? <X className="w-4 h-4 mr-2" /> : <Zap className="w-4 h-4 mr-2 fill-primary" />}
+            {isFlashCompilerOpen ? "Close Compiler" : "Flash Launch"}
+          </Button>
+          <Button variant="hero" asChild>
+            <Link to="/dashboard/campaigns/create">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Event
+            </Link>
+          </Button>
+        </div>
       </div>
+
+      {/* Flash Compiler Section */}
+      {isFlashCompilerOpen && (
+        <div className="p-8 border-2 border-primary/20 bg-primary/5 rounded-3xl animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-3 mb-6">
+            <Zap className="w-6 h-6 text-primary fill-primary" />
+            <h3 className="text-xl font-black uppercase italic tracking-tighter text-primary">Flash Launchpad</h3>
+          </div>
+          <FlashCampaignCompiler onSuccess={() => setIsFlashCompilerOpen(false)} />
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -757,17 +757,17 @@ router.post('/users/:id/suspend', async (req, res) => {
  */
 router.post('/campaigns/compiler-launch', async (req, res) => {
     try {
-        const { moment, drop, moves, proof, reward, outcome, compiler_metadata } = req.body;
+        const compilerService = require('../services/campaignCompilerService');
+        const { goal, businessName, context } = req.body;
 
-        if (!moment || !moment.name) {
-            return res.status(400).json({ error: 'Valid compiled campaign data is required' });
-        }
+        // Use service to compile
+        const compiled = compilerService.compile(goal, businessName, context);
+        const { moment, proof, compiler_metadata } = compiled;
 
         if (!supabase) {
-            return res.json({ success: true, message: 'Mock launch successful (No DB)' });
+            return res.json({ success: true, message: 'Mock launch successful (No DB)', compiled });
         }
 
-        // 1. Determine Identity (Use Admin or special System account)
         const adminId = req.user.id;
 
         // 2. Create the Campaign Record
@@ -789,7 +789,6 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
         if (campaignError) throw campaignError;
 
         // 3. Create the Moment Record
-        // Mapping proof type to mechanic_proof_type enum
         const proofMapping = {
             'Link': 'API',
             'OCR': 'Photo',
@@ -814,13 +813,13 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
 
         if (momentError) throw momentError;
 
-        // 4. Link Campaign to Moment (if sponsorship table exists)
+        // 4. Link Campaign to Moment
         try {
             await supabase.from('campaign_sponsorships').insert({
                 campaign_id: campaign.id,
                 moment_id: newMoment.id,
                 status: 'active',
-                sponsorship_amount: 0 // Admin/System sponsored
+                sponsorship_amount: 0
             });
         } catch (e) {
             console.warn('Optional sponsorship link failed:', e.message);
@@ -830,7 +829,8 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
             success: true,
             campaign_id: campaign.id,
             moment_id: newMoment.id,
-            message: 'Campaign compiled and launched successfully.'
+            message: 'Campaign compiled and launched successfully.',
+            compiled
         });
 
     } catch (error) {

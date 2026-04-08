@@ -209,4 +209,86 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Flash Launch for stakeholders (using deterministic compiler)
+router.post('/flash-launch', async (req, res) => {
+  try {
+    const { goal, businessName, context } = req.body;
+    const advertiserId = req.advertiserAccount ? req.advertiserAccount.id : null;
+
+    if (!advertiserId) {
+      return res.status(403).json({ error: 'Advertiser account required for Flash Launch' });
+    }
+
+    const compilerService = require('../services/campaignCompilerService');
+    const compiled = compilerService.compile(goal, businessName, context);
+    const { moment, proof, compiler_metadata } = compiled;
+
+    if (!supabase) {
+      return res.json({ success: true, message: 'Mock flash launch successful', compiled });
+    }
+
+    // 1. Create Campaign
+    const { data: campaign, error: campaignError } = await supabase
+      .from('campaigns')
+      .insert({
+        advertiser_id: advertiserId,
+        name: moment.name,
+        description: moment.description,
+        campaign_type: 'activation',
+        status: 'active',
+        compiler_metadata: compiler_metadata,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (campaignError) throw campaignError;
+
+    // 2. Create Moment
+    const proofMapping = {
+      'Link': 'API',
+      'OCR': 'Photo',
+      'Upload': 'Photo'
+    };
+
+    const { data: newMoment, error: momentError } = await supabase
+      .from('moments')
+      .insert({
+        organizer_id: req.user.id,
+        title: moment.name,
+        description: moment.description,
+        type: 'digital_drop',
+        status: 'live',
+        sku_type: moment.tier || 'A3',
+        proof_type: proofMapping[proof] || 'Photo',
+        expected_action_unit: 'Submission',
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (momentError) throw momentError;
+
+    // 3. Link
+    await supabase.from('campaign_sponsorships').insert({
+      campaign_id: campaign.id,
+      moment_id: newMoment.id,
+      status: 'active',
+      sponsorship_amount: 0
+    });
+
+    res.json({
+      success: true,
+      campaign_id: campaign.id,
+      moment_id: newMoment.id,
+      message: 'Flash campaign launched successfully!',
+      compiled
+    });
+
+  } catch (error) {
+    console.error('Flash Launch Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

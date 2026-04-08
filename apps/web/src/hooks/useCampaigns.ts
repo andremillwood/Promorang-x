@@ -21,6 +21,7 @@ export interface Campaign {
   redemptions: number;
   created_at: string;
   updated_at: string;
+  compiler_metadata?: any;
 }
 
 export function useBrandCampaigns() {
@@ -65,6 +66,7 @@ export function useCreateCampaign() {
           target_categories: campaign.target_categories,
           start_date: campaign.start_date,
           end_date: campaign.end_date,
+          compiler_metadata: campaign.compiler_metadata,
         })
         .select()
         .single();
@@ -115,6 +117,7 @@ export function useBrandStats() {
         totalImpressions,
         totalRedemptions,
         totalBudget,
+        attributedSales: totalRedemptions * 42, // Mock ROI multiplier for demo/V1
       };
     },
     enabled: !!user,

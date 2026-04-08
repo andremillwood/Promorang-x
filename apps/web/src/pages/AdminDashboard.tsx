@@ -19,6 +19,7 @@ import {
   Coins,
   Scale,
   Settings,
+  Zap,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
@@ -29,7 +30,7 @@ import { AdminCreateMomentTab } from "@/components/admin/AdminCreateMomentTab";
 import { AdminEconomyTab } from "@/components/admin/AdminEconomyTab";
 import { AdminModerationTab } from "@/components/admin/AdminModerationTab";
 import { AdminConfigTab } from "@/components/admin/AdminConfigTab";
-import { AdminCampaignCompiler } from "@/components/admin/AdminCampaignCompiler";
+import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -191,7 +192,7 @@ const AdminDashboard = () => {
             </TabsContent>
 
             <TabsContent value="compiler">
-              <AdminCampaignCompiler />
+              <FlashCampaignCompiler adminMode={true} />
             </TabsContent>
 
             <TabsContent value="create-moment">
