@@ -15,11 +15,13 @@ import {
   Shield,
   BarChart3,
   Sparkles,
+  DollarSign,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
 import { AdminAnalyticsTab } from "@/components/admin/AdminAnalyticsTab";
 import { AdminHostApplicationsTab } from "@/components/admin/AdminHostApplicationsTab";
+import { AdminPayoutsTab } from "@/components/admin/AdminPayoutsTab";
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -122,6 +124,10 @@ const AdminDashboard = () => {
                 <Sparkles className="w-4 h-4" />
                 Host Apps
               </TabsTrigger>
+              <TabsTrigger value="payouts" className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Payouts
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -138,6 +144,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="applications">
               <AdminHostApplicationsTab />
+            </TabsContent>
+
+            <TabsContent value="payouts">
+              <AdminPayoutsTab />
             </TabsContent>
           </Tabs>
         </div>
