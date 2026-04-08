@@ -21,15 +21,21 @@ interface ConnectAccountStatus {
  * Allows hosts to set up Stripe Connect for automated payouts
  */
 const StripeConnectOnboarding = () => {
-    const { user } = useAuth();
+    const { user, session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [accountStatus, setAccountStatus] = useState<ConnectAccountStatus | null>(null);
 
     useEffect(() => {
-        checkConnectStatus();
-    }, []);
+        // Ensure both user and session are available before checking status
+        if (user?.id && session?.access_token) {
+            checkConnectStatus();
+        } else if (!isLoading) {
+            // If we're not loading and don't have a session, we can stop the spinner
+            setIsLoading(false);
+        }
+    }, [user?.id, session?.access_token]);
 
     const checkConnectStatus = async () => {
         setIsLoading(true);
@@ -37,7 +43,7 @@ const StripeConnectOnboarding = () => {
             // Check if user has a Stripe Connect account
             const response = await fetch(`${API_URL}/api/stripe/connect/account/${user?.id}`, {
                 headers: {
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
             });
 
@@ -70,7 +76,7 @@ const StripeConnectOnboarding = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
             });
 
@@ -86,7 +92,7 @@ const StripeConnectOnboarding = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
                 body: JSON.stringify({ accountId }),
             });
@@ -120,7 +126,7 @@ const StripeConnectOnboarding = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
                 body: JSON.stringify({ accountId: accountStatus.accountId }),
             });

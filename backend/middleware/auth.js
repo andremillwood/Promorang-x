@@ -81,24 +81,27 @@ async function requireAuth(req, res, next) {
 
     // Special handling for demo users to bypass database lookups
     const isStateDemo = String(userId).startsWith('a0000000');
-    if (String(userId).startsWith('demo-') || isStateDemo) {
-      const role = decoded.user_metadata?.role || decoded.user_type || 'creator';
+    const isSeededDemo = String(userId).startsWith('00000000-0000-');
+    
+    if (String(userId).startsWith('demo-') || isStateDemo || isSeededDemo) {
+      const role = decoded.user_metadata?.role || decoded.user_type || (isSeededDemo ? 'merchant' : 'creator');
 
       // Map demo IDs to valid UUIDs for database operations
       const DEMO_UUID_MAP = {
         'demo-creator-id': '00000000-0000-0000-0000-000000000001',
         'demo-advertiser-id': '00000000-0000-0000-0000-000000000002',
-        'demo-pro-id': '00000000-0000-0000-0000-000000000003'
+        'demo-pro-id': '00000000-0000-0000-0000-000000000003',
+        'demo-merchant-id': '00000000-0000-0000-0000-000000000004'
       };
 
       const mappedId = DEMO_UUID_MAP[userId] ||
-        (isStateDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
+        (isStateDemo || isSeededDemo ? userId : (DEMO_UUID_MAP[`demo-${role}-id`] || '00000000-0000-0000-0000-00000000ffff'));
 
       req.user = {
         id: mappedId,
         original_demo_id: userId,
         email: decoded.email || `${role}@demo.com`,
-        username: decoded.username || decoded.user_metadata?.username || `demo-${role}`,
+        username: decoded.user_metadata?.username || `demo-${role}`,
         display_name: decoded.display_name || decoded.user_metadata?.full_name || `Demo ${role}`,
         user_type: role,
         role: role,
@@ -108,7 +111,8 @@ async function requireAuth(req, res, next) {
         is_verified: true,
         token_payload: decoded
       };
-      console.log(`[Auth] ✅ Authenticated as Demo User: ${req.user.email} (ID: ${userId})`);
+      console.log(`[Auth] ✅ Authenticated as Seeding/State Demo User: ${req.user.email} (ID: ${userId})`);
+      res.setHeader('X-Auth-Mode', 'demo-bypass');
       return next();
     }
 
