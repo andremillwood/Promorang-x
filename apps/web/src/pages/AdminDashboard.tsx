@@ -16,6 +16,9 @@ import {
   BarChart3,
   Sparkles,
   DollarSign,
+  Coins,
+  Scale,
+  Settings,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
@@ -23,6 +26,9 @@ import { AdminAnalyticsTab } from "@/components/admin/AdminAnalyticsTab";
 import { AdminHostApplicationsTab } from "@/components/admin/AdminHostApplicationsTab";
 import { AdminPayoutsTab } from "@/components/admin/AdminPayoutsTab";
 import { AdminCreateMomentTab } from "@/components/admin/AdminCreateMomentTab";
+import { AdminEconomyTab } from "@/components/admin/AdminEconomyTab";
+import { AdminModerationTab } from "@/components/admin/AdminModerationTab";
+import { AdminConfigTab } from "@/components/admin/AdminConfigTab";
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -129,6 +135,18 @@ const AdminDashboard = () => {
                 <DollarSign className="w-4 h-4" />
                 Payouts
               </TabsTrigger>
+              <TabsTrigger value="economy" className="flex items-center gap-2">
+                <Coins className="w-4 h-4" />
+                Economy
+              </TabsTrigger>
+              <TabsTrigger value="moderation" className="flex items-center gap-2">
+                <Scale className="w-4 h-4" />
+                Moderation
+              </TabsTrigger>
+              <TabsTrigger value="config" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Config
+              </TabsTrigger>
               <TabsTrigger value="create-moment" className="flex items-center gap-2 text-primary font-bold">
                 <Sparkles className="w-4 h-4" />
                 Create Moment
@@ -153,6 +171,18 @@ const AdminDashboard = () => {
 
             <TabsContent value="payouts">
               <AdminPayoutsTab />
+            </TabsContent>
+
+            <TabsContent value="economy">
+              <AdminEconomyTab />
+            </TabsContent>
+
+            <TabsContent value="moderation">
+              <AdminModerationTab />
+            </TabsContent>
+
+            <TabsContent value="config">
+              <AdminConfigTab />
             </TabsContent>
 
             <TabsContent value="create-moment">
