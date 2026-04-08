@@ -17,7 +17,7 @@ async function addPayoutMethod(userId, type, details, isDefault = false) {
     if (!supabase) throw new Error('Database not available');
 
     // Basic validation
-    if (!['bank_transfer', 'paypal', 'venmo', 'other'].includes(type)) {
+    if (!['wire_transfer', 'paypal', 'western_union', 'cheque', 'bank_transfer', 'venmo', 'other'].includes(type)) {
         throw new Error('Invalid payout method type');
     }
 

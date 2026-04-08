@@ -1,23 +1,28 @@
 import { useState } from "react";
-import { MapPin, Users, Calendar, ArrowUpDown, Plus, Clock, Star, Package, DollarSign, Coins, TrendingUp, CreditCard, ExternalLink, ShieldCheck, Share2, RefreshCw, AlertCircle, Smartphone, BarChart3, QrCode } from "lucide-react";
+import { MapPin, Users, Calendar, ArrowUpDown, Plus, Clock, Star, Package, DollarSign, Coins, TrendingUp, CreditCard, ExternalLink, ShieldCheck, Share2, RefreshCw, AlertCircle, Smartphone, BarChart3, QrCode, Store, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMerchantVenues, useMerchantStats } from "@/hooks/useVenues";
 import { useMerchantEconomy } from "@/hooks/useStakeholderEconomy";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 import RedemptionValidator from "@/components/merchant/RedemptionValidator";
 import SalesAnalyticsDashboard from "@/components/merchant/SalesAnalyticsDashboard";
+import IntegrationsPanel from "@/components/merchant/IntegrationsPanel";
+import ManualPayoutSettings from "@/components/payouts/ManualPayoutSettings";
 
 const MerchantDashboard = () => {
   const { user } = useAuth();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const { data: stats, isLoading: statsLoading } = useMerchantStats();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
-  const [activeTab, setActiveTab] = useState("venues");
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "venues";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [showAllVenues, setShowAllVenues] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -96,7 +101,9 @@ const MerchantDashboard = () => {
             <h2 className="font-serif text-xl font-semibold text-foreground">
               Your Venues
             </h2>
-            <Button variant="ghost" size="sm">Manage All</Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowAllVenues(!showAllVenues)}>
+              {showAllVenues ? "Show Less" : "Manage All"}
+            </Button>
           </div>
 
           {venuesLoading ? (
@@ -155,11 +162,11 @@ const MerchantDashboard = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      View Details
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <Link to={`/dashboard?tab=venues`}>View Details</Link>
                     </Button>
-                    <Button size="sm" className="flex-1">
-                      Manage
+                    <Button size="sm" className="flex-1" asChild>
+                      <Link to={`/dashboard/venues/add`}>Manage</Link>
                     </Button>
                   </div>
                 </div>
@@ -175,8 +182,8 @@ const MerchantDashboard = () => {
             <p className="text-muted-foreground mb-4">
               Make your venue discoverable to hosts and increase foot traffic.
             </p>
-            <Button variant="default">
-              Promote Your Venue
+            <Button variant="default" asChild>
+              <Link to="/for-merchants">Promote Your Venue</Link>
             </Button>
           </div>
         </TabsContent>
@@ -197,212 +204,13 @@ const MerchantDashboard = () => {
         </TabsContent>
 
         {/* Billing Tab */}
-        <TabsContent value="billing" className="mt-6 space-y-6">
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-6">
-              <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-                <div className="flex items-start justify-between mb-8">
-                  <div>
-                    <h3 className="text-xl font-bold mb-1">Direct Payments</h3>
-                    <p className="text-muted-foreground text-sm">Sell products directly to participants via Stripe.</p>
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
-                    Stripe Connect
-                  </div>
-                </div>
-
-                <div className="p-6 rounded-xl bg-muted/30 border border-dashed border-border mb-8 text-center">
-                  <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <h4 className="font-bold mb-2">Connect your Stripe account</h4>
-                  <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-                    To start accepting credit card payments and receive payouts, you need to link your Stripe account.
-                  </p>
-                  <Button className="bg-[#635BFF] hover:bg-[#5851EA] text-white gap-2">
-                    Connect with Stripe <ExternalLink className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <DollarSign className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">Platform Fee</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Per direct transaction</p>
-                      </div>
-                    </div>
-                    <span className="font-bold">5.0%</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card opacity-50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                        <TrendingUp className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">Available for Payout</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Estimated arrival: --</p>
-                      </div>
-                    </div>
-                    <span className="font-bold">$0.00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-primary/5 rounded-2xl p-6 border border-primary/20">
-                <h4 className="font-bold text-sm mb-4 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  Seller Security
-                </h4>
-                <div className="space-y-4 text-xs text-muted-foreground">
-                  <p>
-                    <strong className="text-foreground">Encrypted:</strong> All transactions are processed through Stripe's 256-bit encrypted gateway.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">Payouts:</strong> Standard 2-day rolling payout schedule once active.
-                  </p>
-                  <p>
-                    <strong className="text-foreground">Disputes:</strong> Managed directly via your Stripe Dashboard.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-muted/50 rounded-2xl p-6 border border-border">
-                <h4 className="font-bold text-sm mb-4">Payout History</h4>
-                <p className="text-[10px] text-muted-foreground italic text-center py-4">
-                  No payout history yet.
-                </p>
-              </div>
-            </div>
-          </div>
+        <TabsContent value="billing" className="mt-6">
+          <ManualPayoutSettings />
         </TabsContent>
 
         {/* Integrations Tab */}
-        <TabsContent value="integrations" className="mt-6 space-y-6">
-          <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-            <div className="flex items-start justify-between mb-8">
-              <div>
-                <h3 className="text-xl font-bold mb-1">E-commerce Integrations</h3>
-                <p className="text-muted-foreground text-sm">Sync your existing products from Shopify or WooCommerce.</p>
-              </div>
-              <Badge variant="outline" className="gap-1 animate-pulse text-primary border-primary/20 bg-primary/5">
-                <RefreshCw className="w-3 h-3" /> Auto-sync Active
-              </Badge>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Shopify */}
-              <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-[#96bf48]/10 flex items-center justify-center">
-                    <img src="https://cdn.worldvectorlogo.com/logos/shopify.svg" alt="Shopify" className="w-8 h-8" />
-                  </div>
-                  <Button variant="outline" size="sm" className="rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
-                    Connect Store
-                  </Button>
-                </div>
-                <h4 className="font-bold mb-2">Shopify</h4>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Import products, collections, and inventory counts automatically.
-                </p>
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-full bg-muted" /> Not Connected
-                </div>
-              </div>
-
-              {/* WooCommerce */}
-              <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-[#96588a]/10 flex items-center justify-center">
-                    <img src="https://cdn.worldvectorlogo.com/logos/woocommerce.svg" alt="WooCommerce" className="w-8 h-8" />
-                  </div>
-                  <Button variant="outline" size="sm" className="rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
-                    Link API Key
-                  </Button>
-                </div>
-                <h4 className="font-bold mb-2">WooCommerce</h4>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Sync your WordPress store using REST API and webhooks.
-                </p>
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-full bg-muted" /> Not Connected
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="text-xs text-muted-foreground leading-relaxed">
-                <p className="font-bold text-primary mb-1">What happens when I connect?</p>
-                We will pull your active products into the <strong className="text-foreground">Promorang Marketplace</strong>.
-                Orders placed on Promorang will be synced back to your store as "External Sales" so your inventory stays accurate.
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-muted/30 rounded-2xl p-8 border border-border/40">
-            <div className="max-w-md mx-auto text-center py-6">
-              <RefreshCw className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-30" />
-              <h4 className="font-bold text-muted-foreground mb-2">No active syncs</h4>
-              <p className="text-xs text-muted-foreground">Select a platform above to start importing your products.</p>
-            </div>
-          </div>
-
-          {/* POS Integrations */}
-          <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-            <div className="flex items-start justify-between mb-8">
-              <div>
-                <h3 className="text-xl font-bold mb-1">Point of Sale (POS) Hub</h3>
-                <p className="text-muted-foreground text-sm">Bridge digital participation with in-store sales attribution.</p>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest">
-                <Smartphone className="w-3 h-3" /> Attribution Ready
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4">
-              {[
-                { name: "Square", logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Square_app_logo.png", color: "bg-black" },
-                { name: "QuickBooks", logo: "https://upload.wikimedia.org/wikipedia/commons/0/0d/QuickBooks_logo.svg", color: "bg-green-600" },
-                { name: "Aloha (NCR)", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a3/NCR_Corporation_logo.svg", color: "bg-red-600" },
-                { name: "NCB Jamaica", logo: "https://www.jncb.com/getmedia/5f1b2b3b-3b3b-4b3b-8b3b-3b3b3b3b3b3b/NCB-Logo.png", color: "bg-blue-800" },
-                { name: "Toast", logo: "https://pos.toasttab.com/hubfs/toast-logo-orange.svg", color: "bg-orange-500" },
-                { name: "Clover", logo: "https://www.clover.com/content/dam/clover/en_us/images/brand/logo.svg", color: "bg-emerald-500" }
-              ].map((pos) => (
-                <div key={pos.name} className="p-4 rounded-xl border border-border hover:shadow-md transition-all flex flex-col justify-between">
-                  <div className="h-6 mb-3 flex items-center overflow-hidden">
-                    <img src={pos.logo} alt={pos.name} className="h-full object-contain filter grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-                  </div>
-                  <Button variant="secondary" size="sm" className="w-full text-[10px] h-8">Authorize {pos.name}</Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/10">
-              <div className="flex items-center gap-2 mb-4">
-                <Smartphone className="w-4 h-4 text-primary" />
-                <h4 className="font-bold text-sm">How Attribution Works in Jamaica:</h4>
-              </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <p className="font-bold text-primary text-[10px] uppercase tracking-wider">1. Check-In</p>
-                  <p className="text-[11px] text-muted-foreground">User joins your moment via Promorang in-app.</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="font-bold text-primary text-[10px] uppercase tracking-wider">2. POS Match</p>
-                  <p className="text-[11px] text-muted-foreground">We match the transaction timestamp from your NCR/QuickBooks/Square system.</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="font-bold text-primary text-[10px] uppercase tracking-wider">3. Brand ROI</p>
-                  <p className="text-[11px] text-muted-foreground">We push verified ROI data to your Brand sponsors as hard proof.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <TabsContent value="integrations" className="mt-6">
+          <IntegrationsPanel />
         </TabsContent>
       </Tabs>
 
@@ -414,11 +222,11 @@ const MerchantDashboard = () => {
             <span className="text-sm">Add Venue</span>
           </Link>
         </Button>
-        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+        <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setActiveTab("products")}>
           <Package className="w-5 h-5" />
           <span className="text-sm">Products</span>
         </Button>
-        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
+        <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => setActiveTab("analytics")}>
           <Users className="w-5 h-5" />
           <span className="text-sm">Traffic</span>
         </Button>
