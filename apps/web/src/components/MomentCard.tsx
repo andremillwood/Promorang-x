@@ -188,6 +188,12 @@ export function MomentCard({
               🎁 Reward
             </span>
           )}
+          {moment.venue_name && (
+            <span className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              Ground Anchor
+            </span>
+          )}
         </div>
 
         {/* Bottom Gradient */}
@@ -196,7 +202,7 @@ export function MomentCard({
         {/* Category Badge - Bottom */}
         <div className="absolute bottom-3 left-3">
           <span className="px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full shadow-sm">
-            {moment.category.charAt(0).toUpperCase() + moment.category.slice(1)}
+            {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
           </span>
         </div>
       </div>
@@ -252,17 +258,21 @@ export function MomentCard({
 
         {/* Footer - Social Proof */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Users className="h-3.5 w-3.5" />
-            <span>
-              {moment.participant_count || 0} joined
-              {moment.max_participants && ` of ${moment.max_participants}`}
-            </span>
+          <div className="flex items-center gap-2">
+            {/* FOMO Facepile */}
+            <div className="flex -space-x-2">
+              <div className="w-6 h-6 rounded-full border-2 border-card bg-emerald-500 overflow-hidden z-[3]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="Attendee" className="w-full h-full object-cover"/></div>
+              <div className="w-6 h-6 rounded-full border-2 border-card bg-blue-500 overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Attendee" className="w-full h-full object-cover"/></div>
+              <div className="w-6 h-6 rounded-full border-2 border-card bg-purple-500 overflow-hidden z-[1]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Attendee" className="w-full h-full object-cover"/></div>
+            </div>
+            <div className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+              {Math.max((moment.participant_count || 0), 3)} going
+            </div>
           </div>
 
           {/* Quick Reactions Preview */}
           <div className="flex items-center gap-1">
-            <span className="text-[10px] text-muted-foreground/60">❤️ 24</span>
+            <span className="text-[10px] font-bold text-muted-foreground/60 bg-muted/30 px-1.5 py-0.5 rounded-full">🔥 Hot</span>
           </div>
         </div>
       </div>

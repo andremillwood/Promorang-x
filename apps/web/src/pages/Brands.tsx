@@ -64,69 +64,67 @@ const BrandsDirectory = () => {
     };
 
     return (
-        <DashboardLayout currentRole={primaryRole}>
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <DirectoryHeader
-                    title="Brand Directory"
-                    description="Discover brands powering activations and moments across the platform."
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    category={category}
-                    setCategory={setCategory}
-                    categories={BRAND_CATEGORIES}
-                    placeholder="Search brands by name..."
-                    onClearFilters={clearFilters}
-                    searchCategory="brand"
-                />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+            <DirectoryHeader
+                title="Brand Directory"
+                description="Discover brands powering activations and moments across the platform."
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                category={category}
+                setCategory={setCategory}
+                categories={BRAND_CATEGORIES}
+                placeholder="Search brands by name..."
+                onClearFilters={clearFilters}
+                searchCategory="brand"
+            />
 
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                        <p className="text-muted-foreground">Loading brand directory...</p>
-                    </div>
-                ) : brands && brands.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {brands.map((brand) => (
-                            <OrganizationCard
-                                key={brand.id}
-                                id={brand.id}
-                                name={brand.name}
-                                type="brand"
-                                logo={brand.logo_url}
-                                description={brand.description}
-                                category={brand.industry}
-                                verified={brand.verified_status === "verified"}
-                                website={brand.website_url}
-                                stats={[
-                                    {
-                                        label: "Campaigns",
-                                        value: brand.active_campaigns_count || 0,
-                                        icon: <Megaphone className="w-3 h-3" />
-                                    },
-                                    {
-                                        label: "Sponsored",
-                                        value: brand.successfully_sponsored_moments || 0,
-                                        icon: <Layout className="w-3 h-3" />
-                                    }
-                                ]}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
-                        <Megaphone className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                        <h3 className="text-lg font-medium">No brands found</h3>
-                        <p className="text-muted-foreground max-w-sm mx-auto mt-1">
-                            Try adjusting your search or category filters to find what you're looking for.
-                        </p>
-                        <Button variant="link" onClick={clearFilters} className="mt-4">
-                            Clear all filters
-                        </Button>
-                    </div>
-                )}
-            </div>
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+                    <p className="text-muted-foreground">Loading brand directory...</p>
+                </div>
+            ) : brands && brands.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {brands.map((brand) => (
+                        <OrganizationCard
+                            key={brand.id}
+                            id={brand.id}
+                            name={brand.name}
+                            type="brand"
+                            logo={brand.logo_url}
+                            description={brand.description}
+                            category={brand.industry}
+                            verified={brand.verified_status === "verified"}
+                            website={brand.website_url}
+                            stats={[
+                                {
+                                    label: "Campaigns",
+                                    value: brand.active_campaigns_count || 0,
+                                    icon: <Megaphone className="w-3 h-3" />
+                                },
+                                {
+                                    label: "Sponsored",
+                                    value: brand.successfully_sponsored_moments || 0,
+                                    icon: <Layout className="w-3 h-3" />
+                                }
+                            ]}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
+                    <Megaphone className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium">No brands found</h3>
+                    <p className="text-muted-foreground max-w-sm mx-auto mt-1">
+                        Try adjusting your search or category filters to find what you're looking for.
+                    </p>
+                    <Button variant="link" onClick={clearFilters} className="mt-4">
+                        Clear all filters
+                    </Button>
+                </div>
+            )}
             <ProductTour tourId="brand-directory" />
-        </DashboardLayout>
+        </div>
     );
 };
 

@@ -14,6 +14,7 @@ import {
   Target,
   DollarSign
 } from 'lucide-react';
+import FlashCreateBridge from '@/react-app/components/FlashCreateBridge';
 
 export default function AdvertiserOnboarding() {
   const { user } = useAuth();
@@ -55,23 +56,38 @@ export default function AdvertiserOnboarding() {
   };
 
   const tierBenefits = {
-    free: {
-      name: 'Free Advertiser',
-      color: 'text-gray-600 bg-gray-50 border-gray-200',
-      inventory: 'Monthly Sample: 50 moves, 5 proof drops',
-      features: ['Basic analytics', 'Standard support', 'Create proof drops only', 'Sponsor any content with gems']
+    starter: {
+      name: 'Hero Offer (100 Real People)',
+      color: 'text-orange-600 bg-orange-50 border-orange-200',
+      inventory: '5-Day Sprint: 100 Verified People',
+      features: [
+        '100 Real people interacting with your brand',
+        '10-20 UGC pieces created (optional)',
+        'Verified outcome dashboard',
+        'Perfect for first-time brand testing'
+      ]
+    },
+    growth: {
+      name: 'Customer Activation Campaign',
+      color: 'text-blue-600 bg-blue-50 border-blue-200', 
+      inventory: 'Engine: 500-1,000 Verified Actions',
+      features: [
+        'Targeted location-based activation',
+        'High-density UGC + Engagement mix',
+        'Advanced performance reporting',
+        'Repeatable engine for customer growth'
+      ]
     },
     premium: {
-      name: 'Premium Advertiser',
-      color: 'text-purple-600 bg-purple-50 border-purple-200', 
-      inventory: 'Weekly: 200 moves, 15 proof drops, 8 paid drops',
-      features: ['Advanced analytics', 'Priority support', 'Custom targeting', 'Create proof & paid drops', 'Sponsor content with gems']
-    },
-    super: {
-      name: 'Super Advertiser',
-      color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
-      inventory: 'Weekly: 500 moves, 25 proof drops, 15 paid drops',
-      features: ['Premium analytics', 'Priority support', 'Custom targeting', 'Advanced reporting', 'Create proof & paid drops', 'Sponsor content with gems']
+      name: 'Always-On Attention System',
+      color: 'text-purple-600 bg-purple-50 border-purple-200',
+      inventory: 'Dominance: 2,000+ Actions per Week',
+      features: [
+        'Continuous market presence',
+        'Dedicated strategic account manager',
+        'Priority matching with top creators',
+        'Omnichannel social blitz'
+      ]
     }
   };
 
@@ -124,9 +140,9 @@ export default function AdvertiserOnboarding() {
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                 <Target className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Moves & Proof System</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Verified Outcomes</h3>
               <p className="text-gray-600">
-                Create "moves" that help users earn keys for their Master Key progression, and "proof drops" that contribute to daily activation requirements.
+                Stop paying for vanity metrics. Our "Proof" system ensures that every action is verified by real people before you pay.
               </p>
             </div>
 
@@ -134,9 +150,9 @@ export default function AdvertiserOnboarding() {
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-6">
                 <BarChart3 className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Flexible Inventory System</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Outcome Inventory</h3>
               <p className="text-gray-600">
-                Start with free monthly samples, then upgrade to weekly inventory allocations for moves, proof drops, and paid opportunities.
+                Subscribe to weekly or monthly "Outcome Packs" that guarantee a fixed amount of attention and foot traffic to your brand.
               </p>
             </div>
 
@@ -144,9 +160,9 @@ export default function AdvertiserOnboarding() {
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
                 <DollarSign className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Gem Sponsorship System</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Scalable Sponsorship</h3>
               <p className="text-gray-600">
-                All advertisers can allocate gems to sponsor any content, boosting visibility and engagement regardless of tier level.
+                Allocate hard earnings to sponsor trending content, instantly turning high-performing organic posts into paid media.
               </p>
             </div>
           </div>
@@ -251,6 +267,11 @@ export default function AdvertiserOnboarding() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* FlashCreate Bridge for Managed Services */}
+        <div className="mb-16 max-w-2xl mx-auto">
+          <FlashCreateBridge context="onboarding" className="shadow-xl" />
         </div>
 
         {/* CTA Section */}

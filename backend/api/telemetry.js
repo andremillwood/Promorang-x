@@ -33,7 +33,7 @@ async function flushQueue() {
     ip: event.ip || null,
   }));
 
-  const { error } = await supabase.from('telemetry.events').insert(rows);
+  const { error } = await supabase.from('telemetry_events').insert(rows);
 
   if (error) {
     console.error('[telemetry.flush] insert failed:', error);

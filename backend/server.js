@@ -22,7 +22,11 @@ app.use((req, res, next) => {
     'http://127.0.0.1:5173',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
-    process.env.FRONTEND_URL
+    'https://promorang.co',
+    'https://www.promorang.co',
+    'https://promorang-alt.vercel.app',
+    process.env.FRONTEND_URL,
+    ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : [])
   ].filter(Boolean);
 
   const origin = req.headers.origin;
@@ -114,6 +118,8 @@ app.use('/api/coupons', require('./api/coupons'));
 app.use('/api/notifications', require('./api/notifications'));
 app.use('/api/referrals', require('./api/referrals'));
 app.use('/api/activations', require('./api/activations'));
+app.use('/api/integrations', require('./api/integrations'));
+app.use('/api/ami', require('./api/ami'));
 app.use('/api/search', require('./api/search'));
 app.use('/api/matchmaking', require('./api/matchmaking'));
 app.use('/api/operator', require('./api/operator'));
@@ -141,7 +147,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'promorang-api-dev'
+    service: 'promorang-api-prod'
   });
 });
 

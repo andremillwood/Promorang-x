@@ -4,84 +4,44 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   Sparkles,
-  Calendar,
-  BarChart3,
-  QrCode,
-  Gift,
-  Check,
+  TrendingUp,
   ArrowRight,
+  Flame,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
-
-const features = [
-  {
-    icon: Calendar,
-    title: "Easy Event Creation",
-    description:
-      "Create moments in minutes with our intuitive wizard. Add images, set capacity, define rewards, and publish.",
-  },
-  {
-    icon: Users,
-    title: "Participant Management",
-    description:
-      "Track RSVPs, manage check-ins, and engage with your community before, during, and after events.",
-  },
-  {
-    icon: QrCode,
-    title: "QR Check-In System",
-    description:
-      "Auto-generated QR codes for seamless check-ins. Verify attendance and trigger rewards automatically.",
-  },
-  {
-    icon: Gift,
-    title: "Built-In Rewards",
-    description:
-      "Incentivize participation with discounts, freebies, and exclusive access. Keep your community engaged.",
-  },
-  {
-    icon: BarChart3,
-    title: "Rich Analytics",
-    description:
-      "Understand your community with participation trends, engagement metrics, and growth insights.",
-  },
-  {
-    icon: Sparkles,
-    title: "Brand Partnerships",
-    description:
-      "Attract sponsors who want to support your community. Earn from sponsorships while keeping events authentic.",
-  },
-];
 
 const pricingTiers = [
   {
-    name: "The Founder's Pass",
-    price: "$0",
-    period: "forever",
-    description: "Launch in 5 minutes with proven event templates.",
+    name: "The Host's Path",
+    price: "Earned",
+    period: "through action",
+    description: "Build trust. Grow your reputation. Unlock the Vault.",
     features: [
-      "Run Unlimited Moments & Gatherings",
-      "Build a Continuous Verified Record",
-      "Earn Community Reputation (Trust Index)",
-      "Collect Participation Proof (PoW)",
-      "Access to Local Brand Bounties",
-      "0% Platform Fee on Free Events",
+      "Create Unlimited Moments & Gatherings",
+      "Build a Verified Social History",
+      "Progress through Community Levels",
+      "Link Socials for Sharing Bonuses",
+      "Redeem Gratitude in the Private Vault",
+      "0% Fee on community-funded events",
     ],
-    cta: "Start Building Record",
+    cta: "Start Your Journey",
     popular: true,
   },
   {
-    name: "Syndicate Operator",
+    name: "Community Leader",
     price: "Apply",
-    period: "",
-    description: "For city-scale operators and community leaders.",
+    period: "for credentials",
+    description: "For city-wide leaders and community organizers.",
     features: [
-      "City-Exclusive Bounty Distribution",
-      "Priority Verification SLA (1-hour)",
-      "Dedicated Brand Partner Broker",
-      "Multi-Hosting Command Center",
+      "Orchestrate Large-Scale Moments",
+      "Priority Support & Verification",
+      "Direct Brand Partnership Services",
+      "Manage Multiple Partner Venues",
       "Revenue Share on Community Growth",
-      "Custom Reward Structures",
+      "Private Custom Rewards",
     ],
-    cta: "Request Invitation",
+    cta: "Request Invite",
     popular: false,
   },
 ];
@@ -90,165 +50,154 @@ const ForCommunities = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Promorang for Communities - Host Events & Gatherings"
-        description="Gather your people. Create magic. Tools for community hosts to organize events, manage RSVPs, and build lasting connections."
+        title="Promorang for Communities - The Art of Hosting"
+        description="Create the moments that define your niche. Build your reputation, unlock sharing bonuses, and enter the private Vault."
         type="website"
       />
 
-
       {/* Hero Section */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-hero">
-        <div className="container px-6">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-charcoal relative overflow-hidden text-white border-b border-white/5">
+        <div className="absolute inset-0 bg-primary/5 blur-[120px] rounded-full -top-12 -right-12" />
+        <div className="container px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 mb-8">
               <Users className="w-4 h-4" />
-              <span className="text-sm font-medium">The Host Economy</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">The Community Economy</span>
             </div>
 
-            <h1 className="font-serif text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Build a Record. <br />
-              <span className="text-gradient-primary">Scale What Works.</span>
+            <h1 className="font-serif text-4xl md:text-7xl font-bold mb-6 italic">
+              Grow Your <span className="text-primary italic">Reputation.</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Create Community Moments for free. Claim Bounties from brands.
-              Build a verified execution record. Payment unlocks scale, not basic ability.
+            <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Hosting moments is the heartbeat of any community. By consistently 
+              bringing people together, you build a verified history that increases 
+              your community level—unlocking sharing bonuses and the private 
+              rewards of the **Vault.**
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" asChild>
                 <Link to="/propose">
-                  Pitch Your Moment
+                  Start Hosting Moments
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/auth">Start Hosting Free</Link>
+              <Button variant="outline" className="text-white border-white/20 hover:bg-white/5" size="lg" asChild>
+                <Link to="/discover">See what's happening</Link>
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 md:py-32">
+      {/* The Community Level Section */}
+      <section className="py-24 bg-background border-b border-border">
         <div className="container px-6">
-          <div className="max-w-2xl mx-auto text-center mb-16">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Everything you need to host magic
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              From automated check-ins to brand funding—we provide the stack.
-              You provide the energy.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg transition-shadow"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground text-lg mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 md:py-32 bg-gradient-warm">
-        <div className="container px-6">
-          <div className="max-w-2xl mx-auto text-center mb-16">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Earn Your Way In. Pay to Go Faster.
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 italic">
+              Your <span className="text-primary">Community Level.</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Start free. Build your execution record. Scale when you're ready.
+              Your journey from a new face to a community leader is recognized 
+              with care and rewarded with exclusive perks.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {pricingTiers.map((tier, index) => (
-              <div
-                key={index}
-                className={`relative bg-card rounded-2xl p-8 border ${tier.popular
-                  ? "border-primary shadow-xl scale-105"
-                  : "border-border"
-                  }`}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="text-center mb-6">
-                  <h3 className="font-semibold text-foreground text-xl mb-2">
-                    {tier.name}
-                  </h3>
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="font-serif text-4xl font-bold text-foreground">
-                      {tier.price}
-                    </span>
-                    <span className="text-muted-foreground">{tier.period}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {tier.description}
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { name: "Seeker", desc: "The start of your journey.", icon: Sparkles, color: "text-slate-400" },
+              { name: "Herald", desc: "A trusted voice in the community.", icon: Flame, color: "text-orange-500" },
+              { name: "Luminary", desc: "A leader known for consistency.", icon: TrendingUp, color: "text-amber-500" },
+              { name: "Eminence", desc: "A pillar of the local scene.", icon: ShieldCheck, color: "text-primary" },
+            ].map((tier, i) => (
+              <div key={i} className="p-8 bg-card border border-border rounded-[2.5rem] text-center hover:border-primary/40 transition-all group">
+                <div className={`w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-6 ${tier.color} group-hover:scale-110 transition-transform`}>
+                  <tier.icon className="w-6 h-6" />
                 </div>
-
-                <ul className="space-y-3 mb-8">
-                  {tier.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm">
-                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-foreground">{feature}</span>
-                    </li>
+                <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{tier.desc}</p>
+                <div className="mt-6 pt-6 border-t border-border flex justify-center gap-1">
+                  {Array.from({ length: i + 1 }).map((_, j) => (
+                    <div key={j} className={`w-1.5 h-1.5 rounded-full ${tier.color} opacity-60`} />
                   ))}
-                </ul>
-
-                <Button
-                  variant={tier.popular ? "hero" : "outline"}
-                  className="w-full"
-                  asChild
-                >
-                  <Link to="/auth">{tier.cta}</Link>
-                </Button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 md:py-32 bg-charcoal text-cream">
-        <div className="container px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
-              Ready to bring your community together?
-            </h2>
-            <p className="text-cream/70 text-lg mb-8">
-              Join thousands of hosts creating meaningful experiences every day.
-            </p>
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/auth">
-                Create Your First Moment
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
+      {/* Sharing Boost Section */}
+      <section className="py-24 bg-charcoal text-white overflow-hidden relative">
+        <div className="container px-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6 font-black uppercase tracking-widest text-[10px]">
+                <Zap className="w-3 h-3" />
+                The Sharing Bonus
+              </div>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 italic">
+                Your Reach is <span className="text-primary italic">Impact.</span>
+              </h2>
+              <p className="text-lg text-white/60 mb-8 leading-relaxed">
+                We believe your social presence is a gift to the community. Link your 
+                accounts to unlock **Sharing Bonuses** that help you progress faster 
+                through the community levels.
+              </p>
+              <div className="space-y-4">
+                {[
+                  { tier: "Whisper", reach: "500+", boost: "1.1x" },
+                  { tier: "Echo", reach: "2k+", boost: "1.25x" },
+                  { tier: "Thunder", reach: "10k+", boost: "1.5x" },
+                  { tier: "Tempest", reach: "50k+", boost: "2.0x" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <span className="font-bold">{item.tier} <span className="text-white/40 font-normal ml-2">({item.reach} Followers)</span></span>
+                    <span className="text-primary font-black">{item.boost} Bonus</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full" />
+              <div className="relative bg-white/5 p-12 rounded-[3rem] border border-white/10 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                  <TrendingUp className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-2xl font-serif font-bold italic mb-4">The Vault Awaits</h3>
+                <p className="text-sm text-white/40 leading-relaxed mb-8">
+                  Highly active community members gain exclusive access to premium rewards 
+                  funded by our brand partners—from special gifts to unforgettable experiences.
+                </p>
+                <Button variant="hero" size="lg" className="w-full" asChild>
+                  <Link to="/auth">Check Your Community Level</Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-
+      {/* Final CTA */}
+      <section className="py-24 bg-background border-t border-border">
+        <div className="container px-6 text-center max-w-3xl mx-auto">
+          <h2 className="font-serif text-3xl md:text-5xl font-bold mb-8 italic">
+            Ready to <span className="text-primary italic">Bring People Together?</span>
+          </h2>
+          <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
+            Join a network of people creating meaningful, real-life experiences 
+            in their local communities.
+          </p>
+          <Button variant="hero" size="xl" asChild>
+            <Link to="/propose">
+              Create Your First Moment
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 };

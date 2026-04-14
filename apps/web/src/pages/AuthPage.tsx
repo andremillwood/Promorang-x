@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import logo from "@/assets/promorang-logo.png";
+import logo from "@/assets/promorang-logo-full.png";
 import { z } from "zod";
 
 type UserRole = "participant" | "host" | "brand" | "merchant";
@@ -194,8 +194,8 @@ const AuthPage = () => {
                       type="button"
                       onClick={() => setSelectedRole(role)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${selectedRole === role
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
                         }`}
                     >
                       <info.icon className={`w-5 h-5 mb-2 ${selectedRole === role ? "text-primary" : "text-muted-foreground"

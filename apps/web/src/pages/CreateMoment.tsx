@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import DashboardLayout from "@/components/DashboardLayout";
 import { ArrowLeft, ArrowRight, Calendar, MapPin, Users, Gift, Check, Image, Eye, Lock, UserPlus, Sparkles } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { MatchmakingSuggestions } from "@/components/matchmaking/MatchmakingSuggestions";

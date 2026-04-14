@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import logo from "@/assets/promorang-logo.png";
+import logo from "@/assets/promorang-logo-full.png";
 
 const footerLinks = {
   discover: [
@@ -14,8 +14,9 @@ const footerLinks = {
   create: [
     { label: "For Brands", href: "/for-brands" },
     { label: "For Merchants", href: "/for-merchants" },
-    { label: "For Communities", href: "/for-communities" },
-    { label: "Pricing", href: "/for-communities#pricing" },
+    { label: "For Agencies", href: "/for-agencies" },
+    { label: "For Hosts", href: "/host" },
+    { label: "Pricing", href: "/pricing" },
   ],
   company: [
     { label: "About", href: "/" },

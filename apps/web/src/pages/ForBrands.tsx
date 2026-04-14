@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { StandingLeaderboard } from "@/components/StandingLeaderboard";
 import {
     Building2,
     Handshake,
@@ -9,7 +12,12 @@ import {
     Users,
     ArrowRight,
     Sparkles,
+    Search,
+    ShieldCheck,
+    Zap
 } from "lucide-react";
+
+import { BrandEstimator } from "@/components/brand/BrandEstimator";
 
 const sponsorshipBenefits = [
     {
@@ -32,9 +40,15 @@ const sponsorshipBenefits = [
     },
     {
         icon: BarChart3,
-        title: "Outcome ROI",
+        title: "Community Pulse",
         description:
-            "Track cost-per-redemption and cost-per-action. Pay for movement, not just eyeballs.",
+            "Understand what truly moves people. Explore the stories that resonate across the platform before you fund your next moment.",
+    },
+    {
+        icon: ShieldCheck,
+        title: "Real Impact",
+        description:
+            "Track the journey from discovery to action. Celebrate verified stories and physical gatherings that you made possible.",
     },
 ];
 
@@ -46,6 +60,7 @@ const stats = [
 ];
 
 const ForBrands = () => {
+    const { user } = useAuth();
     return (
         <div className="min-h-screen bg-background">
             <SEO
@@ -64,13 +79,14 @@ const ForBrands = () => {
                         </div>
 
                         <h1 className="font-serif text-4xl md:text-6xl font-bold text-foreground mb-6">
-                            Fund Moments. <br />
-                            <span className="text-gradient-primary">Get Verified Outcomes.</span>
+                            The Activation Layer for <br />
+                            <span className="text-gradient-primary">Real-World Sponsorship.</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-                            No subscriptions. Pay per Moment. Promorang infrastructure allows you to
-                            fund real-world activations with surgical precision and verified proof.
+                            Stop guessing. Promorang helps you **Discover the pulse** of 
+                            real-world communities. Fund moments that matter, support 
+                            physical gathering spots, and see the real proof of your impact.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -81,7 +97,11 @@ const ForBrands = () => {
                                 </a>
                             </Button>
                             <Button variant="outline" size="lg" asChild>
-                                <Link to="/auth">Partner With Us</Link>
+                                {user ? (
+                                    <Link to="/onboarding/brand">Enable Brand Dashboard</Link>
+                                ) : (
+                                    <Link to="/auth">Partner With Us</Link>
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -99,13 +119,14 @@ const ForBrands = () => {
                             </div>
 
                             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-                                Stop Interrupting. <br />
-                                Start Participating.
+                                Stop Paying for "Impressions." <br />
+                                Start Paying for Verified Action.
                             </h2>
 
                             <p className="text-lg text-muted-foreground mb-8">
-                                Promorang yields verified participation data. No more guessing if your
-                                ad spend actually moved the needle.
+                                Already sponsoring Carnival or a local festival? Use Promorang to guarantee 
+                                people actually interact with your brand. Instantly generate an automated 
+                                ROI recap to justify your spend.
                             </p>
 
                             <div className="space-y-4 mb-8">
@@ -131,37 +152,37 @@ const ForBrands = () => {
                             </Button>
                         </div>
 
-                        {/* Visual */}
+                        {/* Community Pulse Preview */}
                         <div className="relative">
-                            <div className="bg-card rounded-2xl border border-border p-6 shadow-elevated">
-                                <h4 className="font-semibold text-foreground mb-4">
-                                    Sponsorship Marketplace
-                                </h4>
-                                <div className="space-y-4">
-                                    {[
-                                        { title: "Sunrise Yoga", category: "Wellness", participants: 45, bid: "$250" },
-                                        { title: "Food Festival", category: "Food & Drink", participants: 234, bid: "$500" },
-                                        { title: "Art Workshop", category: "Creative", participants: 15, bid: "$150" },
-                                    ].map((moment, i) => (
-                                        <div
-                                            key={i}
-                                            className="flex items-center justify-between p-4 bg-secondary rounded-xl"
-                                        >
-                                            <div>
-                                                <p className="font-medium text-foreground">{moment.title}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {moment.category} • {moment.participants} participants
-                                                </p>
+                            <div className="bg-charcoal rounded-3xl p-8 border border-white/10 shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/30 transition-colors" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h4 className="font-serif text-xl font-bold text-white italic">Community Pulse</h4>
+                                        <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">Live Feed</Badge>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {[
+                                            { title: "Yoga in the Park", yield: "84%", cost: "Active", velocity: "Heartfelt" },
+                                            { title: "Craft Coffee Tour", yield: "92%", cost: "Active", velocity: "Vibrant" },
+                                        ].map((intel, i) => (
+                                            <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs font-bold text-white">{intel.title}</p>
+                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Status: {intel.cost}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-xs font-black text-primary">{intel.yield} Verified</p>
+                                                    <p className="text-[9px] text-white/20 uppercase font-black">{intel.velocity}</p>
+                                                </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold text-primary">{moment.bid}</p>
-                                                <p className="text-xs text-muted-foreground">suggested</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+                                    <div className="mt-8 p-4 bg-primary/10 rounded-xl border border-primary/20 text-center">
+                                        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Real stories unfold every day</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="absolute -top-4 -right-4 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
                         </div>
                     </div>
                 </div>
@@ -312,6 +333,136 @@ const ForBrands = () => {
                 </div>
             </section>
 
+            {/* Reward Catalyst Section */}
+            <section id="catalyst" className="py-24 bg-charcoal relative overflow-hidden border-y border-white/5">
+                <div className="container px-6 relative z-10">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-[10px] font-black uppercase tracking-widest mb-6">
+                            <Zap className="w-3 h-3" />
+                            Industry Reward Playbooks
+                        </div>
+                        <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-6 italic">
+                            Fueling <span className="text-primary">Community Gratitude.</span>
+                        </h2>
+                        <p className="text-white/60 text-lg">
+                            Each industry has unique ways to reward standing. Use these playbooks 
+                            to turn your specific products or services into elite community keys.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            {
+                                industry: "Food & Beverage",
+                                description: "Hospitality and taste-makers.",
+                                idea: "Founder's Table",
+                                ideaDesc: "Reserved seating and off-menu items for Eminence participants.",
+                                icon: Zap,
+                            },
+                            {
+                                industry: "Luxury & Retail",
+                                description: "Physical goods and limited drops.",
+                                idea: "Archive Access",
+                                ideaDesc: "Early access or 'Item #001' of the next collection for Luminaries.",
+                                icon: Sparkles,
+                            },
+                            {
+                                industry: "Professional Services",
+                                description: "Expertise and priority access.",
+                                idea: "Priority Standing",
+                                ideaDesc: "Skip-the-line support and private consulting for top storytellers.",
+                                icon: ShieldCheck,
+                            },
+                            {
+                                industry: "Digital & SaaS",
+                                description: "Platforms and remote tools.",
+                                idea: "Legacy Features",
+                                ideaDesc: "Permanent feature unlocks and 'Founding Member' status badges.",
+                                icon: Target,
+                            }
+                        ].map((category, i) => (
+                            <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white/10 transition-all group">
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
+                                    <category.icon className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-1">{category.industry}</h3>
+                                <p className="text-xs text-white/40 mb-6">{category.description}</p>
+                                <div className="pt-6 border-t border-white/10">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 italic">{category.idea}</p>
+                                    <p className="text-xs text-white/60 leading-relaxed">{category.ideaDesc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Echo Potential Section */}
+            <section className="py-24 bg-background border-b border-border">
+                <div className="container px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary/10 rounded-[3rem] blur-3xl" />
+                            <div className="relative bg-card rounded-[3rem] border border-border p-12 overflow-hidden">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                            <Sparkles className="w-5 h-5 text-blue-500" />
+                                        </div>
+                                        <h4 className="font-bold text-lg">Echo Potential</h4>
+                                    </div>
+                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Verified Reach</Badge>
+                                </div>
+                                <div className="space-y-6">
+                                    <div className="p-4 bg-muted/50 rounded-2xl border border-border">
+                                        <div className="flex justify-between mb-2">
+                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Resonance Standing</span>
+                                            <span className="text-xs font-black text-primary">1.25x Boost</span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                            <div className="w-[85%] h-full bg-primary" />
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-center text-muted-foreground italic">
+                                        "When an Eminence participant shares a story, it echoes to 50,000+ verified niche followers."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
+                                <Users className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">The Echo Effect</span>
+                            </div>
+                            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
+                                Fund the <span className="text-primary italic">Amplifiers.</span>
+                            </h2>
+                            <p className="text-lg text-muted-foreground mb-8">
+                                Our community members are more than attendees—they are verified amplifiers. 
+                                We track **Echo Potential** by correlating platform Standing with real-world 
+                                reach (Instagram, Twitter, and more).
+                            </p>
+                            <div className="space-y-4">
+                                {[
+                                    { title: "Discovery Bonus", desc: "Automatic points for connecting verified social capital." },
+                                    { title: "Resonance Multipliers", desc: "Higher standing for participants with proven community reach." },
+                                    { title: "Brand ROI Recaps", desc: "Instant reports on how far your funded moment traveled." },
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                                        <div>
+                                            <h4 className="font-bold text-foreground text-sm">{item.title}</h4>
+                                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className="py-20 md:py-32 bg-charcoal text-cream">
                 <div className="container px-6">
@@ -324,10 +475,17 @@ const ForBrands = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
-                                <Link to="/auth">
-                                    Partner with Us
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                </Link>
+                                {user ? (
+                                    <Link to="/onboarding/brand">
+                                        Enable Brand Dashboard
+                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                    </Link>
+                                ) : (
+                                    <Link to="/auth">
+                                        Partner with Us
+                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                    </Link>
+                                )}
                             </Button>
                             <Button variant="outline" size="lg" className="border-cream/30 text-cream hover:bg-cream/10" asChild>
                                 <Link to="/strategies">View Moment Catalog</Link>
@@ -336,6 +494,7 @@ const ForBrands = () => {
                     </div>
                 </div>
             </section>
+            <StandingLeaderboard />
         </div>
     );
 };

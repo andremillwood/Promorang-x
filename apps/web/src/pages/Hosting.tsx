@@ -109,31 +109,29 @@ const Hosting = () => {
             <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-hero">
                 <div className="container px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-8 animate-fade-in">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent mb-8 animate-fade-in shadow-sm">
                             <Sparkles className="w-4 h-4" />
-                            <span className="text-sm font-medium">For Creators & Community Leaders</span>
+                            <span className="text-sm font-bold uppercase tracking-wide">The Digital Land Grab</span>
                         </div>
 
-                        <h1 className="font-serif text-4xl md:text-6xl font-bold text-foreground mb-6 animate-slide-up">
-                            Gather your people.{" "}
-                            <span className="text-gradient-primary">Create magic.</span>
+                        <h1 className="font-serif text-4xl md:text-6xl font-black text-foreground mb-6 animate-slide-up leading-tight">
+                            Become the Mayor. <br className="hidden md:block"/>
+                            <span className="text-gradient-primary">Own your niche.</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-                            Whether you're organizing yoga sessions, book clubs, or neighborhood
-                            meetups—Promorang gives you the tools to bring people together and
-                            build lasting connections.
+                            Build your verified audience on Promorang today as a Founding Host. When major sponsors come to your city looking for fitness, art, or nightlife audiences, we route them directly to YOU. Build true equity in your community.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-                            <Button variant="hero" size="xl" asChild>
-                                <Link to="/create-moment">
-                                    Start Hosting
+                            <Button variant="hero" size="xl" className="font-bold shadow-glow" asChild>
+                                <Link to="/auth?role=host">
+                                    Claim Your Niche
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
                             </Button>
-                            <Button variant="outline" size="lg" asChild>
-                                <Link to="/discover">See Examples</Link>
+                            <Button variant="outline" size="lg" className="border-border/50 text-foreground" asChild>
+                                <Link to="/discover">View Early Adopters</Link>
                             </Button>
                         </div>
                     </div>
@@ -239,18 +237,21 @@ const Hosting = () => {
 
             {/* CTA Section */}
             <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
-                <div className="absolute inset-0 bg-primary/5"></div>
+                <div className="absolute inset-0 bg-accent/5"></div>
                 <div className="container px-6 relative z-10">
                     <div className="max-w-3xl mx-auto text-center">
+                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-white/5 border border-white/10 mb-6">
+                            <Users className="w-8 h-8 text-accent" />
+                        </div>
                         <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-foreground">
-                            Ready to bring your community together?
+                            Ready to lock in your Founding Host status?
                         </h2>
                         <p className="text-muted-foreground text-lg mb-8">
-                            Join thousands of hosts creating meaningful experiences every day.
+                            Early adopters get permanent profile badges and priority matchmaking for brand sponsorships.
                         </p>
                         <Button variant="hero" size="xl" asChild>
-                            <Link to="/create-moment">
-                                Create Your First Moment
+                            <Link to="/auth?role=host">
+                                Become a Founding Host
                                 <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>
                         </Button>

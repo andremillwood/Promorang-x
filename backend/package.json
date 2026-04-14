@@ -14,7 +14,10 @@
     "type-check": "tsc --noEmit",
     "logs": "vercel logs --follow",
     "create-demo-users": "ts-node -r dotenv/config scripts/createDemoUsers.ts",
-    "seed-products": "node -r dotenv/config scripts/seed-demo-products.js"
+    "seed-products": "node -r dotenv/config scripts/seed-demo-products.js",
+    "seed-vectors": "node scripts/seedVectorIndex.js",
+    "test:vectors": "node scripts/testVectorSearch.js",
+    "setup:vector-bucket": "node scripts/setupVectorBucket.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",

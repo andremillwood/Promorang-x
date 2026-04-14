@@ -46,7 +46,7 @@ export function PointsOverview() {
       <div className="bg-gradient-primary rounded-2xl p-6 text-primary-foreground">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-primary-foreground/70 text-sm">Total PromoPoints</p>
+            <p className="text-primary-foreground/70 text-sm">Total Gratitude Earned</p>
             <p className="text-4xl font-bold">{stats?.totalCurrent.toLocaleString() || 0}</p>
           </div>
           <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center">
@@ -63,8 +63,8 @@ export function PointsOverview() {
             <span className="font-semibold">{stats?.brandCount || 0}</span>
           </div>
           {stats?.highestTier && (
-            <Badge className={tierColors[stats.highestTier]}>
-              {stats.highestTier.charAt(0).toUpperCase() + stats.highestTier.slice(1)}
+            <Badge className={tierColors[stats.highestTier as keyof typeof tierColors] || tierColors.bronze}>
+              {(stats.highestTier || "bronze").charAt(0).toUpperCase() + (stats.highestTier || "bronze").slice(1)}
             </Badge>
           )}
         </div>
@@ -73,7 +73,7 @@ export function PointsOverview() {
       {/* Brand Wallets */}
       {brandPoints && brandPoints.length > 0 ? (
         <div>
-          <h3 className="font-semibold text-foreground mb-3">Your Brand Wallets</h3>
+          <h3 className="font-semibold text-foreground mb-3">Your Brand Legacies</h3>
           <div className="grid gap-3">
             {brandPoints.map((bp) => (
               <div
@@ -106,6 +106,50 @@ export function PointsOverview() {
           <p className="text-sm text-muted-foreground">Join and attend moments to start earning PromoPoints</p>
         </div>
       )}
+
+      {/* Resonance Boost / Echo Potential CTA */}
+      <div className="bg-charcoal rounded-2xl p-6 border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all cursor-pointer">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-white italic">Reveal Your Echo Potential</h3>
+              <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Resonance Standing</p>
+            </div>
+          </div>
+          <p className="text-sm text-white/60 mb-4 leading-relaxed">
+            Link your Instagram to calculate your **Echo Potential**. Verified reach 
+            grants a standing multiplier and unlocks exclusive Vault rewards.
+          </p>
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="border-primary/20 text-primary text-[9px] uppercase font-black tracking-widest bg-primary/5">
+              +500 Gratitude Discovery Bonus
+            </Badge>
+            <div className="flex items-center gap-1 text-[10px] font-bold text-white uppercase tracking-tighter">
+              Verify Reach
+              <Star className="w-3 h-3 text-primary" />
+            </div>
+          </div>
+          
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { name: "Whisper", reach: "500+", boost: "1.1x" },
+              { name: "Echo", reach: "2k+", boost: "1.25x" },
+              { name: "Thunder", reach: "10k+", boost: "1.5x" },
+              { name: "Tempest", reach: "50k+", boost: "2.0x" },
+            ].map(tier => (
+              <div key={tier.name} className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                <p className="text-[10px] font-black uppercase tracking-tighter text-primary/60 mb-0.5">{tier.name}</p>
+                <p className="text-sm font-bold text-white">{tier.boost}</p>
+                <p className="text-[8px] text-white/30 uppercase tracking-widest">{tier.reach} Reach</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

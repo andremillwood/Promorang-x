@@ -2,8 +2,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Building2, Store, Users, Map } from "lucide-react";
 import { useCreateUserPreferences, UserPreferencesInput } from "@/hooks/useUserPreferences";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CATEGORIES = [
   { value: "social", label: "Social Gatherings", emoji: "🎉" },
@@ -57,10 +58,17 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     state: "",
     location_sharing_enabled: false,
   });
+  const [persona, setPersona] = useState<"explorer" | "mayor" | "agency" | null>(null);
 
+  const { setActiveRole, roles } = useAuth();
   const createPreferences = useCreateUserPreferences();
 
   const steps = [
+    {
+        title: "Choose Your Path",
+        subtitle: "How will you use Promorang?",
+        icon: <User className="w-6 h-6" />,
+    },
     {
       title: "What moments interest you?",
       subtitle: "Select categories you'd like to explore",
@@ -97,7 +105,13 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
   const handleNext = async () => {
     if (step < steps.length - 1) {
-      setStep(step + 1);
+      if (step === 0 && persona === "agency") {
+          // Agencies go straight to city/location or direct to dashboard? 
+          // Let's at least get their location then finish.
+          setStep(4); 
+      } else {
+        setStep(step + 1);
+      }
     } else {
       // Complete onboarding
       await createPreferences.mutateAsync(preferences);
@@ -114,12 +128,14 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const canProceed = () => {
     switch (step) {
       case 0:
-        return (preferences.preferred_categories?.length ?? 0) > 0;
+        return persona !== null;
       case 1:
-        return (preferences.lifestyle_tags?.length ?? 0) > 0;
+        return (preferences.preferred_categories?.length ?? 0) > 0;
       case 2:
-        return (preferences.preferred_times?.length ?? 0) > 0;
+        return (preferences.lifestyle_tags?.length ?? 0) > 0;
       case 3:
+        return (preferences.preferred_times?.length ?? 0) > 0;
+      case 4:
         return true; // Location is optional
       default:
         return false;
@@ -178,6 +194,70 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
               {/* Step Content */}
               {step === 0 && (
+                  <div className="grid grid-cols-1 gap-4">
+                      <button
+                        onClick={() => {
+                            setPersona("explorer");
+                            setActiveRole("participant");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "explorer"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shrink-0">
+                            <Gamepad2 className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Explorer</h3>
+                            <p className="text-sm text-muted-foreground">Find local moments, complete unique challenges, and earn verified rewards.</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                            setPersona("mayor");
+                            setActiveRole("host");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "mayor"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+                            <Users className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Mayor</h3>
+                            <p className="text-sm text-muted-foreground">Own your local niche. Host gatherings, build community equity, and attract sponsors.</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                            setPersona("agency");
+                            setActiveRole("brand");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "agency"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                            <Building2 className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Agency</h3>
+                            <p className="text-sm text-muted-foreground">Manage client ROI. Launch marketing campaigns, verify proof-of-work, and scale impact.</p>
+                        </div>
+                      </button>
+                  </div>
+              )}
+
+              {step === 1 && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {CATEGORIES.map((category) => (
                     <button
@@ -196,7 +276,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                 </div>
               )}
 
-              {step === 1 && (
+              {step === 2 && (
                 <div className="space-y-6">
                   {/* Lifestyle Tags */}
                   <div>
@@ -250,7 +330,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                 </div>
               )}
 
-              {step === 2 && (
+              {step === 3 && (
                 <div className="grid grid-cols-2 gap-4">
                   {PREFERRED_TIMES.map((time) => (
                     <button
@@ -269,7 +349,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <div className="space-y-6">
                   {/* Location sharing */}
                   <div className="text-center">

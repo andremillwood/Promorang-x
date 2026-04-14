@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, Users, Plus, TrendingUp, Eye, MoreVertical, Handshake, Camera, Coins, Sparkles, CreditCard } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,20 +10,28 @@ import { useHostEconomy } from "@/hooks/useStakeholderEconomy";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format, isPast, isFuture } from "date-fns";
 import { WalletTab } from "./host/WalletTab";
+import { HostSponsorshipRequests } from "@/components/host/SponsorshipRequests";
+import { SponsorshipPitchModal } from "@/components/host/SponsorshipPitchModal";
+import { CommunityImpactMatrix } from "@/components/host/CommunityImpactMatrix";
+import { HostLoyaltyBuilder } from "@/components/host/HostLoyaltyBuilder";
+import { GrantPointsModal } from "@/components/host/GrantPointsModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { HostSponsorshipRequests } from "@/components/host/SponsorshipRequests";
 
 const HostDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const { data: stats, isLoading: statsLoading } = useHostStats();
   const { data: economy, isLoading: economyLoading } = useHostEconomy();
-  const [activeTab, setActiveTab] = useState("moments");
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "moments";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [showAllMoments, setShowAllMoments] = useState(false);
 
   const upcomingMoments = hostedMoments?.filter(
     (m) => isFuture(new Date(m.starts_at)) && m.is_active
@@ -44,12 +53,16 @@ const HostDashboard = () => {
             Welcome back, {user?.user_metadata?.full_name?.split(" ")[0] || "Curator"} — where your moments become memories.
           </p>
         </div>
-        <Button variant="hero" asChild>
-          <Link to="/create-moment">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Moment
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <GrantPointsModal />
+          <SponsorshipPitchModal />
+          <Button variant="hero" asChild>
+            <Link to="/create-moment">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Moment
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -80,20 +93,24 @@ const HostDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="moments" className="gap-2">
+        <TabsList className="grid w-full max-w-xl grid-cols-5">
+          <TabsTrigger value="moments" className="gap-2 text-[11px] font-bold">
             <Calendar className="w-4 h-4" />
-            My Moments
+            Moments
           </TabsTrigger>
-          <TabsTrigger value="sponsorships" className="gap-2">
+          <TabsTrigger value="sponsorships" className="gap-2 text-[11px] font-bold">
             <Handshake className="w-4 h-4" />
             Sponsorships
           </TabsTrigger>
-          <TabsTrigger value="ugc" className="gap-2">
-            <Camera className="w-4 h-4" />
-            Photos & Notes
+          <TabsTrigger value="community" className="gap-2 text-[11px] font-bold">
+            <TrendingUp className="w-4 h-4" />
+            Impact
           </TabsTrigger>
-          <TabsTrigger value="wallet" className="gap-2">
+          <TabsTrigger value="ugc" className="gap-2 text-[11px] font-bold">
+            <Camera className="w-4 h-4" />
+            Gallery
+          </TabsTrigger>
+          <TabsTrigger value="wallet" className="gap-2 text-[11px] font-bold">
             <CreditCard className="w-4 h-4" />
             Wallet
           </TabsTrigger>
@@ -105,8 +122,10 @@ const HostDashboard = () => {
             <h2 className="font-serif text-xl font-semibold text-foreground">
               Your Moments
             </h2>
-            {hostedMoments && hostedMoments.length > 0 && (
-              <Button variant="ghost" size="sm">View All</Button>
+            {hostedMoments && hostedMoments.length > 4 && (
+              <Button variant="ghost" size="sm" onClick={() => setShowAllMoments(!showAllMoments)}>
+                {showAllMoments ? "Show Less" : "View All"}
+              </Button>
             )}
           </div>
 
@@ -126,7 +145,7 @@ const HostDashboard = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
-              {[...upcomingMoments, ...pastMoments.slice(0, 2)].slice(0, 4).map((moment) => {
+              {(showAllMoments ? [...upcomingMoments, ...pastMoments] : [...upcomingMoments, ...pastMoments.slice(0, 2)].slice(0, 4)).map((moment) => {
                 const isUpcoming = isFuture(new Date(moment.starts_at));
 
                 return (
@@ -196,9 +215,24 @@ const HostDashboard = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit Moment</DropdownMenuItem>
-                            <DropdownMenuItem>View Participants</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Cancel Moment</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/moments/${moment.id}/edit`)}>
+                              Edit Moment
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/moments/${moment.id}/record`)}>
+                              View Participants
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={async () => {
+                                if (window.confirm("Are you sure you want to cancel this moment?")) {
+                                  const { supabase } = await import("@/integrations/supabase/client");
+                                  await supabase.from("moments").update({ is_active: false }).eq("id", moment.id);
+                                  window.location.reload();
+                                }
+                              }}
+                            >
+                              Cancel Moment
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -215,6 +249,12 @@ const HostDashboard = () => {
           <HostSponsorshipRequests />
         </TabsContent>
 
+        {/* Community Impact Tab */}
+        <TabsContent value="community" className="mt-6 space-y-8">
+          <HostLoyaltyBuilder />
+          <CommunityImpactMatrix />
+        </TabsContent>
+
         {/* UGC Tab */}
         <TabsContent value="ugc" className="mt-6">
           <div className="bg-card rounded-xl p-12 border border-border text-center">
@@ -223,8 +263,8 @@ const HostDashboard = () => {
             <p className="text-muted-foreground max-w-md mx-auto">
               Review and approve the photos, videos, and notes from people who attended your moments.
             </p>
-            <Button variant="outline" className="mt-6">
-              Review New Posts
+            <Button variant="outline" className="mt-6" asChild>
+              <Link to="/dashboard/ugc-review">Review New Posts</Link>
             </Button>
           </div>
         </TabsContent>

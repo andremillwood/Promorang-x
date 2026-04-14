@@ -546,132 +546,126 @@ router.post('/demo-initialize', async (req, res) => {
   }
 });
 
-// Demo login endpoints for easy testing
+// Demo login endpoint for easy testing
 router.post('/demo/:role', async (req, res) => {
+  // Absolute CORS Authorization for Demo Portal
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://promorang.co', 'https://www.promorang.co', 'http://localhost:5173'];
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
   try {
     const role = req.params.role;
-    console.log(`Demo login request received for role: ${role}`);
+    console.log(`[Auth] Demo login request received for role: ${role}`);
 
     const roleMap = {
-      'creator': 0,
-      'investor': 1,
-      'advertiser': 2,
-      'operator': 3,
-      'merchant': 4,
-      'matrix': 5,
-      'sampling-merchant': 6,
-      'samplingMerchant': 6,
-      'active-sampling': 7,
-      'activeSampling': 7,
-      'graduated-merchant': 8,
-      'graduatedMerchant': 8,
-      // Maturity state testing - all map to creator with different maturity context
-      'state0': 0,
-      'state1': 0,
-      'state2': 0,
-      'state3': 0
+      'participant': { email: 'demo.participant@promorang.co', username: 'demo_participant', name: 'Demo Participant', user_type: 'creator' },
+      'host': { email: 'demo.host@promorang.co', username: 'demo_host', name: 'Demo Host', user_type: 'creator' },
+      'brand': { email: 'demo.brand@promorang.co', username: 'demo_brand', name: 'Demo Brand', user_type: 'brand' },
+      'merchant': { email: 'demo.merchant@promorang.co', username: 'demo_merchant', name: 'Demo Merchant', user_type: 'merchant' },
+      // Legacy mappings
+      'creator': { email: 'creator@promorang.co', username: 'demo_creator', name: 'Demo Creator', user_type: 'creator' },
+      'investor': { email: 'investor@promorang.co', username: 'demo_investor', name: 'Demo Investor', user_type: 'investor' },
+      'advertiser': { email: 'advertiser@promorang.co', username: 'demo_advertiser', name: 'Demo Advertiser', user_type: 'advertiser' },
+      'operator': { email: 'operator@promorang.co', username: 'demo_operator', name: 'Demo Operator', user_type: 'operator' },
+      'matrix': { email: 'matrix_demo@promorang.co', username: 'matrix_builder', name: 'Matrix Builder Demo', user_type: 'matrix_builder' }
     };
 
-    const index = roleMap[role];
-    if (index === undefined) {
-      return res.status(400).json({ success: false, error: 'Invalid demo role' });
+    const demoAccount = roleMap[role];
+    if (!demoAccount) {
+      return res.status(400).json({ success: false, error: `Invalid demo role: ${role}` });
     }
 
-    const demoAccount = DEMO_ACCOUNTS[index];
+    const password = 'demo123456';
 
     if (!supabase) {
+      // Mock mode
       const token = generateToken({
+        id: 'mock-id-' + role,
         ...demoAccount,
         points_balance: 1000,
-        keys_balance: 50,
-        gems_balance: 100,
-        gold_collected: 0,
         user_tier: 'free'
       });
-
-      return res.status(200).json({
-        success: true,
-        user: demoAccount,
-        token
-      });
+      return res.json({ success: true, user: demoAccount, token });
     }
 
-    // Standardized robust find-or-create logic
-    // 1. Try finding by ID first (most reliable for demo accounts)
-    let { data: user, error: findError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', demoAccount.id)
+    // 1. Ensure user exists and is confirmed in Supabase Auth (Admin API avoids rate limits)
+    const targetEmail = demoAccount.email.trim().toLowerCase();
+    
+    // Check if we have a profile to get the ID
+    let { data: profileRecord } = await supabase.from('users')
+      .select('id')
+      .eq('email', targetEmail)
       .maybeSingle();
-
-    // 2. If not found by ID, try email (handles cases where record exists but ID differs)
-    if (!user) {
-      let { data: userByEmail } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', demoAccount.email)
-        .maybeSingle();
-
-      if (userByEmail) {
-        user = userByEmail;
-        console.log(`Found existing user by email ${demoAccount.email} with different ID: ${user.id}`);
-      }
-    }
-
-    // 3. If still not found, create the user with the guaranteed ID
-    if (!user) {
-      console.log(`Creating new demo user for role ${role} with ID ${demoAccount.id}`);
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          id: demoAccount.id,
-          email: demoAccount.email,
-          username: demoAccount.username,
-          display_name: demoAccount.display_name,
-          user_type: demoAccount.user_type,
-          reliability_score: 100, // Default PRI
-          user_tier: 'free',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (createError) {
-        console.error(`Failed to create demo user ${role}:`, createError);
-        // Last ditch effort: find by username if email check also missed it somehow
-        let { data: userByUsername } = await supabase
-          .from('users')
-          .select('*')
-          .eq('username', demoAccount.username)
-          .maybeSingle();
-
-        if (userByUsername) {
-          user = userByUsername;
-        } else {
-          return res.status(500).json({
-            success: false,
-            error: 'Failed to create demo account',
-            details: createError.message
-          });
-        }
+    
+    let userId = profileRecord?.id;
+    
+    try {
+      if (userId) {
+        // CASE A: Direct Sync for existing profiles
+        console.log(`[Auth] High-speed sync for ${targetEmail} (ID: ${userId})`);
+        await supabase.auth.admin.updateUserById(userId, {
+          password: password,
+          email_confirm: true
+        });
       } else {
-        user = newUser;
+        // CASE B: Clean Creation for new profiles
+        console.log(`[Auth] High-speed creation for ${targetEmail}`);
+        const { data: created, error: createError } = await supabase.auth.admin.createUser({
+          email: targetEmail,
+          password: password,
+          email_confirm: true,
+          user_metadata: { full_name: demoAccount.name }
+        });
+        if (createError) throw createError;
+        userId = created.user.id;
       }
+    } catch (authOpError) {
+      console.error("[Auth] SDK Operation failed:", authOpError);
+      throw new Error(`Sync failed: ${authOpError.message || "Internal SDK Error"}`);
     }
 
-    const token = generateToken(user);
+    if (!userId) {
+      throw new Error(`Critical failure: No userId found or created for demo user: ${targetEmail}`);
+    }
 
+    // 2. Ensure user exists in 'users' table
+    let { data: userProfile } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+
+    if (!userProfile) {
+      console.log(`[Auth] Creating profile for demo user: ${targetEmail}`);
+      const { data: newProfile, error: profileError } = await supabase.from('users').insert([{
+        id: userId,
+        email: targetEmail,
+        username: demoAccount.username,
+        display_name: demoAccount.name,
+        user_type: demoAccount.user_type,
+        user_tier: 'free'
+      }]).select().single();
+
+      if (profileError) throw profileError;
+      userProfile = newProfile;
+    }
+
+    // 3. Ensure role exists in 'user_roles'
+    const dbRole = role === 'participant' || role === 'host' ? role : demoAccount.user_type;
+    await supabase.from('user_roles').upsert([{ user_id: userId, role: dbRole }], { onConflict: 'user_id' }).select();
+
+    // 4. Return success (Frontend will then do a standard login which is now safe/confirmed)
     return res.json({
       success: true,
-      user,
-      token
+      message: 'Demo user prepared',
+      email: demoAccount.email,
+      password: password
     });
 
   } catch (error) {
-    console.error('Demo login error:', error);
+    console.error('Demo login Preparation error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Demo login failed',
+      error: 'Failed to prepare demo login',
       details: error.message
     });
   }

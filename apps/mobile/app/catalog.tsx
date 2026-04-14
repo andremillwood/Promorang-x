@@ -7,6 +7,8 @@ import { Colors as DesignColors, Typography } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/context/AuthContext';
 import { useProducts, useCreateProduct, useDeleteProduct } from '@/hooks/useProducts';
+import { ProductTour } from '@/components/ProductTour';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 export default function CatalogScreen() {
     const colorScheme = useColorScheme();
@@ -117,14 +119,17 @@ export default function CatalogScreen() {
                             value={newProduct.name}
                             onChangeText={(t) => setNewProduct({ ...newProduct, name: t })}
                         />
-                        <TextInput
-                            style={[styles.input, { backgroundColor: inputBg, color: txtColor }]}
-                            placeholder="Price"
-                            placeholderTextColor={DesignColors.gray[500]}
-                            keyboardType="numeric"
-                            value={newProduct.price}
-                            onChangeText={(t) => setNewProduct({ ...newProduct, price: t })}
-                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: inputBg, color: txtColor, flex: 1, marginBottom: 0 }]}
+                                placeholder="Price"
+                                placeholderTextColor={DesignColors.gray[500]}
+                                keyboardType="numeric"
+                                value={newProduct.price}
+                                onChangeText={(t) => setNewProduct({ ...newProduct, price: t })}
+                            />
+                            <InfoTooltip content="Set a competitive price for your service or product." />
+                        </View>
                         <TextInput
                             style={[styles.input, { backgroundColor: inputBg, color: txtColor, height: 80 }]}
                             placeholder="Description"
@@ -158,6 +163,9 @@ export default function CatalogScreen() {
                     </View>
                 </View>
             </Modal>
+
+            {/* Product Tour */}
+            <ProductTour tourId="catalog" autoStart={true} />
         </View>
     );
 }

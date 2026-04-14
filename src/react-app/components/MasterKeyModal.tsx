@@ -63,13 +63,16 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
 
   const getTierInfo = (tier: string) => {
     switch (tier) {
+      case 'power_user':
       case 'super':
-        return { name: 'Super', required: 1, color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
+        return { name: 'Power User', required: 1, color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
+      case 'professional':
       case 'premium':
-        return { name: 'Premium', required: 2, color: 'text-purple-600', bgColor: 'bg-purple-50' };
+        return { name: 'Professional', required: 2, color: 'text-purple-600', bgColor: 'bg-purple-50' };
+      case 'starter':
       case 'free':
       default:
-        return { name: 'Free', required: 5, color: 'text-gray-600', bgColor: 'bg-gray-50' };
+        return { name: 'Starter', required: 5, color: 'text-gray-600', bgColor: 'bg-gray-50' };
     }
   };
 
@@ -85,7 +88,7 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Shield className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold text-gray-900">Master Key System</h2>
+            <h2 className="text-xl font-bold text-gray-900">Verified Earning Status</h2>
           </div>
           <button
             onClick={onClose}
@@ -101,14 +104,14 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <Star className={`w-5 h-5 ${tierInfo.color}`} />
-                <span className={`font-semibold ${tierInfo.color}`}>{tierInfo.name} Tier</span>
+                <span className={`font-semibold ${tierInfo.color}`}>{tierInfo.name} Status</span>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${tierInfo.color} bg-white`}>
-                {tierInfo.required} proof drop{tierInfo.required > 1 ? 's' : ''} required
+                {tierInfo.required} verification mission{tierInfo.required > 1 ? 's' : ''} daily
               </span>
             </div>
             <p className="text-sm text-gray-700">
-              Complete {tierInfo.required} proof drop{tierInfo.required > 1 ? 's' : ''} daily to activate your Master Key and unlock the ability to apply for paid drops.
+              Complete {tierInfo.required} verification mission{tierInfo.required > 1 ? 's' : ''} daily to activate your Premium Earning Status and unlock the ability to join high-value campaigns.
             </p>
           </div>
 
@@ -128,7 +131,7 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
             {masterKeyStatus && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Proof Drops Completed</span>
+                  <span className="text-sm text-gray-600">Verification Missions Completed</span>
                   <span className="font-semibold text-gray-900">
                     {masterKeyStatus.proof_drops_completed}/{masterKeyStatus.proof_drops_required}
                   </span>
@@ -147,7 +150,7 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
                 
                 {!isActivated && masterKeyStatus.proof_drops_completed > 0 && (
                   <p className="text-sm text-gray-600">
-                    {masterKeyStatus.proof_drops_required - masterKeyStatus.proof_drops_completed} more proof drop{masterKeyStatus.proof_drops_required - masterKeyStatus.proof_drops_completed > 1 ? 's' : ''} needed
+                    {masterKeyStatus.proof_drops_required - masterKeyStatus.proof_drops_completed} more mission{masterKeyStatus.proof_drops_required - masterKeyStatus.proof_drops_completed > 1 ? 's' : ''} needed
                   </p>
                 )}
               </div>
@@ -156,36 +159,36 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
 
           {/* Benefits */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900">Master Key Benefits</h3>
+            <h3 className="font-semibold text-gray-900">Premium Benefits</h3>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-700">Apply for paid drops using Keys</span>
+                <span className="text-sm text-gray-700">Access High-Value Paid Campaigns</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-700">Earn Gems from completed drops</span>
+                <span className="text-sm text-gray-700">Maximize Earnings (Gems)</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-700">Access to premium opportunities</span>
+                <span className="text-sm text-gray-700">Priority Content Discovery</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-700">Higher earning potential</span>
+                <span className="text-sm text-gray-700">Strategic Performance Boost</span>
               </div>
             </div>
           </div>
 
-          {/* How to Earn Proof Drops */}
+          {/* How to Earn Verification Status */}
           {!isActivated && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Zap className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-blue-900">How to Earn Proof Drops</span>
+                <span className="font-medium text-blue-900">How to Unlock Premium Earnings</span>
               </div>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Complete free social actions (likes, comments, shares)</li>
+                <li>• Complete free social activities (likes, comments, shares)</li>
                 <li>• Participate in community challenges</li>
                 <li>• Engage with content daily</li>
                 <li>• Maintain your daily streak</li>
@@ -220,12 +223,12 @@ export default function MasterKeyModal({ user, isOpen, onClose, onSuccess }: Mas
                 ) : canActivate ? (
                   <>
                     <Shield className="w-4 h-4" />
-                    <span>Activate</span>
+                    <span>Activate Status</span>
                   </>
                 ) : (
                   <>
                     <Clock className="w-4 h-4" />
-                    <span>Complete Proofs</span>
+                    <span>Complete Missions</span>
                   </>
                 )}
               </button>

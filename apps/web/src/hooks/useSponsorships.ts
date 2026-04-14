@@ -9,6 +9,7 @@ export type SponsorshipStatus =
   | "negotiating"
   | "accepted"
   | "declined"
+  | "funded"
   | "active"
   | "completed"
   | "cancelled";
@@ -126,7 +127,7 @@ export function useCreateSponsorshipRequest() {
           bid_amount: request.bid_amount,
           message: request.message,
           requirements: request.requirements,
-          status: "pending" as SponsorshipStatus,
+          status: "pending" as any,
         })
         .select()
         .single();
@@ -172,7 +173,7 @@ export function useRespondToSponsorship() {
       const { data, error } = await supabase
         .from("sponsorship_requests")
         .update({
-          status: status as SponsorshipStatus,
+          status: status as any,
           host_response: response,
           responded_at: new Date().toISOString(),
         })

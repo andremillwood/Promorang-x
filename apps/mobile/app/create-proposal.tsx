@@ -8,6 +8,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/context/AuthContext';
 import { useCreateProposal } from '@/hooks/useProposals';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ProductTour } from '@/components/ProductTour';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 export default function CreateProposalScreen() {
     const colorScheme = useColorScheme();
@@ -80,7 +82,10 @@ export default function CreateProposalScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Est. Budget</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'transparent' }}>
+                        <Text style={styles.label}>Est. Budget</Text>
+                        <InfoTooltip content="Estimate the total budget you'll need for this moment, including venue, rewards, and marketing." />
+                    </View>
                     <TextInput
                         style={[styles.input, { backgroundColor: inputBg, color: txtColor }]}
                         placeholder="e.g. 5000"
@@ -146,6 +151,9 @@ export default function CreateProposalScreen() {
             </View>
 
             <View style={{ height: 100 }} />
+
+            {/* Product Tour */}
+            <ProductTour tourId="create-proposal" autoStart={true} />
         </ScrollView>
     );
 }

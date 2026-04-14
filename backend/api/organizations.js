@@ -6,13 +6,13 @@
 const express = require('express');
 const router = express.Router();
 const organizationService = require('../services/organizationService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * POST /api/organizations
  * Create a new organization (Onboarding)
  */
-router.post('/', authenticateUser, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const orgData = req.body;
@@ -30,7 +30,7 @@ router.post('/', authenticateUser, async (req, res) => {
  * GET /api/organizations
  * Get user's organizations
  */
-router.get('/', authenticateUser, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const orgs = await organizationService.getUserOrganizations(userId);

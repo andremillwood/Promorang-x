@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@getmocha/users-service/react';
 import { 
   Plus, 
@@ -93,7 +93,7 @@ export default function Earn() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Earn</h1>
-          <p className="text-gray-600 mt-2">Discover earning drops that match your skills</p>
+          <p className="text-gray-600 mt-2">Turn your social influence into real-world value with our verified campaign network.</p>
         </div>
         {userData && userData.user_type === 'advertiser' && (
           <button
@@ -101,7 +101,7 @@ export default function Earn() {
             className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 shadow-lg"
           >
             <Plus className="w-5 h-5" />
-            <span>Create Drop</span>
+            <span>Create Campaign</span>
           </button>
         )}
       </div>
@@ -113,7 +113,7 @@ export default function Earn() {
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search drops..."
+              placeholder="Search campaigns..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -163,8 +163,8 @@ export default function Earn() {
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No drops found</h3>
-          <p className="text-gray-600">Try adjusting your search criteria or create a new drop.</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns found</h3>
+          <p className="text-gray-600">Try adjusting your search criteria or check back later for new opportunities.</p>
         </div>
       )}
 
@@ -184,7 +184,6 @@ export default function Earn() {
 
 function DropCard({ drop }: { drop: DropType }) {
   const getDropTypeImage = (dropType: string) => {
-    // Use the drop's content_url if available, otherwise fallback to default images
     if (drop?.content_url) {
       return drop.content_url;
     }
@@ -201,16 +200,13 @@ function DropCard({ drop }: { drop: DropType }) {
   };
 
   const handleApply = async () => {
-    // TODO: Implement drop application
     console.log('Apply to drop:', drop.id);
   };
 
   const handleDropClick = () => {
-    // Use React Router navigation instead of window.location
     window.location.href = `/drops/${drop.id}`;
   };
 
-  // Check if this is demo content
   const isDemo = drop.title?.toLowerCase().includes('[demo]') || 
                  drop.title?.toLowerCase().includes('demo') ||
                  drop.description?.toLowerCase().includes('demo');
@@ -219,12 +215,11 @@ function DropCard({ drop }: { drop: DropType }) {
     <div className={`bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-md transition-shadow ${
       isDemo ? 'border-orange-300 bg-orange-50/30' : 'border-gray-200'
     }`}>
-      {/* Demo Banner */}
       {isDemo && (
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 text-center">
           <div className="flex items-center justify-center space-x-2 text-sm font-medium">
             <span>🧪</span>
-            <span>DEMO DROP - No real gems awarded</span>
+            <span>DEMO CAMPAIGN - No real rewards</span>
             <span>🧪</span>
           </div>
         </div>
@@ -376,10 +371,9 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
   const urlParams = new URLSearchParams(location.search);
   const createParam = urlParams.get('create');
   
-  // Determine initial drop type based on URL parameter
   const getInitialDropType = () => {
     if (createParam === 'paid') return 'paid';
-    return 'proof'; // Default to proof drop
+    return 'proof';
   };
 
   const [formData, setFormData] = useState<CreateDropRequestType>({
@@ -406,7 +400,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
   const [dropType, setDropType] = useState<'proof' | 'paid' | 'move'>(getInitialDropType());
   const [loading, setLoading] = useState(false);
   
-  // Image upload states  
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -418,17 +411,15 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     try {
       setUploadingFile(true);
       
-      // Convert file to base64 for transmission
       const base64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {
           const result = reader.result as string;
-          resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
+          resolve(result.split(',')[1]);
         };
         reader.readAsDataURL(file);
       });
 
-      // Upload to backend
       const response = await fetch('/api/content/upload-image', {
         method: 'POST',
         headers: {
@@ -448,10 +439,8 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
 
       const result = await response.json();
       
-      // Check if a fallback was used
       if (result.fallback) {
         console.warn('Upload fallback used:', result.fallbackReason);
-        // Show user that fallback was used
         const notification = document.createElement('div');
         notification.className = 'fixed top-4 right-4 bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-lg z-50';
         notification.innerHTML = `
@@ -475,7 +464,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     } catch (error) {
       console.error('Error uploading image:', error);
       
-      // Fallback: generate a placeholder image using AI
       try {
         const fallbackResponse = await fetch('/api/content/generate-placeholder', {
           method: 'POST',
@@ -497,7 +485,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
         console.error('Fallback image generation failed:', fallbackError);
       }
       
-      // Last resort: use a generic placeholder
       return `https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?w=800&h=600&fit=crop&crop=center`;
     } finally {
       setUploadingFile(false);
@@ -507,14 +494,12 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         alert('Please upload a valid image file (JPG, PNG, GIF, WEBP).');
         return;
       }
 
-      // Validate file size (more lenient check - server will provide detailed error)
       if (file.size > 10 * 1024 * 1024) {
         alert('File size must be less than 10MB. Please compress your image or use a URL instead.');
         return;
@@ -522,11 +507,9 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
 
       setUploadedFile(file);
       
-      // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       
-      // Upload the file and get the real URL
       try {
         const uploadedUrl = await uploadImageToStorage(file);
         setDropImageUrl(uploadedUrl);
@@ -565,7 +548,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     setLoading(true);
 
     try {
-      // Validate image URL if provided
       if (dropImageUrl && uploadMode === 'url') {
         const isValidImage = await validateImageUrl(dropImageUrl);
         if (!isValidImage) {
@@ -575,10 +557,9 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
         }
       }
 
-      // Create the drop data including the image URL
       const dropDataWithImage = {
         ...formData,
-        content_url: dropImageUrl || formData.content_url || '', // Use image URL as content URL if available
+        content_url: dropImageUrl || formData.content_url || '',
       };
 
       const response = await fetch('/api/drops', {
@@ -593,7 +574,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
       if (response.ok) {
         await response.json();
         
-        // Reset form
         setFormData({
           title: '',
           description: '',
@@ -619,26 +599,23 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
         setUploadMode('url');
         setDropImageUrl('');
         
-        // Show success notification
         const notification = document.createElement('div');
         notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-bounce';
         notification.innerHTML = `
           <div class="flex items-center space-x-2">
             <span class="text-lg">🎯</span>
             <div>
-              <div class="font-semibold">Drop Created!</div>
-              <div class="text-xs opacity-90">Redirecting to drops page...</div>
+              <div class="font-semibold">Campaign Created!</div>
+              <div class="text-xs opacity-90">Redirecting to dashboard...</div>
             </div>
           </div>
         `;
         document.body.appendChild(notification);
         
-        // Clear URL parameters and close modal
         const newUrl = window.location.pathname;
         window.history.replaceState({}, '', newUrl);
         onSuccess();
         
-        // Remove notification after delay
         setTimeout(() => {
           if (document.body.contains(notification)) {
             document.body.removeChild(notification);
@@ -658,7 +635,6 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
   };
 
   const handleClose = () => {
-    // Clear URL parameters when closing modal
     const newUrl = window.location.pathname;
     window.history.replaceState({}, '', newUrl);
     onClose();
@@ -668,11 +644,10 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Drop</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Create New Campaign</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Show helper text for advertiser-initiated creation */}
           {createParam && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center space-x-2">
@@ -681,21 +656,20 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-blue-900">
-                    {createParam === 'paid' ? 'Creating Paid Drop' : 'Creating Proof Drop'}
+                    {createParam === 'paid' ? 'Creating Paid Campaign' : 'Creating Proof Campaign'}
                   </h3>
                   <p className="text-xs text-blue-700">
                     {createParam === 'paid' 
-                      ? 'This will use your paid drop inventory and require keys from applicants.'
-                      : 'This will use your proof drop inventory and help users with their Master Key activation.'
+                      ? 'This will use your paid campaign inventory and require keys from applicants.'
+                      : 'This will use your proof campaign inventory and help users with their Master Key activation.'
                     }
                   </p>
                 </div>
               </div>
             </div>
           )}
-          {/* Drop Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Drop Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Campaign Type</label>
             <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
@@ -712,7 +686,7 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                 <div className="w-8 h-8 bg-green-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
                   <span className="text-white font-bold text-sm">P</span>
                 </div>
-                <span className="text-sm font-medium">Proof Drop</span>
+                <span className="text-sm font-medium">Proof Campaign</span>
                 <p className="text-xs text-gray-500 mt-1">Helps users get Master Key</p>
               </button>
 
@@ -731,7 +705,7 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                 <div className="w-8 h-8 bg-purple-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
                   <span className="text-white font-bold text-sm">$</span>
                 </div>
-                <span className="text-sm font-medium">Paid Drop</span>
+                <span className="text-sm font-medium">Paid Campaign</span>
                 <p className="text-xs text-gray-500 mt-1">Costs keys, rewards gems</p>
               </button>
 
@@ -750,7 +724,7 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                 <div className="w-8 h-8 bg-orange-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
                   <span className="text-white font-bold text-sm">M</span>
                 </div>
-                <span className="text-sm font-medium">Move Drop</span>
+                <span className="text-sm font-medium">Move Campaign</span>
                 <p className="text-xs text-gray-500 mt-1">Social actions for keys</p>
               </button>
             </div>
@@ -780,11 +754,9 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
             />
           </div>
 
-          {/* Image Upload Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Drop Image (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Campaign Image (Optional)</label>
             
-            {/* Upload Mode Toggle */}
             <div className="flex space-x-4 mb-4">
               <button
                 type="button"
@@ -828,7 +800,7 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                   placeholder="Direct link to image..."
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Add an image to make your drop more appealing to participants
+                  Add an image to make your campaign more appealing to participants
                 </p>
               </div>
             ) : (
@@ -839,9 +811,9 @@ function CreateDropModal({ onClose, onSuccess }: { onClose: () => void; onSucces
                     className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all"
                   >
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-2">Click to upload or drag and drop</p>
-                    <p className="text-sm text-gray-500">
-                      Images (JPG, PNG, GIF, WEBP) • Max 10 MB
+                    <p className="text-lg font-semibold">Upload Campaign Assets</p>
+                    <p className="text-sm opacity-75">
+                      Strategic outcome allocation
                     </p>
                     <input
                       ref={fileInputRef}

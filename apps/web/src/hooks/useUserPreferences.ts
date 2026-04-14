@@ -68,10 +68,10 @@ export function useUserPreferences() {
 
 export function useHasCompletedOnboarding() {
   const { data: preferences, isLoading } = useUserPreferences();
-  
+
   // User has completed onboarding if they have preferences with at least one category selected
   const hasCompleted = !isLoading && preferences && preferences.preferred_categories?.length > 0;
-  
+
   return { hasCompleted, isLoading };
 }
 
@@ -84,14 +84,25 @@ export function useCreateUserPreferences() {
     mutationFn: async (preferences: UserPreferencesInput) => {
       if (!user) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase
-        .from("user_preferences")
-        .insert({
-          user_id: user.id,
-          ...preferences,
-        })
-        .select()
-        .single();
+      // Call a SECURITY DEFINER RPC that atomically ensures the profile
+      // exists and upserts preferences — avoids FK and RLS issues.
+      const { data, error } = await supabase.rpc("upsert_user_preferences", {
+        p_user_id: user.id,
+        p_age_range: preferences.age_range ?? null,
+        p_gender: preferences.gender ?? null,
+        p_city: preferences.city ?? null,
+        p_state: preferences.state ?? null,
+        p_country: preferences.country ?? "US",
+        p_latitude: preferences.latitude ?? null,
+        p_longitude: preferences.longitude ?? null,
+        p_location_radius_km: preferences.location_radius_km ?? 25,
+        p_location_sharing_enabled: preferences.location_sharing_enabled ?? false,
+        p_lifestyle_tags: preferences.lifestyle_tags ?? [],
+        p_preferred_categories: preferences.preferred_categories ?? [],
+        p_preferred_times: preferences.preferred_times ?? [],
+        p_notification_enabled: preferences.notification_enabled ?? true,
+        p_email_digest_frequency: preferences.email_digest_frequency ?? "weekly",
+      });
 
       if (error) throw error;
       return data;

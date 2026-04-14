@@ -27,6 +27,7 @@ export function MetricCard({
     change,
     icon,
     subtitle,
+    tooltip,
     loading = false,
     className,
 }: MetricCardProps) {

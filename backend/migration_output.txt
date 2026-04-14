@@ -1,0 +1,7 @@
+Loading env from: /Users/bumblebeecreative/Documents/GitHub/Promorang-x/backend/.env.production
+🚀 Starting Brand Infrastructure Repair Migration...
+📖 Read migration file: 20260407_repair_brand_infrastructure.sql (7333 chars)
+📡 Executing SQL via Supabase RPC...
+✅ Supabase Auth Bridge Ready
+❌ Migration failed via RPC: Could not find the function public.exec_sql(sql_query) in the schema cache
+💡 HINT: If the "exec_sql" RPC is missing, please apply the SQL manually in the Supabase Dashboard.

@@ -68,7 +68,7 @@ export function useDiscoverMoments(filters?: DiscoverFilters) {
       if (error) throw error;
 
       // Extract unique host IDs to fetch profiles in one go
-      const hostIds = [...new Set((data || []).map(m => m.host_id))];
+      const hostIds = [...new Set((data || []).map(m => m.host_id).filter(Boolean))];
       const { data: profiles } = hostIds.length > 0
         ? await supabase
           .from("profiles")

@@ -56,7 +56,7 @@ const Participants = () => {
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                            {participant.name.charAt(0)}
+                                            {(participant.name || "?").charAt(0)}
                                         </div>
                                         <span className="font-medium text-foreground">{participant.name}</span>
                                     </div>

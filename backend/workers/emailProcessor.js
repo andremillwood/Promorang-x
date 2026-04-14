@@ -4,7 +4,7 @@
  * Run this as a separate process or cron job
  */
 
-const { supabase } = require('../config/supabase');
+const { supabase } = require('../lib/supabase');
 const { sendCouponEarnedEmail, sendWeeklyRewardsDigest } = require('../services/emailNotifications');
 
 const BATCH_SIZE = 50;
@@ -89,7 +89,7 @@ async function processEmailQueue() {
         }
       } catch (error) {
         console.error(`[EmailProcessor] Error processing email ${email.id}:`, error);
-        
+
         // Mark as failed
         try {
           await supabase.rpc('mark_email_failed', {

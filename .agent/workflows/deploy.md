@@ -30,9 +30,9 @@ description: how to manually deploy to Vercel (frontend and backend)
    cd /Users/bumblebeecreative/Documents/GitHub/Promorang-x/apps/web
    ```
 
-2. Deploy to production:
+2. Build locally and deploy prebuilt (avoids monorepo React version conflicts on Vercel):
    ```bash
-   npx vercel --prod --yes
+   npm run build && npx vercel deploy --prebuilt --prod --yes
    ```
 
 ## Verify Deployments

@@ -21,66 +21,66 @@ const { supabase } = require('../lib/supabase');
 const SKU_CATALOG = {
     A1_COMMUNITY: {
         id: 'A1',
-        name: 'Community Moment',
-        description: 'Culture seeding, cold start, density building',
+        name: 'Community Reach Campaign',
+        description: 'Culture seeding, community building, and brand density',
         brandCostRange: { min: 0, max: 150 },
         platformFeeRange: { min: 0, max: 30 },
         rewardPoolOptional: true,
         unlockConditions: null, // Always available
         grossMarginTarget: 0.20, // 20%
         use_cases: ['community_building', 'cold_start', 'culture_seeding'],
-        marketing_copy: 'Run Moments. Build records. Earn credibility.'
+        marketing_copy: 'Run a Community Reach Campaign. Build trust with local creators.'
     },
 
     A2_ACTIVATION: {
         id: 'A2',
-        name: 'Activation Moment (Single Location)',
-        description: 'Product trial, presence, awareness at one location',
+        name: 'In-Store Traffic Campaign',
+        description: 'Drive real foot traffic and product trials at a single location',
         brandCostRange: { min: 250, max: 750 },
         rewardPoolRange: { min: 150, max: 500 },
         platformFeeRange: { min: 75, max: 150 },
         opsBufferRange: { min: 25, max: 100 },
         grossMarginTarget: 0.275, // 25-30%
         unlockConditions: null,
-        use_cases: ['product_trial', 'brand_presence', 'local_awareness'],
-        marketing_copy: 'Fund a Moment. Get verified presence.'
+        use_cases: ['foot_traffic', 'product_trial', 'local_awareness'],
+        marketing_copy: 'A high-impact In-Store Traffic Campaign. Verified presence.'
     },
 
     A3_BOUNTY: {
         id: 'A3',
-        name: 'Bounty Moment (Distributed)',
-        description: 'Multi-execution, creator/host activation across locations',
+        name: 'UGC Explosion Campaign',
+        description: 'Multi-location creator activation and content blitz',
         brandCostRange: { min: 500, max: 2500 },
         platformFeePercent: 0.20, // 15-25% of total
         grossMarginTarget: 0.30, // 25-35%
         unlockConditions: null,
-        use_cases: ['distributed_activation', 'creator_network', 'multi_host'],
-        marketing_copy: 'Commission Moments. Verify outcomes.'
+        use_cases: ['ugc_creation', 'distributed_activation', 'creator_network'],
+        marketing_copy: 'The Ultimate UGC Explosion. Verify outcomes across the map.'
     },
 
     A4_MERCHANT: {
         id: 'A4',
-        name: 'Merchant Moment (Recurring)',
-        description: 'Foot traffic, loyalty, repeat engagement for venues',
+        name: 'Venue Anchor System (Recurring)',
+        description: 'Consistent foot traffic, loyalty, and engagement for venues',
         monthlyCostRange: { min: 300, max: 1000 },
         momentsIncludedRange: { min: 4, max: 12 },
         unlockConditions: null,
-        use_cases: ['foot_traffic', 'loyalty', 'venue_anchor'],
-        marketing_copy: 'Turn your venue into a verified Moment anchor.',
+        use_cases: ['recurring_traffic', 'loyalty', 'venue_anchor'],
+        marketing_copy: 'Turn your venue into a verified Anchor. People show up every week.',
         notes: 'Margin improves over time due to template reuse'
     },
 
     A5_DIGITAL: {
         id: 'A5',
-        name: 'Digital Moment',
-        description: 'Remote activations, online participation, no physical limits',
+        name: 'Digital Engagement Campaign',
+        description: 'Verified remote activations and online social blitz',
         brandCostRange: { min: 150, max: 500 },
         platformFeeRange: { min: 75, max: 200 },
         rewardPoolOptional: true,
         grossMarginTarget: 0.425, // 35-50%
         unlockConditions: null,
         use_cases: ['remote_activation', 'online_engagement', 'digital_only'],
-        marketing_copy: 'Verified participation. No physical limits.'
+        marketing_copy: 'Verified digital outcomes at scale. No physical limits.'
     },
 
     // Scale & Escalation SKUs (Earned, not default)
@@ -374,6 +374,73 @@ function estimateMomentROI(skuType, options = {}) {
     };
 }
 
+/**
+ * Map technical SKUs to high-conversion commercial packages
+ * This implements the FlashCreate Alignment Layer.
+ */
+function getCommercialPackages() {
+    return [
+        {
+            id: 'hero',
+            name: '100 Real People Campaign',
+            headline: '100 Real People in 5 Days',
+            description: 'We get 100 verified locals to interact with your brand.',
+            price_anchor_jmd: 25000,
+            usd_equivalent: 160,
+            duration_days: 5,
+            includes: [
+                '100 Verified actions (Actions/Moves)',
+                '10-20 UGC pieces (optional)',
+                '1 Structured campaign (A5 Digital)',
+                'Proof dashboard'
+            ],
+            internal_mapping: {
+                sku_type: 'A5_DIGITAL',
+                participants: 100
+            }
+        },
+        {
+            id: 'core',
+            name: 'Customer Activation Campaign',
+            headline: 'Drive Foot Traffic & Trials',
+            description: 'Intensive activation to drive real people to your location.',
+            price_anchor_jmd: 120000,
+            usd_equivalent: 750,
+            duration_days: 14,
+            includes: [
+                '500-1,000 Verified actions',
+                'Multi-day activation',
+                'UGC + Engagement mix',
+                'Location targeting',
+                'Advanced reporting'
+            ],
+            internal_mapping: {
+                sku_type: 'A2_ACTIVATION',
+                participants: 500
+            }
+        },
+        {
+            id: 'enterprise',
+            name: 'Always-On Attention System',
+            headline: 'Dominant Market Presence',
+            description: 'Recurring growth engine for venues and established brands.',
+            price_anchor_jmd: 350000, // Starting at
+            usd_equivalent: 2200,
+            duration_days: 30,
+            includes: [
+                'Weekly recurring activations',
+                'Strategic account manager',
+                'Premium creator matching',
+                'Full outcome verification'
+            ],
+            internal_mapping: {
+                sku_type: 'A4_MERCHANT',
+                bundle_quantity: 4
+            }
+        }
+    ];
+}
+
 module.exports = {
     SKU_CATALOG,
     getSKUPricing,
@@ -381,5 +448,6 @@ module.exports = {
     validateSKUEligibility,
     applyBundleDiscount,
     getAvailableSKUs,
-    estimateMomentROI
+    estimateMomentROI,
+    getCommercialPackages
 };

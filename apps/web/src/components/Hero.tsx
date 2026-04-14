@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-moments.jpg";
 
@@ -28,28 +29,26 @@ const Hero = () => {
             <span className="text-sm font-medium">Where moments happen, together</span>
           </div>
 
-          {/* Main Headline */}
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 animate-slide-up">
-            Stop scrolling.{" "}
-            <span className="text-gradient-primary">Start living.</span>
+            The Heart of Every{" "}
+            <span className="text-gradient-primary">Moment.</span>
           </h1>
 
-          {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            The average person spends 6 hours a day on a screen. Break the cycle.
-            Earn your access to the real world.
+            The simple way to discover gatherings, take action, and earn rewards. 
+            <span className="text-foreground font-bold"> Discover → Action → Reputation → Redemption.</span>
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <Button variant="hero" size="xl" asChild data-tour="discover-link">
               <Link to="/discover">
-                Discover Moments
+                Browse Moments
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" asChild data-tour="create-moment-cta">
-              <Link to="/create-moment">Host Your Own</Link>
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/activate">For Brands</Link>
             </Button>
           </div>
 

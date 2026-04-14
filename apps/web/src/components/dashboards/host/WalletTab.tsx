@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Coins, CreditCard, DollarSign, Plus, AlertCircle } from "lucide-react";
+import { Coins, CreditCard, DollarSign, Plus, AlertCircle, TrendingUp, Users } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
@@ -129,83 +129,29 @@ export const WalletTab = () => {
                     </CardContent>
                 </Card>
 
-                {/* Payout Methods */}
+                {/* Projected Earnings */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="flex items-center gap-2">
-                                <CreditCard className="w-5 h-5 text-primary" />
-                                Payout Methods
+                                <TrendingUp className="w-5 h-5 text-primary" />
+                                Projected Earnings
                             </CardTitle>
-                            <CardDescription>Manage how you get paid</CardDescription>
+                            <CardDescription>Based on active sponsorships</CardDescription>
                         </div>
-                        <Dialog open={isAddMethodOpen} onOpenChange={setIsAddMethodOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                    <Plus className="w-4 h-4 mr-2" /> Add
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Add Payout Method</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <div className="space-y-2">
-                                        <Label>Type</Label>
-                                        <Select value={newMethodType} onValueChange={setNewMethodType}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                                                <SelectItem value="paypal">PayPal</SelectItem>
-                                                <SelectItem value="venmo">Venmo</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Account Details</Label>
-                                        <Input
-                                            value={newMethodDetails}
-                                            onChange={(e) => setNewMethodDetails(e.target.value)}
-                                            placeholder="Email, Phone, or IBAN"
-                                        />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button onClick={handleAddMethod} disabled={!newMethodType || !newMethodDetails}>
-                                        Save Method
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-3">
-                            {methods.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No payout methods added.</p>
-                            ) : (
-                                methods.map((method) => (
-                                    <div key={method.id} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                                {method.method_type === 'bank_transfer' && <CreditCard className="w-4 h-4" />}
-                                                {method.method_type === 'paypal' && <span className="text-xs font-bold">PP</span>}
-                                                {method.method_type === 'venmo' && <span className="text-xs font-bold">V</span>}
-                                                {method.method_type === 'other' && <DollarSign className="w-4 h-4" />}
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-sm capitalize">{method.method_type.replace('_', ' ')}</p>
-                                                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                                                    {typeof method.details === 'string' ? method.details : JSON.stringify(method.details)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        {method.is_default && <Badge variant="secondary" className="text-[10px]">Default</Badge>}
-                                    </div>
-                                ))
-                            )}
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-baseline">
+                                <span className="text-3xl font-black text-foreground">$1,250</span>
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase">Booked</span>
+                            </div>
+                            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-primary" style={{ width: '65%' }} />
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                                <span className="text-primary font-bold">6/9 milestones</span> achieved for the "Deep House Yoga" series.
+                            </p>
                         </div>
                     </CardContent>
                 </Card>

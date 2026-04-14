@@ -3,16 +3,33 @@ import SEO from "@/components/SEO";
 import MomentsSection from "@/components/MomentsSection";
 import HowItWorks from "@/components/HowItWorks";
 import ForBrands from "@/components/ForBrands";
+import { VaultTeaser } from "@/components/VaultTeaser";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import { useTour } from "@/contexts/TourContext";
-import ProductTour from "@/components/tours/ProductTour";
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import ProductTour from "@/components/tours/ProductTour";
+import { StandingLeaderboard } from "@/components/StandingLeaderboard";
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const { hasCompleted, isLoading: prefsLoading } = useHasCompletedOnboarding();
   const { startTour, isTourCompleted } = useTour();
+  const navigate = useNavigate();
 
-  // Auto-start first-time user tour
+  // If user is already authenticated, check onboarding status
+  useEffect(() => {
+    if (!loading && user && !prefsLoading) {
+      if (hasCompleted) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/onboarding", { replace: true });
+      }
+    }
+  }, [user, loading, prefsLoading, hasCompleted, navigate]);
+
+  // Auto-start first-time user tour (only if not redirected)
   useEffect(() => {
     if (user && !isTourCompleted('first-time-user')) {
       const timer = setTimeout(() => {
@@ -30,7 +47,9 @@ const Index = () => {
       />
       <Hero />
       <MomentsSection />
+      <StandingLeaderboard />
       <HowItWorks />
+      <VaultTeaser />
       <ForBrands />
       <ProductTour tourId="first-time-user" />
     </div>

@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Play,
   Sparkles,
-  Shield
+  Shield,
+  Activity
 } from 'lucide-react';
 
 export default function Home() {
@@ -108,9 +109,8 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Streamlined Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16 lg:py-24 overflow-hidden">
-        {/* Background Elements */}
+      {/* Reverted Creator/Investor Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='30'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           opacity: 0.5
@@ -118,126 +118,78 @@ export default function Home() {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Live Activity Badge */}
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-8 animate-pulse">
+            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-8">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></div>
-              <span className="font-bold">{activeStats.earners.toLocaleString()}</span> early creators earning
+              Currently paying out {activeStats.payout.toFixed(1)}k+ gems weekly
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Monetize Your Social Influence
-              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Effortlessly
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-tight mb-8">
+              Own the 
+              <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Moments.
               </span>
             </h1>
             
-            <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Join our early community and start earning from day one. 
-              <span className="font-semibold text-gray-900"> No followers required.</span>
+            <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+              Promorang is the social equity market. Invest in viral content, trade shares in top Moments, and share the upside of the creators you believe in.
             </p>
 
-            {/* Key Benefits */}
-            <div className="flex flex-wrap justify-center gap-6 mb-10 text-sm">
-              <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                <span className="font-medium">Start in 60 seconds</span>
-              </div>
-              <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                <span className="font-medium">Grow with social media</span>
-              </div>
-              <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                <span className="font-medium">Zero fees</span>
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <button
-                onClick={() => {
-                  console.log('Start Earning Today clicked');
-                  redirectToLogin();
-                }}
-                className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
+                onClick={() => redirectToLogin()}
+                className="group bg-gray-900 hover:bg-black text-white px-10 py-5 rounded-2xl font-bold text-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
               >
-                Start Earning Today
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Enter the Market
+                <TrendingUp className="ml-2 w-6 h-6" />
               </button>
-              <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center hover:bg-gray-50">
-                <Play className="mr-2 w-5 h-5" />
-                See How it Works
+              <button
+                onClick={() => navigate('/activate')}
+                className="group bg-white border-2 border-gray-200 hover:border-gray-900 text-gray-900 px-10 py-5 rounded-2xl font-bold text-xl transition-all flex items-center justify-center"
+              >
+                Brand Solutions
+                <Target className="ml-2 w-6 h-6 group-hover:rotate-12 transition-transform" />
               </button>
             </div>
-
-            {/* Live Earnings Ticker */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-gray-200 shadow-lg max-w-md mx-auto">
-              <div className="text-sm text-gray-600 mb-2">Early earnings this week:</div>
-              <div className="text-2xl font-bold text-green-600">${activeStats.payout.toFixed(1)}k</div>
-              <div className="text-xs text-gray-500">Average per early user: ${activeStats.earnings}</div>
-            </div>
+            
+            <p className="text-sm text-gray-500 font-medium">No experience required. Open for Creators, Investors, and Brands.</p>
           </div>
         </div>
       </section>
 
-      {/* Business/Advertiser Section */}
-      <section className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-gray-100 py-16">
+      {/* Simplified Brands Section - Links to /activate */}
+      <section className="bg-gray-900 py-20 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between space-y-8 lg:space-y-0 lg:space-x-12">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div className="lg:w-1/2">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                Brands & Businesses
-              </h2>
-              <p className="text-xl text-gray-600 mb-6">
-                Connect with authentic creators and build campaigns that drive real engagement from day one.
+              <h2 className="text-3xl lg:text-5xl font-bold mb-6">Running a business?</h2>
+              <p className="text-xl text-gray-400 mb-8 leading-relaxed">
+                We get 100+ real people to interact with your brand in days. Guaranteed outcomes, verified proof.
               </p>
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Work with vetted early adopters</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Track campaign performance</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">Start with free sample campaigns</span>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  console.log('Start Advertising clicked');
-                  redirectToLogin();
-                }}
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
+              <button 
+                onClick={() => navigate('/activate')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center transition-all"
               >
-                Start Advertising
+                Launch Brand Campaign
+                <ChevronRight className="ml-2 w-5 h-5" />
               </button>
             </div>
-            <div className="lg:w-1/2">
-              <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Early Advertiser Benefits</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-blue-50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">Free</div>
-                    <div className="text-sm text-blue-700">Sample campaigns</div>
-                  </div>
-                  <div className="bg-purple-50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">95%</div>
-                    <div className="text-sm text-purple-700">Completion rate</div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-green-600 mb-1">127</div>
-                    <div className="text-sm text-green-700">Early creators</div>
-                  </div>
-                  <div className="bg-orange-50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-orange-600 mb-1">4.8★</div>
-                    <div className="text-sm text-orange-700">Campaign rating</div>
-                  </div>
-                </div>
-              </div>
+            <div className="lg:w-1/2 grid grid-cols-2 gap-4">
+               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                  <div className="text-2xl font-bold text-blue-400">100+</div>
+                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Real People</div>
+               </div>
+               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                  <div className="text-2xl font-bold text-purple-400">95%</div>
+                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Completion</div>
+               </div>
+               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                  <div className="text-2xl font-bold text-green-400">OCR</div>
+                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Verification</div>
+               </div>
+               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                  <div className="text-2xl font-bold text-orange-400">5 Days</div>
+                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Delivery</div>
+               </div>
             </div>
           </div>
         </div>
@@ -290,33 +242,33 @@ export default function Home() {
             {[
               {
                 icon: <Zap className="w-8 h-8 text-blue-600" />,
-                title: "Complete Tasks",
-                description: "Micro-tasks and content creation",
+                title: "Fuel the Moment",
+                description: "Boost upcoming content and earn participation rewards",
                 payout: "$25 avg",
                 bgColorClass: "bg-blue-100",
                 textColorClass: "text-blue-600"
               },
               {
                 icon: <TrendingUp className="w-8 h-8 text-green-600" />,
-                title: "Invest in Content",
-                description: "Own shares of viral content",
+                title: "Equity Trading",
+                description: "Own permanent shares of viral Moments",
                 payout: "12.5% ROI",
                 bgColorClass: "bg-green-100",
                 textColorClass: "text-green-600"
               },
               {
                 icon: <Target className="w-8 h-8 text-purple-600" />,
-                title: "Social Predictions",
-                description: "Predict content performance",
+                title: "Social Arbitrage",
+                description: "Predict which Moments will trend next",
                 payout: "87% win rate",
                 bgColorClass: "bg-purple-100",
                 textColorClass: "text-purple-600"
               },
               {
                 icon: <Users className="w-8 h-8 text-orange-600" />,
-                title: "Brand Partnerships",
-                description: "Collaborate with 500+ brands",
-                payout: "Fair compensation",
+                title: "Moment Scaling",
+                description: "Help brands turn ideas into movements",
+                payout: "Direct rewards",
                 bgColorClass: "bg-orange-100",
                 textColorClass: "text-orange-600"
               }

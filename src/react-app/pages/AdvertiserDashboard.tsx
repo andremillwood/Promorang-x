@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@getmocha/users-service/react';
 import { 
   BarChart3, 
@@ -30,6 +30,8 @@ import {
 } from '@/react-app/components/AnalyticsCharts';
 import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import BrandProfileModal from '@/react-app/components/BrandProfileModal';
+import FlashCreateBridge from '@/react-app/components/FlashCreateBridge';
+import { translate, formatJMDPricing } from '@/react-app/utils/valueTranslation';
 
 export default function AdvertiserDashboard() {
   const { user } = useAuth();
@@ -168,26 +170,37 @@ export default function AdvertiserDashboard() {
 
   const getTierBenefits = (tier: string) => {
     switch (tier) {
-      case 'super':
-        return {
-          name: 'Super Advertiser',
-          color: 'text-yellow-600 bg-yellow-50',
-          inventory: 'Weekly: 500 moves, 25 proof drops, 15 paid drops',
-          features: ['Premium analytics', 'Priority support', 'Custom targeting', 'Advanced reporting', 'Create proof & paid drops']
-        };
       case 'premium':
         return {
-          name: 'Premium Advertiser', 
+          name: 'Always-On Attention System',
           color: 'text-purple-600 bg-purple-50',
-          inventory: 'Weekly: 200 moves, 15 proof drops, 8 paid drops',
-          features: ['Advanced analytics', 'Priority support', 'Custom targeting', 'Create proof & paid drops']
+          price: formatJMDPricing('premium'),
+          inventory: `Weekly: 2,000 ${translate('moves')}, 25 proof ${translate('drops')}, 15 paid ${translate('drops')}`,
+          features: ['Continuous presence', 'Strategic account manager', 'Custom targeting', 'Outcome reporting']
+        };
+      case 'growth':
+        return {
+          name: 'Customer Activation Campaign',
+          color: 'text-blue-600 bg-blue-50',
+          price: formatJMDPricing('growth'),
+          inventory: `Weekly: 500 ${translate('moves')}, 15 proof ${translate('drops')}, 8 paid ${translate('drops')}`,
+          features: ['Location targeting', 'UGC + Engagement mix', 'Advanced analytics']
+        };
+      case 'starter':
+        return {
+          name: '100 Real People Campaign',
+          color: 'text-orange-600 bg-orange-50',
+          price: formatJMDPricing('starter'),
+          inventory: `5-Day Sprint: 100 ${translate('moves')}, 8 proof ${translate('drops')}, 2 paid ${translate('drops')}`,
+          features: ['100 Verified actions', '10-20 UGC pieces', 'Proof dashboard']
         };
       default:
         return {
-          name: 'Free Advertiser',
+          name: 'Launch Your Own',
           color: 'text-gray-600 bg-gray-50',
-          inventory: 'Monthly Sample: 50 moves, 5 proof drops',
-          features: ['Basic analytics', 'Standard support', 'Create proof drops only', 'Sponsor content with gems']
+          price: formatJMDPricing('free'),
+          inventory: `Monthly Sample: 50 ${translate('moves')}, 5 proof ${translate('drops')}`,
+          features: ['Basic analytics', 'Standard support', 'Self-serve builder']
         };
     }
   };
@@ -408,10 +421,10 @@ export default function AdvertiserDashboard() {
         </div>
       </div>
 
-      {/* Inventory Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      {/* Inventory Status Cards & FlashCreate Bridge */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Monthly Sample Inventory */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 lg:col-span-1">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Monthly Sample Inventory</h3>
             <span className="text-sm text-gray-500">Resets monthly</span>
@@ -419,7 +432,7 @@ export default function AdvertiserDashboard() {
           {dashboardData?.monthly_inventory ? (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Moves</span>
+                <span className="text-sm text-gray-600">{translate('moves')}</span>
                 <span className="font-medium">
                   {dashboardData.monthly_inventory.moves_used}/{dashboardData.monthly_inventory.moves_allocated}
                 </span>
@@ -431,7 +444,7 @@ export default function AdvertiserDashboard() {
                 />
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Proof Drops</span>
+                <span className="text-sm text-gray-600">Proof {translate('drops')}</span>
                 <span className="font-medium">
                   {dashboardData.monthly_inventory.proof_drops_used}/{dashboardData.monthly_inventory.proof_drops_allocated}
                 </span>
@@ -448,8 +461,8 @@ export default function AdvertiserDashboard() {
           )}
         </div>
 
-        {/* Weekly Inventory */}
-        {dashboardData?.user_tier !== 'free' && (
+        {/* Weekly Inventory or FlashCreate Bridge */}
+        {dashboardData?.user_tier !== 'free' ? (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Weekly Inventory</h3>
@@ -458,7 +471,7 @@ export default function AdvertiserDashboard() {
             {dashboardData?.weekly_inventory ? (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Moves</span>
+                  <span className="text-sm text-gray-600">{translate('moves')}</span>
                   <span className="font-medium">
                     {dashboardData.weekly_inventory.moves_used}/{dashboardData.weekly_inventory.moves_allocated}
                   </span>
@@ -470,7 +483,7 @@ export default function AdvertiserDashboard() {
                   />
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Proof Drops</span>
+                  <span className="text-sm text-gray-600">Proof {translate('drops')}</span>
                   <span className="font-medium">
                     {dashboardData.weekly_inventory.proof_drops_used}/{dashboardData.weekly_inventory.proof_drops_allocated}
                   </span>
@@ -482,7 +495,7 @@ export default function AdvertiserDashboard() {
                   />
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Paid Drops</span>
+                  <span className="text-sm text-gray-600">Paid {translate('drops')}</span>
                   <span className="font-medium">
                     {dashboardData.weekly_inventory.paid_drops_used}/{dashboardData.weekly_inventory.paid_drops_allocated}
                   </span>
@@ -498,6 +511,13 @@ export default function AdvertiserDashboard() {
               <p className="text-sm text-gray-500">No weekly inventory allocated yet</p>
             )}
           </div>
+        ) : (
+          <FlashCreateBridge context="dashboard" className="h-[240px]" />
+        )}
+
+        {/* Third column Bridge (Always shown for high tier, or as secondary for low tier) */}
+        {dashboardData?.user_tier !== 'free' && (
+          <FlashCreateBridge context="dashboard" className="h-[240px]" />
         )}
       </div>
 
@@ -511,10 +531,10 @@ export default function AdvertiserDashboard() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Inventory Allocation</h4>
+            <h4 className="font-medium text-gray-900 mb-2">Package Value ({tierInfo.price})</h4>
             <p className="text-lg font-bold text-orange-600">{tierInfo.inventory}</p>
             <p className="text-sm text-gray-600">
-              {dashboardData?.user_tier === 'free' ? 'Sample inventory' : 'Weekly inventory'} + sponsor any content with gems
+              {dashboardData?.user_tier === 'free' ? 'Sample inventory' : 'Active package inventory'} + sponsor any content with gems
             </p>
           </div>
           <div>
@@ -534,7 +554,7 @@ export default function AdvertiserDashboard() {
       {/* KPI Cards with Trends */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
-          title="Total Drops"
+          title={`Total ${translate('drops')}`}
           value={totals.totalDrops}
           change={12}
           changeType="increase"
@@ -810,11 +830,11 @@ export default function AdvertiserDashboard() {
         </div>
       </div>
 
-      {/* Recent Drops */}
+      {/* Recent Campaigns */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Drops</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Recent {translate('drops')}</h3>
             {userData && (userData as any).user_type === 'advertiser' && (
               <div className="flex space-x-2">
                 <button
@@ -901,9 +921,9 @@ export default function AdvertiserDashboard() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drops</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{translate('drops')}</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gems Spent</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value Spent</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impressions</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engagement</th>
                 </tr>

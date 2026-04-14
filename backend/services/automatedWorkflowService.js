@@ -1,4 +1,4 @@
-const { supabase } = require('../config/supabase');
+const { supabase } = require('../lib/supabase');
 const emailService = require('./emailService');
 const merchantAnalyticsService = require('./merchantAnalyticsService');
 

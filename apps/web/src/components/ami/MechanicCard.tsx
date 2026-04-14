@@ -22,7 +22,8 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
     };
 
     const formatOutcome = (outcome: string) => {
-        return outcome.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        if (!outcome) return "General Experience";
+        return outcome.split('_').map(word => (word || "").charAt(0).toUpperCase() + (word || "").slice(1)).join(' ');
     }
 
     const getProofIcon = (type: string) => {
@@ -61,7 +62,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
                 <div className="mt-6 flex items-center gap-2">
                     <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${Number(mechanic.reliability_score) >= 90 ? 'bg-green-500/5 text-green-500 border-green-500/20' : 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20'}`}>
                         <ShieldCheck className="w-3.5 h-3.5" />
-                        {Number(mechanic.reliability_score || 0).toFixed(0)}% Reliable
+                        {Number(mechanic.reliability_score || 0).toFixed(0)}% Success Rate
                     </div>
 
                     {/* Confidence Badge */}
@@ -79,7 +80,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
             <CardFooter className="p-5 pt-0 mt-auto">
                 <Button className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300" variant="secondary" asChild>
                     <Link to={`/strategies/${mechanic.id}`}>
-                        <span className="font-bold">View Strategy</span>
+                        <span className="font-bold">See Playbook</span>
                         <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </Link>
                 </Button>

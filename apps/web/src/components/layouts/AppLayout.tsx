@@ -1,22 +1,45 @@
-import { useLocation, Outlet } from "react-router-dom";
+import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
+const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { RankCelebrationModal } from "@/components/RankCelebrationModal";
+import { useState, useEffect } from "react";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-    const { user, roles, activeRole, loading } = useAuth();
+    const { user, roles, activeRole, loading, profile } = useAuth();
     const location = useLocation();
+
+    const [showRankCelebration, setShowRankCelebration] = useState(false);
+    const [currentRank, setCurrentRank] = useState<number | null>(null);
+
+    // Track rank changes for celebration
+    useEffect(() => {
+        if (profile?.maturity_state !== undefined) {
+            const lastRank = localStorage.getItem("promorang_last_seen_rank");
+            const numericLastRank = lastRank ? parseInt(lastRank, 10) : 0;
+
+            if (profile.maturity_state > numericLastRank) {
+                setCurrentRank(profile.maturity_state);
+                setShowRankCelebration(true);
+                localStorage.setItem("promorang_last_seen_rank", profile.maturity_state.toString());
+            } else if (lastRank === null) {
+                // Initialize if first time
+                localStorage.setItem("promorang_last_seen_rank", profile.maturity_state.toString());
+            }
+        }
+    }, [profile?.maturity_state]);
 
     // Define routes that should always use the marketing layout or NO layout
     const marketingRoutes = [
         "/", "/for-communities", "/for-brands", "/for-merchants",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
-        "/help", "/terms", "/privacy", "/contact"
+        "/help", "/terms", "/privacy", "/contact", "/activate"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
@@ -63,6 +86,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 {children || <Outlet />}
             </main>
             {!isCleanPage && <Footer />}
+
+            <RankCelebrationModal
+                isOpen={showRankCelebration}
+                currentRank={currentRank || 0}
+                onClose={() => setShowRankCelebration(false)}
+            />
         </div>
     );
 };

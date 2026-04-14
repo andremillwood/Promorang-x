@@ -124,7 +124,10 @@ const UserProfilePage = () => {
                     .single();
 
                 if (data) {
-                    setProfile(data as any);
+                    setProfile({
+                        ...data,
+                        full_name: (data as any).display_name || (data as any).full_name || "User"
+                    } as any);
                 } else if (isOwnProfile && user) {
                     // Fallback for current user if no profile record exists yet
                     setProfile({
@@ -203,7 +206,7 @@ const UserProfilePage = () => {
                                 {profile.avatar_url ? (
                                     <img src={profile.avatar_url} alt={profile.full_name} className="h-full w-full object-cover" />
                                 ) : (
-                                    profile.full_name.charAt(0)
+                                    (profile.full_name || "?").charAt(0)
                                 )}
                             </div>
                             {profile.is_superhost && (

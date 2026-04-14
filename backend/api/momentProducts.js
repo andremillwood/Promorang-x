@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const momentProductService = require('../services/momentProductService');
 const unifiedRedemptionService = require('../services/unifiedRedemptionService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * Moment-Product Integration API Routes
@@ -16,7 +16,7 @@ const { authenticateUser } = require('../middleware/auth');
  * Link a product to a moment
  * POST /api/moments/:momentId/products/link
  */
-router.post('/:momentId/products/link', authenticateUser, async (req, res) => {
+router.post('/:momentId/products/link', requireAuth, async (req, res) => {
     try {
         const { momentId } = req.params;
         const { productId, visibility, momentExclusive, autoRedeemOnParticipation } = req.body;
@@ -38,7 +38,7 @@ router.post('/:momentId/products/link', authenticateUser, async (req, res) => {
  * Unlink a product from a moment
  * DELETE /api/moments/products/:productId/unlink
  */
-router.delete('/products/:productId/unlink', authenticateUser, async (req, res) => {
+router.delete('/products/:productId/unlink', requireAuth, async (req, res) => {
     try {
         const { productId } = req.params;
         const product = await momentProductService.unlinkProductFromMoment(productId);
@@ -68,7 +68,7 @@ router.get('/:momentId/products', async (req, res) => {
  * Check user access to moment-exclusive product
  * GET /api/moments/products/:productId/access
  */
-router.get('/products/:productId/access', authenticateUser, async (req, res) => {
+router.get('/products/:productId/access', requireAuth, async (req, res) => {
     try {
         const { productId } = req.params;
         const userId = req.user.id;
@@ -89,7 +89,7 @@ router.get('/products/:productId/access', authenticateUser, async (req, res) => 
  * Create redemption from entitlement
  * POST /api/entitlements/:entitlementId/redeem
  */
-router.post('/entitlements/:entitlementId/redeem', authenticateUser, async (req, res) => {
+router.post('/entitlements/:entitlementId/redeem', requireAuth, async (req, res) => {
     try {
         const { entitlementId } = req.params;
         const userId = req.user.id;
@@ -114,7 +114,7 @@ router.post('/entitlements/:entitlementId/redeem', authenticateUser, async (req,
  * Validate any redemption code (unified)
  * POST /api/redemptions/unified/:code/validate
  */
-router.post('/unified/:code/validate', authenticateUser, async (req, res) => {
+router.post('/unified/:code/validate', requireAuth, async (req, res) => {
     try {
         const { code } = req.params;
         const merchantId = req.user.id;
@@ -146,7 +146,7 @@ router.get('/unified/:code', async (req, res) => {
  * Get user's redemptions
  * GET /api/redemptions/user/:userId
  */
-router.get('/user/:userId', authenticateUser, async (req, res) => {
+router.get('/user/:userId', requireAuth, async (req, res) => {
     try {
         const { userId } = req.params;
         const { status, type, limit } = req.query;
@@ -172,7 +172,7 @@ router.get('/user/:userId', authenticateUser, async (req, res) => {
  * Get merchant's redemptions
  * GET /api/redemptions/merchant/:merchantId
  */
-router.get('/merchant/:merchantId', authenticateUser, async (req, res) => {
+router.get('/merchant/:merchantId', requireAuth, async (req, res) => {
     try {
         const { merchantId } = req.params;
         const { status, startDate, endDate, limit } = req.query;
@@ -198,7 +198,7 @@ router.get('/merchant/:merchantId', authenticateUser, async (req, res) => {
  * Get redemption statistics
  * GET /api/redemptions/stats
  */
-router.get('/stats', authenticateUser, async (req, res) => {
+router.get('/stats', requireAuth, async (req, res) => {
     try {
         const { merchantId, startDate, endDate } = req.query;
 
@@ -222,7 +222,7 @@ router.get('/stats', authenticateUser, async (req, res) => {
  * Distribute escrow as product entitlements
  * POST /api/escrow/:escrowPoolId/distribute-products
  */
-router.post('/escrow/:escrowPoolId/distribute-products', authenticateUser, async (req, res) => {
+router.post('/escrow/:escrowPoolId/distribute-products', requireAuth, async (req, res) => {
     try {
         const { escrowPoolId } = req.params;
         const { productId, quantityPerUser } = req.body;

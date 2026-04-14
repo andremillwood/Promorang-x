@@ -41,49 +41,51 @@ export default function UserTierUpgradeModal({ user, isOpen, onClose, onSuccess 
 
   const getTierInfo = (tier: string) => {
     switch (tier) {
+      case 'power_user':
       case 'super':
         return {
-          name: 'Super User',
+          name: 'Power User',
           icon: Crown,
           color: 'text-yellow-600',
           bgColor: 'bg-yellow-50',
           borderColor: 'border-yellow-200',
           benefits: [
-            '2.0x point multiplier for all actions',
-            '1 proof drop required for Master Key',
-            '1,000 monthly Instagram points',
-            'Priority support',
-            'Exclusive events access',
-            'Advanced analytics'
+            '2.0x Earning multiplier on all actions',
+            'Instant Master Key Activation (1 Action)',
+            'Priority Campaign Discovery',
+            'Dedicated Creator Support',
+            'Exclusive High-Ticket Access',
+            'Strategic Performance Analytics'
           ]
         };
+      case 'professional':
       case 'premium':
         return {
-          name: 'Premium User',
+          name: 'Professional',
           icon: Star,
           color: 'text-purple-600',
           bgColor: 'bg-purple-50',
           borderColor: 'border-purple-200',
           benefits: [
-            '1.5x point multiplier for all actions',
-            '2 proof drops required for Master Key',
-            '750 monthly Instagram points',
-            'Priority support',
-            'Advanced analytics'
+            '1.5x Earning multiplier on all actions',
+            'Fast-Track Activation (2 Actions)',
+            'Greater Campaign Visibility',
+            'Professional Support',
+            'Priority Analytics Dashboard'
           ]
         };
       default:
         return {
-          name: 'Free User',
+          name: 'Starter',
           icon: Zap,
           color: 'text-gray-600',
           bgColor: 'bg-gray-50',
           borderColor: 'border-gray-200',
           benefits: [
-            '1.0x point multiplier',
-            '5 proof drops required for Master Key',
-            '500 monthly Instagram points',
-            'Standard support'
+            'Standard Earning Multiplier',
+            'Standard Activation (5 Actions)',
+            'Standard Campaign Access',
+            'Community Support'
           ]
         };
     }

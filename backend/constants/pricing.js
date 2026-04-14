@@ -15,6 +15,7 @@ const CREATOR_TIERS = {
         price: 0,
         billingInterval: 'monthly',
         purpose: 'Liquidity and habit formation',
+        externalLabel: 'Free: Earn from simple social actions',
         features: [
             'Access to public Drops',
             'Limited daily Move participation',
@@ -33,6 +34,7 @@ const CREATOR_TIERS = {
         price: 10,
         billingInterval: 'monthly',
         purpose: 'Higher participation velocity',
+        externalLabel: 'Pro: Get priority access and withdraw earnings',
         features: [
             'Increased daily participation',
             'Weekly PromoKeys',
@@ -52,6 +54,7 @@ const CREATOR_TIERS = {
         price: 30,
         billingInterval: 'monthly',
         purpose: 'System drivers',
+        externalLabel: 'Power User: Maximize earnings and access high-value campaigns',
         features: [
             'Maximum participation limits',
             'Full PromoKey access',
@@ -75,10 +78,12 @@ const CREATOR_TIERS = {
 const ADVERTISER_TIERS = {
     free: {
         id: 'free',
-        name: 'Free',
+        name: 'Free (Launch Your Own)',
+        externalLabel: 'Launch Your Own Campaign',
         price: 0,
+        jmdAnchor: 'JMD $5K - $25K',
         billingInterval: 'monthly',
-        purpose: 'Education and sandbox testing',
+        purpose: 'Self-serve / Education and sandbox testing',
         moves: {
             amount: 50,
             period: 'month',
@@ -88,9 +93,10 @@ const ADVERTISER_TIERS = {
             paidDrops: 0,
         },
         features: [
-            '50 Moves / month',
-            '5 Proof Drops',
+            '50 Actions from real people / month',
+            '5 Proof Campaigns',
             'Basic analytics',
+            'Self-serve campaign builder',
         ],
         restrictions: {
             promoShareEnabled: false,
@@ -99,22 +105,25 @@ const ADVERTISER_TIERS = {
     },
     starter: {
         id: 'starter',
-        name: 'Starter',
-        price: 50,
-        billingInterval: 'monthly',
-        purpose: 'Micro-activation',
+        name: 'Hero Offer (100 Real People)',
+        externalLabel: '100 Real People Campaign',
+        price: 50, // Approx $160 USD mapping to JMD $25K
+        jmdAnchor: 'JMD $25,000',
+        billingInterval: 'single', // Effectively a 5-day hero burst
+        purpose: 'Hero Entry / 100 people in 5 days',
         moves: {
             amount: 100,
-            period: 'month',
+            period: 'campaign',
         },
         inventory: {
             proofDrops: 8,
             paidDrops: 2,
         },
         features: [
-            '100 Moves / month',
-            '8 Proof Drops',
-            '2 Paid Drops',
+            '100 Verified actions (likes/comments/shares/visits)',
+            '10-20 UGC pieces (optional)',
+            '1 Digital Moment activation',
+            'Verification Dashboard',
         ],
         restrictions: {
             promoShareEnabled: false,
@@ -123,12 +132,14 @@ const ADVERTISER_TIERS = {
     },
     growth: {
         id: 'growth',
-        name: 'Growth',
-        price: 300,
+        name: 'Core Offer (Customer Activation)',
+        externalLabel: 'Customer Activation Campaign',
+        price: 750, // Approx JMD $120K
+        jmdAnchor: 'JMD $120,000',
         billingInterval: 'monthly',
-        purpose: 'Repeatable engagement',
+        purpose: 'Repeatable engine / 500-1,000 actions',
         moves: {
-            amount: 200,
+            amount: 500,
             period: 'week',
         },
         inventory: {
@@ -136,11 +147,11 @@ const ADVERTISER_TIERS = {
             paidDrops: 8,
         },
         features: [
-            '200 Moves / week',
-            '15 Proof Drops',
-            '8 Paid Drops',
-            'Advanced analytics',
-            'Audience targeting tools',
+            '500-1,000 Verified actions',
+            'UGC + Engagement mix',
+            'Bounty Moment (Distributed)',
+            'Location & Interest targeting',
+            'Advanced performance reporting',
         ],
         restrictions: {
             promoShareEnabled: true,
@@ -149,12 +160,14 @@ const ADVERTISER_TIERS = {
     },
     premium: {
         id: 'premium',
-        name: 'Premium',
-        price: 900,
+        name: 'High-Ticket (Attention System)',
+        externalLabel: 'Always-On Attention System',
+        price: 2500, // Approx starting at JMD $350K+
+        jmdAnchor: 'JMD $350,000 - $900,000+',
         billingInterval: 'monthly',
-        purpose: 'Attention dominance',
+        purpose: 'Attention dominance / Continuous engagement',
         moves: {
-            amount: 500,
+            amount: 2000,
             period: 'week',
         },
         inventory: {
@@ -162,13 +175,12 @@ const ADVERTISER_TIERS = {
             paidDrops: 15,
         },
         features: [
-            '500 Moves / week',
-            '25 Proof Drops',
-            '15 Paid Drops',
-            'Premium analytics + reporting',
-            'Dedicated success manager',
-            'Priority PromoKey distribution',
-            'Leaderboard incentive targeting',
+            'Continuous "Always-On" social presence',
+            'Recurring Merchant Moments',
+            'Full Creator Network access',
+            'Event & Digital ecosystem integration',
+            'Dedicated Strategic Account Manager',
+            'Monthly outcome-driven reporting',
         ],
         restrictions: {
             promoShareEnabled: true,
@@ -177,8 +189,10 @@ const ADVERTISER_TIERS = {
     },
     enterprise: {
         id: 'enterprise',
-        name: 'Enterprise',
+        name: 'Enterprise Ecosystem',
+        externalLabel: 'Custom Ecosystem Anchoring',
         price: null, // Custom pricing
+        jmdAnchor: 'Custom Quote',
         billingInterval: 'custom',
         purpose: 'Ecosystem anchoring',
         moves: {

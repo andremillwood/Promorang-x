@@ -55,9 +55,9 @@ async function getPendingApplications() {
         .select(`
             *,
             profiles:user_id (
-                full_name,
+                full_name:display_name,
                 avatar_url,
-                maturity_state
+                maturity_state:user_tier
             )
         `)
         .eq('status', 'pending')

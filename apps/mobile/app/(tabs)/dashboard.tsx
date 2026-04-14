@@ -9,6 +9,8 @@ import { useUserBalance } from '@/hooks/useEconomy';
 import { useAuth } from '@/context/AuthContext';
 
 import { useRouter } from 'expo-router';
+import { ProductTour } from '@/components/ProductTour';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 export default function DashboardScreen() {
     const colorScheme = useColorScheme();
@@ -73,6 +75,9 @@ export default function DashboardScreen() {
             </View>
 
             <View style={{ height: 100 }} />
+
+            {/* Product Tour */}
+            <ProductTour tourId="dashboard" autoStart={true} />
         </ScrollView>
     );
 }
@@ -93,11 +98,11 @@ function ParticipantDashboardView({ balance, progressPercent, isDark }: any) {
                         <View style={styles.rankIcon}>
                             <Ionicons name="trending-up" size={16} color={DesignColors.primary} />
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'transparent' }}>
                             <Text style={styles.rankTitle}>Consistency Rank</Text>
-                            <Text style={styles.rankLevel}>Level 1 Pioneer</Text>
+                            <InfoTooltip content="Your rank is based on how consistently you participate in moments. Higher ranks unlock priority access!" />
                         </View>
-                        <View style={{ alignItems: 'flex-end' }}>
+                        <View style={{ alignItems: 'flex-end', backgroundColor: 'transparent' }}>
                             <Text style={styles.rankPercent}>25%</Text>
                         </View>
                     </View>
@@ -119,11 +124,11 @@ function ParticipantDashboardView({ balance, progressPercent, isDark }: any) {
                         <View style={[styles.rankIcon, { backgroundColor: '#F59E0B20' }]}>
                             <Ionicons name="key" size={16} color="#F59E0B" />
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'transparent' }}>
                             <Text style={styles.rankTitle}>Key Progress</Text>
-                            <Text style={styles.rankLevel}>{balance?.points || 0} Points</Text>
+                            <InfoTooltip content="Earn points to forge new Keys. Keys are used to unlock premium opportunities." />
                         </View>
-                        <View style={{ alignItems: 'flex-end' }}>
+                        <View style={{ alignItems: 'flex-end', backgroundColor: 'transparent' }}>
                             <Text style={[styles.rankPercent, { color: '#F59E0B' }]}>{Math.round(progressPercent)}%</Text>
                         </View>
                     </View>

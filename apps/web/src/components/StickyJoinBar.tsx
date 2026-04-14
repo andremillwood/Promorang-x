@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
-import { Gift, Users, Flame, ChevronDown } from "lucide-react";
+import { Gift, Users, Flame, ChevronDown, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface StickyJoinBarProps {
     momentId: string;
@@ -40,6 +41,8 @@ export function StickyJoinBar({
     const [isVisible, setIsVisible] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
 
+    const { toast } = useToast();
+
     useEffect(() => {
         const handleScroll = () => {
             // Show sticky bar after scrolling past 400px
@@ -50,6 +53,27 @@ export function StickyJoinBar({
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    const handlePingSquad = async () => {
+        const text = `I'm going to ${title}! Download Promorang and join me so we can unlock the Squad Bounty 🔒🔥`;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Join my Squad on Promorang!',
+                    text: text,
+                    url: window.location.href
+                });
+            } catch (err) {
+                console.log('Error sharing', err);
+            }
+        } else {
+            await navigator.clipboard.writeText(`${text} ${window.location.href}`);
+            toast({
+                title: "Squad Link Copied! 🔗",
+                description: "Paste this in your group chat to assemble your squad.",
+            });
+        }
+    };
 
     const spotsLeft = maxParticipants ? maxParticipants - participantCount : null;
     const isAlmostFull = spotsLeft !== null && spotsLeft <= 5;
@@ -145,6 +169,17 @@ export function StickyJoinBar({
                         {/* Right side - CTA */}
                         <div className="flex items-center gap-2">
                             <SaveButton momentId={momentId} size="md" className="hidden sm:flex" />
+                            {isJoined && !isPast && !isHost && (
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={handlePingSquad}
+                                    className="whitespace-nowrap border-accent text-accent hover:bg-accent/10"
+                                >
+                                    <Share2 className="w-4 h-4 mr-2" />
+                                    Ping Squad
+                                </Button>
+                            )}
                             <Button
                                 variant={getButtonVariant()}
                                 size="lg"

@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useUserBalance } from '@/hooks/useEconomy';
 import { useMoments } from '@/hooks/useMoments';
 import { useAuth } from '@/context/AuthContext';
+import { ProductTour } from '@/components/ProductTour';
 
 export default function TodayScreen() {
   const colorScheme = useColorScheme();
@@ -29,7 +30,7 @@ export default function TodayScreen() {
       <View style={[styles.heroCard, { backgroundColor: DesignColors.secondary }]}>
         <View style={styles.heroContent}>
           <View style={{ backgroundColor: 'transparent' }}>
-            <Text style={styles.heroGreeting}>Good morning, {user?.name || 'Explorer'}</Text>
+            <Text style={styles.heroGreeting}>Good morning, {user?.user_metadata?.full_name?.split(" ")[0] || 'Explorer'}</Text>
             <Text style={styles.heroTitle}>Daily <Text style={{ color: DesignColors.primary }}>Momentum</Text></Text>
           </View>
           <View style={styles.progressCircle}>
@@ -44,7 +45,7 @@ export default function TodayScreen() {
           </View>
           <View style={[styles.statSeparator, { backgroundColor: DesignColors.gray[700] }]} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{balance?.keys || 0}</Text>
+            <Text style={styles.statValue}>{balance?.promokeys || 0}</Text>
             <Text style={styles.statLabel}>Keys</Text>
           </View>
           <View style={[styles.statSeparator, { backgroundColor: DesignColors.gray[700] }]} />
@@ -119,6 +120,9 @@ export default function TodayScreen() {
       </ScrollView>
 
       <View style={{ height: 100 }} />
+
+      {/* First-Time User Tour */}
+      <ProductTour tourId="first-time-user" autoStart={true} />
     </ScrollView>
   );
 }

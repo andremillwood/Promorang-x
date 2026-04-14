@@ -16,10 +16,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ShareButton } from "@/components/ShareButton";
 import { QRCodeDisplay } from "@/components/QRCodeDisplay";
 import { MomentStatusBadge, type MomentStatus } from "@/components/MomentStatusBadge";
+import { Badge } from "@/components/ui/badge";
 import { MediaUploadDialog } from "@/components/participant/MediaUploadDialog";
 import { ReviewDialog } from "@/components/participant/ReviewDialog";
 import { useMomentMedia, useMomentReviews } from "@/hooks/useUGC";
 import { CalendarButton } from "@/components/CalendarButton";
+import { demoMoments } from "@/data/demo-moments";
+import { PioneerBadge } from "@/components/badges/PioneerBadge";
+import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
 import {
   ArrowLeft,
   Calendar,
@@ -39,7 +43,9 @@ import {
   Heart,
   Flame,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
+import { MerchantVerificationModal } from "@/components/merchant/MerchantVerificationModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Moment = Tables<"moments"> & {
@@ -58,6 +64,8 @@ const MomentDetail = () => {
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isDemo = id?.startsWith('m') && id?.length <= 4;
   const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -71,8 +79,8 @@ const MomentDetail = () => {
   const isHost = user && moment?.host_id === user.id;
 
   // Fetch UGC data
-  const { data: momentMedia } = useMomentMedia(id || "");
-  const { data: momentReviews } = useMomentReviews(id || "");
+  const { data: momentMedia } = useMomentMedia(!isDemo ? id || "" : "");
+  const { data: momentReviews } = useMomentReviews(!isDemo ? id || "" : "");
 
   useEffect(() => {
     if (id) {
@@ -84,6 +92,24 @@ const MomentDetail = () => {
     if (!id) return;
 
     setLoading(true);
+
+    // Handle demo moments
+    if (id.startsWith('m') && id.length <= 4) {
+      const demoMoment = demoMoments.find(m => m.id === id);
+      if (demoMoment) {
+        console.log("Loading demo moment:", id);
+        setMoment(demoMoment as any);
+        setParticipantCount(demoMoment.participant_count || 0);
+        setHostProfile({
+          full_name: demoMoment.host.full_name,
+          avatar_url: demoMoment.host.avatar_url,
+          created_at: new Date().toISOString()
+        });
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       // Fetch moment details
       const { data: momentData, error: momentError } = await supabase
@@ -151,6 +177,15 @@ const MomentDetail = () => {
 
     setIsJoining(true);
     try {
+      if (isDemo) {
+        toast({
+          title: "Demo Moment",
+          description: "This is an example moment. You can't join it, but you can explore how it works!",
+        });
+        setIsJoining(false);
+        return;
+      }
+
       if (isJoined) {
         const { error } = await supabase
           .from("moment_participants")
@@ -359,7 +394,7 @@ const MomentDetail = () => {
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <MomentStatusBadge status={(moment.status as MomentStatus) || (isPast ? 'closed' : 'joinable')} />
                 <span className="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full">
-                  {moment.category.charAt(0).toUpperCase() + moment.category.slice(1)}
+                  {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
                 </span>
                 {moment.reward && (
                   <span className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full flex items-center gap-1">
@@ -373,18 +408,36 @@ const MomentDetail = () => {
                 {moment.title}
               </h1>
 
-              {/* Social Proof */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  {participantCount} joined
-                </span>
+              {/* Social Proof & FOMO Facepile */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground bg-card/50 p-2 rounded-2xl border border-border/50 inline-flex shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    {/* Rank 5 Visual Flex (Golden Glow) */}
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[4] ring-2 ring-orange-500 ring-offset-1 ring-offset-background shadow-[0_0_10px_rgba(249,115,22,0.6)]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="High Rank Attendee" className="w-full h-full object-cover"/></div>
+                    {/* Rank 3 Visual Flex (Silver Border) */}
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[3] ring-1 ring-slate-400 ring-offset-1"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Mid Rank Attendee" className="w-full h-full object-cover"/></div>
+                    {/* Standard User */}
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Attendee" className="w-full h-full object-cover"/></div>
+                    
+                    <div className="w-8 h-8 rounded-full border-2 border-background bg-accent overflow-hidden z-[1] shadow-sm flex items-center justify-center text-[10px] font-bold text-white">
+                        +{Math.max(0, participantCount - 3)}
+                    </div>
+                  </div>
+                  <span className="font-semibold text-foreground px-2">
+                    {Math.max(participantCount, 3)} people going
+                  </span>
+                </div>
                 {participantCount > 10 && (
                   <span className="flex items-center gap-1 text-orange-500">
                     <Flame className="h-4 w-4" />
                     Trending
                   </span>
                 )}
+                {/* Live Pulse Indicator */}
+                <div className="flex items-center gap-2 pl-2 border-l border-border/50">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">12 Live Now</span>
+                </div>
                 {momentReviews && momentReviews.length > 0 && (
                   <span className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
@@ -430,7 +483,7 @@ const MomentDetail = () => {
 
               <div className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
                 <MapPin className="w-6 h-6 text-primary flex-shrink-0" />
-                <div>
+                <div className="flex-1">
                   {moment.venue_name && (
                     <p className="font-medium text-foreground">{moment.venue_name}</p>
                   )}
@@ -439,10 +492,23 @@ const MomentDetail = () => {
                     href={`https://maps.google.com/?q=${encodeURIComponent(moment.location)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-1 mt-1"
+                    className="text-sm text-primary hover:underline flex items-center gap-1 mt-1 font-medium"
                   >
                     View on map <ExternalLink className="h-3 w-3" />
                   </a>
+                  
+                  {/* The Unclaimed Value Trap */}
+                  <div className="mt-4 pt-3 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground mb-2 font-medium">
+                      Are you the owner of {moment.venue_name || 'this venue'}?
+                    </p>
+                    <Button variant="secondary" size="sm" className="w-full text-xs h-8 bg-secondary/50 hover:bg-secondary" asChild>
+                      <Link to={`/venue-report/${moment.id}`}>
+                        <Sparkles className="w-3 h-3 mr-1 text-primary" />
+                        Claim Engagement Report
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -487,9 +553,21 @@ const MomentDetail = () => {
                   This moment uses <span className="text-foreground font-bold">{moment.proof_type || 'Code'} Verification</span>.
                   Prepare to {moment.proof_type === 'Photo' ? 'take a photo' : moment.proof_type === 'GPS' ? 'share your location' : 'enter a code'} to unlock your rewards.
                 </p>
-                <Button variant="hero" asChild>
-                  <Link to={`/moments/${moment.id}/checkin`}>Start {moment.expected_action_unit || 'Check-in'}</Link>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button variant="hero" className="flex-1" asChild>
+                    <Link to={`/moments/${moment.id}/checkin`}>Start {moment.expected_action_unit || 'Check-in'}</Link>
+                  </Button>
+                  
+                  {moment.venue_name && (
+                    <div className="flex-1">
+                      <MerchantVerificationModal 
+                        momentTitle={moment.title} 
+                        venueName={moment.venue_name} 
+                        onVerified={() => setIsCheckedIn(true)} 
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -536,9 +614,12 @@ const MomentDetail = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif text-xl font-semibold mb-4 flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    Moment Activity
+                  <h3 className="font-serif text-xl font-bold mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5 text-primary" />
+                        The Moment Wall
+                    </div>
+                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 text-primary border-primary/20">Live Feed</Badge>
                   </h3>
                   <CommentSection
                     momentId={moment.id}
@@ -595,6 +676,9 @@ const MomentDetail = () => {
           {/* Right Column - Sidebar */}
           <div className="hidden lg:block">
             <div className="sticky top-24 space-y-6">
+              {/* Squad Engine */}
+              <SquadJoinCard momentId={id || ""} momentTitle={moment.title} />
+
               {/* Join Card */}
               <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
                 {moment.reward && (

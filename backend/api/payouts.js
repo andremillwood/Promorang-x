@@ -7,13 +7,13 @@ const express = require('express');
 const router = express.Router();
 const payoutService = require('../services/payoutService');
 const roleService = require('../services/roleService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * GET /api/payouts/methods
  * Get user's payout methods
  */
-router.get('/methods', authenticateUser, async (req, res) => {
+router.get('/methods', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const methods = await payoutService.getPayoutMethods(userId);
@@ -29,7 +29,7 @@ router.get('/methods', authenticateUser, async (req, res) => {
  * POST /api/payouts/methods
  * Add a new payout method
  */
-router.post('/methods', authenticateUser, async (req, res) => {
+router.post('/methods', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const { type, details, is_default } = req.body;
@@ -51,7 +51,7 @@ router.post('/methods', authenticateUser, async (req, res) => {
  * POST /api/payouts/withdraw
  * Request a withdrawal
  */
-router.post('/withdraw', authenticateUser, async (req, res) => {
+router.post('/withdraw', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const { amount, payout_method_id } = req.body;
@@ -77,7 +77,7 @@ router.post('/withdraw', authenticateUser, async (req, res) => {
  * GET /api/payouts/history
  * Get withdrawal history
  */
-router.get('/history', authenticateUser, async (req, res) => {
+router.get('/history', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const history = await payoutService.getWithdrawalHistory(userId);
@@ -97,7 +97,7 @@ router.get('/history', authenticateUser, async (req, res) => {
  * GET /api/payouts/admin/requests
  * Get pending withdrawal requests
  */
-router.get('/admin/requests', authenticateUser, async (req, res) => {
+router.get('/admin/requests', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
 
@@ -119,7 +119,7 @@ router.get('/admin/requests', authenticateUser, async (req, res) => {
  * PATCH /api/payouts/admin/requests/:id
  * Approve/Reject withdrawal request
  */
-router.patch('/admin/requests/:id', authenticateUser, async (req, res) => {
+router.patch('/admin/requests/:id', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const requestId = req.params.id;

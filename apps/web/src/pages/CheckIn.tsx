@@ -13,6 +13,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
 import { CheckInCelebration } from "@/components/CheckInCelebration";
 import { AnimatePresence } from "framer-motion";
+import { demoMoments } from "@/data/demo-moments";
 
 const CheckIn = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +38,16 @@ const CheckIn = () => {
   }, [id]);
 
   const fetchMoment = async () => {
+    if (!id) return;
+
+    if (id.startsWith('m') && id.length <= 4) {
+      const demoMoment = demoMoments.find(m => m.id === id);
+      if (demoMoment) {
+        setMoment(demoMoment);
+        return;
+      }
+    }
+
     const { data, error } = await supabase
       .from("moments")
       .select("*")
@@ -44,7 +55,10 @@ const CheckIn = () => {
       .single();
 
     if (data) setMoment(data);
-    if (error) console.error("Error fetching moment:", error);
+    if (error) {
+      console.error("Error fetching moment:", error);
+      toast({ title: "Moment not found", description: "This moment could not be loaded.", variant: "destructive" });
+    }
   };
 
   const handleGPSVerify = () => {
@@ -75,6 +89,13 @@ const CheckIn = () => {
     if (!user || !moment) return;
 
     setLoading(true);
+
+    if (id?.startsWith('m')) {
+      toast({ title: "Demo Check-in", description: "Successfully simulated check-in for this demo moment!" });
+      setSuccess(true);
+      setLoading(false);
+      return;
+    }
 
     try {
       let evidenceUrl = null;

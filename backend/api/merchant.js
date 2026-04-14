@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const merchantProductService = require('../services/merchantProductService');
 const merchantSalesService = require('../services/merchantSalesService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * Merchant API Routes
@@ -17,7 +17,7 @@ const { authenticateUser } = require('../middleware/auth');
  * POST /api/merchant/products
  * Create a new product
  */
-router.post('/products', authenticateUser, async (req, res) => {
+router.post('/products', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const productData = req.body;
@@ -34,7 +34,7 @@ router.post('/products', authenticateUser, async (req, res) => {
  * GET /api/merchant/products
  * Get all products for the merchant
  */
-router.get('/products', authenticateUser, async (req, res) => {
+router.get('/products', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { category, is_active } = req.query;
@@ -55,7 +55,7 @@ router.get('/products', authenticateUser, async (req, res) => {
  * GET /api/merchant/products/:id
  * Get single product details
  */
-router.get('/products/:id', authenticateUser, async (req, res) => {
+router.get('/products/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const product = await merchantProductService.getProductById(id);
@@ -70,7 +70,7 @@ router.get('/products/:id', authenticateUser, async (req, res) => {
  * PATCH /api/merchant/products/:id
  * Update a product
  */
-router.patch('/products/:id', authenticateUser, async (req, res) => {
+router.patch('/products/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const merchantId = req.user.id;
@@ -88,7 +88,7 @@ router.patch('/products/:id', authenticateUser, async (req, res) => {
  * DELETE /api/merchant/products/:id
  * Delete (deactivate) a product
  */
-router.delete('/products/:id', authenticateUser, async (req, res) => {
+router.delete('/products/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const merchantId = req.user.id;
@@ -109,7 +109,7 @@ router.delete('/products/:id', authenticateUser, async (req, res) => {
  * PATCH /api/merchant/products/:id/inventory
  * Update product inventory
  */
-router.patch('/products/:id/inventory', authenticateUser, async (req, res) => {
+router.patch('/products/:id/inventory', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const merchantId = req.user.id;
@@ -136,7 +136,7 @@ router.patch('/products/:id/inventory', authenticateUser, async (req, res) => {
  * GET /api/merchant/products/:id/inventory-logs
  * Get inventory change logs for a product
  */
-router.get('/products/:id/inventory-logs', authenticateUser, async (req, res) => {
+router.get('/products/:id/inventory-logs', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { limit = 50 } = req.query;
@@ -153,7 +153,7 @@ router.get('/products/:id/inventory-logs', authenticateUser, async (req, res) =>
  * GET /api/merchant/inventory/low-stock
  * Get products with low stock
  */
-router.get('/inventory/low-stock', authenticateUser, async (req, res) => {
+router.get('/inventory/low-stock', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const products = await merchantProductService.getLowStockProducts(merchantId);
@@ -172,7 +172,7 @@ router.get('/inventory/low-stock', authenticateUser, async (req, res) => {
  * GET /api/merchant/sales
  * Get sales for the merchant
  */
-router.get('/sales', authenticateUser, async (req, res) => {
+router.get('/sales', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { status, startDate, endDate } = req.query;
@@ -194,7 +194,7 @@ router.get('/sales', authenticateUser, async (req, res) => {
  * POST /api/merchant/sales/:code/validate
  * Validate a redemption code
  */
-router.post('/sales/:code/validate', authenticateUser, async (req, res) => {
+router.post('/sales/:code/validate', requireAuth, async (req, res) => {
     try {
         const { code } = req.params;
         const merchantId = req.user.id;
@@ -215,7 +215,7 @@ router.post('/sales/:code/validate', authenticateUser, async (req, res) => {
  * GET /api/merchant/analytics/summary
  * Get sales summary and metrics
  */
-router.get('/analytics/summary', authenticateUser, async (req, res) => {
+router.get('/analytics/summary', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -236,7 +236,7 @@ router.get('/analytics/summary', authenticateUser, async (req, res) => {
  * GET /api/merchant/analytics/top-products
  * Get top selling products
  */
-router.get('/analytics/top-products', authenticateUser, async (req, res) => {
+router.get('/analytics/top-products', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { limit = 10, startDate, endDate } = req.query;
@@ -261,7 +261,7 @@ router.get('/analytics/top-products', authenticateUser, async (req, res) => {
  * GET /api/merchant/analytics/sales-over-time
  * Get sales data over time for charts
  */
-router.get('/analytics/sales-over-time', authenticateUser, async (req, res) => {
+router.get('/analytics/sales-over-time', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { groupBy = 'day', startDate, endDate } = req.query;
@@ -286,7 +286,7 @@ router.get('/analytics/sales-over-time', authenticateUser, async (req, res) => {
  * GET /api/merchant/analytics/customers
  * Get customer insights
  */
-router.get('/analytics/customers', authenticateUser, async (req, res) => {
+router.get('/analytics/customers', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -307,7 +307,7 @@ router.get('/analytics/customers', authenticateUser, async (req, res) => {
  * GET /api/merchant/analytics/redemptions
  * Get redemption analytics
  */
-router.get('/analytics/redemptions', authenticateUser, async (req, res) => {
+router.get('/analytics/redemptions', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;

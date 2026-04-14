@@ -14,7 +14,12 @@ import { LoyaltyProgramTab } from "@/components/brand/LoyaltyProgramTab";
 import { BrandFundingTab } from "@/components/brand/BrandFundingTab";
 import BudgetManager from "@/components/brand/BudgetManager";
 import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
+import { BrandImpactDashboard } from "@/components/brand/BrandImpactDashboard";
+import { QuickAddClient } from "@/components/agency/QuickAddClient";
 import { Zap, X } from "lucide-react";
+import { IntelligenceBureau } from "@/components/brand/IntelligenceBureau";
+
+import { BrandEstimator } from "@/components/brand/BrandEstimator";
 
 const BrandDashboard = () => {
   const { user } = useAuth();
@@ -28,17 +33,24 @@ const BrandDashboard = () => {
   const [isFlashCompilerOpen, setIsFlashCompilerOpen] = useState(false);
 
   const activeCampaigns = campaigns?.filter((c) => c.is_active) || [];
+  const { organizations, activeOrgId } = useAuth();
+  
+  const currentOrg = organizations.find(o => o.id === activeOrgId);
+  const isAgency = currentOrg?.type === 'agency';
 
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-2">
+            Your Brand Hub
+          </div>
+          <h1 className="font-serif text-3xl font-bold text-foreground mb-1">
             Brand Events <span className="text-primary italic">Overview</span>
           </h1>
-          <p className="text-muted-foreground font-serif italic">
-            Command your brand's presence and track every meaningful engagement.
+          <p className="text-muted-foreground font-serif italic text-sm">
+            See how your campaigns connect with real people in real places.
           </p>
         </div>
         <div className="flex gap-2">
@@ -50,6 +62,9 @@ const BrandDashboard = () => {
             {isFlashCompilerOpen ? <X className="w-4 h-4 mr-2" /> : <Zap className="w-4 h-4 mr-2 fill-primary" />}
             {isFlashCompilerOpen ? "Close Compiler" : "Flash Launch"}
           </Button>
+          {isAgency && (
+            <QuickAddClient />
+          )}
           <Button variant="hero" asChild>
             <Link to="/dashboard/campaigns/create">
               <Plus className="w-4 h-4 mr-2" />
@@ -78,10 +93,10 @@ const BrandDashboard = () => {
           ))
         ) : (
           [
-            { label: "Points Distributed", value: economy?.totalPointsDistributed?.toLocaleString() || "0", icon: Coins, color: "text-amber-500" },
-            { label: "Direct ROI", value: stats?.attributedSales ? `$${stats.attributedSales.toLocaleString()}` : "$0", icon: TrendingUp, color: "text-emerald-500" },
-            { label: "Direct Claims", value: stats?.totalRedemptions?.toLocaleString() || "0", icon: Gift, color: "text-accent" },
-            { label: "Active Events", value: stats?.activeCampaigns || 0, icon: BarChart3, color: "text-primary" },
+            { label: "Points Given Out", value: economy?.totalPointsDistributed?.toLocaleString() || "0", icon: Coins, color: "text-amber-500" },
+            { label: "Real-World Sales", value: stats?.attributedSales ? `$${stats.attributedSales.toLocaleString()}` : "$0", icon: TrendingUp, color: "text-emerald-500" },
+            { label: "Reward Claims", value: stats?.totalRedemptions?.toLocaleString() || "0", icon: Gift, color: "text-accent" },
+            { label: "Live Campaigns", value: stats?.activeCampaigns || 0, icon: BarChart3, color: "text-primary" },
           ].map((stat, index) => (
             <div key={index} className="group relative bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-border/50 hover:border-primary/30 transition-all duration-300">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
@@ -101,14 +116,22 @@ const BrandDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-4xl grid-cols-6">
+        <TabsList className="grid w-full max-w-5xl grid-cols-4 md:grid-cols-8">
           <TabsTrigger value="overview" className="gap-2">
             <Building2 className="w-4 h-4" />
             <span className="hidden sm:inline">Events</span>
           </TabsTrigger>
+          <TabsTrigger value="forecaster" className="gap-2 text-primary font-black uppercase tracking-tighter">
+            <Zap className="w-4 h-4" />
+            <span className="hidden sm:inline">Planner</span>
+          </TabsTrigger>
+          <TabsTrigger value="intelligence" className="gap-2">
+            <BarChart3 className="w-4 h-4" />
+            <span className="hidden sm:inline">Insights</span>
+          </TabsTrigger>
           <TabsTrigger value="attribution" className="gap-2">
             <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">ROI</span>
+            <span className="hidden sm:inline">Impact</span>
           </TabsTrigger>
           <TabsTrigger value="sponsorships" className="gap-2">
             <span className="hidden sm:inline">Sponsorships</span>
@@ -126,6 +149,14 @@ const BrandDashboard = () => {
             <span className="hidden sm:inline">Ambassadors</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="forecaster" className="mt-8">
+          <div className="mb-8">
+            <h2 className="font-serif text-2xl font-bold mb-2 italic">Campaign <span className="text-primary italic">Planner</span></h2>
+            <p className="text-muted-foreground">Estimate your costs and projected reach before launching a campaign.</p>
+          </div>
+          <BrandEstimator />
+        </TabsContent>
 
         {/* Campaigns Tab */}
         <TabsContent value="overview" className="space-y-6 mt-6">
@@ -157,7 +188,7 @@ const BrandDashboard = () => {
                     <th className="text-left p-4 text-sm font-medium text-muted-foreground">Status</th>
                     <th className="text-left p-4 text-sm font-medium text-muted-foreground">Participants</th>
                     <th className="text-left p-4 text-sm font-medium text-muted-foreground">Redemptions</th>
-                    <th className="text-left p-4 text-sm font-medium text-muted-foreground">Rate</th>
+                    <th className="text-left p-4 text-sm font-medium text-muted-foreground">Success Rate</th>
                     <th className="text-right p-4 text-sm font-medium text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
@@ -171,11 +202,11 @@ const BrandDashboard = () => {
                         )}
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${campaign.is_active
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${campaign.is_active
                           ? "bg-emerald-500/10 text-emerald-500"
                           : "bg-muted text-muted-foreground"
                           }`}>
-                          {campaign.is_active ? "Active" : "Inactive"}
+                          {campaign.is_active ? "Active" : "Paused"}
                         </span>
                       </td>
                       <td className="p-4 text-foreground">{campaign.impressions.toLocaleString()}</td>
@@ -217,71 +248,8 @@ const BrandDashboard = () => {
         </TabsContent>
 
         {/* Attribution / ROI Tab */}
-        <TabsContent value="attribution" className="mt-6 space-y-6">
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-6">
-              <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-                <h3 className="text-xl font-bold mb-6">Real-World Sales Attribution</h3>
-
-                <div className="space-y-8">
-                  {/* Attribution Chart Placeholder */}
-                  <div className="h-64 rounded-xl bg-muted/30 flex items-center justify-center p-8 text-center">
-                    <div>
-                      <TrendingUp className="w-10 h-10 text-primary mx-auto mb-4 opacity-50" />
-                      <h4 className="font-bold mb-1">POS Data Sync Enabled</h4>
-                      <p className="text-sm text-muted-foreground">Linking physical swipes at venues to your moment participants.</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl border border-border bg-muted/10">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Average Basket Size</p>
-                      <p className="text-2xl font-bold">$42.50</p>
-                      <p className="text-[10px] text-emerald-500 mt-1 flex items-center gap-1">
-                        <ArrowUpRight className="w-3 h-3" /> +12% vs organic
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-xl border border-border bg-muted/10">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Visit-to-Purchase</p>
-                      <p className="text-2xl font-bold">68%</p>
-                      <p className="text-[10px] text-emerald-500 mt-1 flex items-center gap-1">
-                        <ArrowUpRight className="w-3 h-3" /> Very High
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-primary/5 rounded-2xl p-6 border border-primary/20">
-                <h4 className="font-bold text-sm mb-4 flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  Basket Analysis
-                </h4>
-                <div className="space-y-3">
-                  {[
-                    { name: "Organic Cotton Tee", share: 45 },
-                    { name: "Matcha Latte", share: 32 },
-                    { name: "Artist Book", share: 18 }
-                  ].map((item) => (
-                    <div key={item.name}>
-                      <div className="flex justify-between text-[11px] mb-1">
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-muted-foreground">{item.share}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${item.share}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-4 italic">
-                  *Based on Square and Toast POS data at 12 venues.
-                </p>
-              </div>
-            </div>
-          </div>
+        <TabsContent value="attribution" className="mt-6">
+          <BrandImpactDashboard />
         </TabsContent>
 
         <TabsContent value="sponsorships" className="mt-6">

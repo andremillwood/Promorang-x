@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -38,17 +38,18 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 interface FlashCampaignCompilerProps {
     adminMode?: boolean;
     onSuccess?: () => void;
+    initialInput?: Partial<CampaignInput>;
 }
 
-export const FlashCampaignCompiler = ({ adminMode = false, onSuccess }: FlashCampaignCompilerProps) => {
+export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInput }: FlashCampaignCompilerProps) => {
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLaunching, setIsLaunching] = useState(false);
     
     const [input, setInput] = useState<CampaignInput>({
-        goal: "CONTENT",
-        businessName: "",
-        context: ""
+        goal: initialInput?.goal || "CONTENT",
+        businessName: initialInput?.businessName || "",
+        context: initialInput?.context || ""
     });
 
     const [preview, setPreview] = useState<any | null>(null);
@@ -75,14 +76,25 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess }: FlashCam
         }
 
         const goalData: Record<CampaignType, any> = {
-            CONTENT: { drop: "Post your experience", moves: ["Try product", "Record/photo", "Post & link"], proof: "Link", reward: 40 },
-            PURCHASE: { drop: "Complete your order", moves: ["Order product", "Save receipt", "Upload proof"], proof: "OCR", reward: 70 },
-            REFERRAL: { drop: "Refer a friend", moves: ["Share link", "Friend signs up", "Submit proof"], proof: "Link", reward: 90 },
+            CONTENT: { drop: "Post your experience", moves: ["Try the product", "Record or photograph it", "Post and submit link"], proof: "Link", reward: 40 },
+            PURCHASE: { drop: "Complete your order", moves: ["Order the product", "Save receipt", "Upload proof"], proof: "OCR", reward: 70 },
+            REFERRAL: { drop: "Refer a friend", moves: ["Share referral link", "Friend signs up", "Submit referral proof"], proof: "Link", reward: 90 },
             VISIT: { drop: "Visit the location", moves: ["Go to location", "Take photo", "Upload proof"], proof: "Upload", reward: 50 }
         };
 
         const config = goalData[input.goal];
-        const name = input.context ? `${capitalize(input.context)} – ${input.businessName}` : `${capitalize(input.goal)} – ${input.businessName}`;
+        
+        let name = "";
+        if (input.context) {
+            name = `${capitalize(input.context)} – ${input.businessName}`;
+        } else {
+            switch (input.goal) {
+                case "CONTENT": name = `Share Your Experience – ${input.businessName}`; break;
+                case "PURCHASE": name = `Order Now – ${input.businessName}`; break;
+                case "REFERRAL": name = `Invite & Earn – ${input.businessName}`; break;
+                case "VISIT": name = `Visit & Snap – ${input.businessName}`; break;
+            }
+        }
         
         setPreview({
             name,
@@ -93,6 +105,15 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess }: FlashCam
             outcome: getOutcome(input.goal)
         });
     };
+    
+    // Auto-generate if pre-filled and valid
+    useEffect(() => {
+        // We only auto-generate if we have businessName and goal
+        // But context might be empty which is fine.
+        if (initialInput && input.goal && input.businessName) {
+            handleGenerate();
+        }
+    }, [initialInput]);
 
     const handleLaunch = async () => {
         if (!preview) return;

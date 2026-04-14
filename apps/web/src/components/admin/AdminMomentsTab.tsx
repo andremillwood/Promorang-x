@@ -143,7 +143,7 @@ export function AdminMomentsTab() {
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={moment.host_profile.avatar_url || undefined} />
                         <AvatarFallback>
-                          {moment.host_profile.full_name?.charAt(0) || "H"}
+                          {(moment.host_profile?.full_name || "H").charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-muted-foreground">

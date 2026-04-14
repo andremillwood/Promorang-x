@@ -304,12 +304,29 @@ export function AdminEconomyTab() {
                                     onChange={e => setAdjustReason(e.target.value)}
                                 />
                             </div>
+                            <div className="pt-4 border-t border-white/10 space-y-3">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                    <TrendingUp className="w-3 h-3" />
+                                    Emergency Flux (Cap Override)
+                                </Label>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full h-10 text-[10px] font-black tracking-widest uppercase border-primary/30 hover:bg-primary/10 hover:border-primary"
+                                    onClick={() => {
+                                        setAdjustCurrency("points");
+                                        setAdjustAmount("5000");
+                                        setAdjustReason("Emergency Reward Flux - Safety Cap Override");
+                                    }}
+                                >
+                                    Load +5,000 Pts Preset
+                                </Button>
+                            </div>
                             <Button
                                 className="w-full shadow-glow"
                                 onClick={handleAdjust}
                                 disabled={adjusting}
                             >
-                                {adjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Execute Adjustment"}
+                                {adjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Execute Intervention"}
                             </Button>
                             <p className="text-[9px] text-muted-foreground text-center">
                                 All adjustments are permanently recorded with your admin ID.

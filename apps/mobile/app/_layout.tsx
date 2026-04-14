@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { TourProvider } from '@/context/TourContext';
 import { useRouter, useSegments } from 'expo-router';
 
 export {
@@ -46,7 +47,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <InitialLayout />
+      <TourProvider>
+        <InitialLayout />
+      </TourProvider>
     </AuthProvider>
   );
 }

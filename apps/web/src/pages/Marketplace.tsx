@@ -69,7 +69,7 @@ const Marketplace = () => {
                     <h1 className="text-3xl font-serif font-bold tracking-tight mb-2 flex items-center gap-3">
                         Local Marketplace <Store className="w-8 h-8 text-primary" />
                     </h1>
-                    <p className="text-muted-foreground">Support local venues. Spend points or cash.</p>
+                    <p className="text-muted-foreground">Support local venues. Earn Access Points with every purchase.</p>
                 </div>
 
                 <div className="flex w-full md:w-auto gap-3">
@@ -124,7 +124,7 @@ const Marketplace = () => {
 
                                 {product.is_redeemable_with_points && (
                                     <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1">
-                                        <Sparkles className="w-3 h-3 text-amber-400" /> POINT-BACK
+                                        <Sparkles className="w-3 h-3 text-amber-400" /> +10 ACCESS POINTS
                                     </div>
                                 )}
                             </div>
@@ -179,9 +179,9 @@ const Marketplace = () => {
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-white/10 relative overflow-hidden">
                 <div className="relative z-10 max-w-2xl">
                     <h2 className="text-2xl font-serif font-bold mb-2">Spend $1, Earn 10 Points</h2>
-                    <p className="text-muted-foreground text-sm">Every direct purchase from a local merchant earns you Access Points. Use your points to unlock exclusive moments and priority drops.</p>
+                    <p className="text-muted-foreground text-sm">Every direct purchase from a local merchant earns you Access Points. Points are used to build your Access Rank and qualify for exclusive, limited-entry moments.</p>
                     <Button variant="link" className="p-0 text-primary mt-4 h-auto">
-                        Learn about Spend-to-Earn <ArrowRight className="w-4 h-4 ml-2" />
+                        Learn about Access Ranks <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                 </div>
                 <div className="absolute top-1/2 right-8 -translate-y-1/2 opacity-10">

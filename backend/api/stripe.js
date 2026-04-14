@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const stripeService = require('../services/stripeService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * Stripe API Routes
@@ -16,7 +16,7 @@ const { authenticateUser } = require('../middleware/auth');
  * POST /api/stripe/payment-intent
  * Create a payment intent for marketplace purchase
  */
-router.post('/payment-intent', authenticateUser, async (req, res) => {
+router.post('/payment-intent', requireAuth, async (req, res) => {
     try {
         const { amount, currency = 'usd', metadata = {} } = req.body;
         const userId = req.user.id;
@@ -49,7 +49,7 @@ router.post('/payment-intent', authenticateUser, async (req, res) => {
  * GET /api/stripe/payment-intent/:id
  * Get payment intent details
  */
-router.get('/payment-intent/:id', authenticateUser, async (req, res) => {
+router.get('/payment-intent/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -95,7 +95,7 @@ router.get('/config', (req, res) => {
  * POST /api/stripe/connect/account
  * Create a Stripe Connect account for host payouts
  */
-router.post('/connect/account', authenticateUser, async (req, res) => {
+router.post('/connect/account', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const email = req.user.email;
@@ -118,7 +118,7 @@ router.post('/connect/account', authenticateUser, async (req, res) => {
  * POST /api/stripe/connect/account-link
  * Create an account link for Stripe Connect onboarding
  */
-router.post('/connect/account-link', authenticateUser, async (req, res) => {
+router.post('/connect/account-link', requireAuth, async (req, res) => {
     try {
         const { accountId } = req.body;
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -153,7 +153,7 @@ router.post('/connect/account-link', authenticateUser, async (req, res) => {
  * GET /api/stripe/connect/account/:accountId
  * Get Stripe Connect account details
  */
-router.get('/connect/account/:accountId', authenticateUser, async (req, res) => {
+router.get('/connect/account/:accountId', requireAuth, async (req, res) => {
     try {
         const { accountId } = req.params;
 

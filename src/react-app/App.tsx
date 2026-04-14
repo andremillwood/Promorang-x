@@ -17,6 +17,7 @@ import EventDetailPage from "@/react-app/pages/EventDetail";
 import LeaderboardPage from "@/react-app/pages/Leaderboard";
 import AdvertiserDashboard from "@/react-app/pages/AdvertiserDashboard";
 import AdvertiserOnboarding from "@/react-app/pages/AdvertiserOnboarding";
+import ActivatePage from "@/react-app/pages/Activate";
 import ErrorPage from "@/react-app/pages/ErrorPage";
 import Layout from "@/react-app/components/Layout";
 import ErrorBoundary from "@/react-app/components/ErrorBoundary";
@@ -80,6 +81,7 @@ export default function App() {
               {/* Public routes */}
               <Route path="/" element={<PublicRoute><HomePage /></PublicRoute>} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/activate" element={<ActivatePage />} />
               <Route path="/error" element={<ErrorPage />} />
 
               {/* Protected routes */}

@@ -29,11 +29,11 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            You Can Now Host Moments! 🎉
+                            A New Chapter Awaits... 🎉
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            You've reached Access Rank 3 through consistent participation.
-                            Unlock your Host role to start creating Moments!
+                            Your consistent presence has earned you the standing of **Eminence**. 
+                            You are now ready to be a Steward and host your own community stories.
                         </p>
                         <Button
                             onClick={() => checkUnlock.mutate()}
@@ -41,7 +41,7 @@ export function HostUnlockBanner() {
                             className="gap-2"
                         >
                             <Sparkles className="w-4 h-4" />
-                            {checkUnlock.isPending ? 'Unlocking...' : 'Unlock Host Role'}
+                            {checkUnlock.isPending ? 'Unlocking...' : 'Become a Steward'}
                         </Button>
                     </div>
                 </div>
@@ -119,11 +119,11 @@ export function HostUnlockBanner() {
                     </div>
                     <div className="flex-1">
                         <h3 className="font-serif text-lg font-bold mb-1">
-                            Want to Host Moments?
+                            Ready to Lead the Community?
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            You're building consistency! Apply now for fast-track hosting,
-                            or reach Access Rank 3 for automatic unlock.
+                            You are building a beautiful legacy! Apply now to be a Steward, 
+                            or reach the standing of **Eminence** for an automatic invitation.
                         </p>
                         <div className="flex gap-3">
                             <Button
@@ -131,11 +131,11 @@ export function HostUnlockBanner() {
                                 className="gap-2"
                             >
                                 <Sparkles className="w-4 h-4" />
-                                Apply to Host
+                                Begin Your Stewardship
                             </Button>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <CheckCircle className="w-4 h-4" />
-                                <span>Auto-unlock at Rank 3 ({3 - maturityState} more days)</span>
+                                <span>Invited at Rank 3 ({3 - maturityState} more stories)</span>
                             </div>
                         </div>
                     </div>

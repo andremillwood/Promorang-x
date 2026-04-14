@@ -81,7 +81,7 @@ function compile(goal, businessName, context) {
     if (!config) throw new Error(`Invalid goal: ${goal}`);
 
     const name = generateMomentName(goal, businessName, context);
-    const description = `${config.drop}\n\nSteps:\n1. ${config.moves[0]}\n2. ${config.moves[1]}\n3. ${config.moves[2]}\n\nProof: ${config.proof}`;
+    const description = `${config.drop}\nSteps:\n1. ${config.moves[0]}\n2. ${config.moves[1]}\n3. ${config.moves[2]}\nProof: ${config.proof}`;
 
     return {
         moment: {

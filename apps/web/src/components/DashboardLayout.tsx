@@ -304,7 +304,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <Link to="/profile" className="flex items-center gap-3 mb-4 group/profile">
                 <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-soft group-hover/profile:rotate-3 transition-transform">
-                    {user?.email?.charAt(0).toUpperCase()}
+                    {user?.email?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full" title="Consistency Rank 3" />
                 </div>
@@ -370,7 +370,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <span className="font-serif text-lg font-bold text-foreground">Promorang</span>
             </div>
             <Link to="/profile" className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-xs shadow-soft active:scale-95 transition-transform">
-              {user?.email?.charAt(0).toUpperCase()}
+              {(user?.email || "?").charAt(0).toUpperCase()}
             </Link>
           </div>
         </div>

@@ -3,7 +3,7 @@ const router = express.Router();
 const merchantAnalyticsService = require('../services/merchantAnalyticsService');
 const brandAnalyticsService = require('../services/brandAnalyticsService');
 const hostAnalyticsService = require('../services/hostAnalyticsService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * Analytics API Routes
@@ -18,7 +18,7 @@ const { authenticateUser } = require('../middleware/auth');
  * Get merchant sales summary
  * GET /api/analytics/merchant/sales/summary
  */
-router.get('/merchant/sales/summary', authenticateUser, async (req, res) => {
+router.get('/merchant/sales/summary', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -39,7 +39,7 @@ router.get('/merchant/sales/summary', authenticateUser, async (req, res) => {
  * Get sales analytics
  * GET /api/analytics/merchant/sales
  */
-router.get('/merchant/sales', authenticateUser, async (req, res) => {
+router.get('/merchant/sales', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate, category } = req.query;
@@ -60,7 +60,7 @@ router.get('/merchant/sales', authenticateUser, async (req, res) => {
  * Get product performance
  * GET /api/analytics/merchant/products
  */
-router.get('/merchant/products', authenticateUser, async (req, res) => {
+router.get('/merchant/products', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const performance = await merchantAnalyticsService.getProductPerformance(merchantId);
@@ -75,7 +75,7 @@ router.get('/merchant/products', authenticateUser, async (req, res) => {
  * Get customer segmentation
  * GET /api/analytics/merchant/customers
  */
-router.get('/merchant/customers', authenticateUser, async (req, res) => {
+router.get('/merchant/customers', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const segmentation = await merchantAnalyticsService.getCustomerSegmentation(merchantId);
@@ -90,7 +90,7 @@ router.get('/merchant/customers', authenticateUser, async (req, res) => {
  * Get cross-sell recommendations
  * GET /api/analytics/merchant/cross-sell
  */
-router.get('/merchant/cross-sell', authenticateUser, async (req, res) => {
+router.get('/merchant/cross-sell', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { limit = 10 } = req.query;
@@ -111,7 +111,7 @@ router.get('/merchant/cross-sell', authenticateUser, async (req, res) => {
  * Get redemption analytics
  * GET /api/analytics/merchant/redemptions
  */
-router.get('/merchant/redemptions', authenticateUser, async (req, res) => {
+router.get('/merchant/redemptions', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -132,7 +132,7 @@ router.get('/merchant/redemptions', authenticateUser, async (req, res) => {
  * Get low stock products
  * GET /api/analytics/merchant/low-stock
  */
-router.get('/merchant/low-stock', authenticateUser, async (req, res) => {
+router.get('/merchant/low-stock', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const products = await merchantAnalyticsService.getLowStockProducts(merchantId);
@@ -147,7 +147,7 @@ router.get('/merchant/low-stock', authenticateUser, async (req, res) => {
  * Export sales report
  * GET /api/analytics/merchant/export
  */
-router.get('/merchant/export', authenticateUser, async (req, res) => {
+router.get('/merchant/export', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -172,7 +172,7 @@ router.get('/merchant/export', authenticateUser, async (req, res) => {
  * Get campaign performance
  * GET /api/analytics/brand/campaigns/:id/performance
  */
-router.get('/brand/campaigns/:id/performance', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/performance', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const performance = await brandAnalyticsService.getCampaignPerformance(id);
@@ -187,7 +187,7 @@ router.get('/brand/campaigns/:id/performance', authenticateUser, async (req, res
  * Get campaign ROI
  * GET /api/analytics/brand/campaigns/:id/roi
  */
-router.get('/brand/campaigns/:id/roi', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/roi', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const roi = await brandAnalyticsService.getCampaignROI(id);
@@ -202,7 +202,7 @@ router.get('/brand/campaigns/:id/roi', authenticateUser, async (req, res) => {
  * Get all campaigns analytics for a brand
  * GET /api/analytics/brand/campaigns
  */
-router.get('/brand/campaigns', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns', requireAuth, async (req, res) => {
     try {
         const brandId = req.user.id;
         const campaigns = await brandAnalyticsService.getBrandCampaignsAnalytics(brandId);
@@ -217,7 +217,7 @@ router.get('/brand/campaigns', authenticateUser, async (req, res) => {
  * Get engagement funnel
  * GET /api/analytics/brand/campaigns/:id/funnel
  */
-router.get('/brand/campaigns/:id/funnel', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/funnel', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const funnel = await brandAnalyticsService.getEngagementFunnel(id);
@@ -232,7 +232,7 @@ router.get('/brand/campaigns/:id/funnel', authenticateUser, async (req, res) => 
  * Get top moments for a campaign
  * GET /api/analytics/brand/campaigns/:id/top-moments
  */
-router.get('/brand/campaigns/:id/top-moments', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/top-moments', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { limit = 10 } = req.query;
@@ -249,7 +249,7 @@ router.get('/brand/campaigns/:id/top-moments', authenticateUser, async (req, res
  * Get spending timeline
  * GET /api/analytics/brand/campaigns/:id/spending
  */
-router.get('/brand/campaigns/:id/spending', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/spending', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const timeline = await brandAnalyticsService.getSpendingTimeline(id);
@@ -264,7 +264,7 @@ router.get('/brand/campaigns/:id/spending', authenticateUser, async (req, res) =
  * Export campaign report
  * GET /api/analytics/brand/campaigns/:id/export
  */
-router.get('/brand/campaigns/:id/export', authenticateUser, async (req, res) => {
+router.get('/brand/campaigns/:id/export', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const report = await brandAnalyticsService.exportCampaignReport(id);
@@ -283,7 +283,7 @@ router.get('/brand/campaigns/:id/export', authenticateUser, async (req, res) => 
  * Get host earnings summary
  * GET /api/analytics/host/earnings
  */
-router.get('/host/earnings', authenticateUser, async (req, res) => {
+router.get('/host/earnings', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const { startDate, endDate } = req.query;
@@ -304,7 +304,7 @@ router.get('/host/earnings', authenticateUser, async (req, res) => {
  * Get moment performance
  * GET /api/analytics/host/moments
  */
-router.get('/host/moments', authenticateUser, async (req, res) => {
+router.get('/host/moments', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const performance = await hostAnalyticsService.getMomentPerformance(hostId);
@@ -319,7 +319,7 @@ router.get('/host/moments', authenticateUser, async (req, res) => {
  * Get earnings breakdown
  * GET /api/analytics/host/earnings/breakdown
  */
-router.get('/host/earnings/breakdown', authenticateUser, async (req, res) => {
+router.get('/host/earnings/breakdown', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const { startDate, endDate, groupBy = 'day' } = req.query;
@@ -340,7 +340,7 @@ router.get('/host/earnings/breakdown', authenticateUser, async (req, res) => {
  * Get engagement metrics
  * GET /api/analytics/host/engagement
  */
-router.get('/host/engagement', authenticateUser, async (req, res) => {
+router.get('/host/engagement', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const metrics = await hostAnalyticsService.getEngagementMetrics(hostId);
@@ -355,7 +355,7 @@ router.get('/host/engagement', authenticateUser, async (req, res) => {
  * Get payout history
  * GET /api/analytics/host/payouts
  */
-router.get('/host/payouts', authenticateUser, async (req, res) => {
+router.get('/host/payouts', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const history = await hostAnalyticsService.getPayoutHistory(hostId);
@@ -370,7 +370,7 @@ router.get('/host/payouts', authenticateUser, async (req, res) => {
  * Export earnings report
  * GET /api/analytics/host/export
  */
-router.get('/host/export', authenticateUser, async (req, res) => {
+router.get('/host/export', requireAuth, async (req, res) => {
     try {
         const hostId = req.user.id;
         const report = await hostAnalyticsService.exportEarningsReport(hostId);

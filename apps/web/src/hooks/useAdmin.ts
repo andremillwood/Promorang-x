@@ -204,7 +204,16 @@ export function useMomentsForApproval() {
       if (error) throw error;
 
       // Get host profiles
-      const hostIds = [...new Set(moments.map((m) => m.host_id))];
+      const hostIds = [...new Set(moments.map((m) => m.host_id).filter(Boolean))];
+      if (hostIds.length === 0) {
+        return moments.map(moment => ({
+          ...moment,
+          status: (moment as any).status || "joinable",
+          visibility: (moment as any).visibility || "open",
+          host_profile: null,
+        })) as MomentForApproval[];
+      }
+
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, full_name, avatar_url")

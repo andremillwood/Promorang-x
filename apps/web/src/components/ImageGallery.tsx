@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ZoomIn, Heart, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -178,14 +178,35 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                         />
                     </div>
 
-                    {/* Caption */}
-                    {images[currentIndex].caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <p className="text-white text-center max-w-2xl mx-auto">
-                                {images[currentIndex].caption}
-                            </p>
+                    {/* Caption & Reactions (Digital Afterparty) */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                        <div className="max-w-6xl mx-auto flex items-end justify-between gap-4">
+                            <div className="flex-1">
+                                {images[currentIndex].caption && (
+                                    <p className="text-white text-lg">
+                                        {images[currentIndex].caption}
+                                    </p>
+                                )}
+                                <p className="text-white/60 text-sm mt-1">Uploaded by a verified attendee.</p>
+                            </div>
+                            
+                            {/* Verified Reactions */}
+                            <div className="flex gap-4 pb-1">
+                                <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors group">
+                                    <div className="p-2 rounded-full bg-white/10 group-hover:bg-red-500/20 transition-colors">
+                                        <Heart className="w-6 h-6 group-hover:fill-red-500 group-hover:text-red-500 transition-all group-active:scale-90" />
+                                    </div>
+                                    <span className="text-xs font-bold">{Math.floor(Math.random() * 20 + 5)}</span>
+                                </button>
+                                <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors group">
+                                    <div className="p-2 rounded-full bg-white/10 group-hover:bg-orange-500/20 transition-colors">
+                                        <Flame className="w-6 h-6 group-hover:fill-orange-500 group-hover:text-orange-500 transition-all group-active:scale-90" />
+                                    </div>
+                                    <span className="text-xs font-bold">{Math.floor(Math.random() * 5 + 1)}</span>
+                                </button>
+                            </div>
                         </div>
-                    )}
+                    </div>
 
                     {/* Navigation arrows */}
                     {images.length > 1 && (

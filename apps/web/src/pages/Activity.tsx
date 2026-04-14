@@ -87,58 +87,56 @@ const Activity = () => {
     };
 
     return (
-        <DashboardLayout currentRole={primaryRole}>
-            <main className="max-w-2xl mx-auto space-y-8">
-                {/* Page Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                            <Bell className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="font-serif text-2xl font-bold">Activity Log</h1>
-                            <p className="text-sm text-muted-foreground">
-                                History of your notifications and alerts
-                            </p>
-                        </div>
+        <main className="max-w-2xl mx-auto space-y-8">
+            {/* Page Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                        <Bell className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="font-serif text-2xl font-bold">Activity Log</h1>
+                        <p className="text-sm text-muted-foreground">
+                            History of your notifications and alerts
+                        </p>
                     </div>
                 </div>
+            </div>
 
-                {/* Filter Pills */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                    {filterOptions.map(option => (
-                        <button
-                            key={option.value}
-                            onClick={() => setFilter(option.value)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${filter === option.value
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-card border border-border hover:bg-muted"
-                                }`}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </div>
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                {filterOptions.map(option => (
+                    <button
+                        key={option.value}
+                        onClick={() => setFilter(option.value)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${filter === option.value
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-card border border-border hover:bg-muted"
+                            }`}
+                    >
+                        {option.label}
+                    </button>
+                ))}
+            </div>
 
-                {/* Activity Feed */}
-                <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                    {isLoading ? (
-                        <div className="py-20 flex flex-col items-center justify-center text-muted-foreground gap-4">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            <p>Loading your history...</p>
-                        </div>
-                    ) : (
-                        <div className="p-2">
-                            <ActivityFeed
-                                events={filteredEvents}
-                                onMarkRead={handleMarkRead}
-                                onMarkAllRead={handleMarkAllRead}
-                            />
-                        </div>
-                    )}
-                </div>
-            </main>
-        </DashboardLayout>
+            {/* Activity Feed */}
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                {isLoading ? (
+                    <div className="py-20 flex flex-col items-center justify-center text-muted-foreground gap-4">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p>Loading your history...</p>
+                    </div>
+                ) : (
+                    <div className="p-2">
+                        <ActivityFeed
+                            events={filteredEvents}
+                            onMarkRead={handleMarkRead}
+                            onMarkAllRead={handleMarkAllRead}
+                        />
+                    </div>
+                )}
+            </div>
+        </main>
     );
 };
 

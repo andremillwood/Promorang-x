@@ -234,6 +234,7 @@ router.post('/flash-launch', async (req, res) => {
         advertiser_id: advertiserId,
         name: moment.name,
         description: moment.description,
+        reward_value: `${compiled.reward.baseGems} Gems`,
         campaign_type: 'activation',
         status: 'active',
         compiler_metadata: compiler_metadata,

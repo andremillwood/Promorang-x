@@ -298,6 +298,7 @@ app.use('/api/rewards', require('./rewards'));
 app.use('/api/payments', (req, res) => res.status(403).json({ error: 'Service Disabled', message: 'Gem purchasing is currently disabled during platform realignment.' }));
 app.use('/api/manychat', require('./manychat'));
 // app.use('/api/marketplace', require('./market')); // MOVED BELOW
+app.use('/api/integrations', requireAuth, require('./integrations'));
 app.use('/api/merchant-team', requireAuth, require('./merchantTeam'));
 app.use('/api/coupons', require('./coupons'));
 app.use('/api/events', require('./events'));

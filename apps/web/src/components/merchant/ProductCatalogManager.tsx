@@ -50,7 +50,7 @@ interface Product {
 }
 
 const ProductCatalogManager = () => {
-    const { user } = useAuth();
+    const { user, session } = useAuth();
     const { toast } = useToast();
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -71,15 +71,17 @@ const ProductCatalogManager = () => {
     });
 
     useEffect(() => {
-        fetchProducts();
-    }, []);
+        if (session?.access_token) {
+            fetchProducts();
+        }
+    }, [session]);
 
     const fetchProducts = async () => {
         setIsLoading(true);
         try {
             const response = await fetch(`${API_URL}/api/merchant/products`, {
                 headers: {
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
             });
 
@@ -124,7 +126,7 @@ const ProductCatalogManager = () => {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
                 body: JSON.stringify(productData),
             });
@@ -171,7 +173,7 @@ const ProductCatalogManager = () => {
             const response = await fetch(`${API_URL}/api/merchant/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${user?.id}`,
+                    'Authorization': `Bearer ${session?.access_token}`,
                 },
             });
 

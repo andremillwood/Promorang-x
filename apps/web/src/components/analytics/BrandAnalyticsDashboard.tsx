@@ -14,7 +14,9 @@ import {
     exportToCSV
 } from './utils';
 import { Button } from '@/components/ui/button';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, PlaySquare } from 'lucide-react';
+import { EvidenceFeed } from './EvidenceFeed';
+import { AutomatedRecap } from './AutomatedRecap';
 
 interface BrandAnalyticsDashboardProps {
     userId: string;
@@ -29,6 +31,7 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
         start: presets.last30Days.start,
         end: presets.last30Days.end,
     });
+    const [isRecapOpen, setIsRecapOpen] = useState(false);
 
     // Fetch brand campaign analytics
     const { data: analytics, isLoading } = useQuery({
@@ -116,8 +119,26 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
                         <Download className="h-4 w-4 mr-2" />
                         Export CSV
                     </Button>
+                    <Button variant="hero" size="sm" onClick={() => setIsRecapOpen(true)} disabled={!analytics?.length}>
+                        <PlaySquare className="h-4 w-4 mr-2" />
+                        Generate Recap
+                    </Button>
                 </div>
             </div>
+
+            <AutomatedRecap
+                isOpen={isRecapOpen}
+                onClose={() => setIsRecapOpen(false)}
+                campaignName={'Aggregate Campaign Summary'}
+                totalSpent={metrics.totalSpent}
+                totalParticipants={metrics.totalParticipants}
+                roi={avgCostPerParticipant}
+                evidenceItems={[
+                    // Mock some data specifically for the recap demo
+                    { id: '1', type: 'photo', user_name: '@sarahj_creates', action_description: 'Post', verification_status: 'verified', timestamp: new Date().toISOString(), media_url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop', reward_issued: '50 Keys', location: 'Event Hub' },
+                    { id: '2', type: 'photo', user_name: '@miketravels', action_description: 'Post', verification_status: 'verified', timestamp: new Date().toISOString(), media_url: 'https://images.unsplash.com/photo-1555529771-835f59fc5efe?q=80&w=400&auto=format&fit=crop', reward_issued: '50 Keys', location: 'VIP Lounge' },
+                ]}
+            />
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -173,26 +194,35 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
                 )}
             </div>
 
-            {/* Campaign Performance */}
-            <div className="bg-card rounded-xl border border-border p-6">
-                <h3 className="text-lg font-semibold mb-4">Campaign Performance</h3>
-                {isLoading ? (
-                    <div className="h-[300px] flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                ) : (
-                    <BarChart
-                        data={campaignPerformance}
-                        xKey="name"
-                        yKeys={[
-                            { key: 'participants', label: 'Participants', color: 'hsl(var(--chart-3))' },
-                        ]}
-                        formatYAxis="number"
-                        layout="horizontal"
-                        showLegend={false}
-                        height={300}
-                    />
-                )}
+            {/* Evidence Feed & Campaign Performance Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Evidence Feed - 1 column */}
+                <div className="lg:col-span-1">
+                    <EvidenceFeed brandId={userId} maxItems={4} />
+                </div>
+
+                {/* Campaign Performance - 2 columns */}
+                <div className="bg-card rounded-xl border border-border p-6 lg:col-span-2">
+                    <h3 className="text-lg font-semibold mb-4">Campaign Scalability</h3>
+                    {isLoading ? (
+                        <div className="h-[300px] flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : (
+                        <BarChart
+                            data={campaignPerformance}
+                            xKey="name"
+                            yKeys={[
+                                { key: 'participants', label: 'Participants', color: 'hsl(var(--chart-3))' },
+                            ]}
+                            formatYAxis="number"
+                            layout="horizontal"
+                            showLegend={false}
+                            height={300}
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Detailed Campaign Table */}

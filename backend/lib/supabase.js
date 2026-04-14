@@ -2,42 +2,30 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Supabase client for backend
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+// ALWAYS use the Service Role Key for backend operations
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-let supabase = null;
-
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn('⚠️  Supabase credentials not found. Running with mock data.');
-} else {
-  try {
-    supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+  console.warn('⚠️  Supabase Administrative credentials NOT found. Backend operations will fail.');
+}
 
-    console.log('✅ Supabase backend client initialized successfully');
-
-    // Test database connection
-    supabase.from('users').select('count').limit(1).then(({ data, error }) => {
-      if (error) {
-        console.error('❌ Database connection failed:', error.message);
-      } else {
-        console.log('✅ Database connection successful');
-      }
-    }).catch((error) => {
-      console.error('❌ Database connection test failed:', error.message);
-    });
-  } catch (error) {
-    console.error('❌ Failed to initialize Supabase client:', error.message);
-    supabase = null;
+const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
   }
+});
+
+// Test connection silently
+if (supabaseUrl && supabaseServiceKey) {
+  supabase.from('users').select('count', { count: 'exact', head: true })
+    .then(({ error }) => {
+      if (error) console.error('[Supabase] Auth Bridge connection warning:', error.message);
+      else console.log('✅ Supabase Auth Bridge Ready');
+    });
 }
 
-
-if (supabase) {
-  module.exports = { supabase };
-} else {
-  module.exports = { supabase: null };
-}
+module.exports = { 
+  supabase,
+  admin: supabase.auth.admin
+};

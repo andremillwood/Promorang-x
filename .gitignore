@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -10,12 +9,15 @@ lerna-debug.log*
 # Build outputs
 dist/
 dist-ssr/
+build/
+**/dist/
+**/build/
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -26,6 +28,7 @@ dist-ssr/
 # Environment variables
 .env
 .env.local
+.env.*
 .env*.local
 .env.development.local
 .env.test.local
@@ -49,19 +52,3 @@ coverage/
 
 # OS files
 Thumbs.db
-=======
-.vercel
-.env
-.env.*
-.env*.local
-
-node_modules/
-**/node_modules/
-
-dist/
-**/dist/
-build/
-**/build/
-
-.DS_Store
->>>>>>> feature/error-handling-updates

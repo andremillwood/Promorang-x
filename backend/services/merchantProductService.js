@@ -439,7 +439,7 @@ async function getSalesByMerchant(merchantId, filters = {}) {
     try {
         let query = supabase
             .from('product_sales')
-            .select('*, merchant_products(name, category), auth.users(email)')
+            .select('*, merchant_products(name, category)')
             .eq('merchant_id', merchantId)
             .order('created_at', { ascending: false });
 

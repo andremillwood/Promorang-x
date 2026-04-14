@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { PlatformSchema } from '@/shared/types';
 import { useAuth } from '@getmocha/users-service/react';
+import FlashCreateBridge from '@/react-app/components/FlashCreateBridge';
 
 import { createErrorHandler } from '@/react-app/utils/errorHandler';
 
@@ -465,9 +466,8 @@ export default function Create() {
         </div>
         
         {/* Info about monetization */}
-        <div className="text-right">
-          <p className="text-sm text-gray-500">Need to create marketing campaigns?</p>
-          <p className="text-xs text-gray-400">Check "Become Advertiser" in your profile menu</p>
+        <div className="text-right max-w-xs">
+          <FlashCreateBridge context="builder" />
         </div>
       </div>
 

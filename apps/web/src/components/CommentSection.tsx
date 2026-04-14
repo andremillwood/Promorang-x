@@ -3,6 +3,7 @@ import { Send, MoreHorizontal, Reply, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ReactionBar } from "@/components/ReactionBar";
+import { PioneerBadge } from "@/components/badges/PioneerBadge";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +15,7 @@ interface Comment {
     user?: {
         full_name: string;
         avatar_url: string | null;
+        pioneer?: boolean;
     };
     replies?: Comment[];
     reactions?: Record<string, number>;
@@ -41,7 +43,24 @@ export function CommentSection({
     className,
 }: CommentSectionProps) {
     const { toast } = useToast();
-    const [comments, setComments] = useState<Comment[]>(initialComments);
+    const [comments, setComments] = useState<Comment[]>(initialComments.length > 0 ? initialComments : [
+        {
+            id: "pioneer-1",
+            user_id: "system",
+            content: "Who's ready for this? The vibes are going to be immaculate. 🥂",
+            created_at: new Date(Date.now() - 3600000).toISOString(),
+            user: { full_name: "Marcus D.", avatar_url: "https://i.pravatar.cc/150?u=m1", pioneer: true },
+            reactions: { "🔥": 12, "❤️": 8 }
+        },
+        {
+            id: "pioneer-2",
+            user_id: "system",
+            content: "Just finalized the venue setup. It's looking incredible.",
+            created_at: new Date(Date.now() - 7200000).toISOString(),
+            user: { full_name: "Sarah J.", avatar_url: "https://i.pravatar.cc/150?u=s2", pioneer: true },
+            reactions: { "🙌": 5 }
+        }
+    ]);
     const [newComment, setNewComment] = useState("");
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState("");
@@ -148,10 +167,11 @@ export function CommentSection({
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-foreground">
+                        <span className="font-bold text-foreground">
                             {comment.user?.full_name || "Anonymous"}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        {comment.user?.pioneer && <PioneerBadge showText={false} className="scale-75 origin-left" />}
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
                             {formatTimeAgo(comment.created_at)}
                         </span>
 
@@ -243,14 +263,19 @@ export function CommentSection({
             </div>
 
             {/* Comments List */}
-            <div className="space-y-6">
+            <div className="space-y-6 pt-4">
                 {comments.length === 0 ? (
                     <p className="text-center text-muted-foreground py-8">
-                        No comments yet. Be the first to share your thoughts!
+                        No messages yet. Start the Moment Wall!
                     </p>
                 ) : (
                     comments.map(comment => (
-                        <CommentItem key={comment.id} comment={comment} />
+                        <div key={comment.id} className={cn(
+                            "p-1 rounded-2xl transition-colors",
+                            comment.user?.pioneer ? "bg-amber-500/5 border border-amber-500/10" : ""
+                        )}>
+                            <CommentItem comment={comment} />
+                        </div>
                     ))
                 )}
             </div>

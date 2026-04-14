@@ -39,13 +39,26 @@ const RedemptionValidator = () => {
     const fetchRecentRedemptions = async () => {
         setIsLoading(true);
         try {
+            const token = session?.access_token;
+            console.log('[RedemptionValidator] 🔍 Fetching with token:', token ? `${token.substring(0, 20)}... (length: ${token.length})` : 'NO TOKEN');
+            console.log('[RedemptionValidator] 🌐 API_URL:', API_URL);
+            
             const response = await fetch(`${API_URL}/api/merchant/sales?status=validated`, {
                 headers: {
-                    'Authorization': `Bearer ${session?.access_token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
-            if (!response.ok) throw new Error('Failed to fetch redemptions');
+            if (!response.ok) {
+                const errorBody = await response.text();
+                const recoveryHeader = response.headers.get('X-Auth-Recovery-Mode');
+                const authError = response.headers.get('X-Auth-Error');
+                console.error('[RedemptionValidator] ❌ Response status:', response.status);
+                console.error('[RedemptionValidator] ❌ Response body:', errorBody);
+                console.error('[RedemptionValidator] ❌ X-Auth-Error:', authError);
+                console.error('[RedemptionValidator] ❌ X-Auth-Recovery-Mode:', recoveryHeader);
+                throw new Error('Failed to fetch redemptions');
+            }
 
             const data = await response.json();
             setRecentRedemptions(data.slice(0, 10)); // Show last 10

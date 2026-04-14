@@ -1,0 +1,10 @@
+(node:31265) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Vercel CLI 32.7.2
+Retrieving project…
+Deploying andre-millwoods-projects/promorang-api
+Uploading [--------------------] (0.0B/281B)
+Uploading [====================] (281.0B/281B)
+Inspect: https://vercel.com/andre-millwoods-projects/promorang-api/HdQfGLB2pnqh7WZYfabPQHtDE6Vc [2s]
+Production: https://promorang-hzer7eknh-andre-millwoods-projects.vercel.app [2s]
+https://promorang-hzer7eknh-andre-millwoods-projects.vercel.appBuilding

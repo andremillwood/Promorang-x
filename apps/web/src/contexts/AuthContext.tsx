@@ -38,11 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ROLE VERNACULAR MAPPER: Translates legacy DB roles to modern human-centric ones
   const mapRole = (role: string): UserRole => {
-    const r = role.toLowerCase();
-    if (r === 'creator') return 'host';
-    if (r === 'advertiser') return 'brand';
-    // Fallback to participant for any unknown role to prevent crashes
-    return (['participant', 'host', 'brand', 'merchant', 'admin'].includes(r) ? r : 'participant') as UserRole;
+    if (!role) return 'participant';
+    const r = role.toLowerCase().trim();
+    if (r === 'creator' || r === 'host') return 'host';
+    if (r === 'advertiser' || r === 'brand') return 'brand';
+    if (r === 'merchant' || r === 'vendor') return 'merchant';
+    if (r === 'admin' || r === 'administrator') return 'admin';
+    return 'participant';
   };
 
   // Sync activeRole with localStorage
@@ -216,15 +218,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.warn(`[AuthContext] Get user roles failed:`, error.message);
       }
 
-      const fetchedRoles = (data || []).map((r: any) => mapRole(r.role));
+      // Map roles and filter out duplicates
+      const mappedRoles = (data || []).map((r: any) => mapRole(r.role));
+      const uniqueRoles = Array.from(new Set(mappedRoles));
 
       // CORE RULE: Every user is at least a participant.
-      // If the DB has no roles, default to participant.
-      if (fetchedRoles.length === 0) {
-        console.info('[AuthContext] No roles found in DB, defaulting to participant');
-        return ['participant'];
+      if (!uniqueRoles.includes('participant')) {
+        uniqueRoles.push('participant');
       }
-      return fetchedRoles;
+      
+      return uniqueRoles;
     } catch (e) {
       console.error(`[AuthContext] Exception in fetchUserRoles:`, e);
       return ['participant'];

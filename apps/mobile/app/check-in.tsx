@@ -5,6 +5,8 @@ import { Text, View } from '@/components/Themed';
 import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useState } from 'react';
+import { ProductTour } from '@/components/ProductTour';
+import { InfoTooltip } from '@/components/InfoTooltip';
 
 const { width, height } = Dimensions.get('window');
 
@@ -53,7 +55,10 @@ export default function CheckInScreen() {
         <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
             <View style={styles.header}>
                 <Text style={styles.label}>CHECK-IN AT</Text>
-                <Text style={styles.venueName}>La Colombe Coffee</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: 'transparent' }}>
+                    <Text style={styles.venueName}>La Colombe Coffee</Text>
+                    <InfoTooltip content="Verify your presence at this venue to earn exclusive rewards and XP." />
+                </View>
                 <View style={styles.locationTag}>
                     <Ionicons name="location" size={14} color={DesignColors.primary} />
                     <Text style={styles.locationText}>SoHo, New York</Text>
@@ -87,6 +92,9 @@ export default function CheckInScreen() {
                     </Pressable>
                 </BlurView>
             </View>
+
+            {/* Product Tour */}
+            <ProductTour tourId="check-in" autoStart={true} />
         </View>
     );
 }

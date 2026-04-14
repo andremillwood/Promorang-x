@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Calendar, MapPin, Clock, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, Clock, ExternalLink, CreditCard, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,7 @@ const statusConfig: Record<SponsorshipStatus, { label: string; variant: "default
   negotiating: { label: "Negotiating", variant: "default" },
   accepted: { label: "Accepted", variant: "default" },
   declined: { label: "Declined", variant: "destructive" },
+  funded: { label: "Funded", variant: "default" },
   active: { label: "Active", variant: "default" },
   completed: { label: "Completed", variant: "secondary" },
   cancelled: { label: "Cancelled", variant: "destructive" },
@@ -82,8 +83,20 @@ export function SponsorshipRequestsTable() {
                 <td className="p-4 text-sm text-muted-foreground">
                   {format(new Date(request.created_at), "MMM d")}
                 </td>
-                <td className="p-4 text-right">
-                  <Button variant="ghost" size="sm">
+                <td className="p-4 text-right flex items-center justify-end gap-2">
+                  {request.status === 'accepted' && (
+                    <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 h-8 text-[10px] font-black uppercase tracking-widest">
+                      <CreditCard className="w-3.5 h-3.5 mr-1.5" />
+                      Activate & Fund
+                    </Button>
+                  )}
+                  {request.status === 'funded' && (
+                    <div className="flex items-center gap-1.5 text-emerald-500 font-bold text-[10px] uppercase tracking-widest mr-4">
+                       <CheckCircle2 className="w-4 h-4" />
+                       Active
+                    </div>
+                  )}
+                  <Button variant="ghost" size="sm" className="h-8">
                     <ExternalLink className="w-4 h-4 mr-1" />
                     View
                   </Button>

@@ -51,7 +51,7 @@ export function HostProfileCard({
                                 className="h-full w-full object-cover"
                             />
                         ) : (
-                            name.charAt(0)
+                            (name || "?").charAt(0)
                         )}
                     </div>
                     {isSuperhost && (

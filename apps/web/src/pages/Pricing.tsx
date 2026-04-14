@@ -37,7 +37,7 @@ const PricingPage = () => {
                         </h1>
 
                         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-                            Participate free. Pay to scale. No subscriptions. No hidden fees.
+                            Participate free. Brands and Merchants pay to scale. No hidden fees.
                             Just transparent, per-Moment pricing.
                         </p>
                     </div>
@@ -364,7 +364,7 @@ const PricingPage = () => {
                                     Participant Pricing
                                 </h2>
                                 <p className="text-lg text-muted-foreground">
-                                    Earn your way in. Pay to go faster.
+                                    Participate, earn, and build your record for free.
                                 </p>
                             </div>
 
@@ -404,24 +404,22 @@ const PricingPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-muted/30 rounded-xl p-6">
-                                    <h4 className="font-semibold mb-4">Optional Acceleration</h4>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                        After building your Access Rank, you can optionally pay to:
+                                <div className="bg-muted/30 rounded-xl p-8 text-center">
+                                    <h4 className="font-semibold mb-4">Earn Priority Access</h4>
+                                    <p className="text-sm text-muted-foreground mb-6">
+                                        Priority access is earned through **Consistency** and **Access Rank**.
+                                        There are no paid tiers for participants. The more you participate, the more you unlock.
                                     </p>
-                                    <ul className="space-y-2">
-                                        {[
-                                            'Get priority access to limited Moments',
-                                            'Early visibility into high-value Activations',
-                                            'Propose higher-impact Moments',
-                                            'Access premium Digital Moments',
-                                        ].map((feature, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-sm">
-                                                <ArrowRight className="w-4 h-4 text-primary flex-shrink-0" />
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
+                                        <div className="flex items-center gap-3 text-sm font-medium">
+                                            <TrendingUp className="w-4 h-4 text-secondary" />
+                                            <span>Higher Rank = Better Odds</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-sm font-medium">
+                                            <Zap className="w-4 h-4 text-secondary" />
+                                            <span>Consistent Streaks = Priority</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </TabsContent>

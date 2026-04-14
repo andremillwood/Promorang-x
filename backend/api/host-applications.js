@@ -7,13 +7,13 @@ const express = require('express');
 const router = express.Router();
 const hostApplicationService = require('../services/hostApplicationService');
 const roleService = require('../services/roleService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * POST /api/host-applications
  * Submit a host application
  */
-router.post('/', authenticateUser, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
     try {
         const { motivation, moment_idea } = req.body;
         const userId = req.user.id;
@@ -45,7 +45,7 @@ router.post('/', authenticateUser, async (req, res) => {
  * GET /api/host-applications/me
  * Get current user's application status
  */
-router.get('/me', authenticateUser, async (req, res) => {
+router.get('/me', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const application = await hostApplicationService.getUserApplication(userId);
@@ -61,7 +61,7 @@ router.get('/me', authenticateUser, async (req, res) => {
  * GET /api/host-applications
  * Get all pending applications (admin only)
  */
-router.get('/', authenticateUser, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
 
@@ -85,7 +85,7 @@ router.get('/', authenticateUser, async (req, res) => {
  * PATCH /api/host-applications/:id/approve
  * Approve a host application (admin only)
  */
-router.patch('/:id/approve', authenticateUser, async (req, res) => {
+router.patch('/:id/approve', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const applicationId = req.params.id;
@@ -114,7 +114,7 @@ router.patch('/:id/approve', authenticateUser, async (req, res) => {
  * PATCH /api/host-applications/:id/reject
  * Reject a host application (admin only)
  */
-router.patch('/:id/reject', authenticateUser, async (req, res) => {
+router.patch('/:id/reject', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const applicationId = req.params.id;

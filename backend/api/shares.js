@@ -158,7 +158,7 @@ async function logTelemetryEvent(eventType, payload, req, sessionId, userId) {
   }
 
   try {
-    await supabase.from('telemetry.events').insert({
+    await supabase.from('telemetry_events').insert({
       session_id: sessionId || `share-${Date.now()}`,
       event_type: eventType,
       user_id: userId || null,

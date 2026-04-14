@@ -3,77 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { MomentCard } from "@/components/MomentCard";
 import { DemoEventBanner } from "@/components/DemoEventBanner";
-import momentFoodFestival from "@/assets/moment-food-festival.jpg";
-import momentCoffeeMeetup from "@/assets/moment-coffee-meetup.jpg";
-import momentYoga from "@/assets/moment-yoga.jpg";
-import momentConcert from "@/assets/moment-concert.jpg";
-import momentArtWorkshop from "@/assets/moment-art-workshop.jpg";
-
-const moments = [
-  {
-    id: "m1",
-    image_url: momentFoodFestival,
-    title: "Downtown Food Festival - Taste the City Together",
-    host: { full_name: "City Food Collective", avatar_url: null },
-    location: "Central Park, Downtown",
-    starts_at: "2024-08-20T12:00:00Z",
-    participant_count: 234,
-    max_participants: 300,
-    reward: "Free dessert",
-    category: "food",
-    isExample: true,
-  },
-  {
-    id: "m2",
-    image_url: momentCoffeeMeetup,
-    title: "Creative Coffee Chat for Entrepreneurs",
-    host: { full_name: "Sarah M.", avatar_url: null },
-    location: "The Brew House, Midtown",
-    starts_at: "2024-08-21T09:00:00Z",
-    participant_count: 12,
-    max_participants: 20,
-    category: "networking",
-    isExample: true,
-  },
-  {
-    id: "m3",
-    image_url: momentYoga,
-    title: "Sunrise Yoga in the Park",
-    host: { full_name: "Mindful Movement Studio", avatar_url: null },
-    location: "Riverside Park",
-    starts_at: "2024-08-22T06:30:00Z",
-    participant_count: 45,
-    max_participants: 60,
-    reward: "20% off class",
-    category: "fitness",
-    isExample: true,
-  },
-  {
-    id: "m4",
-    image_url: momentConcert,
-    title: "Summer Sounds - Live Music Festival",
-    host: { full_name: "Harmony Events", avatar_url: null },
-    location: "Oceanview Amphitheater",
-    starts_at: "2024-08-23T18:00:00Z",
-    participant_count: 1250,
-    max_participants: 2000,
-    category: "music",
-    isExample: true,
-  },
-  {
-    id: "m5",
-    image_url: momentArtWorkshop,
-    title: "Watercolor Workshop for Beginners",
-    host: { full_name: "The Art Collective", avatar_url: null },
-    location: "Creative Space Gallery",
-    starts_at: "2024-08-24T14:00:00Z",
-    participant_count: 8,
-    max_participants: 15,
-    reward: "Free supplies",
-    category: "arts",
-    isExample: true,
-  },
-];
+import { demoMoments as moments } from "@/data/demo-moments";
 
 const categories = ["All", "food", "fitness", "arts", "music", "networking", "outdoor"];
 
@@ -114,7 +44,7 @@ const MomentsSection = () => {
                 : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground border border-border"
                 }`}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {(category || "General").charAt(0).toUpperCase() + (category || "General").slice(1)}
             </button>
           ))}
         </div>

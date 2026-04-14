@@ -6,13 +6,13 @@
 const express = require('express');
 const router = express.Router();
 const marketplaceService = require('../services/marketplaceService');
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 /**
  * POST /api/marketplace/purchase
  * Buy a product with cash or points
  */
-router.post('/purchase', authenticateUser, async (req, res) => {
+router.post('/purchase', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const { product_id, method, quantity } = req.body;
@@ -39,7 +39,7 @@ router.post('/purchase', authenticateUser, async (req, res) => {
  * GET /api/marketplace/transactions
  * Get user's purchase history
  */
-router.get('/transactions', authenticateUser, async (req, res) => {
+router.get('/transactions', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const history = await marketplaceService.getPurchaseHistory(userId);

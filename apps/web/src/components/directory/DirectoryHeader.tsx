@@ -41,11 +41,13 @@ export const DirectoryHeader = ({
     searchCategory = "all"
 }: DirectoryHeaderProps) => {
     return (
-        <div className="space-y-6 mb-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-                    <p className="text-muted-foreground">{description}</p>
+        <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-4">
+                <div className="space-y-0.5 md:space-y-1">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
+                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 md:line-clamp-none">
+                        {description}
+                    </p>
                 </div>
 
                 {onClearFilters && (searchTerm || category !== "all") && (
@@ -53,21 +55,21 @@ export const DirectoryHeader = ({
                         variant="ghost"
                         size="sm"
                         onClick={onClearFilters}
-                        className="text-xs h-8 text-muted-foreground hover:text-foreground"
+                        className="text-[10px] md:text-xs h-7 md:h-8 text-muted-foreground hover:text-foreground w-fit"
                     >
-                        <X className="w-3 h-3 mr-2" />
-                        Clear all filters
+                        <X className="w-3 h-3 mr-1.5 md:mr-2" />
+                        Clear filters
                     </Button>
                 )}
             </div>
 
-            <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row gap-3 p-4 rounded-xl bg-card border shadow-sm">
+            <div className="space-y-2 md:space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2 md:gap-3 p-3 md:p-4 rounded-xl bg-card border shadow-sm">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder={placeholder}
-                            className="pl-9 bg-background focus-visible:ring-primary"
+                            className="pl-9 h-9 md:h-10 bg-background focus-visible:ring-primary text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             data-tour="directory-search"
@@ -76,7 +78,7 @@ export const DirectoryHeader = ({
 
                     <div className="flex gap-2">
                         <Select value={category} onValueChange={setCategory}>
-                            <SelectTrigger className="w-[160px] bg-background" data-tour="directory-category">
+                            <SelectTrigger className="w-full sm:w-[160px] h-9 md:h-10 bg-background text-sm" data-tour="directory-category">
                                 <SelectValue placeholder="Category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -89,7 +91,7 @@ export const DirectoryHeader = ({
                             </SelectContent>
                         </Select>
 
-                        <Button variant="outline" size="icon" className="shrink-0 bg-background" data-tour="directory-filters">
+                        <Button variant="outline" size="icon" className="shrink-0 h-9 w-9 md:h-10 md:w-10 bg-background" data-tour="directory-filters">
                             <SlidersHorizontal className="w-4 h-4" />
                         </Button>
                     </div>

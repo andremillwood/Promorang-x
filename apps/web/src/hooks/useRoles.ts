@@ -1,8 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// Helper to get the current access token from the Supabase session
+const getAccessToken = async (): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? null;
+};
+
 
 export interface RoleRequirements {
     description: string;
@@ -26,22 +34,13 @@ export interface HostApplication {
  * Get current user's roles
  */
 export function useUserRoles() {
-    const { user } = useAuth();
-
+    const { roles, loading } = useAuth();
+    
     return useQuery({
-        queryKey: ['user-roles', user?.id],
-        queryFn: async () => {
-            const response = await fetch(`${API_URL}/api/roles/me`, {
-                headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
-                },
-            });
-
-            if (!response.ok) throw new Error('Failed to fetch roles');
-            const data = await response.json();
-            return data.roles as string[];
-        },
-        enabled: !!user,
+        queryKey: ['user-roles', roles],
+        queryFn: async () => roles,
+        enabled: !loading,
+        initialData: roles,
     });
 }
 
@@ -49,20 +48,30 @@ export function useUserRoles() {
  * Check if user has a specific role
  */
 export function useHasRole(role: string) {
-    const { user } = useAuth();
+    const { roles, user } = useAuth();
 
     return useQuery({
         queryKey: ['has-role', user?.id, role],
         queryFn: async () => {
-            const response = await fetch(`${API_URL}/api/roles/check/${role}`, {
-                headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
-                },
-            });
+            if (!role) return false;
+            // First check local roles from AuthContext (Stabilized Direct-to-Supabase path)
+            if (roles.includes(role as any)) return true;
+            
+            // Legacy fallback check (only if not found locally)
+            try {
+                const response = await fetch(`${API_URL}/api/roles/check/${role}`, {
+                    headers: {
+                        'Authorization': `Bearer ${await getAccessToken()}`,
+                    },
+                });
 
-            if (!response.ok) throw new Error('Failed to check role');
-            const data = await response.json();
-            return data.hasRole as boolean;
+                if (!response.ok) return false;
+                const data = await response.json();
+                return data.hasRole as boolean;
+            } catch (e) {
+                console.warn(`[useRoles] Legacy check failed for ${role}, using local state.`);
+                return roles.includes(role as any);
+            }
         },
         enabled: !!user && !!role,
     });
@@ -97,7 +106,7 @@ export function useCheckHostUnlock() {
             const response = await fetch(`${API_URL}/api/roles/check-unlock`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -128,7 +137,7 @@ export function useHostApplication() {
         queryFn: async () => {
             const response = await fetch(`${API_URL}/api/host-applications/me`, {
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                 },
             });
 
@@ -153,7 +162,7 @@ export function useSubmitHostApplication() {
             const response = await fetch(`${API_URL}/api/host-applications`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ motivation, moment_idea }),
@@ -194,7 +203,7 @@ export function usePendingHostApplications() {
         queryFn: async () => {
             const response = await fetch(`${API_URL}/api/host-applications`, {
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                 },
             });
 
@@ -219,7 +228,7 @@ export function useApproveHostApplication() {
             const response = await fetch(`${API_URL}/api/host-applications/${applicationId}/approve`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                 },
             });
 
@@ -260,7 +269,7 @@ export function useRejectHostApplication() {
             const response = await fetch(`${API_URL}/api/host-applications/${applicationId}/reject`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${user?.access_token}`,
+                    'Authorization': `Bearer ${await getAccessToken()}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ reason }),

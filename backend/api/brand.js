@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateUser } = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 const brandCampaignService = require('../services/brandCampaignService');
 const brandBudgetService = require('../services/brandBudgetService');
 
 // Apply authentication to all routes
-router.use(authenticateUser);
+router.use(requireAuth);
 
 /**
  * POST /api/brand/campaigns

@@ -115,7 +115,7 @@ const Following = () => {
                                     className="flex flex-col items-center gap-2 min-w-[80px]"
                                 >
                                     <div className="h-14 w-14 rounded-full bg-gradient-primary flex items-center justify-center text-lg text-white font-medium">
-                                        {person.name.charAt(0)}
+                                        {(person.name || "?").charAt(0)}
                                     </div>
                                     <span className="text-xs text-center truncate w-full">
                                         {person.name.split(" ")[0]}
