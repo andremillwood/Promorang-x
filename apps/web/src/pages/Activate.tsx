@@ -63,7 +63,7 @@ export default function ActivatePage() {
       />
 
       {/* Modern Navigation */}
-      <nav className="bg-background/95 backdrop-blur-md border-b border-border sticky top-0 z-50 shadow-sm">
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 shadow-sm backdrop-blur-md">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -80,7 +80,7 @@ export default function ActivatePage() {
               <a href="#packages" className="text-muted-foreground hover:text-foreground font-medium transition-colors">Packages</a>
               <a href="#outcomes" className="text-muted-foreground hover:text-foreground font-medium transition-colors">Outcomes</a>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Button
                 onClick={handleCtaClick}
                 variant="hero"
@@ -94,7 +94,7 @@ export default function ActivatePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-hero py-16 lg:py-24 overflow-hidden">
+      <section className="relative overflow-hidden bg-gradient-hero py-14 sm:py-16 lg:py-24">
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-8 border border-primary/20">
@@ -115,7 +115,7 @@ export default function ActivatePage() {
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <div className="mb-10 flex flex-col justify-center gap-4 animate-slide-up sm:flex-row" style={{ animationDelay: "0.2s" }}>
               <Button
                 onClick={handleCtaClick}
                 variant="hero"
@@ -132,6 +132,19 @@ export default function ActivatePage() {
               <div className="flex items-center"><CheckCircle className="w-5 h-5 text-green-500 mr-2" /> UGC Content Rights</div>
               <div className="flex items-center"><CheckCircle className="w-5 h-5 text-green-500 mr-2" /> 5-Day Delivery</div>
             </div>
+
+            <div className="mt-6 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
+              <div className="flex gap-3 pb-1 text-left">
+                <div className="min-w-[240px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Journey</p>
+                  <p className="mt-2 text-sm font-medium text-foreground">Choose an outcome, launch a campaign, then review verified proof instead of vague marketing reports.</p>
+                </div>
+                <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Touch flow</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Cards and CTAs now stack like a product flow instead of forcing side-by-side desktop scanning.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -144,9 +157,9 @@ export default function ActivatePage() {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Skip the complexity. Buy the outcome.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-5 md:grid-cols-3 md:gap-8">
             {/* Hero Offer */}
-            <div className="bg-card rounded-3xl p-8 border-2 border-primary shadow-elevated relative transform scale-105 z-10 transition-transform hover:scale-[1.06]">
+            <div className="relative z-10 rounded-3xl border-2 border-primary bg-card p-6 shadow-elevated transition-transform hover:scale-[1.02] md:scale-105 md:p-8 md:hover:scale-[1.06]">
               <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-6 py-1.5 rounded-bl-3xl rounded-tr-lg text-xs font-black uppercase tracking-widest">
                 Entry Point
               </div>
@@ -173,7 +186,7 @@ export default function ActivatePage() {
             </div>
 
             {/* Core Offer */}
-            <div className="bg-secondary/30 rounded-3xl p-8 border border-border hover:shadow-card transition-all">
+            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-all hover:shadow-card md:p-8">
               <h3 className="text-2xl font-bold mb-2">Customer Activation</h3>
               <div className="text-4xl font-black mb-4">JMD $120,000</div>
               <p className="text-muted-foreground mb-8 font-semibold">Repeatable Growth Engine</p>
@@ -197,7 +210,7 @@ export default function ActivatePage() {
             </div>
 
             {/* High Ticket */}
-            <div className="bg-secondary/30 rounded-3xl p-8 border border-border hover:shadow-card transition-all">
+            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-all hover:shadow-card md:p-8">
               <h3 className="text-2xl font-bold mb-2">Always-On Attention</h3>
               <div className="text-4xl font-black mb-4">JMD $350K+</div>
               <p className="text-muted-foreground mb-8 font-semibold">Strategic Scaling</p>
@@ -226,13 +239,13 @@ export default function ActivatePage() {
       {/* Outcome Proof Section */}
       <section id="outcomes" className="py-24 bg-secondary/20 overflow-hidden relative">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
+          <div className="flex flex-col items-stretch gap-10 lg:flex-row lg:items-center lg:gap-16">
             <div className="lg:w-1/2">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">Marketing Outcomes — Verified In-App.</h2>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
                 We bridge the gap between digital content and physical business results. Every action taken is verified by our AI-engine via OCR receipts or geofenced activity.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="bg-card p-6 rounded-2xl shadow-soft border border-border flex items-center space-x-4 hover:shadow-card transition-shadow">
                   <div className="bg-primary/10 p-3 rounded-xl"><Users className="w-6 h-6 text-primary" /></div>
                   <span className="font-bold">Foot Traffic</span>
@@ -253,7 +266,7 @@ export default function ActivatePage() {
             </div>
             
             <div className="lg:w-1/2">
-               <div className="bg-card p-10 rounded-3xl shadow-elevated border border-border space-y-8">
+               <div className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-elevated md:space-y-8 md:p-10">
                   <div>
                     <div className="text-sm font-black text-primary uppercase mb-2">Live Proof</div>
                     <div className="text-3xl font-bold">12,482 Actions</div>

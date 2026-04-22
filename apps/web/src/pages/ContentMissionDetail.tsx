@@ -1,0 +1,273 @@
+import { useMemo } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PlayCircle, MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+const pulseTone = {
+  dormant: "bg-muted text-muted-foreground",
+  forming: "bg-primary/10 text-primary border border-primary/20",
+  live: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20",
+  cooling: "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+} as const;
+
+export default function ContentMissionDetail() {
+  const { id } = useParams<{ id: string }>();
+  const { user, session } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const missionQuery = useQuery({
+    queryKey: ["o2o-mission", id],
+    enabled: !!id && !!session,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/o2o/missions/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to load mission");
+      }
+      return payload?.mission;
+    },
+  });
+
+  const metricsQuery = useQuery({
+    queryKey: ["content-metrics", missionQuery.data?.content?.id],
+    enabled: !!missionQuery.data?.content?.id,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/content/${missionQuery.data.content.id}/metrics`);
+      const payload = await response.json();
+      return payload?.data || payload || null;
+    },
+  });
+
+  const engage = useMutation({
+    mutationFn: async (eventType: "view" | "like" | "share" | "comment" | "click") => {
+      const contentId = missionQuery.data?.content?.id;
+      if (!contentId || !session) throw new Error("Mission not ready");
+
+      const response = await fetch(`${API_URL}/api/content/${contentId}/engage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          event_type: eventType,
+          metadata: {
+            source: "content_mission_detail",
+            mission_id: missionQuery.data?.id,
+            moment_id: missionQuery.data?.moment?.id,
+          },
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || `Failed to record ${eventType}`);
+      }
+      return { eventType, payload };
+    },
+    onSuccess: ({ eventType }) => {
+      queryClient.invalidateQueries({ queryKey: ["content-metrics", missionQuery.data?.content?.id] });
+      toast({
+        title: "Action recorded",
+        description: `Your ${eventType} helped strengthen the mission signal.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Action failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const mission = missionQuery.data;
+  const metrics = metricsQuery.data;
+  const actionCount = useMemo(() => {
+    if (!metrics) return 0;
+    return Number(metrics.total_engagement || 0);
+  }, [metrics]);
+
+  if (!user) {
+    return (
+      <main className="mx-auto max-w-4xl space-y-6">
+        <div className="rounded-3xl border border-border bg-card p-8 text-center">
+          <PlayCircle className="mx-auto h-10 w-10 text-primary" />
+          <h1 className="mt-4 font-serif text-3xl font-bold">Mission Detail</h1>
+          <p className="mt-2 text-muted-foreground">Sign in to engage with the story and unlock the linked physical moment.</p>
+          <Button asChild variant="hero" className="mt-6">
+            <Link to="/auth">Sign In</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  if (missionQuery.isLoading) {
+    return (
+      <main className="mx-auto max-w-5xl space-y-6">
+        <Skeleton className="h-80 w-full rounded-[2rem]" />
+        <Skeleton className="h-40 w-full rounded-3xl" />
+      </main>
+    );
+  }
+
+  if (missionQuery.error || !mission) {
+    return (
+      <main className="mx-auto max-w-4xl">
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-5 text-sm text-destructive">
+          {(missionQuery.error as Error)?.message || "Mission not found"}
+        </div>
+      </main>
+    );
+  }
+
+  const pulseClass = pulseTone[(mission.moment?.pulse_state as keyof typeof pulseTone) || "dormant"];
+
+  return (
+    <main className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
+      <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft">
+        <div className="relative h-72 overflow-hidden bg-muted sm:h-96">
+          <img src={mission.content?.media_url} alt={mission.content?.title} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute left-5 top-5 flex flex-wrap gap-2">
+            <Badge className="bg-black/60 text-white backdrop-blur">
+              {mission.content?.platform}
+            </Badge>
+            <Badge className={pulseClass}>
+              {mission.moment?.pulse_state || "forming"}
+            </Badge>
+          </div>
+          <div className="absolute bottom-5 left-5 right-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/70">
+              {mission.content?.creator_name}
+            </p>
+            <h1 className="mt-2 max-w-3xl font-serif text-3xl font-bold text-white sm:text-4xl">
+              {mission.content?.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
+              {mission.content?.description}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Mission Flow</p>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { step: "Watch", detail: "Consume the creator story and pick up the unlock signal." },
+                { step: "Move", detail: "Travel to the linked venue or moment location." },
+                { step: "Verify", detail: "Check in and mint the memory when the task is complete." },
+              ].map((item) => (
+                <div key={item.step} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                  <p className="text-sm font-semibold text-foreground">{item.step}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5 sm:p-6">
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Physical Unlock Rules</p>
+            <p className="mt-3 text-sm font-medium text-foreground">
+              {mission.physical_unlock_rules?.summary || "Complete the linked moment to unlock the hybrid mission reward."}
+            </p>
+            {mission.physical_unlock_rules?.perk_hint && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                {mission.physical_unlock_rules.perk_hint}
+              </p>
+            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {(mission.entry_action_types || []).map((action: string) => (
+                <span key={action} className="rounded-full bg-background px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">
+                  {action}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Promorang Engagement</p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Strengthen the mission signal</h2>
+              </div>
+              <span className="text-sm font-semibold text-primary">{actionCount} tracked actions</span>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <Button variant="outline" onClick={() => engage.mutate("like")} disabled={engage.isPending}>
+                <Heart className="mr-2 h-4 w-4" />
+                Like
+              </Button>
+              <Button variant="outline" onClick={() => engage.mutate("share")} disabled={engage.isPending}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+              </Button>
+              <Button variant="outline" onClick={() => engage.mutate("comment")} disabled={engage.isPending}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Comment Intent
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Linked Moment</p>
+            <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{mission.moment?.title}</h2>
+            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                {mission.moment?.venue_name || mission.moment?.location}
+              </p>
+              <p>
+                Reward: <span className="font-semibold text-foreground">{mission.moment?.reward || "Memory unlock"}</span>
+              </p>
+              <p>
+                O2O conversion: <span className="font-semibold text-foreground">{Number(mission.o2o_conversion_rate || 0).toFixed(1)}%</span>
+              </p>
+            </div>
+            <div className="mt-5 flex flex-col gap-3">
+              <Button asChild variant="hero">
+                <Link to={`/moments/${mission.moment?.id}?missionId=${mission.id}&contentId=${mission.content?.id}`}>
+                  Open Linked Moment
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <a href={mission.content?.platform_url || "#"} target="_blank" rel="noreferrer">
+                  Watch on Source Platform
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Why this matters</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              This mission is part of the attribution loop. Promorang can measure story engagement, linked moment participation, proof verification, and memory creation inside one system.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

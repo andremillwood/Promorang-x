@@ -90,11 +90,6 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
         roi: item.total_participants > 0 ? (item.total_spent / item.total_participants) : 0,
     })).sort((a: any, b: any) => b.participants - a.participants).slice(0, 10) || [];
 
-    const budgetUtilization = analytics?.map((item: any) => ({
-        name: item.campaign_name,
-        value: item.budget_utilization || 0,
-    })) || [];
-
     const handleExport = () => {
         if (analytics) {
             exportToCSV(analytics, `brand-analytics-${Date.now()}`);
@@ -104,22 +99,23 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
     return (
         <div className="space-y-6">
             {/* Header with Date Filter */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h2 className="text-2xl font-bold">Campaign Analytics</h2>
                     <p className="text-sm text-muted-foreground">Monitor your brand campaigns and ROI</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     <DateRangePicker
                         startDate={dateRange.start}
                         endDate={dateRange.end}
                         onDateRangeChange={(start, end) => setDateRange({ start, end })}
+                        className="w-full justify-start sm:w-auto"
                     />
-                    <Button variant="outline" size="sm" onClick={handleExport} disabled={!analytics?.length}>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={handleExport} disabled={!analytics?.length}>
                         <Download className="h-4 w-4 mr-2" />
                         Export CSV
                     </Button>
-                    <Button variant="hero" size="sm" onClick={() => setIsRecapOpen(true)} disabled={!analytics?.length}>
+                    <Button variant="hero" size="sm" className="w-full sm:w-auto" onClick={() => setIsRecapOpen(true)} disabled={!analytics?.length}>
                         <PlaySquare className="h-4 w-4 mr-2" />
                         Generate Recap
                     </Button>
@@ -174,7 +170,7 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
             </div>
 
             {/* Spend & Engagement Trend */}
-            <div className="bg-card rounded-xl border border-border p-6">
+            <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <h3 className="text-lg font-semibold mb-4">Spend & Engagement Trend</h3>
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center">
@@ -195,7 +191,7 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
             </div>
 
             {/* Evidence Feed & Campaign Performance Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 
                 {/* Evidence Feed - 1 column */}
                 <div className="lg:col-span-1">
@@ -203,7 +199,7 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
                 </div>
 
                 {/* Campaign Performance - 2 columns */}
-                <div className="bg-card rounded-xl border border-border p-6 lg:col-span-2">
+                <div className="rounded-xl border border-border bg-card p-4 md:p-6 lg:col-span-2">
                     <h3 className="text-lg font-semibold mb-4">Campaign Scalability</h3>
                     {isLoading ? (
                         <div className="h-[300px] flex items-center justify-center">
@@ -226,11 +222,11 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
             </div>
 
             {/* Detailed Campaign Table */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="p-6 border-b border-border">
                     <h3 className="text-lg font-semibold">Campaign Details</h3>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="hidden overflow-x-auto md:block">
                     <table className="w-full">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
@@ -273,6 +269,46 @@ export function BrandAnalyticsDashboard({ userId }: BrandAnalyticsDashboardProps
                             )}
                         </tbody>
                     </table>
+                </div>
+                <div className="space-y-3 p-4 md:hidden">
+                    {isLoading ? (
+                        <div className="py-8 text-center">
+                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : campaignPerformance.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                            No campaign data available for this period
+                        </div>
+                    ) : (
+                        campaignPerformance.map((campaign: any, index: number) => (
+                            <div key={index} className="rounded-xl border border-border bg-background/40 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <p className="font-medium text-foreground">{campaign.name}</p>
+                                    <span className="rounded-full bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-500">
+                                        Active
+                                    </span>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p className="text-muted-foreground">Participants</p>
+                                        <p className="font-semibold text-foreground">{formatCompactNumber(campaign.participants)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Sponsorships</p>
+                                        <p className="font-semibold text-foreground">{formatCompactNumber(campaign.sponsorships)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Total spent</p>
+                                        <p className="font-semibold text-foreground">{formatCurrency(campaign.spent)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Cost / participant</p>
+                                        <p className="font-semibold text-foreground">{formatCurrency(campaign.roi)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

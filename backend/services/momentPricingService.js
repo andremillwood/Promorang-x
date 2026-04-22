@@ -27,7 +27,7 @@ const SKU_CATALOG = {
         platformFeeRange: { min: 0, max: 30 },
         rewardPoolOptional: true,
         unlockConditions: null, // Always available
-        grossMarginTarget: 0.20, // 20%
+        grossMarginTarget: 0.15, // 15% - competitive with Meta/TikTok
         use_cases: ['community_building', 'cold_start', 'culture_seeding'],
         marketing_copy: 'Run a Community Reach Campaign. Build trust with local creators.'
     },
@@ -40,7 +40,7 @@ const SKU_CATALOG = {
         rewardPoolRange: { min: 150, max: 500 },
         platformFeeRange: { min: 75, max: 150 },
         opsBufferRange: { min: 25, max: 100 },
-        grossMarginTarget: 0.275, // 25-30%
+        grossMarginTarget: 0.20, // 20% - volume-focused pricing
         unlockConditions: null,
         use_cases: ['foot_traffic', 'product_trial', 'local_awareness'],
         marketing_copy: 'A high-impact In-Store Traffic Campaign. Verified presence.'
@@ -51,7 +51,7 @@ const SKU_CATALOG = {
         name: 'UGC Explosion Campaign',
         description: 'Multi-location creator activation and content blitz',
         brandCostRange: { min: 500, max: 2500 },
-        platformFeePercent: 0.20, // 15-25% of total
+        platformFeePercent: 0.18, // 18% - reduced for competitive positioning
         grossMarginTarget: 0.30, // 25-35%
         unlockConditions: null,
         use_cases: ['ugc_creation', 'distributed_activation', 'creator_network'],
@@ -77,7 +77,7 @@ const SKU_CATALOG = {
         brandCostRange: { min: 150, max: 500 },
         platformFeeRange: { min: 75, max: 200 },
         rewardPoolOptional: true,
-        grossMarginTarget: 0.425, // 35-50%
+        grossMarginTarget: 0.30, // 30% - still high margin for digital-only
         unlockConditions: null,
         use_cases: ['remote_activation', 'online_engagement', 'digital_only'],
         marketing_copy: 'Verified digital outcomes at scale. No physical limits.'
@@ -176,7 +176,7 @@ function calculateMomentCost(skuType, options = {}) {
             const baseCost = Math.min(sku.brandCostRange.max, 250 + (participants * 5));
             breakdown.brand_cost = baseCost;
             breakdown.reward_pool = Math.max(sku.rewardPoolRange.min, Math.min(sku.rewardPoolRange.max, rewardPerParticipant * participants));
-            breakdown.platform_fee = baseCost * 0.25; // 25% platform fee
+            breakdown.platform_fee = baseCost * 0.20; // 20% platform fee (reduced from 25%)
             breakdown.ops_buffer = baseCost * 0.10; // 10% ops buffer
             break;
 
@@ -200,7 +200,7 @@ function calculateMomentCost(skuType, options = {}) {
         case 'A5_DIGITAL':
             // Digital has lower overhead
             breakdown.brand_cost = Math.min(sku.brandCostRange.max, 150 + (participants * 3));
-            breakdown.platform_fee = breakdown.brand_cost * 0.40; // Higher margin for digital
+            breakdown.platform_fee = breakdown.brand_cost * 0.30; // 30% platform fee (reduced from 40%)
             breakdown.reward_pool = rewardPerParticipant * participants;
             break;
 

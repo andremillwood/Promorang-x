@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-type UserRole = "participant" | "host" | "brand" | "merchant" | "admin";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "admin";
 
 interface AuthContextType {
   user: User | null;
@@ -40,7 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const mapRole = (role: string): UserRole => {
     if (!role) return 'participant';
     const r = role.toLowerCase().trim();
-    if (r === 'creator' || r === 'host') return 'host';
+    if (r === 'creator') return 'creator';
+    if (r === 'host') return 'host';
+    if (r === 'agency') return 'agency';
     if (r === 'advertiser' || r === 'brand') return 'brand';
     if (r === 'merchant' || r === 'vendor') return 'merchant';
     if (r === 'admin' || r === 'administrator') return 'admin';
@@ -207,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchUserRoles = async (userId: string): Promise<UserRole[]> => {
+  const fetchUserRoles = async (userId: string, sessionUser?: User | null): Promise<UserRole[]> => {
     try {
       const { data, error } = await supabase
         .from("user_roles")
@@ -218,9 +220,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.warn(`[AuthContext] Get user roles failed:`, error.message);
       }
 
+      const inferredRole = mapRole(
+        (sessionUser?.user_metadata as any)?.role ||
+        (sessionUser?.user_metadata as any)?.user_type ||
+        (sessionUser?.app_metadata as any)?.role ||
+        ""
+      );
+
       // Map roles and filter out duplicates
       const mappedRoles = (data || []).map((r: any) => mapRole(r.role));
       const uniqueRoles = Array.from(new Set(mappedRoles));
+
+      if (inferredRole && !uniqueRoles.includes(inferredRole)) {
+        uniqueRoles.push(inferredRole);
+      }
 
       // CORE RULE: Every user is at least a participant.
       if (!uniqueRoles.includes('participant')) {
@@ -244,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Defer role fetching with setTimeout
         if (session?.user) {
           setTimeout(() => {
-            fetchUserRoles(session.user.id).then(fetchedRoles => {
+            fetchUserRoles(session.user.id, session.user).then(fetchedRoles => {
               setRoles(fetchedRoles);
               // Auto-set activeRole if not already set
               if (!activeRole && fetchedRoles.length > 0) {
@@ -270,7 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         Promise.all([
-          fetchUserRoles(session.user.id),
+          fetchUserRoles(session.user.id, session.user),
           fetchUserOrganizations(session.user.id),
           fetchUserProfile(session.user.id)
         ]).then(([fetchedRoles]) => {
@@ -307,7 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       const { error: roleError } = await supabase
         .from("user_roles")
-        .insert({ user_id: data.user.id, role });
+        .insert({ user_id: data.user.id, role: role as any });
 
       if (roleError) {
         console.error("Error adding role:", roleError);
@@ -339,9 +352,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 1. Direct Role-to-Email Mapping (Synchronized with DEMO_SEED.sql)
       const roleMap: Record<string, string> = {
         'participant': 'demo.participant@promorang.co',
+        'creator': 'creator@promorang.co',
         'host': 'demo.host@promorang.co',
         'brand': 'demo.brand@promorang.co',
-        'merchant': 'demo.merchant@promorang.co'
+        'merchant': 'demo.merchant@promorang.co',
+        'agency': 'demo.agency@promorang.co'
       };
 
       const targetEmail = roleMap[role];

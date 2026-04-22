@@ -23,22 +23,21 @@ import { MatchmakingSuggestions } from "@/components/matchmaking/MatchmakingSugg
 import { z } from "zod";
 import { useTour } from "@/contexts/TourContext";
 import ProductTour from "@/components/tours/ProductTour";
-
-const categories = [
-  { value: "social", label: "Social Gathering" },
-  { value: "workshop", label: "Workshop" },
-  { value: "fitness", label: "Fitness & Wellness" },
-  { value: "food", label: "Food & Drink" },
-  { value: "music", label: "Music & Entertainment" },
-  { value: "networking", label: "Networking" },
-  { value: "outdoor", label: "Outdoor Adventure" },
-  { value: "arts", label: "Arts & Culture" },
-];
+import {
+  momentCategories,
+  venueCategories,
+  momentArchetypes,
+  conversionTypes,
+  getTaxonomyLabel,
+} from "@/lib/moment-taxonomy";
 
 const momentSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(100),
   description: z.string().min(20, "Description must be at least 20 characters").max(500),
   category: z.string().min(1, "Please select a category"),
+  venueCategory: z.string().optional(),
+  momentArchetype: z.string().optional(),
+  conversionType: z.string().optional(),
   location: z.string().min(5, "Please enter a valid address"),
   venueName: z.string().optional(),
   startsAt: z.string().min(1, "Please select a start date and time"),
@@ -67,6 +66,8 @@ const steps = [
   { id: 4, title: "Review", icon: Check },
 ];
 
+const DEFAULT_MOMENT_TYPE = "community";
+
 const CreateMoment = () => {
   const { user, roles } = useAuth();
   const { startTour, isTourCompleted } = useTour();
@@ -94,6 +95,9 @@ const CreateMoment = () => {
     title: "",
     description: "",
     category: "",
+    venueCategory: "",
+    momentArchetype: "",
+    conversionType: "check_in",
     location: "",
     venueName: "",
     startsAt: "",
@@ -108,6 +112,39 @@ const CreateMoment = () => {
   });
   // Pre-fill from Mechanic
   const [mechanicData, setMechanicData] = useState<any>(null);
+
+  useEffect(() => {
+    const nextExpectedAction =
+      formData.conversionType === "purchase" ? "Purchase" :
+      formData.conversionType === "appointment" ? "Appointment" :
+      formData.conversionType === "booking" ? "Booking" :
+      formData.conversionType === "sample" ? "Sample Claim" :
+      formData.conversionType === "try_on" ? "Try-on" :
+      formData.conversionType === "referral" ? "Referral" :
+      formData.conversionType === "repeat_visit" ? "Repeat Visit" :
+      "Check-in";
+
+    const nextProofType =
+      formData.conversionType === "purchase" ? "Photo" :
+      formData.conversionType === "sample" ? "QR" :
+      formData.conversionType === "try_on" ? "Photo" :
+      formData.conversionType === "appointment" || formData.conversionType === "booking" ? "Code" :
+      formData.momentArchetype === "content" ? "QR" :
+      formData.momentArchetype === "service" ? "Code" :
+      formData.momentArchetype === "visit" ? "GPS" :
+      "QR";
+
+    setFormData((prev) => {
+      if (prev.expectedActionUnit === nextExpectedAction && prev.proofType === nextProofType) {
+        return prev;
+      }
+      return {
+        ...prev,
+        expectedActionUnit: nextExpectedAction,
+        proofType: nextProofType,
+      };
+    });
+  }, [formData.conversionType, formData.momentArchetype]);
 
   useEffect(() => {
     if (mechanicId) {
@@ -218,11 +255,18 @@ const CreateMoment = () => {
         }
       }
 
+      // Generate a random 6-character check-in code
+      const checkInCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
       const { error } = await supabase.from("moments").insert({
         host_id: user.id,
         title: formData.title,
         description: formData.description,
+        type: DEFAULT_MOMENT_TYPE,
         category: formData.category,
+        venue_category: formData.venueCategory || null,
+        moment_archetype: formData.momentArchetype || null,
+        conversion_type: formData.conversionType || null,
         location: formData.location,
         venue_name: formData.venueName || null,
         starts_at: new Date(formData.startsAt).toISOString(),
@@ -236,6 +280,7 @@ const CreateMoment = () => {
         proof_type: formData.proofType || 'QR',
         evidence_requirements: formData.evidenceRequirements || [],
         expected_action_unit: formData.expectedActionUnit || 'Action',
+        check_in_code: checkInCode,
       });
 
       if (error) throw error;
@@ -314,7 +359,7 @@ const CreateMoment = () => {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {momentCategories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {cat.label}
                     </SelectItem>
@@ -324,6 +369,79 @@ const CreateMoment = () => {
               {errors.category && (
                 <p className="text-destructive text-sm mt-1">{errors.category}</p>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Label htmlFor="venueCategory">Venue Category</Label>
+                  <InfoTooltip content="Define the kind of place this moment belongs to so Promorang can support retail, grocery, service, and wellness flows properly." />
+                </div>
+                <Select
+                  value={formData.venueCategory || ""}
+                  onValueChange={(value) => updateField("venueCategory", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select venue type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {venueCategories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Label htmlFor="momentArchetype">Moment Archetype</Label>
+                  <InfoTooltip content="Choose whether this is a gathering, visit, service ritual, drop, referral, founder unlock, or other operating pattern." />
+                </div>
+                <Select
+                  value={formData.momentArchetype || ""}
+                  onValueChange={(value) => updateField("momentArchetype", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select archetype" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {momentArchetypes.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.momentArchetype && (
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {momentArchetypes.find((item) => item.value === formData.momentArchetype)?.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Label htmlFor="conversionType">Success Action</Label>
+                <InfoTooltip content="Tell Promorang what counts as success for this moment: check-in, purchase, appointment, sample, try-on, referral, or repeat visit." />
+              </div>
+              <Select
+                value={formData.conversionType || "check_in"}
+                onValueChange={(value) => updateField("conversionType", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select success action" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conversionTypes.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         );
@@ -542,8 +660,23 @@ const CreateMoment = () => {
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
-                  {categories.find((c) => c.value === formData.category)?.label}
+                  {momentCategories.find((c) => c.value === formData.category)?.label}
                 </span>
+                {formData.venueCategory && (
+                  <span className="inline-block px-3 py-1 bg-emerald-500/10 text-emerald-600 text-sm rounded-full">
+                    {getTaxonomyLabel(venueCategories, formData.venueCategory)}
+                  </span>
+                )}
+                {formData.momentArchetype && (
+                  <span className="inline-block px-3 py-1 bg-amber-500/10 text-amber-600 text-sm rounded-full">
+                    {getTaxonomyLabel(momentArchetypes, formData.momentArchetype)}
+                  </span>
+                )}
+                {formData.conversionType && (
+                  <span className="inline-block px-3 py-1 bg-blue-500/10 text-blue-600 text-sm rounded-full">
+                    {getTaxonomyLabel(conversionTypes, formData.conversionType)}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full">
                   {formData.visibility === "open" && <Eye className="w-3 h-3" />}
                   {formData.visibility === "invite" && <UserPlus className="w-3 h-3" />}

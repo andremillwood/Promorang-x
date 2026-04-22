@@ -1,5 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Theme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -26,7 +26,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    DMSans: require('../assets/fonts/DMSans-Regular.ttf'),
+    Fraunces: require('../assets/fonts/Fraunces-Regular.ttf'),
     ...FontAwesome.font,
   });
 
@@ -82,8 +83,32 @@ function InitialLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  const PromorangLightTheme: Theme = {
+    dark: false,
+    colors: {
+      primary: '#ff6600',
+      background: '#fbfaf6',
+      card: '#fcfcf9',
+      text: '#141414',
+      border: '#e2e8f0',
+      notification: '#ffcc1a',
+    },
+  };
+
+  const PromorangDarkTheme: Theme = {
+    dark: true,
+    colors: {
+      primary: '#ff751a',
+      background: '#0f0f0f',
+      card: '#1a1a1a',
+      text: '#f4f3f0',
+      border: '#333333',
+      notification: '#ffcc1a',
+    },
+  };
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? PromorangDarkTheme : PromorangLightTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', headerTitle: 'Switch Context' }} />

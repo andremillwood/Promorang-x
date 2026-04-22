@@ -1,5 +1,7 @@
 # Growth Hub API Documentation
 
+> Note: this API document covers the earlier Growth Hub service surface. For the next agent-facing and momentum-oriented API model, see [docs/momentum-engine/agent-api-spec.md](./momentum-engine/agent-api-spec.md).
+
 ## Table of Contents
 - [Authentication](#authentication)
 - [Base URL](#base-url)

@@ -107,7 +107,7 @@ export function PointsOverview() {
         </div>
       )}
 
-      {/* Resonance Boost / Echo Potential CTA */}
+      {/* Sharing Power / Social Bonus CTA */}
       <div className="bg-charcoal rounded-2xl p-6 border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all cursor-pointer">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors" />
         <div className="relative z-10">
@@ -116,20 +116,20 @@ export function PointsOverview() {
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-bold text-white italic">Reveal Your Echo Potential</h3>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Resonance Standing</p>
+              <h3 className="font-serif text-lg font-bold text-white italic">Discover Your Sharing Power</h3>
+              <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Social Bonus</p>
             </div>
           </div>
           <p className="text-sm text-white/60 mb-4 leading-relaxed">
-            Link your Instagram to calculate your **Echo Potential**. Verified reach 
-            grants a standing multiplier and unlocks exclusive Vault rewards.
+            Link your Instagram and we'll calculate your **Sharing Power**. More followers 
+            means a bigger points bonus and access to exclusive Vault rewards.
           </p>
           <div className="flex items-center justify-between">
             <Badge variant="outline" className="border-primary/20 text-primary text-[9px] uppercase font-black tracking-widest bg-primary/5">
               +500 Gratitude Discovery Bonus
             </Badge>
             <div className="flex items-center gap-1 text-[10px] font-bold text-white uppercase tracking-tighter">
-              Verify Reach
+              Link Socials
               <Star className="w-3 h-3 text-primary" />
             </div>
           </div>

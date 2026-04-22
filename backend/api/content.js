@@ -6,6 +6,7 @@ const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const dailyLayerService = require('../services/dailyLayerService');
 const bountyService = require('../services/bountyService');
+const missionAttributionService = require('../services/missionAttributionService');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -1804,6 +1805,19 @@ router.post('/:id/engage', requireAuth, async (req, res) => {
     if (error) {
       console.error('Error tracking content engagement:', error);
       return res.status(500).json({ error: 'Failed to track engagement' });
+    }
+
+    try {
+      await missionAttributionService.recordMissionEngagement({
+        userId,
+        contentItemId: id,
+        missionLinkId: metadata?.mission_id || null,
+        momentId: metadata?.moment_id || null,
+        eventType: event_type,
+        metadata,
+      });
+    } catch (attributionError) {
+      console.warn('[Content API] mission attribution skipped:', attributionError.message);
     }
 
     res.json(data);

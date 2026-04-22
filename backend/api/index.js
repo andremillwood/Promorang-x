@@ -281,6 +281,8 @@ app.use('/api/auth/forgot-password', authRateLimiter);
 app.use('/api/auth', require('./auth'));
 app.use('/api/ami', require('./ami'));
 app.use('/api/users', require('./users'));
+app.use('/api', require('./demographics')); // User demographics, calendar, and contextual targeting (/users/me/*, /global-events/*, /profiling-questions)
+app.use('/api', require('./targeting')); // Targeting, brand matching, quests, smart notifications
 app.use('/api/content', require('./content'));
 app.use('/api/drops', require('./drops'));
 app.use('/api/placeholder', require('./placeholder'));
@@ -312,6 +314,7 @@ app.use('/api/telemetry', require('./telemetry'));
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare', require('./promoshare'));
+app.use('/api/promoshare/sponsors', require('./promoshare-sponsors'));
 app.use('/api/relays', require('./relays'));
 // app.use('/api/streaks', require('./streaks'));
 app.use('/api/quests', require('./quests'));
@@ -322,12 +325,15 @@ app.use('/api/sounds', require('./sounds'));
 app.use('/api/blog', require('./blog'));
 app.use('/api/search', require('./search'));
 app.use('/api/market', require('./market'));
+app.use('/api/pieces', require('./pieces')); // Multi-Asset Pieces Market (Content, Moments, Hosts, Venues)
 app.use('/api/marketplace', require('./marketplace')); // New Product Commerce
+app.use('/api/featured-marketplace', require('./featured-marketplace')); // Featured Content & Moment Placements
 app.use('/api/payouts', requireAuth, require('./payouts')); // Host Payouts
 app.use('/api/bounty', requireAuth, require('./bounty'));
 app.use('/api/matrix', requireAuth, require('./matrix'));
 app.use('/api/maturity', require('./maturity'));
 app.use('/api/merchant-sampling', require('./merchantSampling'));
+app.use('/api/cold-start', require('./coldStartBootstrap')); // Cold Start Bootstrap System
 app.use('/api/today', require('./today')); // Daily Layer Today Screen
 app.use('/api/moments', require('./moments')); // Moment Infrastructure
 app.use('/api/roles', require('./roles')); // Role Management

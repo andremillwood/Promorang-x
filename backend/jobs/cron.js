@@ -27,6 +27,14 @@ try {
 
 const automatedWorkflowService = require('../services/automatedWorkflowService');
 
+// Import Life Event Service (with graceful fallback)
+let lifeEventService;
+try {
+    lifeEventService = require('../services/lifeEventService');
+} catch (e) {
+    console.warn('[Cron] Life event service not available');
+}
+
 /**
  * Create daily buffer drops
  * Runs every day at 00:05 AM
@@ -148,6 +156,144 @@ const weeklyPerformanceReports = cron.schedule('0 9 * * 1', async () => {
 });
 
 /**
+ * Daily birthday reminders and celebrations
+ * Runs every day at 09:00 AM
+ */
+const dailyBirthdayReminders = cron.schedule('0 9 * * *', async () => {
+    console.log('[Cron] Checking birthday reminders...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.checkBirthdayReminders();
+        console.log('[Cron] Birthday reminders processed:', result);
+    } catch (error) {
+        console.error('[Cron] Error processing birthday reminders:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Daily anniversary reminders
+ * Runs every day at 09:30 AM
+ */
+const dailyAnniversaryReminders = cron.schedule('30 9 * * *', async () => {
+    console.log('[Cron] Checking anniversary reminders...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.checkAnniversaryReminders();
+        console.log('[Cron] Anniversary reminders processed:', result);
+    } catch (error) {
+        console.error('[Cron] Error processing anniversary reminders:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Weekly seasonal recommendations
+ * Runs every Monday at 10:00 AM
+ */
+const weeklySeasonalRecommendations = cron.schedule('0 10 * * 1', async () => {
+    console.log('[Cron] Sending seasonal recommendations...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.sendSeasonalRecommendations();
+        console.log('[Cron] Seasonal recommendations sent:', result);
+    } catch (error) {
+        console.error('[Cron] Error sending seasonal recommendations:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Weekly event opportunity alerts
+ * Runs every Monday at 11:00 AM
+ */
+const weeklyEventAlerts = cron.schedule('0 11 * * 1', async () => {
+    console.log('[Cron] Alerting event opportunities...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.alertEventOpportunities();
+        console.log('[Cron] Event alerts sent:', result);
+    } catch (error) {
+        console.error('[Cron] Error alerting event opportunities:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Daily holiday campaign triggers
+ * Runs every day at 08:00 AM during holiday seasons
+ */
+const dailyHolidayCampaigns = cron.schedule('0 8 * * *', async () => {
+    console.log('[Cron] Triggering holiday campaigns...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.triggerHolidayCampaigns();
+        console.log('[Cron] Holiday campaigns triggered:', result);
+    } catch (error) {
+        console.error('[Cron] Error triggering holiday campaigns:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
+ * Daily weather-based recommendations
+ * Runs every day at 08:30 AM
+ */
+const dailyWeatherRecommendations = cron.schedule('30 8 * * *', async () => {
+    console.log('[Cron] Sending weather-based recommendations...');
+    
+    if (!lifeEventService) {
+        console.log('[Cron] Life event service not available, skipping');
+        return;
+    }
+
+    try {
+        const result = await lifeEventService.sendWeatherBasedRecommendations();
+        console.log('[Cron] Weather recommendations sent:', result);
+    } catch (error) {
+        console.error('[Cron] Error sending weather recommendations:', error);
+    }
+}, {
+    scheduled: false,
+    timezone: 'America/New_York'
+});
+
+/**
  * Start all cron jobs
  */
 function startCronJobs() {
@@ -163,6 +309,14 @@ function startCronJobs() {
     hourlyBudgetAlerts.start();
     weeklyPerformanceReports.start();
 
+    // Life Event Notification Jobs
+    dailyBirthdayReminders.start();
+    dailyAnniversaryReminders.start();
+    weeklySeasonalRecommendations.start();
+    weeklyEventAlerts.start();
+    dailyHolidayCampaigns.start();
+    dailyWeatherRecommendations.start();
+
     console.log('[Cron] All jobs scheduled');
     console.log('[Cron] - Daily buffer drops: 00:05 AM');
     console.log('[Cron] - Platform median ER: Sundays 02:00 AM');
@@ -171,6 +325,12 @@ function startCronJobs() {
     console.log('[Cron] - Daily inventory check: 06:00 AM');
     console.log('[Cron] - Hourly budget alerts: every hour');
     console.log('[Cron] - Weekly performance reports: Mondays 09:00 AM');
+    console.log('[Cron] - Daily birthday reminders: 09:00 AM');
+    console.log('[Cron] - Daily anniversary reminders: 09:30 AM');
+    console.log('[Cron] - Weekly seasonal recommendations: Mondays 10:00 AM');
+    console.log('[Cron] - Weekly event alerts: Mondays 11:00 AM');
+    console.log('[Cron] - Daily holiday campaigns: 08:00 AM');
+    console.log('[Cron] - Daily weather recommendations: 08:30 AM');
 }
 
 /**
@@ -188,6 +348,14 @@ function stopCronJobs() {
     dailyInventoryCheck.stop();
     hourlyBudgetAlerts.stop();
     weeklyPerformanceReports.stop();
+
+    // Life Event Notification Jobs
+    dailyBirthdayReminders.stop();
+    dailyAnniversaryReminders.stop();
+    weeklySeasonalRecommendations.stop();
+    weeklyEventAlerts.stop();
+    dailyHolidayCampaigns.stop();
+    dailyWeatherRecommendations.stop();
 }
 
 /**
@@ -213,6 +381,13 @@ module.exports = {
         weeklyPayouts,
         dailyInventoryCheck,
         hourlyBudgetAlerts,
-        weeklyPerformanceReports
+        weeklyPerformanceReports,
+        // Life Event Notification Jobs
+        dailyBirthdayReminders,
+        dailyAnniversaryReminders,
+        weeklySeasonalRecommendations,
+        weeklyEventAlerts,
+        dailyHolidayCampaigns,
+        dailyWeatherRecommendations
     }
 };

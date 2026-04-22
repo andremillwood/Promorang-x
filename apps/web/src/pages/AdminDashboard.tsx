@@ -49,8 +49,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-
-      <div className="pt-24 pb-12 px-4">
+      <div className="px-4 pb-12 pt-20 sm:pt-24">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -68,7 +67,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4">
             {statsLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-28 rounded-xl" />
@@ -81,17 +80,17 @@ const AdminDashboard = () => {
                 { label: "Rewards Issued", value: stats?.totalRewards || 0, icon: Gift, color: "text-accent" },
                 { label: "Campaigns", value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500" },
               ].map((stat, index) => (
-                <div key={index} className="bg-card rounded-xl p-5 border border-border">
+                <div key={index} className="rounded-xl border border-border bg-card p-4 sm:p-5">
                   <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
-                  <p className="text-2xl font-bold text-foreground">{stat.value.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-xl font-bold text-foreground sm:text-2xl">{stat.value.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
                 </div>
               ))
             )}
           </div>
 
           {/* Secondary Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {statsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-20 rounded-xl" />
@@ -103,12 +102,12 @@ const AdminDashboard = () => {
                 { label: "Total Venues", value: stats?.totalVenues || 0, icon: MapPin, color: "text-orange-500" },
                 { label: "User Growth", value: `${stats?.userGrowth || 0}%`, icon: TrendingUp, color: "text-primary" },
               ].map((stat, index) => (
-                <div key={index} className="bg-secondary/30 rounded-xl p-4 border border-border">
+                <div key={index} className="rounded-xl border border-border bg-secondary/30 p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
                   </div>
-                  <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-lg font-bold text-foreground sm:text-xl">{stat.value}</p>
                 </div>
               ))
             )}
@@ -116,7 +115,8 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-2xl grid-cols-4">
+            <div className="overflow-x-auto pb-2">
+            <TabsList className="grid h-auto min-w-[860px] w-full max-w-none grid-cols-10 rounded-2xl bg-muted/60 p-1">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
@@ -158,6 +158,7 @@ const AdminDashboard = () => {
                 Create Moment
               </TabsTrigger>
             </TabsList>
+            </div>
 
             <TabsContent value="overview">
               <AdminAnalyticsTab />

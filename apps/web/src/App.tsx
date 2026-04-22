@@ -6,67 +6,88 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TourProvider } from "@/contexts/TourContext";
-import AMI_Index from "./pages/AMI_Index";
-import Index from "./pages/Index";
-import MechanicDetail from "./pages/MechanicDetail";
+import { lazy, Suspense } from "react";
 import ScrollToHash from "./components/ScrollToHash";
-import Contact from "./pages/Contact";
-import Help from "./pages/Help";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Brands from "./pages/Brands";
-import Merchants from "./pages/Merchants";
-import Hosts from "./pages/Hosts";
-import VenueReportTeaser from "./pages/VenueReportTeaser";
-
-
-// ... existing imports
-import AuthPage from "./pages/AuthPage";
-import Search from "./pages/Search";
-import Activity from "./pages/Activity";
-import Following from "./pages/Following";
-import Onboarding from "./pages/Onboarding";
-import BrandOnboarding from "./pages/onboarding/BrandOnboarding";
-import Dashboard from "./pages/Dashboard";
-import MomentsApp from "./pages/MomentsApp";
-import AdminDashboard from "./pages/AdminDashboard";
-import Discover from "./pages/Discover";
-import MomentDetail from "./pages/MomentDetail";
-import MomentRecord from "./pages/MomentRecord";
-import EditMoment from "./pages/EditMoment";
-import CheckIn from "./pages/CheckIn";
-import Rewards from "./pages/Rewards";
-import Analytics from "./pages/Analytics";
-import CreateCampaign from "./pages/CreateCampaign";
-import CreateBounty from "./pages/CreateBounty";
-import CreateMoment from "./pages/CreateMoment";
-import CreateProposal from "./pages/CreateProposal";
-import AddVenue from "./pages/AddVenue";
-import AddProduct from "./pages/AddProduct";
-import Settings from "./pages/Settings";
-import BountyBoard from "./pages/BountyBoard";
-import ForCommunities from "./pages/ForCommunities";
-import ForBrands from "./pages/ForBrands";
-import ForMerchants from "./pages/ForMerchants";
-import ForAgencies from "./pages/ForAgencies";
-import Pricing from "./pages/Pricing";
-import Hosting from "./pages/Hosting";
-import NotFound from "./pages/NotFound";
-import UserProfile from "./pages/UserProfile";
-import Participants from "./pages/Participants";
-import Saved from "./pages/Saved";
-import ProposalWorkspace from "./pages/ProposalWorkspace";
-import Marketplace from "./pages/Marketplace";
-import ServiceCatalog from "./pages/ServiceCatalog";
+import RouteScrollManager from "./components/RouteScrollManager";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AppLayout from "@/components/layouts/AppLayout";
-import ProposeLanding from "@/pages/ProposeLanding";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import BrandCreateCampaign from "@/pages/brand/CreateCampaign";
-import HostDiscovery from "@/components/brand/HostDiscovery";
-import AuthCallback from "./pages/AuthCallback";
-import Gallery from "./pages/Gallery";
-import UGCReview from "./pages/UGCReview";
-import ActivatePage from "./pages/Activate";
+
+// Route-level code splitting — each page loads on demand
+const Index = lazy(() => import("./pages/Index"));
+const AMI_Index = lazy(() => import("./pages/AMI_Index"));
+const MechanicDetail = lazy(() => import("./pages/MechanicDetail"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"));
+const ForCommunities = lazy(() => import("./pages/ForCommunities"));
+const ForBrands = lazy(() => import("./pages/ForBrands"));
+const ForCreators = lazy(() => import("./pages/ForCreators"));
+const ForMerchants = lazy(() => import("./pages/ForMerchants"));
+const ForAgencies = lazy(() => import("./pages/ForAgencies"));
+const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Help = lazy(() => import("./pages/Help"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Hosting = lazy(() => import("./pages/Hosting"));
+const WhyJoin = lazy(() => import("./pages/WhyJoin"));
+const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
+const CreateMoment = lazy(() => import("./pages/CreateMoment"));
+const Discover = lazy(() => import("./pages/Discover"));
+const Pulse = lazy(() => import("./pages/Pulse"));
+const WatchUnlock = lazy(() => import("./pages/WatchUnlock"));
+const ContentMissionDetail = lazy(() => import("./pages/ContentMissionDetail"));
+const Search = lazy(() => import("./pages/Search"));
+const Brands = lazy(() => import("./pages/Brands"));
+const Merchants = lazy(() => import("./pages/Merchants"));
+const Hosts = lazy(() => import("./pages/Hosts"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const ActivatePage = lazy(() => import("./pages/Activate"));
+const MomentDetail = lazy(() => import("./pages/MomentDetail"));
+const MomentRecord = lazy(() => import("./pages/MomentRecord"));
+const EditMoment = lazy(() => import("./pages/EditMoment"));
+const CheckIn = lazy(() => import("./pages/CheckIn"));
+const BountyBoard = lazy(() => import("./pages/BountyBoard"));
+const MomentsApp = lazy(() => import("./pages/MomentsApp"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Participants = lazy(() => import("./pages/Participants"));
+const Activity = lazy(() => import("./pages/Activity"));
+const Following = lazy(() => import("./pages/Following"));
+const Saved = lazy(() => import("./pages/Saved"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Rewards = lazy(() => import("./pages/Rewards"));
+const Vault = lazy(() => import("./pages/Vault"));
+const MemoryDetail = lazy(() => import("./pages/MemoryDetail"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const CreateCampaign = lazy(() => import("./pages/CreateCampaign"));
+const CreateBounty = lazy(() => import("./pages/CreateBounty"));
+const CreateProposal = lazy(() => import("./pages/CreateProposal"));
+const AddVenue = lazy(() => import("./pages/AddVenue"));
+const AddProduct = lazy(() => import("./pages/AddProduct"));
+const ProposalWorkspace = lazy(() => import("./pages/ProposalWorkspace"));
+const ServiceCatalog = lazy(() => import("./pages/ServiceCatalog"));
+const BrandCreateCampaign = lazy(() => import("@/pages/brand/CreateCampaign"));
+const HostDiscovery = lazy(() => import("@/components/brand/HostDiscovery"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const UGCReview = lazy(() => import("./pages/UGCReview"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PromoShare = lazy(() => import("./pages/PromoShare"));
+const PromoShareAdmin = lazy(() => import("./pages/admin/PromoShareAdmin"));
+const FeaturedPlacementsAdmin = lazy(() => import("./pages/admin/FeaturedPlacementsAdmin"));
+const SponsorDashboard = lazy(() => import("./pages/SponsorDashboard"));
+const SponsorAnalyticsDashboard = lazy(() => import("./pages/SponsorAnalyticsDashboard"));
+const TradingMarketplace = lazy(() => import("./pages/TradingMarketplace"));
+const KYCPage = lazy(() => import("./pages/KYCPage"));
+const KYCAdminDashboard = lazy(() => import("./pages/admin/KYCAdminDashboard"));
+const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
+const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
+const PostLoginRouter = lazy(() => import("./components/onboarding/PostLoginRouter"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
 
 const queryClient = new QueryClient();
 
@@ -80,6 +101,8 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToHash />
+              <RouteScrollManager />
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
               <Routes>
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Index />} />
@@ -89,8 +112,10 @@ const App = () => (
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/onboarding/brand" element={<BrandOnboarding />} />
+                  <Route path="/post-login" element={<PostLoginRouter />} />
                   <Route path="/for-communities" element={<ForCommunities />} />
                   <Route path="/for-brands" element={<ForBrands />} />
+                  <Route path="/for-creators" element={<ForCreators />} />
                   <Route path="/for-merchants" element={<ForMerchants />} />
                   <Route path="/for-agencies" element={<ForAgencies />} />
                   <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
@@ -100,9 +125,13 @@ const App = () => (
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/host" element={<Hosting />} />
+                  <Route path="/why-join" element={<WhyJoin />} />
                   <Route path="/propose" element={<ProposeLanding />} />
                   <Route path="/create-moment" element={<CreateMoment />} />
                   <Route path="/discover" element={<Discover />} />
+                  <Route path="/pulse" element={<Pulse />} />
+                  <Route path="/watch-unlock" element={<WatchUnlock />} />
+                  <Route path="/watch-unlock/:id" element={<ContentMissionDetail />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/brands" element={<Brands />} />
                   <Route path="/merchants" element={<Merchants />} />
@@ -126,6 +155,12 @@ const App = () => (
                   <Route path="/dashboard/saved" element={<Saved />} />
                   <Route path="/dashboard/settings" element={<Settings />} />
                   <Route path="/dashboard/rewards" element={<Rewards />} />
+                  <Route path="/promoshare" element={<PromoShare />} />
+                  <Route path="/sponsor" element={<SponsorDashboard />} />
+                  <Route path="/sponsor/analytics" element={<SponsorAnalyticsDashboard />} />
+                  <Route path="/featured" element={<FeaturedBooking />} />
+                  <Route path="/vault" element={<Vault />} />
+                  <Route path="/memories/:id" element={<MemoryDetail />} />
                   <Route path="/dashboard/analytics" element={<Analytics />} />
                   <Route path="/dashboard/campaigns/create" element={<CreateCampaign />} />
                   <Route path="/dashboard/bounties/create" element={<CreateBounty />} />
@@ -141,6 +176,12 @@ const App = () => (
                   <Route path="/profile/:userId" element={<UserProfile />} />
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/promoshare" element={<PromoShareAdmin />} />
+                  <Route path="/admin/featured" element={<FeaturedPlacementsAdmin />} />
+                  <Route path="/admin/kyc" element={<ProtectedRoute><KYCAdminDashboard /></ProtectedRoute>} />
+                  <Route path="/marketplace" element={<ProtectedRoute><TradingMarketplace /></ProtectedRoute>} />
+                  <Route path="/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
+                  <Route path="/liquidity" element={<ProtectedRoute><LiquidityDashboard /></ProtectedRoute>} />
                 </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
@@ -154,6 +195,8 @@ const App = () => (
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
+              <PWAInstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
         </TourProvider>

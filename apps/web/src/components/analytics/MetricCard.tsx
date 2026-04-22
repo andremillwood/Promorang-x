@@ -33,7 +33,7 @@ export function MetricCard({
 }: MetricCardProps) {
     if (loading) {
         return (
-            <div className={cn('bg-card rounded-xl border border-border p-6', className)}>
+            <div className={cn('rounded-xl border border-border bg-card p-5 md:p-6', className)}>
                 <div className="animate-pulse space-y-3">
                     <div className="h-4 bg-muted rounded w-1/2" />
                     <div className="h-8 bg-muted rounded w-3/4" />
@@ -44,14 +44,14 @@ export function MetricCard({
     }
 
     return (
-        <div className={cn('bg-card rounded-xl border border-border p-6 hover:shadow-lg transition-shadow', className)}>
-            <div className="flex items-start justify-between">
+        <div className={cn('rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-lg md:p-6', className)}>
+            <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                     <div className="flex items-center gap-1.5 mb-1">
                         <p className="text-sm font-medium text-muted-foreground">{title}</p>
                         {tooltip && <InfoTooltip content={tooltip} />}
                     </div>
-                    <p className="text-3xl font-bold tracking-tight">{value}</p>
+                    <p className="text-2xl font-bold tracking-tight sm:text-3xl">{value}</p>
 
                     {change && (
                         <div className="flex items-center gap-1 mt-2">
@@ -80,7 +80,7 @@ export function MetricCard({
                 </div>
 
                 {icon && (
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary md:h-12 md:w-12">
                         {icon}
                     </div>
                 )}

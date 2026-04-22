@@ -44,7 +44,7 @@ const MomentsApp = () => {
     return (
         <div className="space-y-10 pb-20">
             {/* Focused Header */}
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div>
                     <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-2">
                         Moments <span className="italic text-primary">App</span>
@@ -53,14 +53,14 @@ const MomentsApp = () => {
                         Your personalized gathering space. Build your canon, unlock status, and preserve moments.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" className="rounded-2xl gap-2" asChild>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Button variant="outline" className="gap-2 rounded-2xl" asChild>
                         <Link to="/discover">
                             <Search className="w-4 h-4" />
                             Discover More
                         </Link>
                     </Button>
-                    <Button className="rounded-2xl gap-2 shadow-glow">
+                    <Button className="gap-2 rounded-2xl shadow-glow">
                         <Sparkles className="w-4 h-4" />
                         Find Near Me
                     </Button>
@@ -99,7 +99,7 @@ const MomentsApp = () => {
                                 {upcomingMoments.map((moment) => (
                                     <div
                                         key={moment.id}
-                                        className="group bg-card rounded-3xl p-5 border border-border/40 hover:shadow-soft-xl transition-all duration-300 flex flex-col sm:flex-row gap-6 items-center"
+                                        className="group flex flex-col gap-5 rounded-3xl border border-border/40 bg-card p-5 transition-all duration-300 hover:shadow-soft-xl sm:flex-row sm:items-center sm:gap-6"
                                     >
                                         <div className="w-full sm:w-24 aspect-square rounded-2xl overflow-hidden shadow-soft flex-shrink-0">
                                             {moment.image_url ? (
@@ -110,7 +110,7 @@ const MomentsApp = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex-1 min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
                                                     {format(new Date(moment.starts_at), "EEEE, MMM d")}
@@ -121,16 +121,16 @@ const MomentsApp = () => {
                                                     {moment.title}
                                                 </h3>
                                             </Link>
-                                            <div className="flex items-center gap-4 mt-2 text-xs font-semibold text-muted-foreground">
+                                            <div className="mt-2 flex flex-col gap-2 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
                                                 <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {moment.venue_name || moment.location}</span>
                                                 <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> {format(new Date(moment.starts_at), "h:mm a")}</span>
                                             </div>
                                         </div>
-                                        <div className="flex-shrink-0">
+                                        <div className="w-full shrink-0 sm:w-auto">
                                             <Button
                                                 onClick={() => handleCheckIn(moment.id)}
                                                 disabled={checkIn.isPending}
-                                                className="rounded-2xl px-6 h-11 shadow-soft"
+                                                className="h-11 w-full rounded-2xl px-6 shadow-soft sm:w-auto"
                                             >
                                                 Check In
                                             </Button>
@@ -146,7 +146,7 @@ const MomentsApp = () => {
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="font-serif text-2xl font-bold flex items-center gap-2">
                                 <Sparkles className="w-6 h-6 text-accent" />
-                                Your Moment Canon
+                                Your Memories
                             </h2>
                         </div>
 
@@ -178,7 +178,7 @@ const MomentsApp = () => {
                 </div>
 
                 {/* Sidebar / Context */}
-                <aside className="lg:col-span-4 space-y-8">
+                <aside className="space-y-8 lg:col-span-4">
                     {/* Digital Passport Card */}
                     <div className="bg-gradient-to-br from-card to-card/50 rounded-[2rem] p-8 border border-border/60 shadow-soft-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-6 opacity-5">

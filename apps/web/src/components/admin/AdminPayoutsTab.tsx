@@ -17,13 +17,9 @@ import {
     AlertCircle, 
     Clock, 
     Search,
-    ExternalLink,
     Filter,
-    ChevronRight,
-    ArrowUpRight,
     ArrowDownLeft
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -137,19 +133,21 @@ export const AdminPayoutsTab = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-muted-foreground mr-1" />
+                <div className="-mx-1 overflow-x-auto px-1 touch-pan-x snap-x-mandatory scrollbar-none">
+                    <div className="flex min-w-max items-center gap-2">
+                    <Filter className="w-4 h-4 text-muted-foreground mr-1 shrink-0" />
                     {['pending', 'processing', 'completed', 'rejected', 'all'].map((status) => (
                         <Button 
                             key={status}
                             variant={filterStatus === status ? "secondary" : "ghost"} 
                             size="sm"
-                            className="capitalize"
+                            className="snap-start capitalize"
                             onClick={() => setFilterStatus(status)}
                         >
                             {status}
                         </Button>
                     ))}
+                    </div>
                 </div>
             </div>
 
@@ -220,7 +218,6 @@ export const AdminPayoutsTab = () => {
 
                                 {/* Actions */}
                                 <div className="p-6 lg:w-[250px] shrink-0 bg-secondary/5 flex flex-col justify-center gap-3">
-                                    <AnimatePresence mode="wait">
                                         {isUpdating === req.id ? (
                                             <div className="flex flex-col items-center justify-center gap-2">
                                                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -273,7 +270,6 @@ export const AdminPayoutsTab = () => {
                                                 )}
                                             </>
                                         )}
-                                    </AnimatePresence>
                                 </div>
                             </div>
                         </Card>

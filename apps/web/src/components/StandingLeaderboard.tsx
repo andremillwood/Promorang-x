@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Award, Star, Flame, Crown, Sparkles } from "lucide-react";
+import { Flame, Crown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 const leaderData = [
     { name: "Lena Rivers", tier: "Eminence", stories: 42, points: "12,400", color: "text-primary", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" },
@@ -10,7 +11,39 @@ const leaderData = [
     { name: "Elena Vance", tier: "Herald", stories: 27, points: "6,500", color: "text-blue-400", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop" },
 ];
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export const StandingLeaderboard = () => {
+    const { data } = useQuery({
+        queryKey: ["public-impact-leaderboard"],
+        queryFn: async () => {
+            const response = await fetch(`${API_URL}/api/impact/public-leaderboard?limit=5`);
+            const payload = await response.json().catch(() => null);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    return [];
+                }
+                throw new Error(payload?.error || "Failed to load leaderboard");
+            }
+            return payload?.leaderboard || [];
+        },
+        retry: 0,
+    });
+
+    const liveLeaders = Array.isArray(data) && data.length > 0
+        ? data.map((row: any, index: number) => ({
+            name: row.display_name || row.full_name || row.username || `Community Member ${index + 1}`,
+            tier: String(row.catalyst_rank || "new_signal").replaceAll("_", " "),
+            stories: row.downstream_action_count || 0,
+            points: Number(row.impact_score || 0).toLocaleString(),
+            color: index < 3 ? "text-primary" : "text-blue-400",
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(row.user_id || `leader-${index}`)}`,
+            isLive: true,
+        }))
+        : leaderData;
+
+    const showingExamples = liveLeaders === leaderData;
+
     return (
         <section className="py-24 bg-background relative border-t border-border/40">
             <div className="container px-6">
@@ -21,11 +54,12 @@ export const StandingLeaderboard = () => {
                         viewport={{ once: true }}
                     >
                         <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4 italic">
-                            The Standing Circle
+                            Community Leaderboard
                         </h2>
                         <p className="text-muted-foreground">
-                            A mirror of the community's most consistent storytellers. 
-                            Your standing is built through verified presence and real-world impact.
+                            {showingExamples
+                                ? "Preview how status, mayor energy, and real participation can shape your local community."
+                                : "Meet the most active community members. Your level is built through showing up and making a real impact."}
                         </p>
                     </motion.div>
                 </div>
@@ -34,15 +68,15 @@ export const StandingLeaderboard = () => {
                     <div className="bg-card rounded-[2rem] border border-border/40 overflow-hidden shadow-soft-xl">
                         {/* Table Header */}
                         <div className="grid grid-cols-4 gap-4 px-8 py-4 bg-muted/30 border-b border-border/40 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                            <span className="col-span-1">Standing</span>
-                            <span className="col-span-1">Explorer</span>
+                            <span className="col-span-1">Level</span>
+                            <span className="col-span-1">Member</span>
                             <span className="col-span-1 text-center">Stories Shared</span>
                             <span className="col-span-1 text-right">Gratitude</span>
                         </div>
 
                         {/* List Items */}
                         <div className="divide-y divide-border/20">
-                            {leaderData.map((user, index) => (
+                            {liveLeaders.map((user, index) => (
                                 <motion.div
                                     key={index}
                                     initial={{ opacity: 0, x: -10 }}
@@ -96,7 +130,9 @@ export const StandingLeaderboard = () => {
                     <div className="mt-12 text-center">
                         <Badge variant="outline" className="px-6 py-2 border-primary/20 hover:bg-primary/5 transition-all cursor-default">
                             <Sparkles className="w-3 h-3 text-primary mr-2" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Only the most consistent storytellers reach the Circle</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                {showingExamples ? "No live leaders yet. Become a founding mayor and set the first standard." : "Only the most active members reach the top"}
+                            </span>
                         </Badge>
                     </div>
                 </div>

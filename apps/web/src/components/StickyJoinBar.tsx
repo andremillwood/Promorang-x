@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
-import { Gift, Users, Flame, ChevronDown, Share2 } from "lucide-react";
+import { Gift, Users, Flame, ChevronDown, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface StickyJoinBarProps {
@@ -97,7 +97,7 @@ export function StickyJoinBar({
     return (
         <div
             className={cn(
-                "fixed bottom-0 left-0 right-0 z-40 transform transition-transform duration-300",
+                "fixed bottom-0 left-0 right-0 z-40 transform transition-transform duration-300 px-safe",
                 isVisible ? "translate-y-0" : "translate-y-full",
                 className
             )}
@@ -127,14 +127,16 @@ export function StickyJoinBar({
             )}
 
             {/* Main bar */}
-            <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-elevated">
+            <div className="bg-card/95 backdrop-blur-lg border-t border-border shadow-elevated pb-safe">
                 <div className="max-w-4xl mx-auto px-4 py-3">
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         {/* Left side - info */}
                         <div className="flex items-center gap-3 min-w-0">
                             <button
                                 onClick={() => setIsExpanded(!isExpanded)}
-                                className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                                className="flex min-h-[44px] items-center gap-2 rounded-full px-2 text-muted-foreground transition-colors hover:text-foreground"
+                                aria-expanded={isExpanded}
+                                aria-label={isExpanded ? "Collapse moment quick details" : "Expand moment quick details"}
                             >
                                 <ChevronDown
                                     className={cn(
@@ -145,7 +147,7 @@ export function StickyJoinBar({
                             </button>
 
                             <div className="min-w-0">
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     {isAlmostFull && !isJoined && !isPast && (
                                         <span className="flex items-center gap-1 text-xs font-medium text-red-500 animate-pulse">
                                             <Flame className="h-3 w-3" />
@@ -167,14 +169,14 @@ export function StickyJoinBar({
                         </div>
 
                         {/* Right side - CTA */}
-                        <div className="flex items-center gap-2">
-                            <SaveButton momentId={momentId} size="md" className="hidden sm:flex" />
+                        <div className="flex w-full items-center gap-2 overflow-x-auto touch-pan-x scrollbar-none sm:w-auto">
+                            <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
                             {isJoined && !isPast && !isHost && (
                                 <Button
                                     variant="outline"
                                     size="lg"
                                     onClick={handlePingSquad}
-                                    className="whitespace-nowrap border-accent text-accent hover:bg-accent/10"
+                                    className="shrink-0 whitespace-nowrap border-accent text-accent hover:bg-accent/10"
                                 >
                                     <Share2 className="w-4 h-4 mr-2" />
                                     Ping Squad
@@ -185,12 +187,18 @@ export function StickyJoinBar({
                                 size="lg"
                                 onClick={onJoin}
                                 disabled={isPast || isFull || isJoining}
-                                className="whitespace-nowrap"
+                                className="flex-1 whitespace-nowrap sm:flex-none"
                             >
                                 {getButtonContent()}
                             </Button>
                         </div>
                     </div>
+                    {!isExpanded && (
+                        <div className="mt-2 flex items-center gap-2 text-xs font-medium text-muted-foreground sm:hidden">
+                            <Sparkles className="h-3.5 w-3.5 text-primary" />
+                            Tap the chevron for quick details and squad actions.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

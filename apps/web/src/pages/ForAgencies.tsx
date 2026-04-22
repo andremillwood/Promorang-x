@@ -20,7 +20,7 @@ const features = [
     {
         icon: TrendingUp,
         title: "Undeniable ROI",
-        description: "Stop selling 'exposure'. Sell guaranteed foot traffic and verified customer data to your local clients."
+        description: "Stop selling 'exposure'. Sell verified retail visits, service bookings, grocery activations, and real customer movement to your local clients."
     },
     {
         icon: FileText,
@@ -35,7 +35,7 @@ const features = [
     {
         icon: Settings,
         title: "No-Code Campaign Engine",
-        description: "Launch referral, purchase, and visit objectives without writing a single line of code or integrating POS APIs."
+        description: "Launch referral, purchase, try-on, booking, and visit objectives without writing a single line of code or integrating POS APIs."
     },
     {
         icon: Search,
@@ -62,7 +62,8 @@ const ForAgencies = () => {
                         </h1>
 
                         <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-                            Stop promising your clients "good vibes and exposure." Use Promorang to guarantee foot traffic, orchestrate reward campaigns, and hand them a verified PDF of their exact ROI on Monday morning.
+                            Stop promising your clients "good vibes and exposure." Use Promorang to guarantee retail visits, service bookings,
+                            creator-driven missions, and verified local foot traffic, then hand them a clean proof-of-performance story on Monday morning.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
@@ -85,7 +86,7 @@ const ForAgencies = () => {
                             Charge a premium. Prove your worth.
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            The infrastructure you need to become the dominant local marketing agency.
+                            The infrastructure you need to operate creator, venue, retail, grocery, and service campaigns from one proof-driven workspace.
                         </p>
                     </div>
 
@@ -116,10 +117,10 @@ const ForAgencies = () => {
                         <div className="inline-flex items-center justify-center p-4 rounded-full bg-white/5 border border-white/10 mb-6">
                             <Briefcase className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-foreground">
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-white">
                             Ready to upgrade your agency?
                         </h2>
-                        <p className="text-muted-foreground text-lg mb-8">
+                        <p className="text-white/70 text-lg mb-8">
                             Sign up today and run your first client campaign for free.
                         </p>
                         <Button variant="hero" size="xl" asChild>

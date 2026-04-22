@@ -2,6 +2,8 @@
 
 _Last updated: 2025-10-29_
 
+> Note: this document describes the prior Growth Hub-centered architecture baseline. For the current product model and the next system direction around Moments, Gatherings, Memories, Perks, and agent surfaces, see [docs/momentum-engine/README.md](./momentum-engine/README.md).
+
 ## System Goals
 - Deliver Growth Hub experiences (staking, funding, shield, creator rewards, ledger) with low-latency APIs.
 - Provide transparent, auditable transactions for creators and supporters.

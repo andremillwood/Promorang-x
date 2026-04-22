@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff, PlayCircle, Briefcase } from "lucide-react";
 import logo from "@/assets/promorang-logo-full.png";
 import { z } from "zod";
 
-type UserRole = "participant" | "host" | "brand" | "merchant";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,6 +22,11 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
     icon: Users,
     title: "Join Moments",
     description: "Discover and participate in experiences",
+  },
+  creator: {
+    icon: PlayCircle,
+    title: "Create Missions",
+    description: "Publish content and drive real-world unlocks",
   },
   host: {
     icon: Sparkles,
@@ -53,6 +58,21 @@ const AuthPage = () => {
   const { signIn, signUp, demoSignIn, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const requestedRole = searchParams.get("role");
+    if (!requestedRole) return;
+
+    if (requestedRole === "agency") {
+      setSelectedRole("brand");
+      return;
+    }
+
+    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+      setSelectedRole(requestedRole as UserRole);
+    }
+  }, [searchParams]);
 
   const validateForm = () => {
     try {
@@ -96,7 +116,8 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
-          navigate("/dashboard");
+          // Use post-login router for intelligent landing
+          navigate("/post-login", { replace: true });
         }
       } else {
         const { error } = await signUp(email, password, fullName, selectedRole);
@@ -113,7 +134,8 @@ const AuthPage = () => {
             title: "Welcome to Promorang!",
             description: "Your account has been created successfully.",
           });
-          navigate("/dashboard");
+          // New users always go through onboarding first
+          navigate("/post-login", { replace: true });
         }
       }
     } finally {
@@ -314,7 +336,7 @@ const AuthPage = () => {
             <p className="text-sm text-muted-foreground text-center mb-4">
               Try a demo account
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               <Button
                 variant="outline"
                 size="default"
@@ -325,6 +347,17 @@ const AuthPage = () => {
                 <Users className="w-5 h-5 text-primary" />
                 <span className="font-medium">Participant</span>
                 <span className="text-xs text-muted-foreground">Join moments</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => handleDemoLogin("creator")}
+                disabled={isLoading}
+                className="flex flex-col items-center gap-1 h-auto py-3"
+              >
+                <PlayCircle className="w-5 h-5 text-primary" />
+                <span className="font-medium">Creator</span>
+                <span className="text-xs text-muted-foreground">Publish missions</span>
               </Button>
               <Button
                 variant="outline"
@@ -351,6 +384,17 @@ const AuthPage = () => {
               <Button
                 variant="outline"
                 size="default"
+                onClick={() => handleDemoLogin("brand")}
+                disabled={isLoading}
+                className="flex flex-col items-center gap-1 h-auto py-3"
+              >
+                <Briefcase className="w-5 h-5 text-primary" />
+                <span className="font-medium">Agency</span>
+                <span className="text-xs text-muted-foreground">Manage clients</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
                 onClick={() => handleDemoLogin("merchant")}
                 disabled={isLoading}
                 className="flex flex-col items-center gap-1 h-auto py-3"
@@ -360,6 +404,9 @@ const AuthPage = () => {
                 <span className="text-xs text-muted-foreground">Manage venues</span>
               </Button>
             </div>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Agency demo currently enters through the operator workspace built on the brand-side tools.
+            </p>
           </div>
         </div>
       </div>

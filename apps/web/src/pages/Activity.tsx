@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, Filter, Loader2 } from "lucide-react";
+import { Bell, Settings, Filter, Loader2, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -21,57 +22,58 @@ const Activity = () => {
     const [filter, setFilter] = useState("all");
 
     const { data: events, isLoading, refetch } = useQuery({
-        queryKey: ["notifications", user?.id],
+        queryKey: ["personalized-feed", user?.id],
         queryFn: async () => {
             if (!user) return [];
 
-            // 1. Fetch system notifications from email_logs
-            const { data: emailLogs, error: emailError } = await supabase
-                .from('email_logs')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (emailError) throw emailError;
-
-            // Map email logs to notification events
-            const systemEvents = emailLogs.map((log: any) => ({
-                id: log.id,
-                user_id: user.id,
-                event_type: log.email_type as any, // Map 'low_stock', 'payout', etc.
-                metadata: log.template_data || {},
-                created_at: log.created_at,
-                read_at: log.opened_at, // Use opened_at as read_at
-                actor: { full_name: "System", avatar_url: null }
-            }));
-
-            // 2. Fetch social activities (optional for now, or use existing notifications table)
-            // Assuming a table 'notifications' exists for in-app social alerts
-            const { data: socialNotifications } = await supabase
-                .from('notifications' as any)
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            const socialEvents = (socialNotifications || []).map((notif: any) => ({
-                ...notif,
-                event_type: notif.type // Mapping 'follow', 'join', etc.
-            }));
-
-            // Combine and sort
-            return [...systemEvents, ...socialEvents].sort((a, b) =>
-                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            // Fetch personalized feed from followed users
+            const { data: feedData, error: feedError } = await supabase.rpc(
+                'fn_get_personalized_feed',
+                {
+                    p_user_id: user.id,
+                    p_limit: 50,
+                    p_offset: 0
+                }
             );
+
+            if (feedError) {
+                console.error('Feed error:', feedError);
+                // Fallback: just return empty array if function doesn't exist yet
+                return [];
+            }
+
+            // Map feed data to ActivityFeed format
+            const feedEvents = (feedData || []).map((item: any) => ({
+                id: item.id,
+                user_id: item.user_id,
+                event_type: item.activity_type,
+                title: item.title,
+                description: item.description,
+                image_url: item.image_url,
+                created_at: item.created_at,
+                actor: {
+                    full_name: item.user_name,
+                    avatar_url: item.user_avatar
+                },
+                metadata: {
+                    likes_count: item.likes_count,
+                    comments_count: item.comments_count,
+                    source_id: item.source_id,
+                    source_table: item.source_table
+                }
+            }));
+
+            return feedEvents;
         },
         enabled: !!user
     });
 
     const filteredEvents = (events || []).filter(e => {
         if (filter === "all") return true;
-        if (filter === "system") return ["low_stock", "budget_alert", "system"].includes(e.event_type);
+        if (filter === "system") return ["low_stock", "budget_alert", "system", "notification"].includes(e.event_type);
         if (filter === "payout") return e.event_type === "payout";
         if (filter === "inventory") return e.event_type === "low_stock";
-        if (filter === "social") return ["follow", "join", "comment", "reaction", "reward"].includes(e.event_type);
+        if (filter === "social") return ["follow", "join", "comment", "reaction", "reward", "post", "drop_completion"].includes(e.event_type);
         return true;
     });
 
@@ -124,7 +126,23 @@ const Activity = () => {
                 {isLoading ? (
                     <div className="py-20 flex flex-col items-center justify-center text-muted-foreground gap-4">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p>Loading your history...</p>
+                        <p>Loading your feed...</p>
+                    </div>
+                ) : filteredEvents.length === 0 ? (
+                    <div className="py-16 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                        <h3 className="font-medium text-lg mb-2">Your feed is empty</h3>
+                        <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
+                            Follow creators and hosts to see their moments in your personalized feed
+                        </p>
+                        <div className="flex gap-2 justify-center">
+                            <Button asChild variant="outline" size="sm">
+                                <Link to="/search?category=user">Find People</Link>
+                            </Button>
+                            <Button asChild size="sm">
+                                <Link to="/following">Your Following</Link>
+                            </Button>
+                        </div>
                     </div>
                 ) : (
                     <div className="p-2">

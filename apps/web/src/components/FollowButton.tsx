@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserPlus, UserMinus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FollowButtonProps {
     userId: string;
@@ -14,8 +16,8 @@ interface FollowButtonProps {
 }
 
 /**
- * Follow/Unfollow button with optimistic updates
- * Integrates with follows table (migration required)
+ * Follow/Unfollow button with Supabase integration
+ * Uses user_follows table from social amplification schema
  */
 export function FollowButton({
     userId,
@@ -26,34 +28,105 @@ export function FollowButton({
     onFollowChange,
 }: FollowButtonProps) {
     const { toast } = useToast();
+    const { user } = useAuth();
     const [isFollowing, setIsFollowing] = useState(initialFollowing);
     const [isLoading, setIsLoading] = useState(false);
     const [followerCount, setFollowerCount] = useState(initialCount);
 
+    // Check if already following on mount
+    useEffect(() => {
+        if (!user || user.id === userId) return;
+        
+        const checkFollowStatus = async () => {
+            const { data } = await supabase
+                .from('user_follows')
+                .select('id')
+                .eq('follower_id', user.id)
+                .eq('following_id', userId)
+                .maybeSingle();
+            
+            setIsFollowing(!!data);
+        };
+        
+        checkFollowStatus();
+    }, [user, userId]);
+
     const handleToggleFollow = async () => {
-        setIsLoading(true);
-
-        // Optimistic update
-        const newFollowState = !isFollowing;
-        setIsFollowing(newFollowState);
-
-        if (followerCount !== undefined) {
-            setFollowerCount(prev => (prev ?? 0) + (newFollowState ? 1 : -1));
+        if (!user) {
+            toast({
+                title: "Sign in required",
+                description: "Please sign in to follow users",
+                variant: "destructive"
+            });
+            return;
         }
 
-        onFollowChange?.(newFollowState);
+        if (user.id === userId) {
+            toast({
+                title: "Cannot follow yourself",
+                variant: "destructive"
+            });
+            return;
+        }
 
-        toast({
-            title: newFollowState ? "Following!" : "Unfollowed",
-            description: newFollowState
-                ? "You'll see their moments in your feed"
-                : "Removed from your following list",
-        });
+        setIsLoading(true);
 
-        setIsLoading(false);
+        try {
+            if (isFollowing) {
+                // Unfollow
+                const { error } = await supabase
+                    .from('user_follows')
+                    .delete()
+                    .eq('follower_id', user.id)
+                    .eq('following_id', userId);
 
-        // TODO: Persist to Supabase once migration is applied
-        // await supabase.from('follows')...
+                if (error) throw error;
+
+                setIsFollowing(false);
+                if (followerCount !== undefined) {
+                    setFollowerCount(prev => Math.max(0, (prev ?? 0) - 1));
+                }
+
+                toast({
+                    title: "Unfollowed",
+                    description: "Removed from your following list",
+                });
+            } else {
+                // Follow
+                const { error } = await supabase
+                    .from('user_follows')
+                    .insert({
+                        follower_id: user.id,
+                        following_id: userId,
+                        notification_enabled: true
+                    });
+
+                if (error) throw error;
+
+                setIsFollowing(true);
+                if (followerCount !== undefined) {
+                    setFollowerCount(prev => (prev ?? 0) + 1);
+                }
+
+                toast({
+                    title: "Following!",
+                    description: "You'll see their moments in your feed",
+                });
+            }
+
+            onFollowChange?.(!isFollowing);
+        } catch (error) {
+            console.error('Follow error:', error);
+            toast({
+                title: "Error",
+                description: "Failed to update follow status. Please try again.",
+                variant: "destructive"
+            });
+            // Revert optimistic update
+            setIsFollowing(isFollowing);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (variant === "icon") {

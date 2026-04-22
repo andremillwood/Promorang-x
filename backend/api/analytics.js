@@ -3,6 +3,7 @@ const router = express.Router();
 const merchantAnalyticsService = require('../services/merchantAnalyticsService');
 const brandAnalyticsService = require('../services/brandAnalyticsService');
 const hostAnalyticsService = require('../services/hostAnalyticsService');
+const o2oAnalyticsService = require('../services/o2oAnalyticsService');
 const { requireAuth } = require('../middleware/auth');
 
 /**
@@ -213,6 +214,17 @@ router.get('/brand/campaigns', requireAuth, async (req, res) => {
     }
 });
 
+router.get('/brand/o2o', requireAuth, async (req, res) => {
+    try {
+        const brandId = req.user.id;
+        const analytics = await o2oAnalyticsService.getBrandO2OAnalytics(brandId);
+        res.json(analytics);
+    } catch (error) {
+        console.error('Error fetching brand O2O analytics:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 /**
  * Get engagement funnel
  * GET /api/analytics/brand/campaigns/:id/funnel
@@ -256,6 +268,17 @@ router.get('/brand/campaigns/:id/spending', requireAuth, async (req, res) => {
         res.json(timeline);
     } catch (error) {
         console.error('Error fetching spending timeline:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/host/o2o', requireAuth, async (req, res) => {
+    try {
+        const hostId = req.user.id;
+        const analytics = await o2oAnalyticsService.getHostO2OAnalytics(hostId);
+        res.json(analytics);
+    } catch (error) {
+        console.error('Error fetching host O2O analytics:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -347,6 +370,21 @@ router.get('/host/engagement', requireAuth, async (req, res) => {
         res.json(metrics);
     } catch (error) {
         console.error('Error fetching engagement metrics:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Get momentum metrics
+ * GET /api/analytics/host/momentum
+ */
+router.get('/host/momentum', requireAuth, async (req, res) => {
+    try {
+        const hostId = req.user.id;
+        const metrics = await hostAnalyticsService.getMomentumMetrics(hostId);
+        res.json(metrics);
+    } catch (error) {
+        console.error('Error fetching momentum metrics:', error);
         res.status(500).json({ error: error.message });
     }
 });

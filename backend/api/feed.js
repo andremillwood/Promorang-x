@@ -71,7 +71,7 @@ router.get('/demo', async (req, res) => {
 });
 // HELPER: SCORING ALGORITHM
 // ============================================
-const calculateScore = (item, userPrefs, interactions) => {
+const calculateScore = (item, userPrefs, userContext = {}, interactions = []) => {
     let score = 0;
     const now = new Date();
 
@@ -103,42 +103,295 @@ const calculateScore = (item, userPrefs, interactions) => {
             score += 50;
         }
     }
+    
+    // Country-level match (slightly lower boost)
+    if (userPrefs?.location_data?.country && item.country) {
+        if (userPrefs.location_data.country.toLowerCase() === item.country.toLowerCase()) {
+            score += 30;
+        }
+    }
 
-    // 4. PREVIOUS INTERACTIONS (Affinity)
+    // 4. DEMOGRAPHIC TARGETING (NEW)
+    const demographics = userContext?.demographics;
+    if (demographics) {
+        // Age-appropriate content
+        if (item.target_age_min && userContext.age) {
+            if (userContext.age >= item.target_age_min) score += 15;
+            else score -= 20;
+        }
+        if (item.target_age_max && userContext.age) {
+            if (userContext.age <= item.target_age_max) score += 15;
+            else score -= 20;
+        }
+        
+        // Gender targeting (for relevant categories)
+        if (item.target_gender && demographics.gender) {
+            if (item.target_gender === demographics.gender) score += 10;
+        }
+        
+        // Family status targeting
+        if (item.family_friendly && demographics.has_children) score += 20;
+        if (item.parenting_focused && demographics.has_children) score += 30;
+        if (item.child_age_range && demographics.children_ages) {
+            const hasMatchingChild = demographics.children_ages.some(age => {
+                const [min, max] = item.child_age_range.split('-').map(Number);
+                return age >= min && age <= max;
+            });
+            if (hasMatchingChild) score += 25;
+        }
+        
+        // Relationship status targeting
+        if (item.couples_focused && ['married', 'partnership', 'dating', 'engaged'].includes(demographics.marital_status)) {
+            score += 20;
+        }
+        if (item.singles_focused && demographics.marital_status === 'single') {
+            score += 15;
+        }
+        
+        // Lifestyle targeting
+        if (item.fitness_level && demographics.fitness_level === item.fitness_level) {
+            score += 15;
+        }
+        if (item.dietary_preferences && demographics.dietary_preferences) {
+            const dietMatches = item.dietary_preferences.filter(d => demographics.dietary_preferences.includes(d));
+            score += dietMatches.length * 10;
+        }
+        
+        // Pet owner targeting
+        if (item.pet_friendly && demographics.has_pets) score += 15;
+        if (item.pet_types && demographics.pet_types) {
+            const petMatches = item.pet_types.filter(p => demographics.pet_types.includes(p));
+            if (petMatches.length > 0) score += 20;
+        }
+    }
+
+    // 5. LIFE EVENT CONTEXT (NEW)
+    const upcomingEvents = userContext?.upcoming_personal_events || [];
+    for (const event of upcomingEvents) {
+        // Birthday coming up
+        if (event.type === 'my_birthday' && item.birthday_relevant) {
+            score += 40;
+        }
+        if (event.type === 'partner_birthday' && item.gift_ideas) {
+            score += 35;
+        }
+        
+        // Anniversary
+        if (event.type === 'anniversary' && (item.couples_focused || item.romantic)) {
+            score += 30;
+        }
+        
+        // Child birthdays
+        if (event.type === 'child_birthday' && item.family_friendly) {
+            score += 25;
+        }
+    }
+
+    // 6. SEASONAL & GLOBAL EVENT CONTEXT (NEW)
+    const globalContext = userContext?.global_context;
+    if (globalContext) {
+        // Seasonal relevance
+        if (item.seasonal_tag === globalContext.current_season) {
+            score += 15;
+        }
+        if (item.outdoor_activity && globalContext.outdoor_boost) {
+            score += 25;
+        }
+        if (item.indoor_activity && globalContext.indoor_boost) {
+            score += 20;
+        }
+        
+        // Holiday relevance
+        if (globalContext.next_holiday && item.holiday_tag === globalContext.next_holiday.name) {
+            const daysUntil = globalContext.days_until_holiday;
+            if (daysUntil <= 14) score += 30;
+            if (daysUntil <= 7) score += 40;
+        }
+        
+        // Sports event alignment
+        if (globalContext.active_sports_events) {
+            for (const sportEvent of globalContext.active_sports_events) {
+                if (item.tags?.includes(sportEvent.sport_type) || item.sports_related) {
+                    score += 25;
+                }
+            }
+        }
+        
+        // Music event alignment
+        if (globalContext.active_music_events) {
+            for (const musicEvent of globalContext.active_music_events) {
+                if (item.genres?.some(g => musicEvent.genres?.includes(g)) || item.music_related) {
+                    score += 20;
+                }
+            }
+        }
+    }
+
+    // 7. WEATHER-BASED BOOSTING (NEW)
+    const weatherContext = userContext?.weather;
+    if (weatherContext) {
+        // Rainy day? Boost indoor activities
+        if (['rainy', 'stormy', 'snowy'].includes(weatherContext.condition) && item.indoor_activity) {
+            score += 20;
+        }
+        // Sunny and nice? Boost outdoor activities
+        if (['sunny', 'clear', 'perfect'].includes(weatherContext.condition) && item.outdoor_activity) {
+            score += 25;
+        }
+        // Hot weather? Boost water/summer activities
+        if (weatherContext.temperature > 80 && item.summer_activity) {
+            score += 15;
+        }
+        // Cold weather? Boost cozy/winter activities
+        if (weatherContext.temperature < 40 && item.winter_activity) {
+            score += 15;
+        }
+    }
+
+    // 8. PREVIOUS INTERACTIONS (Affinity)
     // If user has interacted with this creator before
-    // (Simplification: assuming item has creator_id)
-    if (item.creator_id) {
-        // Find interactions with this creator's other items
-        // This is expensive to calculate real-time without aggregation, 
-        // so we'll skip complex creator affinity for v1 and just look at item type affinity
-        // e.g., if user clicks a lot of 'events', boost 'events'
+    if (item.creator_id && interactions?.length > 0) {
+        const creatorInteractions = interactions.filter(i => i.creator_id === item.creator_id);
+        if (creatorInteractions.length > 0) {
+            score += Math.min(creatorInteractions.length * 5, 30); // Cap at +30
+        }
+    }
+
+    // 9. CONTENT NICHE ALIGNMENT (NEW)
+    if (demographics?.content_niches && item.target_content_niches) {
+        const nicheMatches = demographics.content_niches.filter(n => 
+            item.target_content_niches.includes(n)
+        );
+        score += nicheMatches.length * 15;
     }
 
     return score;
 };
 
 // ============================================
-// GET FOR YOU FEED
+// GET FOR YOU FEED (Enhanced with Contextual Targeting)
 // ============================================
 router.get('/for-you', requireAuth, async (req, res) => {
     try {
         const userId = req.user?.id;
         const { limit = 20, offset = 0 } = req.query;
 
-        // 1. Fetch User Preferences
+        // 1. Fetch User Context (Parallel for efficiency)
         let userPrefs = {};
+        let userDemographics = null;
+        let userCalendar = [];
+        let globalContext = null;
+        let userInteractions = [];
+
         if (userId) {
             try {
-                const { data: prefs } = await supabaseAdmin
-                    .from('user_preferences')
+                const [
+                    prefsResult,
+                    demographicsResult,
+                    calendarResult,
+                    globalEventsResult,
+                    interactionsResult
+                ] = await Promise.all([
+                    supabaseAdmin
+                        .from('users')
+                        .select('preferences, location_data')
+                        .eq('id', userId)
+                        .single()
+                        .catch(() => ({ data: null })),
+                    supabaseAdmin
+                        .from('user_demographics')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .single()
+                        .catch(() => ({ data: null })),
+                    supabaseAdmin
+                        .from('user_calendar')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .gte('event_date', new Date().toISOString().split('T')[0])
+                        .lte('event_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                        .catch(() => ({ data: [] })),
+                    supabaseAdmin
+                        .from('active_global_events')
+                        .select('*')
+                        .limit(10)
+                        .catch(() => ({ data: [] })),
+                    supabaseAdmin
+                        .from('user_interactions')
+                        .select('creator_id, item_type')
+                        .eq('user_id', userId)
+                        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+                        .catch(() => ({ data: [] }))
+                ]);
+
+                userPrefs = prefsResult.data?.preferences || {};
+                userPrefs.location_data = prefsResult.data?.location_data || {};
+                
+                userDemographics = demographicsResult.data;
+                userCalendar = calendarResult.data || [];
+                
+                // Build global context
+                const sportsEvents = globalEventsResult.data?.filter(e => e.event_type === 'sports') || [];
+                const musicEvents = globalEventsResult.data?.filter(e => e.event_type === 'music') || [];
+                const holidays = globalEventsResult.data?.filter(e => e.event_type === 'holiday') || [];
+                const nextHoliday = holidays.length > 0 ? holidays[0] : null;
+                
+                // Determine season based on user's location (default to northern hemisphere)
+                const month = new Date().getMonth() + 1;
+                let currentSeason = 'spring';
+                if (month >= 6 && month <= 8) currentSeason = 'summer';
+                if (month >= 9 && month <= 11) currentSeason = 'fall';
+                if (month === 12 || month <= 2) currentSeason = 'winter';
+                
+                // Determine outdoor/indoor boost from seasonal config
+                const { data: seasonalConfig } = await supabaseAdmin
+                    .from('seasonal_config')
                     .select('*')
-                    .eq('user_id', userId)
-                    .single();
-                userPrefs = prefs || {};
-            } catch (prefError) {
-                console.warn('Could not fetch user preferences:', prefError.message);
+                    .eq('season', currentSeason)
+                    .eq('hemisphere', 'northern')
+                    .eq('active', true)
+                    .single()
+                    .catch(() => ({ data: null }));
+                
+                globalContext = {
+                    current_season: currentSeason,
+                    outdoor_boost: seasonalConfig?.outdoor_activity_weight > 60,
+                    indoor_boost: seasonalConfig?.indoor_activity_weight > 60,
+                    active_sports_events: sportsEvents,
+                    active_music_events: musicEvents,
+                    next_holiday: nextHoliday,
+                    days_until_holiday: nextHoliday ? 
+                        Math.ceil((new Date(nextHoliday.start_date) - new Date()) / (1000 * 60 * 60 * 24)) : null
+                };
+                
+                userInteractions = interactionsResult.data || [];
+                
+            } catch (contextError) {
+                console.warn('Could not fetch full user context:', contextError.message);
+                // Continue with empty context - basic feed still works
             }
         }
+
+        // Calculate age from birthday
+        let userAge = null;
+        if (userDemographics?.birthday) {
+            const birthDate = new Date(userDemographics.birthday);
+            const today = new Date();
+            userAge = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+        }
+
+        // Build comprehensive user context
+        const userContext = {
+            demographics: userDemographics,
+            age: userAge,
+            upcoming_personal_events: userCalendar.map(e => ({
+                type: e.event_type,
+                title: e.title,
+                days_until: Math.ceil((new Date(e.event_date) - new Date()) / (1000 * 60 * 60 * 24))
+            })),
+            global_context: globalContext,
+            weather: null // Could integrate weather API here
+        };
 
         // 2. Fetch Candidates (Parallel) - with graceful error handling
         let events = { data: [] }, drops = { data: [] }, content = { data: [] };
@@ -158,17 +411,17 @@ router.get('/for-you', requireAuth, async (req, res) => {
             // Continue with empty arrays - the feed will just be empty
         }
 
-        // 3. Normalize & Score
+        // 3. Normalize & Score (with full user context)
         let feedItems = [];
 
         if (events.data) {
-            feedItems.push(...events.data.map(i => ({ ...i, type: 'event', score: calculateScore(i, userPrefs) })));
+            feedItems.push(...events.data.map(i => ({ ...i, type: 'event', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
         }
         if (drops.data) {
-            feedItems.push(...drops.data.map(i => ({ ...i, type: 'drop', score: calculateScore(i, userPrefs) })));
+            feedItems.push(...drops.data.map(i => ({ ...i, type: 'drop', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
         }
         if (content.data) {
-            feedItems.push(...content.data.map(i => ({ ...i, type: 'content', score: calculateScore(i, userPrefs) })));
+            feedItems.push(...content.data.map(i => ({ ...i, type: 'content', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
         }
         if (forecasts.data) {
             feedItems.push(...forecasts.data.map(i => ({
@@ -176,7 +429,7 @@ router.get('/for-you', requireAuth, async (req, res) => {
                 type: 'prediction',
                 creator_name: i.creator?.display_name || 'Anonymous Creator',
                 creator_avatar: i.creator?.avatar_url,
-                score: calculateScore(i, userPrefs) + 10
+                score: calculateScore(i, userPrefs, userContext, userInteractions) + 10
             }))); // Boost predictions slightly
         }
         if (coupons.data) {
@@ -190,11 +443,11 @@ router.get('/for-you', requireAuth, async (req, res) => {
                 value_unit: i.advertiser_coupons?.value_unit,
                 expires_at: i.advertiser_coupons?.end_date,
                 earned_at: i.assigned_at,
-                score: calculateScore(i, userPrefs) + 20
+                score: calculateScore(i, userPrefs, userContext, userInteractions) + 20
             }))); // High boost for coupons
         }
         if (relays.data) {
-            feedItems.push(...relays.data.map(i => ({ ...i, type: 'movement', score: calculateScore(i, userPrefs) })));
+            feedItems.push(...relays.data.map(i => ({ ...i, type: 'movement', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
         }
 
         // 4. Sort & Paginate

@@ -10,11 +10,11 @@ const ScrollToHash = () => {
             if (element) {
                 // Delay a bit to ensure the page has rendered
                 setTimeout(() => {
-                    element.scrollIntoView({ behavior: "smooth" });
+                    element.scrollIntoView({
+                        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+                    });
                 }, 100);
             }
-        } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
         }
     }, [hash, pathname]);
 

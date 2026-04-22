@@ -1,12 +1,19 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import ParticipantDashboard from "@/components/dashboards/ParticipantDashboard";
-import HostDashboard from "@/components/dashboards/HostDashboard";
-import BrandDashboard from "@/components/dashboards/BrandDashboard";
-import MerchantDashboard from "@/components/dashboards/MerchantDashboard";
+import ParticipantDashboardV2 from "@/components/dashboards/ParticipantDashboardV2";
+import CreatorDashboardV2 from "@/components/dashboards/CreatorDashboardV2";
+import HostDashboardV2 from "@/components/dashboards/HostDashboardV2";
+import BrandDashboardV2 from "@/components/dashboards/BrandDashboardV2";
+import MerchantDashboardV2 from "@/components/dashboards/MerchantDashboardV2";
+import AgencyDashboard from "@/components/dashboards/AgencyDashboard";
 
 const Dashboard = () => {
-  const { user, activeRole, loading } = useAuth();
+  const { user, activeRole, loading, organizations, activeOrgId } = useAuth();
+  const currentOrg = organizations.find((org) => org.id === activeOrgId);
+  const isAgencyWorkspace = currentOrg?.type === "agency";
+  
+  // Enforce V2 dashboard universally
+  const useV2Dashboard = true;
 
   if (loading) {
     return (
@@ -21,16 +28,21 @@ const Dashboard = () => {
   }
 
   switch (activeRole) {
+    case "creator":
+      return <CreatorDashboardV2 />;
     case "host":
-      return <HostDashboard />;
+      return <HostDashboardV2 />;
+    case "agency":
+      return <AgencyDashboard />;
     case "brand":
-      return <BrandDashboard />;
+      if (isAgencyWorkspace) return <AgencyDashboard />;
+      return <BrandDashboardV2 />;
     case "merchant":
-      return <MerchantDashboard />;
+      return <MerchantDashboardV2 />;
     case "participant":
-      return <ParticipantDashboard />;
+      return <ParticipantDashboardV2 />;
     default:
-      return <ParticipantDashboard />;
+      return <ParticipantDashboardV2 />;
   }
 };
 

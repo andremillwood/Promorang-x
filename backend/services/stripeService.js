@@ -395,6 +395,25 @@ async function processWebhookEvent(event) {
                 await updatePaymentIntentStatus(event.data.object.id, 'canceled');
                 break;
 
+            // Checkout Session events (for sponsor payments)
+            case 'checkout.session.completed':
+                await handleCheckoutSessionCompleted(event.data.object);
+                break;
+
+            case 'checkout.session.expired':
+                await handleCheckoutSessionExpired(event.data.object);
+                break;
+
+            // Subscription events
+            case 'customer.subscription.created':
+            case 'customer.subscription.updated':
+                await handleSubscriptionEvent(event.data.object, event.type);
+                break;
+
+            case 'customer.subscription.deleted':
+                await handleSubscriptionCancelled(event.data.object);
+                break;
+
             // Connect Account events
             case 'account.updated':
                 await updateConnectAccountStatus(event.data.object.id, event.data.object);
@@ -425,6 +444,130 @@ async function processWebhookEvent(event) {
     }
 }
 
+/**
+ * Handle checkout session completion
+ * @param {object} session - Stripe checkout session
+ */
+async function handleCheckoutSessionCompleted(session) {
+    try {
+        const { type, pool_id, user_id, tier } = session.metadata || {};
+
+        if (type === 'promoshare_sponsor_pool' && pool_id) {
+            // Update pool payment status
+            await updatePoolPaymentStatus(session.id, 'complete');
+            console.log(`[Webhook] Sponsor pool ${pool_id} payment completed`);
+        } else if (type === 'promoshare_subscription' && user_id && tier) {
+            // Update user subscription
+            await supabase
+                .from('users')
+                .update({
+                    subscription_status: 'active',
+                    user_tier: tier,
+                    subscription_type: 'promoshare',
+                    stripe_customer_id: session.customer,
+                    stripe_subscription_id: session.subscription,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', user_id);
+
+            // Update checkout session
+            await supabase
+                .from('stripe_checkout_sessions')
+                .update({
+                    status: 'complete',
+                    stripe_subscription_id: session.subscription,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('stripe_session_id', session.id);
+
+            console.log(`[Webhook] User ${user_id} subscribed to ${tier} tier`);
+        }
+    } catch (error) {
+        console.error('Error handling checkout session completion:', error);
+        throw error;
+    }
+}
+
+/**
+ * Handle checkout session expiration
+ * @param {object} session - Stripe checkout session
+ */
+async function handleCheckoutSessionExpired(session) {
+    try {
+        await supabase
+            .from('stripe_checkout_sessions')
+            .update({
+                status: 'expired',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_session_id', session.id);
+
+        console.log(`[Webhook] Checkout session ${session.id} expired`);
+    } catch (error) {
+        console.error('Error handling checkout session expiration:', error);
+    }
+}
+
+/**
+ * Handle subscription events
+ * @param {object} subscription - Stripe subscription
+ * @param {string} eventType - Event type
+ */
+async function handleSubscriptionEvent(subscription, eventType) {
+    try {
+        const { user_id, tier } = subscription.metadata || {};
+
+        if (!user_id) {
+            console.log('[Webhook] No user_id in subscription metadata');
+            return;
+        }
+
+        const status = subscription.status;
+        const isActive = ['active', 'trialing'].includes(status);
+
+        await supabase
+            .from('users')
+            .update({
+                subscription_status: isActive ? 'active' : status,
+                stripe_subscription_id: subscription.id,
+                stripe_customer_id: subscription.customer,
+                subscription_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                subscription_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', user_id);
+
+        console.log(`[Webhook] Subscription ${subscription.id} ${eventType}: ${status}`);
+    } catch (error) {
+        console.error('Error handling subscription event:', error);
+    }
+}
+
+/**
+ * Handle subscription cancellation
+ * @param {object} subscription - Stripe subscription
+ */
+async function handleSubscriptionCancelled(subscription) {
+    try {
+        const { user_id } = subscription.metadata || {};
+
+        if (!user_id) return;
+
+        await supabase
+            .from('users')
+            .update({
+                subscription_status: 'cancelled',
+                user_tier: 'free',
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', user_id);
+
+        console.log(`[Webhook] Subscription cancelled for user ${user_id}`);
+    } catch (error) {
+        console.error('Error handling subscription cancellation:', error);
+    }
+}
+
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
@@ -445,6 +588,236 @@ function getPublishableKey() {
     return process.env.STRIPE_PUBLISHABLE_KEY || '';
 }
 
+// ============================================
+// PROMOSHARE SPONSOR PAYMENTS
+// ============================================
+
+/**
+ * Create a checkout session for sponsor pool payment
+ * @param {string} sponsorId - Sponsor user ID
+ * @param {string} poolId - PromoShare cycle/pool ID
+ * @param {number} amount - Total amount in dollars (pool + fees)
+ * @param {object} poolDetails - Pool configuration details
+ * @returns {Promise<object>} Checkout session with URL
+ */
+async function createSponsorCheckoutSession(sponsorId, poolId, amount, poolDetails = {}) {
+    if (!stripe) {
+        throw new Error('Stripe is not configured.');
+    }
+
+    try {
+        const amountInCents = Math.round(amount * 100);
+        const { tier, pool_amount, platform_fee, cycle_name } = poolDetails;
+
+        // Create checkout session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `PromoShare ${tier} Pool: ${cycle_name}`,
+                            description: `Prize pool: $${pool_amount} + Platform fee: $${platform_fee}`,
+                        },
+                        unit_amount: amountInCents,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${process.env.FRONTEND_URL || 'https://www.promorang.co'}/sponsor?payment=success&pool_id=${poolId}`,
+            cancel_url: `${process.env.FRONTEND_URL || 'https://www.promorang.co'}/sponsor?payment=cancel&pool_id=${poolId}`,
+            metadata: {
+                sponsor_id: sponsorId,
+                pool_id: poolId,
+                tier: tier || 'weekly',
+                pool_amount: pool_amount?.toString() || '',
+                platform_fee: platform_fee?.toString() || '',
+                type: 'promoshare_sponsor_pool',
+            },
+            client_reference_id: poolId,
+        });
+
+        // Store session in database
+        await supabase
+            .from('stripe_checkout_sessions')
+            .insert({
+                user_id: sponsorId,
+                stripe_session_id: session.id,
+                pool_id: poolId,
+                amount,
+                status: session.status,
+                metadata: {
+                    tier,
+                    pool_amount,
+                    platform_fee,
+                    type: 'promoshare_sponsor_pool',
+                },
+            });
+
+        return {
+            sessionId: session.id,
+            url: session.url,
+            amount,
+            status: session.status,
+        };
+    } catch (error) {
+        console.error('Error creating sponsor checkout session:', error);
+        throw new Error(`Failed to create checkout session: ${error.message}`);
+    }
+}
+
+/**
+ * Retrieve a checkout session
+ * @param {string} sessionId - Stripe checkout session ID
+ * @returns {Promise<object>} Session details
+ */
+async function getCheckoutSession(sessionId) {
+    if (!stripe) {
+        throw new Error('Stripe is not configured.');
+    }
+
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        return session;
+    } catch (error) {
+        console.error('Error retrieving checkout session:', error);
+        throw new Error(`Failed to retrieve session: ${error.message}`);
+    }
+}
+
+/**
+ * Update pool payment status after successful checkout
+ * @param {string} sessionId - Stripe checkout session ID
+ * @param {string} paymentStatus - Payment status
+ */
+async function updatePoolPaymentStatus(sessionId, paymentStatus) {
+    try {
+        // Get session from database
+        const { data: session } = await supabase
+            .from('stripe_checkout_sessions')
+            .select('*')
+            .eq('stripe_session_id', sessionId)
+            .single();
+
+        if (!session) {
+            console.error('Checkout session not found:', sessionId);
+            return;
+        }
+
+        // Update checkout session status
+        await supabase
+            .from('stripe_checkout_sessions')
+            .update({
+                status: paymentStatus,
+                updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_session_id', sessionId);
+
+        // If payment succeeded, activate the pool
+        if (paymentStatus === 'complete') {
+            await supabase
+                .from('promoshare_cycles')
+                .update({
+                    'sponsor_config.payment_status': 'paid',
+                    'sponsor_config.paid_at': new Date().toISOString(),
+                    status: 'active',
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', session.pool_id);
+
+            // Create audit log
+            await supabase
+                .from('promoshare_audit_log')
+                .insert({
+                    cycle_id: session.pool_id,
+                    action_type: 'sponsor_payment_completed',
+                    actor_type: 'sponsor',
+                    actor_id: session.user_id,
+                    payload: {
+                        amount: session.amount,
+                        stripe_session_id: sessionId,
+                    },
+                });
+        }
+    } catch (error) {
+        console.error('Error updating pool payment status:', error);
+    }
+}
+
+/**
+ * Create a subscription checkout session for Pro/Power tiers
+ * @param {string} userId - User ID
+ * @param {string} tier - Subscription tier (pro, power)
+ * @returns {Promise<object>} Checkout session
+ */
+async function createSubscriptionCheckout(userId, tier) {
+    if (!stripe) {
+        throw new Error('Stripe is not configured.');
+    }
+
+    const tierPrices = {
+        pro: process.env.STRIPE_PRICE_PRO || 'price_placeholder_pro',
+        power: process.env.STRIPE_PRICE_POWER || 'price_placeholder_power',
+    };
+
+    const priceId = tierPrices[tier.toLowerCase()];
+
+    if (!priceId || priceId.includes('placeholder')) {
+        throw new Error(`Stripe price ID not configured for tier: ${tier}`);
+    }
+
+    try {
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: priceId,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${process.env.FRONTEND_URL || 'https://www.promorang.co'}/settings/subscription?success=true&tier=${tier}`,
+            cancel_url: `${process.env.FRONTEND_URL || 'https://www.promorang.co'}/settings/subscription?canceled=true`,
+            metadata: {
+                user_id: userId,
+                tier: tier,
+                type: 'promoshare_subscription',
+            },
+            subscription_data: {
+                metadata: {
+                    user_id: userId,
+                    tier: tier,
+                },
+            },
+        });
+
+        // Store session
+        await supabase
+            .from('stripe_checkout_sessions')
+            .insert({
+                user_id: userId,
+                stripe_session_id: session.id,
+                amount: tier === 'pro' ? 9.99 : 29.99,
+                status: session.status,
+                metadata: {
+                    tier,
+                    type: 'promoshare_subscription',
+                },
+            });
+
+        return {
+            sessionId: session.id,
+            url: session.url,
+            tier,
+        };
+    } catch (error) {
+        console.error('Error creating subscription checkout:', error);
+        throw new Error(`Failed to create subscription checkout: ${error.message}`);
+    }
+}
+
 module.exports = {
     // Payment Intents
     createPaymentIntent,
@@ -457,6 +830,12 @@ module.exports = {
     getConnectAccount,
     updateConnectAccountStatus,
     createPayout,
+
+    // Sponsor Payments
+    createSponsorCheckoutSession,
+    getCheckoutSession,
+    updatePoolPaymentStatus,
+    createSubscriptionCheckout,
 
     // Webhooks
     verifyWebhookSignature,

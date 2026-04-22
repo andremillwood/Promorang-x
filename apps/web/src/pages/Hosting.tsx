@@ -10,6 +10,7 @@ import {
     Check,
     ArrowRight,
     Zap,
+    TrendingUp,
 } from "lucide-react";
 
 const features = [
@@ -106,24 +107,27 @@ const Hosting = () => {
         <div className="min-h-screen bg-background">
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-hero">
+            <section className="bg-gradient-hero pb-20 pt-24 sm:pt-28 md:pb-32 md:pt-40">
                 <div className="container px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent mb-8 animate-fade-in shadow-sm">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-4 py-2 text-accent shadow-sm animate-fade-in">
                             <Sparkles className="w-4 h-4" />
                             <span className="text-sm font-bold uppercase tracking-wide">The Digital Land Grab</span>
                         </div>
 
-                        <h1 className="font-serif text-4xl md:text-6xl font-black text-foreground mb-6 animate-slide-up leading-tight">
-                            Become the Mayor. <br className="hidden md:block"/>
-                            <span className="text-gradient-primary">Own your niche.</span>
+                        <h1 className="mb-6 font-serif text-4xl font-black leading-tight text-foreground animate-slide-up sm:text-5xl md:text-6xl">
+                            Build an Audience.
+                            <br className="hidden md:block"/>
+                            <span className="text-gradient-primary">Monetize Through Sponsors.</span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-                            Build your verified audience on Promorang today as a Founding Host. When major sponsors come to your city looking for fitness, art, or nightlife audiences, we route them directly to YOU. Build true equity in your community.
+                        <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground animate-slide-up sm:text-lg md:text-xl" style={{ animationDelay: "0.1s" }}>
+                            Every moment you host is a deposit in your sponsorship attractiveness account. 
+                            Create 3 moments → Unlock brand matchmaking → Get paid to host. 
+                            You're not planning events—you're building a media property that brands will pay to access.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+                        <div className="flex flex-col items-stretch justify-center gap-4 animate-slide-up sm:flex-row sm:items-center" style={{ animationDelay: "0.2s" }}>
                             <Button variant="hero" size="xl" className="font-bold shadow-glow" asChild>
                                 <Link to="/auth?role=host">
                                     Claim Your Niche
@@ -133,6 +137,19 @@ const Hosting = () => {
                             <Button variant="outline" size="lg" className="border-border/50 text-foreground" asChild>
                                 <Link to="/discover">View Early Adopters</Link>
                             </Button>
+                        </div>
+
+                        <div className="mt-6 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
+                            <div className="flex gap-3 pb-1">
+                                <div className="min-w-[220px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4 text-left">
+                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Journey</p>
+                                    <p className="mt-2 text-sm font-medium text-foreground">Claim your niche, create consistent moments, then convert that trust into sponsorship access.</p>
+                                </div>
+                                <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4 text-left">
+                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Mobile first</p>
+                                    <p className="mt-2 text-sm text-muted-foreground">The page now stacks like an onboarding flow instead of a wide desktop pitch.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,11 +167,11 @@ const Hosting = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
                         {features.map((feature, index) => (
                             <div
                                 key={index}
-                                className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg transition-shadow group"
+                                className="group rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-lg"
                             >
                                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                                     <feature.icon className="w-6 h-6 text-primary" />
@@ -169,24 +186,88 @@ const Hosting = () => {
                 </div>
             </section>
 
+            {/* The Sponsorship Flywheel */}
+            <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
+                <div className="absolute inset-0 bg-accent/5"></div>
+                <div className="container px-6 relative z-10">
+                    <div className="max-w-3xl mx-auto text-center mb-16">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 mb-6">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-sm font-bold uppercase tracking-wider">The Revenue Model</span>
+                        </div>
+                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
+                            How You Earn as a Host
+                        </h2>
+                        <p className="text-cream/60 text-lg">
+                            It's not about ticket sales. It's about building a verified audience that brands pay to access.
+                        </p>
+                    </div>
+
+                    <div className="max-w-5xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                            {[
+                                { step: "1", title: "Create Moments", desc: "Host 3+ events", icon: Calendar, color: "bg-blue-500" },
+                                { step: "2", title: "Build Audience", desc: "Attract participants", icon: Users, color: "bg-amber-500" },
+                                { step: "3", title: "Unlock Match", desc: "Brands see your data", icon: Sparkles, color: "bg-primary" },
+                                { step: "4", title: "Get Sponsored", desc: "Funding for events", icon: Gift, color: "bg-emerald-500" },
+                                { step: "5", title: "Grow Loop", desc: "More = more sponsors", icon: TrendingUp, color: "bg-purple-500" },
+                            ].map((item, i) => (
+                                <div key={i} className="relative">
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-colors">
+                                        <div className={`w-12 h-12 rounded-full ${item.color} flex items-center justify-center mx-auto mb-4`}>
+                                            <item.icon className="w-6 h-6 text-white" />
+                                        </div>
+                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Step {item.step}</p>
+                                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                                        <p className="text-sm text-cream/50">{item.desc}</p>
+                                    </div>
+                                    {i < 4 && (
+                                        <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
+                                            <ArrowRight className="w-4 h-4 text-cream/20" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                                <div>
+                                    <p className="text-4xl font-black text-primary mb-2">3</p>
+                                    <p className="text-sm font-semibold">Moments to unlock sponsorship matchmaking</p>
+                                </div>
+                                <div>
+                                    <p className="text-4xl font-black text-amber-500 mb-2">50+</p>
+                                    <p className="text-sm font-semibold">Participants needed to attract brand interest</p>
+                                </div>
+                                <div>
+                                    <p className="text-4xl font-black text-emerald-500 mb-2">$250-2.5k</p>
+                                    <p className="text-sm font-semibold">Typical sponsorship per funded moment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Pricing Section */}
             <section className="py-20 md:py-32 bg-gradient-warm">
                 <div className="container px-6">
                     <div className="max-w-2xl mx-auto text-center mb-16">
                         <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                            Simple, transparent pricing
+                            Start Free. Scale with Sponsors.
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            Start free and scale as your community grows.
+                            Free to start. Paid features unlock at higher tiers. But the real revenue? That's from brand sponsorships.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div className="grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-3 md:gap-8 mx-auto">
                         {pricingTiers.map((tier, index) => (
                             <div
                                 key={index}
-                                className={`relative bg-card rounded-2xl p-8 border hover:shadow-xl transition-all ${tier.popular
-                                        ? "border-primary shadow-lg scale-105 z-10"
+                                className={`relative rounded-2xl border bg-card p-6 transition-all md:p-8 ${tier.popular
+                                        ? "z-10 border-primary shadow-lg md:scale-105"
                                         : "border-border"
                                     }`}
                             >

@@ -72,8 +72,8 @@ export function AdminMomentsTab() {
   return (
     <div className="space-y-6">
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search moments..."
@@ -83,17 +83,20 @@ export function AdminMomentsTab() {
           />
         </div>
         
-        <div className="flex gap-2 flex-wrap">
+        <div className="-mx-1 overflow-x-auto px-1 touch-pan-x snap-x-mandatory scrollbar-none">
+          <div className="flex min-w-max gap-2">
           {STATUS_FILTERS.map((status) => (
             <Button
               key={status}
               variant={statusFilter === status ? "default" : "outline"}
               size="sm"
               onClick={() => setStatusFilter(status)}
+              className="snap-start"
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
+          </div>
         </div>
       </div>
 
@@ -110,7 +113,7 @@ export function AdminMomentsTab() {
               key={moment.id}
               className="bg-card border border-border rounded-xl p-4 hover:shadow-card transition-shadow"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
                     <MomentStatusBadge status={moment.status as MomentStatus} />
@@ -153,8 +156,8 @@ export function AdminMomentsTab() {
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <Button variant="outline" size="sm" className="shrink-0" asChild>
                     <Link to={`/moments/${moment.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
                       View

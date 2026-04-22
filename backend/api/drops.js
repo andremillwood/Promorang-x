@@ -1555,7 +1555,26 @@ async function processBuyMissionApproval(appId, actorId) {
   // 7. Award PromoShare Ticket
   await promoShareService.awardTicket(application.user_id, 'drop_completion', drop.id);
 
-  // 8. Contribute to Campaign Prize Pool if it's "Funded" or "Dominant" (Objective 3)
+  // 8. Send drop completion email notification
+  try {
+    const { data: user } = await supabase
+      .from('users')
+      .select('email, display_name, username')
+      .eq('id', application.user_id)
+      .single();
+    if (user?.email) {
+      sendDropCompletedEmail(user.email, user.display_name || user.username, {
+        title: drop.title,
+        gemsEarned: weightedReward,
+        keysEarned: 0, // Keys not awarded for Buy Missions currently
+        pointsEarned: 0
+      }).catch(err => console.error('Failed to send drop completed email:', err));
+    }
+  } catch (emailErr) {
+    console.error('Error sending completion email:', emailErr);
+  }
+
+  // 9. Contribute to Campaign Prize Pool if it's "Funded" or "Dominant" (Objective 3)
   try {
     const { data: campaign } = await supabase
       .from('advertiser_campaigns')

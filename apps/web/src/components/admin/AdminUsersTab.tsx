@@ -33,7 +33,6 @@ export function AdminUsersTab() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [roleDialog, setRoleDialog] = useState<{ userId: string; action: "add" | "remove"; role?: string } | null>(null);
 
   const filteredUsers = users?.filter((user) => {
@@ -78,8 +77,8 @@ export function AdminUsersTab() {
   return (
     <div className="space-y-6">
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search users..."
@@ -89,11 +88,13 @@ export function AdminUsersTab() {
           />
         </div>
         
-        <div className="flex gap-2 flex-wrap">
+        <div className="-mx-1 overflow-x-auto px-1 touch-pan-x snap-x-mandatory scrollbar-none">
+          <div className="flex min-w-max gap-2">
           <Button
             variant={roleFilter === null ? "default" : "outline"}
             size="sm"
             onClick={() => setRoleFilter(null)}
+            className="snap-start"
           >
             All
           </Button>
@@ -103,16 +104,18 @@ export function AdminUsersTab() {
               variant={roleFilter === role ? "default" : "outline"}
               size="sm"
               onClick={() => setRoleFilter(role)}
+              className="snap-start"
             >
               {(role || "User").charAt(0).toUpperCase() + (role || "User").slice(1)}
             </Button>
           ))}
+          </div>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/30">
@@ -220,6 +223,100 @@ export function AdminUsersTab() {
             </tbody>
           </table>
         </div>
+        <div className="space-y-3 p-4 md:hidden">
+          {filteredUsers?.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-muted-foreground">
+              <Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
+              <p>No users found</p>
+            </div>
+          ) : (
+            filteredUsers?.map((user) => (
+              <div key={user.id} className="rounded-xl border border-border bg-background/40 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user.profile?.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {user.profile?.full_name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-foreground">
+                        {user.profile?.full_name || "Anonymous User"}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user.id.slice(0, 8)}...
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Manage User</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setRoleDialog({ userId: user.id, action: "add" })}
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Add Role
+                      </DropdownMenuItem>
+                      {user.roles.length > 0 && (
+                        <DropdownMenuItem
+                          onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}
+                        >
+                          <UserMinus className="w-4 h-4 mr-2" />
+                          Remove Role
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="mt-3 space-y-3 text-sm">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Roles</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {user.roles.length === 0 ? (
+                        <span className="text-sm text-muted-foreground">No roles</span>
+                      ) : (
+                        user.roles.map((role) => (
+                          <Badge key={role} variant={getRoleBadgeVariant(role)}>
+                            {role}
+                          </Badge>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Location</p>
+                      <p className="mt-1 text-foreground">{user.profile?.location || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Joined</p>
+                      <p className="mt-1 text-foreground">{user.created_at ? format(new Date(user.created_at), "MMM d, yyyy") : "—"}</p>
+                    </div>
+                  </div>
+                  {!user.roles.includes("host") && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-primary/20 text-[10px] font-bold uppercase tracking-wider hover:bg-primary/10 hover:text-primary"
+                      onClick={() => handleAddRole(user.id, "host")}
+                      disabled={addRole.isPending}
+                    >
+                      <UserPlus className="mr-1 h-3 w-3" />
+                      Promote Host
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Total count */}
@@ -240,7 +337,7 @@ export function AdminUsersTab() {
                 : "Select a role to remove from this user."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-2 py-4">
+          <div className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-2">
             {roleDialog?.action === "add" ? (
               AVAILABLE_ROLES.filter(
                 (role) => !users?.find((u) => u.id === roleDialog.userId)?.roles.includes(role)

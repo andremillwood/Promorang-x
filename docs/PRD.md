@@ -2,6 +2,8 @@
 **Last Updated:** October 29, 2025  
 **Version:** 2.0  
 
+> Note: this document reflects the earlier Growth Hub-oriented product framing. For the current strategic direction centered on Pulse, Gatherings, Memories, and agent-ready real-world momentum, start with [docs/momentum-engine/README.md](./momentum-engine/README.md).
+
 ## 1. Product Overview
 
 ### Vision

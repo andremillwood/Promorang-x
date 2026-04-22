@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { O2OAnalyticsPanel } from "@/components/analytics/O2OAnalyticsPanel";
 
 export function BrandImpactDashboard() {
   const stats = [
@@ -14,6 +15,8 @@ export function BrandImpactDashboard() {
 
   return (
     <div className="space-y-6">
+      <O2OAnalyticsPanel audience="brand" />
+
       {/* Top Banner: Verification Status */}
       <div className="bg-charcoal text-cream p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -mr-32 -mt-32" />

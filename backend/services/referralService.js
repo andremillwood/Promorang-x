@@ -452,6 +452,29 @@ async function processCommission(commissionId) {
 
     if (error) throw error;
 
+    // Send commission earned email notification
+    try {
+      const { data: referrer } = await supabase
+        .from('users')
+        .select('email, display_name, username')
+        .eq('id', commission.referrer_id)
+        .single();
+      const { data: referred } = await supabase
+        .from('users')
+        .select('display_name, username')
+        .eq('id', commission.referred_user_id)
+        .single();
+      if (referrer?.email) {
+        sendReferralCommissionEmail(referrer.email, referrer.display_name || referrer.username, {
+          amount: commission.commission_amount,
+          referredUserName: referred?.display_name || referred?.username || 'Your referral',
+          activityType: commission.earning_type.replace(/_/g, ' ')
+        }).catch(err => console.error('Failed to send commission email:', err));
+      }
+    } catch (emailErr) {
+      console.error('Error sending commission email:', emailErr);
+    }
+
     console.log(`[Referral Service] Commission ${commissionId} processed successfully`);
     return data;
   } catch (error) {

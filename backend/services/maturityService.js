@@ -102,6 +102,21 @@ async function recordVerifiedAction(userId, actionType, metadata = {}, surface =
     // Recalculate maturity state after action
     await recalculateMaturityState(userId);
 
+    // Also record for PromoShare eligibility
+    try {
+      const promoShareService = require('./promoShareService');
+      await promoShareService.recordVerifiedAction(userId, actionType, {
+        source_type: metadata.source_type || actionType,
+        source_id: metadata.source_id,
+        entry_count: 1,
+        weight_value: metadata.weight_value || 1,
+        ...metadata
+      }, surface);
+    } catch (promoShareErr) {
+      // Non-blocking - PromoShare errors shouldn't break maturity tracking
+      console.log('[MaturityService] PromoShare recording skipped:', promoShareErr.message);
+    }
+
     return action;
   } catch (err) {
     console.error('[MaturityService] recordVerifiedAction error:', err);

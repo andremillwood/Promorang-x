@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { MasonryGrid } from "@/components/MasonryGrid";
@@ -19,6 +19,9 @@ import { Search, Calendar, Sparkles, TrendingUp, Clock, MapPin } from "lucide-re
 import type { Tables } from "@/integrations/supabase/types";
 import { useTour } from "@/contexts/TourContext";
 import ProductTour from "@/components/tours/ProductTour";
+import { momentArchetypes, venueCategories } from "@/lib/moment-taxonomy";
+import { SuggestedMoments } from "@/components/discovery/SuggestedMoments";
+import FeaturedMomentCard, { FeaturedMomentGrid } from "@/components/featured/FeaturedMomentCard";
 
 type Moment = Tables<"moments"> & {
   participant_count?: number;
@@ -41,15 +44,59 @@ const categories = [
   { value: "arts", label: "Arts", emoji: "🎭" },
 ];
 
+const archetypeFilters = [
+  { value: "all", label: "All Formats" },
+  ...momentArchetypes.map((item) => ({ value: item.value, label: item.label })),
+];
+
+const venueFilters = [
+  { value: "all", label: "All Places" },
+  ...venueCategories.map((item) => ({ value: item.value, label: item.label })),
+];
+
 const Discover = () => {
   const { user } = useAuth();
   const { startTour, isTourCompleted } = useTour();
-  const navigate = useNavigate();
   const [moments, setMoments] = useState<Moment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedArchetype, setSelectedArchetype] = useState("all");
+  const [selectedVenueCategory, setSelectedVenueCategory] = useState("all");
   const [sortBy, setSortBy] = useState<"date" | "popular" | "nearby">("date");
+  const [featuredMoments, setFeaturedMoments] = useState<any[]>([]);
+
+  // Fetch featured moments
+  useEffect(() => {
+    fetchFeaturedMoments();
+  }, []);
+
+  const fetchFeaturedMoments = async () => {
+    try {
+      const response = await fetch('/api/featured-marketplace/active?placement_type=moment_featured&limit=4');
+      const data = await response.json();
+      if (data.success && data.placements.length > 0) {
+        // Transform placements to moment format
+        const moments = data.placements.map((placement: any) => ({
+          id: placement.entity_id,
+          name: placement.entity_data?.title || 'Featured Moment',
+          description: placement.entity_data?.description,
+          image_url: placement.entity_data?.image_url,
+          location: placement.entity_data?.location,
+          participant_count: placement.entity_data?.participant_count || 0,
+          max_participants: placement.entity_data?.max_participants,
+          prize_pool: placement.entity_data?.prize_pool,
+          sponsor_name: placement.user?.display_name,
+          sponsor_logo: placement.user?.profile_image,
+          featured_placement_id: placement.id,
+          status: 'upcoming',
+        }));
+        setFeaturedMoments(moments);
+      }
+    } catch (error) {
+      console.error('Error fetching featured moments:', error);
+    }
+  };
 
   // Auto-start discover tour for new users
   useEffect(() => {
@@ -109,33 +156,62 @@ const Discover = () => {
     }
   };
 
-  const filteredMoments = moments.filter(
-    (moment) =>
-      moment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      moment.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      moment.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMoments = moments.filter((moment) => {
+    const matchesTaxonomy =
+      (selectedArchetype === "all" || (moment as any).moment_archetype === selectedArchetype) &&
+      (selectedVenueCategory === "all" || (moment as any).venue_category === selectedVenueCategory);
+
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      query.length === 0 ||
+      moment.title.toLowerCase().includes(query) ||
+      moment.description?.toLowerCase().includes(query) ||
+      moment.location.toLowerCase().includes(query) ||
+      ((moment as any).venue_name || "").toLowerCase().includes(query);
+
+    return matchesTaxonomy && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-background">
 
       {/* Hero Section - Pinterest/Airbnb inspired */}
-      <section className="pt-24 pb-8 px-4">
+      <section className="px-4 pb-8 pt-20 sm:pt-24">
         <div className="max-w-7xl mx-auto">
           {/* Headline */}
           <div className="text-center mb-8">
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+            <h1 className="mb-4 font-serif text-3xl font-bold text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
               Discover your next{" "}
               <span className="text-gradient-primary">moment</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Find experiences worth sharing. Join gatherings that bring people together.
+            <p className="mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
+              Find creator missions, retail drops, service rituals, community gatherings, and everyday visits worth turning into something bigger.
             </p>
           </div>
 
+          {/* Featured Moments Section - Moment Discovery Boost ($100/day) */}
+          {featuredMoments.length > 0 && (
+            <div className="mb-12">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h2 className="text-xl font-semibold">Featured Moments</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {featuredMoments.map((moment) => (
+                  <FeaturedMomentCard 
+                    key={moment.id} 
+                    moment={moment}
+                    variant="default"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Search Bar - Airbnb style */}
           <div className="max-w-3xl mx-auto" data-tour="discover-search">
-            <div className="flex flex-col sm:flex-row gap-3 p-3 bg-card border border-border rounded-2xl shadow-soft">
+            <div className="rounded-[1.75rem] border border-border bg-card p-3 shadow-soft sm:rounded-2xl">
+              <div className="flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -161,10 +237,22 @@ const Discover = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <Select value={selectedArchetype} onValueChange={setSelectedArchetype}>
+                <SelectTrigger className="w-full sm:w-48 h-12 border-0 bg-secondary">
+                  <SelectValue placeholder="Format" />
+                </SelectTrigger>
+                <SelectContent>
+                  {archetypeFilters.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 variant="hero"
                 size="lg"
-                className="h-12 px-6"
+                className="h-12 px-6 sm:min-w-[132px]"
                 onClick={() => {
                   if (searchQuery.trim()) {
                     window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&category=moment`;
@@ -174,14 +262,16 @@ const Discover = () => {
                 <Search className="w-4 h-4 mr-2" />
                 Search
               </Button>
+              </div>
             </div>
           </div>
 
           {/* Quick Filters - Pinterest style pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6" data-tour="discover-sort">
+          <div className="mt-6 -mx-4 overflow-x-auto px-4 pb-2 touch-pan-x snap-x-mandatory scrollbar-none" data-tour="discover-sort">
+            <div className="flex min-w-max items-center justify-start gap-2 sm:min-w-0 sm:flex-wrap sm:justify-center">
             <button
               onClick={() => setSortBy("date")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${sortBy === "date"
+              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "date"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary hover:bg-secondary/80"
                 }`}
@@ -191,7 +281,7 @@ const Discover = () => {
             </button>
             <button
               onClick={() => setSortBy("popular")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${sortBy === "popular"
+              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "popular"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary hover:bg-secondary/80"
                 }`}
@@ -201,7 +291,7 @@ const Discover = () => {
             </button>
             <button
               onClick={() => setSortBy("nearby")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${sortBy === "nearby"
+              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "nearby"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary hover:bg-secondary/80"
                 }`}
@@ -209,13 +299,68 @@ const Discover = () => {
               <MapPin className="w-4 h-4 inline mr-1.5" />
               Nearby
             </button>
+            </div>
+          </div>
+          <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-2 touch-pan-x snap-x-mandatory scrollbar-none">
+            <div className="flex min-w-max items-center gap-2">
+              {venueFilters.map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => setSelectedVenueCategory(item.value)}
+                  className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${
+                    selectedVenueCategory === item.value
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary hover:bg-secondary/80"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-5 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
+            <div className="flex gap-3 pb-1">
+              <div className="min-w-[240px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Flow</p>
+                <p className="mt-2 text-sm font-medium text-foreground">Search, swipe filters, tap a card, then join with the sticky action flow.</p>
+              </div>
+              <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Mobile tip</p>
+                <p className="mt-2 text-sm text-muted-foreground">The filter rail is built for thumb scrolling, so it stays fast even on smaller screens.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-[1.75rem] border border-primary/15 bg-gradient-to-br from-primary/10 via-background to-accent/10 p-5 shadow-soft sm:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Watch & Unlock</p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Creator stories that turn into physical missions</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Start with digital content, pick up the unlock clue, then move into the linked retail, service, or community moment to verify the real-world action.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button asChild variant="outline" className="sm:min-w-[160px]">
+                  <Link to="/pulse">See Live Pulse</Link>
+                </Button>
+                <Button asChild variant="hero" className="sm:min-w-[180px]">
+                  <Link to="/watch-unlock">Open Watch & Unlock</Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Results Section */}
-      <section className="py-8 px-4">
+      <section className="px-4 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
+          {/* Suggested Moments for New Users */}
+          {user && !loading && filteredMoments.length === 0 && searchQuery === "" && selectedCategory === "all" && (
+            <SuggestedMoments limit={3} />
+          )}
+
           {/* Demo Event Banner - shown when there are moments */}
           {!loading && filteredMoments.length > 0 && (
             <div className="mb-8">
@@ -224,7 +369,7 @@ const Discover = () => {
           )}
 
           {/* Results Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-muted-foreground">
               {loading ? (
                 "Loading..."
@@ -235,12 +380,18 @@ const Discover = () => {
                 </>
               )}
             </p>
+            {!loading && filteredMoments.length > 0 && (
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
+                Fresh moments sorted for quick mobile scanning.
+              </div>
+            )}
           </div>
 
           {/* Results Grid */}
           <div data-tour="discover-moments">
             {loading ? (
-              <MasonryGrid columns={4}>
+              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
                 {[...Array(12)].map((_, i) => (
                   <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
                     <Skeleton className={`w-full ${i % 3 === 0 ? "h-64" : i % 2 === 0 ? "h-56" : "h-48"}`} />
@@ -254,7 +405,7 @@ const Discover = () => {
               </MasonryGrid>
             ) : filteredMoments.length === 0 ? (
               /* Empty State */
-              <div className="text-center py-20">
+              <div className="py-16 text-center sm:py-20">
                 <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
                   <Sparkles className="w-10 h-10 text-primary-foreground" />
                 </div>
@@ -282,7 +433,7 @@ const Discover = () => {
               </div>
             ) : (
               /* Masonry Grid */
-              <MasonryGrid columns={4} gap={20}>
+              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
                 {filteredMoments.map((moment) => (
                   <MomentCard
                     key={moment.id}

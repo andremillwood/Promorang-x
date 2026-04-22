@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn, Heart, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, className }: ImageGalleryProps) {
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
 
     const openLightbox = (index: number) => {
         setCurrentIndex(index);
@@ -38,6 +40,32 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
     const goPrev = useCallback(() => {
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     }, [images.length]);
+
+    const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+        const touch = event.touches[0];
+        touchStartX.current = touch.clientX;
+        touchStartY.current = touch.clientY;
+    };
+
+    const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+        if (touchStartX.current === null || touchStartY.current === null) return;
+
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX.current;
+        const deltaY = touch.clientY - touchStartY.current;
+
+        touchStartX.current = null;
+        touchStartY.current = null;
+
+        if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+        if (deltaX < 0) {
+            goNext();
+            return;
+        }
+
+        goPrev();
+    };
 
     // Keyboard navigation
     useEffect(() => {
@@ -153,7 +181,7 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
 
             {/* Lightbox */}
             {lightboxOpen && (
-                <div className="fixed inset-0 z-50 bg-black">
+                <div className="fixed inset-0 z-50 bg-black px-safe pt-safe pb-safe">
                     {/* Header */}
                     <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4">
                         <span className="text-white font-medium">
@@ -170,7 +198,11 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                     </div>
 
                     {/* Main image */}
-                    <div className="absolute inset-0 flex items-center justify-center p-16">
+                    <div
+                        className="absolute inset-0 flex touch-pan-y items-center justify-center px-4 pb-36 pt-20 sm:p-16"
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                    >
                         <img
                             src={images[currentIndex].url}
                             alt={images[currentIndex].alt || ""}
@@ -179,15 +211,20 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                     </div>
 
                     {/* Caption & Reactions (Digital Afterparty) */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                        <div className="max-w-6xl mx-auto flex items-end justify-between gap-4">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                        <div className="max-w-6xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                             <div className="flex-1">
                                 {images[currentIndex].caption && (
-                                    <p className="text-white text-lg">
+                                    <p className="text-base text-white sm:text-lg">
                                         {images[currentIndex].caption}
                                     </p>
                                 )}
                                 <p className="text-white/60 text-sm mt-1">Uploaded by a verified attendee.</p>
+                                {images.length > 1 && (
+                                    <p className="mt-2 text-xs font-medium text-white/70 sm:hidden">
+                                        Swipe left or right to browse photos.
+                                    </p>
+                                )}
                             </div>
                             
                             {/* Verified Reactions */}
@@ -215,7 +252,7 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={goPrev}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                                className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/20 text-white hover:bg-white/40 sm:left-4 sm:flex"
                             >
                                 <ChevronLeft className="h-8 w-8" />
                             </Button>
@@ -223,7 +260,7 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                                 variant="ghost"
                                 size="icon"
                                 onClick={goNext}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-white/20 text-white hover:bg-white/40 sm:right-4 sm:flex"
                             >
                                 <ChevronRight className="h-8 w-8" />
                             </Button>
@@ -231,13 +268,13 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                     )}
 
                     {/* Thumbnail strip */}
-                    <div className="absolute bottom-20 left-0 right-0 flex justify-center gap-2 px-4 overflow-x-auto">
+                    <div className="absolute bottom-20 left-0 right-0 flex gap-2 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:justify-center">
                         {images.map((img, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
                                 className={cn(
-                                    "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all",
+                                    "h-16 w-16 flex-shrink-0 snap-start overflow-hidden rounded-lg transition-all",
                                     idx === currentIndex
                                         ? "ring-2 ring-white opacity-100"
                                         : "opacity-50 hover:opacity-75"

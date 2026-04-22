@@ -189,6 +189,78 @@ async function getPayoutHistory(hostId) {
     }
 }
 
+async function getMomentumMetrics(hostId) {
+    try {
+        const { data: moments, error: momentsError } = await supabase
+            .from('moments')
+            .select('id, title, pulse_state, gathering_threshold, capacity_limit, cooldown_minutes, is_active, starts_at')
+            .eq('host_id', hostId);
+
+        if (momentsError) throw momentsError;
+
+        const momentIds = (moments || []).map((moment) => moment.id);
+        let participantRows = [];
+        let proofRows = [];
+
+        if (momentIds.length > 0) {
+            const [{ data: participants, error: participantError }, { data: proofs, error: proofError }] = await Promise.all([
+                supabase
+                    .from('moment_participants')
+                    .select('moment_id, status')
+                    .in('moment_id', momentIds),
+                supabase
+                    .from('proof_submissions')
+                    .select('moment_id, submission_state')
+                    .in('moment_id', momentIds),
+            ]);
+
+            if (participantError) throw participantError;
+            if (proofError) throw proofError;
+            participantRows = participants || [];
+            proofRows = proofs || [];
+        }
+
+        const participantCountByMoment = participantRows.reduce((acc, row) => {
+            acc[row.moment_id] = (acc[row.moment_id] || 0) + 1;
+            return acc;
+        }, {});
+
+        const totals = (moments || []).reduce((acc, moment) => {
+            const participantCount = participantCountByMoment[moment.id] || 0;
+            if (moment.pulse_state === 'forming') acc.forming_count += 1;
+            if (moment.pulse_state === 'live') acc.live_count += 1;
+            if (moment.pulse_state === 'cooling') acc.cooling_count += 1;
+            if ((moment.gathering_threshold || 0) > 0 && participantCount >= (moment.gathering_threshold || 0)) {
+                acc.threshold_crossed_count += 1;
+            }
+            if ((moment.capacity_limit || 0) > 0 && participantCount >= (moment.capacity_limit || 0)) {
+                acc.capacity_risk_count += 1;
+            }
+            return acc;
+        }, {
+            total_moments: moments?.length || 0,
+            forming_count: 0,
+            live_count: 0,
+            cooling_count: 0,
+            threshold_crossed_count: 0,
+            capacity_risk_count: 0,
+        });
+
+        const verifiedProofs = proofRows.filter((row) => row.submission_state === 'verified').length;
+        const pendingProofs = proofRows.filter((row) => row.submission_state === 'pending').length;
+
+        return {
+            ...totals,
+            pending_proofs: pendingProofs,
+            verified_proofs: verifiedProofs,
+            proof_conversion_rate: proofRows.length > 0 ? Number(((verifiedProofs / proofRows.length) * 100).toFixed(2)) : 0,
+        };
+    } catch (error) {
+        console.error('Error fetching momentum metrics:', error);
+        throw error;
+    }
+}
+
 /**
  * Export earnings report
  * @param {string} hostId - Host ID
@@ -218,6 +290,7 @@ async function exportEarningsReport(hostId, options = {}) {
 }
 
 module.exports = {
+    getMomentumMetrics,
     getHostEarningsSummary,
     getMomentPerformance,
     getEarningsBreakdown,

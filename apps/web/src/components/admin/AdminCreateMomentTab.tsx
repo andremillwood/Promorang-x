@@ -38,6 +38,8 @@ const categories = [
     { value: "arts", label: "Arts & Culture" },
 ];
 
+const DEFAULT_MOMENT_TYPE = "community";
+
 export const AdminCreateMomentTab = () => {
     const { session } = useAuth();
     const { toast } = useToast();
@@ -113,6 +115,8 @@ export const AdminCreateMomentTab = () => {
                 host_id: selectedHostId,
                 title: formData.title,
                 description: formData.description,
+                type: DEFAULT_MOMENT_TYPE,
+                moment_type: DEFAULT_MOMENT_TYPE,
                 category: formData.category,
                 location: formData.location,
                 venue_id: formData.venueId || null,

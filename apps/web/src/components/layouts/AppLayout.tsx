@@ -37,7 +37,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     // Define routes that should always use the marketing layout or NO layout
     const marketingRoutes = [
-        "/", "/for-communities", "/for-brands", "/for-merchants",
+        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/terms", "/privacy", "/contact", "/activate"
     ];
@@ -48,24 +48,24 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     // Auth and Onboarding are special "clean" pages
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
-                Initializing...
-            </div>
-        );
-    }
-
     // If we are on a marketing route, we MUST NOT wrap with DashboardLayout
     // DashboardLayout contains its own Header/Footer logic which might be conflicting
     if (isMarketingRoute) {
         return (
-            <div className="flex flex-col min-h-screen">
+            <div className="flex min-h-screen flex-col overflow-x-clip">
                 {!isCleanPage && <Header />}
-                <main className="flex-1">
+                <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
                 {!isCleanPage && <Footer />}
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
+                Initializing...
             </div>
         );
     }
@@ -80,9 +80,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     // Default marketing layout for public visitors
     return (
-        <div className="min-h-screen flex flex-col bg-background">
+        <div className="min-h-screen flex flex-col bg-background overflow-x-clip">
             {!isCleanPage && <Header />}
-            <main className="flex-1">
+            <main className="flex-1 overflow-x-clip">
                 {children || <Outlet />}
             </main>
             {!isCleanPage && <Footer />}

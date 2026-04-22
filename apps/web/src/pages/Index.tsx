@@ -4,6 +4,9 @@ import MomentsSection from "@/components/MomentsSection";
 import HowItWorks from "@/components/HowItWorks";
 import ForBrands from "@/components/ForBrands";
 import { VaultTeaser } from "@/components/VaultTeaser";
+import { ValueProposition } from "@/components/ValueProposition";
+import FeaturedHeroBanner from "@/components/featured/FeaturedHeroBanner";
+import FeaturedSection from "@/components/featured/FeaturedSection";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import { useTour } from "@/contexts/TourContext";
@@ -18,16 +21,8 @@ const Index = () => {
   const { startTour, isTourCompleted } = useTour();
   const navigate = useNavigate();
 
-  // If user is already authenticated, check onboarding status
-  useEffect(() => {
-    if (!loading && user && !prefsLoading) {
-      if (hasCompleted) {
-        navigate("/dashboard", { replace: true });
-      } else {
-        navigate("/onboarding", { replace: true });
-      }
-    }
-  }, [user, loading, prefsLoading, hasCompleted, navigate]);
+  // Removed auto-redirect for authenticated users so they can still view the marketing homepage.
+  // Users will access the dashboard via the Header button instead.
 
   // Auto-start first-time user tour (only if not redirected)
   useEffect(() => {
@@ -42,10 +37,23 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Promorang - Life is made of moments worth sharing"
-        description="Discover experiences that matter. Join gatherings that bring people together. Remember the moments that define your story."
+        title="Promorang - Your Presence Has Value"
+        description="Join moments, leave your Mark, and earn money for helping communities thrive. Every time you show up, you create value. We make sure you get your share."
       />
       <Hero />
+      
+      {/* Featured Hero Banner - Premium Placements ($150/day) */}
+      <div className="container max-w-6xl mx-auto px-4 -mt-8 relative z-10">
+        <FeaturedHeroBanner />
+      </div>
+      
+      <ValueProposition />
+      
+      {/* Featured Section - Homepage Featured Grid ($75/day) */}
+      <div className="container max-w-6xl mx-auto px-4">
+        <FeaturedSection />
+      </div>
+      
       <MomentsSection />
       <StandingLeaderboard />
       <HowItWorks />

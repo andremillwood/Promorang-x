@@ -117,8 +117,8 @@ const revenueService = {
      * @returns {number} - Calculated fee
      */
     calculateSettlementFee(amount) {
-        // Standard platform fee of 1%
-        const FEE_PERCENTAGE = 0.01;
+        // Platform fee of 2.5% on settlements (increased from 1% for optimal revenue capture)
+        const FEE_PERCENTAGE = 0.025;
         return Number((amount * FEE_PERCENTAGE).toFixed(2));
     },
 

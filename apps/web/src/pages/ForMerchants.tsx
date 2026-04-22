@@ -28,7 +28,7 @@ const merchantBenefits = [
         icon: Users,
         title: "Real Community Activity",
         description:
-            "Attract active locals who truly value your space. Turn brand-supported gatherings into consistent neighborhood energy.",
+            "Attract active locals who truly value your space. Turn product drops, service rituals, sampling missions, and brand-supported visits into consistent neighborhood energy.",
     },
     {
         icon: ShieldCheck,
@@ -40,7 +40,7 @@ const merchantBenefits = [
         icon: TrendingUp,
         title: "Social Spread",
         description:
-            "Host people with significant social reach. Watch as your venue gets shared across local networks in real-time.",
+            "Host people with significant social reach. Watch as your shop, salon, cafe, or service desk gets shared across local networks in real-time.",
     },
 ];
 
@@ -62,23 +62,23 @@ const ForMerchants = () => {
             />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-charcoal border-b border-white/5 relative overflow-hidden">
+            <section className="relative overflow-hidden border-b border-white/5 bg-charcoal pb-16 pt-28 md:pb-32 md:pt-40">
                 <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full -top-24 -left-24" />
-                <div className="container px-6 relative z-10">
+                <div className="container relative z-10 px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto text-center">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-8">
                             <Store className="w-4 h-4" />
                             <span className="text-[10px] font-black uppercase tracking-widest">A space for every story</span>
                         </div>
 
-                        <h1 className="font-serif text-4xl md:text-7xl font-bold text-white mb-6 italic">
+                        <h1 className="mx-auto mb-6 max-w-[18rem] break-words font-serif text-[1.8rem] font-bold italic leading-tight text-white sm:max-w-4xl sm:text-4xl md:text-7xl">
                             Become a <span className="text-primary">Trusted Spot.</span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-                            Your space is more than four walls—it's where the community comes together. 
-                            Host the moments that matter and let the social reach of your guests help 
-                            more people discover your venue.
+                        <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg md:text-xl">
+                            Your space is more than four walls. It can be a boutique drop point, a salon ritual, a grocery sampling station,
+                            a trusted barber chair, or a neighborhood service hub. Host the moments that matter and let the social reach of your guests
+                            help more people discover your venue.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -98,8 +98,8 @@ const ForMerchants = () => {
 
             {/* The Verification Flow */}
             <section className="py-24 bg-background">
-                <div className="container px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div className="container px-4 sm:px-6">
+                    <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-20">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
                                 <ShieldCheck className="w-4 h-4" />
@@ -109,9 +109,9 @@ const ForMerchants = () => {
                                 A <span className="text-emerald-600 italic">Face-to-Face Check-in.</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                We've kept things simple and human. When a guest arrives for a moment, 
-                                a quick PIN entered at your counter confirms they're really there. 
-                                It's a simple way to verify visits and unlock rewards for your patrons.
+                                We've kept things simple and human. When a guest arrives for a drop, service appointment,
+                                sampling mission, or visit ritual, a quick PIN at your counter confirms they're really there.
+                                It's a simple way to verify visits and unlock rewards, founder memories, and return-driving perks for your patrons.
                             </p>
                             
                             <div className="grid gap-6">
@@ -131,7 +131,7 @@ const ForMerchants = () => {
 
                         <div className="relative">
                             <div className="absolute inset-0 bg-emerald-500/10 rounded-[3rem] blur-3xl" />
-                            <div className="relative bg-charcoal rounded-[3rem] border border-white/10 p-12 overflow-hidden shadow-2xl">
+                            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-charcoal p-6 shadow-2xl sm:rounded-[3rem] sm:p-12">
                                 <div className="space-y-8">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -148,9 +148,9 @@ const ForMerchants = () => {
 
                                     <div className="p-8 bg-black/40 rounded-2xl border border-white/5 text-center space-y-6">
                                         <p className="text-xs text-white/60 font-medium">Verify guest arrival:</p>
-                                        <div className="flex justify-center gap-3">
+                                        <div className="flex justify-center gap-2 sm:gap-3">
                                             {[1,2,3,4].map(i => (
-                                                <div key={i} className="w-12 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white font-serif text-2xl font-bold">
+                                                <div key={i} className="flex h-14 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 font-serif text-xl font-bold text-white sm:h-16 sm:w-12 sm:text-2xl">
                                                     *
                                                 </div>
                                             ))}
@@ -173,8 +173,8 @@ const ForMerchants = () => {
 
             {/* Stats Dashboard */}
             <section className="py-16 bg-muted/30 border-y border-border">
-                <div className="container px-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+                <div className="container px-4 sm:px-6">
+                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-12">
                         {stats.map((stat, i) => (
                             <div key={i} className="text-center group">
                                 <p className="font-serif text-4xl font-bold text-foreground mb-2 group-hover:text-emerald-600 transition-colors">{stat.value}</p>
@@ -188,13 +188,13 @@ const ForMerchants = () => {
             {/* Final CTA */}
             <section className="py-24 bg-charcoal relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48" />
-                <div className="container px-6 relative z-10 text-center max-w-3xl mx-auto">
+                <div className="container relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
                     <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-8 italic">
                         The Heart of the <span className="text-primary italic">Neighborhood.</span>
                     </h2>
                     <p className="text-lg text-white/60 mb-10 leading-relaxed">
-                        Ready to welcome the storytellers in your community? List your spot for free 
-                        and start seeing more local faces and energy flow through your doors.
+                        Ready to welcome the storytellers in your community? List your spot for free and start seeing
+                        more local faces, verified visits, and repeat-worthy momentum flow through your doors.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button variant="hero" size="xl" asChild>

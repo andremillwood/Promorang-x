@@ -75,7 +75,7 @@ export default function MechanicDetail() {
                 description={mechanic.description}
             />
 
-            <div className="container mx-auto px-4 py-8 max-w-5xl space-y-10 pb-24">
+            <div className="container mx-auto max-w-5xl space-y-8 px-4 py-6 pb-20 sm:space-y-10 sm:py-8 sm:pb-24">
                 {/* Header */}
                 <div className="space-y-6">
                     <Link to="/strategies" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -97,20 +97,20 @@ export default function MechanicDetail() {
                                 </Badge>
                             </div>
 
-                            <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground">
+                            <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
                                 {mechanic.name}
                             </h1>
-                            <p className="text-xl text-muted-foreground leading-relaxed">
+                            <p className="text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                                 {mechanic.description}
                             </p>
                         </div>
 
                         {/* Reliability Card */}
-                        <div className="w-full md:w-auto p-6 bg-card border border-border/50 rounded-2xl shadow-sm space-y-4 min-w-[300px]">
+                        <div className="w-full max-w-full space-y-4 rounded-2xl border border-border/50 bg-card p-5 shadow-sm sm:p-6 md:w-auto md:max-w-sm">
                             <div className="space-y-1">
                                 <span className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Reliability Score</span>
                                 <div className="flex items-baseline gap-2">
-                                    <span className={`text-4xl font-bold ${Number(mechanic.reliability_score) >= 90 ? 'text-green-500' : 'text-yellow-500'}`}>
+                                    <span className={`text-3xl font-bold sm:text-4xl ${Number(mechanic.reliability_score) >= 90 ? 'text-green-500' : 'text-yellow-500'}`}>
                                         {Number(mechanic.reliability_score || 0).toFixed(0)}%
                                     </span>
                                     <span className="text-sm font-medium text-muted-foreground">success rate</span>

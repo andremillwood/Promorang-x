@@ -37,18 +37,36 @@ const EMAIL_CONFIG = {
   supportEmail: 'support@promorang.co',
 };
 
-// Brand colors for email templates
+// Promorang Brand Colors
+// A moment platform - warm, inviting, human
+// Orange primary, Black/Charcoal text, Yellow highlights, Warm cream backgrounds
 const BRAND = {
-  primary: '#667eea',
-  secondary: '#764ba2',
-  accent: '#f5576c',
-  gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  primary: '#FF6B00',        // Promorang Orange - hsl(24, 100%, 50%)
+  primaryDark: '#E55A00',    // Deep Orange - hsl(18, 100%, 45%)
+  secondary: '#FF9500',      // Secondary Orange
+  accent: '#FFCC1A',         // Golden Yellow - hsl(45, 100%, 55%)
+  accentSoft: '#FFE066',     // Soft Yellow
+  success: '#10b981',        // Emerald 500 - for success states
+  surface: '#FDFCF9',        // Warm Cream - hsl(40, 33%, 98%)
+  surfaceAlt: '#F5F0E8',     // Darker Cream - hsl(35, 25%, 93%)
+  text: '#1F1F1F',           // Charcoal - hsl(0, 0%, 12%)
+  textLight: '#3D3D3D',      // Light Charcoal
+  textMuted: '#706C65',      // Warm Gray - hsl(30, 8%, 45%)
+  border: '#E8E4DC',         // Warm Border - hsl(35, 20%, 88%)
+  gradient: 'linear-gradient(135deg, #FF6B00 0%, #FF9500 50%, #FFCC1A 100%)',
+  gradientSunset: 'linear-gradient(135deg, #FF6B00 0%, #FF8A00 50%, #FFCC1A 100%)',
+  gradientSubtle: 'linear-gradient(180deg, #FDFCF9 0%, #F5F0E8 100%)',
+  shadow: '0 8px 30px -8px rgba(255, 107, 0, 0.15)',
 };
 
 /**
- * Base HTML email template with Promorang branding
+ * Base HTML email template with Premium Promorang branding
+ * Sophisticated, modern, enterprise-grade design
  */
-function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNote }) {
+function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNote, variant = 'default' }) {
+  const isMinimal = variant === 'minimal';
+  const isSuccess = variant === 'success';
+  
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -59,129 +77,377 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
   <meta name="supported-color-schemes" content="light">
   <title>${title}</title>
   <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <!--[if mso]>
   <style type="text/css">
-    table, td, div, p { font-family: Arial, sans-serif !important; }
+    table, td, div, p { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; }
   </style>
   <![endif]-->
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       line-height: 1.6;
-      color: #1a1a2e;
+      color: ${BRAND.text};
       margin: 0;
       padding: 0;
-      background-color: #f4f4f9;
+      background-color: ${BRAND.surfaceAlt};
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .container {
-      max-width: 600px;
+    
+    .email-wrapper {
+      width: 100%;
+      max-width: 680px;
       margin: 0 auto;
       background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: ${BRAND.shadow};
     }
+    
     .header {
-      background: ${BRAND.gradient};
-      padding: 40px 30px;
+      background: ${BRAND.gradientSunset};
+      padding: 56px 40px 48px;
       text-align: center;
+      position: relative;
     }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="30" cy="30" r="80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><circle cx="170" cy="170" r="100" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/></svg>');
+      background-size: 200px;
+      opacity: 0.5;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    
+    .brand-logo {
+      max-width: 180px;
+      max-height: 60px;
+      height: auto;
+      display: block;
+    }
+    
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .brand-wordmark {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+    
     .header h1 {
       color: #ffffff;
       margin: 0;
-      font-size: 24px;
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    
+    .header-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      margin-top: 10px;
+      font-weight: 400;
+    }
+    
+    .content {
+      padding: 48px 40px;
+      background: #ffffff;
+    }
+    
+    .content p {
+      margin: 0 0 20px;
+      color: ${BRAND.textMuted};
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    
+    .content strong {
+      color: ${BRAND.text};
       font-weight: 600;
     }
-    .header .logo {
-      font-size: 28px;
-      font-weight: 700;
-      color: #ffffff;
-      text-decoration: none;
-      margin-bottom: 15px;
-      display: block;
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: ${BRAND.primary};
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
     }
-    .content {
-      padding: 40px 30px;
-    }
-    .content p {
-      margin: 0 0 16px;
-      color: #4a4a6a;
-    }
+    
     .cta-container {
       text-align: center;
-      margin: 30px 0;
+      margin: 40px 0;
     }
+    
     .cta-button {
       display: inline-block;
       background: ${BRAND.gradient};
       color: #ffffff !important;
+      padding: 16px 40px;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+      box-shadow: 0 4px 16px 0 rgba(255, 107, 0, 0.35);
+      transition: all 0.2s ease;
+    }
+    
+    .cta-secondary {
+      display: inline-block;
+      background: transparent;
+      color: ${BRAND.primary} !important;
       padding: 14px 32px;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 15px;
+      border: 2px solid ${BRAND.primary};
+      margin-left: 12px;
+    }
+    
+    .highlight-card {
+      background: linear-gradient(135deg, ${BRAND.surface} 0%, ${BRAND.surfaceAlt} 100%);
+      border: 1px solid ${BRAND.border};
+      border-radius: 14px;
+      padding: 28px;
+      margin: 28px 0;
+      text-align: center;
+    }
+    
+    .highlight-card.success {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border-color: #86efac;
+    }
+    
+    .highlight-card .label {
+      font-size: 13px;
       font-weight: 600;
-      font-size: 16px;
+      color: ${BRAND.textMuted};
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
     }
-    .highlight-box {
-      background: linear-gradient(135deg, #f8f9ff 0%, #fff5f5 100%);
-      border-left: 4px solid ${BRAND.primary};
-      padding: 20px;
-      margin: 24px 0;
-      border-radius: 0 8px 8px 0;
-    }
-    .highlight-box .value {
-      font-size: 28px;
+    
+    .highlight-card .value {
+      font-size: 36px;
       font-weight: 700;
       color: ${BRAND.primary};
-      margin: 8px 0;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
     }
-    .meta-info {
-      background: #f8f9fa;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin: 16px 0;
+    
+    .highlight-card.success .value {
+      color: ${BRAND.success};
+    }
+    
+    .highlight-card .sublabel {
       font-size: 14px;
-      color: #6c757d;
+      color: ${BRAND.textMuted};
+      margin-top: 8px;
     }
+    
+    .info-card {
+      background: ${BRAND.surface};
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      border-left: 4px solid ${BRAND.primary};
+    }
+    
+    .info-card-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e4e4e7;
+      font-size: 14px;
+    }
+    
+    .info-card-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-card-label {
+      color: ${BRAND.textMuted};
+    }
+    
+    .info-card-value {
+      color: ${BRAND.text};
+      font-weight: 500;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+    }
+    
+    .feature-list li {
+      padding: 12px 0;
+      padding-left: 32px;
+      position: relative;
+      color: ${BRAND.textMuted};
+      font-size: 15px;
+    }
+    
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: ${BRAND.primary};
+      font-weight: 700;
+      font-size: 16px;
+    }
+    
+    .tip-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-top: 32px;
+      font-size: 14px;
+      color: #92400e;
+    }
+    
+    .tip-box strong {
+      color: #78350f;
+    }
+    
     .footer {
-      background: #f8f9fa;
-      padding: 30px;
+      background: ${BRAND.gradientSubtle};
+      padding: 40px;
       text-align: center;
-      border-top: 1px solid #eee;
+      border-top: 1px solid ${BRAND.border};
     }
-    .footer p {
-      margin: 0 0 10px;
-      color: #6c757d;
+    
+    .social-links {
+      margin: 0 0 24px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #ffffff;
+      border-radius: 50%;
+      color: ${BRAND.textMuted};
+      text-decoration: none;
       font-size: 14px;
+      border: 1px solid ${BRAND.border};
+      transition: all 0.2s ease;
     }
-    .footer a {
+    
+    .footer-links {
+      margin: 24px 0;
+      font-size: 13px;
+      color: ${BRAND.textMuted};
+    }
+    
+    .footer-links a {
       color: ${BRAND.primary};
       text-decoration: none;
+      margin: 0 12px;
+      font-weight: 500;
     }
-    .social-links {
-      margin: 20px 0;
+    
+    .footer-brand {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: ${BRAND.text};
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
     }
-    .social-links a {
-      display: inline-block;
-      margin: 0 8px;
-      color: #6c757d;
-      text-decoration: none;
+    
+    .footer-copyright {
+      font-size: 12px;
+      color: ${BRAND.textMuted};
+      margin-top: 16px;
     }
+    
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, ${BRAND.border}, transparent);
+      margin: 32px 0;
+    }
+    
     @media only screen and (max-width: 600px) {
-      .container {
-        width: 100% !important;
+      body { background-color: #ffffff; }
+      .email-wrapper {
+        border-radius: 0;
+        box-shadow: none;
       }
-      .content, .header, .footer {
-        padding: 20px !important;
-      }
+      .content { padding: 32px 24px; }
+      .header { padding: 36px 24px 32px; }
+      .header h1 { font-size: 24px; }
+      .footer { padding: 32px 24px; }
+      .cta-secondary { display: block; margin: 12px 0 0; }
     }
   </style>
 </head>
 <body>
-  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;">${preheader}</div>` : ''}
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${preheader}</div>` : ''}
   
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f9; padding: 20px 0;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surfaceAlt}; padding: 40px 20px;">
     <tr>
       <td align="center">
-        <div class="container">
+        <div class="email-wrapper">
           <div class="header">
-            <a href="${EMAIL_CONFIG.frontendUrl}" class="logo">🚀 Promorang</a>
-            <h1>${title}</h1>
+            <div class="header-content">
+              <div class="brand-lockup">
+                <img src="data:image/png;base64,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" alt="Promorang" class="brand-logo" />
+              </div>
+              <h1>${title}</h1>
+            </div>
           </div>
           
           <div class="content">
@@ -194,25 +460,28 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
             ` : ''}
             
             ${footerNote ? `
-            <p style="margin-top: 30px; font-size: 14px; color: #6c757d;">
-              💡 <strong>Pro Tip:</strong> ${footerNote}
-            </p>
+            <div class="tip-box">
+              <strong>Pro Tip:</strong> ${footerNote}
+            </div>
             ` : ''}
           </div>
           
           <div class="footer">
+            <div class="footer-brand">Promorang</div>
             <div class="social-links">
-              <a href="https://twitter.com/promorang">Twitter</a>
-              <a href="https://instagram.com/promorang">Instagram</a>
-              <a href="https://discord.gg/promorang">Discord</a>
+              <a href="https://twitter.com/promorang" title="X (Twitter)">𝕏</a>
+              <a href="https://instagram.com/promorang" title="Instagram">IG</a>
+              <a href="https://linkedin.com/company/promorang" title="LinkedIn">in</a>
+              <a href="https://discord.gg/promorang" title="Discord">DC</a>
             </div>
-            <p>
-              <a href="${EMAIL_CONFIG.frontendUrl}/settings">Email Preferences</a> | 
-              <a href="${EMAIL_CONFIG.frontendUrl}/support">Help Center</a>
-            </p>
-            <p style="font-size: 12px; color: #999;">
-              © ${new Date().getFullYear()} Promorang. All rights reserved.
-            </p>
+            <div class="footer-links">
+              <a href="${EMAIL_CONFIG.frontendUrl}/settings/notifications">Preferences</a>
+              <a href="${EMAIL_CONFIG.frontendUrl}/support">Support</a>
+              <a href="${EMAIL_CONFIG.frontendUrl}/privacy">Privacy</a>
+            </div>
+            <div class="footer-copyright">
+              © ${new Date().getFullYear()} Promorang Inc. All rights reserved.
+            </div>
           </div>
         </div>
       </td>
@@ -256,34 +525,38 @@ async function sendEmail({ to, subject, html, text, replyTo, tags }) {
 // =============================================================================
 
 /**
- * Welcome email for new users
+ * Welcome email for new users - Premium brand experience
  */
 async function sendWelcomeEmail(userEmail, userName) {
   const html = getBaseTemplate({
-    title: 'Welcome to Promorang! 🎉',
+    title: 'Welcome to Promorang',
     preheader: 'Your journey to earning rewards starts now.',
     content: `
       <p>Hi ${userName || 'there'},</p>
       
-      <p>Welcome to <strong>Promorang</strong> – the platform where your engagement turns into real rewards!</p>
+      <p>Welcome to <strong>Promorang</strong> — where your engagement becomes real rewards. We're thrilled to have you join our community of creators, influencers, and reward-earners.</p>
       
-      <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">🎁 Welcome Bonus</p>
+      <div class="highlight-card">
+        <div class="label">Welcome Bonus</div>
         <div class="value">100 Points + 10 Keys</div>
-        <p style="margin: 0; font-size: 14px;">Already added to your account!</p>
+        <div class="sublabel">Already credited to your account</div>
       </div>
       
-      <p><strong>Here's what you can do on Promorang:</strong></p>
-      <ul style="color: #4a4a6a; padding-left: 20px;">
-        <li>📋 Complete Drops to earn Gems</li>
-        <li>💎 Invest in content you believe in</li>
-        <li>🔥 Build streaks for bonus rewards</li>
-        <li>👥 Invite friends and earn commissions</li>
+      <div class="section-title">What you can do</div>
+      <ul class="feature-list">
+        <li>Complete Drops to earn Gems and unlock opportunities</li>
+        <li>Invest in content you believe in and share in the success</li>
+        <li>Build daily streaks for compounding bonus rewards</li>
+        <li>Grow your network and earn from every referral</li>
       </ul>
+      
+      <div class="divider"></div>
+      
+      <p style="text-align: center; color: ${BRAND.textMuted};">Ready to start earning? Your dashboard awaits.</p>
     `,
     ctaUrl: `${EMAIL_CONFIG.frontendUrl}/dashboard`,
-    ctaText: 'Go to Dashboard',
-    footerNote: 'Complete your first Drop today to unlock your earning potential!',
+    ctaText: 'Enter Dashboard',
+    footerNote: 'Complete your first Drop within 24 hours to unlock a 2x earnings multiplier on your next three completions.',
   });
 
   const text = `
@@ -291,20 +564,22 @@ Welcome to Promorang, ${userName}!
 
 Your journey to earning rewards starts now.
 
-Welcome Bonus: 100 Points + 10 Keys (already added!)
+Welcome Bonus: 100 Points + 10 Keys (already credited)
 
 What you can do:
-- Complete Drops to earn Gems
-- Invest in content you believe in
-- Build streaks for bonus rewards
-- Invite friends and earn commissions
+- Complete Drops to earn Gems and unlock opportunities
+- Invest in content you believe in and share in the success  
+- Build daily streaks for compounding bonus rewards
+- Grow your network and earn from every referral
 
 Get started: ${EMAIL_CONFIG.frontendUrl}/dashboard
+
+Pro Tip: Complete your first Drop within 24 hours to unlock a 2x earnings multiplier.
   `.trim();
 
   return sendEmail({
     to: userEmail,
-    subject: 'Welcome to Promorang! 🎉 Your rewards journey begins',
+    subject: 'Welcome to Promorang — Your rewards journey begins',
     html,
     text,
     tags: [{ name: 'type', value: 'welcome' }],
@@ -312,24 +587,32 @@ Get started: ${EMAIL_CONFIG.frontendUrl}/dashboard
 }
 
 /**
- * Password reset email
+ * Password reset email - Premium security experience
  */
 async function sendPasswordResetEmail(userEmail, resetUrl, userName) {
   const html = getBaseTemplate({
     title: 'Reset Your Password',
-    preheader: 'You requested a password reset for your Promorang account.',
+    preheader: 'Secure your account with a new password.',
     content: `
       <p>Hi ${userName || 'there'},</p>
       
-      <p>We received a request to reset your password. Click the button below to create a new password:</p>
+      <p>We received a request to reset the password for your Promorang account. Click the button below to securely create a new password.</p>
       
-      <div class="meta-info">
-        ⏰ This link expires in 1 hour for security reasons.
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Request Time</span>
+          <span class="info-card-value">${new Date().toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Expires</span>
+          <span class="info-card-value">1 hour</span>
+        </div>
       </div>
+      
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">If you didn't request this reset, you can safely ignore this email. Your account remains secure and your password will not be changed.</p>
     `,
     ctaUrl: resetUrl,
     ctaText: 'Reset Password',
-    footerNote: "If you didn't request this, you can safely ignore this email. Your password won't be changed.",
   });
 
   const text = `
@@ -337,12 +620,12 @@ Reset Your Password
 
 Hi ${userName || 'there'},
 
-We received a request to reset your password. Visit this link to create a new password:
-${resetUrl}
+We received a request to reset the password for your Promorang account.
 
+Reset Link: ${resetUrl}
 This link expires in 1 hour.
 
-If you didn't request this, you can safely ignore this email.
+If you didn't request this reset, you can safely ignore this email. Your account remains secure.
   `.trim();
 
   return sendEmail({
@@ -475,7 +758,7 @@ async function sendDropRejectedEmail(userEmail, userName, dropData) {
 }
 
 /**
- * Drop completed - reward earned
+ * Drop completed - reward earned - Premium achievement experience
  */
 async function sendDropCompletedEmail(userEmail, userName, dropData) {
   const { title, gemsEarned, keysEarned, pointsEarned } = dropData;
@@ -486,29 +769,42 @@ async function sendDropCompletedEmail(userEmail, userName, dropData) {
   if (pointsEarned) rewards.push(`${pointsEarned} Points`);
 
   const html = getBaseTemplate({
-    title: 'Drop Completed! 🎉',
-    preheader: `You earned ${rewards.join(' + ')} for completing "${title}"`,
+    title: 'Mission Accomplished',
+    preheader: `You earned ${rewards.join(' + ')} for completing ${title}`,
     content: `
       <p>Hi ${userName || 'there'},</p>
       
-      <p>Amazing work! You've successfully completed a Drop:</p>
+      <p>Excellent work. You've successfully completed <strong>${title}</strong> and earned rewards for your engagement.</p>
       
-      <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">📋 ${title}</p>
-        <div class="value">+${rewards.join(' + ')}</div>
-        <p style="margin: 0; font-size: 14px;">Added to your balance!</p>
+      <div class="highlight-card success">
+        <div class="label">Rewards Earned</div>
+        <div class="value">${rewards.join(' + ')}</div>
+        <div class="sublabel">Credited to your account</div>
       </div>
+      
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Completed</span>
+          <span class="info-card-value">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Status</span>
+          <span class="info-card-value" style="color: ${BRAND.success};">Verified & Paid</span>
+        </div>
+      </div>
+      
+      <p style="text-align: center;">Your contributions are valued. Keep up the momentum.</p>
     `,
     ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Your Wallet',
-    footerNote: 'Keep completing drops to build your earnings!',
+    ctaText: 'View Wallet',
+    footerNote: 'Maintain your daily streak for compounding bonus rewards on every completion.',
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `🎉 You earned ${rewards.join(' + ')}!`,
+    subject: `Mission accomplished: ${rewards.join(' + ')} earned`,
     html,
-    text: `Congratulations! You completed "${title}" and earned ${rewards.join(' + ')}.`,
+    text: `Congratulations! You completed "${title}" and earned ${rewards.join(' + ')}. View your wallet: ${EMAIL_CONFIG.frontendUrl}/wallet`,
     tags: [{ name: 'type', value: 'drop-completed' }],
   });
 }
@@ -621,79 +917,106 @@ async function sendReferralCommissionEmail(referrerEmail, referrerName, commissi
 // =============================================================================
 
 /**
- * Withdrawal request confirmation
+ * Withdrawal request confirmation - Premium financial experience
  */
 async function sendWithdrawalRequestedEmail(userEmail, userName, withdrawalData) {
   const { amount, paymentMethod, estimatedTime } = withdrawalData;
 
   const html = getBaseTemplate({
     title: 'Withdrawal Request Received',
-    preheader: `Your withdrawal of $${amount} is being processed.`,
+    preheader: `Your withdrawal of $${amount.toFixed(2)} is being processed.`,
     content: `
       <p>Hi ${userName || 'there'},</p>
       
-      <p>We've received your withdrawal request:</p>
+      <p>We've received your withdrawal request and are processing it through our secure payment system.</p>
       
-      <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">💸 Withdrawal Request</p>
-        <div class="value">$${amount.toFixed(2)}</div>
-        <p style="margin: 0; font-size: 14px;">via ${paymentMethod}</p>
+      <div class="highlight-card">
+        <div class="label">Withdrawal Amount</div>
+        <div class="value" style="color: ${BRAND.text};">$${amount.toFixed(2)}</div>
+        <div class="sublabel">via ${paymentMethod}</div>
       </div>
       
-      <div class="meta-info">
-        ⏰ <strong>Estimated processing time:</strong> ${estimatedTime || '1-3 business days'}
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Requested</span>
+          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Method</span>
+          <span class="info-card-value">${paymentMethod}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Processing Time</span>
+          <span class="info-card-value">${estimatedTime || '1-3 business days'}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Status</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">Pending Review</span>
+        </div>
       </div>
       
-      <p>We'll send you another email once the transfer is complete.</p>
+      <p style="font-size: 14px; color: ${BRAND.textMuted};">You'll receive a confirmation email once the transfer has been initiated. For security, all withdrawals are reviewed by our team.</p>
     `,
     ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
-    ctaText: 'View Wallet',
+    ctaText: 'View Withdrawal Status',
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `💸 Withdrawal request: $${amount.toFixed(2)}`,
+    subject: `Withdrawal request received: $${amount.toFixed(2)}`,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is being processed. Estimated time: ${estimatedTime}.`,
+    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is being processed. Estimated time: ${estimatedTime || '1-3 business days'}.`,
     tags: [{ name: 'type', value: 'withdrawal-requested' }],
   });
 }
 
 /**
- * Withdrawal completed
+ * Withdrawal completed - Premium confirmation experience
  */
 async function sendWithdrawalCompletedEmail(userEmail, userName, withdrawalData) {
   const { amount, paymentMethod, transactionId } = withdrawalData;
 
   const html = getBaseTemplate({
-    title: 'Withdrawal Complete! ✅',
-    preheader: `Your $${amount} has been sent!`,
+    title: 'Withdrawal Complete',
+    preheader: `Your $${amount.toFixed(2)} has been sent.`,
     content: `
       <p>Hi ${userName || 'there'},</p>
       
-      <p>Great news! Your withdrawal has been processed:</p>
+      <p>Your withdrawal has been processed and funds have been sent. The transfer is now complete.</p>
       
-      <div class="highlight-box">
-        <p style="margin: 0; font-weight: 600;">✅ Transfer Complete</p>
+      <div class="highlight-card success">
+        <div class="label">Transfer Complete</div>
         <div class="value">$${amount.toFixed(2)}</div>
-        <p style="margin: 0; font-size: 14px;">Sent via ${paymentMethod}</p>
+        <div class="sublabel">Sent via ${paymentMethod}</div>
       </div>
       
-      <div class="meta-info">
-        <strong>Transaction ID:</strong> ${transactionId || 'N/A'}
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Transaction ID</span>
+          <span class="info-card-value" style="font-family: monospace; font-size: 13px;">${transactionId || 'N/A'}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Completed</span>
+          <span class="info-card-value">${new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Status</span>
+          <span class="info-card-value" style="color: ${BRAND.success};">Completed</span>
+        </div>
       </div>
       
-      <p>The funds should appear in your account shortly.</p>
+      <p style="text-align: center;">Thank you for using Promorang. Your funds should appear in your account within the processing time for your selected payment method.</p>
     `,
     ctaUrl: `${EMAIL_CONFIG.frontendUrl}/wallet`,
     ctaText: 'View Transaction History',
+    footerNote: 'Keep this email for your records. Contact support if you have any questions about this transaction.',
   });
 
   return sendEmail({
     to: userEmail,
-    subject: `✅ $${amount.toFixed(2)} withdrawal complete!`,
+    subject: `Withdrawal complete: $${amount.toFixed(2)}`,
     html,
-    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is complete! Transaction ID: ${transactionId}`,
+    text: `Your withdrawal of $${amount.toFixed(2)} via ${paymentMethod} is complete. Transaction ID: ${transactionId}. Thank you for using Promorang.`,
     tags: [{ name: 'type', value: 'withdrawal-completed' }],
   });
 }
@@ -1255,6 +1578,308 @@ async function sendRoleChangedEmail({ to, userName, accountName, oldRole, newRol
 // ADMIN EMAILS
 // =============================================================================
 
+// =============================================================================
+// PROMPTING & NUDGE EMAILS (Hosts, Brands, Content Engagement)
+// =============================================================================
+
+/**
+ * Prompt hosts to create their first Moment
+ */
+async function sendHostCreateMomentPrompt(userEmail, userName, daysSinceSignup) {
+  const html = getBaseTemplate({
+    title: 'Create Your First Moment',
+    preheader: 'Your community is waiting for content.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p>You signed up ${daysSinceSignup} days ago as a Host, but haven't created your first <strong>Moment</strong> yet.</p>
+      
+      <p>Moments are your chance to:</p>
+      <ul class="feature-list">
+        <li>Share exclusive content with your community</li>
+        <li>Build deeper engagement with followers</li>
+        <li>Monetize your most valuable experiences</li>
+        <li>Grow your influence on the platform</li>
+      </ul>
+      
+      <div class="highlight-card">
+        <div class="label">Getting Started</div>
+        <div class="value" style="font-size: 24px;">Takes 5 Minutes</div>
+        <div class="sublabel">Upload a photo, video, or link and set your access rules</div>
+      </div>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
+    ctaText: 'Create My First Moment',
+    footerNote: 'Hosts who create within their first week see 3x more follower engagement.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Your community is waiting — create your first Moment',
+    html,
+    text: `Hi ${userName}, create your first Moment to engage your community. Takes 5 minutes: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
+    tags: [{ name: 'type', value: 'host-create-moment-prompt' }],
+  });
+}
+
+/**
+ * Prompt hosts who haven't created in a while
+ */
+async function sendHostReEngagementPrompt(userEmail, userName, daysSinceLastMoment) {
+  const html = getBaseTemplate({
+    title: 'Your Followers Miss You',
+    preheader: 'It has been a while since your last Moment.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p>It's been <strong>${daysSinceLastMoment} days</strong> since your last Moment. Your followers are eager for new content!</p>
+      
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Last Moment</span>
+          <span class="info-card-value">${daysSinceLastMoment} days ago</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Follower Activity</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">High</span>
+        </div>
+      </div>
+      
+      <p>Fresh content keeps your community engaged and growing. What will you share next?</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/create`,
+    ctaText: 'Create New Moment',
+    footerNote: 'Consistent hosts build 5x larger audiences over time.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Your followers are waiting for your next Moment',
+    html,
+    text: `Hi ${userName}, it's been ${daysSinceLastMoment} days since your last Moment. Create new content: ${EMAIL_CONFIG.frontendUrl}/moments/create`,
+    tags: [{ name: 'type', value: 'host-reengagement-prompt' }],
+  });
+}
+
+/**
+ * Prompt brands/advertisers to sponsor popular Moments
+ */
+async function sendBrandSponsorPrompt(userEmail, userName, popularMoments) {
+  const momentsList = popularMoments?.slice(0, 3).map(m => `
+    <div style="margin: 12px 0; padding: 16px; background: ${BRAND.surface}; border-radius: 10px; border-left: 3px solid ${BRAND.primary};">
+      <strong style="color: ${BRAND.text};">${m.title}</strong>
+      <p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">by ${m.hostName} • ${m.engagement} engagements</p>
+    </div>
+  `).join('') || '';
+
+  const html = getBaseTemplate({
+    title: 'Sponsor High-Engagement Moments',
+    preheader: 'Put your brand in front of engaged audiences.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p>Moment sponsorship is one of the most effective ways to reach engaged communities on Promorang.</p>
+      
+      <div class="highlight-card">
+        <div class="label">Why Sponsor?</div>
+        <div class="value" style="font-size: 20px;">3x Higher Engagement</div>
+        <div class="sublabel">vs traditional display advertising</div>
+      </div>
+      
+      ${popularMoments?.length ? `
+      <div class="section-title">Trending Now</div>
+      <p>These popular Moments are accepting sponsorships:</p>
+      ${momentsList}
+      ` : ''}
+      
+      <p>Sponsoring puts your brand message directly into content that users are actively consuming.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
+    ctaText: 'Browse Sponsorship Opportunities',
+    footerNote: 'Limited sponsorship slots available per Moment — secure your placement early.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Reach engaged audiences — sponsor trending Moments',
+    html,
+    text: `Hi ${userName}, sponsor high-engagement Moments for 3x better engagement. Browse opportunities: ${EMAIL_CONFIG.frontendUrl}/sponsor/moments`,
+    tags: [{ name: 'type', value: 'brand-sponsor-prompt' }],
+  });
+}
+
+/**
+ * Prompt users to consume content (Moments waiting)
+ */
+async function sendContentConsumptionPrompt(userEmail, userName, unreadCount, featuredMoment) {
+  const html = getBaseTemplate({
+    title: 'Content Waiting For You',
+    preheader: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} from creators you follow.`,
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p>You have <strong>${unreadCount} new Moment${unreadCount > 1 ? 's' : ''}</strong> waiting from creators you follow.</p>
+      
+      ${featuredMoment ? `
+      <div class="highlight-card" style="text-align: left;">
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <div style="width: 60px; height: 60px; background: ${BRAND.gradient}; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">◆</div>
+          <div>
+            <div class="label" style="text-align: left; margin-bottom: 4px;">Featured Moment</div>
+            <div style="font-weight: 600; color: ${BRAND.text}; font-size: 16px;">${featuredMoment.title}</div>
+            <div style="font-size: 13px; color: ${BRAND.textMuted};">by ${featuredMoment.hostName}</div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+      
+      <p>Don't miss out on exclusive content, behind-the-scenes access, and special offers from your favorite creators.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments`,
+    ctaText: unreadCount > 1 ? `View ${unreadCount} Moments` : 'View Moment',
+    footerNote: 'Engaging with content increases your chances of unlocking exclusive rewards.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: `${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting from creators you follow`,
+    html,
+    text: `Hi ${userName}, you have ${unreadCount} new Moment${unreadCount > 1 ? 's' : ''} waiting. View them: ${EMAIL_CONFIG.frontendUrl}/moments`,
+    tags: [{ name: 'type', value: 'content-consumption-prompt' }],
+  });
+}
+
+/**
+ * Alert advertiser when campaign budget is running low
+ */
+async function sendLowBudgetAlert(userEmail, userName, campaignData) {
+  const { campaignName, remainingBudget, totalBudget, percentRemaining } = campaignData;
+
+  const html = getBaseTemplate({
+    title: 'Campaign Budget Running Low',
+    preheader: `${percentRemaining}% of budget remaining for ${campaignName}`,
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p>Your campaign <strong>${campaignName}</strong> is running low on budget.</p>
+      
+      <div class="highlight-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #fbbf24;">
+        <div class="label" style="color: #92400e;">Remaining Budget</div>
+        <div class="value" style="font-size: 32px; color: #92400e;">${remainingBudget.toLocaleString()} Gems</div>
+        <div class="sublabel" style="color: #a16207;">${percentRemaining}% of ${totalBudget.toLocaleString()} Gems total</div>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">Campaign</span>
+          <span class="info-card-value">${campaignName}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Status</span>
+          <span class="info-card-value" style="color: ${BRAND.accent};">Active (Low Budget)</span>
+        </div>
+      </div>
+      
+      <p>Top up your budget soon to keep your campaign running without interruption.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
+    ctaText: 'Add Budget',
+    footerNote: 'Campaigns with sufficient budget see 40% more completions.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: `Campaign "${campaignName}" budget at ${percentRemaining}% — add funds`,
+    html,
+    text: `Hi ${userName}, your campaign "${campaignName}" is at ${percentRemaining}% budget. Add funds: ${EMAIL_CONFIG.frontendUrl}/advertiser/campaigns`,
+    tags: [{ name: 'type', value: 'low-budget-alert' }],
+  });
+}
+
+/**
+ * Notify host when someone wants to join their Moment
+ */
+async function sendParticipationInterestAlert(userEmail, userName, momentData) {
+  const { momentTitle, requesterName, requesterCount } = momentData;
+
+  const html = getBaseTemplate({
+    title: 'New Participation Request',
+    preheader: `${requesterName} wants to join your Moment`,
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <p><strong>${requesterName}</strong> wants to participate in your Moment:</p>
+      
+      <div class="highlight-card">
+        <div class="label">Moment</div>
+        <div class="value" style="font-size: 20px;">${momentTitle}</div>
+        <div class="sublabel">${requesterCount} total requests pending</div>
+      </div>
+      
+      <p>Review and approve participants to grow your engaged community around this content.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
+    ctaText: 'Review Requests',
+    footerNote: 'Approving engaged participants increases your Moment\'s reach and value.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: `${requesterName} wants to join your Moment "${momentTitle}"`,
+    html,
+    text: `Hi ${userName}, ${requesterName} wants to join your Moment "${momentTitle}". Review: ${EMAIL_CONFIG.frontendUrl}/moments/${momentData.momentId}/requests`,
+    tags: [{ name: 'type', value: 'participation-request' }],
+  });
+}
+
+/**
+ * Notify user of social engagement (comments, likes on their content)
+ */
+async function sendSocialEngagementAlert(userEmail, userName, engagementData) {
+  const { type, actorName, contentTitle, count } = engagementData;
+
+  const typeLabels = {
+    comment: 'commented on',
+    like: 'liked',
+    share: 'shared',
+    follow: 'started following',
+  };
+
+  const html = getBaseTemplate({
+    title: 'New Engagement',
+    preheader: `${actorName} ${typeLabels[type]} your content`,
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+      
+      <div style="display: flex; align-items: center; gap: 16px; margin: 24px 0;">
+        <div style="width: 50px; height: 50px; background: ${BRAND.gradient}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 600;">
+          ${actorName.charAt(0).toUpperCase()}
+        </div>
+        <div>
+          <p style="margin: 0; font-size: 16px; color: ${BRAND.text};">
+            <strong>${actorName}</strong> ${typeLabels[type]} 
+            ${contentTitle ? `your <strong>${contentTitle}</strong>` : 'you'}
+          </p>
+          ${count > 1 ? `<p style="margin: 4px 0 0; font-size: 13px; color: ${BRAND.textMuted};">and ${count - 1} others</p>` : ''}
+        </div>
+      </div>
+      
+      <p>Your content is resonating with the community! Keep creating to build your influence.</p>
+    `,
+    ctaUrl: contentTitle ? `${EMAIL_CONFIG.frontendUrl}/content/${engagementData.contentId}` : `${EMAIL_CONFIG.frontendUrl}/profile`,
+    ctaText: 'View Activity',
+    footerNote: 'Engaging back with your community builds stronger relationships.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: `${actorName} ${typeLabels[type]} your content`,
+    html,
+    text: `Hi ${userName}, ${actorName} ${typeLabels[type]} your content. View: ${EMAIL_CONFIG.frontendUrl}/profile`,
+    tags: [{ name: 'type', value: `social-${type}` }],
+  });
+}
+
 /**
  * Admin alert (high-value withdrawal, suspicious activity, etc.)
  */
@@ -1349,4 +1974,13 @@ module.exports = {
 
   // Admin
   sendAdminAlertEmail,
+
+  // Prompting & Nudge Emails (Hosts, Brands, Engagement)
+  sendHostCreateMomentPrompt,
+  sendHostReEngagementPrompt,
+  sendBrandSponsorPrompt,
+  sendContentConsumptionPrompt,
+  sendLowBudgetAlert,
+  sendParticipationInterestAlert,
+  sendSocialEngagementAlert,
 };

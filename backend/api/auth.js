@@ -565,6 +565,7 @@ router.post('/demo/:role', async (req, res) => {
       'host': { email: 'demo.host@promorang.co', username: 'demo_host', name: 'Demo Host', user_type: 'creator' },
       'brand': { email: 'demo.brand@promorang.co', username: 'demo_brand', name: 'Demo Brand', user_type: 'brand' },
       'merchant': { email: 'demo.merchant@promorang.co', username: 'demo_merchant', name: 'Demo Merchant', user_type: 'merchant' },
+      'agency': { email: 'demo.agency@promorang.co', username: 'demo_agency', name: 'Demo Agency', user_type: 'agency' },
       // Legacy mappings
       'creator': { email: 'creator@promorang.co', username: 'demo_creator', name: 'Demo Creator', user_type: 'creator' },
       'investor': { email: 'investor@promorang.co', username: 'demo_investor', name: 'Demo Investor', user_type: 'investor' },

@@ -28,15 +28,15 @@ const PricingPage = () => {
             />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-hero">
-                <div className="container px-6">
+            <section className="bg-gradient-hero pb-16 pt-28 md:pb-32 md:pt-40">
+                <div className="container px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h1 className="font-serif text-4xl md:text-6xl font-bold text-foreground mb-6">
+                        <h1 className="mb-6 font-serif text-3xl font-bold text-foreground sm:text-4xl md:text-6xl">
                             Pricing is Per Moment, <br />
                             <span className="text-gradient-primary">Not Per User</span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+                        <p className="mx-auto mb-10 max-w-2xl text-base text-muted-foreground sm:text-lg md:text-xl">
                             Participate free. Brands and Merchants pay to scale. No hidden fees.
                             Just transparent, per-Moment pricing.
                         </p>
@@ -45,25 +45,25 @@ const PricingPage = () => {
             </section>
 
             {/* Stakeholder Tabs */}
-            <section className="py-20 md:py-32">
-                <div className="container px-6">
+            <section className="py-16 md:py-32">
+                <div className="container px-4 sm:px-6">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
-                        <TabsList className="grid w-full grid-cols-4 mb-12">
+                        <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 sm:mb-12 sm:grid-cols-4">
                             <TabsTrigger value="brands" className="flex items-center gap-2">
                                 <Building2 className="w-4 h-4" />
-                                <span className="hidden sm:inline">For Brands</span>
+                                <span>For Brands</span>
                             </TabsTrigger>
                             <TabsTrigger value="merchants" className="flex items-center gap-2">
                                 <Store className="w-4 h-4" />
-                                <span className="hidden sm:inline">For Merchants</span>
+                                <span>For Merchants</span>
                             </TabsTrigger>
                             <TabsTrigger value="hosts" className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4" />
-                                <span className="hidden sm:inline">For Hosts</span>
+                                <span>For Hosts</span>
                             </TabsTrigger>
                             <TabsTrigger value="participants" className="flex items-center gap-2">
                                 <Users className="w-4 h-4" />
-                                <span className="hidden sm:inline">For Participants</span>
+                                <span>For Participants</span>
                             </TabsTrigger>
                         </TabsList>
 
@@ -79,7 +79,7 @@ const PricingPage = () => {
                             </div>
 
                             {/* SKU Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
                                 {/* Community Moment */}
                                 <div className="bg-card rounded-xl p-6 border border-border hover:shadow-lg transition-all">
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-4 text-xs font-bold">
@@ -235,13 +235,13 @@ const PricingPage = () => {
                                 {/* Free Tier */}
                                 <div className="bg-card rounded-xl p-8 border-2 border-primary shadow-xl">
                                     <div className="text-center mb-6">
-                                        <h3 className="text-2xl font-bold mb-2">Verified Anchor</h3>
+                                        <h3 className="text-2xl font-bold mb-2">Partner Venue</h3>
                                         <div className="text-4xl font-bold text-foreground mb-2">$0</div>
                                         <p className="text-sm text-muted-foreground">Forever free</p>
                                     </div>
                                     <ul className="space-y-3 mb-8">
                                         {[
-                                            'Verified Moment Anchor status',
+                                            'Partner Venue status',
                                             'Foot traffic from activations',
                                             'Redemption records',
                                             'Venue credibility',
@@ -268,7 +268,7 @@ const PricingPage = () => {
                                     <ul className="space-y-3 mb-8">
                                         {[
                                             '4-12 Moments included',
-                                            'Featured Anchor status',
+                                            'Featured Venue status',
                                             'Recurring templates',
                                             'Loyalty integrations',
                                             'Priority support',
@@ -306,7 +306,7 @@ const PricingPage = () => {
                                         <ul className="space-y-3">
                                             {[
                                                 'Create Community Moments',
-                                                'Claim Bounties',
+                                                'Claim Brand Rewards',
                                                 'Build execution record',
                                                 'Earn from Moments',
                                             ].map((feature, i) => (
@@ -326,7 +326,7 @@ const PricingPage = () => {
                                                 '90%+ fulfillment rate',
                                                 'Low rejection rate',
                                                 'Repeat brand satisfaction',
-                                                'Access Rank progression',
+                                                'Level progression',
                                             ].map((feature, i) => (
                                                 <li key={i} className="flex items-start gap-3 text-sm">
                                                     <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
@@ -341,7 +341,7 @@ const PricingPage = () => {
                                         <h3 className="text-xl font-bold mb-4">Scale Impact</h3>
                                         <ul className="space-y-3">
                                             {[
-                                                'Higher-value Bounties',
+                                                'Higher-value Brand Rewards',
                                                 'Preferred brand matching',
                                                 'Replication rights',
                                                 'Advanced tooling',
@@ -379,7 +379,7 @@ const PricingPage = () => {
                                             {[
                                                 'Join Moments',
                                                 'Check in and participate',
-                                                'Build Access Rank',
+                                                'Build your community level',
                                                 'Accumulate verified Records',
                                             ].map((feature, i) => (
                                                 <li key={i} className="flex items-center gap-3">
@@ -407,7 +407,7 @@ const PricingPage = () => {
                                 <div className="bg-muted/30 rounded-xl p-8 text-center">
                                     <h4 className="font-semibold mb-4">Earn Priority Access</h4>
                                     <p className="text-sm text-muted-foreground mb-6">
-                                        Priority access is earned through **Consistency** and **Access Rank**.
+                                        Priority access is earned through **consistency** and **your community level**.
                                         There are no paid tiers for participants. The more you participate, the more you unlock.
                                     </p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">

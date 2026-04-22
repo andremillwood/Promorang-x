@@ -4,11 +4,15 @@ import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles } from "lucid
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
+import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
 
 type Moment = Tables<"moments"> & {
   participant_count?: number;
   is_saved?: boolean;
   isExample?: boolean;
+  venue_category?: string | null;
+  moment_archetype?: string | null;
+  conversion_type?: string | null;
   host?: {
     full_name: string;
     avatar_url: string | null;
@@ -112,14 +116,17 @@ export function MomentCard({
 
   const gradient = categoryGradients[moment.category] || "from-primary/20 to-accent/30";
   const emoji = categoryEmojis[moment.category] || "✨";
+  const archetypeLabel = getTaxonomyLabel(momentArchetypes, moment.moment_archetype);
+  const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment.venue_category);
+  const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
 
   return (
     <Link
       to={`/moments/${moment.id}`}
       className={cn(
-        "group relative block rounded-2xl overflow-hidden bg-card border border-border/50",
+        "group relative block overflow-hidden rounded-2xl border border-border/50 bg-card touch-manipulation",
         "transition-all duration-300 ease-out",
-        "hover:shadow-elevated hover:-translate-y-1 hover:border-primary/30",
+        "hover:-translate-y-1 hover:border-primary/30 hover:shadow-elevated active:scale-[0.99]",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -131,33 +138,42 @@ export function MomentCard({
         gradient,
         imageHeight
       )}>
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl opacity-40">
-            {emoji}
+        {/* Moment Image or Background Pattern */}
+        {moment.image_url ? (
+          <img
+            src={moment.image_url}
+            alt={moment.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl opacity-40">
+              {emoji}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Hover Overlay */}
         <div className={cn(
-          "absolute inset-0 bg-black/0 transition-colors duration-200",
+          "absolute inset-0 bg-black/0 transition-colors duration-200 z-10",
           isHovered && "bg-black/10"
         )} />
 
         {/* Top Actions */}
         <div className={cn(
-          "absolute top-3 right-3 flex gap-2 transition-opacity duration-200",
-          isHovered ? "opacity-100" : "opacity-0 sm:opacity-100"
+          "absolute top-3 right-3 flex gap-2 transition-opacity duration-200 opacity-100",
+          isHovered && "sm:opacity-100"
         )}>
           <Button
             variant="secondary"
             size="sm"
             className={cn(
-              "h-9 w-9 p-0 rounded-full bg-background/90 backdrop-blur-sm shadow-soft transition-all",
+              "rounded-full bg-background/90 p-0 shadow-soft backdrop-blur-sm transition-all",
               "hover:bg-background hover:scale-110",
               isSaved && "bg-primary text-primary-foreground hover:bg-primary"
             )}
             onClick={handleSave}
+            aria-label={isSaved ? "Remove saved moment" : "Save moment"}
           >
             <Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />
           </Button>
@@ -185,9 +201,14 @@ export function MomentCard({
           )}
           {moment.reward && (
             <span className="px-2.5 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full shadow-md">
-              🎁 Reward
+              🎁 {moment.reward}
             </span>
           )}
+          {/* Points Badge - Always visible */}
+          <span className="px-2.5 py-1 bg-amber-500 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-md flex items-center gap-1">
+            <Sparkles className="h-3 w-3" />
+            +75 pts
+          </span>
           {moment.venue_name && (
             <span className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md flex items-center gap-1">
               <MapPin className="h-3 w-3" />
@@ -243,6 +264,20 @@ export function MomentCard({
 
         {/* Meta Info */}
         <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+          {(archetypeLabel || venueCategoryLabel) && (
+            <div className="flex flex-wrap gap-1.5">
+              {archetypeLabel && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                  {archetypeLabel}
+                </span>
+              )}
+              {venueCategoryLabel && (
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-600">
+                  {venueCategoryLabel}
+                </span>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-primary" />
             <span>{formatDate(moment.starts_at)}</span>
@@ -256,8 +291,8 @@ export function MomentCard({
           </div>
         </div>
 
-        {/* Footer - Social Proof */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+        {/* Footer - Social Proof + Points */}
+        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
           <div className="flex items-center gap-2">
             {/* FOMO Facepile */}
             <div className="flex -space-x-2">
@@ -270,10 +305,17 @@ export function MomentCard({
             </div>
           </div>
 
-          {/* Quick Reactions Preview */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold text-muted-foreground/60 bg-muted/30 px-1.5 py-0.5 rounded-full">🔥 Hot</span>
+          {/* Points Preview */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+              Join +25 • {conversionLabel || "Check-in"} +50
+            </span>
           </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/30 pt-3 sm:hidden">
+          <span className="text-xs font-medium text-muted-foreground">Tap for details</span>
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">Open moment</span>
         </div>
       </div>
     </Link>

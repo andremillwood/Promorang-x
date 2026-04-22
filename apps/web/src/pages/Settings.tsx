@@ -328,7 +328,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
         Settings
       </h1>
@@ -345,13 +345,15 @@ const Settings = () => {
         </div>
       ) : (
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="mb-8 w-full justify-start overflow-x-auto">
+          <div className="overflow-x-auto pb-2">
+          <TabsList className="mb-6 h-auto min-w-max justify-start gap-2 rounded-2xl bg-muted/60 p-1">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="access-rank">Access Rank</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
+          </div>
 
           {/* --- PROFILE TAB --- */}
           <TabsContent value="profile">

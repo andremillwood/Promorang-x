@@ -18,12 +18,7 @@ const footerLinks = {
     { label: "For Hosts", href: "/host" },
     { label: "Pricing", href: "/pricing" },
   ],
-  company: [
-    { label: "About", href: "/" },
-    { label: "Blog", href: "/" },
-    { label: "Careers", href: "/" },
-    { label: "Press", href: "/" },
-  ],
+  // Removed Company links as they point to dead endpoints
   support: [
     { label: "Help Center", href: "/help" },
     { label: "Contact Us", href: "/contact" },
@@ -36,12 +31,12 @@ const Footer = () => {
   return (
     <footer className="bg-background border-t border-border">
       {/* CTA Section */}
-      <div className="container px-6 py-16 md:py-24">
+      <div className="container px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
             The world is waiting for your next moment
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="mb-8 text-base text-muted-foreground sm:text-lg">
             Join thousands of people discovering experiences that matter.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -57,8 +52,8 @@ const Footer = () => {
 
       {/* Footer Links */}
       <div className="border-t border-border">
-        <div className="container px-6 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="container px-4 py-12 sm:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/">
@@ -103,22 +98,7 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Company Links */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
 
             {/* Support Links */}
             <div>
@@ -142,12 +122,12 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-border">
-        <div className="container px-6 py-6">
+        <div className="container px-4 py-6 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 Promorang. All rights reserved.
+              © 2026 Promorang. All rights reserved.
             </p>
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               {[
                 { name: "Twitter", url: "https://twitter.com" },
                 { name: "Instagram", url: "https://instagram.com" },

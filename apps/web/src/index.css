@@ -94,13 +94,13 @@
     --popover-foreground: 40 20% 95%;
 
     --primary: 24 100% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 8%; /* High contrast charcoal for readability on bright orange */
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 40 20% 90%;
 
     --muted: 0 0% 15%;
-    --muted-foreground: 35 10% 55%;
+    --muted-foreground: 35 12% 68%;
 
     --accent: 45 100% 50%;
     --accent-foreground: 0 0% 8%;
@@ -115,10 +115,10 @@
     --orange-glow: 24 100% 60%;
     --orange-deep: 18 100% 50%;
     --yellow-bright: 48 100% 55%;
-    --cream: 0 0% 12%;
-    --cream-dark: 0 0% 15%;
-    --charcoal: 40 20% 95%;
-    --charcoal-light: 35 15% 70%;
+    --cream: 40 20% 95%;
+    --cream-dark: 35 15% 82%;
+    --charcoal: 0 0% 10%;
+    --charcoal-light: 0 0% 18%;
 
     --gradient-primary: linear-gradient(135deg, hsl(24, 100%, 55%) 0%, hsl(45, 100%, 50%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 6%) 0%, hsl(0, 0%, 9%) 100%);
@@ -142,11 +142,43 @@
 
   html {
     scroll-behavior: smooth;
+    background: hsl(var(--background));
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overscroll-behavior-y: none;
+    overflow-x: clip;
+  }
+
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  span,
+  a,
+  button {
+    overflow-wrap: anywhere;
   }
 
   h1,
@@ -221,6 +253,77 @@
 
   .animate-scale-in {
     animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .px-safe {
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+
+  .app-shell-mobile {
+    min-height: 100dvh;
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (pointer: coarse) {
+    button,
+    [role="button"],
+    a,
+    input,
+    select,
+    textarea {
+      min-height: 44px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   @keyframes float {

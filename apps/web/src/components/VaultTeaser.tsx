@@ -4,20 +4,20 @@ import { Badge } from "@/components/ui/badge";
 
 const vaultItems = [
     {
-        title: "The Heritage Sample",
-        description: "Receive the first physical production unit of a Brand's legacy drop.",
+        title: "Free Product Samples",
+        description: "Be the first to try a brand's latest release — delivered to your door, no strings attached.",
         category: "Physical",
         standing: "Herald+",
     },
     {
-        title: "Backstage Ledger Pass",
-        description: "Front-row access and a seat on the personal council of a Brand Mayor.",
+        title: "VIP Event Access",
+        description: "Skip the line and get front-row access to exclusive brand events and launch parties.",
         category: "Access",
         standing: "Luminary+",
     },
     {
-        title: "The Founder's Flight",
-        description: "A business-class journey to the heart of the Brand's next storytelling summit.",
+        title: "Once-in-a-Lifetime Experiences",
+        description: "From travel getaways to backstage passes — the kind of rewards money can't buy.",
         category: "Experience",
         standing: "Eminence",
     },
@@ -40,7 +40,7 @@ export const VaultTeaser = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest mb-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/75 text-[10px] font-bold uppercase tracking-widest mb-6">
                                 <Lock className="w-3 h-3 text-primary" />
                                 Restricted Access
                             </div>
@@ -48,20 +48,20 @@ export const VaultTeaser = () => {
                                 Whispers of <br />
                                 <span className="text-gradient-primary">The Phoenix Vault</span>
                             </h2>
-                            <p className="text-lg text-white/60 mb-8 leading-relaxed">
-                                Beyond the moments lies the reward. The Vault is a restricted 
-                                treasure layer where only those with verified Standing 
-                                can unlock what truly matters.
+                            <p className="text-lg text-white/78 mb-8 leading-relaxed">
+                                Beyond the moments lies the reward. The Vault is where 
+                                active community members unlock things that 
+                                truly matter.
                             </p>
                             <div className="flex items-center gap-6 justify-center lg:justify-start">
                                 <div className="text-center">
                                     <p className="text-2xl font-bold text-white font-serif">1,240+</p>
-                                    <p className="text-[10px] text-white/40 uppercase font-black tracking-widest">Active Bounties</p>
+                                    <p className="text-[10px] text-white/60 uppercase font-black tracking-widest">Available Rewards</p>
                                 </div>
                                 <div className="w-px h-8 bg-white/10" />
                                 <div className="text-center">
                                     <p className="text-2xl font-bold text-white font-serif">24.5M</p>
-                                    <p className="text-[10px] text-white/40 uppercase font-black tracking-widest">Gratitude Points</p>
+                                    <p className="text-[10px] text-white/60 uppercase font-black tracking-widest">Gratitude Points</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -78,24 +78,24 @@ export const VaultTeaser = () => {
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                                 className="relative group"
                             >
-                                <div className="p-6 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl transition-all duration-500 group-hover:bg-white/10 group-hover:border-white/20">
+                                <div className="p-6 bg-white/7 border border-white/12 rounded-3xl backdrop-blur-xl transition-all duration-500 group-hover:bg-white/12 group-hover:border-white/20">
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="space-y-1">
                                             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[9px] uppercase font-black px-2">
                                                 {item.standing}
                                             </Badge>
-                                            <h4 className="font-serif text-lg font-bold text-white/90">{item.title}</h4>
+                                            <h4 className="font-serif text-lg font-bold text-white">{item.title}</h4>
                                         </div>
-                                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center">
-                                            <Key className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" />
+                                        <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                            <Key className="w-5 h-5 text-white/45 group-hover:text-primary transition-colors" />
                                         </div>
                                     </div>
-                                    <p className="text-xs text-white/40 leading-relaxed mb-4 blur-[2px] group-hover:blur-[1px] transition-all">
+                                    <p className="text-xs text-white/68 leading-relaxed mb-4 transition-colors group-hover:text-white/82">
                                         {item.description}
                                     </p>
                                     <div className="flex items-center gap-2">
                                         <Sparkles className="w-3 h-3 text-primary animate-pulse" />
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Unlock with Legacy Key</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">Unlock with PromoKey</p>
                                     </div>
                                 </div>
                             </motion.div>

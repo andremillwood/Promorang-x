@@ -23,7 +23,7 @@ export function RankPerksGuide() {
         {
             level: 2,
             name: "Luminary",
-            perks: ["Whispers of the Phoenix Vault", "Early Moment Previews", "+15% Points Bonus"],
+            perks: ["Early Vault Access", "Sneak Peek at New Moments", "+15% Points Bonus"],
             color: "text-amber-500",
             bg: "bg-amber-500/10",
             border: "border-amber-500/20"
@@ -31,7 +31,7 @@ export function RankPerksGuide() {
         {
             level: 3,
             name: "Eminence",
-            perks: ["A Steward of Community Hosting", "Priority Access to Major Gatherings", "Personal Council with Brand Partners", "+25% Points Bonus"],
+            perks: ["Unlock Hosting Privileges", "Priority Access to Major Gatherings", "Direct Connection to Brand Partners", "+25% Points Bonus"],
             color: "text-primary",
             bg: "bg-primary/10",
             border: "border-primary/20"
@@ -50,11 +50,11 @@ export function RankPerksGuide() {
                     <DialogHeader>
                         <DialogTitle className="font-serif text-3xl font-black italic flex items-center gap-3">
                             <Shield className="w-8 h-8 text-primary" />
-                            Access Rank & Standing
+                            Community Levels & Perks
                         </DialogTitle>
                     </DialogHeader>
                     <p className="text-white/60 text-sm mt-2">
-                        Climbing the Standing ladder isn't just about a number. Higher ranks signify verified social capital, unlocking exclusive brand privileges.
+                        Your community level reflects how active and trusted you are. Higher levels unlock better rewards and exclusive brand perks.
                     </p>
                 </div>
 
@@ -88,12 +88,12 @@ export function RankPerksGuide() {
                             <Zap className="w-5 h-5 fill-primary" />
                         </div>
                         <div className="text-left">
-                            <p className="text-xs font-bold uppercase tracking-wider">Effort == Access</p>
-                            <p className="text-[10px] text-white/40">Your check-ins fuel your climb. Consistency is mandatory.</p>
+                             <p className="text-xs font-bold uppercase tracking-wider">Show Up = Level Up</p>
+                             <p className="text-[10px] text-white/40">The more you attend, the faster you grow. Keep showing up.</p>
                         </div>
                    </div>
                    <p className="text-[9px] text-white/20 text-right max-w-[150px]">
-                      Access Ranks are verified on-chain via the behavioral proof engine.
+                       Your level is based on your real-world attendance history.
                    </p>
                 </div>
             </DialogContent>

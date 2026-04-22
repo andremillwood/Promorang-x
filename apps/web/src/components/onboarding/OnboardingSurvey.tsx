@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Building2, Store, Users, Map } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Building2, Store, Users, Map, PlayCircle, CheckCircle2, CircleDot, Briefcase } from "lucide-react";
 import { useCreateUserPreferences, UserPreferencesInput } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -58,7 +58,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     state: "",
     location_sharing_enabled: false,
   });
-  const [persona, setPersona] = useState<"explorer" | "mayor" | "agency" | null>(null);
+  const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "agency" | null>(null);
 
   const { setActiveRole, roles } = useAuth();
   const createPreferences = useCreateUserPreferences();
@@ -90,6 +90,29 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       icon: <MapPin className="w-6 h-6" />,
     },
   ];
+
+  const roleGuides = {
+    explorer: {
+      nextTitle: "You’ll start as a participant.",
+      nextSubtitle: "First join a moment, then check in, then open your vault for the first memory.",
+      checklist: ["Join your first moment", "Check in on location", "Unlock your first memory"],
+    },
+    creator: {
+      nextTitle: "You’ll start as a creator.",
+      nextSubtitle: "Publish one story, link it to one mission, then watch for the first real conversion.",
+      checklist: ["Publish your first content drop", "Attach it to a real mission", "View your first conversion"],
+    },
+    mayor: {
+      nextTitle: "You’ll start as a host.",
+      nextSubtitle: "Create a moment, monitor whether it is forming, then review proof so the loop closes.",
+      checklist: ["Create your first moment", "Monitor pulse formation", "Review your first proof"],
+    },
+    agency: {
+      nextTitle: "You’ll start as an agency operator.",
+      nextSubtitle: "Connect the first client, launch the first activation, then report the first outcome.",
+      checklist: ["Add your first client", "Launch your first activation", "Review the first impact result"],
+    },
+  } as const;
 
   const progress = ((step + 1) / steps.length) * 100;
 
@@ -194,7 +217,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
               {/* Step Content */}
               {step === 0 && (
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <button
                         onClick={() => {
                             setPersona("explorer");
@@ -211,7 +235,27 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-lg">The Explorer</h3>
-                            <p className="text-sm text-muted-foreground">Find local moments, complete unique challenges, and earn verified rewards.</p>
+                            <p className="text-sm text-muted-foreground">Find gatherings, retail drops, service rituals, and local unlocks that turn everyday movement into rewards.</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                            setPersona("creator");
+                            setActiveRole("creator");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "creator"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-600 shrink-0">
+                            <PlayCircle className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Creator</h3>
+                            <p className="text-sm text-muted-foreground">Publish story-led missions for stores, salons, studios, cafes, and local spaces, then earn from verified movement.</p>
                         </div>
                       </button>
 
@@ -231,7 +275,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-lg">The Mayor</h3>
-                            <p className="text-sm text-muted-foreground">Own your local niche. Host gatherings, build community equity, and attract sponsors.</p>
+                            <p className="text-sm text-muted-foreground">Own your local niche. Run gatherings, drops, rituals, and founder moments that make places feel alive.</p>
                         </div>
                       </button>
 
@@ -247,13 +291,47 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                         }`}
                       >
                         <div className="h-16 w-16 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-                            <Building2 className="w-8 h-8" />
+                            <Briefcase className="w-8 h-8" />
                         </div>
                         <div>
                             <h3 className="font-bold text-lg">The Agency</h3>
-                            <p className="text-sm text-muted-foreground">Manage client ROI. Launch marketing campaigns, verify proof-of-work, and scale impact.</p>
+                            <p className="text-sm text-muted-foreground">Manage client ROI across retail, grocery, service, and creator-driven campaigns with verified real-world outcomes.</p>
                         </div>
                       </button>
+                    </div>
+
+                    {persona && (
+                      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 text-left">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <CircleDot className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">First Session Plan</p>
+                            <h3 className="mt-2 font-serif text-xl font-bold text-foreground">
+                              {roleGuides[persona].nextTitle}
+                            </h3>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              {roleGuides[persona].nextSubtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          {roleGuides[persona].checklist.map((item, index) => (
+                            <div key={item} className="rounded-xl border border-border/60 bg-background/80 p-3">
+                              <div className="mb-2 flex items-center gap-2 text-primary">
+                                {index === 0 ? <CircleDot className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 opacity-60" />}
+                                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
+                                  {index === 0 ? "Start here" : "Then"}
+                                </span>
+                              </div>
+                              <p className="text-sm font-medium text-foreground">{item}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
               )}
 

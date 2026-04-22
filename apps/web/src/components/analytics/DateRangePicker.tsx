@@ -37,10 +37,10 @@ export function DateRangePicker({
                     {formatDateRange(startDate, endDate)}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-                <div className="flex">
+            <PopoverContent className="w-[min(92vw,44rem)] p-0" align="end">
+                <div className="flex flex-col md:flex-row">
                     {/* Preset Options */}
-                    <div className="border-r border-border p-3 space-y-1">
+                    <div className="space-y-1 border-b border-border p-3 md:border-b-0 md:border-r">
                         <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Quick Select</p>
                         {Object.entries(presets).map(([key, preset]) => (
                             <Button
@@ -56,7 +56,7 @@ export function DateRangePicker({
                     </div>
 
                     {/* Custom Calendar */}
-                    <div className="p-3">
+                    <div className="overflow-x-auto p-3">
                         <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Custom Range</p>
                         <CalendarComponent
                             mode="range"
@@ -67,7 +67,20 @@ export function DateRangePicker({
                                     setIsOpen(false);
                                 }
                             }}
+                            numberOfMonths={1}
+                            className="sm:hidden"
+                        />
+                        <CalendarComponent
+                            mode="range"
+                            selected={{ from: startDate, to: endDate }}
+                            onSelect={(range) => {
+                                if (range?.from && range?.to) {
+                                    onDateRangeChange(range.from, range.to);
+                                    setIsOpen(false);
+                                }
+                            }}
                             numberOfMonths={2}
+                            className="hidden sm:block"
                         />
                     </div>
                 </div>

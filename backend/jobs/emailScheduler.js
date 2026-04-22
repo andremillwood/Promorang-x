@@ -5,7 +5,7 @@
 
 const cron = require('node-cron');
 const emailCampaignService = require('../services/emailCampaignService');
-const streakService = require('../services/streakService');
+const resendService = require('../services/resendService');
 const { supabase } = require('../lib/supabase');
 
 // =============================================================================
@@ -135,9 +135,14 @@ function start() {
     reEngagementJob.start();
     streakWarningJob.start();
     weeklyDigestJob.start();
+    hostCreateMomentJob.start();
+    hostReEngagementJob.start();
+    brandSponsorPromptJob.start();
+    contentConsumptionPromptJob.start();
+    lowBudgetAlertJob.start();
 
     isRunning = true;
-    console.log('[Email Scheduler] All jobs started');
+    console.log('[Email Scheduler] All jobs started (9 scheduled jobs)');
 }
 
 /**
@@ -155,6 +160,11 @@ function stop() {
     reEngagementJob.stop();
     streakWarningJob.stop();
     weeklyDigestJob.stop();
+    hostCreateMomentJob.stop();
+    hostReEngagementJob.stop();
+    brandSponsorPromptJob.stop();
+    contentConsumptionPromptJob.stop();
+    lowBudgetAlertJob.stop();
 
     isRunning = false;
     console.log('[Email Scheduler] All jobs stopped');
@@ -171,6 +181,11 @@ function getStatus() {
             reEngagement: { schedule: '0 10 * * *', description: 'Daily at 10 AM' },
             streakWarning: { schedule: '0 20 * * *', description: 'Daily at 8 PM' },
             weeklyDigest: { schedule: '0 9 * * 0', description: 'Sundays at 9 AM' },
+            hostCreateMoment: { schedule: '0 11 * * *', description: 'Daily at 11 AM' },
+            hostReEngagement: { schedule: '0 10 * * 2', description: 'Tuesdays at 10 AM' },
+            brandSponsor: { schedule: '0 14 * * 4', description: 'Thursdays at 2 PM' },
+            contentConsumption: { schedule: '0 18 * * *', description: 'Daily at 6 PM' },
+            lowBudget: { schedule: '0 9 * * *', description: 'Daily at 9 AM' },
         },
     };
 }
@@ -181,12 +196,17 @@ function getStatus() {
 async function runManually(jobName) {
     const jobs = {
         onboarding: () => emailCampaignService.processOnboardingEmails(),
-        reEngagement: () => emailCampaignService.processReEngagementEmails(),
+        reengagement: () => emailCampaignService.processReEngagementEmails(),
         streakWarning: async () => {
             // Simplified manual run
             console.log('[Manual] Running streak warning check...');
             return { success: true };
         },
+        hostCreateMoment: () => hostCreateMomentJob.now(),
+        hostReEngagement: () => hostReEngagementJob.now(),
+        brandSponsor: () => brandSponsorPromptJob.now(),
+        contentConsumption: () => contentConsumptionPromptJob.now(),
+        lowBudget: () => lowBudgetAlertJob.now(),
     };
 
     if (!jobs[jobName]) {

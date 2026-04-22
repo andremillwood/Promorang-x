@@ -25,7 +25,7 @@ interface SearchResult {
     title: string;
     subtitle: string;
     description: string;
-    result_type: 'moment' | 'brand' | 'merchant' | 'host';
+    result_type: 'moment' | 'brand' | 'merchant' | 'host' | 'user';
     image_url: string;
     path: string;
     relevance_score: number;
@@ -80,6 +80,7 @@ const SearchPage = () => {
             case 'brand': return <Building2 className="w-4 h-4" />;
             case 'merchant': return <Store className="w-4 h-4" />;
             case 'host': return <Users className="w-4 h-4" />;
+            case 'user': return <Users className="w-4 h-4" />;
             default: return <SearchIcon className="w-4 h-4" />;
         }
     };
@@ -87,9 +88,10 @@ const SearchPage = () => {
     const getTypeColor = (type: string) => {
         switch (type) {
             case 'moment': return "text-primary bg-primary/10";
-            case 'brand': return "text-blue-600 bg-blue-50";
-            case 'merchant': return "text-emerald-600 bg-emerald-50";
-            case 'host': return "text-orange-600 bg-orange-50";
+            case 'brand': return "text-blue-600 bg-blue-500/10";
+            case 'merchant': return "text-emerald-600 bg-emerald-500/10";
+            case 'host': return "text-orange-600 bg-orange-500/10";
+            case 'user': return "text-violet-600 bg-violet-500/10";
             default: return "text-muted-foreground bg-muted";
         }
     };
@@ -127,6 +129,7 @@ const SearchPage = () => {
                     <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">Brands</TabsTrigger>
                     <TabsTrigger value="merchant" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">Merchants</TabsTrigger>
                     <TabsTrigger value="host" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">Hosts</TabsTrigger>
+                    <TabsTrigger value="user" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">People</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value={activeTab} className="mt-0">

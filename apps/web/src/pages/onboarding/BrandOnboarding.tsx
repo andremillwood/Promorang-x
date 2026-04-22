@@ -53,8 +53,8 @@ export default function BrandOnboarding() {
             // Refresh profile to update roles
             await refreshProfile();
 
-            // Navigate to dashboard (which handles role routing)
-            navigate('/dashboard');
+            // Navigate to the Flash Launch compiler to immediately start creating a campaign
+            navigate('/dashboard/brand/campaigns/create');
 
         } catch (error: any) {
             toast({

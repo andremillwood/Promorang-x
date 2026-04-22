@@ -14,7 +14,9 @@ import {
     Sparkles,
     Search,
     ShieldCheck,
-    Zap
+    Zap,
+    Check,
+    Crown
 } from "lucide-react";
 
 import { BrandEstimator } from "@/components/brand/BrandEstimator";
@@ -62,7 +64,7 @@ const stats = [
 const ForBrands = () => {
     const { user } = useAuth();
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen overflow-x-clip bg-background">
             <SEO
                 title="Promorang for Brands - Fund Proof, Not Promises"
                 description="Stop interrupting people. Start funding their lives. Sponsor real-world moments with GPS-verified proof of attendance. Pay for outcomes, not impressions."
@@ -70,20 +72,20 @@ const ForBrands = () => {
             />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-hero">
-                <div className="container px-6">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-8">
+            <section className="overflow-x-clip bg-gradient-hero pb-16 pt-28 md:pb-32 md:pt-40">
+                <div className="container px-4 sm:px-6">
+                    <div className="mx-auto max-w-4xl min-w-0 text-center">
+                        <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary mb-8">
                             <Building2 className="w-4 h-4" />
-                            <span className="text-sm font-medium">Precision Sponsor Infrastructure</span>
+                            <span className="min-w-0 text-sm font-medium">Precision Sponsor Infrastructure</span>
                         </div>
 
-                        <h1 className="font-serif text-4xl md:text-6xl font-bold text-foreground mb-6">
-                            The Activation Layer for <br />
+                        <h1 className="mx-auto mb-6 max-w-[19rem] break-words font-serif text-[1.65rem] font-bold leading-tight text-foreground sm:max-w-4xl sm:text-4xl md:text-6xl">
+                            The Activation Layer for <br className="hidden sm:block" />
                             <span className="text-gradient-primary">Real-World Sponsorship.</span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+                        <p className="mx-auto mb-10 max-w-[20rem] text-base text-muted-foreground sm:max-w-2xl sm:text-lg md:text-xl">
                             Stop guessing. Promorang helps you **Discover the pulse** of 
                             real-world communities. Fund moments that matter, support 
                             physical gathering spots, and see the real proof of your impact.
@@ -110,8 +112,8 @@ const ForBrands = () => {
 
             {/* ROI Section */}
             <section className="py-20 md:py-32">
-                <div className="container px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div className="container px-4 sm:px-6">
+                    <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary mb-6">
                                 <BarChart3 className="w-4 h-4" />
@@ -190,8 +192,8 @@ const ForBrands = () => {
 
             {/* Stats Section */}
             <section className="py-12 border-b border-border bg-muted/30">
-                <div className="container px-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="container px-4 sm:px-6">
+                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center">
                                 <p className="font-serif text-3xl md:text-4xl font-bold text-primary">
@@ -206,7 +208,7 @@ const ForBrands = () => {
 
             {/* SKU Catalog Section */}
             <section id="outcomes" className="py-20 bg-background border-y border-border">
-                <div className="container px-6">
+                <div className="container px-4 sm:px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-foreground mb-6">
                             <span className="text-sm font-medium">Atomic Commercial Units</span>
@@ -219,7 +221,7 @@ const ForBrands = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                         {/* Community Moment - Entry Level */}
                         <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-all">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-4 text-xs font-bold">
@@ -397,7 +399,7 @@ const ForBrands = () => {
                 </div>
             </section>
 
-            {/* Echo Potential Section */}
+            {/* Sharing Power Section */}
             <section className="py-24 bg-background border-b border-border">
                 <div className="container px-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -409,14 +411,14 @@ const ForBrands = () => {
                                         <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                             <Sparkles className="w-5 h-5 text-blue-500" />
                                         </div>
-                                        <h4 className="font-bold text-lg">Echo Potential</h4>
+                                        <h4 className="font-bold text-lg">Sharing Power</h4>
                                     </div>
-                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Verified Reach</Badge>
+                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Social Reach</Badge>
                                 </div>
                                 <div className="space-y-6">
                                     <div className="p-4 bg-muted/50 rounded-2xl border border-border">
                                         <div className="flex justify-between mb-2">
-                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Resonance Standing</span>
+                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Community Level</span>
                                             <span className="text-xs font-black text-primary">1.25x Boost</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
@@ -424,7 +426,7 @@ const ForBrands = () => {
                                         </div>
                                     </div>
                                     <p className="text-sm text-center text-muted-foreground italic">
-                                        "When an Eminence participant shares a story, it echoes to 50,000+ verified niche followers."
+                                        "When a top-level participant shares a moment, it reaches 50,000+ real followers in your target audience."
                                     </p>
                                 </div>
                             </div>
@@ -433,21 +435,21 @@ const ForBrands = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
                                 <Users className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">The Echo Effect</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">The Sharing Bonus</span>
                             </div>
                             <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
-                                Fund the <span className="text-primary italic">Amplifiers.</span>
+                                Reach the Right <span className="text-primary italic">People.</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                Our community members are more than attendees—they are verified amplifiers. 
-                                We track **Echo Potential** by correlating platform Standing with real-world 
-                                reach (Instagram, Twitter, and more).
+                                Our community members are more than attendees—they have real social followings. 
+                                We measure **Sharing Power** by looking at their follower count 
+                                across Instagram, Twitter, and more.
                             </p>
                             <div className="space-y-4">
                                 {[
-                                    { title: "Discovery Bonus", desc: "Automatic points for connecting verified social capital." },
-                                    { title: "Resonance Multipliers", desc: "Higher standing for participants with proven community reach." },
-                                    { title: "Brand ROI Recaps", desc: "Instant reports on how far your funded moment traveled." },
+                                    { title: "Signup Bonus", desc: "Automatic points for linking verified social accounts." },
+                                    { title: "Sharing Bonuses", desc: "Bigger rewards for participants with a larger social audience." },
+                                    { title: "Campaign Reports", desc: "See exactly how far your funded moment traveled across social media." },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
@@ -457,6 +459,104 @@ const ForBrands = () => {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Why Participants Join Section */}
+            <section className="py-24 bg-charcoal border-b border-white/5">
+                <div className="container px-6">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center mb-16">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 mb-6">
+                                <Target className="w-4 h-4" />
+                                <span className="text-sm font-bold uppercase tracking-wider">The Incentive Engine</span>
+                            </div>
+                            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+                                Why Will People Actually Show Up?
+                            </h2>
+                            <p className="text-white/60 text-lg">
+                                The 89% redemption rate isn't magic. It's psychology.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                        <Sparkles className="w-6 h-6 text-amber-500" />
+                                    </div>
+                                    <h3 className="font-bold text-xl text-white">They Earn Points</h3>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                        <span className="text-white/60">Join a moment</span>
+                                        <span className="font-bold text-amber-500">+25 pts</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                        <span className="text-white/60">Check in at venue</span>
+                                        <span className="font-bold text-amber-500">+50 pts</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                        <span className="text-white/60">7-day streak bonus</span>
+                                        <span className="font-bold text-amber-500">+100 pts</span>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-white/40 mt-4">
+                                    1,000 points = 1 Key. Keys unlock exclusive funded moments.
+                                </p>
+                            </div>
+
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                                        <Crown className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <h3 className="font-bold text-xl text-white">They Build Status</h3>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 py-2">
+                                        <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                                        <span className="text-white/60">Newcomer → Regular → Insider</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 py-2">
+                                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                        <span className="text-white/60">Insider → Luminary → Icon</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 py-2">
+                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                        <span className="text-white/60">Higher rank = Early access + VIP moments</span>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-white/40 mt-4">
+                                    Status is having access others don't. They earn it through consistency.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-2xl p-8 text-center">
+                            <h3 className="font-serif text-2xl font-bold text-white mb-4">
+                                You're Not Buying Ads. You're Funding an Experience People Get Rewarded to Attend.
+                            </h3>
+                            <p className="text-white/70 mb-6 max-w-2xl mx-auto">
+                                That's why 89% show up. They're not doing you a favor—they're building their reputation. 
+                                You're just the sponsor that makes the whole economy work.
+                            </p>
+                            <div className="flex flex-wrap justify-center gap-4 text-sm">
+                                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                                    <Check className="w-4 h-4 text-emerald-500" />
+                                    <span className="text-white">GPS-verified attendance</span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                                    <Check className="w-4 h-4 text-emerald-500" />
+                                    <span className="text-white">Points economy drives behavior</span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                                    <Check className="w-4 h-4 text-emerald-500" />
+                                    <span className="text-white">Status unlocks exclusivity</span>
+                                </div>
                             </div>
                         </div>
                     </div>

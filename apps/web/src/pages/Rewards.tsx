@@ -109,9 +109,9 @@ const Rewards = () => {
   const claimedRewards = rewards?.filter((r) => r.status === "claimed") || [];
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-black text-foreground mb-2 flex items-center gap-3">
             The Rewards Vault
@@ -123,7 +123,7 @@ const Rewards = () => {
         </div>
         
         {/* Vault Security Widget */}
-        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex items-center gap-4">
+        <div className="flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
             <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
                 <ShieldCheck className="w-6 h-6" />
             </div>
@@ -139,9 +139,9 @@ const Rewards = () => {
       </div>
 
       {/* Economy Wallet */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {/* Points Card */}
-        <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+        <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Coins className="w-20 h-20" />
           </div>
@@ -154,7 +154,7 @@ const Rewards = () => {
               <Skeleton className="h-10 w-24 mb-2" />
             ) : (
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-foreground">{balance?.points?.toLocaleString() || 0}</span>
+                <span className="text-3xl font-bold text-foreground sm:text-4xl">{balance?.points?.toLocaleString() || 0}</span>
                 <span className="text-sm text-green-500 font-medium">Earned activity</span>
               </div>
             )}
@@ -166,7 +166,7 @@ const Rewards = () => {
         </div>
 
         {/* Keys Card */}
-        <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+        <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Key className="w-20 h-20" />
           </div>
@@ -179,7 +179,7 @@ const Rewards = () => {
               <Skeleton className="h-10 w-24 mb-2" />
             ) : (
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-foreground">{balance?.promokeys || 0}</span>
+                <span className="text-3xl font-bold text-foreground sm:text-4xl">{balance?.promokeys || 0}</span>
                 <span className="text-sm text-primary font-medium">Locked access</span>
               </div>
             )}
@@ -190,7 +190,7 @@ const Rewards = () => {
         </div>
 
         {/* Access Rank / Unlock Matrix Flex */}
-        <div className="bg-gradient-to-br from-card to-card/50 border border-border/60 rounded-2xl p-6 relative overflow-hidden group shadow-soft-xl">
+        <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-card to-card/50 p-5 shadow-soft-xl sm:p-6">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
             <Sparkles className="w-32 h-32" />
           </div>
@@ -202,7 +202,7 @@ const Rewards = () => {
               </div>
             </div>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-4xl font-black text-foreground">Rank {user?.user_metadata?.maturity_state || 2}</span>
+              <span className="text-3xl font-black text-foreground sm:text-4xl">Rank {user?.user_metadata?.maturity_state || 2}</span>
             </div>
             <div className="mt-2 text-xs text-muted-foreground font-medium flex items-center gap-1 mb-4">
                Current Status: <Badge variant="outline" className="text-[10px] uppercase bg-accent/10 text-accent border-accent/20 px-1 py-0 h-4">Verified Explorer</Badge>

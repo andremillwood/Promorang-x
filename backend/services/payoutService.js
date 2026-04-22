@@ -6,6 +6,7 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const economyService = require('./economyService');
+const { sendWithdrawalRequestedEmail, sendWithdrawalCompletedEmail } = require('./resendService');
 
 // Minimum withdrawal amount in USD
 const MIN_WITHDRAWAL_AMOUNT = 250.00;
@@ -116,6 +117,29 @@ async function requestWithdrawal(userId, amount, payoutMethodId) {
         `Withdrawal Request for $${amount}`
     );
 
+    // 5. Send withdrawal request email notification
+    try {
+        const { data: user } = await supabase
+            .from('users')
+            .select('email, display_name, username')
+            .eq('id', userId)
+            .single();
+        const { data: payoutMethod } = await supabase
+            .from('user_payout_methods')
+            .select('method_type')
+            .eq('id', payoutMethodId)
+            .single();
+        if (user?.email) {
+            sendWithdrawalRequestedEmail(user.email, user.display_name || user.username, {
+                amount: amount,
+                paymentMethod: payoutMethod?.method_type || 'Unknown',
+                estimatedTime: '1-3 business days'
+            }).catch(err => console.error('Failed to send withdrawal request email:', err));
+        }
+    } catch (emailErr) {
+        console.error('Error sending withdrawal request email:', emailErr);
+    }
+
     return data;
 }
 
@@ -192,6 +216,27 @@ async function updateWithdrawalStatus(requestId, status, note, adminId) {
             data.id,
             `Refund for rejected withdrawal: ${note}`
         );
+    }
+
+    // Send status update email
+    try {
+        const { data: user } = await supabase
+            .from('users')
+            .select('email, display_name, username')
+            .eq('id', data.user_id)
+            .single();
+        if (user?.email) {
+            if (status === 'completed') {
+                sendWithdrawalCompletedEmail(user.email, user.display_name || user.username, {
+                    amount: data.amount,
+                    paymentMethod: data.payout_method?.method_type || 'Unknown',
+                    transactionId: data.id
+                }).catch(err => console.error('Failed to send withdrawal completed email:', err));
+            }
+            // Note: For rejected withdrawals, we could add a separate rejection email template
+        }
+    } catch (emailErr) {
+        console.error('Error sending withdrawal status email:', emailErr);
     }
 
     return data;

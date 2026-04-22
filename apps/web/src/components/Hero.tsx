@@ -34,10 +34,23 @@ const Hero = () => {
             <span className="text-gradient-primary">Moment.</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            The simple way to discover gatherings, take action, and earn rewards. 
-            <span className="text-foreground font-bold"> Discover → Action → Reputation → Redemption.</span>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+            Your presence has real value here. 
+            Attend moments, leave your Mark, and <span className="text-foreground font-bold">earn money</span> for helping communities thrive.
           </p>
+          
+          {/* Value Teaser */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-10 animate-slide-up" style={{ animationDelay: "0.15s" }}>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
+              <span className="text-lg">🎯</span> 50 pts per Mark
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-medium">
+              <span className="text-lg">🔑</span> Keys unlock access
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
+              <span className="text-lg">💰</span> $2-4 per Mark (qualified)
+            </div>
+          </div>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>

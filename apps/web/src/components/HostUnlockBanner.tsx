@@ -32,8 +32,8 @@ export function HostUnlockBanner() {
                             A New Chapter Awaits... 🎉
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            Your consistent presence has earned you the standing of **Eminence**. 
-                            You are now ready to be a Steward and host your own community stories.
+                            Your consistent presence has earned you the level of **Eminence**. 
+                            You're now ready to host your own community moments.
                         </p>
                         <Button
                             onClick={() => checkUnlock.mutate()}
@@ -41,7 +41,7 @@ export function HostUnlockBanner() {
                             className="gap-2"
                         >
                             <Sparkles className="w-4 h-4" />
-                            {checkUnlock.isPending ? 'Unlocking...' : 'Become a Steward'}
+                            {checkUnlock.isPending ? 'Unlocking...' : 'Start Hosting'}
                         </Button>
                     </div>
                 </div>
@@ -122,8 +122,8 @@ export function HostUnlockBanner() {
                             Ready to Lead the Community?
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                            You are building a beautiful legacy! Apply now to be a Steward, 
-                            or reach the standing of **Eminence** for an automatic invitation.
+                            You're building a great track record! Apply now to become a Host, 
+                            or reach the level of **Eminence** for an automatic invitation.
                         </p>
                         <div className="flex gap-3">
                             <Button
@@ -131,7 +131,7 @@ export function HostUnlockBanner() {
                                 className="gap-2"
                             >
                                 <Sparkles className="w-4 h-4" />
-                                Begin Your Stewardship
+                                Apply to Host
                             </Button>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <CheckCircle className="w-4 h-4" />

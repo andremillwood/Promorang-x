@@ -34,6 +34,7 @@ export const Colors = {
     error: "#EF4444",
     warning: "#F59E0B",
     info: "#3B82F6",
+    purple: "#8B5CF6",
 
     // Specialized Surfaces
     ambientWash: "rgba(234, 179, 8, 0.05)",

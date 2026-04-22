@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,8 +18,9 @@ import { QRCodeDisplay } from "@/components/QRCodeDisplay";
 import { MomentStatusBadge, type MomentStatus } from "@/components/MomentStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { MediaUploadDialog } from "@/components/participant/MediaUploadDialog";
-import { ReviewDialog } from "@/components/participant/ReviewDialog";
-import { useMomentMedia, useMomentReviews } from "@/hooks/useUGC";
+import { ReviewDialog } from '@/components/participant/ReviewDialog';
+import { useMomentMedia, useMomentReviews } from '@/hooks/useUGC';
+import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { demoMoments } from "@/data/demo-moments";
 import { PioneerBadge } from "@/components/badges/PioneerBadge";
@@ -44,9 +45,15 @@ import {
   Flame,
   ExternalLink,
   Sparkles,
+  Activity,
 } from "lucide-react";
 import { MerchantVerificationModal } from "@/components/merchant/MerchantVerificationModal";
 import type { Tables } from "@/integrations/supabase/types";
+import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
+import { TierBadge } from "@/components/tier";
+import { useUserTier, useVenueRelationship } from "@/hooks/useUserTier";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 type Moment = Tables<"moments"> & {
   check_in_code?: string;
@@ -54,29 +61,54 @@ type Moment = Tables<"moments"> & {
   visibility?: string;
   proof_type?: string;
   expected_action_unit?: string;
+  pulse_state?: string;
+  gathering_threshold?: number | null;
+  capacity_limit?: number | null;
+  cooldown_minutes?: number | null;
+  venue_category?: string | null;
+  moment_archetype?: string | null;
+  conversion_type?: string | null;
+};
+
+type ProofRequirement = {
+  id: string;
+  requirement_type: string;
+  label?: string | null;
+  instructions?: string | null;
+  is_required?: boolean | null;
 };
 
 const MomentDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { useTierStatus } = useUserTier();
+  const { data: tierStatus } = useTierStatus();
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Move hook call after state declaration to avoid TDZ
+  const { data: venueRelationship } = useVenueRelationship(moment?.host_id || '');
 
   const isDemo = id?.startsWith('m') && id?.length <= 4;
   const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [hostProfile, setHostProfile] = useState<{
-    full_name: string | null;
+    display_name: string | null;
     avatar_url?: string | null;
     created_at?: string;
   } | null>(null);
 
   const isHost = user && moment?.host_id === user.id;
+  const archetypeLabel = getTaxonomyLabel(momentArchetypes, moment?.moment_archetype);
+  const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment?.venue_category);
+  const conversionLabel = getTaxonomyLabel(conversionTypes, moment?.conversion_type);
 
   // Fetch UGC data
   const { data: momentMedia } = useMomentMedia(!isDemo ? id || "" : "");
@@ -87,6 +119,12 @@ const MomentDetail = () => {
       fetchMoment();
     }
   }, [id, user]);
+
+  useEffect(() => {
+    if (id && user && !isDemo) {
+      fetchProofRequirements();
+    }
+  }, [id, user, isDemo]);
 
   const fetchMoment = async () => {
     if (!id) return;
@@ -101,7 +139,7 @@ const MomentDetail = () => {
         setMoment(demoMoment as any);
         setParticipantCount(demoMoment.participant_count || 0);
         setHostProfile({
-          full_name: demoMoment.host.full_name,
+          display_name: demoMoment.host.display_name,
           avatar_url: demoMoment.host.avatar_url,
           created_at: new Date().toISOString()
         });
@@ -136,21 +174,28 @@ const MomentDetail = () => {
 
       // Check if current user has joined
       if (user) {
-        const { data: participation } = await supabase
-          .from("moment_participants")
-          .select("id, status, checked_in_at")
-          .eq("moment_id", id)
-          .eq("user_id", user.id)
-          .maybeSingle();
+        const session = await supabase.auth.getSession();
+        const accessToken = session.data.session?.access_token;
 
-        setIsJoined(!!participation);
-        setIsCheckedIn(!!participation?.checked_in_at);
+        if (accessToken) {
+          const statusResponse = await fetch(`${API_URL}/api/participation/moments/${id}/status`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          const statusPayload = await statusResponse.json();
+          if (statusResponse.ok) {
+            setIsJoined(!!statusPayload?.joined);
+            setIsCheckedIn(!!statusPayload?.checked_in);
+          }
+        }
       }
 
       // Fetch host profile
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url, created_at")
+        .select("display_name, avatar_url, created_at")
         .eq("user_id", momentData.host_id)
         .maybeSingle();
 
@@ -165,6 +210,98 @@ const MomentDetail = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const assertParticipationEligibility = async (momentId: string) => {
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+    if (!accessToken) return;
+
+    const response = await fetch(`${API_URL}/api/pulse/moments/${momentId}/eligibility`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error || "Could not verify participation eligibility");
+    }
+
+    if (!payload?.eligibility?.can_join) {
+      if (payload?.eligibility?.reasons?.is_full) {
+        throw new Error("This moment has reached capacity.");
+      }
+      if (payload?.eligibility?.reasons?.cooldown_active) {
+        throw new Error("This moment is in a cooldown window right now. Try again shortly.");
+      }
+      throw new Error("This moment is not currently joinable.");
+    }
+  };
+
+  const fetchProofRequirements = async () => {
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+
+    if (!id || !accessToken) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/proof/moments/${id}/requirements`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to load proof requirements");
+      }
+
+      setProofRequirements(payload?.requirements || []);
+    } catch (error) {
+      console.error("Error fetching proof requirements:", error);
+    }
+  };
+
+  const getProofSummary = (): ProofRequirement[] => {
+    if (proofRequirements.length > 0) {
+      return proofRequirements;
+    }
+
+    if (!moment?.proof_type) return [];
+
+    const legacyMap: Record<string, { label: string; instructions: string }> = {
+      QR: {
+        label: "Venue code",
+        instructions: "Scan or enter the code provided on-site to verify attendance.",
+      },
+      Code: {
+        label: "Check-in code",
+        instructions: "Use the host-provided code from the venue or activation desk.",
+      },
+      Photo: {
+        label: "Photo proof",
+        instructions: "Upload a clear photo showing you at the venue or completing the prompt.",
+      },
+      Video: {
+        label: "Video proof",
+        instructions: "Record visual proof that the action was completed in the correct location.",
+      },
+      GPS: {
+        label: "Location verification",
+        instructions: "Allow device location access while physically at the venue.",
+      },
+    };
+
+    const fallback = legacyMap[moment.proof_type];
+    return fallback
+      ? [{
+          id: "legacy-proof",
+          requirement_type: moment.proof_type.toLowerCase(),
+          label: fallback.label,
+          instructions: fallback.instructions,
+          is_required: true,
+        }]
+      : [];
   };
 
   const handleJoin = async () => {
@@ -186,14 +323,20 @@ const MomentDetail = () => {
         return;
       }
 
-      if (isJoined) {
-        const { error } = await supabase
-          .from("moment_participants")
-          .delete()
-          .eq("moment_id", moment.id)
-          .eq("user_id", user.id);
+      if (!isJoined) {
+        await assertParticipationEligibility(moment.id);
+      }
 
-        if (error) throw error;
+      if (isJoined) {
+        const session = await supabase.auth.getSession();
+        const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.data.session?.access_token}`,
+          },
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error || "Failed to leave moment");
 
         setIsJoined(false);
         setParticipantCount((prev) => prev - 1);
@@ -202,19 +345,26 @@ const MomentDetail = () => {
           description: "You've left this moment",
         });
       } else {
-        const { error } = await supabase.from("moment_participants").insert({
-          moment_id: moment.id,
-          user_id: user.id,
-          status: "joined",
+        const session = await supabase.auth.getSession();
+        const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data.session?.access_token}`,
+          },
+          body: JSON.stringify({
+            source_content_id: searchParams.get("contentId"),
+            source_mission_id: searchParams.get("missionId"),
+          }),
         });
-
-        if (error) throw error;
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error || "Failed to join moment");
 
         setIsJoined(true);
         setParticipantCount((prev) => prev + 1);
         toast({
-          title: "Joined! 🎉",
-          description: "You've joined this moment. See you there!",
+          title: "🎉 Joined! +25 Points Earned",
+          description: `Leave your Mark for +50 more points. ${moment.reward ? `Don't forget to claim your ${moment.reward}!` : "You're building your reputation!"}`,
         });
       }
     } catch (error: any) {
@@ -253,11 +403,55 @@ const MomentDetail = () => {
     return emojis[category] || "✨";
   };
 
+  const getArchetypeNarrative = () => {
+    switch (moment?.moment_archetype) {
+      case "visit":
+        return "This is a low-friction visit moment designed to turn physical presence into a verified unlock.";
+      case "service":
+        return "This is a service moment, so the value comes from completing a real appointment or care interaction.";
+      case "drop":
+        return "This is a drop moment built around scarcity, urgency, and early access behavior.";
+      case "ritual":
+        return "This is a ritual moment meant to build repeat behavior, streaks, and loyalty over time.";
+      case "content":
+        return "This is a content-led moment that starts with story or creator engagement and resolves in the real world.";
+      case "sampling":
+        return "This is a sampling moment designed for try-before-you-buy or in-store demo behavior.";
+      case "appointment":
+        return "This is an appointment moment where a booking or scheduled slot is the primary success action.";
+      case "referral":
+        return "This is a referral moment where bringing someone new into the loop matters as much as showing up.";
+      case "founder":
+        return "This is a founder moment meant to reward early believers, first movers, and local identity builders.";
+      case "gathering":
+        return "This is a gathering moment designed to create visible live energy and coordinated turnout.";
+      default:
+        return "This moment turns a real-world action into verified progress, reward, and memory.";
+    }
+  };
+
+  const getProofActionCopy = () => {
+    if (moment?.conversion_type === "purchase") return "complete a purchase";
+    if (moment?.conversion_type === "appointment" || moment?.conversion_type === "booking") return "complete your booking";
+    if (moment?.conversion_type === "sample") return "claim the sample";
+    if (moment?.conversion_type === "try_on") return "complete the try-on";
+    if (moment?.conversion_type === "referral") return "complete the referral flow";
+    if (moment?.proof_type === "Photo") return "take a photo";
+    if (moment?.proof_type === "GPS") return "share your location";
+    return "enter a code";
+  };
+
   const isFull = moment?.max_participants
     ? participantCount >= moment.max_participants
     : false;
 
   const isPast = moment ? new Date(moment.starts_at) < new Date() : false;
+  const cooldownActive = Boolean(
+    moment?.cooldown_minutes &&
+    moment?.pulse_state === "cooling" &&
+    new Date(moment.starts_at).getTime() + Number(moment.cooldown_minutes) * 60 * 1000 > Date.now()
+  );
+  const proofSummary = getProofSummary();
 
   // Build gallery images
   const galleryImages = [
@@ -330,7 +524,7 @@ const MomentDetail = () => {
           "description": moment.description,
           "organizer": {
             "@type": "Person",
-            "name": hostProfile?.full_name || "Promorang User"
+            "name": hostProfile?.display_name || "Promorang User"
           }
         }}
       />
@@ -352,12 +546,12 @@ const MomentDetail = () => {
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* Back and Actions */}
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Button variant="ghost" className="w-fit" onClick={() => navigate(-1)}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 touch-pan-x snap-x-mandatory scrollbar-none">
                 <SaveButton momentId={moment.id} variant="full" size="sm" />
                 <ShareButton title={moment.title} description={moment.description || undefined} />
                 {isJoined && !isPast && (
@@ -379,7 +573,7 @@ const MomentDetail = () => {
                   />
                 )}
                 {isHost && (
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" className="snap-start shrink-0" asChild>
                     <Link to={`/moments/${moment.id}/edit`}>
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
@@ -396,10 +590,31 @@ const MomentDetail = () => {
                 <span className="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full">
                   {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
                 </span>
+                {archetypeLabel && (
+                  <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
+                    {archetypeLabel}
+                  </span>
+                )}
+                {venueCategoryLabel && (
+                  <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 text-sm rounded-full">
+                    {venueCategoryLabel}
+                  </span>
+                )}
+                {conversionLabel && (
+                  <span className="px-3 py-1 bg-blue-500/10 text-blue-600 text-sm rounded-full">
+                    {conversionLabel}
+                  </span>
+                )}
                 {moment.reward && (
                   <span className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full flex items-center gap-1">
                     <Gift className="h-3 w-3" />
                     Reward
+                  </span>
+                )}
+                {moment.pulse_state && (
+                  <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full flex items-center gap-1 capitalize">
+                    <Activity className="h-3 w-3" />
+                    {moment.pulse_state}
                   </span>
                 )}
               </div>
@@ -409,22 +624,22 @@ const MomentDetail = () => {
               </h1>
 
               {/* Social Proof & FOMO Facepile */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground bg-card/50 p-2 rounded-2xl border border-border/50 inline-flex shadow-sm">
-                <div className="flex items-center gap-2">
+              <div className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-2xl border border-border/50 bg-card/50 p-3 text-sm text-muted-foreground shadow-sm">
+                <div className="flex items-center gap-2 min-w-0">
                   <div className="flex -space-x-2">
                     {/* Rank 5 Visual Flex (Golden Glow) */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[4] ring-2 ring-orange-500 ring-offset-1 ring-offset-background shadow-[0_0_10px_rgba(249,115,22,0.6)]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="High Rank Attendee" className="w-full h-full object-cover"/></div>
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[4] ring-2 ring-orange-500 ring-offset-1 ring-offset-background shadow-[0_0_10px_rgba(249,115,22,0.6)]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="High Rank Guest" className="w-full h-full object-cover"/></div>
                     {/* Rank 3 Visual Flex (Silver Border) */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[3] ring-1 ring-slate-400 ring-offset-1"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Mid Rank Attendee" className="w-full h-full object-cover"/></div>
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[3] ring-1 ring-slate-400 ring-offset-1"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Mid Rank Guest" className="w-full h-full object-cover"/></div>
                     {/* Standard User */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Attendee" className="w-full h-full object-cover"/></div>
+                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Guest" className="w-full h-full object-cover"/></div>
                     
                     <div className="w-8 h-8 rounded-full border-2 border-background bg-accent overflow-hidden z-[1] shadow-sm flex items-center justify-center text-[10px] font-bold text-white">
                         +{Math.max(0, participantCount - 3)}
                     </div>
                   </div>
-                  <span className="font-semibold text-foreground px-2">
-                    {Math.max(participantCount, 3)} people going
+                  <span className="px-2 font-semibold text-foreground">
+                    {Math.max(participantCount, 3)} guests joining
                   </span>
                 </div>
                 {participantCount > 10 && (
@@ -434,7 +649,7 @@ const MomentDetail = () => {
                   </span>
                 )}
                 {/* Live Pulse Indicator */}
-                <div className="flex items-center gap-2 pl-2 border-l border-border/50">
+                <div className="flex items-center gap-2 border-border/50 sm:border-l sm:pl-2">
                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">12 Live Now</span>
                 </div>
@@ -454,18 +669,111 @@ const MomentDetail = () => {
                 {hostProfile?.avatar_url ? (
                   <img src={hostProfile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
                 ) : (
-                  hostProfile?.full_name?.charAt(0) || "?"
+                  hostProfile?.display_name?.charAt(0) || "?"
                 )}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Hosted by</p>
-                <p className="font-medium">{hostProfile?.full_name || "Anonymous Host"}</p>
+                <p className="font-medium">{hostProfile?.display_name || "Anonymous Host"}</p>
               </div>
             </div>
 
             {/* Description */}
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
+            <div className="prose prose-neutral max-w-none dark:prose-invert">
               <p className="text-foreground text-lg leading-relaxed">{moment.description}</p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card/60 p-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moment Pattern</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{getArchetypeNarrative()}</p>
+            </div>
+
+            {/* Value Proposition - Why Join */}
+            {!isJoined && !isPast && (
+              <div className="bg-gradient-to-r from-amber-500/10 via-primary/10 to-emerald-500/10 border border-amber-500/20 rounded-xl p-5 mb-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-white font-black text-lg">+75</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-foreground mb-2">Earn Points. Build Status. Unlock Rewards.</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Joining isn't just RSVP—it's an investment in your community reputation.
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="bg-background rounded-lg p-2 text-center border border-border">
+                        <div className="font-black text-amber-600 text-lg">+25</div>
+                        <div className="text-muted-foreground">Join</div>
+                      </div>
+                      <div className="bg-background rounded-lg p-2 text-center border border-border">
+                        <div className="font-black text-primary text-lg">+50</div>
+                        <div className="text-muted-foreground">Check-in</div>
+                      </div>
+                      <div className="bg-background rounded-lg p-2 text-center border border-border">
+                        <div className="font-black text-emerald-600 text-lg">= 75</div>
+                        <div className="text-muted-foreground">Total</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      <span className="text-primary font-semibold">Every 1,000 points = 1 Key</span> • Keys unlock exclusive funded moments • Rank up for early access & perks
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {proofSummary.length > 0 && (
+              <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Verification Flow</p>
+                    <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">What participants need to prove</h3>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                      The check-in step should feel predictable. This moment exposes the verification expectations before someone commits.
+                    </p>
+                  </div>
+                  {!isPast && (
+                    <Button asChild variant="outline" className="shrink-0">
+                      <Link to={`/moments/${moment.id}/checkin`}>Open Check-In Flow</Link>
+                    </Button>
+                  )}
+                </div>
+
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {proofSummary.map((requirement) => (
+                    <div key={requirement.id} className="rounded-2xl border border-border/70 bg-background/70 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-foreground">
+                          {requirement.label || requirement.requirement_type}
+                        </p>
+                        {requirement.is_required !== false && (
+                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                            Required
+                          </span>
+                        )}
+                      </div>
+                      {requirement.instructions && (
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          {requirement.instructions}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="lg:hidden -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none">
+              <div className="flex gap-3 pb-1">
+                <div className="min-w-[240px] snap-start rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">Journey</p>
+                  <p className="mt-2 text-sm font-medium text-foreground">Join, check in, capture the moment, then unlock rewards and social proof.</p>
+                </div>
+                <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-muted-foreground">Best for mobile</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Sticky actions stay in thumb reach while galleries and action chips swipe naturally.</p>
+                </div>
+              </div>
             </div>
 
             {/* Details Cards - Airbnb style */}
@@ -518,6 +826,16 @@ const MomentDetail = () => {
                   <p className="font-medium text-foreground">
                     {participantCount} / {moment.max_participants || "∞"} spots
                   </p>
+                  {moment.gathering_threshold ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Gathering threshold: {moment.gathering_threshold} • Pulse {moment.pulse_state || "dormant"}
+                    </p>
+                  ) : null}
+                  {cooldownActive ? (
+                    <p className="mt-1 text-xs font-medium text-amber-600">
+                      Cooldown active for {moment.cooldown_minutes} minutes after start.
+                    </p>
+                  ) : null}
                   {moment.max_participants && (
                     <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                       <div
@@ -551,7 +869,7 @@ const MomentDetail = () => {
                 </div>
                 <p className="text-muted-foreground mb-4">
                   This moment uses <span className="text-foreground font-bold">{moment.proof_type || 'Code'} Verification</span>.
-                  Prepare to {moment.proof_type === 'Photo' ? 'take a photo' : moment.proof_type === 'GPS' ? 'share your location' : 'enter a code'} to unlock your rewards.
+                  Prepare to {getProofActionCopy()} to unlock your rewards.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button variant="hero" className="flex-1" asChild>
@@ -636,15 +954,22 @@ const MomentDetail = () => {
               </div>
             )}
 
-            {/* Reviews Section */}
+            {/* Reviews Section - New Comprehensive Sentiment */}
+            <MomentReviewsList 
+              momentId={moment.id} 
+              limit={5} 
+              showStats={true}
+            />
+
+            {/* Legacy Reviews Section - To be removed after migration */}
             {momentReviews && momentReviews.length > 0 && (
-              <div>
-                <h3 className="font-serif text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-400" />
-                  Reviews ({momentReviews.length})
+              <div className="mt-6 opacity-50">
+                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2 text-muted-foreground">
+                  <Star className="h-4 w-4" />
+                  Legacy Reviews ({momentReviews.length})
                 </h3>
                 <div className="space-y-4">
-                  {momentReviews.slice(0, 5).map((review) => (
+                  {momentReviews.slice(0, 3).map((review) => (
                     <div key={review.id} className="bg-card border border-border rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex">
@@ -714,6 +1039,8 @@ const MomentDetail = () => {
                   </Button>
                 ) : isFull ? (
                   <Button disabled className="w-full" size="lg">Moment Full</Button>
+                ) : cooldownActive ? (
+                  <Button disabled className="w-full" size="lg">Cooldown Active</Button>
                 ) : (
                   <Button variant="hero" className="w-full" size="lg" onClick={handleJoin} disabled={isJoining}>
                     {isJoining ? "Joining..." : "Join This Moment"}
@@ -728,7 +1055,7 @@ const MomentDetail = () => {
               {/* Host Card */}
               <HostProfileCard
                 hostId={moment.host_id}
-                name={hostProfile?.full_name || "Host"}
+                name={hostProfile?.display_name || "Host"}
                 avatarUrl={hostProfile?.avatar_url}
                 memberSince={hostProfile?.created_at}
                 momentsHosted={5}

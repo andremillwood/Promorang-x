@@ -201,13 +201,13 @@ const CreateBounty = () => {
                 </div>
 
                 {/* Payout */}
-                <div className="bg-gradient-warm border border-border rounded-2xl p-8 space-y-6 shadow-md text-slate-900">
+                <div className="bg-gradient-warm border border-border rounded-2xl p-8 space-y-6 shadow-md text-foreground">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="font-serif text-2xl font-bold mb-1">Total Payout</h2>
-                            <p className="text-slate-600 text-sm">Amount the host will receive upon approval</p>
+                            <p className="text-muted-foreground text-sm">Amount the host will receive upon approval</p>
                         </div>
-                        <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-lg">
+                        <div className="w-14 h-14 rounded-full bg-background flex items-center justify-center shadow-lg">
                             <DollarSign className="w-7 h-7 text-primary" />
                         </div>
                     </div>
@@ -222,7 +222,7 @@ const CreateBounty = () => {
                             value={formData.payoutAmount}
                             onChange={(e) => setFormData({ ...formData, payoutAmount: e.target.value })}
                             placeholder="250.00"
-                            className="pl-10 text-3xl h-16 bg-white/50 border-white/20 font-bold focus:bg-white"
+                            className="pl-10 text-3xl h-16 bg-background/50 border-border font-bold focus:bg-background"
                             required
                         />
                     </div>

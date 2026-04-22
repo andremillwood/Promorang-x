@@ -119,6 +119,22 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="stats-chart" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="promoshare"
+        options={{
+          title: 'Win',
+          headerTitle: 'PromoShare',
+          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="vault"
+        options={{
+          title: 'Vault',
+          headerTitle: 'My Vault',
+          tabBarIcon: ({ color }) => <TabBarIcon name="cube" color={color} />,
+        }}
+      />
       {/* Hiding legacy tabs */}
       <Tabs.Screen
         name="two"

@@ -32,7 +32,7 @@ const BountyCard = ({ bounty, onClaim }: { bounty: MomentBounty; onClaim: () => 
     : null;
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 hover:shadow-elevated transition-all">
+    <div className="rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-elevated sm:p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <Badge variant="secondary" className="capitalize">
@@ -77,14 +77,14 @@ const BountyCard = ({ bounty, onClaim }: { bounty: MomentBounty; onClaim: () => 
       </div>
 
       {/* Payout & CTA */}
-      <div className="flex items-center justify-between pt-4 border-t border-border">
+      <div className="flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs text-muted-foreground">Payout</p>
           <p className="text-2xl font-bold text-primary">
             ${bounty.payout_amount.toLocaleString()}
           </p>
         </div>
-        <Button variant="hero" onClick={onClaim}>
+        <Button variant="hero" onClick={onClaim} className="w-full sm:w-auto">
           Claim Bounty
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
@@ -123,25 +123,25 @@ const BountyBoard = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-1 py-12 pb-24">
-        <div className="container px-6">
+        <div className="container px-4 sm:px-6">
           {/* Hero */}
           <div className="text-center max-w-2xl mx-auto mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
               <Briefcase className="w-4 h-4" />
               <span className="text-sm font-medium">Bounty Board</span>
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
               Get paid to create{" "}
               <span className="text-gradient-primary">moments</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-base text-muted-foreground sm:text-lg">
               Brands are looking for hosts to create amazing experiences.
               Claim a bounty, host the moment, and get paid.
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-12">
+          <div className="mx-auto mb-12 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="text-center p-4 bg-card rounded-xl border border-border">
               <p className="text-2xl font-bold text-primary">{bounties?.length || 0}</p>
               <p className="text-xs text-muted-foreground">Open Bounties</p>

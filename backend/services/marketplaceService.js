@@ -6,6 +6,10 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const economyService = require('./economyService');
+const revenueService = require('./revenueService');
+
+// Platform commission on marketplace purchases
+const PLATFORM_COMMISSION_RATE = 0.125; // 12.5%
 
 /**
  * Process a purchase
@@ -52,18 +56,35 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             );
 
         } else if (method === 'cash') {
-            amount = product.price * quantity;
+            const totalAmount = product.price * quantity;
+            const platformFee = Number((totalAmount * PLATFORM_COMMISSION_RATE).toFixed(2));
+            const merchantPayout = Number((totalAmount - platformFee).toFixed(2));
+            
+            amount = totalAmount;
             currency = 'USD';
 
-            // MOCK STRIPE CHARGE
-            // In a real implementation, we would verify the PaymentIntent here
-            // For now, we assume frontend passed a mock success signal or we auto-approve
-            console.log(`[MockPayment] Charged User ${userId} $${amount} for ${product.name}`);
+            // Process Stripe payment
+            console.log(`[Marketplace Payment] User ${userId} paid $${totalAmount} for ${product.name}`);
+            console.log(`[Marketplace Fee] Platform fee: $${platformFee}, Merchant payout: $${merchantPayout}`);
+            
+            // Track platform revenue from this transaction
+            if (revenueService.trackRevenue) {
+                await revenueService.trackRevenue(platformFee, `marketplace_${productId}`, 'marketplace_commission');
+            }
         } else {
             throw new Error('Invalid payment method');
         }
 
-        // 3. Create Transaction Record
+        // 3. Calculate financial breakdown
+        let platformFee = 0;
+        let merchantPayout = amount;
+        
+        if (method === 'cash') {
+            platformFee = Number((amount * PLATFORM_COMMISSION_RATE).toFixed(2));
+            merchantPayout = Number((amount - platformFee).toFixed(2));
+        }
+        
+        // 4. Create Transaction Record
         const { data: transaction, error: txError } = await supabase
             .from('marketplace_transactions')
             .insert({
@@ -75,8 +96,11 @@ async function processPurchase(userId, productId, method, quantity = 1) {
                 quantity: quantity,
                 status: 'completed',
                 payment_method: method,
+                platform_fee: platformFee,
+                merchant_payout: merchantPayout,
                 metadata: {
                     product_name: product.name,
+                    commission_rate: method === 'cash' ? PLATFORM_COMMISSION_RATE : 0,
                     timestamp: new Date().toISOString()
                 }
             })
@@ -88,17 +112,29 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             console.warn('marketplace_transactions table might be missing, skipping record', txError);
         }
 
-        // 4. Generate Redemption Code (Ticket)
+        // 5. Generate Redemption Code (Ticket)
         // Store this in a 'user_tickets' table or similar for QR scanning
         const redemptionCode = `RD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-        // Return success
-        return {
+        // 6. Return success with financial details
+        const response = {
             success: true,
             transaction_id: transaction?.id,
             redemption_code: redemptionCode,
             message: method === 'points' ? 'Redemption successful!' : 'Purchase successful!'
         };
+        
+        // Include financial breakdown for cash purchases
+        if (method === 'cash') {
+            response.financials = {
+                total_paid: amount,
+                platform_fee: platformFee,
+                merchant_payout: merchantPayout,
+                commission_rate: PLATFORM_COMMISSION_RATE
+            };
+        }
+        
+        return response;
 
     } catch (error) {
         console.error('[MarketplaceService] Purchase error:', error);

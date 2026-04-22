@@ -30,17 +30,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Save, Loader2, Trash2 } from "lucide-react";
-
-const categories = [
-  { value: "social", label: "Social Gathering" },
-  { value: "workshop", label: "Workshop" },
-  { value: "fitness", label: "Fitness & Wellness" },
-  { value: "food", label: "Food & Drink" },
-  { value: "music", label: "Music & Entertainment" },
-  { value: "networking", label: "Networking" },
-  { value: "outdoor", label: "Outdoor Adventure" },
-  { value: "arts", label: "Arts & Culture" },
-];
+import {
+  momentCategories,
+  venueCategories,
+  momentArchetypes,
+  conversionTypes,
+} from "@/lib/moment-taxonomy";
 
 const EditMoment = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,6 +50,9 @@ const EditMoment = () => {
     title: "",
     description: "",
     category: "",
+    venueCategory: "",
+    momentArchetype: "",
+    conversionType: "check_in",
     location: "",
     venueName: "",
     startsAt: "",
@@ -94,6 +92,9 @@ const EditMoment = () => {
         title: data.title,
         description: data.description || "",
         category: data.category,
+        venueCategory: (data as any).venue_category || "",
+        momentArchetype: (data as any).moment_archetype || "",
+        conversionType: (data as any).conversion_type || "check_in",
         location: data.location,
         venueName: data.venue_name || "",
         startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
@@ -127,6 +128,9 @@ const EditMoment = () => {
           title: formData.title,
           description: formData.description || null,
           category: formData.category,
+          venue_category: formData.venueCategory || null,
+          moment_archetype: formData.momentArchetype || null,
+          conversion_type: formData.conversionType || null,
           location: formData.location,
           venue_name: formData.venueName || null,
           starts_at: new Date(formData.startsAt).toISOString(),
@@ -269,9 +273,68 @@ const EditMoment = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {momentCategories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="venueCategory">Venue Category</Label>
+                <Select
+                  value={formData.venueCategory}
+                  onValueChange={(value) => setFormData({ ...formData, venueCategory: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select venue type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {venueCategories.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="momentArchetype">Moment Archetype</Label>
+                <Select
+                  value={formData.momentArchetype}
+                  onValueChange={(value) => setFormData({ ...formData, momentArchetype: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select archetype" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {momentArchetypes.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="conversionType">Success Action</Label>
+              <Select
+                value={formData.conversionType}
+                onValueChange={(value) => setFormData({ ...formData, conversionType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select success action" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conversionTypes.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

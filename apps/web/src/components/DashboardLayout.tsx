@@ -21,6 +21,10 @@ import {
   Building,
   Plus,
   ShoppingBag,
+  Activity,
+  Archive,
+  PlayCircle,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,8 +35,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-type UserRole = "participant" | "host" | "brand" | "merchant" | "admin";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "admin";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -42,40 +47,40 @@ interface DashboardLayoutProps {
 const roleNavItems: Record<UserRole, { icon: typeof Home; label: string; href: string }[]> = {
   participant: [
     { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Calendar, label: "My Moments", href: "/momentsapp" },
-    { icon: Store, label: "Shop", href: "/shop" },
-    { icon: Gift, label: "Rewards", href: "/dashboard/rewards" },
+    { icon: Activity, label: "Pulse", href: "/pulse" },
+    { icon: PlayCircle, label: "Watch & Unlock", href: "/watch-unlock" },
+    { icon: Archive, label: "Vault", href: "/vault" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  ],
+  creator: [
+    { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: PlayCircle, label: "Missions", href: "/watch-unlock" },
+    { icon: BarChart3, label: "Yield", href: "/dashboard?tab=earnings" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ],
   host: [
     { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Sparkles, label: "My Moments", href: "/dashboard/moments" },
-    { icon: Store, label: "Catalog", href: "/dashboard/catalog" },
-    { icon: Users, label: "Participants", href: "/dashboard/participants" },
+    { icon: Sparkles, label: "Create Moment", href: "/create-moment" },
+    { icon: Activity, label: "Pulse", href: "/pulse" },
     { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ],
   brand: [
     { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: Sparkles, label: "Flash Launch", href: "/dashboard/brand/campaigns/create" },
     { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns" },
-    { icon: Store, label: "Catalog", href: "/dashboard/catalog" },
-    { icon: ShoppingBag, label: "Marketplace", href: "/shop" },
-    { icon: Users, label: "Find Hosts", href: "/hosts" },
-    { icon: MapPin, label: "Find Venues", href: "/merchants" },
     { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Gift, label: "Rewards", href: "/dashboard/rewards" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ],
   merchant: [
     { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Store, label: "Marketplace", href: "/shop" },
-    { icon: MapPin, label: "My Venues", href: "/dashboard/venues" },
-    { icon: Calendar, label: "Moments", href: "/dashboard/moments" },
+    { icon: MapPin, label: "Venues", href: "/dashboard/venues" },
     { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ],
   admin: [
     { icon: Home, label: "Admin Dashboard", href: "/admin" },
+    { icon: Search, label: "Search", href: "/search" },
     { icon: Users, label: "Users", href: "/admin?tab=users" },
     { icon: Calendar, label: "Moments", href: "/admin?tab=moments" },
     { icon: BarChart3, label: "Analytics", href: "/admin?tab=analytics" },
@@ -85,8 +90,9 @@ const roleNavItems: Record<UserRole, { icon: typeof Home; label: string; href: s
 
 const roleLabels: Record<UserRole, { icon: typeof Users; label: string; color: string }> = {
   participant: { icon: Users, label: "Participant", color: "bg-blue-500" },
+  creator: { icon: PlayCircle, label: "Creator", color: "bg-fuchsia-500" },
   host: { icon: Sparkles, label: "Host", color: "bg-primary" },
-  brand: { icon: Building2, label: "Brand", color: "bg-accent" },
+  brand: { icon: Building2, label: "Brand", color: "bg-primary" },
   merchant: { icon: Store, label: "Merchant", color: "bg-emerald-500" },
   admin: { icon: Settings, label: "Admin", color: "bg-destructive" },
 };
@@ -117,11 +123,57 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     navigate("/");
   };
 
+  const mobileNavItems: Record<UserRole, { icon: typeof Home; label: string; href: string; accent?: boolean }[]> = {
+    participant: [
+      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Activity, label: "Pulse", href: "/pulse" },
+      { icon: PlayCircle, label: "Unlock", href: "/watch-unlock", accent: true },
+      { icon: Archive, label: "Vault", href: "/vault" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    creator: [
+      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: PlayCircle, label: "Missions", href: "/watch-unlock", accent: true },
+      { icon: BarChart3, label: "Yield", href: "/dashboard?tab=earnings" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    host: [
+      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Plus, label: "Create", href: "/create-moment", accent: true },
+      { icon: Activity, label: "Pulse", href: "/pulse" },
+      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    brand: [
+      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Plus, label: "Launch", href: "/dashboard/brand/campaigns/create", accent: true },
+      { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns" },
+      { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    merchant: [
+      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Plus, label: "Add", href: "/dashboard/venues/add", accent: true },
+      { icon: MapPin, label: "Venues", href: "/dashboard/venues" },
+      { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    admin: [
+      { icon: Home, label: "Admin", href: "/admin" },
+      { icon: Users, label: "Users", href: "/admin?tab=users" },
+      { icon: Calendar, label: "Moments", href: "/admin?tab=moments", accent: true },
+      { icon: BarChart3, label: "Stats", href: "/admin?tab=overview" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+  };
+
+  const currentMobileNav = mobileNavItems[safeRole];
+
   return (
-    <div className="min-h-screen bg-background flex relative overflow-hidden transition-colors duration-300">
+    <div className="app-shell-mobile relative flex min-h-screen overflow-x-clip bg-background transition-colors duration-300">
       {/* Ambient Background Washes */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none opacity-50 dark:opacity-20" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] -ml-48 -mb-48 pointer-events-none opacity-50 dark:opacity-20" />
+      <div className="pointer-events-none absolute right-0 top-0 h-[280px] w-[280px] rounded-full bg-primary/10 blur-[90px] opacity-40 dark:opacity-20 sm:h-[500px] sm:w-[500px] sm:-mr-64 sm:-mt-64 sm:blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-[240px] w-[240px] rounded-full bg-accent/10 blur-[80px] opacity-40 dark:opacity-20 sm:h-[400px] sm:w-[400px] sm:-mb-48 sm:-ml-48 sm:blur-[100px]" />
 
       {/* Sidebar */}
       <aside
@@ -170,14 +222,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <div className="px-4">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className={`w-full flex items-center gap-3 p-4 rounded-2xl ${roleInfo.color} text-white shadow-soft relative overflow-hidden group hover:scale-[1.02] transition-transform text-left`}>
+                    <button className={`w-full min-w-0 flex items-center gap-3 p-4 rounded-2xl ${roleInfo.color} text-white shadow-soft relative overflow-hidden group hover:scale-[1.02] transition-transform text-left`}>
                       <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-full blur-2xl -mr-8 -mt-8" />
                       <div className="relative z-10 h-10 w-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
                         <roleInfo.icon className="w-5 h-5 text-white" />
                       </div>
-                      <div className="relative z-10 flex-1">
+                      <div className="relative z-10 min-w-0 flex-1">
                         <p className="text-[10px] font-bold uppercase tracking-wider opacity-85">Active Role</p>
-                        <p className="font-semibold text-sm tracking-tight flex items-center justify-between">
+                        <p className="flex items-center justify-between gap-2 text-sm font-semibold tracking-tight">
                           {roleInfo.label}
                           {roles.length > 1 && <ChevronDown className="w-3 h-3 ml-1 opacity-70" />}
                         </p>
@@ -353,9 +405,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 lg:pl-72 relative min-h-screen">
+      <main className="relative min-w-0 min-h-screen flex-1 overflow-x-clip lg:pl-72">
         {/* Mobile Header */}
-        <div className="lg:hidden sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 p-4 shadow-sm">
+        <div className="pt-safe lg:hidden sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/50 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -376,19 +428,47 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         </div>
 
         {/* Page Content */}
-        <div className="p-6 md:p-10 lg:p-12 relative z-10">
-          <div className="max-w-7xl mx-auto">
+        <div className="relative z-10 p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:p-12">
+          <div className="mx-auto w-full max-w-7xl min-w-0">
             {children}
           </div>
         </div>
       </main>
+
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/92 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-2 pb-2 pt-2">
+          {currentMobileNav.map((item) => {
+            const [itemPath, itemQuery] = item.href.split("?");
+            const isActive = itemQuery
+              ? location.pathname === itemPath && location.search.includes(itemQuery)
+              : location.pathname === itemPath || location.pathname.startsWith(itemPath + "/");
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                  item.accent
+                    ? "bg-gradient-primary text-primary-foreground shadow-glow"
+                    : isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                )}
+              >
+                <item.icon className={cn("h-4 w-4", item.accent && "fill-current")} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
 
       {/* Mobile Close Button */}
       {sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(false)}
-          className="fixed top-4 left-56 z-50 p-2 lg:hidden"
+          className="fixed right-4 top-4 z-50 rounded-xl bg-card/90 p-2 shadow-soft lg:hidden"
         >
           <X className="w-5 h-5" />
         </button>

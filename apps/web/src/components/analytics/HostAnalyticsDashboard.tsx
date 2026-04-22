@@ -107,18 +107,19 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
     return (
         <div className="space-y-6">
             {/* Header with Date Filter */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h2 className="text-2xl font-bold">Host Earnings</h2>
                     <p className="text-sm text-muted-foreground">Track your moment performance and revenue</p>
                 </div>
-                <div className="flex items-center gap-2" data-tour="analytics-filters">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center" data-tour="analytics-filters">
                     <DateRangePicker
                         startDate={dateRange.start}
                         endDate={dateRange.end}
                         onDateRangeChange={(start, end) => setDateRange({ start, end })}
+                        className="w-full justify-start sm:w-auto"
                     />
-                    <Button variant="outline" size="sm" onClick={handleExport} disabled={!analytics?.length} data-tour="analytics-export">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={handleExport} disabled={!analytics?.length} data-tour="analytics-export">
                         <Download className="h-4 w-4 mr-2" />
                         Export CSV
                     </Button>
@@ -157,7 +158,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
             </div>
 
             {/* Earnings Trend */}
-            <div className="bg-card rounded-xl border border-border p-6" data-tour="analytics-chart">
+            <div className="rounded-xl border border-border bg-card p-4 md:p-6" data-tour="analytics-chart">
                 <h3 className="text-lg font-semibold mb-4">Earnings Trend</h3>
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center">
@@ -177,7 +178,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
             </div>
 
             {/* Moment Performance */}
-            <div className="bg-card rounded-xl border border-border p-6">
+            <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <h3 className="text-lg font-semibold mb-4">Top Moments by Revenue</h3>
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center">
@@ -199,11 +200,11 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
             </div>
 
             {/* Detailed Moment Table */}
-            <div className="bg-card rounded-xl border border-border overflow-hidden" data-tour="analytics-table">
+            <div className="overflow-hidden rounded-xl border border-border bg-card" data-tour="analytics-table">
                 <div className="p-6 border-b border-border">
                     <h3 className="text-lg font-semibold">Moment Performance Details</h3>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="hidden overflow-x-auto md:block">
                     <table className="w-full">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
@@ -242,6 +243,44 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                             )}
                         </tbody>
                     </table>
+                </div>
+                <div className="space-y-3 p-4 md:hidden">
+                    {isLoading ? (
+                        <div className="py-8 text-center">
+                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : momentPerformance.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                            No moment data available for this period
+                        </div>
+                    ) : (
+                        momentPerformance.map((moment: any, index: number) => (
+                            <div key={index} className="rounded-xl border border-border bg-background/40 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <p className="font-medium text-foreground">{moment.name}</p>
+                                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                                        {formatCompactNumber(moment.participants)} joined
+                                    </span>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p className="text-muted-foreground">Revenue</p>
+                                        <p className="font-semibold text-foreground">{formatCurrency(moment.revenue)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Sponsorship</p>
+                                        <p className="font-semibold text-foreground">{formatCurrency(moment.sponsorship)}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-muted-foreground">Revenue per participant</p>
+                                        <p className="font-semibold text-foreground">
+                                            {formatCurrency(moment.participants > 0 ? moment.revenue / moment.participants : 0)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

@@ -10,13 +10,13 @@ const features = [
   },
   {
     icon: MapPin,
-    title: "2. The Digital Handshake",
-    description: "A shared moment, verified by your presence. Your authentic participation generates Community Gratitude—the fuel of our ecosystem.",
+    title: "2. Show Up & Check In",
+    description: "A shared moment, confirmed by your presence. Show up, enter a simple PIN, and earn points for being part of the real experience.",
   },
   {
     icon: Sparkles,
-    title: "3. Building Your Standing",
-    description: "From Seeker to Eminence. Your consistency builds your Community Standing, unlocking whispers of restricted brand privileges.",
+    title: "3. Build Your Reputation",
+    description: "From newcomer to community leader. Your consistency builds your level, unlocking exclusive brand perks along the way.",
   },
   {
     icon: Gift,
@@ -84,8 +84,8 @@ const HowItWorks = () => {
               Ready to begin your journey?
             </h3>
             <p className="text-primary-foreground/90 max-w-xl mx-auto mb-10 text-lg">
-              Whether you're looking to find a story or lead your community as a Steward, 
-              your place in the standing ladder starts here.
+              Whether you're looking to join experiences or host them for your community, 
+              your journey starts right here.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button variant="warm" size="xl" className="font-bold uppercase tracking-widest px-10 h-14 shadow-glow rounded-2xl">

@@ -2,9 +2,68 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
+const http = require('http');
 require('dotenv').config();
 
 const app = express();
+
+// Create HTTP server for WebSocket support
+const server = http.createServer(app);
+
+// Initialize WebSocket service if socket.io is available
+let io = null;
+if (process.env.ENABLE_WEBSOCKETS !== 'false') {
+    try {
+        const { Server } = require('socket.io');
+        io = new Server(server, {
+            cors: {
+                origin: [
+                    'http://localhost:5173',
+                    'http://127.0.0.1:5173',
+                    'http://localhost:5000',
+                    'https://promorang.co',
+                    'https://www.promorang.co',
+                    process.env.FRONTEND_URL
+                ].filter(Boolean),
+                methods: ['GET', 'POST'],
+                credentials: true
+            },
+            transports: ['websocket', 'polling']
+        });
+
+        // WebSocket connection handler
+        io.on('connection', (socket) => {
+            console.log(`🔌 Client connected: ${socket.id}`);
+
+            // Join cycle-specific rooms for draw updates
+            socket.on('subscribe:cycle', (cycleId) => {
+                socket.join(`cycle:${cycleId}`);
+                console.log(`📡 ${socket.id} subscribed to cycle ${cycleId}`);
+            });
+
+            // Join global promoshare room
+            socket.on('subscribe:promoshare', () => {
+                socket.join('promoshare');
+                console.log(`📡 ${socket.id} subscribed to promoshare updates`);
+            });
+
+            // Leave cycle room
+            socket.on('unsubscribe:cycle', (cycleId) => {
+                socket.leave(`cycle:${cycleId}`);
+            });
+
+            socket.on('disconnect', () => {
+                console.log(`🔌 Client disconnected: ${socket.id}`);
+            });
+        });
+
+        // Expose io globally for use in services
+        global.io = io;
+        console.log('🔌 WebSocket server initialized');
+    } catch (error) {
+        console.warn('⚠️ Socket.io not available:', error.message);
+    }
+}
 const payments = require('./api/payments');
 // const shares = require('./api/shares');
 const { supabase: supabaseClient } = require('./lib/supabase');
@@ -97,6 +156,7 @@ app.use('/api/auth', require('./api/auth'));
 app.use('/api/users', require('./api/users'));
 app.use('/api/users/preferences', require('./api/preferences')); // User preferences for personalization
 app.use('/api/content', require('./api/content'));
+app.use('/api/o2o', require('./api/o2o'));
 app.use('/api/drops', require('./api/drops'));
 // app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
@@ -131,6 +191,13 @@ app.use('/api/admin', require('./api/admin'));
 app.use('/api/support', require('./api/support'));
 app.use('/api/moments', require('./api/moments'));
 app.use('/api/moments', require('./api/moment-pricing')); // Moment SKU pricing endpoints
+app.use('/api/participation', require('./api/participation'));
+app.use('/api/pulse', require('./api/pulse'));
+app.use('/api/proof', require('./api/proof'));
+app.use('/api/memories', require('./api/memories'));
+app.use('/api/impact', require('./api/impact'));
+app.use('/api/creator-economics', require('./api/creator-economics'));
+app.use('/api/analytics', require('./api/analytics'));
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
 const errorHandlers = require('./api/errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
@@ -217,7 +284,7 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 const HOST = 'localhost'; // Always bind to localhost for backend
-app.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, () => {
   console.log(`🚀 Promorang API development server running on ${HOST}:${PORT}`);
   console.log(`📡 Frontend URL: http://localhost:5000`);
   console.log(`🔗 API Base URL: http://${HOST}:${PORT}/api`);
@@ -248,7 +315,19 @@ app.listen(PORT, HOST, () => {
     } catch (error) {
       console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);
     }
+
+    // Start PromoShare scheduler (cycle management and draws)
+    try {
+      const promoShareScheduler = require('./jobs/promoShareScheduler');
+      promoShareScheduler.start();
+      console.log('🎰 PromoShare scheduler started');
+    } catch (error) {
+      console.warn('⚠️ Failed to start PromoShare scheduler:', error.message);
+    }
   } else {
     console.log('⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)');
   }
 });
+
+// Export for serverless deployment (Vercel)
+module.exports = app;

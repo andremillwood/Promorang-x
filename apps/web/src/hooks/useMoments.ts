@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export interface Moment {
   id: string;
   host_id: string;
@@ -53,44 +55,31 @@ export function useHostedMoments() {
 
 // Fetch moments joined by user
 export function useJoinedMoments() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   return useQuery({
     queryKey: ["joined-moments", user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user || !session) return [];
 
-      const { data: participations, error: partError } = await supabase
-        .from("moment_participants")
-        .select("moment_id, status, joined_at, checked_in_at")
-        .eq("user_id", user.id);
-
-      if (partError) throw partError;
-
-      if (!participations || participations.length === 0) return [];
-
-      const momentIds = participations.map((p) => p.moment_id);
-
-      const { data: moments, error: momentsError } = await supabase
-        .from("moments")
-        .select("*")
-        .in("id", momentIds)
-        .order("starts_at", { ascending: true });
-
-      if (momentsError) throw momentsError;
-
-      // Merge participation data with moments
-      return (moments as Moment[]).map((moment) => {
-        const participation = participations.find((p) => p.moment_id === moment.id);
-        return {
-          ...moment,
-          participation_status: participation?.status,
-          joined_at: participation?.joined_at,
-          checked_in_at: participation?.checked_in_at,
-        };
+      const response = await fetch(`${API_URL}/api/participation/me`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to load joined moments");
+      }
+
+      return (payload?.moments || []) as Array<Moment & {
+        participation_status?: string | null;
+        joined_at?: string | null;
+        checked_in_at?: string | null;
+      }>;
     },
-    enabled: !!user,
+    enabled: !!user && !!session,
   });
 }
 
@@ -112,41 +101,33 @@ export function useParticipantCount(momentId: string) {
 
 // Check-in to a moment
 export function useCheckIn() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (momentId: string) => {
-      if (!user) throw new Error("Not authenticated");
+      if (!user || !session) throw new Error("Not authenticated");
 
-      // Update participation status
-      const { error: partError } = await supabase
-        .from("moment_participants")
-        .update({ 
-          status: "checked_in",
-          checked_in_at: new Date().toISOString()
-        })
-        .eq("moment_id", momentId)
-        .eq("user_id", user.id);
+      const response = await fetch(`${API_URL}/api/participation/moments/${momentId}/checkin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          metadata: {
+            initiated_from: "useCheckIn",
+          },
+        }),
+      });
 
-      if (partError) throw partError;
-
-      // Also create a check-in record
-      const { error: checkInError } = await supabase
-        .from("check_ins")
-        .insert({
-          moment_id: momentId,
-          user_id: user.id,
-          location_verified: true,
-        });
-
-      // Ignore duplicate key error (already checked in)
-      if (checkInError && !checkInError.message.includes("duplicate")) {
-        throw checkInError;
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Check-in failed");
       }
 
-      return true;
+      return payload;
     },
     onSuccess: () => {
       toast({
@@ -167,52 +148,49 @@ export function useCheckIn() {
 
 // Get participant stats for a user
 export function useParticipantStats() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   return useQuery({
     queryKey: ["participant-stats", user?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user || !session) return null;
 
-      // Get total joined moments
-      const { count: totalJoined } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      const response = await fetch(`${API_URL}/api/participation/me`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to load participant stats");
+      }
 
-      // Get checked-in moments
-      const { count: checkedIn } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "checked_in");
+      const joinedMoments = Array.isArray(payload?.moments) ? payload.moments : [];
+      const totalJoined = joinedMoments.length;
+      const checkedIn = joinedMoments.filter((moment) => Boolean(moment.checked_in_at)).length;
 
-      // Get rewards claimed
       const { count: rewardsClaimed } = await supabase
         .from("check_ins")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("reward_claimed", true);
 
-      // Get this month's joins
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
-
-      const { count: thisMonth } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gte("joined_at", startOfMonth.toISOString());
+      const thisMonth = joinedMoments.filter((moment) => {
+        if (!moment.joined_at) return false;
+        return new Date(moment.joined_at).getTime() >= startOfMonth.getTime();
+      }).length;
 
       return {
-        totalJoined: totalJoined || 0,
-        checkedIn: checkedIn || 0,
+        totalJoined,
+        checkedIn,
         rewardsClaimed: rewardsClaimed || 0,
-        thisMonth: thisMonth || 0,
+        thisMonth,
       };
     },
-    enabled: !!user,
+    enabled: !!user && !!session,
   });
 }
 
