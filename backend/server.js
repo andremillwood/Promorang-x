@@ -153,11 +153,15 @@ global.supabase = supabaseClient || null;
 
 // API routes
 app.use('/api/auth', require('./api/auth'));
+app.use('/auth', require('./api/auth')); // Direct route for frontend compatibility
 app.use('/api/users', require('./api/users'));
+app.use('/users', require('./api/users')); // Direct route
 app.use('/api/users/preferences', require('./api/preferences')); // User preferences for personalization
 app.use('/api/content', require('./api/content'));
+app.use('/content', require('./api/content')); // Direct route
 app.use('/api/o2o', require('./api/o2o'));
 app.use('/api/drops', require('./api/drops'));
+app.use('/drops', require('./api/drops')); // Direct route
 // app.use('/api/social-forecasts', require('./api/social-forecasts'));
 app.use('/api/advertisers', require('./api/advertisers'));
 app.use('/api/maturity', require('./api/maturity'));
@@ -199,6 +203,8 @@ app.use('/api/impact', require('./api/impact'));
 app.use('/api/creator-economics', require('./api/creator-economics'));
 app.use('/api/analytics', require('./api/analytics'));
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
+app.use('/api/cron', require('./api/cron')); // Serverless cron entrypoints
+app.use('/api/email', require('./api/email')); // Email event entrypoints
 const errorHandlers = require('./api/errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
 app.post('/api/log-error', errorHandlers.handleLogError);
@@ -284,50 +290,58 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 const HOST = 'localhost'; // Always bind to localhost for backend
-server.listen(PORT, HOST, () => {
-  console.log(`🚀 Promorang API development server running on ${HOST}:${PORT}`);
-  console.log(`📡 Frontend URL: http://localhost:5000`);
-  console.log(`🔗 API Base URL: http://${HOST}:${PORT}/api`);
+function startLocalServer() {
+  server.listen(PORT, HOST, () => {
+    console.log(`🚀 Promorang API development server running on ${HOST}:${PORT}`);
+    console.log(`📡 Frontend URL: http://localhost:5000`);
+    console.log(`🔗 API Base URL: http://${HOST}:${PORT}/api`);
 
-  // Start cron jobs if enabled
-  if (process.env.ENABLE_CRON_JOBS === 'true') {
-    try {
-      const cronJobs = require('./jobs/cron');
-      cronJobs.startCronJobs();
-      console.log('⏰ Cron jobs started');
-    } catch (error) {
-      console.warn('⚠️ Failed to start cron jobs:', error.message);
+    // Start cron jobs if enabled
+    if (process.env.ENABLE_CRON_JOBS === 'true') {
+      try {
+        const cronJobs = require('./jobs/cron');
+        cronJobs.startCronJobs();
+        console.log('⏰ Cron jobs started');
+      } catch (error) {
+        console.warn('⚠️ Failed to start cron jobs:', error.message);
+      }
+
+      // Start email campaign scheduler
+      try {
+        const emailScheduler = require('./jobs/emailScheduler');
+        emailScheduler.start();
+        console.log('📧 Email campaign scheduler started');
+      } catch (error) {
+        console.warn('⚠️ Failed to start email scheduler:', error.message);
+      }
+
+      // Start Daily Layer cron jobs (10:00 UTC reset)
+      try {
+        const dailyLayerJob = require('./jobs/dailyLayerJob');
+        dailyLayerJob.start();
+        console.log('📅 Daily Layer cron jobs started (reset: 10:00 UTC)');
+      } catch (error) {
+        console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);
+      }
+
+      // Start PromoShare scheduler (cycle management and draws)
+      try {
+        const promoShareScheduler = require('./jobs/promoShareScheduler');
+        promoShareScheduler.start();
+        console.log('🎰 PromoShare scheduler started');
+      } catch (error) {
+        console.warn('⚠️ Failed to start PromoShare scheduler:', error.message);
+      }
+    } else {
+      console.log('⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)');
     }
+  });
+}
 
-    // Start email campaign scheduler
-    try {
-      const emailScheduler = require('./jobs/emailScheduler');
-      emailScheduler.start();
-      console.log('📧 Email campaign scheduler started');
-    } catch (error) {
-      console.warn('⚠️ Failed to start email scheduler:', error.message);
-    }
+if (!process.env.VERCEL && require.main === module) {
+  startLocalServer();
+}
 
-    // Start Daily Layer cron jobs (10:00 UTC reset)
-    try {
-      require('./jobs/dailyLayerJob');
-      console.log('📅 Daily Layer cron jobs started (reset: 10:00 UTC)');
-    } catch (error) {
-      console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);
-    }
-
-    // Start PromoShare scheduler (cycle management and draws)
-    try {
-      const promoShareScheduler = require('./jobs/promoShareScheduler');
-      promoShareScheduler.start();
-      console.log('🎰 PromoShare scheduler started');
-    } catch (error) {
-      console.warn('⚠️ Failed to start PromoShare scheduler:', error.message);
-    }
-  } else {
-    console.log('⏰ Cron jobs disabled (set ENABLE_CRON_JOBS=true to enable)');
-  }
-});
-
-// Export for serverless deployment (Vercel)
 module.exports = app;
+module.exports.app = app;
+module.exports.server = server;
