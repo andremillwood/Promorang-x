@@ -6,6 +6,13 @@ const pulseService = require('../services/pulseService');
 const impactService = require('../services/impactService');
 const missionAttributionService = require('../services/missionAttributionService');
 const creatorEconomicsService = require('../services/creatorEconomicsService');
+const momentEconomyService = require('../services/momentEconomyService');
+const pieceEarningService = require('../services/pieceEarningService');
+const promoPushTrackingService = require('../services/promoPushTrackingService');
+const promoShareService = require('../services/promoShareService');
+const accessRulesService = require('../services/accessRulesService');
+const memoryService = require('../services/memoryService');
+const offerService = require('../services/offerService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -33,6 +40,17 @@ async function getParticipation(momentId, userId) {
 
   if (error) throw error;
   return data;
+}
+
+function getMomentFallbackKeyCost(moment) {
+  const metadata = moment?.metadata || {};
+  return Number(
+    moment?.key_cost
+      ?? moment?.access_key_cost
+      ?? metadata.key_cost
+      ?? metadata.access_key_cost
+      ?? 0
+  ) || 0;
 }
 
 async function ensureReward(moment, userId) {
@@ -66,7 +84,14 @@ async function ensureReward(moment, userId) {
   return data;
 }
 
-async function performCheckIn({ momentId, userId, evidenceUrl = null, metadata = {} }) {
+async function performCheckIn({
+  momentId,
+  userId,
+  evidenceUrl = null,
+  metadata = {},
+  finalizeRewards = true,
+  verificationStatus = 'verified',
+}) {
   const moment = await getMoment(momentId);
   let participation = await getParticipation(momentId, userId);
 
@@ -91,6 +116,18 @@ async function performCheckIn({ momentId, userId, evidenceUrl = null, metadata =
 
     if (error) throw error;
     participation = data;
+
+    try {
+      await promoShareService.recordVerifiedAction(userId, 'moment_join_verified', {
+        source_type: 'moment',
+        source_id: momentId,
+        weight_value: 2,
+        moment_id: momentId,
+        moment_title: moment?.title || null,
+      });
+    } catch (promoShareError) {
+      console.warn('[Participation API] moment join PromoShare recording skipped:', promoShareError.message);
+    }
   }
 
   const { data: updatedParticipation, error: updateError } = await supabase
@@ -110,24 +147,111 @@ async function performCheckIn({ momentId, userId, evidenceUrl = null, metadata =
     await supabase.from('participation_events').insert({
       moment_id: momentId,
       user_id: userId,
-      event_type: 'verification',
+      event_type: finalizeRewards ? 'verification' : 'verification_submitted',
       evidence_url: evidenceUrl,
       metadata: {
         ...metadata,
-        verified_at: new Date().toISOString(),
+        verification_status: verificationStatus,
+        ...(finalizeRewards
+          ? { verified_at: new Date().toISOString() }
+          : { submitted_at: new Date().toISOString() }),
       },
     });
   } catch (eventError) {
     console.warn('[Participation API] participation_events insert skipped:', eventError.message);
   }
 
-  const reward = await ensureReward(moment, userId);
   const pulse = await pulseService.recalculateMomentPulse(momentId);
+  let reward = null;
+  let pieceAwards = [];
+  let memory = null;
+
+  if (finalizeRewards) {
+    reward = await ensureReward(moment, userId);
+    await promoPushTrackingService.trackPromoPushEvent({
+      eventType: 'proof_verified',
+      momentId,
+      userId,
+      proofSubmissionId: metadata?.proof_submission_id || null,
+      rewardId: reward?.id || null,
+      metadata,
+    });
+    if (reward?.id) {
+      await promoPushTrackingService.trackPromoPushEvent({
+        eventType: 'reward_issued',
+        momentId,
+        userId,
+        proofSubmissionId: metadata?.proof_submission_id || null,
+        rewardId: reward.id,
+        metadata,
+      });
+    }
+    try {
+      pieceAwards = await pieceEarningService.awardMomentCheckIn({
+        momentId,
+        userId,
+        invitedByUserId: metadata?.invited_by_user_id || metadata?.referrer_id || null,
+        sourceContentId: metadata?.source_content_id || null,
+        metadata,
+      });
+    } catch (earningError) {
+      console.warn('[Participation API] check-in piece awards skipped:', earningError.message);
+    }
+
+    try {
+      const proofSourceId = metadata?.proof_submission_id || `${momentId}:${userId}:verified`;
+      await promoShareService.recordVerifiedAction(userId, 'proof_verified', {
+        source_type: 'proof',
+        source_id: String(proofSourceId),
+        weight_value: 3,
+        moment_id: momentId,
+        reward_id: reward?.id || null,
+        ...metadata,
+      });
+    } catch (promoShareError) {
+      console.warn('[Participation API] proof verification PromoShare recording skipped:', promoShareError.message);
+    }
+
+    try {
+      const proofSourceId = metadata?.proof_submission_id || `${momentId}:${userId}:verified`;
+      await offerService.issueForEvent({
+        userId,
+        channel: 'moment',
+        event: verificationStatus === 'verified' ? 'proof_verified' : 'checkin',
+        sourceId: momentId,
+        sourceEventId: String(proofSourceId),
+        context: { proof_verified: verificationStatus === 'verified', moment_id: momentId, ...metadata },
+      });
+    } catch (offerError) {
+      console.warn('[Participation API] unified offer issuance skipped:', offerError.message);
+    }
+
+    try {
+      memory = await memoryService.issueMemoryForMoment({
+        userId,
+        momentId,
+        proofSubmissionId: metadata?.proof_submission_id || null,
+        reviewerId: metadata?.reviewer_id || null,
+        source: 'moment_checkin',
+        metadata: {
+          ...metadata,
+          artifact_type: 'i_was_there',
+          issued_from: 'checkin',
+        },
+      });
+    } catch (memoryError) {
+      console.warn('[Participation API] check-in memory issuance skipped:', memoryError.message);
+    }
+  }
 
   return {
     participation: updatedParticipation,
     reward,
+    memory,
     pulse,
+    piece_awards: pieceAwards,
+    verification_status: verificationStatus,
+    reward_pending: !finalizeRewards,
   };
 }
 
@@ -172,12 +296,22 @@ router.get('/me', requireAuth, async (req, res) => {
 
 router.get('/moments/:id/status', requireAuth, async (req, res) => {
   try {
+    const moment = await getMoment(req.params.id);
     const participation = await getParticipation(req.params.id, req.user.id);
+    const accessQuote = await accessRulesService.getAccessQuote({
+      userId: req.user.id,
+      objectType: 'moment',
+      objectId: req.params.id,
+      accessType: 'join',
+      fallbackKeyCost: getMomentFallbackKeyCost(moment),
+    });
+
     res.json({
       success: true,
       participation: participation || null,
       joined: !!participation,
       checked_in: !!participation?.checked_in_at,
+      access_quote: accessQuote,
     });
   } catch (error) {
     console.error('[Participation API] status error:', error);
@@ -189,9 +323,19 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
   try {
     const momentId = req.params.id;
     const userId = req.user.id;
-    const { source_content_id = null, source_mission_id = null } = req.body || {};
+    const {
+      source_content_id = null,
+      source_mission_id = null,
+      invited_by_user_id = null,
+      referrer_id = null,
+      entry_payment_reference = null,
+      entry_amount_jmd = null,
+      promopush_campaign_id = null,
+      promopush_channel_id = null,
+      promopush_tracking_code = null,
+    } = req.body || {};
 
-    await getMoment(momentId);
+    const moment = await getMoment(momentId);
     const eligibility = await pulseService.getParticipationEligibility(momentId);
     if (!eligibility.can_join) {
       return res.status(409).json({
@@ -211,12 +355,47 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
       return res.json({ success: true, participation: existing, pulse, already_joined: true });
     }
 
+    const economy = await momentEconomyService.getMomentEconomy(momentId);
+    let entryEconomics = null;
+    if (economy.economics?.money_source === 'entry' || economy.economics?.money_source === 'hybrid') {
+      entryEconomics = await momentEconomyService.recordEntryPayment({
+        momentId,
+        userId,
+        amountJmd: entry_amount_jmd,
+        reference: entry_payment_reference,
+      });
+    } else if (Number(economy.economics?.reward_pool_jmd || 0) > 0 && economy.economics?.funding_status !== 'locked') {
+      return res.status(409).json({
+        success: false,
+        error: 'This Moment is not funded and locked yet',
+        economics: economy.economics,
+      });
+    }
+
+    const accessResult = await accessRulesService.consumeAccess({
+      userId,
+      objectType: 'moment',
+      objectId: momentId,
+      accessType: 'join',
+      fallbackKeyCost: getMomentFallbackKeyCost(moment),
+      source: 'moment_join',
+      description: `Joined moment: ${moment.title || moment.name || momentId}`,
+      metadata: {
+        moment_title: moment.title || moment.name || null,
+        money_source: economy.economics?.money_source || null,
+      },
+    });
+
     const { data, error } = await supabase
       .from('moment_participants')
       .insert({
         moment_id: momentId,
         user_id: userId,
         status: 'joined',
+        entry_paid_jmd: economy.economics?.money_source === 'entry' || economy.economics?.money_source === 'hybrid'
+          ? Number(economy.economics?.entry_fee_jmd || 0)
+          : 0,
+        entry_payment_reference,
       })
       .select()
       .single();
@@ -269,12 +448,50 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
       }
     }
     const pulse = await pulseService.recalculateMomentPulse(momentId);
+    const promoMetadata = {
+      promopush_campaign_id,
+      promopush_channel_id,
+      promopush_tracking_code,
+      source_content_id,
+      source_mission_id,
+    };
+    await promoPushTrackingService.trackPromoPushEvent({
+      eventType: 'join',
+      momentId,
+      userId,
+      metadata: promoMetadata,
+      request: req,
+    });
     await impactService.processJoinImpact({ momentId, userId });
     await impactService.processGatheringActivationImpact({ momentId });
-    res.status(201).json({ success: true, participation: data, pulse });
+    let pieceAwards = [];
+    try {
+      pieceAwards = await pieceEarningService.awardMomentJoin({
+        momentId,
+        userId,
+        invitedByUserId: invited_by_user_id || referrer_id || null,
+        sourceContentId: source_content_id,
+        metadata: {
+          source_content_id,
+          source_mission_id,
+          promopush_campaign_id,
+          promopush_channel_id,
+          promopush_tracking_code,
+          invited_by_user_id: invited_by_user_id || referrer_id || null,
+        },
+      });
+    } catch (earningError) {
+      console.warn('[Participation API] join piece awards skipped:', earningError.message);
+    }
+    res.status(201).json({ success: true, participation: data, pulse, economics: entryEconomics || economy.economics, piece_awards: pieceAwards, access: accessResult });
   } catch (error) {
     console.error('[Participation API] join error:', error);
-    res.status(error.message === 'Moment not found' ? 404 : 500).json({ success: false, error: error.message });
+    res.status(error.statusCode || (error.message === 'Moment not found' ? 404 : 500)).json({
+      success: false,
+      error: error.message,
+      code: error.code,
+      ...(error.payload || {}),
+    });
   }
 });
 
@@ -344,13 +561,31 @@ router.post('/moments/:id/complete', requireAuth, async (req, res) => {
   try {
     const momentId = req.params.id;
     const userId = req.user.id;
-    const { proof_bundle = {}, evidence_url = null, review_reason = null, source_content_id = null, source_mission_id = null } = req.body || {};
+    const {
+      proof_bundle = {},
+      evidence_url = null,
+      review_reason = null,
+      source_content_id = null,
+      source_mission_id = null,
+      moment_move_id = null,
+      promopush_campaign_id = null,
+      promopush_channel_id = null,
+      promopush_tracking_code = null,
+    } = req.body || {};
 
     const proofService = require('../services/proofService');
     const submission = await proofService.submitProofSubmission({
       momentId,
       userId,
-      proofBundle: proof_bundle,
+      proofBundle: {
+        ...proof_bundle,
+        source_content_id,
+        source_mission_id,
+        promopush_campaign_id,
+        promopush_channel_id,
+        promopush_tracking_code,
+      },
+      momentMoveId: moment_move_id,
     });
     const checkin = await performCheckIn({
       momentId,
@@ -362,8 +597,49 @@ router.post('/moments/:id/complete', requireAuth, async (req, res) => {
         review_reason,
         source_content_id,
         source_mission_id,
+        promopush_campaign_id,
+        promopush_channel_id,
+        promopush_tracking_code,
       },
+      finalizeRewards: false,
+      verificationStatus: 'pending',
     });
+
+    await promoPushTrackingService.trackPromoPushEvent({
+      eventType: 'proof_submitted',
+      momentId,
+      userId,
+      moveId: moment_move_id,
+      proofSubmissionId: submission.id,
+      metadata: {
+        ...proof_bundle,
+        source_content_id,
+        source_mission_id,
+        promopush_campaign_id,
+        promopush_channel_id,
+        promopush_tracking_code,
+      },
+      request: req,
+    });
+
+    if (moment_move_id) {
+      await promoPushTrackingService.trackPromoPushEvent({
+        eventType: 'move_completed',
+        momentId,
+        userId,
+        moveId: moment_move_id,
+        proofSubmissionId: submission.id,
+        metadata: {
+          ...proof_bundle,
+          source_content_id,
+          source_mission_id,
+          promopush_campaign_id,
+          promopush_channel_id,
+          promopush_tracking_code,
+        },
+        request: req,
+      });
+    }
 
     res.json({ success: true, submission, checkin });
   } catch (error) {

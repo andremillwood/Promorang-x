@@ -93,8 +93,10 @@ const cleanupRateLimits = () => {
   }
 };
 
-// Cleanup expired entries every 5 minutes
-setInterval(cleanupRateLimits, 5 * 60 * 1000);
+// Cleanup expired entries every 5 minutes in long-running local/dev servers.
+if (!process.env.VERCEL) {
+  setInterval(cleanupRateLimits, 5 * 60 * 1000);
+}
 
 const createRateLimiter = (maxRequests = RATE_LIMIT_MAX_REQUESTS, windowMs = RATE_LIMIT_WINDOW_MS) => {
   return (req, res, next) => {
@@ -303,6 +305,7 @@ app.use('/api/manychat', require('./manychat'));
 app.use('/api/integrations', requireAuth, require('./integrations'));
 app.use('/api/merchant-team', requireAuth, require('./merchantTeam'));
 app.use('/api/coupons', require('./coupons'));
+app.use('/api/offers', require('./offers'));
 app.use('/api/events', require('./events'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
 const errorHandlers = require('./errors');
@@ -315,6 +318,7 @@ app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare', require('./promoshare'));
 app.use('/api/promoshare/sponsors', require('./promoshare-sponsors'));
+app.use('/api/promopush', require('./promopush'));
 app.use('/api/relays', require('./relays'));
 // app.use('/api/streaks', require('./streaks'));
 app.use('/api/quests', require('./quests'));
@@ -334,8 +338,11 @@ app.use('/api/matrix', requireAuth, require('./matrix'));
 app.use('/api/maturity', require('./maturity'));
 app.use('/api/merchant-sampling', require('./merchantSampling'));
 app.use('/api/cold-start', require('./coldStartBootstrap')); // Cold Start Bootstrap System
+app.use('/api/cron', require('./cron')); // Serverless cron entrypoints
+app.use('/api/email', require('./email')); // Email event entrypoints
 app.use('/api/today', require('./today')); // Daily Layer Today Screen
 app.use('/api/moments', require('./moments')); // Moment Infrastructure
+app.use('/api/moment-economy', require('./moment-economy')); // Moment Economy V1
 app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/host-applications', require('./host-applications')); // Host Applications
@@ -347,11 +354,11 @@ app.use('/api/moment-products', require('./momentProducts')); // Moment-Product 
 app.use('/api/analytics', require('./analytics')); // Advanced Analytics & Reporting
 app.use('/api/demo', require('./demo-login')); // Demo state shortcuts
 
-// Start Daily Layer Cron Jobs if enabled (Local/Dev only)
-if (process.env.ENABLE_CRON_JOBS === 'true') {
+// Start Daily Layer Cron Jobs only for long-running local/dev servers.
+if (!process.env.VERCEL && process.env.ENABLE_CRON_JOBS === 'true') {
   try {
-    const cronPath = require('path').join(__dirname, '../jobs/dailyLayerJob');
-    require(cronPath);
+    const dailyLayerJob = require('../jobs/dailyLayerJob');
+    dailyLayerJob.start();
     console.log('📅 Daily Layer cron jobs started (reset: 10:00 UTC)');
   } catch (error) {
     console.warn('⚠️ Failed to start Daily Layer jobs:', error.message);

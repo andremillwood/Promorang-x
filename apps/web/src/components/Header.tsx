@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
-import { Menu, X, ChevronDown, Building2, Store, Users, MapPin, Search, TrendingUp, Bell, Check, Building, PlayCircle, Briefcase } from "lucide-react";
+import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -25,6 +25,8 @@ const Header = () => {
     navigate("/");
   };
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 sm:px-6">
@@ -41,18 +43,98 @@ const Header = () => {
           </Link>
 
           {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-5">
+            <Link
+              to="/explore/moments"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+            >
+              Moments
+            </Link>
             <Link
               to="/discover"
               className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
             >
-              Explore
+              Discover
             </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium text-sm outline-none">
+                How it works <ChevronDown className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-elevated border-border/50">
+                <DropdownMenuItem asChild>
+                  <Link to="/economy/keys" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <KeyRound className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">Keys</p>
+                      <p className="text-[10px] text-muted-foreground">How limited access opens</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/economy/pieces" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">Pieces</p>
+                      <p className="text-[10px] text-muted-foreground">When participation lives on</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/economy/network" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">Network value</p>
+                      <p className="text-[10px] text-muted-foreground">How people make moments stronger</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Link
+              to="/promoshare"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+            >
+              PromoShare
+            </Link>
+            <Link
+              to="/pricing"
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+            >
+              Pricing
+            </Link>
+            {user ? (
+              <>
+                <Link
+                  to="/vault"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                >
+                  Vault
+                </Link>
+                <Link
+                  to="/saved"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                >
+                  Saved
+                </Link>
+                <Link
+                  to="/activity"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                >
+                  Activity
+                </Link>
+              </>
+            ) : null}
 
             {/* Stakeholder Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium text-sm outline-none">
-                Partnerships <ChevronDown className="w-4 h-4" />
+                For partners <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-elevated border-border/50">
                 <DropdownMenuItem asChild>
@@ -62,7 +144,18 @@ const Header = () => {
                     </div>
                     <div>
                       <p className="font-bold text-sm">For Brands</p>
-                      <p className="text-[10px] text-muted-foreground">Boost ROI & UGC</p>
+                      <p className="text-[10px] text-muted-foreground">Fund moments people remember</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/for-creators" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
+                      <PlayCircle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">For Creators</p>
+                      <p className="text-[10px] text-muted-foreground">Turn stories into movement</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -73,7 +166,7 @@ const Header = () => {
                     </div>
                     <div>
                       <p className="font-bold text-sm">For Merchants</p>
-                      <p className="text-[10px] text-muted-foreground">Drive Foot Traffic</p>
+                      <p className="text-[10px] text-muted-foreground">Welcome verified visits</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -83,8 +176,8 @@ const Header = () => {
                       <Users className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">For Communities</p>
-                      <p className="text-[10px] text-muted-foreground">Host & Earn</p>
+                      <p className="font-bold text-sm">For Hosts</p>
+                      <p className="text-[10px] text-muted-foreground">Build rooms people return to</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -247,18 +340,83 @@ const Header = () => {
                 <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Explore</h4>
                 <div className="flex flex-col gap-2">
                   <Link
+                    to="/explore/moments"
+                    className="text-foreground transition-colors font-medium"
+                    onClick={closeMobileMenu}
+                  >
+                    Moments
+                  </Link>
+                  <Link
                     to="/discover"
                     className="text-foreground transition-colors font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
-                    All Moments
+                    Discover
                   </Link>
+                  <Link
+                    to="/promoshare"
+                    className="text-foreground transition-colors font-medium"
+                    onClick={closeMobileMenu}
+                  >
+                    PromoShare
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    className="text-foreground transition-colors font-medium"
+                    onClick={closeMobileMenu}
+                  >
+                    Pricing
+                  </Link>
+                  {user ? (
+                    <Link
+                      to="/vault"
+                      className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                      onClick={closeMobileMenu}
+                    >
+                      Vault
+                    </Link>
+                  ) : null}
+                  {user ? (
+                    <>
+                      <Link
+                        to="/saved"
+                        className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                        onClick={closeMobileMenu}
+                      >
+                        Saved
+                      </Link>
+                      <Link
+                        to="/activity"
+                        className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                        onClick={closeMobileMenu}
+                      >
+                        Activity
+                      </Link>
+                    </>
+                  ) : null}
                   <Link
                     to="/search"
                     className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     Search
+                  </Link>
+                </div>
+              </div>
+
+              <div className="h-px bg-border/50" />
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">How it works</h4>
+                <div className="flex flex-col gap-2">
+                  <Link to="/economy/keys" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Keys
+                  </Link>
+                  <Link to="/economy/pieces" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Pieces
+                  </Link>
+                  <Link to="/economy/network" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Network value
                   </Link>
                 </div>
               </div>
@@ -271,23 +429,30 @@ const Header = () => {
                   <Link
                     to="/for-brands"
                     className="text-foreground transition-colors font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     For Brands
                   </Link>
                   <Link
+                    to="/for-creators"
+                    className="text-foreground transition-colors font-medium"
+                    onClick={closeMobileMenu}
+                  >
+                    For Creators
+                  </Link>
+                  <Link
                     to="/for-merchants"
                     className="text-foreground transition-colors font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     For Merchants
                   </Link>
                   <Link
                     to="/for-communities"
                     className="text-foreground transition-colors font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
-                    For Communities
+                    For Hosts
                   </Link>
                 </div>
               </div>

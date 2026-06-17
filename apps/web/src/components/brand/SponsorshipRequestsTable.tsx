@@ -3,6 +3,14 @@ import { Calendar, MapPin, Clock, ExternalLink, CreditCard, CheckCircle2 } from 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useBrandSponsorshipRequests, type SponsorshipStatus } from "@/hooks/useSponsorships";
 
 const statusConfig: Record<SponsorshipStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -36,54 +44,55 @@ export function SponsorshipRequestsTable() {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-border bg-muted/30">
-            <th className="text-left p-4 text-sm font-medium text-muted-foreground">Moment</th>
-            <th className="text-left p-4 text-sm font-medium text-muted-foreground">Date</th>
-            <th className="text-left p-4 text-sm font-medium text-muted-foreground">Bid</th>
-            <th className="text-left p-4 text-sm font-medium text-muted-foreground">Status</th>
-            <th className="text-left p-4 text-sm font-medium text-muted-foreground">Sent</th>
-            <th className="text-right p-4 text-sm font-medium text-muted-foreground">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-xl border border-border bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/30">
+            <TableHead>Moment</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Bid</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Sent</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {requests.map((request) => {
             const status = statusConfig[request.status];
             return (
-              <tr key={request.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                <td className="p-4">
-                  <div>
-                    <p className="font-medium text-foreground">
+              <TableRow key={request.id} className="hover:bg-muted/20">
+                <TableCell>
+                  <div className="min-w-[12rem]">
+                    <p className="font-medium text-foreground line-clamp-2">
                       {request.moment?.title || "Unknown Moment"}
                     </p>
                     {request.moment?.location && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <p className="flex items-center gap-1 text-sm text-muted-foreground">
                         <MapPin className="w-3 h-3" />
                         {request.moment.location.split(",")[0]}
                       </p>
                     )}
                   </div>
-                </td>
-                <td className="p-4 text-foreground">
+                </TableCell>
+                <TableCell className="text-foreground">
                   {request.moment?.starts_at && (
-                    <span className="flex items-center gap-1 text-sm">
+                    <span className="flex min-w-[8rem] items-center gap-1 text-sm">
                       <Calendar className="w-3 h-3 text-muted-foreground" />
                       {format(new Date(request.moment.starts_at), "MMM d, yyyy")}
                     </span>
                   )}
-                </td>
-                <td className="p-4 text-foreground font-medium">
+                </TableCell>
+                <TableCell className="font-medium text-foreground">
                   ${request.bid_amount.toLocaleString()}
-                </td>
-                <td className="p-4">
+                </TableCell>
+                <TableCell>
                   <Badge variant={status.variant}>{status.label}</Badge>
-                </td>
-                <td className="p-4 text-sm text-muted-foreground">
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground">
                   {format(new Date(request.created_at), "MMM d")}
-                </td>
-                <td className="p-4 text-right flex items-center justify-end gap-2">
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex min-w-[11rem] flex-wrap items-center justify-end gap-2">
                   {request.status === 'accepted' && (
                     <Button variant="default" size="sm" className="bg-emerald-600 hover:bg-emerald-700 h-8 text-[10px] font-black uppercase tracking-widest">
                       <CreditCard className="w-3.5 h-3.5 mr-1.5" />
@@ -100,12 +109,13 @@ export function SponsorshipRequestsTable() {
                     <ExternalLink className="w-4 h-4 mr-1" />
                     View
                   </Button>
-                </td>
-              </tr>
+                  </div>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

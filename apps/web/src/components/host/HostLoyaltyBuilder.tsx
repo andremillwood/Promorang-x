@@ -50,8 +50,8 @@ export function HostLoyaltyBuilder() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-br from-primary/10 to-transparent p-8 rounded-[2rem] border border-primary/20">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-4 sm:p-8">
+        <div className="mb-4 flex items-center gap-3">
             <div className="p-3 bg-primary rounded-2xl text-primary-foreground shadow-lg">
                 <Trophy className="w-6 h-6" />
             </div>
@@ -65,7 +65,7 @@ export function HostLoyaltyBuilder() {
         </p>
 
         {/* Create Rule Form */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 bg-card/60 backdrop-blur-md p-6 rounded-2xl border border-border/50">
+        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-border/50 bg-card/60 p-4 backdrop-blur-md sm:p-6 md:flex-row">
             <div className="flex-1 space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest">Behavior Trigger</Label>
                 <Select value={newTrigger} onValueChange={setNewTrigger}>
@@ -104,13 +104,13 @@ export function HostLoyaltyBuilder() {
         </div>
 
         {/* Weekly Power Budget */}
-        <div className="mb-8 p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3 relative overflow-hidden">
+        <div className="relative mb-8 space-y-3 overflow-hidden rounded-2xl border border-border/50 bg-card/60 p-4">
             <div className="absolute top-0 right-0 p-2">
                 <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black uppercase text-emerald-500 tracking-tighter">
                     Resets Monday 12AM
                 </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
                     <TrendingUp className="w-3 h-3 text-primary" />
                     Weekly Reward Power
@@ -119,7 +119,7 @@ export function HostLoyaltyBuilder() {
                    <span className="text-foreground">3,250</span> / 5,000 Pts Limit
                 </p>
             </div>
-            <div className="h-1.5 w-full bg-charcoal rounded-full overflow-hidden">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
                 <div className="h-full bg-primary" style={{ width: '65%' }} />
             </div>
         </div>
@@ -128,12 +128,12 @@ export function HostLoyaltyBuilder() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rules.map((rule) => (
                 <Card key={rule.id} className="bg-background border-border hover:border-primary/40 transition-all group">
-                    <CardContent className="p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 {rule.trigger.includes('streak') || rule.trigger.includes('serial') ? <Zap className="w-5 h-5" /> : <Star className="w-5 h-5" />}
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <h4 className="font-bold text-sm tracking-tight">{rule.label}</h4>
                                 <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest flex items-center gap-1">
                                     <Plus className="w-3 h-3" />
@@ -155,8 +155,8 @@ export function HostLoyaltyBuilder() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between p-6 rounded-2xl border border-dashed border-border bg-muted/20">
-          <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex min-w-0 items-center gap-3">
               <Sparkles className="w-5 h-5 text-primary" />
               <p className="text-xs font-medium text-muted-foreground tracking-tight">
                   <span className="text-foreground font-bold">Rule Propagation:</span> These rules will automatically apply to all upcoming moments in your niche.

@@ -63,7 +63,7 @@ interface LiquidityProviderProps {
 }
 
 export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: LiquidityProviderProps) {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('add');
   const [loading, setLoading] = useState(false);
@@ -83,10 +83,12 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
   const [estimatedGemsRequired, setEstimatedGemsRequired] = useState(0);
   const [estimatedPiecesOut, setEstimatedPiecesOut] = useState(0);
   const [estimatedGemsOut, setEstimatedGemsOut] = useState(0);
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
+  const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
 
   useEffect(() => {
     fetchPosition();
-  }, [pool.id]);
+  }, [pool.id, session?.access_token]);
 
   useEffect(() => {
     if (piecesToAdd) {
@@ -114,14 +116,20 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
   }, [lpTokensToRemove, position]);
 
   const fetchPosition = async () => {
+    if (!session?.access_token) {
+      setFetchingPosition(false);
+      return;
+    }
+
     setFetchingPosition(true);
     try {
+      const authHeaders = { 'Authorization': `Bearer ${session.access_token}` };
       const [positionRes, poolRes] = await Promise.all([
-        fetch(`/api/pieces/pools/${pool.id}/lp-position`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        fetch(apiUrl(`/pieces/pools/${pool.id}/lp-position`), {
+          headers: authHeaders,
         }),
-        fetch(`/api/pieces/pools/${pool.id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        fetch(apiUrl(`/pieces/pools/${pool.id}`), {
+          headers: authHeaders,
         }),
       ]);
 
@@ -146,14 +154,15 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
 
   const handleAddLiquidity = async () => {
     if (!piecesToAdd || !gemsToAdd) return;
+    if (!session?.access_token) return;
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/pieces/pools/${pool.id}/add-liquidity`, {
+      const response = await fetch(apiUrl(`/pieces/pools/${pool.id}/add-liquidity`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           pieces_to_add: parseFloat(piecesToAdd),
@@ -188,14 +197,15 @@ export function LiquidityProvider({ pool, onClose, gemsBalance, userPieces }: Li
 
   const handleRemoveLiquidity = async () => {
     if (!lpTokensToRemove || !position) return;
+    if (!session?.access_token) return;
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/pieces/pools/${pool.id}/remove-liquidity`, {
+      const response = await fetch(apiUrl(`/pieces/pools/${pool.id}/remove-liquidity`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           lp_tokens: parseFloat(lpTokensToRemove),

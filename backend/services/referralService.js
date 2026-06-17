@@ -6,6 +6,7 @@
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
+const promoShareService = require('./promoShareService');
 const { sendReferralSignupEmail, sendReferralActivationEmail, sendReferralCommissionEmail } = require('./resendService');
 
 // Commission rates by earning type (Level 1)
@@ -258,6 +259,17 @@ async function activateReferral(referredUserId) {
     // Award activation bonus to referrer (optional)
     if (data) {
       await awardActivationBonus(data.referrer_id, referredUserId);
+      try {
+        await promoShareService.recordVerifiedAction(data.referrer_id, 'referral_activated', {
+          source_type: 'referral',
+          source_id: String(data.id),
+          weight_value: 3,
+          referred_user_id: referredUserId,
+          referral_id: data.id,
+        });
+      } catch (promoShareError) {
+        console.warn('[Referral Service] PromoShare referral activation recording skipped:', promoShareError.message);
+      }
     }
 
     return data;

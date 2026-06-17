@@ -45,7 +45,7 @@ export default function ProposeLanding() {
                             </Link>
                         </Button>
                         <Button size="xl" variant="outline" asChild>
-                            <Link to="/discover">See Examples</Link>
+                            <Link to="/explore/moments">See Examples</Link>
                         </Button>
                     </div>
                 </div>

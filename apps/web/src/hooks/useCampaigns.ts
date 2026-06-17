@@ -21,6 +21,20 @@ export interface Campaign {
   redemptions: number;
   created_at: string;
   updated_at: string;
+  system_module?: "promopush";
+  moment_id?: string | null;
+  objective_type?: "content" | "purchase" | "sampling" | "signup" | "attendance" | "custom" | null;
+  geo_label?: string | null;
+  geo_radius_meters?: number | null;
+  distribution_starts_at?: string | null;
+  distribution_ends_at?: string | null;
+  entry_mode?: "moment_direct" | "qr" | "ad_link" | "direct_link" | null;
+  entry_endpoint?: string | null;
+  distribution_channels?: string[] | null;
+  creator_reward_per_verified_action_jmd?: number | null;
+  payout_per_scan_signup_jmd?: number | null;
+  payout_per_verified_post_jmd?: number | null;
+  payout_per_purchase_proof_jmd?: number | null;
   compiler_metadata?: any;
 }
 
@@ -66,6 +80,20 @@ export function useCreateCampaign() {
           target_categories: campaign.target_categories,
           start_date: campaign.start_date,
           end_date: campaign.end_date,
+          system_module: campaign.system_module || "promopush",
+          moment_id: campaign.moment_id,
+          objective_type: campaign.objective_type,
+          geo_label: campaign.geo_label,
+          geo_radius_meters: campaign.geo_radius_meters,
+          distribution_starts_at: campaign.distribution_starts_at,
+          distribution_ends_at: campaign.distribution_ends_at,
+          entry_mode: campaign.entry_mode,
+          entry_endpoint: campaign.entry_endpoint,
+          distribution_channels: campaign.distribution_channels,
+          creator_reward_per_verified_action_jmd: campaign.creator_reward_per_verified_action_jmd,
+          payout_per_scan_signup_jmd: campaign.payout_per_scan_signup_jmd,
+          payout_per_verified_post_jmd: campaign.payout_per_verified_post_jmd,
+          payout_per_purchase_proof_jmd: campaign.payout_per_purchase_proof_jmd,
           compiler_metadata: campaign.compiler_metadata,
         })
         .select()
@@ -76,8 +104,8 @@ export function useCreateCampaign() {
     },
     onSuccess: () => {
       toast({
-        title: "Campaign Created! 🎉",
-        description: "Your campaign is now live.",
+        title: "PromoPush Created",
+        description: "Your distribution zone is now live.",
       });
       queryClient.invalidateQueries({ queryKey: ["brand-campaigns"] });
     },

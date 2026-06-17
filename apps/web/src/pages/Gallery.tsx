@@ -95,7 +95,7 @@ const Gallery = () => {
                         Attend moments and capture photos or videos to build your visual story.
                     </p>
                     <Button variant="default" className="rounded-2xl px-8 shadow-soft" asChild>
-                        <Link to="/discover">Discover Moments</Link>
+                        <Link to="/explore/moments">Explore Moments</Link>
                     </Button>
                 </div>
             ) : (

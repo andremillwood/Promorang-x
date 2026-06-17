@@ -214,7 +214,7 @@ export function SavedCollections({
                             <Bookmark className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
                             <p className="text-muted-foreground">No moments in this collection yet</p>
                             <Button variant="outline" asChild className="mt-4">
-                                <Link to="/discover">Discover Moments</Link>
+                                <Link to="/explore/moments">Explore Moments</Link>
                             </Button>
                         </div>
                     )}
@@ -230,7 +230,7 @@ export function SavedCollections({
                         Save moments you're interested in and organize them into collections
                     </p>
                     <Button asChild>
-                        <Link to="/discover">Discover Moments</Link>
+                        <Link to="/explore/moments">Explore Moments</Link>
                     </Button>
                 </div>
             )}

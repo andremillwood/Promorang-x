@@ -1,6 +1,9 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const memoryService = require('./memoryService');
+const momentEconomyService = require('./momentEconomyService');
+const pieceEarningService = require('./pieceEarningService');
+const promoPushTrackingService = require('./promoPushTrackingService');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -119,16 +122,52 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
   const momentIds = [...new Set(memoryPairs.map((pair) => pair.moment_id).filter(Boolean))];
 
   let memoryRows = [];
+  let rewardRows = [];
+  let payoutRows = [];
+  let pieceRows = [];
   if (userIds.length > 0 && momentIds.length > 0) {
-    const { data: memories, error: memoryError } = await supabase
-      .from('memories')
-      .select('*')
-      .in('user_id', userIds)
-      .in('moment_id', momentIds)
-      .order('issued_at', { ascending: false });
+    const submissionIds = submissions.map((submission) => submission.id);
+    const attendanceSourceIds = submissions.map((submission) => `${submission.moment_id}:${submission.user_id}`);
+
+    const [
+      { data: memories, error: memoryError },
+      { data: rewards, error: rewardsError },
+      { data: payouts, error: payoutsError },
+      { data: pieces, error: piecesError },
+    ] = await Promise.all([
+      supabase
+        .from('memories')
+        .select('*')
+        .in('user_id', userIds)
+        .in('moment_id', momentIds)
+        .order('issued_at', { ascending: false }),
+      supabase
+        .from('rewards')
+        .select('id, user_id, moment_id, reward_type, reward_value, status, redemption_code, created_at')
+        .in('user_id', userIds)
+        .in('moment_id', momentIds)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('moment_payout_queue')
+        .select('id, proof_submission_id, amount_jmd, status, created_at, processed_at')
+        .in('proof_submission_id', submissionIds)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('piece_earning_events')
+        .select('id, user_id, piece_type, asset_id, quantity, reason, source_type, source_id, created_at')
+        .in('user_id', userIds)
+        .order('created_at', { ascending: false })
+        .limit(500),
+    ]);
 
     if (memoryError) throw memoryError;
+    if (rewardsError) throw rewardsError;
+    if (payoutsError) throw payoutsError;
+    if (piecesError) throw piecesError;
     memoryRows = memories || [];
+    rewardRows = rewards || [];
+    payoutRows = payouts || [];
+    pieceRows = pieces || [];
   }
 
   const memoryMap = new Map();
@@ -142,6 +181,19 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
   const hydrated = submissions.map((submission) => ({
     ...submission,
     memory: memoryMap.get(submission.id) || null,
+    reward: rewardRows.find((reward) => reward.user_id === submission.user_id && reward.moment_id === submission.moment_id) || null,
+    payout: (() => {
+      const queueItem = payoutRows.find((payout) => payout.proof_submission_id === submission.id) || null;
+      return queueItem ? { queued: true, queue_item: queueItem } : null;
+    })(),
+    attendance_piece_awards: pieceRows.filter((piece) =>
+      piece.source_id === `${submission.moment_id}:${submission.user_id}` &&
+      ['moment_checkin', 'content_distribution_checkin', 'moment_referral_checkin'].includes(piece.source_type)
+    ).map((event) => ({ event })),
+    piece_award: (() => {
+      const event = pieceRows.find((piece) => piece.source_id === submission.id && piece.source_type === 'content_proof_verified') || null;
+      return event ? { event } : null;
+    })(),
   }));
 
   return attachMissionAttribution(hydrated);
@@ -168,15 +220,170 @@ async function getProofSubmissionById(submissionId) {
   return data;
 }
 
-async function submitProofSubmission({ momentId, userId, proofBundle }) {
+async function getProofSubmissionAudit(submissionId) {
   if (!supabase) throw new Error('Database not available');
+
+  const submission = await getProofSubmissionById(submissionId);
+  const sourceContentId = submission.proof_bundle?.source_content_id || submission.proof_bundle?.content_id || null;
+  const attendanceSourceId = `${submission.moment_id}:${submission.user_id}`;
+
+  const [
+    eventsResult,
+    rewardsResult,
+    memoriesResult,
+    piecesResult,
+    payoutQueueResult,
+  ] = await Promise.all([
+    supabase
+      .from('participation_events')
+      .select('id, event_type, evidence_url, metadata, created_at')
+      .eq('moment_id', submission.moment_id)
+      .eq('user_id', submission.user_id)
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('rewards')
+      .select('id, reward_type, reward_value, status, redemption_code, created_at')
+      .eq('moment_id', submission.moment_id)
+      .eq('user_id', submission.user_id)
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('memories')
+      .select('id, title, rarity, issued_at, metadata')
+      .eq('moment_id', submission.moment_id)
+      .eq('user_id', submission.user_id)
+      .order('issued_at', { ascending: true }),
+    supabase
+      .from('piece_earning_events')
+      .select('id, piece_type, asset_id, quantity, reason, source_type, source_id, metadata, created_at')
+      .eq('user_id', submission.user_id)
+      .or(`source_id.eq.${submission.id},source_id.eq.${attendanceSourceId}`)
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('moment_payout_queue')
+      .select('id, amount_jmd, status, created_at, processed_at, proof_submission_id')
+      .eq('proof_submission_id', submission.id)
+      .order('created_at', { ascending: true }),
+  ]);
+
+  if (eventsResult.error) throw eventsResult.error;
+  if (rewardsResult.error) throw rewardsResult.error;
+  if (memoriesResult.error) throw memoriesResult.error;
+  if (piecesResult.error) throw piecesResult.error;
+  if (payoutQueueResult.error) throw payoutQueueResult.error;
+
+  const timeline = [];
+
+  timeline.push({
+    kind: 'proof_submission',
+    at: submission.created_at,
+    title: 'Proof submitted',
+    detail: submission.proof_bundle?.proof_type
+      ? `${submission.proof_bundle.proof_type} proof captured`
+      : 'Proof bundle captured',
+  });
+
+  for (const event of eventsResult.data || []) {
+    const metadataSubmissionId = event?.metadata?.proof_submission_id || null;
+    if (metadataSubmissionId && metadataSubmissionId !== submission.id) continue;
+    if (!metadataSubmissionId && !['verification_submitted', 'verification_approved'].includes(event.event_type)) continue;
+
+    timeline.push({
+      kind: 'participation_event',
+      at: event.created_at,
+      title: event.event_type === 'verification_approved' ? 'Attendance verified' : 'Attendance captured',
+      detail: event.event_type === 'verification_approved'
+        ? 'Reward issuance is now eligible'
+        : 'Submission is waiting for host or admin review',
+    });
+  }
+
+  if (submission.reviewed_at) {
+    timeline.push({
+      kind: submission.submission_state === 'verified' ? 'proof_verified' : 'proof_rejected',
+      at: submission.reviewed_at,
+      title: submission.submission_state === 'verified' ? 'Proof approved' : 'Proof rejected',
+      detail: submission.review_reason || null,
+    });
+  }
+
+  for (const reward of rewardsResult.data || []) {
+    timeline.push({
+      kind: 'reward',
+      at: reward.created_at,
+      title: 'Reward issued',
+      detail: `${reward.reward_value || reward.reward_type} • ${reward.status}`,
+    });
+  }
+
+  for (const memory of memoriesResult.data || []) {
+    const metadataSubmissionId = memory?.metadata?.proof_submission_id || null;
+    if (metadataSubmissionId && metadataSubmissionId !== submission.id) continue;
+
+    timeline.push({
+      kind: 'memory',
+      at: memory.issued_at || submission.reviewed_at || submission.created_at,
+      title: 'Memory issued',
+      detail: `${memory.title}${memory.rarity ? ` • ${memory.rarity}` : ''}`,
+    });
+  }
+
+  for (const pieceEvent of piecesResult.data || []) {
+    if (pieceEvent.source_id === attendanceSourceId && !['moment_checkin', 'content_distribution_checkin', 'moment_referral_checkin'].includes(pieceEvent.source_type)) {
+      continue;
+    }
+    if (pieceEvent.source_id === submission.id && pieceEvent.source_type !== 'content_proof_verified') {
+      continue;
+    }
+    if (sourceContentId && pieceEvent.piece_type === 'content' && pieceEvent.asset_id !== sourceContentId) {
+      continue;
+    }
+
+    timeline.push({
+      kind: 'piece_award',
+      at: pieceEvent.created_at,
+      title: 'Piece award recorded',
+      detail: `${pieceEvent.quantity} ${pieceEvent.piece_type} piece(s) • ${pieceEvent.reason}`,
+    });
+  }
+
+  for (const payout of payoutQueueResult.data || []) {
+    timeline.push({
+      kind: 'payout',
+      at: payout.processed_at || payout.created_at,
+      title: payout.status === 'completed' ? 'Payout completed' : 'Payout queued',
+      detail: `JMD ${Number(payout.amount_jmd || 0).toLocaleString()} • ${payout.status}`,
+    });
+  }
+
+  timeline.sort((a, b) => new Date(a.at || 0).getTime() - new Date(b.at || 0).getTime());
+
+  return {
+    submission,
+    reward_count: (rewardsResult.data || []).length,
+    memory_count: (memoriesResult.data || []).length,
+    payout_count: (payoutQueueResult.data || []).length,
+    timeline,
+  };
+}
+
+async function submitProofSubmission({ momentId, userId, proofBundle, momentMoveId = null }) {
+  if (!supabase) throw new Error('Database not available');
+
+  const normalizedBundle = proofBundle || {};
+  const uniqueKey = await momentEconomyService.validateUniqueProof({
+    momentId,
+    userId,
+    moveId: momentMoveId,
+    proofBundle: normalizedBundle,
+  });
 
   const { data, error } = await supabase
     .from('proof_submissions')
     .insert({
       moment_id: momentId,
       user_id: userId,
-      proof_bundle: proofBundle || {},
+      moment_move_id: momentMoveId,
+      proof_bundle: uniqueKey ? { ...normalizedBundle, unique_key: uniqueKey } : normalizedBundle,
       submission_state: 'pending',
     })
     .select()
@@ -184,6 +391,121 @@ async function submitProofSubmission({ momentId, userId, proofBundle }) {
 
   if (error) throw error;
   return data;
+}
+
+async function ensureMomentReward(momentId, userId) {
+  if (!supabase) throw new Error('Database not available');
+
+  const { data: moment, error: momentError } = await supabase
+    .from('moments')
+    .select('id, reward')
+    .eq('id', momentId)
+    .maybeSingle();
+
+  if (momentError) throw momentError;
+  if (!moment?.reward) return null;
+
+  const { data: existing, error: existingError } = await supabase
+    .from('rewards')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('moment_id', moment.id)
+    .eq('status', 'earned')
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+  if (existing) return existing;
+
+  const { data, error } = await supabase
+    .from('rewards')
+    .insert({
+      user_id: userId,
+      moment_id: moment.id,
+      reward_type: 'freebie',
+      reward_value: moment.reward,
+      status: 'earned',
+      redemption_code: `RWD-${Date.now().toString(36).toUpperCase()}`,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId, reviewerId, proofBundle = {} }) {
+  if (!supabase) throw new Error('Database not available');
+
+  await supabase
+    .from('moment_participants')
+    .update({
+      status: 'checked_in',
+      checked_in_at: new Date().toISOString(),
+    })
+    .eq('moment_id', momentId)
+    .eq('user_id', userId);
+
+  try {
+    await supabase.from('participation_events').insert({
+      moment_id: momentId,
+      user_id: userId,
+      event_type: 'verification_approved',
+      metadata: {
+        proof_submission_id: proofSubmissionId,
+        reviewer_id: reviewerId,
+        verification_status: 'verified',
+        verified_at: new Date().toISOString(),
+      },
+    });
+  } catch (eventError) {
+    console.warn('[Proof Service] approval participation event skipped:', eventError.message);
+  }
+
+  const reward = await ensureMomentReward(momentId, userId);
+  await promoPushTrackingService.trackPromoPushEvent({
+    eventType: 'proof_verified',
+    momentId,
+    userId,
+    proofSubmissionId,
+    rewardId: reward?.id || null,
+    metadata: {
+      ...proofBundle,
+      reviewer_id: reviewerId,
+    },
+  });
+
+  if (reward?.id) {
+    await promoPushTrackingService.trackPromoPushEvent({
+      eventType: 'reward_issued',
+      momentId,
+      userId,
+      proofSubmissionId,
+      rewardId: reward.id,
+      metadata: {
+        ...proofBundle,
+        reviewer_id: reviewerId,
+      },
+    });
+  }
+
+  let pieceAwards = [];
+  try {
+    pieceAwards = await pieceEarningService.awardMomentCheckIn({
+      momentId,
+      userId,
+      invitedByUserId: proofBundle?.invited_by_user_id || proofBundle?.referrer_id || null,
+      sourceContentId: proofBundle?.source_content_id || null,
+      metadata: {
+        ...proofBundle,
+        proof_submission_id: proofSubmissionId,
+        reviewer_id: reviewerId,
+      },
+    });
+  } catch (earningError) {
+    console.warn('[Proof Service] verified attendance piece award skipped:', earningError.message);
+  }
+
+  return { reward, piece_awards: pieceAwards };
 }
 
 async function reviewProofSubmission({ submissionId, reviewerId, action, reviewReason }) {
@@ -207,18 +529,55 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
   if (error) throw error;
 
   let memory = null;
+  let payout = null;
+  let pieceAward = null;
+  let reward = null;
+  let attendancePieceAwards = [];
   if (nextState === 'verified') {
+    const finalizedAttendance = await finalizeVerifiedAttendance({
+      momentId: data.moment_id,
+      userId: data.user_id,
+      proofSubmissionId: data.id,
+      reviewerId,
+      proofBundle: data.proof_bundle || {},
+    });
+    reward = finalizedAttendance.reward;
+    attendancePieceAwards = finalizedAttendance.piece_awards || [];
+
     memory = await memoryService.issueMemoryForMoment({
       userId: data.user_id,
       momentId: data.moment_id,
       proofSubmissionId: data.id,
       reviewerId,
     });
+
+    payout = await momentEconomyService.executePayoutForProof(data.id, reviewerId);
+
+    const sourceContentId = data.proof_bundle?.source_content_id || data.proof_bundle?.content_id || null;
+    if (sourceContentId) {
+      try {
+        pieceAward = await pieceEarningService.awardContentProofVerified({
+          contentId: sourceContentId,
+          userId: data.user_id,
+          proofSubmissionId: data.id,
+          metadata: {
+            moment_id: data.moment_id,
+            reviewer_id: reviewerId,
+          },
+        });
+      } catch (earningError) {
+        console.warn('[ProofService] content proof piece award skipped:', earningError.message);
+      }
+    }
   }
 
   return {
     submission: data,
+    reward,
     memory,
+    payout,
+    attendance_piece_awards: attendancePieceAwards,
+    piece_award: pieceAward,
   };
 }
 
@@ -228,6 +587,7 @@ module.exports = {
   getPendingProofSubmissions,
   getProofSubmissionHistory,
   getProofSubmissionById,
+  getProofSubmissionAudit,
   submitProofSubmission,
   reviewProofSubmission,
 };

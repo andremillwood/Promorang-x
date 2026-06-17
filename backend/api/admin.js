@@ -1,38 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../lib/supabase');
-const { requireAuth, requireMasterAdmin } = require('../middleware/auth');
+const { supabase, admin } = require('../lib/supabase');
+const { requireAuth, requireAdmin, requireMasterAdmin } = require('../middleware/auth');
 const { getUserProfile } = require('./mockStore');
-
-// Middleware to check if user is admin
-const requireAdmin = async (req, res, next) => {
-    try {
-        if (!supabase) return next();
-        
-        // Demo Bypass for seeded accounts
-        if (req.user?.id?.startsWith('00000000-0000-')) return next();
-
-        const { data: roleRecords } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', req.user.id);
-
-        const roles = (roleRecords || []).map(r => r.role);
-        if (roles.includes('admin') || roles.includes('master_admin')) {
-            return next();
-        }
-
-        // Fallback for hardcoded emails
-        const adminEmails = ['demo@promorang.com', 'admin@promorang.com', 'andremillwood@gmail.com'];
-        if (adminEmails.includes(req.user.email)) {
-            return next();
-        }
-
-        return res.status(403).json({ error: 'Admin access required' });
-    } catch (e) {
-        return res.status(403).json({ error: 'Admin verification failed' });
-    }
-};
+const { sendSupportTicketResponseEmail } = require('../services/resendService');
+const simpleKYCService = require('../services/simpleKYCService');
 
 router.use(requireAuth);
 router.use(requireAdmin);
@@ -69,6 +41,173 @@ router.get('/stats', async (req, res) => {
     } catch (error) {
         console.error('Admin Stats Error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+const ACCESS_OBJECT_TYPES = ['moment', 'drop', 'reward', 'campaign', 'promoshare_pool', 'event', 'content', 'offer'];
+const ACCESS_TYPES = ['view', 'join', 'apply', 'redeem', 'boost', 'reserve', 'check_in', 'claim'];
+const TIER_KEYS = ['free', 'plus', 'pro', 'elite'];
+
+function normalizeAccessRulePayload(body = {}, existing = {}) {
+    const objectType = body.object_type ?? existing.object_type;
+    const objectId = body.object_id ?? existing.object_id;
+    const accessType = body.access_type ?? existing.access_type;
+    const minTierKey = body.min_tier_key === '' ? null : body.min_tier_key ?? existing.min_tier_key ?? null;
+    const pricingConfig = body.pricing_config ?? existing.pricing_config ?? {};
+    const metadata = body.metadata ?? existing.metadata ?? {};
+
+    if (objectType && !ACCESS_OBJECT_TYPES.includes(objectType)) {
+        throw new Error('Invalid object_type');
+    }
+
+    if (accessType && !ACCESS_TYPES.includes(accessType)) {
+        throw new Error('Invalid access_type');
+    }
+
+    if (minTierKey && !TIER_KEYS.includes(minTierKey)) {
+        throw new Error('Invalid min_tier_key');
+    }
+
+    if (!objectId || String(objectId).trim().length === 0) {
+        throw new Error('object_id is required');
+    }
+
+    return {
+        object_type: objectType,
+        object_id: String(objectId).trim(),
+        access_type: accessType,
+        base_key_cost: Math.max(0, Number.parseInt(body.base_key_cost ?? existing.base_key_cost ?? 0, 10) || 0),
+        min_tier_key: minTierKey,
+        requires_cash_gem_eligible: Boolean(body.requires_cash_gem_eligible ?? existing.requires_cash_gem_eligible ?? false),
+        capacity_limit: body.capacity_limit === '' || body.capacity_limit === null || body.capacity_limit === undefined
+            ? null
+            : Math.max(0, Number.parseInt(body.capacity_limit, 10) || 0),
+        sponsor_subsidy_keys: Math.max(0, Number.parseInt(body.sponsor_subsidy_keys ?? existing.sponsor_subsidy_keys ?? 0, 10) || 0),
+        pricing_config: typeof pricingConfig === 'object' && !Array.isArray(pricingConfig) ? pricingConfig : {},
+        starts_at: body.starts_at === '' ? null : body.starts_at ?? existing.starts_at ?? null,
+        ends_at: body.ends_at === '' ? null : body.ends_at ?? existing.ends_at ?? null,
+        is_active: Boolean(body.is_active ?? existing.is_active ?? true),
+        metadata: typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {},
+        updated_at: new Date().toISOString(),
+    };
+}
+
+/**
+ * GET /api/admin/access-rules
+ * List live access rules and baseline presets.
+ */
+router.get('/access-rules', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({ rules: [], presets: [] });
+        }
+
+        const { object_type, access_type, include_inactive = 'true' } = req.query;
+        let query = supabase
+            .from('access_rules')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (object_type) query = query.eq('object_type', object_type);
+        if (access_type) query = query.eq('access_type', access_type);
+        if (include_inactive !== 'true') query = query.eq('is_active', true);
+
+        const [{ data: rules, error: rulesError }, { data: presets, error: presetsError }] = await Promise.all([
+            query,
+            supabase.from('access_rule_presets').select('*').eq('is_active', true).order('object_type').order('base_key_cost'),
+        ]);
+
+        if (rulesError) throw rulesError;
+        if (presetsError) throw presetsError;
+
+        res.json({ rules: rules || [], presets: presets || [] });
+    } catch (error) {
+        console.error('Admin Access Rules List Error:', error);
+        res.status(500).json({ error: error.message || 'Failed to fetch access rules' });
+    }
+});
+
+/**
+ * POST /api/admin/access-rules
+ * Create or upsert an item-specific access rule.
+ */
+router.post('/access-rules', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({ success: true, rule: { id: 'mock-access-rule', ...req.body } });
+        }
+
+        const payload = normalizeAccessRulePayload(req.body);
+        if (!payload.object_type || !payload.access_type) {
+            return res.status(400).json({ error: 'object_type and access_type are required' });
+        }
+
+        const { data, error } = await supabase
+            .from('access_rules')
+            .upsert(payload, { onConflict: 'object_type,object_id,access_type' })
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.status(201).json({ success: true, rule: data });
+    } catch (error) {
+        console.error('Admin Access Rules Create Error:', error);
+        res.status(400).json({ error: error.message || 'Failed to create access rule' });
+    }
+});
+
+/**
+ * PATCH /api/admin/access-rules/:id
+ * Update an existing access rule.
+ */
+router.patch('/access-rules/:id', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({ success: true, rule: { id: req.params.id, ...req.body } });
+        }
+
+        const { data: existing, error: existingError } = await supabase
+            .from('access_rules')
+            .select('*')
+            .eq('id', req.params.id)
+            .single();
+
+        if (existingError) throw existingError;
+
+        const payload = normalizeAccessRulePayload(req.body, existing);
+        const { data, error } = await supabase
+            .from('access_rules')
+            .update(payload)
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json({ success: true, rule: data });
+    } catch (error) {
+        console.error('Admin Access Rules Update Error:', error);
+        res.status(400).json({ error: error.message || 'Failed to update access rule' });
+    }
+});
+
+router.post('/access-rules/:id/deactivate', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({ success: true });
+        }
+
+        const { data, error } = await supabase
+            .from('access_rules')
+            .update({ is_active: false, updated_at: new Date().toISOString() })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json({ success: true, rule: data });
+    } catch (error) {
+        console.error('Admin Access Rules Deactivate Error:', error);
+        res.status(400).json({ error: error.message || 'Failed to deactivate access rule' });
     }
 });
 
@@ -183,7 +322,7 @@ router.get('/support', async (req, res) => {
 
         const { data: tickets, error } = await supabase
             .from('support_tickets')
-            .select('*, user:users(display_name, email)')
+            .select('*, user:users(display_name, email), assignee:users!support_tickets_assigned_to_fkey(display_name, email), events:support_ticket_events(*)')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -201,23 +340,80 @@ router.get('/support', async (req, res) => {
 router.post('/support/:id/reply', async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, admin_notes } = req.body;
+        const { status = 'in_progress', admin_notes, assigned_to } = req.body;
+        const allowedStatuses = ['open', 'in_progress', 'resolved', 'closed'];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ error: 'Invalid support ticket status' });
+        }
+
+        if (!admin_notes || !admin_notes.trim()) {
+            return res.status(400).json({ error: 'Response notes are required' });
+        }
 
         if (!supabase) {
             return res.json({ success: true });
         }
 
+        const { data: before, error: beforeError } = await supabase
+            .from('support_tickets')
+            .select('status,assigned_to,first_response_at')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (beforeError) throw beforeError;
+
+        const now = new Date().toISOString();
+        const assigneeId = assigned_to === null ? null : assigned_to || before?.assigned_to || req.user.id;
         const { error } = await supabase
             .from('support_tickets')
             .update({
-                status: status,
-                admin_notes: admin_notes,
-                updated_at: new Date().toISOString()
+                status,
+                assigned_to: assigneeId,
+                admin_notes: admin_notes.trim(),
+                first_response_at: before?.first_response_at || now,
+                last_admin_reply_at: now,
+                resolved_at: status === 'resolved' || status === 'closed' ? now : null,
+                updated_at: now
             })
             .eq('id', id);
 
         if (error) throw error;
-        res.json({ success: true });
+
+        await supabase.from('support_ticket_events').insert({
+            ticket_id: id,
+            actor_id: req.user.id,
+            actor_type: 'admin',
+            event_type: before?.status !== status ? 'status_changed' : 'admin_reply',
+            previous_status: before?.status || null,
+            new_status: status,
+            message: admin_notes.trim(),
+            metadata: { assigned_to: assigneeId },
+        });
+
+        const { data: updatedTicket, error: fetchError } = await supabase
+            .from('support_tickets')
+            .select('*, user:users(email, display_name, username), assignee:users!support_tickets_assigned_to_fkey(display_name, email), events:support_ticket_events(*)')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        if (updatedTicket?.user?.email) {
+            sendSupportTicketResponseEmail(
+                updatedTicket.user.email,
+                updatedTicket.user.display_name || updatedTicket.user.username,
+                {
+                    ticketId: updatedTicket.id,
+                    subject: updatedTicket.subject,
+                    responsePreview: admin_notes.trim().slice(0, 240),
+                }
+            ).catch((emailError) => {
+                console.error('Failed to send support response email:', emailError);
+            });
+        }
+
+        res.json({ success: true, ticket: updatedTicket });
     } catch (error) {
         console.error('Admin Reply Error:', error);
         res.status(500).json({ error: 'Failed to update ticket' });
@@ -242,6 +438,245 @@ router.get('/users', async (req, res) => {
         res.json(users);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+/**
+ * GET /api/admin/users/roster
+ * Enriched admin roster with moderation and activity context
+ */
+router.get('/users/roster', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({ success: true, users: [] });
+        }
+
+        const [{ data: baseUsers, error: usersError }, authListResult] = await Promise.all([
+            supabase
+                .from('users')
+                .select('id, email, display_name, role, user_type, kyc_status, created_at')
+                .order('created_at', { ascending: false })
+                .limit(200),
+            admin?.listUsers ? admin.listUsers({ page: 1, perPage: 200 }) : Promise.resolve({ data: { users: [] }, error: null }),
+        ]);
+
+        if (usersError) throw usersError;
+
+        const userIds = (baseUsers || []).map((user) => user.id).filter(Boolean);
+        if (userIds.length === 0) {
+            return res.json({ success: true, users: [] });
+        }
+
+        const authUsersById = new Map(
+            ((authListResult?.data?.users || []).map((user) => [user.id, user])) || []
+        );
+
+        const [
+            { data: profiles = [], error: profilesError },
+            { data: roles = [], error: rolesError },
+            { data: moments = [], error: momentsError },
+            { data: participations = [], error: participationsError },
+            { data: media = [], error: mediaError },
+            { data: reviews = [], error: reviewsError },
+            { data: supportTickets = [], error: supportError },
+            { data: qualificationRows = [], error: qualificationError },
+            { data: qualificationEvents = [], error: qualificationEventsError },
+        ] = await Promise.all([
+            supabase.from('profiles').select('*').in('user_id', userIds),
+            supabase.from('user_roles').select('user_id, role').in('user_id', userIds),
+            supabase.from('moments').select('id, host_id, status, created_at').in('host_id', userIds),
+            supabase.from('moment_participants').select('user_id, joined_at').in('user_id', userIds),
+            supabase.from('moment_media').select('id, user_id, moderation_status, created_at').in('user_id', userIds),
+            supabase.from('moment_reviews').select('id, user_id, moderation_status, created_at').in('user_id', userIds),
+            supabase.from('support_tickets').select('id, user_id, status, priority, created_at').in('user_id', userIds),
+            supabase.from('user_money_qualification').select('*').in('user_id', userIds),
+            supabase.from('qualification_events').select('user_id, event_type, reason, created_at').in('user_id', userIds).order('created_at', { ascending: false }),
+        ]);
+
+        if (profilesError) throw profilesError;
+        if (rolesError) throw rolesError;
+        if (momentsError) throw momentsError;
+        if (participationsError) throw participationsError;
+        if (mediaError) throw mediaError;
+        if (reviewsError) throw reviewsError;
+        if (supportError) throw supportError;
+        if (qualificationError) throw qualificationError;
+        if (qualificationEventsError) throw qualificationEventsError;
+
+        const profilesByUserId = new Map(
+            profiles
+                .filter((profile) => profile?.user_id)
+                .map((profile) => [profile.user_id, profile])
+        );
+
+        const rolesByUserId = new Map();
+        for (const roleRow of roles || []) {
+            if (!roleRow?.user_id || !roleRow?.role) continue;
+            if (!rolesByUserId.has(roleRow.user_id)) rolesByUserId.set(roleRow.user_id, new Set());
+            rolesByUserId.get(roleRow.user_id).add(roleRow.role);
+        }
+
+        const momentStatsByHost = new Map();
+        for (const moment of moments || []) {
+            if (!moment?.host_id) continue;
+            const current = momentStatsByHost.get(moment.host_id) || {
+                hosted_count: 0,
+                active_hosted_count: 0,
+                joinable_hosted_count: 0,
+                latest_hosted_at: null,
+            };
+            current.hosted_count += 1;
+            if (moment.status === 'active') current.active_hosted_count += 1;
+            if (moment.status === 'joinable') current.joinable_hosted_count += 1;
+            if (!current.latest_hosted_at || new Date(moment.created_at) > new Date(current.latest_hosted_at)) {
+                current.latest_hosted_at = moment.created_at;
+            }
+            momentStatsByHost.set(moment.host_id, current);
+        }
+
+        const participationStatsByUser = new Map();
+        for (const participation of participations || []) {
+            if (!participation?.user_id) continue;
+            const current = participationStatsByUser.get(participation.user_id) || {
+                joined_count: 0,
+                latest_joined_at: null,
+            };
+            current.joined_count += 1;
+            if (!current.latest_joined_at || new Date(participation.joined_at) > new Date(current.latest_joined_at)) {
+                current.latest_joined_at = participation.joined_at;
+            }
+            participationStatsByUser.set(participation.user_id, current);
+        }
+
+        const contentStatsByUser = new Map();
+        for (const item of [...(media || []), ...(reviews || [])]) {
+            if (!item?.user_id) continue;
+            const current = contentStatsByUser.get(item.user_id) || {
+                total_content: 0,
+                pending_content: 0,
+                rejected_content: 0,
+                approved_content: 0,
+                latest_content_at: null,
+            };
+            current.total_content += 1;
+            if (item.moderation_status === 'pending') current.pending_content += 1;
+            if (item.moderation_status === 'rejected' || item.moderation_status === 'flagged') current.rejected_content += 1;
+            if (item.moderation_status === 'approved') current.approved_content += 1;
+            if (!current.latest_content_at || new Date(item.created_at) > new Date(current.latest_content_at)) {
+                current.latest_content_at = item.created_at;
+            }
+            contentStatsByUser.set(item.user_id, current);
+        }
+
+        const supportStatsByUser = new Map();
+        for (const ticket of supportTickets || []) {
+            if (!ticket?.user_id) continue;
+            const current = supportStatsByUser.get(ticket.user_id) || {
+                open_support_tickets: 0,
+                total_support_tickets: 0,
+                latest_support_at: null,
+                escalated_tickets: 0,
+            };
+            current.total_support_tickets += 1;
+            if (ticket.status === 'open' || ticket.status === 'in_progress') current.open_support_tickets += 1;
+            if (ticket.priority === 'high') current.escalated_tickets += 1;
+            if (!current.latest_support_at || new Date(ticket.created_at) > new Date(current.latest_support_at)) {
+                current.latest_support_at = ticket.created_at;
+            }
+            supportStatsByUser.set(ticket.user_id, current);
+        }
+
+        const qualificationByUserId = new Map(
+            (qualificationRows || []).map((row) => [row.user_id, row])
+        );
+
+        const latestQualificationEventByUser = new Map();
+        for (const event of qualificationEvents || []) {
+            if (!event?.user_id || latestQualificationEventByUser.has(event.user_id)) continue;
+            latestQualificationEventByUser.set(event.user_id, event);
+        }
+
+        const roster = (baseUsers || []).map((user) => {
+            const profile = profilesByUserId.get(user.id) || null;
+            const authUser = authUsersById.get(user.id);
+            const roleSet = new Set([
+                ...(rolesByUserId.get(user.id) ? Array.from(rolesByUserId.get(user.id)) : []),
+                user.role,
+                user.user_type,
+            ].filter(Boolean));
+            const qualification = qualificationByUserId.get(user.id) || null;
+            const latestQualificationEvent = latestQualificationEventByUser.get(user.id) || null;
+            const momentStats = momentStatsByHost.get(user.id) || {};
+            const participationStats = participationStatsByUser.get(user.id) || {};
+            const contentStats = contentStatsByUser.get(user.id) || {};
+            const supportStats = supportStatsByUser.get(user.id) || {};
+
+            const moderationFlags = [
+                profile?.suspended ? 'suspended' : null,
+                qualification?.has_no_violations === false ? 'violations' : null,
+                (contentStats.pending_content || 0) > 0 ? 'pending_content' : null,
+                (contentStats.rejected_content || 0) > 0 ? 'rejected_content' : null,
+                (supportStats.escalated_tickets || 0) > 0 ? 'support_escalation' : null,
+            ].filter(Boolean);
+
+            return {
+                id: user.id,
+                email: user.email || profile?.email || authUser?.email || null,
+                created_at: user.created_at || profile?.created_at || null,
+                kyc_status: user.kyc_status || null,
+                profile: {
+                    full_name: profile?.full_name || profile?.display_name || user.display_name || authUser?.user_metadata?.full_name || null,
+                    avatar_url: profile?.avatar_url || authUser?.user_metadata?.avatar_url || null,
+                    bio: profile?.bio || null,
+                    location: profile?.location || null,
+                    display_name: profile?.display_name || user.display_name || null,
+                    username: profile?.username || authUser?.user_metadata?.username || null,
+                    suspended: Boolean(profile?.suspended),
+                    suspension_reason: profile?.suspension_reason || null,
+                },
+                roles: Array.from(roleSet),
+                qualification: qualification
+                    ? {
+                        is_qualified_for_money: Boolean(qualification.is_qualified_for_money),
+                        has_no_violations: qualification.has_no_violations,
+                        disqualification_reason: qualification.disqualification_reason || null,
+                        disqualified_at: qualification.disqualified_at || null,
+                    }
+                    : null,
+                latest_qualification_event: latestQualificationEvent
+                    ? {
+                        event_type: latestQualificationEvent.event_type,
+                        reason: latestQualificationEvent.reason || null,
+                        created_at: latestQualificationEvent.created_at,
+                    }
+                    : null,
+                activity: {
+                    hosted_count: momentStats.hosted_count || 0,
+                    active_hosted_count: momentStats.active_hosted_count || 0,
+                    joinable_hosted_count: momentStats.joinable_hosted_count || 0,
+                    joined_count: participationStats.joined_count || 0,
+                    total_content: contentStats.total_content || 0,
+                    pending_content: contentStats.pending_content || 0,
+                    rejected_content: contentStats.rejected_content || 0,
+                    approved_content: contentStats.approved_content || 0,
+                    open_support_tickets: supportStats.open_support_tickets || 0,
+                    total_support_tickets: supportStats.total_support_tickets || 0,
+                    escalated_tickets: supportStats.escalated_tickets || 0,
+                    latest_activity_at: [
+                        momentStats.latest_hosted_at,
+                        participationStats.latest_joined_at,
+                        contentStats.latest_content_at,
+                        supportStats.latest_support_at,
+                    ].filter(Boolean).sort().reverse()[0] || null,
+                },
+                moderation_flags: moderationFlags,
+            };
+        });
+
+        res.json({ success: true, users: roster });
+    } catch (error) {
+        console.error('Admin User Roster Error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch admin user roster' });
     }
 });
 
@@ -397,6 +832,218 @@ router.post('/proofs/:id/review', async (req, res) => {
 });
 
 /**
+ * GET /api/admin/moderation/overview
+ * Unified moments and content moderation visibility
+ */
+router.get('/moderation/overview', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({
+                success: true,
+                summary: {},
+                moments: [],
+                content: [],
+            });
+        }
+
+        const [
+            { data: moments = [], error: momentsError },
+            { data: checkIns = [], error: checkInsError },
+            { data: momentParticipants = [], error: participantsError },
+            { data: momentMedia = [], error: mediaError },
+            { data: momentReviews = [], error: reviewsError },
+            { data: proofSubmissions = [], error: proofsError },
+        ] = await Promise.all([
+            supabase
+                .from('moments')
+                .select('id, title, status, visibility, location, starts_at, created_at, host_id')
+                .order('created_at', { ascending: false })
+                .limit(30),
+            supabase
+                .from('check_ins')
+                .select('id, moment_id, created_at')
+                .order('created_at', { ascending: false })
+                .limit(400),
+            supabase
+                .from('moment_participants')
+                .select('moment_id, user_id, joined_at')
+                .order('joined_at', { ascending: false })
+                .limit(500),
+            supabase
+                .from('moment_media')
+                .select('id, moment_id, user_id, media_url, caption, moderation_status, created_at')
+                .order('created_at', { ascending: false })
+                .limit(200),
+            supabase
+                .from('moment_reviews')
+                .select('id, moment_id, user_id, rating, title, content, is_verified_participant, moderation_status, created_at')
+                .order('created_at', { ascending: false })
+                .limit(200),
+            supabase
+                .from('proof_submissions')
+                .select('id, moment_id, submission_state, created_at')
+                .order('created_at', { ascending: false })
+                .limit(200),
+        ]);
+
+        if (momentsError) throw momentsError;
+        if (checkInsError) throw checkInsError;
+        if (participantsError) throw participantsError;
+        if (mediaError) throw mediaError;
+        if (reviewsError) throw reviewsError;
+        if (proofsError) throw proofsError;
+
+        const momentIds = moments.map((moment) => moment.id);
+        const userIds = Array.from(new Set([
+            ...moments.map((moment) => moment.host_id),
+            ...momentMedia.map((item) => item.user_id),
+            ...momentReviews.map((item) => item.user_id),
+        ].filter(Boolean)));
+
+        const [{ data: profiles = [], error: profilesError }] = await Promise.all([
+            supabase.from('profiles').select('*').in('user_id', userIds),
+        ]);
+
+        if (profilesError) throw profilesError;
+
+        const profilesByUserId = new Map(
+            profiles
+                .filter((profile) => profile?.user_id)
+                .map((profile) => [profile.user_id, profile])
+        );
+
+        const participantCounts = new Map();
+        for (const row of momentParticipants || []) {
+            if (!row?.moment_id) continue;
+            participantCounts.set(row.moment_id, (participantCounts.get(row.moment_id) || 0) + 1);
+        }
+
+        const checkInCounts = new Map();
+        for (const row of checkIns || []) {
+            if (!row?.moment_id) continue;
+            checkInCounts.set(row.moment_id, (checkInCounts.get(row.moment_id) || 0) + 1);
+        }
+
+        const proofCounts = new Map();
+        for (const row of proofSubmissions || []) {
+            if (!row?.moment_id) continue;
+            const current = proofCounts.get(row.moment_id) || { pending: 0, verified: 0, rejected: 0 };
+            if (row.submission_state === 'pending') current.pending += 1;
+            if (row.submission_state === 'verified') current.verified += 1;
+            if (row.submission_state === 'rejected') current.rejected += 1;
+            proofCounts.set(row.moment_id, current);
+        }
+
+        const mediaCounts = new Map();
+        for (const row of momentMedia || []) {
+            if (!row?.moment_id) continue;
+            const current = mediaCounts.get(row.moment_id) || { approved: 0, pending: 0, rejected: 0 };
+            if (row.moderation_status === 'approved') current.approved += 1;
+            if (row.moderation_status === 'pending') current.pending += 1;
+            if (row.moderation_status === 'rejected' || row.moderation_status === 'flagged') current.rejected += 1;
+            mediaCounts.set(row.moment_id, current);
+        }
+
+        const reviewCounts = new Map();
+        for (const row of momentReviews || []) {
+            if (!row?.moment_id) continue;
+            const current = reviewCounts.get(row.moment_id) || { approved: 0, pending: 0, rejected: 0 };
+            if (row.moderation_status === 'approved') current.approved += 1;
+            if (row.moderation_status === 'pending') current.pending += 1;
+            if (row.moderation_status === 'rejected' || row.moderation_status === 'flagged') current.rejected += 1;
+            reviewCounts.set(row.moment_id, current);
+        }
+
+        const momentsWithMetrics = moments.map((moment) => {
+            const hostProfile = profilesByUserId.get(moment.host_id);
+            const mediaStats = mediaCounts.get(moment.id) || { approved: 0, pending: 0, rejected: 0 };
+            const reviewStats = reviewCounts.get(moment.id) || { approved: 0, pending: 0, rejected: 0 };
+            const proofStats = proofCounts.get(moment.id) || { pending: 0, verified: 0, rejected: 0 };
+
+            return {
+                ...moment,
+                host: {
+                    id: moment.host_id,
+                    name: hostProfile?.full_name || hostProfile?.display_name || hostProfile?.username || 'Unknown host',
+                    avatar_url: hostProfile?.avatar_url || null,
+                },
+                metrics: {
+                    participants: participantCounts.get(moment.id) || 0,
+                    check_ins: checkInCounts.get(moment.id) || 0,
+                    proofs_pending: proofStats.pending,
+                    proofs_verified: proofStats.verified,
+                    proofs_rejected: proofStats.rejected,
+                    content_approved: mediaStats.approved + reviewStats.approved,
+                    content_pending: mediaStats.pending + reviewStats.pending,
+                    content_rejected: mediaStats.rejected + reviewStats.rejected,
+                },
+            };
+        });
+
+        const contentItems = [
+            ...momentMedia.map((item) => ({
+                id: item.id,
+                type: 'media',
+                moment_id: item.moment_id,
+                user_id: item.user_id,
+                moderation_status: item.moderation_status || 'pending',
+                created_at: item.created_at,
+                media_url: item.media_url,
+                preview: item.caption || 'Moment media upload',
+            })),
+            ...momentReviews.map((item) => ({
+                id: item.id,
+                type: 'review',
+                moment_id: item.moment_id,
+                user_id: item.user_id,
+                moderation_status: item.moderation_status || 'pending',
+                created_at: item.created_at,
+                rating: item.rating,
+                preview: item.title || item.content || 'Moment review',
+                is_verified_participant: item.is_verified_participant || false,
+            })),
+        ]
+            .filter((item) => ['pending', 'rejected', 'flagged'].includes(item.moderation_status))
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, 40)
+            .map((item) => {
+                const profile = profilesByUserId.get(item.user_id);
+                const moment = moments.find((entry) => entry.id === item.moment_id);
+                return {
+                    ...item,
+                    moment_title: moment?.title || 'Unknown moment',
+                    user: {
+                        id: item.user_id,
+                        name: profile?.full_name || profile?.display_name || profile?.username || 'Unknown user',
+                        avatar_url: profile?.avatar_url || null,
+                    },
+                };
+            });
+
+        const summary = {
+            total_moments: moments.length,
+            active_moments: moments.filter((moment) => moment.status === 'active').length,
+            joinable_moments: moments.filter((moment) => moment.status === 'joinable').length,
+            total_participants: momentParticipants.length,
+            total_check_ins: checkIns.length,
+            pending_proofs: proofSubmissions.filter((item) => item.submission_state === 'pending').length,
+            pending_content: contentItems.filter((item) => item.moderation_status === 'pending').length,
+            rejected_content: contentItems.filter((item) => item.moderation_status === 'rejected' || item.moderation_status === 'flagged').length,
+        };
+
+        res.json({
+            success: true,
+            summary,
+            moments: momentsWithMetrics,
+            content: contentItems,
+        });
+    } catch (error) {
+        console.error('Admin Moderation Overview Error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch moderation overview' });
+    }
+});
+
+/**
  * GET /api/admin/withdrawals/pending
  * Get list of pending withdrawal requests
  */
@@ -485,6 +1132,255 @@ router.post('/withdrawals/:id/review', async (req, res) => {
 // ==========================================
 // ECONOMY & TREASURY ADMIN ROUTES
 // ==========================================
+
+/**
+ * GET /api/admin/operations/overview
+ * Unified operational visibility across rewards, Gems, KYC, demo usage, and support.
+ */
+router.get('/operations/overview', async (req, res) => {
+    try {
+        if (!supabase) {
+            return res.json({
+                rewards_24h: { issued_count: 0, unique_users: 0 },
+                gems: {
+                    held_balance: 0,
+                    locked_bonus_balance: 0,
+                    unlock_ready_count: 0,
+                    recent_activity: [],
+                },
+                redemptions: {
+                    pending_requests: 0,
+                    completed_7d: 0,
+                    rejected_7d: 0,
+                    recent_attempts: [],
+                },
+                kyc: await simpleKYCService.getKYCStats(),
+                usage: {
+                    demo_accounts: 0,
+                    live_accounts: 0,
+                    demo_participants_7d: 0,
+                    live_participants_7d: 0,
+                },
+                support: {
+                    open_escalations: 0,
+                    high_priority_open: 0,
+                    oldest_open_hours: 0,
+                    recent_escalations: [],
+                },
+            });
+        }
+
+        const since24h = new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString();
+        const since7d = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)).toISOString();
+
+        const [
+            rewardsResult,
+            recentRewardsResult,
+            gemsActivityResult,
+            withdrawalStatsResult,
+            recentWithdrawalsResult,
+            usersResult,
+            participants7dResult,
+            supportResult,
+            kycStats,
+        ] = await Promise.all([
+            supabase
+                .from('rewards')
+                .select('user_id, created_at')
+                .gte('created_at', since24h),
+            supabase
+                .from('rewards')
+                .select('id, user_id, created_at')
+                .order('created_at', { ascending: false })
+                .limit(20),
+            supabase
+                .from('gems_transactions')
+                .select(`
+                    id,
+                    user_id,
+                    amount,
+                    transaction_type,
+                    redemption_status,
+                    objective_status,
+                    objective_code,
+                    redeemable_after,
+                    created_at,
+                    user:users!gems_transactions_user_id_fkey (
+                        email,
+                        demo_email_recipient
+                    )
+                `)
+                .in('redemption_status', ['pending_30_day_hold', 'locked_objective', 'redeemable'])
+                .order('created_at', { ascending: false })
+                .limit(40),
+            supabase
+                .from('withdrawal_requests')
+                .select('status, created_at'),
+            supabase
+                .from('withdrawal_requests')
+                .select(`
+                    id,
+                    user_id,
+                    amount,
+                    status,
+                    withdrawal_method,
+                    created_at,
+                    user:users (
+                        email,
+                        demo_email_recipient
+                    )
+                `)
+                .order('created_at', { ascending: false })
+                .limit(20),
+            supabase
+                .from('users')
+                .select('id, email, demo_email_recipient'),
+            supabase
+                .from('moment_participants')
+                .select('user_id, joined_at')
+                .gte('joined_at', since7d),
+            supabase
+                .from('support_tickets')
+                .select(`
+                    id,
+                    user_id,
+                    subject,
+                    category,
+                    priority,
+                    status,
+                    created_at,
+                    user:users (
+                        email,
+                        demo_email_recipient
+                    )
+                `)
+                .order('created_at', { ascending: false })
+                .limit(30),
+            simpleKYCService.getKYCStats(),
+        ]);
+
+        const rewards = rewardsResult.data || [];
+        const rewardsUniqueUsers = new Set(rewards.map((row) => row.user_id).filter(Boolean)).size;
+
+        const gemsActivity = gemsActivityResult.data || [];
+        const heldBalance = gemsActivity
+            .filter((row) => row.redemption_status === 'pending_30_day_hold' && Number(row.amount) > 0)
+            .reduce((sum, row) => sum + Number(row.amount || 0), 0);
+        const lockedBonusBalance = gemsActivity
+            .filter((row) => row.redemption_status === 'locked_objective' && Number(row.amount) > 0)
+            .reduce((sum, row) => sum + Number(row.amount || 0), 0);
+        const unlockReadyCount = gemsActivity.filter((row) =>
+            row.redemption_status === 'locked_objective' &&
+            (row.objective_status === 'completed' || row.objective_status === 'waived')
+        ).length;
+
+        const withdrawals = withdrawalStatsResult.data || [];
+        const recentWithdrawals = recentWithdrawalsResult.data || [];
+        const pendingWithdrawalCount = withdrawals.filter((row) => row.status === 'pending').length;
+        const completedWithdrawals7d = withdrawals.filter((row) =>
+            row.status === 'completed' && row.created_at >= since7d
+        ).length;
+        const rejectedWithdrawals7d = withdrawals.filter((row) =>
+            row.status === 'rejected' && row.created_at >= since7d
+        ).length;
+
+        const users = usersResult.data || [];
+        const demoUserIds = new Set(
+            users
+                .filter((row) => {
+                    const email = String(row.email || '').toLowerCase();
+                    return email.startsWith('demo.')
+                        || email.includes('@demo.')
+                        || email.includes('_demo@')
+                        || !!row.demo_email_recipient;
+                })
+                .map((row) => row.id)
+        );
+        const liveAccounts = users.length - demoUserIds.size;
+
+        const participantRows = participants7dResult.data || [];
+        const uniqueParticipantIds = [...new Set(participantRows.map((row) => row.user_id).filter(Boolean))];
+        const demoParticipants7d = uniqueParticipantIds.filter((id) => demoUserIds.has(id)).length;
+        const liveParticipants7d = uniqueParticipantIds.filter((id) => !demoUserIds.has(id)).length;
+
+        const supportTickets = supportResult.data || [];
+        const openSupportTickets = supportTickets.filter((ticket) => ['open', 'in_progress'].includes(ticket.status));
+        const highPriorityOpen = openSupportTickets.filter((ticket) => ticket.priority === 'high').length;
+        const oldestOpenHours = openSupportTickets.length > 0
+            ? Math.max(
+                ...openSupportTickets.map((ticket) =>
+                    Math.round((Date.now() - new Date(ticket.created_at).getTime()) / (60 * 60 * 1000))
+                )
+            )
+            : 0;
+
+        res.json({
+            rewards_24h: {
+                issued_count: rewards.length,
+                unique_users: rewardsUniqueUsers,
+                recent_activity: (recentRewardsResult.data || []).slice(0, 6),
+            },
+            gems: {
+                held_balance: heldBalance,
+                locked_bonus_balance: lockedBonusBalance,
+                unlock_ready_count: unlockReadyCount,
+                recent_activity: gemsActivity.slice(0, 8).map((row) => ({
+                    id: row.id,
+                    user_id: row.user_id,
+                    email: row.user?.email || null,
+                    is_demo: !!row.user?.demo_email_recipient,
+                    amount: Number(row.amount || 0),
+                    transaction_type: row.transaction_type,
+                    redemption_status: row.redemption_status,
+                    objective_status: row.objective_status,
+                    objective_code: row.objective_code,
+                    redeemable_after: row.redeemable_after,
+                    created_at: row.created_at,
+                })),
+            },
+            redemptions: {
+                pending_requests: pendingWithdrawalCount,
+                completed_7d: completedWithdrawals7d,
+                rejected_7d: rejectedWithdrawals7d,
+                recent_attempts: recentWithdrawals.slice(0, 8).map((row) => ({
+                    id: row.id,
+                    user_id: row.user_id,
+                    email: row.user?.email || null,
+                    is_demo: !!row.user?.demo_email_recipient,
+                    amount: Number(row.amount || 0),
+                    status: row.status,
+                    withdrawal_method: row.withdrawal_method || null,
+                    created_at: row.created_at,
+                })),
+            },
+            kyc: kycStats,
+            usage: {
+                demo_accounts: demoUserIds.size,
+                live_accounts: liveAccounts,
+                demo_participants_7d: demoParticipants7d,
+                live_participants_7d: liveParticipants7d,
+            },
+            support: {
+                open_escalations: openSupportTickets.length,
+                high_priority_open: highPriorityOpen,
+                oldest_open_hours: oldestOpenHours,
+                recent_escalations: openSupportTickets.slice(0, 8).map((ticket) => ({
+                    id: ticket.id,
+                    subject: ticket.subject,
+                    category: ticket.category,
+                    priority: ticket.priority,
+                    status: ticket.status,
+                    created_at: ticket.created_at,
+                    email: ticket.user?.email || null,
+                    is_demo: !!ticket.user?.demo_email_recipient,
+                })),
+            },
+        });
+    } catch (error) {
+        console.error('Admin Operations Overview Error:', error);
+        res.status(500).json({ error: 'Failed to load operations overview' });
+    }
+});
 
 /**
  * GET /api/admin/economy/stats
@@ -740,7 +1636,7 @@ router.post('/users/:id/suspend', async (req, res) => {
                 suspension_reason: reason || null,
                 updated_at: new Date().toISOString()
             })
-            .eq('id', id);
+            .or(`id.eq.${id},user_id.eq.${id}`);
 
         if (error) throw error;
 

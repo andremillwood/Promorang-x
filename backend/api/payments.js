@@ -25,9 +25,21 @@ const router = express.Router();
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const publicOrigin = process.env.PUBLIC_WEB_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173';
-const stripeWebhookSecret = process.env.WEBHOOK_SECRET_STRIPE;
+const stripeWebhookSecret = process.env.WEBHOOK_SECRET_STRIPE || process.env.STRIPE_WEBHOOK_SECRET;
 
 const stripeClient = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2024-06-20' }) : null;
+
+function normalizeParticipantTier(planId) {
+  if (!planId) return null;
+  try {
+    const revenueService = require('../services/revenueService');
+    return revenueService.normalizeParticipantTier
+      ? revenueService.normalizeParticipantTier(planId)
+      : null;
+  } catch (error) {
+    return null;
+  }
+}
 
 let coinbaseClient = null;
 let CoinbaseCharge = null;
@@ -37,6 +49,146 @@ if (commerce && process.env.COINBASE_COMMERCE_API_KEY) {
   Client.init(process.env.COINBASE_COMMERCE_API_KEY);
   CoinbaseCharge = resources.Charge;
   coinbaseClient = Client;
+}
+
+async function resolveUserIdForPaymentIntent(intent) {
+  const metadataUserId = intent?.metadata?.user_id;
+  if (metadataUserId) {
+    return metadataUserId;
+  }
+
+  if (!supabaseAdmin || !intent?.customer) {
+    return null;
+  }
+
+  const { data: user, error } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('stripe_customer_id', intent.customer)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[payments.webhook.stripe] Failed to resolve user from Stripe customer', error);
+    return null;
+  }
+
+  return user?.id || null;
+}
+
+async function resolveUserIdForStripeCustomer(customerId) {
+  if (!supabaseAdmin || !customerId) {
+    return null;
+  }
+
+  const { data: user, error } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[payments.webhook.stripe] Failed to resolve user from Stripe customer', error);
+    return null;
+  }
+
+  return user?.id || null;
+}
+
+async function resolveSubscriptionContext(invoice) {
+  let subscription = null;
+  if (invoice?.subscription && stripeClient) {
+    try {
+      subscription = await stripeClient.subscriptions.retrieve(invoice.subscription);
+    } catch (error) {
+      console.error('[payments.webhook.stripe] Failed to retrieve subscription', error);
+    }
+  }
+
+  const metadata = {
+    ...(subscription?.metadata || {}),
+    ...(invoice?.metadata || {}),
+  };
+
+  const userId = metadata.user_id || await resolveUserIdForStripeCustomer(invoice?.customer);
+  const planId = metadata.plan_id || metadata.plan;
+
+  return {
+    userId,
+    planId,
+    subscriptionId: subscription?.id || invoice?.subscription || null,
+    metadata,
+  };
+}
+
+async function ensureSubscriptionPaymentTransaction(intent) {
+  if (!supabaseAdmin) {
+    return null;
+  }
+
+  const existingQuery = await supabaseAdmin
+    .from('transactions')
+    .select('id')
+    .eq('provider', 'stripe')
+    .eq('external_payment_id', intent.id)
+    .maybeSingle();
+
+  if (existingQuery.error) {
+    throw existingQuery.error;
+  }
+
+  if (existingQuery.data?.id) {
+    return existingQuery.data.id;
+  }
+
+  const userId = await resolveUserIdForPaymentIntent(intent);
+  const amountUsd = Number(((intent.amount_received || intent.amount || 0) / 100).toFixed(2));
+  const paymentMetadata = {
+    stripe_customer_id: intent.customer || null,
+    stripe_invoice_id: intent.invoice || null,
+    stripe_subscription_id: intent.subscription || null,
+    payment_method_types: intent.payment_method_types || [],
+    livemode: Boolean(intent.livemode),
+    raw_metadata: intent.metadata || {},
+  };
+
+  const insertResult = await supabaseAdmin
+    .from('transactions')
+    .insert({
+      user_id: userId,
+      transaction_type: 'subscription_payment',
+      amount: amountUsd,
+      currency_type: (intent.currency || 'usd').toUpperCase(),
+      status: 'completed',
+      description: `Stripe payment ${intent.id}`,
+      provider: 'stripe',
+      external_payment_id: intent.id,
+      metadata: paymentMetadata,
+      updated_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (insertResult.error) {
+    // Unique index races are expected under webhook retries. Re-read and continue.
+    if (insertResult.error.code === '23505') {
+      const retryQuery = await supabaseAdmin
+        .from('transactions')
+        .select('id')
+        .eq('provider', 'stripe')
+        .eq('external_payment_id', intent.id)
+        .maybeSingle();
+
+      if (retryQuery.error) {
+        throw retryQuery.error;
+      }
+
+      return retryQuery.data?.id || null;
+    }
+
+    throw insertResult.error;
+  }
+
+  return insertResult.data?.id || null;
 }
 
 const getStripeConfiguredPrices = () =>
@@ -116,6 +268,14 @@ router.post('/checkout', requireAuth, async (req, res) => {
         plan_label: plan_id,
         ...metadata,
       },
+      subscription_data: {
+        metadata: {
+          user_id: req.user?.id || null,
+          plan_id: normalisedPlanId,
+          plan_label: plan_id,
+          ...metadata,
+        },
+      },
     });
 
     return res.json({
@@ -186,6 +346,9 @@ async function stripeWebhook(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+        const { user_id: metadataUserId, plan_id: metadataPlanId } = session.metadata || {};
+        const participantTier = normalizeParticipantTier(metadataPlanId || session.metadata?.plan);
+
         console.log('[payments.webhook.stripe] checkout.session.completed', {
           id: session.id,
           customer: session.customer,
@@ -193,7 +356,6 @@ async function stripeWebhook(req, res) {
           plan_id: session.metadata?.plan_id || session.metadata?.plan,
         });
 
-        const { user_id: metadataUserId, plan_id: metadataPlanId } = session.metadata || {};
         if (metadataUserId && metadataPlanId) {
           if (!supabaseAdmin) {
             console.warn('[payments.webhook.stripe] Supabase client not configured, skipping plan update');
@@ -214,6 +376,59 @@ async function stripeWebhook(req, res) {
           }
         }
 
+        if (metadataUserId && participantTier && session.amount_total) {
+          try {
+            const revenueService = require('../services/revenueService');
+            await revenueService.trackParticipantSubscriptionRevenue({
+              userId: metadataUserId,
+              tierKey: participantTier,
+              amount: Number((session.amount_total / 100).toFixed(2)),
+              currency: session.currency || 'usd',
+              provider: 'stripe',
+              providerPaymentId: session.payment_intent || session.id,
+              providerSubscriptionId: session.subscription || null,
+              metadata: {
+                checkout_session_id: session.id,
+                stripe_customer_id: session.customer || null,
+                raw_plan_id: metadataPlanId || session.metadata?.plan || null,
+              },
+            });
+          } catch (err) {
+            console.error('[payments.webhook.stripe] Failed to allocate participant subscription', err);
+          }
+        }
+
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        const context = await resolveSubscriptionContext(invoice);
+        const participantTier = normalizeParticipantTier(context.planId);
+
+        if (context.userId && participantTier && invoice.amount_paid) {
+          try {
+            const revenueService = require('../services/revenueService');
+            await revenueService.trackParticipantSubscriptionRevenue({
+              userId: context.userId,
+              tierKey: participantTier,
+              amount: Number((invoice.amount_paid / 100).toFixed(2)),
+              currency: invoice.currency || 'usd',
+              provider: 'stripe',
+              providerPaymentId: invoice.payment_intent || invoice.id,
+              providerSubscriptionId: context.subscriptionId,
+              metadata: {
+                stripe_invoice_id: invoice.id,
+                stripe_customer_id: invoice.customer || null,
+                raw_plan_id: context.planId || null,
+                billing_reason: invoice.billing_reason || null,
+              },
+            });
+          } catch (err) {
+            console.error('[payments.webhook.stripe] Failed to allocate invoice participant subscription', err);
+          }
+        }
+
         break;
       }
 
@@ -224,16 +439,43 @@ async function stripeWebhook(req, res) {
           amount: intent.amount_received,
           customer: intent.customer,
         });
-        // TODO: credit wallet / mark invoice paid
 
-        // Track Revenue for PromoShare (5% allocation)
         try {
-          const revenueService = require('../services/revenueService');
-          // intent.amount_received is in cents
-          const amountUsd = intent.amount_received / 100;
-          await revenueService.trackRevenue(amountUsd, intent.id, 'stripe_payment');
+          const momentEconomyService = require('../services/momentEconomyService');
+          const momentResult = await momentEconomyService.confirmStripeMomentPaymentIntent(intent);
+          if (momentResult.handled) {
+            console.log('[payments.webhook.stripe] Moment Economy payment confirmed', {
+              payment_intent: intent.id,
+              moment_id: intent.metadata?.moment_id,
+            });
+          }
         } catch (err) {
-          console.error('[payments.webhook.stripe] Failed to track revenue', err);
+          console.error('[payments.webhook.stripe] Failed to confirm Moment Economy payment', err);
+          throw err;
+        }
+
+        let transactionId = null;
+        try {
+          transactionId = await ensureSubscriptionPaymentTransaction(intent);
+        } catch (err) {
+          console.error('[payments.webhook.stripe] Failed to persist local transaction', err);
+        }
+
+        const isLikelySubscriptionIntent = Boolean(
+          intent.invoice ||
+          intent.subscription ||
+          normalizeParticipantTier(intent.metadata?.plan_id || intent.metadata?.plan)
+        );
+
+        if (!isLikelySubscriptionIntent) {
+          // Track non-subscription Stripe revenue for PromoShare (5% allocation).
+          try {
+            const revenueService = require('../services/revenueService');
+            const amountUsd = intent.amount_received / 100;
+            await revenueService.trackRevenue(amountUsd, transactionId || intent.id, 'stripe_payment');
+          } catch (err) {
+            console.error('[payments.webhook.stripe] Failed to track revenue', err);
+          }
         }
 
         break;

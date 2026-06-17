@@ -85,7 +85,7 @@ async function scoutContent(userId, url) {
             id: piece.id, // Keep IDs synced
             creator_id: null,
             title: piece.title,
-            media_url: metadata.thumbnail || 'https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png',
+            media_url: metadata.thumbnail || 'https://promorang.co/email-assets/promorang-logo.png',
             platform: sourcePlatform,
             status: 'ghost',
             posted_at: nowIso,

@@ -74,32 +74,32 @@ export const createMomentTour: TourConfig = {
             disableBeacon: true,
         },
         {
-            target: '[data-tour="moment-title"]',
+            target: '[data-tour="create-moment-title"]',
             content: '📝 Give your moment a catchy, descriptive title. Make it clear what attendees will experience!',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-category"]',
+            target: '[data-tour="create-moment-category"]',
             content: '🏷️ Choose a category that best describes your moment. This helps people discover it.',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-location"]',
+            target: '[data-tour="create-moment-location"]',
             content: '📍 Specify where your moment will happen. You can choose an existing venue or add a new location.',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-capacity"]',
+            target: '[data-tour="create-moment-capacity"]',
             content: '👥 Set a maximum number of participants. Limited spots create urgency and exclusivity!',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-reward"]',
+            target: '[data-tour="create-moment-reward"]',
             content: '🎁 Optional: Offer a reward to boost engagement. This could be a discount, free item, or special perk.',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-publish"]',
+            target: '[data-tour="create-moment-publish"]',
             content: '🚀 When you\'re ready, publish your moment! You can always edit it later.',
             placement: 'top',
         },
@@ -107,37 +107,37 @@ export const createMomentTour: TourConfig = {
 };
 
 /**
- * Discover Tour
- * Helps users navigate the discover page
+ * Explore Moments Tour
+ * Helps users navigate the explore moments page
  */
-export const discoverTour: TourConfig = {
+export const exploreMomentsTour: TourConfig = {
     id: 'discover',
-    title: 'Discover Amazing Moments',
+    title: 'Explore Moments',
     description: 'Find experiences worth joining',
     steps: [
         {
             target: 'body',
-            content: '🔍 Welcome to Discover! This is where you\'ll find all the amazing moments happening around you.',
+            content: '🔍 Welcome to Explore Moments. This is where you can browse the public moment catalog happening around you.',
             placement: 'center',
             disableBeacon: true,
         },
         {
-            target: '[data-tour="search-bar"]',
+            target: '[data-tour="discover-search"]',
             content: '🔎 Search for moments by name, location, or activity. Try searching for something you love!',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="category-filter"]',
+            target: '[data-tour="discover-category"]',
             content: '🏷️ Filter by category to narrow down your options. Find exactly what you\'re in the mood for.',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="sort-options"]',
+            target: '[data-tour="discover-sort"]',
             content: '⚡ Sort by date, popularity, or distance to find the perfect moment for you.',
             placement: 'bottom',
         },
         {
-            target: '[data-tour="moment-card"]',
+            target: '[data-tour="discover-moments"]',
             content: '💫 Click on any moment card to see full details, RSVP, and connect with the host.',
             placement: 'top',
         },
@@ -233,7 +233,7 @@ export const tours: Record<TourId, TourConfig> = {
     'first-time-user': firstTimeUserTour,
     'create-moment': createMomentTour,
     'create-campaign': createCampaignTour,
-    'discover': discoverTour,
+    'discover': exploreMomentsTour,
     'analytics': analyticsTour,
     'merchant-setup': {
         id: 'merchant-setup',

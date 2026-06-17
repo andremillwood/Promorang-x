@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDiscoverMoments, useMomentCategories, type DiscoverableMoment } from "@/hooks/useDiscoverMoments";
+import { useExploreMoments, useMomentCategories, type ExploreMoment } from "@/hooks/useExploreMoments";
 import { MomentDiscoveryCard } from "./MomentDiscoveryCard";
 import { SponsorshipRequestDialog } from "./SponsorshipRequestDialog";
 import { SponsorshipRequestsTable } from "./SponsorshipRequestsTable";
@@ -19,16 +19,16 @@ import { SponsorshipRequestsTable } from "./SponsorshipRequestsTable";
 export function BrandSponsorshipTab() {
   const [locationSearch, setLocationSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [selectedMoment, setSelectedMoment] = useState<DiscoverableMoment | null>(null);
+  const [selectedMoment, setSelectedMoment] = useState<ExploreMoment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: categories } = useMomentCategories();
-  const { data: moments, isLoading } = useDiscoverMoments({
+  const { data: moments, isLoading } = useExploreMoments({
     category: categoryFilter,
     location: locationSearch || undefined,
   });
 
-  const handleSponsorClick = (moment: DiscoverableMoment) => {
+  const handleSponsorClick = (moment: ExploreMoment) => {
     setSelectedMoment(moment);
     setDialogOpen(true);
   };
@@ -39,7 +39,7 @@ export function BrandSponsorshipTab() {
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="discover" className="gap-2">
             <Sparkles className="w-4 h-4" />
-            Discover Moments
+            Explore Moments
           </TabsTrigger>
           <TabsTrigger value="requests" className="gap-2">
             <Building2 className="w-4 h-4" />
@@ -47,7 +47,7 @@ export function BrandSponsorshipTab() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Discover Moments Tab */}
+        {/* Explore Moments Tab */}
         <TabsContent value="discover" className="space-y-6 mt-6">
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4">

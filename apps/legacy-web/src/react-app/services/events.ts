@@ -4,7 +4,7 @@
  */
 
 import { apiFetch } from '@/react-app/utils/api';
-import type { EventType, EventTaskType, EventSponsorType } from '../../shared/types';
+import type { EventType, EventTaskType, EventSponsorType, EventSeriesType } from '../../shared/types';
 
 export interface EventsListResponse {
     events: EventType[];
@@ -15,6 +15,21 @@ export interface EventDetailResponse {
     hasRsvp: boolean;
     tasks: EventTaskType[];
     sponsors: EventSponsorType[];
+    series?: EventSeriesType | null;
+    occurrences?: Pick<EventType, 'id' | 'title' | 'event_date' | 'event_end_date' | 'status' | 'occurrence_index' | 'location_name' | 'is_virtual'>[];
+    sourceEvent?: Pick<EventType, 'id' | 'title' | 'event_date' | 'event_end_date' | 'status'> | null;
+}
+
+export interface EventRecurrencePayload {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    interval: number;
+    byWeekday: number[];
+    dayOfMonth?: number | null;
+    timezone: string;
+    until?: string | null;
+    count?: number | null;
+    generationHorizonDays?: number;
 }
 
 export interface CreateEventPayload {
@@ -39,6 +54,9 @@ export interface CreateEventPayload {
     tags?: string[];
     total_rewards_pool?: number;
     total_verified_credits_pool?: number;
+    clone_from_event_id?: string;
+    convert_to_series_from_event_id?: string;
+    recurrence?: EventRecurrencePayload | null;
 }
 
 class EventsService {
@@ -122,6 +140,44 @@ class EventsService {
 
         const result = await response.json();
         return result.data.event;
+    }
+
+    /**
+     * Clone an existing event into a new draft
+     */
+    async cloneEvent(eventId: string, payload?: Partial<CreateEventPayload>): Promise<{ event: EventType; series?: EventSeriesType | null }> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/clone`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload || {}),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to clone event');
+        }
+
+        const result = await response.json();
+        return result.data;
+    }
+
+    /**
+     * Convert an event into a recurring series
+     */
+    async convertToRecurringSeries(eventId: string, recurrence: EventRecurrencePayload): Promise<{ event: EventType; series: EventSeriesType }> {
+        const response = await apiFetch(`${this.baseUrl}/${eventId}/convert-to-recurring`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recurrence }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to convert event to recurring');
+        }
+
+        const result = await response.json();
+        return result.data;
     }
 
     /**

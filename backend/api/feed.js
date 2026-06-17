@@ -69,203 +69,633 @@ router.get('/demo', async (req, res) => {
         }
     });
 });
-// HELPER: SCORING ALGORITHM
+// HELPER: SCORING + FEED NORMALIZATION
 // ============================================
-const calculateScore = (item, userPrefs, userContext = {}, interactions = []) => {
+const PROFILE_WEIGHTS = {
+    participant: {
+        recency: 1.0,
+        intent: 1.4,
+        relevance: 1.2,
+        proximity: 1.2,
+        urgency: 1.1,
+        social: 0.9,
+        value: 0.8,
+        quality: 0.7,
+    },
+    creator: {
+        recency: 0.7,
+        intent: 1.3,
+        relevance: 1.3,
+        proximity: 0.8,
+        urgency: 0.9,
+        social: 0.8,
+        value: 1.2,
+        quality: 1.0,
+    },
+};
+
+const INTENT_MULTIPLIERS = {
+    default: {
+        recency: 1,
+        intent: 1,
+        relevance: 1,
+        proximity: 1,
+        urgency: 1,
+        social: 1,
+        value: 1,
+        quality: 1,
+    },
+    nearby: {
+        recency: 1,
+        intent: 1.1,
+        relevance: 1,
+        proximity: 1.5,
+        urgency: 1.2,
+        social: 1,
+        value: 1,
+        quality: 1,
+    },
+    tonight: {
+        recency: 1.1,
+        intent: 1.2,
+        relevance: 1,
+        proximity: 1.1,
+        urgency: 1.6,
+        social: 1,
+        value: 1,
+        quality: 1,
+    },
+    earn: {
+        recency: 1,
+        intent: 1.2,
+        relevance: 1,
+        proximity: 1,
+        urgency: 1.2,
+        social: 1,
+        value: 1.7,
+        quality: 1.1,
+    },
+};
+
+const isValidDate = (value) => value instanceof Date && !Number.isNaN(value.getTime());
+
+const getItemDate = (item) => {
+    const dateValue = item.posted_at || item.created_at || item.start_date || item.starts_at || item.assigned_at || item.date || item.expires_at;
+    const date = dateValue ? new Date(dateValue) : null;
+    return isValidDate(date) ? date : null;
+};
+
+const getDaysOld = (itemDate) => {
+    if (!itemDate) return 0;
+    return (Date.now() - itemDate.getTime()) / (1000 * 60 * 60 * 24);
+};
+
+const scoreRecency = (item) => {
+    const itemDate = getItemDate(item);
+    if (!itemDate) return 0;
+    return Math.max(0, 25 - (getDaysOld(itemDate) * 1.25));
+};
+
+const scoreInterestMatch = (item, userPrefs) => {
+    if (!userPrefs?.interests || !Array.isArray(item.tags)) return 0;
+    const matches = userPrefs.interests.filter((interest) => item.tags.includes(interest));
+    return Math.min(matches.length * 8, 24);
+};
+
+const scoreGeography = (item, userPrefs) => {
     let score = 0;
-    const now = new Date();
 
-    // Defensive check for date fields across different item types
-    const dateValue = item.posted_at || item.created_at || item.start_date || item.assigned_at;
-    const itemDate = dateValue ? new Date(dateValue) : now;
-
-    // Handle invalid dates
-    if (isNaN(itemDate.getTime())) {
-        return 0; // Fallback for corrupted data
-    }
-
-    // 1. RECENCY (Decay)
-    // Items lose 1 point every 24 hours
-    const daysOld = (now - itemDate) / (1000 * 60 * 60 * 24);
-    score += Math.max(0, 100 - (daysOld * 5)); // Freshness boost up to 100
-
-    // 2. INTEREST MATCHING
-    // If item tags match user interests
-    if (userPrefs?.interests && item.tags) {
-        const matches = userPrefs.interests.filter(i => item.tags.includes(i));
-        score += matches.length * 20; // +20 per matched interest
-    }
-
-    // 3. GEOGRAPHY (Simple filter/boost)
-    // If exact city match +50
     if (userPrefs?.location_data?.city && item.location_city) {
         if (userPrefs.location_data.city.toLowerCase() === item.location_city.toLowerCase()) {
-            score += 50;
+            score += 14;
         }
     }
-    
-    // Country-level match (slightly lower boost)
+
     if (userPrefs?.location_data?.country && item.country) {
         if (userPrefs.location_data.country.toLowerCase() === item.country.toLowerCase()) {
-            score += 30;
+            score += 8;
         }
-    }
-
-    // 4. DEMOGRAPHIC TARGETING (NEW)
-    const demographics = userContext?.demographics;
-    if (demographics) {
-        // Age-appropriate content
-        if (item.target_age_min && userContext.age) {
-            if (userContext.age >= item.target_age_min) score += 15;
-            else score -= 20;
-        }
-        if (item.target_age_max && userContext.age) {
-            if (userContext.age <= item.target_age_max) score += 15;
-            else score -= 20;
-        }
-        
-        // Gender targeting (for relevant categories)
-        if (item.target_gender && demographics.gender) {
-            if (item.target_gender === demographics.gender) score += 10;
-        }
-        
-        // Family status targeting
-        if (item.family_friendly && demographics.has_children) score += 20;
-        if (item.parenting_focused && demographics.has_children) score += 30;
-        if (item.child_age_range && demographics.children_ages) {
-            const hasMatchingChild = demographics.children_ages.some(age => {
-                const [min, max] = item.child_age_range.split('-').map(Number);
-                return age >= min && age <= max;
-            });
-            if (hasMatchingChild) score += 25;
-        }
-        
-        // Relationship status targeting
-        if (item.couples_focused && ['married', 'partnership', 'dating', 'engaged'].includes(demographics.marital_status)) {
-            score += 20;
-        }
-        if (item.singles_focused && demographics.marital_status === 'single') {
-            score += 15;
-        }
-        
-        // Lifestyle targeting
-        if (item.fitness_level && demographics.fitness_level === item.fitness_level) {
-            score += 15;
-        }
-        if (item.dietary_preferences && demographics.dietary_preferences) {
-            const dietMatches = item.dietary_preferences.filter(d => demographics.dietary_preferences.includes(d));
-            score += dietMatches.length * 10;
-        }
-        
-        // Pet owner targeting
-        if (item.pet_friendly && demographics.has_pets) score += 15;
-        if (item.pet_types && demographics.pet_types) {
-            const petMatches = item.pet_types.filter(p => demographics.pet_types.includes(p));
-            if (petMatches.length > 0) score += 20;
-        }
-    }
-
-    // 5. LIFE EVENT CONTEXT (NEW)
-    const upcomingEvents = userContext?.upcoming_personal_events || [];
-    for (const event of upcomingEvents) {
-        // Birthday coming up
-        if (event.type === 'my_birthday' && item.birthday_relevant) {
-            score += 40;
-        }
-        if (event.type === 'partner_birthday' && item.gift_ideas) {
-            score += 35;
-        }
-        
-        // Anniversary
-        if (event.type === 'anniversary' && (item.couples_focused || item.romantic)) {
-            score += 30;
-        }
-        
-        // Child birthdays
-        if (event.type === 'child_birthday' && item.family_friendly) {
-            score += 25;
-        }
-    }
-
-    // 6. SEASONAL & GLOBAL EVENT CONTEXT (NEW)
-    const globalContext = userContext?.global_context;
-    if (globalContext) {
-        // Seasonal relevance
-        if (item.seasonal_tag === globalContext.current_season) {
-            score += 15;
-        }
-        if (item.outdoor_activity && globalContext.outdoor_boost) {
-            score += 25;
-        }
-        if (item.indoor_activity && globalContext.indoor_boost) {
-            score += 20;
-        }
-        
-        // Holiday relevance
-        if (globalContext.next_holiday && item.holiday_tag === globalContext.next_holiday.name) {
-            const daysUntil = globalContext.days_until_holiday;
-            if (daysUntil <= 14) score += 30;
-            if (daysUntil <= 7) score += 40;
-        }
-        
-        // Sports event alignment
-        if (globalContext.active_sports_events) {
-            for (const sportEvent of globalContext.active_sports_events) {
-                if (item.tags?.includes(sportEvent.sport_type) || item.sports_related) {
-                    score += 25;
-                }
-            }
-        }
-        
-        // Music event alignment
-        if (globalContext.active_music_events) {
-            for (const musicEvent of globalContext.active_music_events) {
-                if (item.genres?.some(g => musicEvent.genres?.includes(g)) || item.music_related) {
-                    score += 20;
-                }
-            }
-        }
-    }
-
-    // 7. WEATHER-BASED BOOSTING (NEW)
-    const weatherContext = userContext?.weather;
-    if (weatherContext) {
-        // Rainy day? Boost indoor activities
-        if (['rainy', 'stormy', 'snowy'].includes(weatherContext.condition) && item.indoor_activity) {
-            score += 20;
-        }
-        // Sunny and nice? Boost outdoor activities
-        if (['sunny', 'clear', 'perfect'].includes(weatherContext.condition) && item.outdoor_activity) {
-            score += 25;
-        }
-        // Hot weather? Boost water/summer activities
-        if (weatherContext.temperature > 80 && item.summer_activity) {
-            score += 15;
-        }
-        // Cold weather? Boost cozy/winter activities
-        if (weatherContext.temperature < 40 && item.winter_activity) {
-            score += 15;
-        }
-    }
-
-    // 8. PREVIOUS INTERACTIONS (Affinity)
-    // If user has interacted with this creator before
-    if (item.creator_id && interactions?.length > 0) {
-        const creatorInteractions = interactions.filter(i => i.creator_id === item.creator_id);
-        if (creatorInteractions.length > 0) {
-            score += Math.min(creatorInteractions.length * 5, 30); // Cap at +30
-        }
-    }
-
-    // 9. CONTENT NICHE ALIGNMENT (NEW)
-    if (demographics?.content_niches && item.target_content_niches) {
-        const nicheMatches = demographics.content_niches.filter(n => 
-            item.target_content_niches.includes(n)
-        );
-        score += nicheMatches.length * 15;
     }
 
     return score;
+};
+
+const scoreDemographics = (item, userContext = {}) => {
+    let score = 0;
+    const demographics = userContext?.demographics;
+    if (!demographics) return score;
+
+    if (item.target_age_min && userContext.age) {
+        score += userContext.age >= item.target_age_min ? 6 : -8;
+    }
+    if (item.target_age_max && userContext.age) {
+        score += userContext.age <= item.target_age_max ? 6 : -8;
+    }
+
+    if (item.target_gender && demographics.gender && item.target_gender === demographics.gender) {
+        score += 4;
+    }
+
+    if (item.family_friendly && demographics.has_children) score += 6;
+    if (item.parenting_focused && demographics.has_children) score += 8;
+    if (item.child_age_range && demographics.children_ages) {
+        const [min, max] = String(item.child_age_range).split('-').map(Number);
+        const hasMatchingChild = demographics.children_ages.some((age) => age >= min && age <= max);
+        if (hasMatchingChild) score += 8;
+    }
+
+    if (item.couples_focused && ['married', 'partnership', 'dating', 'engaged'].includes(demographics.marital_status)) {
+        score += 6;
+    }
+    if (item.singles_focused && demographics.marital_status === 'single') {
+        score += 5;
+    }
+
+    if (item.fitness_level && demographics.fitness_level === item.fitness_level) {
+        score += 5;
+    }
+
+    if (Array.isArray(item.dietary_preferences) && Array.isArray(demographics.dietary_preferences)) {
+        const dietMatches = item.dietary_preferences.filter((preference) => demographics.dietary_preferences.includes(preference));
+        score += Math.min(dietMatches.length * 3, 6);
+    }
+
+    if (item.pet_friendly && demographics.has_pets) score += 4;
+    if (Array.isArray(item.pet_types) && Array.isArray(demographics.pet_types)) {
+        const petMatches = item.pet_types.filter((petType) => demographics.pet_types.includes(petType));
+        if (petMatches.length > 0) score += 5;
+    }
+
+    return score;
+};
+
+const scoreLifeEvents = (item, userContext = {}) => {
+    let score = 0;
+    const upcomingEvents = userContext?.upcoming_personal_events || [];
+
+    for (const event of upcomingEvents) {
+        if (event.type === 'my_birthday' && item.birthday_relevant) score += 8;
+        if (event.type === 'partner_birthday' && item.gift_ideas) score += 7;
+        if (event.type === 'anniversary' && (item.couples_focused || item.romantic)) score += 7;
+        if (event.type === 'child_birthday' && item.family_friendly) score += 6;
+    }
+
+    return score;
+};
+
+const scoreGlobalContext = (item, userContext = {}) => {
+    let score = 0;
+    const globalContext = userContext?.global_context;
+    if (!globalContext) return score;
+
+    if (item.seasonal_tag === globalContext.current_season) score += 4;
+    if (item.outdoor_activity && globalContext.outdoor_boost) score += 6;
+    if (item.indoor_activity && globalContext.indoor_boost) score += 5;
+
+    if (globalContext.next_holiday && item.holiday_tag === globalContext.next_holiday.name) {
+        if (globalContext.days_until_holiday <= 14) score += 5;
+        if (globalContext.days_until_holiday <= 7) score += 6;
+    }
+
+    for (const sportEvent of globalContext.active_sports_events || []) {
+        if (item.tags?.includes(sportEvent.sport_type) || item.sports_related) score += 4;
+    }
+
+    for (const musicEvent of globalContext.active_music_events || []) {
+        if (item.genres?.some((genre) => musicEvent.genres?.includes(genre)) || item.music_related) score += 3;
+    }
+
+    return score;
+};
+
+const scoreWeather = (item, userContext = {}) => {
+    let score = 0;
+    const weatherContext = userContext?.weather;
+    if (!weatherContext) return score;
+
+    if (['rainy', 'stormy', 'snowy'].includes(weatherContext.condition) && item.indoor_activity) score += 5;
+    if (['sunny', 'clear', 'perfect'].includes(weatherContext.condition) && item.outdoor_activity) score += 6;
+    if (weatherContext.temperature > 80 && item.summer_activity) score += 3;
+    if (weatherContext.temperature < 40 && item.winter_activity) score += 3;
+
+    return score;
+};
+
+const scoreAffinity = (item, interactions = []) => {
+    if (!item.creator_id || interactions.length === 0) return 0;
+    const creatorInteractions = interactions.filter((interaction) => interaction.creator_id === item.creator_id);
+    return Math.min(creatorInteractions.length * 3, 12);
+};
+
+const scoreNicheAlignment = (item, userContext = {}) => {
+    const demographics = userContext?.demographics;
+    if (!Array.isArray(demographics?.content_niches) || !Array.isArray(item.target_content_niches)) return 0;
+    const nicheMatches = demographics.content_niches.filter((niche) => item.target_content_niches.includes(niche));
+    return Math.min(nicheMatches.length * 4, 12);
+};
+
+const scoreIntentMatch = (item, intent) => {
+    if (!intent) return 0;
+
+    if (intent === 'nearby' && (item.location_city || item.location || item.country)) {
+        return 12;
+    }
+
+    if (intent === 'tonight' && (item.start_date || item.starts_at || item.date)) {
+        const itemDate = getItemDate(item);
+        if (!itemDate) return 6;
+
+        const hoursUntil = (itemDate.getTime() - Date.now()) / (1000 * 60 * 60);
+        if (hoursUntil >= -6 && hoursUntil <= 12) return 18;
+        if (hoursUntil <= 24) return 12;
+        return 6;
+    }
+
+    if (intent === 'earn' && (item.gem_reward_base || item.value || item.reward_type || item.type === 'coupon')) {
+        return 15;
+    }
+
+    return 0;
+};
+
+const scoreUrgency = (item) => {
+    let score = 0;
+    const itemDate = getItemDate(item);
+    if (itemDate) {
+        const hoursUntil = (itemDate.getTime() - Date.now()) / (1000 * 60 * 60);
+        if (hoursUntil >= -4 && hoursUntil <= 8) score += 12;
+        else if (hoursUntil <= 24) score += 8;
+        else if (hoursUntil <= 72) score += 4;
+    }
+
+    if (item.expires_at) score += 4;
+    if (item.status === 'active') score += 2;
+
+    return score;
+};
+
+const scoreValue = (item) => {
+    let score = 0;
+    const rewardValue = Number(item.value || item.gem_reward_base || 0);
+    if (rewardValue > 0) {
+        score += Math.min(rewardValue / 10, 12);
+    }
+
+    if (item.type === 'coupon' || item.reward_type) score += 4;
+    if (item.key_cost === 0) score += 2;
+
+    return score;
+};
+
+const scoreQuality = (item) => {
+    let score = 0;
+    if (item.type === 'event' && item.status === 'published') score += 5;
+    if (item.type === 'drop' && item.status === 'active') score += 5;
+    if (item.type === 'coupon') score += 6;
+    if (item.attendees || item.current_participants || item.participant_count) {
+        score += Math.min(Number(item.attendees || item.current_participants || item.participant_count) / 20, 4);
+    }
+    if (item.quality_boost) score += item.quality_boost;
+
+    return score;
+};
+
+const calculateScoreBreakdown = (item, userPrefs, userContext = {}, interactions = [], intent = null) => ({
+    recency: scoreRecency(item),
+    intent: scoreIntentMatch(item, intent),
+    relevance: scoreInterestMatch(item, userPrefs)
+        + scoreDemographics(item, userContext)
+        + scoreLifeEvents(item, userContext)
+        + scoreGlobalContext(item, userContext)
+        + scoreWeather(item, userContext)
+        + scoreNicheAlignment(item, userContext),
+    proximity: scoreGeography(item, userPrefs),
+    urgency: scoreUrgency(item),
+    social: scoreAffinity(item, interactions),
+    value: scoreValue(item),
+    quality: scoreQuality(item),
+    diversity_adjustment: 0,
+});
+
+const applyProfileWeights = (scoreBreakdown, profile = 'participant', intent = null) => {
+    const profileWeights = PROFILE_WEIGHTS[profile] || PROFILE_WEIGHTS.participant;
+    const intentWeights = INTENT_MULTIPLIERS[intent] || INTENT_MULTIPLIERS.default;
+
+    const weightedScore = (
+        (scoreBreakdown.recency * profileWeights.recency * intentWeights.recency) +
+        (scoreBreakdown.intent * profileWeights.intent * intentWeights.intent) +
+        (scoreBreakdown.relevance * profileWeights.relevance * intentWeights.relevance) +
+        (scoreBreakdown.proximity * profileWeights.proximity * intentWeights.proximity) +
+        (scoreBreakdown.urgency * profileWeights.urgency * intentWeights.urgency) +
+        (scoreBreakdown.social * profileWeights.social * intentWeights.social) +
+        (scoreBreakdown.value * profileWeights.value * intentWeights.value) +
+        (scoreBreakdown.quality * profileWeights.quality * intentWeights.quality) +
+        scoreBreakdown.diversity_adjustment
+    );
+
+    return Number(weightedScore.toFixed(2));
+};
+
+const normalizeObjectType = (item) => {
+    if (item.object_type) return item.object_type;
+    if (item.type === 'event') return 'moment';
+    if (item.type === 'drop') return 'drop';
+    if (item.type === 'coupon') return 'offer';
+    return 'content';
+};
+
+const buildReasonLabels = (item, intent, scoreBreakdown = null) => {
+    const labels = [];
+
+    if ((scoreBreakdown?.proximity || 0) >= 10 || (intent === 'nearby' && (item.location_city || item.location))) labels.push('Near you');
+    if ((scoreBreakdown?.urgency || 0) >= 10 || (intent === 'tonight' && (item.start_date || item.starts_at || item.date))) labels.push('Tonight');
+    if ((scoreBreakdown?.value || 0) >= 8 || (intent === 'earn' && (item.gem_reward_base || item.value || item.reward_type))) labels.push('Earn now');
+    if ((scoreBreakdown?.relevance || 0) >= 18) labels.push('Matches your interests');
+    if (item.type === 'coupon') labels.push('Brand-funded');
+    if (item.type === 'drop') labels.push('Proof-based');
+    if ((item.score || 0) >= 70) labels.push('High match');
+
+    return Array.from(new Set(labels)).slice(0, 3);
+};
+
+const buildPrimaryAction = (item, objectType) => {
+    if (objectType === 'moment') {
+        return {
+            label: 'View Moment',
+            action: 'view',
+            href: `/moments/${item.id}`,
+        };
+    }
+
+    if (objectType === 'drop') {
+        return {
+            label: 'Start Proof',
+            action: 'start_proof',
+            href: '/watch-unlock',
+        };
+    }
+
+    if (objectType === 'offer') {
+        return {
+            label: 'Claim Reward',
+            action: 'claim',
+            href: '/dashboard/rewards',
+        };
+    }
+
+    return {
+        label: 'Open',
+        action: 'view',
+        href: '/discover',
+    };
+};
+
+const serializeFeedItem = (item, intent) => {
+    const objectType = normalizeObjectType(item);
+
+    return {
+        ...item,
+        object_type: objectType,
+        entity_id: item.entity_id || item.id,
+        title: item.title || item.content_title || 'Recommended for you',
+        subtitle: item.creator_name || item.sponsor_name || item.platform || null,
+        image_url: item.image_url || item.media_url || item.image || null,
+        reason_labels: buildReasonLabels(item, intent, item.score_breakdown),
+        primary_cta: buildPrimaryAction(item, objectType),
+        secondary_cta: {
+            label: 'Save',
+            action: 'save',
+        },
+        context: {
+            starts_at: item.starts_at || item.start_date || item.date || item.expires_at || null,
+            location_name: item.location || item.location_name || item.location_city || null,
+            city: item.location_city || item.city || null,
+            reward_value: item.value || item.gem_reward_base || null,
+            reward_label: item.reward_label || (item.gem_reward_base ? `${item.gem_reward_base} Gems` : null),
+            participants_count: item.attendees || item.current_participants || item.participant_count || null,
+            host_name: item.host_name || null,
+            venue_name: item.venue_name || null,
+            brand_name: item.sponsor_name || null,
+            sponsored: item.type === 'coupon' || !!item.is_sponsored,
+            expires_soon: !!item.expires_at,
+        },
+    };
+};
+
+const resolveRankingProfile = (user) => {
+    const rawRole = (user?.user_type || user?.role || '').toLowerCase();
+    if (rawRole === 'creator') return 'creator';
+    return 'participant';
+};
+
+const diversifyFeedItems = (items) => {
+    const hostCounts = new Map();
+    const typeCounts = new Map();
+
+    const remaining = [...items];
+    const ordered = [];
+
+    while (remaining.length > 0) {
+        let bestIndex = 0;
+        let bestScore = -Infinity;
+
+        for (let index = 0; index < remaining.length; index += 1) {
+            const item = remaining[index];
+            const hostKey = item.host_id || item.creator_id || item.sponsor_name || 'none';
+            const typeKey = item.type || 'unknown';
+            const hostPenalty = (hostCounts.get(hostKey) || 0) * 6;
+            const typePenalty = (typeCounts.get(typeKey) || 0) * 3;
+            const diversityAdjustment = -(hostPenalty + typePenalty);
+            const adjustedScore = (item.score || 0) + diversityAdjustment;
+
+            if (adjustedScore > bestScore) {
+                bestScore = adjustedScore;
+                bestIndex = index;
+            }
+        }
+
+        const [selectedItem] = remaining.splice(bestIndex, 1);
+        const hostKey = selectedItem.host_id || selectedItem.creator_id || selectedItem.sponsor_name || 'none';
+        const typeKey = selectedItem.type || 'unknown';
+        const hostPenalty = (hostCounts.get(hostKey) || 0) * 6;
+        const typePenalty = (typeCounts.get(typeKey) || 0) * 3;
+        const diversityAdjustment = -(hostPenalty + typePenalty);
+
+        selectedItem.score_breakdown = {
+            ...(selectedItem.score_breakdown || {}),
+            diversity_adjustment: diversityAdjustment,
+        };
+        selectedItem.score = Number(((selectedItem.base_score || selectedItem.score || 0) + diversityAdjustment).toFixed(2));
+
+        hostCounts.set(hostKey, (hostCounts.get(hostKey) || 0) + 1);
+        typeCounts.set(typeKey, (typeCounts.get(typeKey) || 0) + 1);
+        ordered.push(selectedItem);
+    }
+
+    return ordered;
+};
+
+const buildUserContext = async (userId) => {
+    let userPrefs = {};
+    let userDemographics = null;
+    let userCalendar = [];
+    let globalContext = null;
+    let userInteractions = [];
+
+    if (!userId) {
+        return {
+            userPrefs,
+            userContext: {
+                demographics: null,
+                age: null,
+                upcoming_personal_events: [],
+                global_context: null,
+                weather: null,
+            },
+            userInteractions,
+        };
+    }
+
+    try {
+        const [
+            prefsResult,
+            demographicsResult,
+            calendarResult,
+            globalEventsResult,
+            interactionsResult,
+        ] = await Promise.all([
+            supabaseAdmin
+                .from('users')
+                .select('preferences, location_data')
+                .eq('id', userId)
+                .single()
+                .catch(() => ({ data: null })),
+            supabaseAdmin
+                .from('user_demographics')
+                .select('*')
+                .eq('user_id', userId)
+                .single()
+                .catch(() => ({ data: null })),
+            supabaseAdmin
+                .from('user_calendar')
+                .select('*')
+                .eq('user_id', userId)
+                .gte('event_date', new Date().toISOString().split('T')[0])
+                .lte('event_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                .catch(() => ({ data: [] })),
+            supabaseAdmin
+                .from('active_global_events')
+                .select('*')
+                .limit(10)
+                .catch(() => ({ data: [] })),
+            supabaseAdmin
+                .from('user_interactions')
+                .select('creator_id, item_type')
+                .eq('user_id', userId)
+                .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+                .catch(() => ({ data: [] })),
+        ]);
+
+        userPrefs = prefsResult.data?.preferences || {};
+        userPrefs.location_data = prefsResult.data?.location_data || {};
+
+        userDemographics = demographicsResult.data;
+        userCalendar = calendarResult.data || [];
+        userInteractions = interactionsResult.data || [];
+
+        const sportsEvents = globalEventsResult.data?.filter((event) => event.event_type === 'sports') || [];
+        const musicEvents = globalEventsResult.data?.filter((event) => event.event_type === 'music') || [];
+        const holidays = globalEventsResult.data?.filter((event) => event.event_type === 'holiday') || [];
+        const nextHoliday = holidays.length > 0 ? holidays[0] : null;
+
+        const month = new Date().getMonth() + 1;
+        let currentSeason = 'spring';
+        if (month >= 6 && month <= 8) currentSeason = 'summer';
+        if (month >= 9 && month <= 11) currentSeason = 'fall';
+        if (month === 12 || month <= 2) currentSeason = 'winter';
+
+        const { data: seasonalConfig } = await supabaseAdmin
+            .from('seasonal_config')
+            .select('*')
+            .eq('season', currentSeason)
+            .eq('hemisphere', 'northern')
+            .eq('active', true)
+            .single()
+            .catch(() => ({ data: null }));
+
+        globalContext = {
+            current_season: currentSeason,
+            outdoor_boost: seasonalConfig?.outdoor_activity_weight > 60,
+            indoor_boost: seasonalConfig?.indoor_activity_weight > 60,
+            active_sports_events: sportsEvents,
+            active_music_events: musicEvents,
+            next_holiday: nextHoliday,
+            days_until_holiday: nextHoliday
+                ? Math.ceil((new Date(nextHoliday.start_date) - new Date()) / (1000 * 60 * 60 * 24))
+                : null,
+        };
+    } catch (contextError) {
+        console.warn('Could not fetch full user context:', contextError.message);
+    }
+
+    let userAge = null;
+    if (userDemographics?.birthday) {
+        const birthDate = new Date(userDemographics.birthday);
+        userAge = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    }
+
+    return {
+        userPrefs,
+        userContext: {
+            demographics: userDemographics,
+            age: userAge,
+            upcoming_personal_events: userCalendar.map((event) => ({
+                type: event.event_type,
+                title: event.title,
+                days_until: Math.ceil((new Date(event.event_date) - new Date()) / (1000 * 60 * 60 * 24)),
+            })),
+            global_context: globalContext,
+            weather: null,
+        },
+        userInteractions,
+    };
+};
+
+const fetchFeedCandidates = async (userId) => {
+    try {
+        const [events, drops, content, forecasts, coupons, relays] = await Promise.all([
+            supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
+            supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
+            supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
+        ]);
+
+        return { events, drops, content, forecasts, coupons, relays };
+    } catch (fetchError) {
+        console.error('Error fetching feed candidates:', fetchError);
+        return {
+            events: { data: [] },
+            drops: { data: [] },
+            content: { data: [] },
+            forecasts: { data: [] },
+            coupons: { data: [] },
+            relays: { data: [] },
+        };
+    }
+};
+
+const scoreFeedItem = (item, rankingProfile, intent, userPrefs, userContext, userInteractions) => {
+    const scoreBreakdown = calculateScoreBreakdown(item, userPrefs, userContext, userInteractions, intent);
+    const score = applyProfileWeights(scoreBreakdown, rankingProfile, intent);
+
+    return {
+        ...item,
+        base_score: score,
+        score,
+        score_breakdown: scoreBreakdown,
+    };
 };
 
 // ============================================
@@ -274,192 +704,67 @@ const calculateScore = (item, userPrefs, userContext = {}, interactions = []) =>
 router.get('/for-you', requireAuth, async (req, res) => {
     try {
         const userId = req.user?.id;
-        const { limit = 20, offset = 0 } = req.query;
+        const { limit = 20, offset = 0, intent = null } = req.query;
+        const rankingProfile = resolveRankingProfile(req.user);
+        const [{ userPrefs, userContext, userInteractions }, candidates] = await Promise.all([
+            buildUserContext(userId),
+            fetchFeedCandidates(userId),
+        ]);
 
-        // 1. Fetch User Context (Parallel for efficiency)
-        let userPrefs = {};
-        let userDemographics = null;
-        let userCalendar = [];
-        let globalContext = null;
-        let userInteractions = [];
-
-        if (userId) {
-            try {
-                const [
-                    prefsResult,
-                    demographicsResult,
-                    calendarResult,
-                    globalEventsResult,
-                    interactionsResult
-                ] = await Promise.all([
-                    supabaseAdmin
-                        .from('users')
-                        .select('preferences, location_data')
-                        .eq('id', userId)
-                        .single()
-                        .catch(() => ({ data: null })),
-                    supabaseAdmin
-                        .from('user_demographics')
-                        .select('*')
-                        .eq('user_id', userId)
-                        .single()
-                        .catch(() => ({ data: null })),
-                    supabaseAdmin
-                        .from('user_calendar')
-                        .select('*')
-                        .eq('user_id', userId)
-                        .gte('event_date', new Date().toISOString().split('T')[0])
-                        .lte('event_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-                        .catch(() => ({ data: [] })),
-                    supabaseAdmin
-                        .from('active_global_events')
-                        .select('*')
-                        .limit(10)
-                        .catch(() => ({ data: [] })),
-                    supabaseAdmin
-                        .from('user_interactions')
-                        .select('creator_id, item_type')
-                        .eq('user_id', userId)
-                        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-                        .catch(() => ({ data: [] }))
-                ]);
-
-                userPrefs = prefsResult.data?.preferences || {};
-                userPrefs.location_data = prefsResult.data?.location_data || {};
-                
-                userDemographics = demographicsResult.data;
-                userCalendar = calendarResult.data || [];
-                
-                // Build global context
-                const sportsEvents = globalEventsResult.data?.filter(e => e.event_type === 'sports') || [];
-                const musicEvents = globalEventsResult.data?.filter(e => e.event_type === 'music') || [];
-                const holidays = globalEventsResult.data?.filter(e => e.event_type === 'holiday') || [];
-                const nextHoliday = holidays.length > 0 ? holidays[0] : null;
-                
-                // Determine season based on user's location (default to northern hemisphere)
-                const month = new Date().getMonth() + 1;
-                let currentSeason = 'spring';
-                if (month >= 6 && month <= 8) currentSeason = 'summer';
-                if (month >= 9 && month <= 11) currentSeason = 'fall';
-                if (month === 12 || month <= 2) currentSeason = 'winter';
-                
-                // Determine outdoor/indoor boost from seasonal config
-                const { data: seasonalConfig } = await supabaseAdmin
-                    .from('seasonal_config')
-                    .select('*')
-                    .eq('season', currentSeason)
-                    .eq('hemisphere', 'northern')
-                    .eq('active', true)
-                    .single()
-                    .catch(() => ({ data: null }));
-                
-                globalContext = {
-                    current_season: currentSeason,
-                    outdoor_boost: seasonalConfig?.outdoor_activity_weight > 60,
-                    indoor_boost: seasonalConfig?.indoor_activity_weight > 60,
-                    active_sports_events: sportsEvents,
-                    active_music_events: musicEvents,
-                    next_holiday: nextHoliday,
-                    days_until_holiday: nextHoliday ? 
-                        Math.ceil((new Date(nextHoliday.start_date) - new Date()) / (1000 * 60 * 60 * 24)) : null
-                };
-                
-                userInteractions = interactionsResult.data || [];
-                
-            } catch (contextError) {
-                console.warn('Could not fetch full user context:', contextError.message);
-                // Continue with empty context - basic feed still works
-            }
-        }
-
-        // Calculate age from birthday
-        let userAge = null;
-        if (userDemographics?.birthday) {
-            const birthDate = new Date(userDemographics.birthday);
-            const today = new Date();
-            userAge = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-        }
-
-        // Build comprehensive user context
-        const userContext = {
-            demographics: userDemographics,
-            age: userAge,
-            upcoming_personal_events: userCalendar.map(e => ({
-                type: e.event_type,
-                title: e.title,
-                days_until: Math.ceil((new Date(e.event_date) - new Date()) / (1000 * 60 * 60 * 24))
-            })),
-            global_context: globalContext,
-            weather: null // Could integrate weather API here
-        };
-
-        // 2. Fetch Candidates (Parallel) - with graceful error handling
-        let events = { data: [] }, drops = { data: [] }, content = { data: [] };
-        let forecasts = { data: [] }, coupons = { data: [] }, relays = { data: [] };
-
-        try {
-            [events, drops, content, forecasts, coupons, relays] = await Promise.all([
-                supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-                supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-                supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-                supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
-                supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
-                supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] }))
-            ]);
-        } catch (fetchError) {
-            console.error('Error fetching feed candidates:', fetchError);
-            // Continue with empty arrays - the feed will just be empty
-        }
-
-        // 3. Normalize & Score (with full user context)
         let feedItems = [];
 
-        if (events.data) {
-            feedItems.push(...events.data.map(i => ({ ...i, type: 'event', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
+        if (candidates.events.data) {
+            feedItems.push(...candidates.events.data.map((item) => scoreFeedItem({ ...item, type: 'event' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
-        if (drops.data) {
-            feedItems.push(...drops.data.map(i => ({ ...i, type: 'drop', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
+        if (candidates.drops.data) {
+            feedItems.push(...candidates.drops.data.map((item) => scoreFeedItem({ ...item, type: 'drop' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
-        if (content.data) {
-            feedItems.push(...content.data.map(i => ({ ...i, type: 'content', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
+        if (candidates.content.data) {
+            feedItems.push(...candidates.content.data.map((item) => scoreFeedItem({ ...item, type: 'content' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
-        if (forecasts.data) {
-            feedItems.push(...forecasts.data.map(i => ({
-                ...i,
+        if (candidates.forecasts.data) {
+            feedItems.push(...candidates.forecasts.data.map((item) => scoreFeedItem({
+                ...item,
                 type: 'prediction',
-                creator_name: i.creator?.display_name || 'Anonymous Creator',
-                creator_avatar: i.creator?.avatar_url,
-                score: calculateScore(i, userPrefs, userContext, userInteractions) + 10
-            }))); // Boost predictions slightly
+                creator_name: item.creator?.display_name || 'Anonymous Creator',
+                creator_avatar: item.creator?.avatar_url,
+                quality_boost: 2,
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
-        if (coupons.data) {
-            feedItems.push(...coupons.data.map(i => ({
-                ...i,
+        if (candidates.coupons.data) {
+            feedItems.push(...candidates.coupons.data.map((item) => scoreFeedItem({
+                ...item,
                 type: 'coupon',
-                title: i.advertiser_coupons?.title || 'Exclusive Reward',
-                description: i.advertiser_coupons?.description,
-                reward_type: i.advertiser_coupons?.reward_type,
-                value: i.advertiser_coupons?.value,
-                value_unit: i.advertiser_coupons?.value_unit,
-                expires_at: i.advertiser_coupons?.end_date,
-                earned_at: i.assigned_at,
-                score: calculateScore(i, userPrefs, userContext, userInteractions) + 20
-            }))); // High boost for coupons
+                title: item.advertiser_coupons?.title || 'Exclusive Reward',
+                description: item.advertiser_coupons?.description,
+                reward_type: item.advertiser_coupons?.reward_type,
+                value: item.advertiser_coupons?.value,
+                value_unit: item.advertiser_coupons?.value_unit,
+                expires_at: item.advertiser_coupons?.end_date,
+                earned_at: item.assigned_at,
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
-        if (relays.data) {
-            feedItems.push(...relays.data.map(i => ({ ...i, type: 'movement', score: calculateScore(i, userPrefs, userContext, userInteractions) })));
+        if (candidates.relays.data) {
+            feedItems.push(...candidates.relays.data.map((item) => scoreFeedItem({ ...item, type: 'movement' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
 
-        // 4. Sort & Paginate
-        feedItems.sort((a, b) => b.score - a.score);
-        const pagedItems = feedItems.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+        const diversifiedItems = diversifyFeedItems(feedItems);
+        const numericOffset = parseInt(offset, 10);
+        const numericLimit = parseInt(limit, 10);
+        const pagedItems = diversifiedItems
+            .slice(numericOffset, numericOffset + numericLimit)
+            .map((item) => serializeFeedItem(item, intent));
 
         res.json({
             status: 'success',
             data: {
                 feed: pagedItems,
                 meta: {
-                    user_interests: userPrefs.interests || []
+                    user_interests: userPrefs.interests || [],
+                    next_offset: numericOffset + pagedItems.length,
+                    has_more: diversifiedItems.length > numericOffset + pagedItems.length,
+                    active_intent: intent,
+                    ranking_profile: rankingProfile,
                 }
             }
         });
@@ -471,7 +776,13 @@ router.get('/for-you', requireAuth, async (req, res) => {
             status: 'success',
             data: {
                 feed: [],
-                meta: { user_interests: [] }
+                meta: {
+                    user_interests: [],
+                    next_offset: parseInt(req.query?.offset || 0, 10),
+                    has_more: false,
+                    active_intent: req.query?.intent || null,
+                    ranking_profile: resolveRankingProfile(req.user),
+                }
             },
             warning: 'Feed could not be fully loaded'
         });

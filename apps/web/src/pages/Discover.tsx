@@ -1,479 +1,484 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { MasonryGrid } from "@/components/MasonryGrid";
-import { MomentCard } from "@/components/MomentCard";
-import { DemoEventBanner } from "@/components/DemoEventBanner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Calendar, Sparkles, TrendingUp, Clock, MapPin } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
-import { useTour } from "@/contexts/TourContext";
-import ProductTour from "@/components/tours/ProductTour";
-import { momentArchetypes, venueCategories } from "@/lib/moment-taxonomy";
-import { SuggestedMoments } from "@/components/discovery/SuggestedMoments";
-import FeaturedMomentCard, { FeaturedMomentGrid } from "@/components/featured/FeaturedMomentCard";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowRight,
+  Building2,
+  Compass,
+  Film,
+  Gift,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
+import { getSiteUrl } from "@/lib/discovery";
 
-type Moment = Tables<"moments"> & {
-  participant_count?: number;
-  is_saved?: boolean;
-  host?: {
-    full_name: string;
-    avatar_url: string | null;
-  };
+type PublicMoment = Tables<"view_public_moment_directory">;
+type PublicVenue = Tables<"view_public_venue_directory">;
+
+type PublicRewardRow = {
+  id: string;
+  name: string | null;
+  venue_name: string | null;
+  brand_name: string | null;
+  city: string | null;
+  country: string | null;
+  discount_type: string | null;
+  discount_value: number | null;
 };
 
-const categories = [
-  { value: "all", label: "All Categories", emoji: "✨" },
-  { value: "social", label: "Social", emoji: "🎉" },
-  { value: "workshop", label: "Workshop", emoji: "🎨" },
-  { value: "fitness", label: "Fitness", emoji: "🧘" },
-  { value: "food", label: "Food & Drink", emoji: "🍽️" },
-  { value: "music", label: "Music", emoji: "🎵" },
-  { value: "networking", label: "Networking", emoji: "🤝" },
-  { value: "outdoor", label: "Outdoor", emoji: "🌳" },
-  { value: "arts", label: "Arts", emoji: "🎭" },
+type PublicContentRow = {
+  id: string;
+  title: string | null;
+  venue_name: string | null;
+  city: string | null;
+  country: string | null;
+  platform: string | null;
+};
+
+const discoverSections = [
+  {
+    title: "Moments",
+    description: "Browse public moments, creator missions, and live opportunities in a compare-friendly catalog.",
+    href: "/discover/moments",
+    cta: "Browse moments",
+    icon: Compass,
+  },
+  {
+    title: "Venues",
+    description: "See the physical places and operators that anchor local participation and reward loops.",
+    href: "/discover/venues",
+    cta: "Browse venues",
+    icon: MapPin,
+  },
+  {
+    title: "Rewards",
+    description: "Understand the offers, proof loops, and public reward surfaces tied to places and campaigns.",
+    href: "/discover/rewards",
+    cta: "Browse rewards",
+    icon: Gift,
+  },
+  {
+    title: "Content",
+    description: "Browse story-led media connected to moments, venues, and public discovery archives.",
+    href: "/discover/content",
+    cta: "Browse content",
+    icon: Film,
+  },
 ];
 
-const archetypeFilters = [
-  { value: "all", label: "All Formats" },
-  ...momentArchetypes.map((item) => ({ value: item.value, label: item.label })),
-];
+const formatRewardValue = (reward: PublicRewardRow) => {
+  if (typeof reward.discount_value !== "number") return "Open reward";
+  if (reward.discount_type?.includes("percentage")) return `${reward.discount_value}% off`;
+  return `$${reward.discount_value} value`;
+};
 
-const venueFilters = [
-  { value: "all", label: "All Places" },
-  ...venueCategories.map((item) => ({ value: item.value, label: item.label })),
-];
+const formatMomentDate = (value?: string | null) => {
+  if (!value) return "Date coming soon";
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(value));
+  } catch {
+    return "Date coming soon";
+  }
+};
+
+const isMissingSupabaseRelation = (error: unknown) => {
+  if (!error || typeof error !== "object") return false;
+  const relationError = error as { code?: string; message?: string; details?: string };
+  return (
+    relationError.code === "PGRST205" ||
+    relationError.code === "42P01" ||
+    relationError.message?.includes("Could not find the table") ||
+    relationError.details?.includes("view_public_reward_directory")
+  );
+};
 
 const Discover = () => {
-  const { user } = useAuth();
-  const { startTour, isTourCompleted } = useTour();
-  const [moments, setMoments] = useState<Moment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedArchetype, setSelectedArchetype] = useState("all");
-  const [selectedVenueCategory, setSelectedVenueCategory] = useState("all");
-  const [sortBy, setSortBy] = useState<"date" | "popular" | "nearby">("date");
-  const [featuredMoments, setFeaturedMoments] = useState<any[]>([]);
+  const discoveryQuery = useQuery({
+    queryKey: ["discover-overview"],
+    queryFn: async () => {
+      const [momentsResult, venuesResult, rewardsResult, contentResult] = await Promise.all([
+        supabase
+          .from("view_public_moment_directory")
+          .select("*")
+          .eq("is_active", true)
+          .gte("starts_at", new Date().toISOString())
+          .order("starts_at", { ascending: true, nullsFirst: false })
+          .limit(4),
+        supabase
+          .from("view_public_venue_directory")
+          .select("*")
+          .order("popularity_score", { ascending: false, nullsFirst: false })
+          .limit(3),
+        supabase
+          .from("view_public_reward_directory" as never)
+          .select("id,name,venue_name,brand_name,city,country,discount_type,discount_value")
+          .limit(3),
+        supabase
+          .from("view_public_content_directory" as never)
+          .select("id,title,venue_name,city,country,platform")
+          .order("posted_at", { ascending: false, nullsFirst: false })
+          .limit(3),
+      ]);
 
-  // Fetch featured moments
-  useEffect(() => {
-    fetchFeaturedMoments();
-  }, []);
+      if (momentsResult.error) throw momentsResult.error;
+      if (venuesResult.error) throw venuesResult.error;
+      if (rewardsResult.error && !isMissingSupabaseRelation(rewardsResult.error)) throw rewardsResult.error;
+      if (contentResult.error) throw contentResult.error;
 
-  const fetchFeaturedMoments = async () => {
-    try {
-      const response = await fetch('/api/featured-marketplace/active?placement_type=moment_featured&limit=4');
-      const data = await response.json();
-      if (data.success && data.placements.length > 0) {
-        // Transform placements to moment format
-        const moments = data.placements.map((placement: any) => ({
-          id: placement.entity_id,
-          name: placement.entity_data?.title || 'Featured Moment',
-          description: placement.entity_data?.description,
-          image_url: placement.entity_data?.image_url,
-          location: placement.entity_data?.location,
-          participant_count: placement.entity_data?.participant_count || 0,
-          max_participants: placement.entity_data?.max_participants,
-          prize_pool: placement.entity_data?.prize_pool,
-          sponsor_name: placement.user?.display_name,
-          sponsor_logo: placement.user?.profile_image,
-          featured_placement_id: placement.id,
-          status: 'upcoming',
-        }));
-        setFeaturedMoments(moments);
-      }
-    } catch (error) {
-      console.error('Error fetching featured moments:', error);
-    }
-  };
-
-  // Auto-start discover tour for new users
-  useEffect(() => {
-    if (user && !isTourCompleted('discover')) {
-      // Delay to ensure page is fully loaded
-      const timer = setTimeout(() => {
-        startTour('discover');
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, isTourCompleted, startTour]);
-
-  useEffect(() => {
-    fetchMoments();
-  }, [selectedCategory, sortBy]);
-
-  const fetchMoments = async () => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from("moments")
-        .select("*")
-        .eq("is_active", true)
-        .gte("starts_at", new Date().toISOString());
-
-      if (selectedCategory !== "all") {
-        query = query.eq("category", selectedCategory);
-      }
-
-      if (sortBy === "date") {
-        query = query.order("starts_at", { ascending: true });
-      } else if (sortBy === "popular") {
-        query = query.order("created_at", { ascending: false });
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      // Get participant counts
-      const momentsWithCounts = await Promise.all(
-        (data || []).map(async (moment) => {
-          const { count } = await supabase
-            .from("moment_participants")
-            .select("*", { count: "exact", head: true })
-            .eq("moment_id", moment.id);
-
-          return { ...moment, participant_count: count || 0 };
-        })
-      );
-
-      setMoments(momentsWithCounts);
-    } catch (error) {
-      console.error("Error fetching moments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredMoments = moments.filter((moment) => {
-    const matchesTaxonomy =
-      (selectedArchetype === "all" || (moment as any).moment_archetype === selectedArchetype) &&
-      (selectedVenueCategory === "all" || (moment as any).venue_category === selectedVenueCategory);
-
-    const query = searchQuery.trim().toLowerCase();
-    const matchesSearch =
-      query.length === 0 ||
-      moment.title.toLowerCase().includes(query) ||
-      moment.description?.toLowerCase().includes(query) ||
-      moment.location.toLowerCase().includes(query) ||
-      ((moment as any).venue_name || "").toLowerCase().includes(query);
-
-    return matchesTaxonomy && matchesSearch;
+      return {
+        moments: (momentsResult.data || []) as PublicMoment[],
+        venues: (venuesResult.data || []) as PublicVenue[],
+        rewards: (rewardsResult.data || []) as PublicRewardRow[],
+        content: (contentResult.data || []) as PublicContentRow[],
+        rewardsUnavailable: Boolean(rewardsResult.error && isMissingSupabaseRelation(rewardsResult.error)),
+      };
+    },
   });
+
+  const moments = discoveryQuery.data?.moments || [];
+  const venues = discoveryQuery.data?.venues || [];
+  const rewards = discoveryQuery.data?.rewards || [];
+  const content = discoveryQuery.data?.content || [];
+  const rewardsUnavailable = discoveryQuery.data?.rewardsUnavailable || false;
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Discover Promorang"
+        description="Browse moments, venues, rewards, and content across Promorang without relying only on live urgency or ranked feeds."
+        url={getSiteUrl("/discover")}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Discover Promorang",
+          description:
+            "Browse moments, venues, rewards, and content across Promorang without relying only on live urgency or ranked feeds.",
+        }}
+      />
 
-      {/* Hero Section - Pinterest/Airbnb inspired */}
-      <section className="px-4 pb-8 pt-20 sm:pt-24">
-        <div className="max-w-7xl mx-auto">
-          {/* Headline */}
-          <div className="text-center mb-8">
-            <h1 className="mb-4 font-serif text-3xl font-bold text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-              Discover your next{" "}
-              <span className="text-gradient-primary">moment</span>
-            </h1>
-            <p className="mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
-              Find creator missions, retail drops, service rituals, community gatherings, and everyday visits worth turning into something bigger.
-            </p>
-          </div>
-
-          {/* Featured Moments Section - Moment Discovery Boost ($100/day) */}
-          {featuredMoments.length > 0 && (
-            <div className="mb-12">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-semibold">Featured Moments</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {featuredMoments.map((moment) => (
-                  <FeaturedMomentCard 
-                    key={moment.id} 
-                    moment={moment}
-                    variant="default"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Search Bar - Airbnb style */}
-          <div className="max-w-3xl mx-auto" data-tour="discover-search">
-            <div className="rounded-[1.75rem] border border-border bg-card p-3 shadow-soft sm:rounded-2xl">
-              <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search moments, locations, or activities..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 border-0 bg-transparent text-base focus-visible:ring-0"
-                />
-              </div>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-48 h-12 border-0 bg-secondary" data-tour="discover-category">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <span className="flex items-center gap-2">
-                        <span>{cat.emoji}</span>
-                        <span>{cat.label}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedArchetype} onValueChange={setSelectedArchetype}>
-                <SelectTrigger className="w-full sm:w-48 h-12 border-0 bg-secondary">
-                  <SelectValue placeholder="Format" />
-                </SelectTrigger>
-                <SelectContent>
-                  {archetypeFilters.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="hero"
-                size="lg"
-                className="h-12 px-6 sm:min-w-[132px]"
-                onClick={() => {
-                  if (searchQuery.trim()) {
-                    window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&category=moment`;
-                  }
-                }}
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Search
-              </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Filters - Pinterest style pills */}
-          <div className="mt-6 -mx-4 overflow-x-auto px-4 pb-2 touch-pan-x snap-x-mandatory scrollbar-none" data-tour="discover-sort">
-            <div className="flex min-w-max items-center justify-start gap-2 sm:min-w-0 sm:flex-wrap sm:justify-center">
-            <button
-              onClick={() => setSortBy("date")}
-              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "date"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary hover:bg-secondary/80"
-                }`}
-            >
-              <Clock className="w-4 h-4 inline mr-1.5" />
-              Upcoming
-            </button>
-            <button
-              onClick={() => setSortBy("popular")}
-              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "popular"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary hover:bg-secondary/80"
-                }`}
-            >
-              <TrendingUp className="w-4 h-4 inline mr-1.5" />
-              Trending
-            </button>
-            <button
-              onClick={() => setSortBy("nearby")}
-              className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${sortBy === "nearby"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary hover:bg-secondary/80"
-                }`}
-            >
-              <MapPin className="w-4 h-4 inline mr-1.5" />
-              Nearby
-            </button>
-            </div>
-          </div>
-          <div className="mt-4 -mx-4 overflow-x-auto px-4 pb-2 touch-pan-x snap-x-mandatory scrollbar-none">
-            <div className="flex min-w-max items-center gap-2">
-              {venueFilters.map((item) => (
-                <button
-                  key={item.value}
-                  onClick={() => setSelectedVenueCategory(item.value)}
-                  className={`snap-start rounded-full px-4 py-2 text-sm font-medium transition-all touch-manipulation ${
-                    selectedVenueCategory === item.value
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/80"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mt-5 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
-            <div className="flex gap-3 pb-1">
-              <div className="min-w-[240px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Flow</p>
-                <p className="mt-2 text-sm font-medium text-foreground">Search, swipe filters, tap a card, then join with the sticky action flow.</p>
-              </div>
-              <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Mobile tip</p>
-                <p className="mt-2 text-sm text-muted-foreground">The filter rail is built for thumb scrolling, so it stays fast even on smaller screens.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-[1.75rem] border border-primary/15 bg-gradient-to-br from-primary/10 via-background to-accent/10 p-5 shadow-soft sm:p-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Watch & Unlock</p>
-                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Creator stories that turn into physical missions</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Start with digital content, pick up the unlock clue, then move into the linked retail, service, or community moment to verify the real-world action.
+      <section className="px-4 pb-12 pt-24 sm:pt-28">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <div className="rounded-[2rem] border border-primary/10 bg-gradient-to-br from-primary/5 via-background to-accent/10 p-6 shadow-soft sm:p-8 lg:p-10">
+            <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:gap-8">
+              <div>
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-background/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                  <Compass className="h-3.5 w-3.5" />
+                  Structured Discovery
+                </div>
+                <h1 className="max-w-4xl font-serif text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+                  Explore what is live, local, and worth acting on.
+                </h1>
+                <p className="mt-4 max-w-2xl text-sm text-muted-foreground sm:text-base">
+                  Pulse shows urgency. Discover gives you the broader map: moments, venues, rewards, and content you can compare without relying on the feed to rank everything first.
                 </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button asChild size="lg" variant="hero">
+                    <Link to="/discover/moments">Start with moments</Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/pulse">Open Pulse</Link>
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button asChild variant="outline" className="sm:min-w-[160px]">
-                  <Link to="/pulse">See Live Pulse</Link>
-                </Button>
-                <Button asChild variant="hero" className="sm:min-w-[180px]">
-                  <Link to="/watch-unlock">Open Watch & Unlock</Link>
-                </Button>
+
+              <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+                <div className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 shadow-soft">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Use Discover for</p>
+                  <p className="mt-3 text-sm font-medium text-foreground">Category browsing, place-based exploration, and compare-friendly scanning.</p>
+                </div>
+                <div className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 shadow-soft">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Use Pulse for</p>
+                  <p className="mt-3 text-sm font-medium text-foreground">Live density, forming rooms, and moments that already feel urgent enough to move on.</p>
+                </div>
+                <div className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 shadow-soft">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Quick path</p>
+                  <Button asChild variant="ghost" className="-ml-3 mt-2 px-3 text-primary">
+                    <Link to="/search">
+                      Global Search
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Results Section */}
-      <section className="px-4 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Suggested Moments for New Users */}
-          {user && !loading && filteredMoments.length === 0 && searchQuery === "" && selectedCategory === "all" && (
-            <SuggestedMoments limit={3} />
-          )}
+          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {discoverSections.map((section) => (
+              <Card key={section.title} className="border-border/70 shadow-soft transition-transform hover:-translate-y-1">
+                <CardContent className="p-6">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <section.icon className="h-5 w-5" />
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold text-foreground">{section.title}</h2>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{section.description}</p>
+                  <Button asChild variant="ghost" className="-ml-3 mt-4 px-3 text-primary">
+                    <Link to={section.href}>
+                      {section.cta}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </section>
 
-          {/* Demo Event Banner - shown when there are moments */}
-          {!loading && filteredMoments.length > 0 && (
-            <div className="mb-8">
-              <DemoEventBanner variant="discover" />
-            </div>
-          )}
+          <section className="grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
+            <Card className="shadow-soft">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">How this differs from Pulse</p>
+                    <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">A calmer way to browse the graph</h2>
+                  </div>
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                    <p className="font-semibold text-foreground">Moments</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Browse upcoming opportunities without depending on urgency signals.</p>
+                  </div>
+                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                    <p className="font-semibold text-foreground">Places</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Understand where the activity happens and which locations carry repeat value.</p>
+                  </div>
+                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                    <p className="font-semibold text-foreground">Value</p>
+                    <p className="mt-2 text-sm text-muted-foreground">See how rewards and content connect back into real-world participation loops.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Results Header */}
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-muted-foreground">
-              {loading ? (
-                "Loading..."
-              ) : (
-                <>
-                  <span className="font-semibold text-foreground">{filteredMoments.length}</span>
-                  {" moment"}{filteredMoments.length !== 1 ? "s" : ""} found
-                </>
-              )}
-            </p>
-            {!loading && filteredMoments.length > 0 && (
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground">
-                <Calendar className="h-3.5 w-3.5 text-primary" />
-                Fresh moments sorted for quick mobile scanning.
-              </div>
-            )}
-          </div>
+            <Card className="shadow-soft">
+              <CardContent className="p-6">
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Fast paths</p>
+                <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Jump directly</h2>
+                <div className="mt-5 space-y-3">
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/discover/moments">
+                      Moments
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/discover/venues">
+                      Venues
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/discover/rewards">
+                      Rewards
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/discover/content">
+                      Content
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
 
-          {/* Results Grid */}
-          <div data-tour="discover-moments">
-            {loading ? (
-              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
-                {[...Array(12)].map((_, i) => (
-                  <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
-                    <Skeleton className={`w-full ${i % 3 === 0 ? "h-64" : i % 2 === 0 ? "h-56" : "h-48"}`} />
-                    <div className="p-4">
-                      <Skeleton className="h-5 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full mb-3" />
-                      <Skeleton className="h-4 w-1/2" />
+          <section className="grid gap-5 xl:grid-cols-2">
+            <Card className="shadow-soft">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Upcoming moments</p>
+                    <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Start with real opportunities</h2>
+                  </div>
+                  <Compass className="h-5 w-5 text-primary" />
+                </div>
+                <div className="mt-5 space-y-3">
+                  {discoveryQuery.isLoading ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <Skeleton key={index} className="h-24 rounded-2xl" />
+                    ))
+                  ) : moments.length > 0 ? (
+                    moments.map((moment) => (
+                      <Link
+                        key={moment.id}
+                        to={`/moments/${moment.id}`}
+                        className="group block rounded-2xl border border-border/70 bg-background/80 p-4 transition-all hover:border-primary/25 hover:shadow-soft"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="truncate font-semibold text-foreground group-hover:text-primary">{moment.title}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {moment.venue_name || [moment.city, moment.country].filter(Boolean).join(", ") || "Location coming soon"}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="rounded-full">
+                            {moment.participant_count || 0} joined
+                          </Badge>
+                        </div>
+                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                          <span>{formatMomentDate(moment.starts_at)}</span>
+                          {moment.category ? <span className="capitalize">{moment.category}</span> : null}
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-border bg-background/60 p-6 text-sm text-muted-foreground">
+                      No upcoming moments available right now.
+                    </div>
+                  )}
+                </div>
+                <Button asChild variant="ghost" className="-ml-3 mt-4 px-3 text-primary">
+                  <Link to="/discover/moments">
+                    Browse all moments
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-5">
+              <Card className="shadow-soft">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Top venues</p>
+                      <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Places worth revisiting</h2>
+                    </div>
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {discoveryQuery.isLoading ? (
+                      Array.from({ length: 3 }).map((_, index) => (
+                        <Skeleton key={index} className="h-20 rounded-2xl" />
+                      ))
+                    ) : venues.length > 0 ? (
+                      venues.map((venue) => (
+                        <Link
+                          key={venue.id}
+                          to={`/venues/${venue.slug || venue.id}`}
+                          className="group flex items-start justify-between gap-3 rounded-2xl border border-border/70 bg-background/80 p-4 transition-all hover:border-primary/25 hover:shadow-soft"
+                        >
+                          <div className="min-w-0">
+                            <h3 className="truncate font-semibold text-foreground group-hover:text-primary">{venue.name || "Unnamed venue"}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {[venue.city, venue.country].filter(Boolean).join(", ") || venue.location || "Location coming soon"}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="rounded-full">
+                            {venue.total_moments_hosted || 0} hosted
+                          </Badge>
+                        </Link>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-border bg-background/60 p-6 text-sm text-muted-foreground">
+                        No public venues available right now.
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-soft">
+                <CardContent className="p-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Public rewards</p>
+                      {rewardsUnavailable ? (
+                        <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-muted-foreground">
+                          Public rewards are temporarily unavailable in this environment because the reward discovery view has not been provisioned yet.
+                        </div>
+                      ) : null}
+                      <div className="mt-4 space-y-3">
+                        {discoveryQuery.isLoading ? (
+                          Array.from({ length: 2 }).map((_, index) => (
+                            <Skeleton key={index} className="h-16 rounded-2xl" />
+                          ))
+                        ) : rewards.length > 0 ? (
+                          rewards.map((reward) => (
+                            <div key={reward.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                              <p className="font-semibold text-foreground">{reward.name || "Untitled reward"}</p>
+                              <p className="mt-1 text-sm text-muted-foreground">{formatRewardValue(reward)}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                {[reward.brand_name, reward.venue_name].filter(Boolean).join(" · ") ||
+                                  [reward.city, reward.country].filter(Boolean).join(", ")}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
+                            No public rewards available right now.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Recent content</p>
+                      <div className="mt-4 space-y-3">
+                        {discoveryQuery.isLoading ? (
+                          Array.from({ length: 2 }).map((_, index) => (
+                            <Skeleton key={index} className="h-16 rounded-2xl" />
+                          ))
+                        ) : content.length > 0 ? (
+                          content.map((item) => (
+                            <div key={item.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                              <p className="font-semibold text-foreground">{item.title || "Untitled content"}</p>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {item.platform || "Content"} · {[item.city, item.country].filter(Boolean).join(", ") || item.venue_name || "Location coming soon"}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
+                            No public content available right now.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                ))}
-              </MasonryGrid>
-            ) : filteredMoments.length === 0 ? (
-              /* Empty State */
-              <div className="py-16 text-center sm:py-20">
-                <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Sparkles className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <h3 className="font-serif text-2xl font-semibold mb-3">No moments found</h3>
-                <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                  {searchQuery || selectedCategory !== "all"
-                    ? "Try adjusting your search or filters to find what you're looking for."
-                    : "There are no live moments yet. Be the first to create something amazing!"}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section className="rounded-[2rem] border border-border/70 bg-card p-6 shadow-soft sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">If you already know what you want</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold text-foreground">Use the direct tools</h2>
+                <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+                  Discovery is the broad browse layer. If you already have intent, jump directly into search, pulse, or creation.
                 </p>
-                {!searchQuery && selectedCategory === "all" && (
-                  <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                    Create your first moment and start bringing people together in your community.
-                  </p>
-                )}
-                {user && (
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Button asChild variant="hero" size="lg">
-                      <Link to="/create-moment">Create a Moment</Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg">
-                      <Link to="/for-brands">For Businesses</Link>
-                    </Button>
-                  </div>
-                )}
               </div>
-            ) : (
-              /* Masonry Grid */
-              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
-                {filteredMoments.map((moment) => (
-                  <MomentCard
-                    key={moment.id}
-                    moment={moment}
-                    onSave={(id) => console.log("Saved:", id)}
-                  />
-                ))}
-              </MasonryGrid>
-            )
-            }
-          </div>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild variant="outline">
+                  <Link to="/search">Search</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/pulse">Pulse</Link>
+                </Button>
+                <Button asChild variant="hero">
+                  <Link to="/create/moment">Create</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
         </div>
       </section>
-
-      {/* CTA Section - Enhanced for stakeholders */}
-      < section className="py-16 px-4 bg-gradient-to-br from-primary/5 to-accent/10" >
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-            Ready to bring people together?
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Whether you're hosting an event, running a campaign, or offering your venue, Promorang makes it easy to create memorable moments.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild variant="hero" size="lg">
-              <Link to="/create-moment">Host a Moment</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/for-brands">For Brands</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/for-merchants">For Venues</Link>
-            </Button>
-          </div>
-        </div>
-      </section >
-
-      {/* Product Tour */}
-      <ProductTour tourId="discover" />
-    </div >
+    </div>
   );
 };
 

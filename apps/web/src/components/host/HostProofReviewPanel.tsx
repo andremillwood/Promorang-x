@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { ProofSubmissionAuditDialog } from "@/components/proof/ProofSubmissionAuditDialog";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -41,6 +42,29 @@ type MomentumProofSubmission = {
     engagement_events_count?: number | null;
     join_events_count?: number | null;
     verification_events_count?: number | null;
+  } | null;
+  reward?: {
+    id: string;
+    reward_value?: string | null;
+    status?: string | null;
+  } | null;
+  payout?: {
+    queued?: boolean;
+    queue_item?: {
+      amount_jmd?: number | null;
+    } | null;
+  } | null;
+  attendance_piece_awards?: Array<{
+    event?: {
+      quantity?: number | null;
+      piece_type?: string | null;
+    } | null;
+  }> | null;
+  piece_award?: {
+    event?: {
+      quantity?: number | null;
+      piece_type?: string | null;
+    } | null;
   } | null;
 };
 
@@ -91,7 +115,15 @@ export const HostProofReviewPanel = () => {
 
     toast({
       title: action === "approve" ? "Verify Mark approved" : "Proof rejected",
-      description: payload?.memory ? `Memory issued: ${payload.memory.title}` : undefined,
+      description: action === "approve"
+        ? payload?.payout?.queued
+          ? `Payout queued: JMD ${Number(payload.payout.queue_item.amount_jmd || 0).toLocaleString()}`
+          : payload?.reward?.reward_value
+            ? `Reward issued: ${payload.reward.reward_value}`
+            : payload?.memory
+              ? `Memory issued: ${payload.memory.title}`
+              : "Verification approved"
+        : payload?.submission?.review_reason || "Proof rejected",
     });
 
     await Promise.all([pendingQuery.refetch(), historyQuery.refetch()]);
@@ -169,7 +201,7 @@ export const HostProofReviewPanel = () => {
                         </div>
                         <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">Outcome</p>
-                          <p className="mt-2 text-xs text-muted-foreground">Approval verifies attendance and issues the participant memory if it does not already exist.</p>
+                          <p className="mt-2 text-xs text-muted-foreground">Approval now verifies attendance, issues reward if configured, queues payout if needed, and records piece awards.</p>
                         </div>
                       </div>
                       {proof.mission_attribution && (
@@ -192,6 +224,7 @@ export const HostProofReviewPanel = () => {
                         </a>
                       )}
                       <div className="flex w-full gap-2">
+                        <ProofSubmissionAuditDialog submissionId={proof.id} triggerLabel="Audit" />
                         <Button className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => reviewMarkDetails(proof.id, "approve")}>
                           <CheckCircle2 className="mr-1.5 h-4 w-4" />
                           Verify
@@ -226,17 +259,40 @@ export const HostProofReviewPanel = () => {
                           {proof.reviewed_at ? format(new Date(proof.reviewed_at), "MMM d, h:mm a") : "Recently reviewed"}
                         </p>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant={proof.submission_state === "verified" ? "default" : "destructive"}>
-                          {proof.submission_state}
-                        </Badge>
+                    <div className="flex flex-wrap gap-2">
+                      <ProofSubmissionAuditDialog submissionId={proof.id} triggerLabel="Audit" />
+                      <Badge variant={proof.submission_state === "verified" ? "default" : "destructive"}>
+                        {proof.submission_state}
+                      </Badge>
+                        {proof.reward?.reward_value && (
+                          <Badge variant="outline">
+                            Reward: {proof.reward.reward_value}
+                          </Badge>
+                        )}
                         {proof.memory && (
                           <Badge className="bg-primary/10 text-primary border border-primary/20">
                             <Gift className="mr-1 h-3 w-3" />
                             {proof.memory.title}
                           </Badge>
                         )}
+                        {proof.payout?.queued && (
+                          <Badge variant="outline">
+                            Payout queued
+                          </Badge>
+                        )}
                       </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {proof.attendance_piece_awards?.map((award, index) => (
+                        <Badge key={`attendance-${index}`} variant="outline">
+                          {award?.event?.quantity || 0} {award?.event?.piece_type || "piece"} piece(s)
+                        </Badge>
+                      ))}
+                      {proof.piece_award?.event && (
+                        <Badge variant="outline">
+                          {proof.piece_award.event.quantity || 0} {proof.piece_award.event.piece_type || "piece"} proof piece(s)
+                        </Badge>
+                      )}
                     </div>
                     {proof.review_reason && <p className="mt-3 text-xs text-muted-foreground">{proof.review_reason}</p>}
                   </div>

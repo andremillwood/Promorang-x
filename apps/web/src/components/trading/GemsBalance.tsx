@@ -5,32 +5,39 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { Gem, Plus, ArrowDownLeft, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { API_BASE_URL } from '@/lib/api';
 
 interface GemsBalanceData {
   balance: number;
   usd_value: number;
   exchange_rate: number;
+  withdrawable_balance?: number;
+  pending_purchase_redemption_balance?: number;
+  locked_bonus_balance?: number;
 }
 
 export function GemsBalance() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [balance, setBalance] = useState<GemsBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user && session?.access_token) {
       fetchBalance();
     }
-  }, [user]);
+  }, [user, session?.access_token]);
 
   const fetchBalance = async () => {
+    if (!session?.access_token) return;
+
     try {
-      const response = await fetch('/api/pieces/gems/balance', {
+      const response = await fetch(`${API_BASE_URL}/pieces/gems/balance`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
       });
       
@@ -87,32 +94,44 @@ export function GemsBalance() {
           <span className="text-xs">1 Gem = ${balance.exchange_rate.toFixed(2)}</span>
         </div>
 
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <div>Withdrawable now: {(balance.withdrawable_balance || 0).toFixed(2)} Gems</div>
+          <div>30-day purchase hold: {(balance.pending_purchase_redemption_balance || 0).toFixed(2)} Gems</div>
+          <div>Objective-locked bonus: {(balance.locked_bonus_balance || 0).toFixed(2)} Gems</div>
+        </div>
+
         <div className="flex gap-2">
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="flex-1 bg-violet-600 hover:bg-violet-700"
-            onClick={() => window.location.href = '/buy-gems'}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Buy Gems
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1"
-            onClick={() => window.location.href = '/portfolio'}
-          >
-            <Wallet className="h-4 w-4 mr-1" />
-            Portfolio
-          </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            asChild
+            variant="default"
             size="sm"
-            onClick={() => window.location.href = '/withdraw'}
+            className="flex-1 bg-violet-600 hover:bg-violet-700"
           >
+            <Link to="/wallet">
+            <Plus className="h-4 w-4 mr-1" />
+            Buy
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="flex-1"
+          >
+            <Link to="/vault">
+            <Wallet className="h-4 w-4 mr-1" />
+            Vault
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+          >
+            <Link to="/kyc">
             <ArrowDownLeft className="h-4 w-4 mr-1" />
-            Withdraw
+            KYC
+            </Link>
           </Button>
         </div>
       </CardContent>

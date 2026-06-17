@@ -28,6 +28,8 @@ interface KYCSubmissionFormProps {
   onSubmitted: () => void;
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
+
 export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -108,7 +110,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       }
 
       // Submit KYC
-      const response = await fetch('/api/pieces/kyc/submit', {
+      const response = await fetch(`${API_BASE}/pieces/kyc/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

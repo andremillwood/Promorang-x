@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams, useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,7 @@ import { CheckInCelebration } from '@/components/CheckInCelebration';
 import { MomentSentimentCapture } from '@/components/sentiment/MomentSentimentCapture';
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
+import { getAccessState, type AccessQuote } from "@/lib/access";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -36,19 +38,34 @@ const CheckIn = () => {
   const { data: tierStatus } = useTierStatus();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { uploadImage, uploading } = useImageUpload();
 
   const codeFromUrl = searchParams.get("code") || "";
+  const promoPushCampaignId = searchParams.get("campaign");
+  const promoPushChannelCode = searchParams.get("channel");
+  const promoPushChannelId = searchParams.get("channelId");
   const [code, setCode] = useState(codeFromUrl);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showSentimentCapture, setShowSentimentCapture] = useState(false);
   const [moment, setMoment] = useState<any>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uniqueProofValue, setUniqueProofValue] = useState("");
   const [locationVerified, setLocationVerified] = useState(false);
   const [hasJoined, setHasJoined] = useState<boolean | null>(null);
+  const [accessQuote, setAccessQuote] = useState<AccessQuote | null>(null);
   const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [proofSubmissionId, setProofSubmissionId] = useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<"pending" | "verified" | "rejected" | null>(null);
+  const [rewardPending, setRewardPending] = useState(false);
+  const [economyMoves, setEconomyMoves] = useState<Array<{ id: string; title: string; proof_type: string; reward_amount_jmd: number }>>([]);
+
+  const moveId = searchParams.get("moveId");
+  const activeMove = economyMoves.find((move) => move.id === moveId) || economyMoves[0] || null;
+  const activeProofType = activeMove?.proof_type
+    ? activeMove.proof_type === "code" ? "Code" : activeMove.proof_type.charAt(0).toUpperCase() + activeMove.proof_type.slice(1)
+    : moment?.proof_type;
 
   useEffect(() => {
     if (id) {
@@ -65,6 +82,7 @@ const CheckIn = () => {
   useEffect(() => {
     if (id && session && !id.startsWith("m")) {
       fetchProofRequirements();
+      fetchMomentEconomy();
     }
   }, [id, session]);
 
@@ -83,6 +101,7 @@ const CheckIn = () => {
       }
 
       setHasJoined(!!payload?.joined);
+      setAccessQuote(payload?.access_quote || null);
     } catch (error) {
       console.error("Error checking participation:", error);
       setHasJoined(false);
@@ -131,6 +150,19 @@ const CheckIn = () => {
       setProofRequirements(payload?.requirements || []);
     } catch (error) {
       console.error("Error fetching proof requirements:", error);
+    }
+  };
+
+  const fetchMomentEconomy = async () => {
+    if (!id) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/moment-economy/moments/${id}`);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "Failed to load Moment economy");
+      setEconomyMoves(payload?.moves || []);
+    } catch (error) {
+      console.error("Error fetching Moment economy:", error);
     }
   };
 
@@ -213,6 +245,8 @@ const CheckIn = () => {
 
     if (id?.startsWith('m')) {
       toast({ title: "Demo Check-in", description: "Successfully simulated check-in for this demo moment!" });
+      setVerificationStatus("verified");
+      setRewardPending(false);
       setSuccess(true);
       setLoading(false);
       return;
@@ -220,25 +254,35 @@ const CheckIn = () => {
 
     try {
       let evidenceUrl = null;
+      let nextVerificationStatus: "pending" | "verified" | "rejected" | null = null;
+      let nextRewardPending = false;
 
       // 1. Validate Proof
-      if (moment.proof_type === 'QR' || moment.proof_type === 'Code') {
+      if (activeProofType === 'QR' || activeProofType === 'Code') {
         if (moment.check_in_code?.toUpperCase() !== code.toUpperCase()) {
           throw new Error("Invalid check-in code");
         }
-      } else if (moment.proof_type === 'Photo' || moment.proof_type === 'Video') {
-        if (!imageFile) throw new Error("Please upload a photo as proof of attendance");
-        const uploaded = await uploadImage(imageFile, "moment-images", user.id);
+      } else if (activeProofType === 'Photo' || activeProofType === 'Video') {
+        if (!imageFile) {
+          throw new Error(activeProofType === 'Video' ? "Please upload a video as proof of attendance" : "Please upload a photo as proof of attendance");
+        }
+        const uploaded = await uploadImage(imageFile, "moment-images", user.id, {
+          allowVideo: activeProofType === 'Video',
+        });
         if (!uploaded) throw new Error("Failed to upload proof");
         evidenceUrl = uploaded;
-      } else if (moment.proof_type === 'GPS') {
+      } else if (activeProofType === 'GPS') {
         if (!locationVerified) throw new Error("Please verify your location first");
+      } else if (activeProofType === 'Link' || activeProofType === 'Referral') {
+        if (!uniqueProofValue.trim()) throw new Error(`Please enter your ${activeProofType.toLowerCase()} proof`);
       }
 
       if (session) {
         const proofBundle = {
-          proof_type: moment.proof_type || null,
+          proof_type: activeProofType || null,
           code: code.trim() || null,
+          link_url: activeProofType === 'Link' ? uniqueProofValue.trim() : null,
+          referral_code: activeProofType === 'Referral' ? uniqueProofValue.trim() : null,
           location_verified: locationVerified,
           evidence_url: evidenceUrl,
           submitted_at: new Date().toISOString(),
@@ -256,8 +300,12 @@ const CheckIn = () => {
             Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
+            moment_move_id: activeMove?.id || null,
             proof_bundle: proofBundle,
             evidence_url: evidenceUrl,
+            promopush_campaign_id: promoPushCampaignId,
+            promopush_channel_id: promoPushChannelId,
+            promopush_tracking_code: promoPushChannelCode,
           }),
         });
 
@@ -267,14 +315,25 @@ const CheckIn = () => {
         }
 
         setProofSubmissionId(completionPayload?.submission?.id || null);
+        nextVerificationStatus = completionPayload?.submission?.submission_state || completionPayload?.checkin?.verification_status || null;
+        nextRewardPending = Boolean(completionPayload?.checkin?.reward_pending);
+        setVerificationStatus(nextVerificationStatus);
+        setRewardPending(nextRewardPending);
       }
 
       setSuccess(true);
+      queryClient.invalidateQueries({ queryKey: ["joined-moments"] });
+      queryClient.invalidateQueries({ queryKey: ["vault"] });
       // Mock Haptic trigger
       if ('vibrate' in navigator) {
         navigator.vibrate([10, 30, 10, 30]);
       }
-      toast({ title: "Marked! 🎉", description: `Your ${tierStatus?.current_tier === 'regular' ? 'Regular ' : ''}Mark has been captured!` });
+      toast({
+        title: nextRewardPending ? "Proof Submitted" : "Marked! 🎉",
+        description: nextRewardPending
+          ? "Your mark is captured and pending verification before rewards are issued."
+          : `Your ${tierStatus?.current_tier === 'regular' ? 'Regular ' : ''}Mark has been captured!`,
+      });
 
     } catch (error: any) {
       toast({ title: "Mark Failed", description: error.message, variant: "destructive" });
@@ -300,6 +359,7 @@ const CheckIn = () => {
 
   // Guard: Must join before checking in
   if (hasJoined === false && !id?.startsWith('m')) {
+    const accessState = getAccessState(accessQuote);
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
@@ -310,8 +370,16 @@ const CheckIn = () => {
             </div>
             <h1 className="font-serif text-2xl font-bold mb-3">Join First to Leave Your Mark</h1>
             <p className="text-muted-foreground mb-6">
-              Join this moment to make your Mark and unlock rewards.
+              {accessState.key === "needs_keys" || accessState.key === "requires_plus" || accessState.key === "full"
+                ? accessState.description
+                : "Join this moment to make your Mark and unlock rewards."}
             </p>
+            <div className="mb-6 rounded-xl border border-border bg-background p-3 text-sm">
+              <span className="font-semibold text-foreground">{accessState.label}</span>
+              {accessQuote?.final_key_cost ? (
+                <span className="text-muted-foreground"> • {accessQuote.final_key_cost} Keys required</span>
+              ) : null}
+            </div>
             <div className="space-y-3">
               <Button variant="hero" className="w-full" asChild>
                 <Link to={`/moments/${id}`}>View Moment & Join</Link>
@@ -361,13 +429,35 @@ const CheckIn = () => {
                 <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
                   <Check className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h1 className="font-serif text-2xl font-bold mb-2">Marked! 🎉</h1>
-                <p className="text-muted-foreground mb-6">You left your Mark at to "{moment.title}"</p>
+                <h1 className="font-serif text-2xl font-bold mb-2">
+                  {rewardPending ? "Proof Submitted" : "Marked! 🎉"}
+                </h1>
+                <p className="text-muted-foreground mb-6">
+                  {rewardPending
+                    ? `Your mark for "${moment.title}" is now pending host or admin verification. Rewards will only issue after approval.`
+                    : `You left your Mark at "${moment.title}"`}
+                </p>
                 {proofSubmissionId && (
                   <div className="mb-6 rounded-2xl border border-primary/15 bg-primary/5 p-4 text-left">
-                    <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">Mark Captured</p>
+                    <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">
+                      {rewardPending ? "Verification Queue" : "Mark Captured"}
+                    </p>
                     <p className="mt-2 break-all text-sm text-muted-foreground">
-                      Mark ID: <span className="font-medium text-foreground">{proofSubmissionId}</span>
+                      Submission ID: <span className="font-medium text-foreground">{proofSubmissionId}</span>
+                    </p>
+                    {verificationStatus && (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Status: <span className="font-medium capitalize text-foreground">{verificationStatus}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {rewardPending && (
+                  <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-left">
+                    <p className="text-sm font-semibold text-foreground">Next step</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Your attendance has been captured, but reward issuance and verified attendance pieces are paused until the proof review is approved.
                     </p>
                   </div>
                 )}
@@ -403,14 +493,19 @@ const CheckIn = () => {
               <div className="text-center mb-8">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${moment.proof_type === 'GPS' ? 'bg-blue-500/10' : moment.proof_type === 'Photo' ? 'bg-purple-500/10' : 'bg-primary/10'
                   }`}>
-                  {moment.proof_type === 'GPS' ? <MapPin className="w-8 h-8 text-blue-500" /> :
-                    moment.proof_type === 'Photo' ? <Camera className="w-8 h-8 text-purple-500" /> :
+                  {activeProofType === 'GPS' ? <MapPin className="w-8 h-8 text-blue-500" /> :
+                    activeProofType === 'Photo' ? <Camera className="w-8 h-8 text-purple-500" /> :
                       <QrCode className="w-8 h-8 text-primary" />}
                 </div>
                 <h1 className="font-serif text-2xl font-bold">Leave Your Mark</h1>
                 <p className="text-muted-foreground mt-2">
-                  Strategy: <span className="font-semibold text-foreground uppercase text-xs tracking-wider">{moment.proof_type} Mark</span>
+                  Strategy: <span className="font-semibold text-foreground uppercase text-xs tracking-wider">{activeProofType} Mark</span>
                 </p>
+                {activeMove && (
+                  <p className="mt-2 text-sm text-foreground">
+                    {activeMove.title} · JMD {Number(activeMove.reward_amount_jmd || 0).toLocaleString()}
+                  </p>
+                )}
               </div>
 
               <form onSubmit={handleCheckIn} className="space-y-6">
@@ -447,7 +542,7 @@ const CheckIn = () => {
                 )}
 
                 {/* 1. CODE / QR UI */}
-                {(moment.proof_type === 'QR' || moment.proof_type === 'Code') && (
+                {(activeProofType === 'QR' || activeProofType === 'Code') && (
                   <div className="space-y-2">
                     <Label htmlFor="code">Check-in Code</Label>
                     <Input
@@ -462,7 +557,7 @@ const CheckIn = () => {
                 )}
 
                 {/* 2. PHOTO UI */}
-                {(moment.proof_type === 'Photo' || moment.proof_type === 'Video') && (
+                {(activeProofType === 'Photo' || activeProofType === 'Video') && (
                   <div className="space-y-3">
                     <Label>Proof of Presence</Label>
                     <ImageUpload
@@ -471,13 +566,18 @@ const CheckIn = () => {
                       uploading={uploading}
                       aspectRatio="video"
                       frameUrl={moment.frame_url}
+                      allowVideo={activeProofType === 'Video'}
                     />
-                    <p className="text-[10px] text-muted-foreground text-center italic">Take a photo showing you are at the location.</p>
+                    <p className="text-[10px] text-muted-foreground text-center italic">
+                      {activeProofType === 'Video'
+                        ? "Record a short video showing you are at the location."
+                        : "Take a photo showing you are at the location."}
+                    </p>
                   </div>
                 )}
 
                 {/* 3. GPS UI */}
-                {moment.proof_type === 'GPS' && (
+                {activeProofType === 'GPS' && (
                   <div className="space-y-4">
                     <Button
                       type="button"
@@ -495,11 +595,23 @@ const CheckIn = () => {
                   </div>
                 )}
 
+                {(activeProofType === 'Link' || activeProofType === 'Referral') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="uniqueProofValue">{activeProofType} Proof</Label>
+                    <Input
+                      id="uniqueProofValue"
+                      value={uniqueProofValue}
+                      onChange={(e) => setUniqueProofValue(e.target.value)}
+                      placeholder={activeProofType === 'Link' ? "Paste the completed action link" : "Enter referral code or referred user"}
+                    />
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   variant="hero"
                   className="w-full h-14 font-bold text-lg"
-                  disabled={loading || ((moment.proof_type === 'QR' || moment.proof_type === 'Code') && !code.trim()) || (moment.proof_type === 'Photo' && !imageFile) || (moment.proof_type === 'GPS' && !locationVerified)}
+                  disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || (activeProofType === 'Photo' && !imageFile) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Verify & Complete"}
                 </Button>

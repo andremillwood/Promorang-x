@@ -7,6 +7,7 @@ const { requireAuth } = require('../middleware/auth');
 const dailyLayerService = require('../services/dailyLayerService');
 const bountyService = require('../services/bountyService');
 const missionAttributionService = require('../services/missionAttributionService');
+const offerService = require('../services/offerService');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -264,6 +265,11 @@ const looksLikeUuid = (value) => typeof value === 'string' && /^[0-9a-fA-F-]{36}
 const isMissingRelationError = (error) => {
   if (!error) return false;
   return error.code === '42P01' || /relation .* does not exist/i.test(error.message || '');
+};
+
+const isMissingColumnError = (error) => {
+  if (!error) return false;
+  return error.code === '42703' || /column .* does not exist/i.test(error.message || '');
 };
 
 const mintInitialSharePosition = async ({
@@ -587,6 +593,104 @@ router.get('/sponsored', async (req, res) => {
   } catch (error) {
     console.error('Error fetching sponsored content:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch sponsored content' });
+  }
+});
+
+// Get the authenticated creator's content
+router.get('/mine', async (req, res) => {
+  try {
+    const { limit = 24 } = req.query;
+    const cappedLimit = Math.min(Math.max(Number(limit) || 24, 1), 100);
+
+    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+      const placeholder = Array.from({ length: Math.min(cappedLimit, 3) }, (_, i) => ({
+        id: `mine-${i + 1}`,
+        title: `My Demo Story ${i + 1}`,
+        description: `A creator-owned story ready to be linked into a mission loop.`,
+        platform: ['instagram', 'tiktok', 'youtube'][i % 3],
+        media_url: DEMO_MEDIA[i % DEMO_MEDIA.length],
+        impressions: 2500 + i * 750,
+        clicks: 240 + i * 40,
+        engagements: 620 + i * 55,
+        shares: 80 + i * 6,
+        conversions: 12 + i * 3,
+        engagement_rate: 0.058 + i * 0.002,
+        creator_name: req.user?.display_name || 'Demo Creator',
+        creator_username: req.user?.username || 'demo_creator',
+        status: 'published',
+        posted_at: new Date(Date.now() - i * 86400000).toISOString(),
+      }));
+      return res.json({ success: true, content: buildContentResponse(placeholder) });
+    }
+
+    const creatorDefaults = {
+      creator_name: req.user?.display_name || req.user?.email || 'Promorang Creator',
+      creator_username: req.user?.username || null,
+      creator_avatar: req.user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+      platform_url: 'https://promorang.co',
+    };
+
+    let rows = null;
+    let contentItemsError = null;
+
+    if (req.user?.id) {
+      const contentItemsResult = await supabase
+        .from('content_items')
+        .select('id, creator_id, title, description, media_url, platform, status, posted_at, impressions, clicks, engagements, shares, conversions, engagement_rate')
+        .eq('creator_id', req.user.id)
+        .order('posted_at', { ascending: false })
+        .limit(cappedLimit);
+
+      if (!contentItemsResult.error) {
+        rows = (contentItemsResult.data || []).map((row) => ({
+          ...creatorDefaults,
+          ...row,
+        }));
+      } else {
+        contentItemsError = contentItemsResult.error;
+      }
+    }
+
+    if (!rows) {
+      const filters = [];
+      if (req.user?.username) {
+        filters.push(`creator_username.eq.${req.user.username}`);
+      }
+      if (req.user?.display_name) {
+        filters.push(`creator_name.eq.${req.user.display_name}`);
+      }
+      if (req.user?.email) {
+        filters.push(`creator_name.eq.${req.user.email}`);
+      }
+
+      let legacyQuery = supabase
+        .from('content_pieces')
+        .select('*')
+        .order('posted_at', { ascending: false })
+        .limit(cappedLimit);
+
+      if (filters.length > 0) {
+        legacyQuery = legacyQuery.or(filters.join(','));
+      }
+
+      const { data: legacyRows, error: legacyError } = await legacyQuery;
+      if (legacyError) {
+        if (contentItemsError && !isMissingRelationError(contentItemsError) && !isMissingColumnError(contentItemsError)) {
+          throw contentItemsError;
+        }
+        throw legacyError;
+      }
+
+      rows = legacyRows || [];
+    }
+
+    return res.json({
+      success: true,
+      content: buildContentResponse(rows || []),
+    });
+  } catch (error) {
+    console.error('Error fetching creator content:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch creator content' });
   }
 });
 
@@ -1234,6 +1338,11 @@ router.post('/', async (req, res) => {
       description,
       platform_url,
       media_url,
+      thumbnail_url,
+      banner_image_url,
+      gallery_images,
+      video_url,
+      media_metadata,
       total_shares,
       share_price
     } = req.body;
@@ -1270,6 +1379,11 @@ router.post('/', async (req, res) => {
         title,
         description,
         media_url,
+        thumbnail_url: thumbnail_url || media_url || null,
+        banner_image_url: banner_image_url || null,
+        gallery_images: Array.isArray(gallery_images) ? gallery_images : [],
+        video_url: video_url || null,
+        media_metadata: media_metadata || {},
         total_shares: shareCount,
         available_shares: shareCount,
         share_price: sharePrice,
@@ -1297,6 +1411,11 @@ router.post('/', async (req, res) => {
       title,
       description,
       media_url,
+      thumbnail_url: thumbnail_url || media_url || null,
+      banner_image_url: banner_image_url || null,
+      gallery_images: Array.isArray(gallery_images) ? gallery_images : [],
+      video_url: video_url || null,
+      media_metadata: media_metadata || {},
       platform,
       status: 'published',
       posted_at: nowIso,
@@ -1309,7 +1428,7 @@ router.post('/', async (req, res) => {
     };
 
     const { data: itemData, error: itemError } = await supabase
-      .from('content_pieces')
+      .from('content_items')
       .insert(contentItemsPayload)
       .select()
       .single();
@@ -1510,6 +1629,11 @@ router.put('/:id', async (req, res) => {
     if (updates.title !== undefined) contentItemsUpdates.title = updates.title;
     if (updates.description !== undefined) contentItemsUpdates.description = updates.description;
     if (updates.media_url !== undefined) contentItemsUpdates.media_url = updates.media_url;
+    if (updates.thumbnail_url !== undefined) contentItemsUpdates.thumbnail_url = updates.thumbnail_url;
+    if (updates.banner_image_url !== undefined) contentItemsUpdates.banner_image_url = updates.banner_image_url;
+    if (updates.gallery_images !== undefined) contentItemsUpdates.gallery_images = Array.isArray(updates.gallery_images) ? updates.gallery_images : [];
+    if (updates.video_url !== undefined) contentItemsUpdates.video_url = updates.video_url;
+    if (updates.media_metadata !== undefined) contentItemsUpdates.media_metadata = updates.media_metadata || {};
     if (updates.platform !== undefined) contentItemsUpdates.platform = updates.platform;
     if (updates.status !== undefined) contentItemsUpdates.status = updates.status;
     if (updates.posted_at !== undefined) contentItemsUpdates.posted_at = updates.posted_at;
@@ -1820,7 +1944,21 @@ router.post('/:id/engage', requireAuth, async (req, res) => {
       console.warn('[Content API] mission attribution skipped:', attributionError.message);
     }
 
-    res.json(data);
+    let offersIssued = [];
+    try {
+      offersIssued = await offerService.issueForEvent({
+        userId,
+        channel: 'content',
+        event: event_type,
+        sourceId: id,
+        sourceEventId: data?.event_id || `${id}:${userId}:${event_type}:${Date.now()}`,
+        context: { content_id: id, count: 1, ...metadata },
+      });
+    } catch (offerError) {
+      console.warn('[Content API] unified offer issuance skipped:', offerError.message);
+    }
+
+    res.json({ ...data, offers_issued: offersIssued });
   } catch (error) {
     console.error('Error in POST /api/content/:id/engage:', error);
     res.status(500).json({ error: 'Internal server error' });

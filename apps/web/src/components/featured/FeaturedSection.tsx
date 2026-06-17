@@ -11,6 +11,7 @@ import { Sparkles, Clock, Eye, Trophy, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useFeaturedImpression } from '@/hooks/useFeaturedImpression';
 import { useInView } from '@/hooks/useInView';
+import { API_BASE_URL } from '@/lib/api';
 
 interface FeaturedPlacement {
   id: string;
@@ -53,7 +54,11 @@ export default function FeaturedSection() {
 
   const fetchFeaturedPlacements = async () => {
     try {
-      const response = await fetch('/api/featured-marketplace/active?placement_type=homepage_featured&limit=6');
+      const response = await fetch(`${API_BASE_URL}/featured-marketplace/active?placement_type=homepage_featured&limit=6`);
+      if (!response.ok) {
+        throw new Error(`Featured section request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success && data.placements.length > 0) {
@@ -128,7 +133,7 @@ export default function FeaturedSection() {
           <h3 className="text-xl font-semibold">Featured</h3>
         </div>
         <Link 
-          to="/discover" 
+          to="/explore/moments" 
           className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
         >
           View all

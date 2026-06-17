@@ -11,6 +11,7 @@ interface ImageUploadProps {
   className?: string;
   aspectRatio?: "square" | "video" | "banner";
   frameUrl?: string;
+  allowVideo?: boolean;
 }
 
 export function ImageUpload({
@@ -21,6 +22,7 @@ export function ImageUpload({
   className,
   aspectRatio = "video",
   frameUrl,
+  allowVideo = false,
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,8 @@ export function ImageUpload({
     onFileSelect(file);
   };
 
+  const isVideoPreview = Boolean(preview && fileRefersToVideo(preview, value));
+
   const handleRemove = () => {
     setPreview(null);
     onChange(null);
@@ -58,7 +62,7 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept={allowVideo ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" : "image/jpeg,image/png,image/webp,image/gif"}
         onChange={handleFileChange}
         className="hidden"
         disabled={uploading}
@@ -71,11 +75,19 @@ export function ImageUpload({
             aspectClasses[aspectRatio]
           )}
         >
-          <img
-            src={preview || value}
-            alt="Upload preview"
-            className="w-full h-full object-cover"
-          />
+          {isVideoPreview ? (
+            <video
+              src={preview || value}
+              className="w-full h-full object-cover"
+              controls
+            />
+          ) : (
+            <img
+              src={preview || value}
+              alt="Upload preview"
+              className="w-full h-full object-cover"
+            />
+          )}
           {frameUrl && (
             <img
               src={frameUrl}
@@ -120,11 +132,16 @@ export function ImageUpload({
           <div className="text-center">
             <p className="font-medium text-foreground">Click to upload</p>
             <p className="text-sm text-muted-foreground">
-              JPEG, PNG, WebP or GIF (max 5MB)
+              {allowVideo ? "Image or video (max 50MB)" : "JPEG, PNG, WebP or GIF (max 5MB)"}
             </p>
           </div>
         </button>
       )}
     </div>
   );
+}
+
+function fileRefersToVideo(preview?: string | null, value?: string) {
+  const source = `${preview || value || ""}`.toLowerCase();
+  return source.startsWith("data:video/") || [".mp4", ".webm", ".mov"].some((ext) => source.includes(ext));
 }

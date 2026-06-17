@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 import { 
   Sparkles, 
   Clock, 
@@ -113,7 +114,11 @@ export default function FeaturedBooking() {
   
   const fetchPlacementTypes = async () => {
     try {
-      const response = await fetch('/api/featured-marketplace/placement-types');
+      const response = await fetch(`${API_BASE_URL}/featured-marketplace/placement-types`);
+      if (!response.ok) {
+        throw new Error(`Placement types request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success) {
@@ -132,7 +137,7 @@ export default function FeaturedBooking() {
       const placement = placementTypes.find(p => p.placement_type === selectedPlacement);
       if (!placement) return;
       
-      let url = `/api/featured-marketplace/pricing/${selectedPlacement}?`;
+      let url = `${API_BASE_URL}/featured-marketplace/pricing/${selectedPlacement}?`;
       
       if (placement.pricing_type === 'fixed_daily') {
         url += `duration_days=${durationDays}`;
@@ -141,6 +146,10 @@ export default function FeaturedBooking() {
       }
       
       const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Pricing request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success) {
@@ -156,8 +165,12 @@ export default function FeaturedBooking() {
     
     try {
       const response = await fetch(
-        `/api/featured-marketplace/availability/${selectedPlacement}?duration_days=${durationDays}`
+        `${API_BASE_URL}/featured-marketplace/availability/${selectedPlacement}?duration_days=${durationDays}`
       );
+      if (!response.ok) {
+        throw new Error(`Availability request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success) {
@@ -182,7 +195,7 @@ export default function FeaturedBooking() {
     setIsBooking(true);
     
     try {
-      const response = await fetch('/api/featured-marketplace/book', {
+      const response = await fetch(`${API_BASE_URL}/featured-marketplace/book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -198,6 +211,10 @@ export default function FeaturedBooking() {
         })
       });
       
+      if (!response.ok) {
+        throw new Error(`Booking request failed with ${response.status}`);
+      }
+
       const data: BookingResponse = await response.json();
       
       if (data.success && data.payment_required) {
@@ -205,7 +222,7 @@ export default function FeaturedBooking() {
         
         // Create Stripe checkout session
         const checkoutResponse = await fetch(
-          `/api/featured-marketplace/${data.payment_required.booking_id}/checkout`,
+          `${API_BASE_URL}/featured-marketplace/${data.payment_required.booking_id}/checkout`,
           {
             method: 'POST',
             headers: {
@@ -213,6 +230,10 @@ export default function FeaturedBooking() {
             }
           }
         );
+
+        if (!checkoutResponse.ok) {
+          throw new Error(`Checkout request failed with ${checkoutResponse.status}`);
+        }
         
         const checkoutData = await checkoutResponse.json();
         
@@ -266,11 +287,11 @@ export default function FeaturedBooking() {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8 sm:py-12">
       <div className="container max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
+        <div className="mb-10 text-center sm:mb-12">
+          <h1 className="mb-4 flex flex-col items-center justify-center gap-3 text-3xl font-bold sm:flex-row sm:text-4xl">
             <Sparkles className="w-8 h-8 text-primary" />
             Featured Placements
           </h1>
@@ -280,7 +301,7 @@ export default function FeaturedBooking() {
           </p>
         </div>
         
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Booking Form */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
@@ -365,7 +386,7 @@ export default function FeaturedBooking() {
                     
                     {placementTypes.find(p => p.placement_type === selectedPlacement)?.pricing_type === 'fixed_daily' ? (
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-3">
                           <Label>Duration (Days)</Label>
                           <span className="text-sm font-medium">{durationDays} days</span>
                         </div>
@@ -377,7 +398,7 @@ export default function FeaturedBooking() {
                           onChange={(e) => setDurationDays(parseInt(e.target.value))}
                           className="w-full"
                         />
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                        <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
                           <span>1 day</span>
                           <span>7 days (10% off)</span>
                           <span>14 days (15% off)</span>
@@ -386,7 +407,7 @@ export default function FeaturedBooking() {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-3">
                           <Label>Budget</Label>
                           <span className="text-sm font-medium">${budget}</span>
                         </div>
@@ -399,7 +420,7 @@ export default function FeaturedBooking() {
                           onChange={(e) => setBudget(parseInt(e.target.value))}
                           className="w-full"
                         />
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
                           <span>$25 min</span>
                           <span>$500 max</span>
                         </div>
@@ -421,33 +442,33 @@ export default function FeaturedBooking() {
                 {pricing ? (
                   <>
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between gap-3">
                         <span className="text-muted-foreground">Base Price</span>
                         <span>${pricing.base_price.toFixed(2)}</span>
                       </div>
                       
                       {pricing.discount_applied > 0 && (
-                        <div className="flex justify-between items-center text-green-600">
+                        <div className="flex items-center justify-between gap-3 text-green-600 dark:text-green-400">
                           <span>Volume Discount ({(pricing.discount_applied * 100).toFixed(0)}%)</span>
                           <span>-${pricing.discount_amount.toFixed(2)}</span>
                         </div>
                       )}
                       
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between gap-3">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>${pricing.final_price.toFixed(2)}</span>
                       </div>
                       
                       <Separator />
                       
-                      <div className="flex justify-between items-center text-sm">
+                      <div className="flex items-center justify-between gap-3 text-sm">
                         <span className="text-muted-foreground">Platform Fee (15%)</span>
                         <span>${pricing.platform_fee.toFixed(2)}</span>
                       </div>
                       
                       <Separator />
                       
-                      <div className="flex justify-between items-center text-lg font-bold">
+                      <div className="flex items-center justify-between gap-3 text-lg font-bold">
                         <span>Total</span>
                         <span className="text-primary">${pricing.final_price.toFixed(2)}</span>
                       </div>

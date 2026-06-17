@@ -51,7 +51,7 @@ export default function MomentProductLinker({
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/merchant/products', {
+            const response = await fetch(`${API_BASE}/merchant/products`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

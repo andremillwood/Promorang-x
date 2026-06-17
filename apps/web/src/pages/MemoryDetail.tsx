@@ -81,7 +81,7 @@ const MemoryDetail = () => {
             <Link to="/pulse">Pulse</Link>
           </Button>
           <Button asChild variant="hero">
-            <Link to="/discover">Find More Moments</Link>
+            <Link to="/explore/moments">Find More Moments</Link>
           </Button>
         </div>
       </div>

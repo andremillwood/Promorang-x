@@ -27,7 +27,7 @@ async function getVaultSummary(userId) {
 
   const { data: memories, error: memoriesError } = await supabase
     .from('memories')
-    .select('id, title, rarity, collection_key, legacy_score, issued_at, perk_id')
+    .select('id, title, rarity, collection_key, legacy_score, issued_at, perk_id, moment_id, metadata')
     .eq('user_id', userId)
     .order('issued_at', { ascending: false });
 
@@ -152,6 +152,8 @@ async function issueMemoryForMoment({
   momentId,
   proofSubmissionId = null,
   reviewerId = null,
+  source = 'proof_verification',
+  metadata = {},
 }) {
   if (!supabase) throw new Error('Database not available');
 
@@ -184,14 +186,18 @@ async function issueMemoryForMoment({
     creator_id: moment.host_id || null,
     brand_id: moment.brand_id || null,
     rarity,
-    title: `${moment.title} Memory`,
+    title: source === 'moment_checkin'
+      ? `I was there: ${moment.title}`
+      : `${moment.title} Memory`,
     collection_key: buildCollectionKey(moment),
     legacy_score: legacyScore,
     perk_id: moment.perk_template_id || null,
     metadata: {
-      source: 'proof_verification',
+      ...metadata,
+      source,
       proof_submission_id: proofSubmissionId,
       reviewed_by: reviewerId,
+      artifact_type: metadata.artifact_type || 'moment_memory',
       moment_title: moment.title || null,
       moment_mode: moment.moment_mode || null,
       pulse_state: moment.pulse_state || null,

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { DirectoryHeader } from "@/components/directory/DirectoryHeader";
@@ -10,6 +11,7 @@ import { useTour } from "@/contexts/TourContext";
 import ProductTour from "@/components/tours/ProductTour";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/discovery";
 
 const BRAND_CATEGORIES = [
     { value: "lifestyle", label: "Lifestyle" },
@@ -65,6 +67,18 @@ const BrandsDirectory = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
+            <SEO
+                title="Brand Directory"
+                description="Discover brands associated with public moments, activations, and creator campaigns on Promorang."
+                url={getSiteUrl("/brands")}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "CollectionPage",
+                    "name": "Brand Directory",
+                    "description": "Browse brands associated with public moments and activations on Promorang.",
+                }}
+            />
+
             <DirectoryHeader
                 title="Brand Directory"
                 description="Discover brands powering activations and moments across the platform."
@@ -78,6 +92,26 @@ const BrandsDirectory = () => {
                 searchCategory="brand"
             />
 
+            <div className="mb-8 rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="max-w-2xl">
+                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Discovery graph</p>
+                        <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Move from brands into moments, venues, and locations</h2>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            Brand pages now connect into public moment archives and venue-linked discovery routes, giving search engines and users a clearer path through the ecosystem.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Button variant="link" className="rounded-full border border-border px-4 py-2" onClick={() => window.location.assign("/explore/moments")}>
+                            Browse moments
+                        </Button>
+                        <Button variant="link" className="rounded-full border border-border px-4 py-2" onClick={() => window.location.assign("/watch-unlock")}>
+                            Watch & Unlock
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
@@ -89,6 +123,7 @@ const BrandsDirectory = () => {
                         <OrganizationCard
                             key={brand.id}
                             id={brand.id}
+                            slug={brand.slug}
                             name={brand.name}
                             type="brand"
                             logo={brand.logo_url}

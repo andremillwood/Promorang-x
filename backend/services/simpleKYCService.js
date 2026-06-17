@@ -11,8 +11,27 @@
  */
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const {
+  sendAdminAlertEmail,
+  sendKycApprovedEmail,
+  sendKycRejectedEmail,
+  sendKycAdditionalInfoEmail,
+} = require('./resendService');
 
 const supabase = global.supabase || serviceSupabase || null;
+
+async function getUserEmailContext(userId) {
+  if (!supabase || !userId) return null;
+
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id, email, username, display_name')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return user;
+}
 
 // =====================================================
 // USER SUBMISSION
@@ -123,6 +142,23 @@ async function submitKYC(userId, submissionData) {
   // Notify admin (in production, send email/Slack)
   console.log(`[SimpleKYC] New submission from user ${userId}. Review at: /admin/kyc/${submission.id}`);
 
+  try {
+    await sendAdminAlertEmail({
+      title: 'New KYC submission',
+      message: `A new KYC submission is waiting for review.`,
+      severity: 'info',
+      ctaText: 'Open KYC queue',
+      ctaUrl: `${process.env.FRONTEND_URL || 'https://promorang.co'}/admin/kyc`,
+      metadata: {
+        submission_id: submission.id,
+        user_id: userId,
+        status: submission.status,
+      },
+    });
+  } catch (error) {
+    console.error('[SimpleKYC] Failed to send admin alert for new submission:', error);
+  }
+
   return {
     success: true,
     submission_id: submission.id,
@@ -208,7 +244,7 @@ async function startReview(submissionId, adminId) {
 /**
  * Approve KYC
  */
-async function approveKYC(submissionId, adminId, notes = '') {
+async function approveKYC(submissionId, adminId, requestedLevelOrNotes = '', maybeNotes = '') {
   if (!supabase) {
     return {
       success: true,
@@ -228,13 +264,20 @@ async function approveKYC(submissionId, adminId, notes = '') {
     throw new Error('Submission not found');
   }
 
-  // Determine level based on documents provided
-  let kycLevel = 'basic';
-  if (submission.proof_of_address_url && submission.occupation) {
-    kycLevel = 'intermediate';
-  }
-  if (submission.source_of_funds) {
-    kycLevel = 'advanced';
+  const requestedLevel = ['basic', 'intermediate', 'advanced'].includes(requestedLevelOrNotes)
+    ? requestedLevelOrNotes
+    : null;
+  const notes = requestedLevel ? maybeNotes : requestedLevelOrNotes;
+
+  // Determine level based on documents provided unless admin explicitly overrides it
+  let kycLevel = requestedLevel || 'basic';
+  if (!requestedLevel) {
+    if (submission.proof_of_address_url && submission.occupation) {
+      kycLevel = 'intermediate';
+    }
+    if (submission.source_of_funds) {
+      kycLevel = 'advanced';
+    }
   }
 
   // Get limits for this level
@@ -310,7 +353,18 @@ async function approveKYC(submissionId, adminId, notes = '') {
     })
     .eq('id', submission.user_id);
 
-  // TODO: Send email notification to user
+  try {
+    const user = await getUserEmailContext(submission.user_id);
+    if (user?.email) {
+      await sendKycApprovedEmail(
+        user.email,
+        user.display_name || user.username,
+        { level: kycLevel, limits }
+      );
+    }
+  } catch (error) {
+    console.error('[SimpleKYC] Failed to send KYC approval email:', error);
+  }
 
   return {
     success: true,
@@ -363,7 +417,18 @@ async function rejectKYC(submissionId, adminId, reason, category = 'other') {
     })
     .eq('id', submission.user_id);
 
-  // TODO: Send email with rejection reason
+  try {
+    const user = await getUserEmailContext(submission.user_id);
+    if (user?.email) {
+      await sendKycRejectedEmail(
+        user.email,
+        user.display_name || user.username,
+        { reason, category }
+      );
+    }
+  } catch (error) {
+    console.error('[SimpleKYC] Failed to send KYC rejection email:', error);
+  }
 
   return {
     success: true,
@@ -390,7 +455,26 @@ async function requestAdditionalInfo(submissionId, adminId, requestedInfo) {
     })
     .eq('id', submissionId);
 
-  // TODO: Notify user
+  try {
+    const { data: submission } = await supabase
+      .from('simple_kyc_submissions')
+      .select('user_id')
+      .eq('id', submissionId)
+      .single();
+
+    if (submission?.user_id) {
+      const user = await getUserEmailContext(submission.user_id);
+      if (user?.email) {
+        await sendKycAdditionalInfoEmail(
+          user.email,
+          user.display_name || user.username,
+          { requestedInfo }
+        );
+      }
+    }
+  } catch (error) {
+    console.error('[SimpleKYC] Failed to send KYC additional-info email:', error);
+  }
 
   return {
     success: true,

@@ -12,6 +12,7 @@ dist-ssr/
 build/
 **/dist/
 **/build/
+**/dist.*/
 *.local
 
 # Editor directories and files

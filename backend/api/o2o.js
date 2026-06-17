@@ -3,6 +3,18 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { supabase } = require('../lib/supabase');
 
+const isMissingRelationError = (error) => {
+  if (!error) return false;
+  return error.code === '42P01' || /relation .* does not exist/i.test(error.message || '');
+};
+
+const isMissingColumnError = (error) => {
+  if (!error) return false;
+  return error.code === '42703' || /column .* does not exist/i.test(error.message || '');
+};
+
+const isSchemaCompatibilityError = (error) => isMissingRelationError(error) || isMissingColumnError(error);
+
 const DEMO_O2O_FEED = [
   {
     id: 'demo-o2o-1',
@@ -104,6 +116,80 @@ function buildO2OFeedPayload(linkRows = [], contentRows = [], momentRows = []) {
     .filter(Boolean);
 }
 
+async function getCreatorContentRows(user) {
+  if (!supabase || !user?.id) return [];
+
+  const primaryResult = await supabase
+    .from('content_items')
+    .select('id, creator_id, title, description, platform, media_url, posted_at')
+    .eq('creator_id', user.id)
+    .order('posted_at', { ascending: false });
+
+  if (!primaryResult.error) {
+    return (primaryResult.data || []).map((row) => ({
+      ...row,
+      creator_name: user.display_name || user.email || 'Promorang Creator',
+      creator_avatar: user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+      platform_url: row.media_url || 'https://promorang.co',
+    }));
+  }
+
+  if (!isSchemaCompatibilityError(primaryResult.error)) {
+    throw primaryResult.error;
+  }
+
+  const filters = [];
+  if (user.username) filters.push(`creator_username.eq.${user.username}`);
+  if (user.display_name) filters.push(`creator_name.eq.${user.display_name}`);
+  if (user.email) filters.push(`creator_name.eq.${user.email}`);
+
+  if (filters.length === 0) {
+    return [];
+  }
+
+  const legacyResult = await supabase
+    .from('content_pieces')
+    .select('id, creator_id, creator_username, creator_name, creator_avatar, title, description, platform, platform_url, media_url, posted_at')
+    .or(filters.join(','))
+    .order('posted_at', { ascending: false });
+
+  if (legacyResult.error) {
+    if (isSchemaCompatibilityError(legacyResult.error)) {
+      return [];
+    }
+    throw legacyResult.error;
+  }
+
+  return legacyResult.data || [];
+}
+
+async function getCreatorContentItemIds(user) {
+  const rows = await getCreatorContentRows(user);
+  return rows
+    .map((row) => row.id)
+    .filter((id) => typeof id === 'string' && /^[0-9a-fA-F-]{36}$/.test(id));
+}
+
+async function getActiveMomentRows() {
+  if (!supabase) return [];
+
+  const result = await supabase
+    .from('moments')
+    .select('id, title, venue_name, location, pulse_state, reward, starts_at, gathering_threshold, is_active, host_id')
+    .eq('is_active', true)
+    .order('starts_at', { ascending: true })
+    .limit(50);
+
+  if (result.error) {
+    if (isSchemaCompatibilityError(result.error)) {
+      return [];
+    }
+    throw result.error;
+  }
+
+  return result.data || [];
+}
+
 router.use(requireAuth);
 
 router.get('/feed', async (req, res) => {
@@ -129,7 +215,7 @@ router.get('/feed', async (req, res) => {
     const [{ data: contentItems, error: contentError }, { data: moments, error: momentsError }] = await Promise.all([
       supabase
         .from('content_items')
-        .select('id, title, description, platform, media_url, creator_name, creator_avatar, platform_url')
+        .select('id, title, description, platform, media_url')
         .in('id', contentIds),
       supabase
         .from('moments')
@@ -141,7 +227,14 @@ router.get('/feed', async (req, res) => {
     if (contentError) throw contentError;
     if (momentsError) throw momentsError;
 
-    const feed = buildO2OFeedPayload(links, contentItems || [], moments || []);
+    const normalizedContentItems = (contentItems || []).map((item) => ({
+      ...item,
+      creator_name: 'Promorang Creator',
+      creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+      platform_url: item.media_url || 'https://promorang.co',
+    }));
+
+    const feed = buildO2OFeedPayload(links, normalizedContentItems, moments || []);
     res.json({ success: true, feed });
   } catch (error) {
     console.error('[O2O API] feed error:', error);
@@ -175,12 +268,12 @@ router.get('/missions/:id', async (req, res) => {
     const [{ data: content, error: contentError }, { data: moment, error: momentError }] = await Promise.all([
       supabase
         .from('content_items')
-        .select('id, title, description, platform, media_url, creator_name, creator_avatar, platform_url')
+        .select('id, title, description, platform, media_url, thumbnail_url, banner_image_url, gallery_images, video_url, media_metadata')
         .eq('id', link.content_item_id)
         .maybeSingle(),
       supabase
         .from('moments')
-        .select('id, title, venue_name, location, pulse_state, reward, starts_at, gathering_threshold, is_active')
+        .select('id, title, venue_name, location, pulse_state, reward, starts_at, gathering_threshold, is_active, image_url, banner_image_url')
         .eq('id', link.moment_id)
         .maybeSingle(),
     ]);
@@ -191,7 +284,12 @@ router.get('/missions/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Mission not found' });
     }
 
-    const [mission] = buildO2OFeedPayload([link], [content], [moment]);
+    const [mission] = buildO2OFeedPayload([link], [{
+      ...content,
+      creator_name: 'Promorang Creator',
+      creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+      platform_url: content.media_url || 'https://promorang.co',
+    }], [moment]);
     res.json({ success: true, mission });
   } catch (error) {
     console.error('[O2O API] mission detail error:', error);
@@ -239,13 +337,7 @@ router.get('/creator-summary', async (req, res) => {
       });
     }
 
-    const { data: contentItems, error: contentError } = await supabase
-      .from('content_items')
-      .select('id')
-      .eq('creator_id', req.user.id);
-
-    if (contentError) throw contentError;
-    const contentIds = (contentItems || []).map((item) => item.id);
+    const contentIds = await getCreatorContentItemIds(req.user);
 
     if (contentIds.length === 0) {
       return res.json({
@@ -255,6 +347,16 @@ router.get('/creator-summary', async (req, res) => {
           linked_moment_count: 0,
           avg_o2o_conversion_rate: 0,
           sponsored_links: 0,
+          attributed_joins: 0,
+          verified_unlocks: 0,
+          memories_issued: 0,
+          creator_momentum_value: 0,
+          creator_impact_score: 0,
+          catalyst_rank: 'new_signal',
+          catalyst_conversions: 0,
+          downstream_action_count: 0,
+          downstream_reward_value: 0,
+          top_missions: [],
         },
       });
     }
@@ -264,7 +366,30 @@ router.get('/creator-summary', async (req, res) => {
       .select('id, content_item_id, moment_id, o2o_conversion_rate, is_sponsored')
       .in('content_item_id', contentIds);
 
-    if (linksError) throw linksError;
+    if (linksError) {
+      if (isSchemaCompatibilityError(linksError)) {
+        return res.json({
+          success: true,
+          summary: {
+            linked_content_count: contentIds.length,
+            linked_moment_count: 0,
+            avg_o2o_conversion_rate: 0,
+            sponsored_links: 0,
+            attributed_joins: 0,
+            verified_unlocks: 0,
+            memories_issued: 0,
+            creator_momentum_value: 0,
+            creator_impact_score: 0,
+            catalyst_rank: 'new_signal',
+            catalyst_conversions: 0,
+            downstream_action_count: 0,
+            downstream_reward_value: 0,
+            top_missions: [],
+          },
+        });
+      }
+      throw linksError;
+    }
 
     const linkedMomentIds = new Set((links || []).map((link) => link.moment_id));
     const avgRate = links && links.length > 0
@@ -378,13 +503,11 @@ router.get('/links/mine', async (req, res) => {
       return res.json({ success: true, links: DEMO_O2O_FEED });
     }
 
-    const { data: contentItems, error: contentError } = await supabase
-      .from('content_items')
-      .select('id')
-      .eq('creator_id', req.user.id);
+    const creatorContentRows = await getCreatorContentRows(req.user);
+    const contentIds = creatorContentRows
+      .map((item) => item.id)
+      .filter((id) => typeof id === 'string' && /^[0-9a-fA-F-]{36}$/.test(id));
 
-    if (contentError) throw contentError;
-    const contentIds = (contentItems || []).map((item) => item.id);
     if (contentIds.length === 0) {
       return res.json({ success: true, links: [] });
     }
@@ -395,13 +518,18 @@ router.get('/links/mine', async (req, res) => {
       .in('content_item_id', contentIds)
       .order('created_at', { ascending: false });
 
-    if (linksError) throw linksError;
+    if (linksError) {
+      if (isSchemaCompatibilityError(linksError)) {
+        return res.json({ success: true, links: [] });
+      }
+      throw linksError;
+    }
 
     const momentIds = [...new Set((links || []).map((link) => link.moment_id))];
-    const [{ data: contentRows, error: contentRowsError }, { data: momentRows, error: momentRowsError }] = await Promise.all([
+    const [{ data: normalizedContentRows, error: contentRowsError }, { data: momentRows, error: momentRowsError }] = await Promise.all([
       supabase
         .from('content_items')
-        .select('id, title, description, platform, media_url, creator_name, creator_avatar, platform_url')
+        .select('id, title, description, platform, media_url')
         .in('id', contentIds),
       momentIds.length > 0
         ? supabase
@@ -411,10 +539,25 @@ router.get('/links/mine', async (req, res) => {
         : Promise.resolve({ data: [], error: null }),
     ]);
 
-    if (contentRowsError) throw contentRowsError;
+    if (contentRowsError) {
+      if (isSchemaCompatibilityError(contentRowsError)) {
+        return res.json({ success: true, links: [] });
+      }
+      throw contentRowsError;
+    }
     if (momentRowsError) throw momentRowsError;
 
-    const payload = buildO2OFeedPayload(links || [], contentRows || [], (momentRows || []).filter((moment) => moment.is_active));
+    const contentMap = new Map(creatorContentRows.map((item) => [item.id, item]));
+    const payload = buildO2OFeedPayload(
+      links || [],
+      (normalizedContentRows || []).map((item) => ({
+        ...item,
+        creator_name: contentMap.get(item.id)?.creator_name || req.user.display_name || req.user.email || 'Promorang Creator',
+        creator_avatar: contentMap.get(item.id)?.creator_avatar || req.user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
+        platform_url: contentMap.get(item.id)?.platform_url || item.media_url || 'https://promorang.co',
+      })),
+      (momentRows || []).filter((moment) => moment.is_active)
+    );
     res.json({ success: true, links: payload });
   } catch (error) {
     console.error('[O2O API] my links error:', error);
@@ -434,27 +577,21 @@ router.get('/manage/options', async (req, res) => {
       });
     }
 
-    const [{ data: contentItems, error: contentError }, { data: moments, error: momentsError }] = await Promise.all([
-      supabase
-        .from('content_items')
-        .select('id, title, platform, creator_name, media_url')
-        .eq('creator_id', req.user.id)
-        .order('posted_at', { ascending: false }),
-      supabase
-        .from('moments')
-        .select('id, title, venue_name, location, starts_at, is_active')
-        .eq('host_id', req.user.id)
-        .eq('is_active', true)
-        .order('starts_at', { ascending: true }),
+    const [contentItems, moments] = await Promise.all([
+      getCreatorContentRows(req.user),
+      getActiveMomentRows(),
     ]);
-
-    if (contentError) throw contentError;
-    if (momentsError) throw momentsError;
 
     res.json({
       success: true,
       options: {
-        content_items: contentItems || [],
+        content_items: (contentItems || []).map((item) => ({
+          id: item.id,
+          title: item.title || 'Untitled Content',
+          platform: item.platform || 'external',
+          creator_name: item.creator_name || req.user.display_name || req.user.email || 'Promorang Creator',
+          media_url: item.media_url || null,
+        })),
         moments: moments || [],
       },
     });
@@ -501,7 +638,7 @@ router.post('/links', async (req, res) => {
         .maybeSingle(),
       supabase
         .from('moments')
-        .select('id, host_id')
+        .select('id, host_id, is_active')
         .eq('id', moment_id)
         .maybeSingle(),
     ]);
@@ -512,8 +649,12 @@ router.post('/links', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Content or moment not found' });
     }
 
-    if (content.creator_id !== req.user.id || moment.host_id !== req.user.id) {
-      return res.status(403).json({ success: false, error: 'You can only link your own content to your own moments' });
+    if (content.creator_id !== req.user.id) {
+      return res.status(403).json({ success: false, error: 'You can only link your own content' });
+    }
+
+    if (moment.is_active === false) {
+      return res.status(403).json({ success: false, error: 'That moment is not available for linking' });
     }
 
     const { data: link, error: linkError } = await supabase

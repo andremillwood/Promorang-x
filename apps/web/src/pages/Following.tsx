@@ -273,9 +273,9 @@ const Following = () => {
                             </p>
                         </div>
                         <Button variant="outline" asChild>
-                            <Link to="/discover">
+                            <Link to="/explore/moments">
                                 <Sparkles className="h-4 w-4 mr-2" />
-                                Discover More
+                                Explore More
                             </Link>
                         </Button>
                     </div>
@@ -469,7 +469,7 @@ const Following = () => {
                                 }
                             </p>
                             <Button asChild>
-                                <Link to="/discover">Discover Moments</Link>
+                                <Link to="/explore/moments">Explore Moments</Link>
                             </Button>
                         </div>
                     )}

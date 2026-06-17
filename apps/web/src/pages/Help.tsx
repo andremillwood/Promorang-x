@@ -18,6 +18,18 @@ const HelpCenter = () => {
         {
             q: "What is 'Access Rank'?",
             a: "Access Rank is your reputation score. Consistent participation and high-quality hosting increases your rank, unlocking higher-paying bounties and exclusive brand opportunities."
+        },
+        {
+            q: "Where do reward, coupon, and reminder emails go during a demo?",
+            a: "When you enter a demo inbox before choosing a demo role, simulated platform emails are routed to that address, even if it is already registered. The demo still opens in a stable preset workspace for the selected role."
+        },
+        {
+            q: "How do brands verify that a campaign worked?",
+            a: "Moments can require GPS check-ins, proof uploads, review prompts, product redemptions, and participant actions. These signals feed the brand dashboard and admin review tools."
+        },
+        {
+            q: "What should I do if a payout, reward, or check-in looks wrong?",
+            a: "Use the contact page and choose the relevant topic. Include the Moment name, approximate time, and any proof links so support can trace the record quickly."
         }
     ];
 
@@ -31,6 +43,17 @@ const HelpCenter = () => {
                 "Browse Moments in your area",
                 "Check in at events using GPS",
                 "Build your Access Rank through consistency"
+            ]
+        },
+        {
+            icon: BookOpen,
+            title: "Managing Your Account",
+            description: "Keep your profile, role, notifications, and security settings current.",
+            steps: [
+                "Open Dashboard Settings",
+                "Update profile and notification preferences",
+                "Check connected role permissions",
+                "Contact support for account or access issues"
             ]
         },
         {
@@ -53,6 +76,28 @@ const HelpCenter = () => {
                 "Review funding requirements",
                 "Execute the activation",
                 "Submit proof for payment release"
+            ]
+        },
+        {
+            icon: FileText,
+            title: "Running a Brand Campaign",
+            description: "Set up a campaign that creates measurable action instead of passive impressions.",
+            steps: [
+                "Choose the business outcome",
+                "Define participant tasks and verification",
+                "Fund rewards or bounties",
+                "Review proof, redemptions, and campaign reporting"
+            ]
+        },
+        {
+            icon: Mail,
+            title: "Email Notifications",
+            description: "Understand the operational emails sent by Promorang.",
+            steps: [
+                "Welcome and onboarding emails start after signup",
+                "Reward emails send after eligible coupon or bounty events",
+                "Digest emails summarize platform activity",
+                "Admin digests summarize support, user, and queue activity"
             ]
         }
     ];
@@ -108,12 +153,12 @@ const HelpCenter = () => {
                             </div>
                         </a>
 
-                        <div className="p-6 bg-card border border-border rounded-2xl hover:border-primary/50 transition-colors group cursor-pointer" onClick={() => navigate('/contact')}>
+                        <div className="p-6 bg-card border border-border rounded-2xl hover:border-primary/50 transition-colors group cursor-pointer" onClick={() => navigate('/support/tickets')}>
                             <MessageSquare className="w-10 h-10 text-primary mb-4" />
                             <h3 className="font-bold text-lg mb-2">Support</h3>
                             <p className="text-sm text-muted-foreground mb-4">Get direct help from our success team.</p>
                             <div className="flex items-center text-primary text-sm font-bold group-hover:translate-x-1 transition-transform">
-                                Contact Us <ArrowRight className="w-4 h-4 ml-1" />
+                                Open Support <ArrowRight className="w-4 h-4 ml-1" />
                             </div>
                         </div>
 

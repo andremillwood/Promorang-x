@@ -26,9 +26,9 @@ const NotFound = () => {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Button asChild variant="hero" size="lg" className="w-full rounded-2xl shadow-soft hover:shadow-primary/20 transition-all duration-300">
-            <Link to="/discover">
+            <Link to="/explore/moments">
               <Compass className="w-4 h-4 mr-2" />
-              Discover
+              Explore Moments
             </Link>
           </Button>
           <Button variant="outline" size="lg" className="w-full rounded-2xl bg-background/50 backdrop-blur-sm border-border/50 hover:bg-muted/50 transition-all duration-200" onClick={() => navigate(-1)}>

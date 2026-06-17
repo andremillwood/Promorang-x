@@ -15,7 +15,9 @@ import {
     LayoutDashboard,
     Image as ImageIcon,
     Target,
-    Edit
+    Edit,
+    Copy,
+    Repeat
 } from 'lucide-react';
 import { useAuth } from '@/react-app/hooks/useAuth';
 import eventsService from '@/react-app/services/events';
@@ -177,9 +179,10 @@ export default function EventDetail() {
         );
     }
 
-    const { event, tasks, sponsors } = data;
+    const { event, tasks, sponsors, series, occurrences = [] } = data;
     const isCreator = user?.id === event.creator_id;
     const isHappeningNow = eventsService.isHappeningNow(event.event_date, event.event_end_date);
+    const eventHasEnded = new Date(event.event_end_date || event.event_date) < new Date();
 
     // Dynamic Tab Logic
     const tabs = [
@@ -243,6 +246,11 @@ export default function EventDetail() {
                                     Featured
                                 </span>
                             )}
+                            {(event.recurrence_enabled || event.series_id) && (
+                                <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-xs font-bold uppercase tracking-wider">
+                                    Recurring
+                                </span>
+                            )}
                         </div>
 
                         {/* Title & Stats */}
@@ -290,6 +298,22 @@ export default function EventDetail() {
                                         <Edit className="w-5 h-5" />
                                         Edit Event
                                     </button>
+                                    <button
+                                        onClick={() => navigate(`/events/create?cloneFrom=${id}`)}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors shadow-sm"
+                                    >
+                                        <Copy className="w-5 h-5" />
+                                        Clone Event
+                                    </button>
+                                    {!event.series_id && (
+                                        <button
+                                            onClick={() => navigate(`/events/create?convertFrom=${id}`)}
+                                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors shadow-sm"
+                                        >
+                                            <Repeat className="w-5 h-5" />
+                                            Convert to Recurring
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => setActiveTab('dashboard')}
                                         className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-pr-text-1 text-white rounded-xl font-bold hover:bg-black transition-colors shadow-sm"
@@ -449,6 +473,48 @@ export default function EventDetail() {
                                             ))}
                                         </div>
                                     )}
+
+                                    {(series || occurrences.length > 1) && (
+                                        <div className="mt-10 p-5 bg-pr-surface-2 rounded-2xl border border-pr-border space-y-4">
+                                            <div className="flex items-center gap-2 text-pr-text-1">
+                                                <Repeat className="w-5 h-5 text-emerald-500" />
+                                                <h3 className="text-lg font-bold">
+                                                    {series?.title || 'Recurring Series'}
+                                                </h3>
+                                            </div>
+                                            <p className="text-sm text-pr-text-2">
+                                                {series
+                                                    ? `${series.frequency} cadence in ${series.timezone}`
+                                                    : 'This event belongs to a recurring host format.'}
+                                            </p>
+                                            <div className="space-y-2">
+                                                {occurrences.slice(0, 6).map((occurrence) => (
+                                                    <button
+                                                        key={occurrence.id}
+                                                        onClick={() => navigate(`/e/${occurrence.id}`)}
+                                                        className={`w-full text-left p-3 rounded-xl border transition-colors ${occurrence.id === event.id
+                                                            ? 'border-emerald-500 bg-emerald-500/10'
+                                                            : 'border-pr-border bg-pr-surface-card hover:border-emerald-500/40'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center justify-between gap-4">
+                                                            <div>
+                                                                <p className="font-semibold text-pr-text-1">
+                                                                    {occurrence.title}
+                                                                </p>
+                                                                <p className="text-sm text-pr-text-2">
+                                                                    {eventsService.formatEventDate(occurrence.event_date, occurrence.event_end_date)}
+                                                                </p>
+                                                            </div>
+                                                            <span className="text-xs font-bold uppercase text-pr-text-3">
+                                                                #{(occurrence.occurrence_index ?? 0) + 1}
+                                                            </span>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -516,6 +582,34 @@ export default function EventDetail() {
 
                     {/* Right Column (Sidebar) */}
                     <div className="space-y-6">
+                        {isCreator && eventHasEnded && (
+                            <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-2xl p-5 space-y-3">
+                                <div className="flex items-center gap-2 text-amber-600">
+                                    <Copy className="w-5 h-5" />
+                                    <h3 className="font-bold">Reuse This Format</h3>
+                                </div>
+                                <p className="text-sm text-pr-text-2">
+                                    This event has already run. Clone it into a fresh draft or turn it into a recurring series.
+                                </p>
+                                <div className="grid grid-cols-1 gap-2">
+                                    <button
+                                        onClick={() => navigate(`/events/create?cloneFrom=${id}`)}
+                                        className="w-full px-4 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors"
+                                    >
+                                        Clone Old Event
+                                    </button>
+                                    {!event.series_id && (
+                                        <button
+                                            onClick={() => navigate(`/events/create?convertFrom=${id}`)}
+                                            className="w-full px-4 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors"
+                                        >
+                                            Convert to Recurring
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Tickets Section */}
                         {tiers.length > 0 && (
                             <div className="bg-pr-surface-card border-2 border-purple-500 rounded-2xl p-6 shadow-lg overflow-hidden relative">

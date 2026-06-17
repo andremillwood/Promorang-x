@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff, PlayCircle, Briefcase } from "lucide-react";
+import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff, PlayCircle, Briefcase, Mail } from "lucide-react";
 import logo from "@/assets/promorang-logo-full.png";
 import { z } from "zod";
+import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -51,6 +52,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [demoEmail, setDemoEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,15 +66,18 @@ const AuthPage = () => {
     const requestedRole = searchParams.get("role");
     if (!requestedRole) return;
 
-    if (requestedRole === "agency") {
-      setSelectedRole("brand");
-      return;
-    }
-
     if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
       setSelectedRole(requestedRole as UserRole);
+      setMode("signup");
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const savedDemoEmail = localStorage.getItem(DEMO_EMAIL_STORAGE_KEY);
+    if (savedDemoEmail) {
+      setDemoEmail(savedDemoEmail);
+    }
+  }, []);
 
   const validateForm = () => {
     try {
@@ -159,10 +164,36 @@ const AuthPage = () => {
     }
   };
 
-  const handleDemoLogin = async (role: UserRole) => {
+  const handleDemoLogin = async (role: DemoRole) => {
     setIsLoading(true);
     try {
-      const { error } = await demoSignIn(role);
+      const parsedDemoEmail = (
+        demoEmail ||
+        email ||
+        localStorage.getItem(DEMO_EMAIL_STORAGE_KEY) ||
+        ""
+      ).trim().toLowerCase();
+      if (!parsedDemoEmail) {
+        toast({
+          title: "Email required for demo",
+          description: "Enter your email in either email field so demo emails have somewhere to go.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const emailResult = z.string().email().safeParse(parsedDemoEmail);
+      if (!emailResult.success) {
+        toast({
+          title: "Invalid email",
+          description: "Enter a valid email address for demo notifications.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setDemoEmail(parsedDemoEmail);
+      const { error } = await demoSignIn(role, parsedDemoEmail);
       if (error) {
         toast({
           title: "Demo login failed",
@@ -170,7 +201,7 @@ const AuthPage = () => {
           variant: "destructive",
         });
       } else {
-        navigate("/dashboard");
+        navigate("/post-login?demo=1", { replace: true });
       }
     } finally {
       setIsLoading(false);
@@ -200,7 +231,7 @@ const AuthPage = () => {
           </h1>
           <p className="text-muted-foreground mb-8">
             {mode === "login"
-              ? "Sign in to continue your moment journey"
+              ? "Sign in to your real account or enter a guided demo workspace."
               : "Create your account to start discovering moments"}
           </p>
 
@@ -333,9 +364,29 @@ const AuthPage = () => {
 
           {/* Demo Accounts */}
           <div className="mt-8 pt-8 border-t border-border">
-            <p className="text-sm text-muted-foreground text-center mb-4">
-              Try a demo account
-            </p>
+            <div className="mb-4 text-center">
+              <p className="text-sm font-medium text-foreground">Explore a guided demo</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Use your own inbox, even if it is already registered. We will route demo emails there and open a preset workspace for the role you choose.
+              </p>
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="demo-email">Where should demo emails go?</Label>
+              <div className="relative mt-2">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="demo-email"
+                  type="email"
+                  value={demoEmail}
+                  onChange={(event) => setDemoEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  className="pl-10"
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                We keep your real account separate. This inbox only receives simulated demo messages and follow-up context.
+              </p>
+            </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               <Button
                 variant="outline"
@@ -384,7 +435,7 @@ const AuthPage = () => {
               <Button
                 variant="outline"
                 size="default"
-                onClick={() => handleDemoLogin("brand")}
+                onClick={() => handleDemoLogin("agency")}
                 disabled={isLoading}
                 className="flex flex-col items-center gap-1 h-auto py-3"
               >
@@ -405,7 +456,7 @@ const AuthPage = () => {
               </Button>
             </div>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Agency demo currently enters through the operator workspace built on the brand-side tools.
+              Each demo opens a curated workspace with stable sample data so prospects see the product in a clean, repeatable state.
             </p>
           </div>
         </div>

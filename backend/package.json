@@ -5,14 +5,14 @@
   "main": "dist/api/index.js",
   "scripts": {
     "build": "echo 'Building backend (API only)...'",
-    "start": "vercel dev",
+    "start": "npx vercel dev",
     "dev": "node --watch api/index.js",
     "test": "jest --runInBand",
-    "deploy": "vercel --prod",
+    "deploy": "npx vercel --prod",
     "test:cors": "node scripts/test-cors.js",
     "test:cors:prod": "API_URL=https://api.promorang.co FRONTEND_URL=https://www.promorang.co node scripts/test-cors.js",
     "type-check": "tsc --noEmit",
-    "logs": "vercel logs --follow",
+    "logs": "npx vercel logs --follow",
     "create-demo-users": "ts-node -r dotenv/config scripts/createDemoUsers.ts",
     "seed-products": "node -r dotenv/config scripts/seed-demo-products.js",
     "seed-vectors": "node scripts/seedVectorIndex.js",
@@ -22,7 +22,6 @@
   "dependencies": {
     "@hono/node-server": "^1.19.6",
     "@supabase/supabase-js": "^2.79.0",
-    "@vercel/node": "^5.4.1",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -36,7 +35,7 @@
     "merkletreejs": "^0.6.0",
     "node-cron": "^4.2.1",
     "pg": "^8.17.2",
-    "resend": "^6.7.0",
+    "resend": "^6.1.3",
     "stripe": "^20.3.0",
     "zod": "^3.22.4"
   },
@@ -54,8 +53,7 @@
     "supertest": "^6.3.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3",
-    "vercel": "^32.7.2"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0.0"

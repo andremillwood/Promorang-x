@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Piece {
   id: string;
@@ -46,6 +47,9 @@ export function TradeModal({
   const [fetchingQuote, setFetchingQuote] = useState(false);
   const [slippage, setSlippage] = useState(1); // 1% default
   const { toast } = useToast();
+  const { session } = useAuth();
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
+  const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
 
   useEffect(() => {
     if (isOpen && piece) {
@@ -62,10 +66,10 @@ export function TradeModal({
       const amountParam = action === 'buy' ? amount * piece.last_price : amount;
       
       const response = await fetch(
-        `/api/pieces/pools/${piece.pool_id}/quote?type=${type}&amount=${amountParam}&slippage_tolerance=${slippage / 100}`,
+        apiUrl(`/pieces/pools/${piece.pool_id}/quote?type=${type}&amount=${amountParam}&slippage_tolerance=${slippage / 100}`),
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${session?.access_token || ''}`,
           },
         }
       );
@@ -86,7 +90,7 @@ export function TradeModal({
     
     setLoading(true);
     try {
-      const endpoint = `/api/pieces/pools/${piece.pool_id}/trade/${action === 'buy' ? 'gems-to-pieces' : 'pieces-to-gems'}`;
+      const endpoint = apiUrl(`/pieces/pools/${piece.pool_id}/trade/${action === 'buy' ? 'gems-to-pieces' : 'pieces-to-gems'}`);
       
       const body = action === 'buy' ? {
         gems_amount: amount * piece.last_price,
@@ -102,7 +106,7 @@ export function TradeModal({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${session?.access_token || ''}`,
         },
         body: JSON.stringify(body),
       });

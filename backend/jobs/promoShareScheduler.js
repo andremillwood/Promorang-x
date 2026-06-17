@@ -16,7 +16,7 @@ const { supabase } = require('../lib/supabase');
  * Create new daily cycle
  * Runs at midnight (00:00) to start the new day
  */
-const createDailyCycleJob = cron.schedule('0 0 * * *', async () => {
+async function runCreateDailyCycle() {
     console.log('[PromoShare Scheduler] Creating new daily cycle...');
     try {
         const result = await promoShareService.createCycle({
@@ -44,16 +44,22 @@ const createDailyCycleJob = cron.schedule('0 0 * * *', async () => {
                 jackpot_amount: 50
             });
         }
+        return { success: true, cycleId: result?.id || null };
     } catch (error) {
         console.error('[PromoShare Scheduler] Daily cycle creation error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const createDailyCycleJob = cron.schedule('0 0 * * *', async () => {
+    await runCreateDailyCycle();
 }, { scheduled: false });
 
 /**
  * Create new weekly cycle
  * Runs on Sunday at midnight to start the new week
  */
-const createWeeklyCycleJob = cron.schedule('0 0 * * 0', async () => {
+async function runCreateWeeklyCycle() {
     console.log('[PromoShare Scheduler] Creating new weekly cycle...');
     try {
         const result = await promoShareService.createCycle({
@@ -81,16 +87,22 @@ const createWeeklyCycleJob = cron.schedule('0 0 * * 0', async () => {
                 jackpot_amount: 500
             });
         }
+        return { success: true, cycleId: result?.id || null };
     } catch (error) {
         console.error('[PromoShare Scheduler] Weekly cycle creation error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const createWeeklyCycleJob = cron.schedule('0 0 * * 0', async () => {
+    await runCreateWeeklyCycle();
 }, { scheduled: false });
 
 /**
  * Create new monthly cycle
  * Runs on 1st of month at midnight
  */
-const createMonthlyCycleJob = cron.schedule('0 0 1 * *', async () => {
+async function runCreateMonthlyCycle() {
     console.log('[PromoShare Scheduler] Creating new monthly cycle...');
     try {
         const now = new Date();
@@ -122,21 +134,27 @@ const createMonthlyCycleJob = cron.schedule('0 0 1 * *', async () => {
                 jackpot_amount: 2500
             });
         }
+        return { success: true, cycleId: result?.id || null };
     } catch (error) {
         console.error('[PromoShare Scheduler] Monthly cycle creation error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const createMonthlyCycleJob = cron.schedule('0 0 1 * *', async () => {
+    await runCreateMonthlyCycle();
 }, { scheduled: false });
 
 /**
  * Close expired cycles and execute draws
  * Runs every hour to check for cycles that ended
  */
-const closeExpiredCyclesJob = cron.schedule('5 * * * *', async () => {
+async function runCloseExpiredCycles() {
     console.log('[PromoShare Scheduler] Checking for expired cycles...');
 
     if (!supabase) {
         console.log('[PromoShare Scheduler] No Supabase connection, skipping');
-        return;
+        return { success: false, skipped: true, reason: 'supabase_unavailable' };
     }
 
     try {
@@ -149,12 +167,12 @@ const closeExpiredCyclesJob = cron.schedule('5 * * * *', async () => {
 
         if (error) {
             console.error('[PromoShare Scheduler] Error fetching expired cycles:', error);
-            return;
+            return { success: false, error: error.message };
         }
 
         if (!expiredCycles || expiredCycles.length === 0) {
             console.log('[PromoShare Scheduler] No expired cycles to close');
-            return;
+            return { success: true, processed: 0 };
         }
 
         console.log(`[PromoShare Scheduler] Found ${expiredCycles.length} expired cycles to process`);
@@ -238,9 +256,15 @@ const closeExpiredCyclesJob = cron.schedule('5 * * * *', async () => {
         }
 
         console.log(`[PromoShare Scheduler] Processed ${expiredCycles.length} cycles`);
+        return { success: true, processed: expiredCycles.length };
     } catch (error) {
         console.error('[PromoShare Scheduler] Close expired cycles error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const closeExpiredCyclesJob = cron.schedule('5 * * * *', async () => {
+    await runCloseExpiredCycles();
 }, { scheduled: false });
 
 /**
@@ -363,10 +387,10 @@ async function notifyGrandRollover(cycleId, newJackpot) {
  * Clean up old completed cycles (archive data older than 90 days)
  * Runs weekly on Sundays at 3 AM
  */
-const cleanupOldCyclesJob = cron.schedule('0 3 * * 0', async () => {
+async function runCleanupOldCycles() {
     console.log('[PromoShare Scheduler] Running cleanup job...');
 
-    if (!supabase) return;
+    if (!supabase) return { success: false, skipped: true, reason: 'supabase_unavailable' };
 
     try {
         const cutoffDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
@@ -401,33 +425,49 @@ const cleanupOldCyclesJob = cron.schedule('0 3 * * 0', async () => {
         }
 
         console.log('[PromoShare Scheduler] Cleanup job completed');
+        return {
+            success: true,
+            auditLogsFound: oldLogs?.length || 0,
+            notificationsFound: oldNotifications?.length || 0,
+        };
     } catch (error) {
         console.error('[PromoShare Scheduler] Cleanup job error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const cleanupOldCyclesJob = cron.schedule('0 3 * * 0', async () => {
+    await runCleanupOldCycles();
 }, { scheduled: false });
 
 /**
  * Process expired unclaimed prizes
  * Runs daily at 2 AM
  */
-const processExpiredPrizesJob = cron.schedule('0 2 * * *', async () => {
+async function runProcessExpiredPrizes() {
     console.log('[PromoShare Scheduler] Processing expired prizes...');
     try {
         const result = await promoShareService.processExpiredPrizes();
         console.log(`[PromoShare Scheduler] Processed ${result.processed} expired prizes, ${result.rollovers} rollovers`);
+        return { success: true, ...result };
     } catch (error) {
         console.error('[PromoShare Scheduler] Error processing expired prizes:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const processExpiredPrizesJob = cron.schedule('0 2 * * *', async () => {
+    await runProcessExpiredPrizes();
 }, { scheduled: false });
 
 /**
  * Send "cycle ending soon" reminders
  * Runs every 6 hours to notify users of upcoming draws
  */
-const cycleEndingReminderJob = cron.schedule('0 */6 * * *', async () => {
+async function runCycleEndingReminder() {
     console.log('[PromoShare Scheduler] Sending cycle ending reminders...');
 
-    if (!supabase) return;
+    if (!supabase) return { success: false, skipped: true, reason: 'supabase_unavailable' };
 
     try {
         // Find cycles ending within 6 hours
@@ -443,12 +483,12 @@ const cycleEndingReminderJob = cron.schedule('0 */6 * * *', async () => {
 
         if (error) {
             console.error('[PromoShare Scheduler] Error fetching ending cycles:', error);
-            return;
+            return { success: false, error: error.message };
         }
 
         if (!endingCycles || endingCycles.length === 0) {
             console.log('[PromoShare Scheduler] No cycles ending soon');
-            return;
+            return { success: true, processed: 0 };
         }
 
         for (const cycle of endingCycles) {
@@ -481,9 +521,15 @@ const cycleEndingReminderJob = cron.schedule('0 */6 * * *', async () => {
         }
 
         console.log(`[PromoShare Scheduler] Sent reminders for ${endingCycles.length} cycles`);
+        return { success: true, processed: endingCycles.length };
     } catch (error) {
         console.error('[PromoShare Scheduler] Cycle ending reminder error:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const cycleEndingReminderJob = cron.schedule('0 */6 * * *', async () => {
+    await runCycleEndingReminder();
 }, { scheduled: false });
 
 // =============================================================================
@@ -491,6 +537,25 @@ const cycleEndingReminderJob = cron.schedule('0 */6 * * *', async () => {
 // =============================================================================
 
 let jobsStarted = false;
+
+async function runMaintenance(now = new Date()) {
+    const results = {
+        closeExpired: await runCloseExpiredCycles(),
+        processExpiredPrizes: await runProcessExpiredPrizes(),
+        reminders: await runCycleEndingReminder(),
+    };
+
+    if (now.getUTCDate() === 1) {
+        results.createMonthly = await runCreateMonthlyCycle();
+    }
+
+    if (now.getUTCDay() === 0) {
+        results.createWeekly = await runCreateWeeklyCycle();
+    }
+
+    results.createDaily = await runCreateDailyCycle();
+    return results;
+}
 
 const promoShareScheduler = {
     /**
@@ -553,8 +618,12 @@ const promoShareScheduler = {
      */
     async triggerCloseExpired() {
         console.log('[PromoShare Scheduler] Manual trigger: closeExpiredCycles');
-        await closeExpiredCyclesJob.execute();
-    }
+        return runCloseExpiredCycles();
+    },
+
+    async runMaintenance(now = new Date()) {
+        return runMaintenance(now);
+    },
 };
 
 module.exports = promoShareScheduler;

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 interface OrganizationCardProps {
     id: string;
+    slug?: string;
     name: string;
     type: "brand" | "merchant" | "host";
     logo?: string;
@@ -27,6 +28,7 @@ interface OrganizationCardProps {
 
 export const OrganizationCard = ({
     id,
+    slug,
     name,
     type,
     logo,
@@ -39,11 +41,12 @@ export const OrganizationCard = ({
     className
 }: OrganizationCardProps) => {
     const getProfilePath = () => {
+        const identifier = slug || id;
         switch (type) {
-            case "brand": return `/brands/${id}`;
-            case "merchant": return `/merchants/${id}`;
-            case "host": return `/hosts/${id}`;
-            default: return `/profile/${id}`;
+            case "brand": return `/brands/${identifier}`;
+            case "merchant": return `/merchants/${identifier}`;
+            case "host": return `/hosts/${identifier}`;
+            default: return `/profile/${identifier}`;
         }
     };
 

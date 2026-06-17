@@ -32,16 +32,24 @@ async function processPurchase(userId, productId, method, quantity = 1) {
         if (prodError || !product) throw new Error('Product not found');
         if (!product.is_active) throw new Error('Product is not active');
 
+        const unitPrice = Number(product.price ?? product.price_usd ?? 0);
+        const pointsCost = Number(product.points_cost ?? product.price_points ?? 0);
+        const inventoryCount = product.inventory_quantity ?? product.inventory_count;
+
+        if (inventoryCount !== null && inventoryCount !== undefined && inventoryCount < quantity) {
+            throw new Error('Insufficient inventory');
+        }
+
         // 2. Validate Payment
         let amount = 0;
         let currency = 'USD';
         let transactionType = 'purchase';
 
         if (method === 'points') {
-            if (!product.is_redeemable_with_points) {
+            if (!product.is_redeemable_with_points || pointsCost <= 0) {
                 throw new Error('Product cannot be redeemed with points');
             }
-            amount = product.points_cost * quantity;
+            amount = pointsCost * quantity;
             currency = 'points';
 
             // Check Balance & Deduct
@@ -56,7 +64,11 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             );
 
         } else if (method === 'cash') {
-            const totalAmount = product.price * quantity;
+            if (unitPrice <= 0) {
+                throw new Error('Product does not have a cash price');
+            }
+
+            const totalAmount = unitPrice * quantity;
             const platformFee = Number((totalAmount * PLATFORM_COMMISSION_RATE).toFixed(2));
             const merchantPayout = Number((totalAmount - platformFee).toFixed(2));
             
@@ -110,6 +122,24 @@ async function processPurchase(userId, productId, method, quantity = 1) {
         if (txError) {
             // Need to handle table missing error gracefully if migration failed
             console.warn('marketplace_transactions table might be missing, skipping record', txError);
+        }
+
+        if (inventoryCount !== null && inventoryCount !== undefined) {
+            const newInventory = Math.max(0, inventoryCount - quantity);
+            await supabase
+                .from('merchant_products')
+                .update({
+                    inventory_quantity: newInventory,
+                    inventory_count: newInventory,
+                    total_sales: (product.total_sales || 0) + quantity,
+                    total_redemptions: method === 'points'
+                        ? (product.total_redemptions || 0) + quantity
+                        : (product.total_redemptions || 0),
+                    revenue_generated: method === 'cash'
+                        ? Number(product.revenue_generated || 0) + amount
+                        : Number(product.revenue_generated || 0)
+                })
+                .eq('id', productId);
         }
 
         // 5. Generate Redemption Code (Ticket)

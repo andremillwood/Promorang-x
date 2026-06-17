@@ -102,6 +102,8 @@ const PLACEMENT_TYPE_NAMES: Record<string, string> = {
   promoshare_push_notification: 'Push Notification',
 };
 
+const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
+
 export default function SponsorAnalyticsDashboard() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
@@ -127,7 +129,7 @@ export default function SponsorAnalyticsDashboard() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/featured-marketplace/my-bookings', {
+      const response = await fetch(`${API_BASE}/featured-marketplace/my-bookings`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -220,7 +222,7 @@ export default function SponsorAnalyticsDashboard() {
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button variant="outline" onClick={() => navigate('/featured')}>
               <Zap className="w-4 h-4 mr-2" />
               New Campaign
@@ -302,7 +304,7 @@ export default function SponsorAnalyticsDashboard() {
                   <div className="text-2xl font-bold">
                     {stats.totalImpressions.toLocaleString()}
                   </div>
-                  <div className="flex items-center text-xs text-green-600">
+                    <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                     <ArrowUpRight className="w-3 h-3 mr-1" />
                     <span>+12.5% this week</span>
                   </div>
@@ -318,7 +320,7 @@ export default function SponsorAnalyticsDashboard() {
                   <div className="text-2xl font-bold">
                     {stats.totalClicks.toLocaleString()}
                   </div>
-                  <div className="flex items-center text-xs text-green-600">
+                    <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                     <ArrowUpRight className="w-3 h-3 mr-1" />
                     <span>+8.2% this week</span>
                   </div>
@@ -343,7 +345,7 @@ export default function SponsorAnalyticsDashboard() {
 
             {/* Charts Section */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList>
+              <TabsList className="min-w-[640px]">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="impressions">Impressions</TabsTrigger>
                 <TabsTrigger value="clicks">Clicks</TabsTrigger>
@@ -353,7 +355,7 @@ export default function SponsorAnalyticsDashboard() {
 
               <TabsContent value="overview" className="space-y-6">
                 {/* Date Range Selector */}
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <span className="text-sm text-muted-foreground">Date Range:</span>
                   <Select value={dateRange} onValueChange={setDateRange}>
                     <SelectTrigger className="w-32">
@@ -424,25 +426,25 @@ export default function SponsorAnalyticsDashboard() {
                     <CardContent>
                       <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-4">
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Placement Type</span>
                             <span className="font-medium">
                               {PLACEMENT_TYPE_NAMES[currentBooking.placement_type]}
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Content</span>
-                            <span className="font-medium truncate max-w-[200px]">
+                            <span className="max-w-full truncate font-medium sm:max-w-[200px]">
                               {currentBooking.entity_name}
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Duration</span>
                             <span className="font-medium">
                               {currentBooking.duration_days} days
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Total Cost</span>
                             <span className="font-medium">
                               ${currentBooking.total_amount.toFixed(2)}
@@ -451,25 +453,25 @@ export default function SponsorAnalyticsDashboard() {
                         </div>
                         
                         <div className="space-y-4">
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Impressions</span>
                             <span className="font-medium">
                               {currentBooking.analytics?.impressions?.toLocaleString() || '0'}
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Clicks</span>
                             <span className="font-medium">
                               {currentBooking.analytics?.clicks?.toLocaleString() || '0'}
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">CTR</span>
                             <span className="font-medium">
                               {currentBooking.analytics?.ctr?.toFixed(2) || '0.00'}%
                             </span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                             <span className="text-muted-foreground">Cost Per Click</span>
                             <span className="font-medium">
                               ${currentBooking.analytics?.clicks > 0

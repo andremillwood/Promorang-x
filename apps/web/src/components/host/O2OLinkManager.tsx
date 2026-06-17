@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,28 @@ import { Link2, Sparkles } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-export function O2OLinkManager() {
+type O2OManageOption = {
+  id: string;
+  title: string;
+};
+
+type O2OLinkRow = {
+  id: string;
+  o2o_conversion_rate?: number | null;
+  content?: {
+    title?: string | null;
+  } | null;
+  moment?: {
+    title?: string | null;
+  } | null;
+};
+
+type O2OLinkManagerProps = {
+  initialContentId?: string;
+  onLinkCreated?: () => void;
+};
+
+export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManagerProps) {
   const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -20,6 +41,12 @@ export function O2OLinkManager() {
   const [momentId, setMomentId] = useState("");
   const [entryActions, setEntryActions] = useState("watch,share");
   const [unlockSummary, setUnlockSummary] = useState("");
+
+  useEffect(() => {
+    if (initialContentId) {
+      setContentId(initialContentId);
+    }
+  }, [initialContentId]);
 
   const optionsQuery = useQuery({
     queryKey: ["o2o-manage-options"],
@@ -67,26 +94,28 @@ export function O2OLinkManager() {
       return payload;
     },
     onSuccess: () => {
-      toast({ title: "O2O link created", description: "Your content mission is now connected to a live moment." });
+      toast({ title: "Mission link created", description: "Your story is now connected to a live moment for verified action." });
       setUnlockSummary("");
       queryClient.invalidateQueries({ queryKey: ["o2o-my-links"] });
       queryClient.invalidateQueries({ queryKey: ["creator-o2o-summary"] });
+      onLinkCreated?.();
     },
     onError: (error: Error) => {
       toast({ title: "Link creation failed", description: error.message, variant: "destructive" });
     },
   });
 
-  const contentOptions = useMemo(() => optionsQuery.data?.content_items || [], [optionsQuery.data]);
-  const momentOptions = useMemo(() => optionsQuery.data?.moments || [], [optionsQuery.data]);
+  const contentOptions = useMemo<O2OManageOption[]>(() => optionsQuery.data?.content_items || [], [optionsQuery.data]);
+  const momentOptions = useMemo<O2OManageOption[]>(() => optionsQuery.data?.moments || [], [optionsQuery.data]);
+  const linkedItems = (linksQuery.data || []) as O2OLinkRow[];
 
   return (
     <div className="space-y-6">
       <div>
         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Mission Builder</p>
-        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Link content to moments</h3>
+        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Turn a story into a mission</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Build watch-and-unlock missions by pairing a content asset with a physical moment you host.
+          Pair a story with an existing moment when the next step should be watch, join, visit, redeem, or prove. Stories can still stand alone or launch new moments.
         </p>
       </div>
 
@@ -107,7 +136,7 @@ export function O2OLinkManager() {
                     <SelectValue placeholder="Select content" />
                   </SelectTrigger>
                   <SelectContent>
-                    {contentOptions.map((item: any) => (
+                    {contentOptions.map((item) => (
                       <SelectItem key={item.id} value={item.id}>
                         {item.title}
                       </SelectItem>
@@ -123,7 +152,7 @@ export function O2OLinkManager() {
                     <SelectValue placeholder="Select moment" />
                   </SelectTrigger>
                   <SelectContent>
-                    {momentOptions.map((item: any) => (
+                    {momentOptions.map((item) => (
                       <SelectItem key={item.id} value={item.id}>
                         {item.title}
                       </SelectItem>
@@ -163,8 +192,8 @@ export function O2OLinkManager() {
           <div className="mt-5 space-y-3">
             {linksQuery.isLoading ? (
               Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-2xl" />)
-            ) : (linksQuery.data?.length ? (
-              linksQuery.data.map((item: any) => (
+            ) : (linkedItems.length ? (
+              linkedItems.map((item) => (
                 <div key={item.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -179,7 +208,7 @@ export function O2OLinkManager() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No mission links yet. Pair one of your content assets with a hosted moment to start O2O tracking.
+                No mission links yet. Pair a story with an active moment when you want O2O tracking, or launch a new moment from the story first.
               </div>
             ))}
           </div>

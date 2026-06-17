@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Calendar, Users, TrendingUp } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { MetricCard } from './MetricCard';
 import { DateRangePicker } from './DateRangePicker';
 import { LineChart } from './LineChart';
@@ -13,9 +12,10 @@ import {
     exportToCSV
 } from './utils';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Download, Loader2 } from 'lucide-react';
 import { useTour } from '@/contexts/TourContext';
-import ProductTour from '@/components/tours/ProductTour';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
 interface HostAnalyticsDashboardProps {
@@ -26,6 +26,7 @@ interface HostAnalyticsDashboardProps {
  * Comprehensive analytics dashboard for Hosts
  */
 export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) {
+    const { session } = useAuth();
     const { startTour, isTourCompleted } = useTour();
     const presets = getPresetDateRanges();
     const [dateRange, setDateRange] = useState({
@@ -43,64 +44,94 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
         }
     }, [isTourCompleted, startTour]);
 
-    // Fetch host earnings analytics
-    const { data: analytics, isLoading } = useQuery({
-        queryKey: ['host-analytics', userId, dateRange],
-        queryFn: async () => {
-            const { data, error } = await supabase
-                .from('host_earnings_analytics')
-                .select('*')
-                .eq('host_id', userId)
-                .gte('moment_date', dateRange.start.toISOString())
-                .lte('moment_date', dateRange.end.toISOString());
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 
-            if (error) throw error;
-            return data;
+    const authHeaders = session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {};
+
+    const { data: summary, isLoading: summaryLoading } = useQuery({
+        queryKey: ['host-analytics-summary', userId],
+        enabled: !!session?.access_token,
+        queryFn: async () => {
+            const response = await fetch(`${apiBaseUrl}/analytics/host/earnings`, {
+                headers: authHeaders,
+            });
+            if (!response.ok) {
+                throw new Error('Failed to load host earnings summary');
+            }
+            const payload = await response.json();
+            return payload?.data ?? payload;
         },
     });
 
-    // Aggregate metrics
-    const metrics = analytics?.reduce(
-        (acc, item) => ({
-            totalEarnings: acc.totalEarnings + (item.total_revenue || 0),
-            totalParticipants: acc.totalParticipants + (item.total_participants || 0),
-            totalMoments: acc.totalMoments + 1,
-            totalSponsorships: acc.totalSponsorships + (item.total_sponsorship || 0),
-        }),
-        { totalEarnings: 0, totalParticipants: 0, totalMoments: 0, totalSponsorships: 0 }
-    ) || { totalEarnings: 0, totalParticipants: 0, totalMoments: 0, totalSponsorships: 0 };
+    const { data: momentsPayload, isLoading: momentsLoading } = useQuery({
+        queryKey: ['host-analytics-moments', userId],
+        enabled: !!session?.access_token,
+        queryFn: async () => {
+            const response = await fetch(`${apiBaseUrl}/analytics/host/moments`, {
+                headers: authHeaders,
+            });
+            if (!response.ok) {
+                throw new Error('Failed to load host moment analytics');
+            }
+            return response.json();
+        },
+    });
+
+    const analytics = Array.isArray(momentsPayload) ? momentsPayload : momentsPayload?.data || [];
+    const analyticsStatus = Array.isArray(momentsPayload) ? null : momentsPayload;
+
+    const filteredAnalytics = analytics.filter((item: any) => {
+        const sourceDate = item.ends_at || item.starts_at || item.created_at;
+        if (!sourceDate) return false;
+        const momentDate = new Date(sourceDate);
+        return momentDate >= dateRange.start && momentDate <= dateRange.end;
+    });
+
+    const isLoading = summaryLoading || momentsLoading;
+
+    const metrics = {
+        totalEarnings: Number(summary?.total_rewards_distributed || 0) + Number(summary?.total_sponsorship_received || 0),
+        totalParticipants: Number(summary?.total_participants || 0),
+        totalMoments: Number(summary?.total_moments || 0),
+        totalSponsorships: Number(summary?.total_sponsorship_received || 0),
+    };
 
     const avgRevenuePerMoment = metrics.totalMoments > 0
         ? metrics.totalEarnings / metrics.totalMoments
         : 0;
 
-    // Prepare chart data
-    const earningsByDay = analytics?.reduce((acc: any[], item) => {
-        const date = new Date(item.moment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const earningsByDay = filteredAnalytics.reduce((acc: any[], item: any) => {
+        const sourceDate = item.ends_at || item.starts_at || item.created_at;
+        const date = new Date(sourceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const existing = acc.find(d => d.date === date);
         if (existing) {
-            existing.earnings += item.total_revenue || 0;
-            existing.participants += item.total_participants || 0;
+            existing.earnings += Number(item.reward_pool_usd || 0) + Number(item.total_sponsorship || 0) + Number(item.product_revenue_generated || 0);
+            existing.participants += item.participant_count || 0;
         } else {
             acc.push({
                 date,
-                earnings: item.total_revenue || 0,
-                participants: item.total_participants || 0
+                earnings: Number(item.reward_pool_usd || 0) + Number(item.total_sponsorship || 0) + Number(item.product_revenue_generated || 0),
+                participants: item.participant_count || 0
             });
         }
         return acc;
-    }, []) || [];
+    }, []);
 
-    const momentPerformance = analytics?.map((item: any) => ({
-        name: item.moment_title,
-        participants: item.total_participants || 0,
-        revenue: item.total_revenue || 0,
-        sponsorship: item.total_sponsorship || 0,
-    })).sort((a: any, b: any) => b.revenue - a.revenue).slice(0, 10) || [];
+    const momentPerformance = filteredAnalytics.map((item: any) => {
+        const revenue = Number(item.reward_pool_usd || 0) + Number(item.total_sponsorship || 0) + Number(item.product_revenue_generated || 0);
+        return {
+            name: item.title || 'Untitled Moment',
+            participants: item.participant_count || 0,
+            revenue,
+            sponsorship: Number(item.total_sponsorship || 0),
+        };
+    }).sort((a: any, b: any) => b.revenue - a.revenue).slice(0, 10);
 
     const handleExport = () => {
-        if (analytics) {
-            exportToCSV(analytics, `host-analytics-${Date.now()}`);
+        if (filteredAnalytics.length > 0) {
+            exportToCSV(filteredAnalytics, `host-analytics-${Date.now()}`);
         }
     };
 
@@ -125,6 +156,15 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                     </Button>
                 </div>
             </div>
+
+            {analyticsStatus?.data_status === 'empty' && (
+                <Alert className="border-amber-200 bg-amber-50 text-amber-950">
+                    <AlertTitle>Analytics contract is connected, but no production rows matched</AlertTitle>
+                    <AlertDescription>
+                        This is an explicit empty dataset from the backend, not a hidden dashboard failure. Once hosted moments, proof, or earnings rows match the production contract, this view will populate automatically.
+                    </AlertDescription>
+                </Alert>
+            )}
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="analytics-metrics">

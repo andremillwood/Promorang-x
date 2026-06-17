@@ -3,14 +3,57 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, MessageSquare, MapPin, Send, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 
 const ContactPage = () => {
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        topic: "general",
+        subject: "",
+        message: "",
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData((current) => ({ ...current, [field]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitted(true);
+        setError("");
+        setIsSubmitting(true);
+
+        try {
+            const apiBase = import.meta.env.VITE_API_URL || "https://api.promorang.co";
+            const response = await fetch(`${apiBase}/api/email/contact`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    first_name: formData.firstName,
+                    last_name: formData.lastName,
+                    email: formData.email,
+                    topic: formData.topic,
+                    subject: formData.subject,
+                    message: formData.message,
+                }),
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || payload.success === false) {
+                throw new Error(payload.error || "Failed to send message");
+            }
+
+            setSubmitted(true);
+        } catch (sendError) {
+            setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -41,8 +84,8 @@ const ContactPage = () => {
                                     <div>
                                         <h3 className="font-bold text-lg">Email Us</h3>
                                         <p className="text-muted-foreground mb-2">For general inquiries and support.</p>
-                                        <a href="mailto:hello@promorang.co" className="text-primary font-semibold hover:underline">
-                                            hello@promorang.co
+                                        <a href="mailto:support@promorang.co" className="text-primary font-semibold hover:underline">
+                                            support@promorang.co
                                         </a>
                                     </div>
                                 </div>
@@ -53,10 +96,10 @@ const ContactPage = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg">Live Chat</h3>
-                                        <p className="text-muted-foreground mb-2">Available Mon-Fri, 9am - 5pm EST.</p>
-                                        <button className="text-primary font-semibold hover:underline">
-                                            Start a conversation
-                                        </button>
+                                        <p className="text-muted-foreground mb-2">Use a structured support ticket if you need account-specific follow-up.</p>
+                                        <Link to="/support/tickets" className="text-primary font-semibold hover:underline">
+                                            Open support tickets
+                                        </Link>
                                     </div>
                                 </div>
 
@@ -65,10 +108,9 @@ const ContactPage = () => {
                                         <MapPin className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Office</h3>
+                                        <h3 className="font-bold text-lg">Partnerships</h3>
                                         <p className="text-muted-foreground">
-                                            123 Innovation Way<br />
-                                            New York, NY 10001
+                                            Brands, venues, communities, and agencies can use the same form for partnership requests.
                                         </p>
                                     </div>
                                 </div>
@@ -89,7 +131,7 @@ const ContactPage = () => {
                         </div>
 
                         {/* Contact Form */}
-                        <div className="bg-card border border-border rounded-3xl p-8 md:p-10">
+                        <div id="contact-form" className="bg-card border border-border rounded-3xl p-8 md:p-10 scroll-mt-24">
                             {submitted ? (
                                 <div className="text-center py-12">
                                     <div className="h-16 w-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -105,35 +147,82 @@ const ContactPage = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
+                                    {error && (
+                                        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                                            {error}
+                                        </div>
+                                    )}
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold">First Name</label>
-                                            <Input placeholder="Jane" required />
+                                            <label htmlFor="first-name" className="text-sm font-semibold">First Name</label>
+                                            <Input
+                                                id="first-name"
+                                                value={formData.firstName}
+                                                onChange={(event) => handleChange("firstName", event.target.value)}
+                                                placeholder="Jane"
+                                                required
+                                            />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold">Last Name</label>
-                                            <Input placeholder="Doe" required />
+                                            <label htmlFor="last-name" className="text-sm font-semibold">Last Name</label>
+                                            <Input
+                                                id="last-name"
+                                                value={formData.lastName}
+                                                onChange={(event) => handleChange("lastName", event.target.value)}
+                                                placeholder="Doe"
+                                            />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-semibold">Email Address</label>
-                                        <Input type="email" placeholder="jane@example.com" required />
+                                        <label htmlFor="contact-email" className="text-sm font-semibold">Email Address</label>
+                                        <Input
+                                            id="contact-email"
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(event) => handleChange("email", event.target.value)}
+                                            placeholder="jane@example.com"
+                                            required
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-semibold">Subject</label>
-                                        <Input placeholder="How can we help?" required />
+                                        <label htmlFor="topic" className="text-sm font-semibold">Topic</label>
+                                        <select
+                                            id="topic"
+                                            value={formData.topic}
+                                            onChange={(event) => handleChange("topic", event.target.value)}
+                                            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        >
+                                            <option value="general">General question</option>
+                                            <option value="support">Account support</option>
+                                            <option value="partnership">Partnership</option>
+                                            <option value="billing">Billing or payouts</option>
+                                            <option value="safety">Trust and safety</option>
+                                        </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-semibold">Message</label>
+                                        <label htmlFor="subject" className="text-sm font-semibold">Subject</label>
+                                        <Input
+                                            id="subject"
+                                            value={formData.subject}
+                                            onChange={(event) => handleChange("subject", event.target.value)}
+                                            placeholder="How can we help?"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label htmlFor="message" className="text-sm font-semibold">Message</label>
                                         <Textarea
+                                            id="message"
+                                            value={formData.message}
+                                            onChange={(event) => handleChange("message", event.target.value)}
                                             placeholder="Tell us more about what you're looking for..."
                                             className="min-h-[150px]"
                                             required
                                         />
                                     </div>
-                                    <Button type="submit" variant="hero" className="w-full h-12">
+                                    <Button type="submit" variant="hero" className="w-full h-12" disabled={isSubmitting}>
                                         <Send className="w-4 h-4 mr-2" />
-                                        Send Message
+                                        {isSubmitting ? "Sending..." : "Send Message"}
                                     </Button>
                                 </form>
                             )}

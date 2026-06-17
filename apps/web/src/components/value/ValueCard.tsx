@@ -48,11 +48,11 @@ export function ValueCard({ showQualification = true, compact = false }: ValueCa
                 )}
               </div>
               <div>
-                <p className="font-medium">{isQualified ? 'Money Qualified' : 'Points Only'}</p>
+                <p className="font-medium">{isQualified ? 'Rewards Qualified' : 'Points Only'}</p>
                 <p className="text-sm text-muted-foreground">
                   {isQualified 
-                    ? `Earn up to $${tierStatus?.current_tier === 'mover' ? '4' : tierStatus?.current_tier === 'regular' ? '3' : '2'} per Mark`
-                    : `${blockers.length} requirements to unlock money`
+                    ? 'Eligible for Gems, PromoShare, and funded rewards'
+                    : `${blockers.length} requirements to unlock advanced rewards`
                   }
                 </p>
               </div>
@@ -96,8 +96,8 @@ export function ValueCard({ showQualification = true, compact = false }: ValueCa
             </div>
             <CardDescription>
               {isQualified 
-                ? "You meet all requirements to earn real money from your participation"
-                : "Complete these requirements to unlock money earnings"
+                ? "You meet the requirements for Gems, PromoShare, and other funded rewards"
+                : "Complete these requirements to unlock advanced rewards"
               }
             </CardDescription>
           </CardHeader>
@@ -124,7 +124,7 @@ export function ValueCard({ showQualification = true, compact = false }: ValueCa
 
             {!isQualified && blockers.length > 0 && (
               <div className="mt-4 p-3 bg-amber-50 rounded-lg">
-                <p className="text-sm font-medium text-amber-900 mb-2">To unlock money earnings:</p>
+                <p className="text-sm font-medium text-amber-900 mb-2">To unlock advanced rewards:</p>
                 <ul className="text-sm text-amber-800 space-y-1">
                   {blockers.map((blocker, i) => (
                     <li key={i}>• {blocker}</li>
@@ -152,15 +152,15 @@ export function ValueCard({ showQualification = true, compact = false }: ValueCa
               <div className="text-xs text-blue-600 mt-1">Always earn</div>
             </div>
 
-            {/* Money */}
+            {/* Funded rewards */}
             <div className={`text-center p-4 rounded-lg ${isQualified ? 'bg-emerald-500/10' : 'bg-muted'}`}>
               <DollarSign className={`w-6 h-6 mx-auto mb-2 ${isQualified ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`} />
               <div className={`text-2xl font-bold ${isQualified ? 'text-emerald-700 dark:text-emerald-300' : 'text-muted-foreground'}`}>
                 {isQualified ? formatCents(summary?.total_earned_cents || 0) : '—'}
               </div>
-              <div className={`text-sm ${isQualified ? 'text-emerald-700 dark:text-emerald-300' : 'text-muted-foreground'}`}>Money</div>
+              <div className={`text-sm ${isQualified ? 'text-emerald-700 dark:text-emerald-300' : 'text-muted-foreground'}`}>Funded rewards</div>
               <div className={`text-xs mt-1 ${isQualified ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
-                {isQualified ? 'Qualifed to earn' : 'Locked'}
+                {isQualified ? 'Qualified to earn' : 'Locked'}
               </div>
             </div>
 

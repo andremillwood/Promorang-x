@@ -86,6 +86,8 @@ interface CostBreakdown {
   };
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
+
 const SponsorDashboard = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -130,7 +132,7 @@ const SponsorDashboard = () => {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch('/api/promoshare/sponsors/config', {
+      const response = await fetch(`${API_BASE}/promoshare/sponsors/config`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       const result = await response.json();
@@ -144,7 +146,7 @@ const SponsorDashboard = () => {
 
   const fetchPools = async () => {
     try {
-      const response = await fetch('/api/promoshare/sponsors/pools', {
+      const response = await fetch(`${API_BASE}/promoshare/sponsors/pools`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       const result = await response.json();
@@ -161,7 +163,7 @@ const SponsorDashboard = () => {
   const calculateCost = async () => {
     setCalculating(true);
     try {
-      const response = await fetch('/api/promoshare/sponsors/calculate', {
+      const response = await fetch(`${API_BASE}/promoshare/sponsors/calculate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -188,7 +190,7 @@ const SponsorDashboard = () => {
   const createPool = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/promoshare/sponsors/pools', {
+      const response = await fetch(`${API_BASE}/promoshare/sponsors/pools`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,

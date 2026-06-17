@@ -1,31 +1,28 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { 
+  ArrowRight,
   MapPin, 
   Users, 
-  Calendar, 
-  Plus, 
-  Clock, 
   Star, 
-  DollarSign, 
   Coins, 
   TrendingUp, 
-  CreditCard, 
   ShieldCheck, 
   Store,
-  ChevronRight,
   Zap,
   BarChart3,
   CheckCircle2,
   QrCode,
   Package
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMerchantVenues, useMerchantStats } from "@/hooks/useVenues";
+import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
+import { useMerchantVenues } from "@/hooks/useVenues";
 import { useMerchantEconomy } from "@/hooks/useStakeholderEconomy";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { Link, useSearchParams } from "react-router-dom";
@@ -33,6 +30,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 import RedemptionValidator from "@/components/merchant/RedemptionValidator";
 import SalesAnalyticsDashboard from "@/components/merchant/SalesAnalyticsDashboard";
+import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
+type PublicMomentRow = Tables<"view_public_moment_directory">;
 
 // ============================================================================
 // MERCHANT DASHBOARD V2
@@ -40,7 +42,7 @@ import SalesAnalyticsDashboard from "@/components/merchant/SalesAnalyticsDashboa
 // ============================================================================
 
 const MerchantDashboardV2 = () => {
-  const { user } = useAuth();
+  useAuth();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const { data: stats, isLoading: statsLoading } = useMerchantEconomy();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
@@ -56,69 +58,53 @@ const MerchantDashboardV2 = () => {
   // Weekly stats
   const weeklyTraffic = stats?.weeklyTraffic || 0;
   const totalPoints = economy?.totalPointsEarned || 0;
+  const ownedVenueIds = useMemo(() => new Set((venues || []).map((venue) => venue.id)), [venues]);
+  const ownedVenueCities = useMemo(() => new Set((venues || []).map((venue) => venue.city).filter(Boolean)), [venues]);
+
+  const venueMomentQuery = useQuery({
+    queryKey: ["merchant-visible-moments", Array.from(ownedVenueIds).join(","), Array.from(ownedVenueCities).join(",")],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("view_public_moment_directory")
+        .select("*")
+        .order("starts_at", { ascending: false, nullsFirst: false })
+        .limit(48);
+
+      if (error) throw error;
+      return (data || []) as PublicMomentRow[];
+    },
+  });
+
+  const venueRelatedMoments = useMemo(() => {
+    const rows = venueMomentQuery.data || [];
+    const matched = rows.filter((moment) =>
+      (moment.venue_id && ownedVenueIds.has(moment.venue_id)) ||
+      (moment.city && ownedVenueCities.has(moment.city)),
+    );
+
+    return (matched.length > 0 ? matched : rows).slice(0, 5);
+  }, [venueMomentQuery.data, ownedVenueIds, ownedVenueCities]);
 
   return (
     <div className="space-y-6 pb-20">
-      {/* =====================================================================
-          HEADER: Context-aware
-          ===================================================================== */}
-      {isNewMerchant ? (
-        // Simple welcome for new merchants
-        <section className="relative rounded-2xl bg-gradient-to-br from-emerald-500/5 via-background to-primary/5 p-6 border border-emerald-500/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-wider mb-2">
-                <Store className="w-3 h-3" />
-                Your Venue
-              </div>
-              <h1 className="font-serif text-2xl font-bold mb-1">
-                Welcome, <span className="italic text-emerald-600">{user?.user_metadata?.full_name?.split(" ")[0] || "Partner"}</span>
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Turn your venue into an anchor for community activity
-              </p>
-            </div>
-            <Button asChild className="rounded-full bg-emerald-600 hover:bg-emerald-700">
-              <Link to="/dashboard/venues/add">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Venue
-              </Link>
-            </Button>
-          </div>
-        </section>
-      ) : (
-        // Full header for active merchants
-        <section className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-2xl font-bold text-foreground">
-              Your <span className="text-emerald-600 italic">Venue</span>
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              See how your space is performing
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {stats && (
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-emerald-600" />
-                  {weeklyTraffic} this week
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Coins className="w-4 h-4 text-amber-500" />
-                  {totalPoints.toLocaleString()} points
-                </span>
-              </div>
-            )}
-            <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-              <Link to="/dashboard/venues/add">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Venue
-              </Link>
-            </Button>
-          </div>
-        </section>
-      )}
+      <DashboardHero
+        badge="Venue Operations"
+        title={isNewMerchant ? "Turn one venue into a trusted activation point" : "Run your venue as a verified activity hub"}
+        description="Register the place, support moments or offers, validate arrivals and redemptions, then use proof to bring people back through the door."
+        actions={[
+          { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
+          { label: "Offers", href: "/dashboard/offers", icon: Package },
+          { label: isEstablishedMerchant ? "Analytics" : "Products", onClick: () => setActiveTab(isEstablishedMerchant ? "analytics" : "products"), icon: BarChart3 },
+        ]}
+        stats={[
+          { label: "Venues", value: (venues?.length || 0).toLocaleString(), helper: "Registered locations", icon: Store, accentClass: "text-emerald-300" },
+          { label: "Weekly traffic", value: weeklyTraffic.toLocaleString(), helper: "Validated local activity", icon: Users, accentClass: "text-emerald-300" },
+          { label: "Points earned", value: totalPoints.toLocaleString(), helper: "Returned from activity", icon: Coins, accentClass: "text-emerald-300" },
+          { label: "Yield per visit", value: economy?.yieldPerVisitor?.toFixed(1) || "0", helper: "Average venue performance", icon: TrendingUp, accentClass: "text-emerald-300" },
+        ]}
+        isLoading={statsLoading || economyLoading}
+        glowClassName="bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(255,167,38,0.14),_transparent_34%)]"
+      />
 
       {/* =====================================================================
           NEW MERCHANT: First Venue Guidance
@@ -144,7 +130,7 @@ const MerchantDashboardV2 = () => {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/discover">
+                    <Link to="/discover/venues">
                       <MapPin className="w-4 h-4 mr-2" />
                       See Venues
                     </Link>
@@ -213,68 +199,146 @@ const MerchantDashboardV2 = () => {
         </Card>
       )}
 
-      {/* =====================================================================
-          STATS: Only for active merchants
-          ===================================================================== */}
-      {!isNewMerchant && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {statsLoading || economyLoading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
-            ))
-          ) : (
-            [
-              { 
-                label: "Points Earned", 
-                value: totalPoints.toLocaleString(), 
-                icon: Coins, 
-                color: "text-amber-500" 
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
+        <div className="space-y-6">
+          <DashboardNextStepsSection
+            description="Keep venue operations clear: register the place, support the offer, then validate what happened there."
+            ctaLabel="Open venues"
+            ctaOnClick={() => setActiveTab("venues")}
+            items={[
+              {
+                title: "Register location",
+                description: "Add or update the place where activity happens.",
+                cta: "Manage venues",
+                href: "/dashboard/venues/add",
               },
-              { 
-                label: "Weekly Traffic", 
-                value: weeklyTraffic.toString(), 
-                icon: Users, 
-                color: "text-emerald-500" 
+              {
+                title: "Validate activity",
+                description: "Confirm check-ins, scans, and redemptions while the guest is present.",
+                cta: "Open validation",
+                onClick: () => setActiveTab("redemptions"),
               },
-              { 
-                label: "Venues", 
-                value: venues?.length || 0, 
-                icon: Store, 
-                color: "text-primary" 
+              {
+                title: "Tune the offer",
+                description: "Adjust products, perks, and visit rituals based on what people actually did.",
+                cta: isEstablishedMerchant ? "Open analytics" : "Open products",
+                onClick: () => setActiveTab(isEstablishedMerchant ? "analytics" : "products"),
               },
-              { 
-                label: "Avg Per Visit", 
-                value: economy?.yieldPerVisitor?.toFixed(1) || "0", 
-                icon: TrendingUp, 
-                color: "text-blue-500" 
-              },
-            ].map((stat, index) => (
-              <Card key={index} className="hover:shadow-soft transition-shadow">
-                <CardContent className="p-4">
-                  <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
-                  <div className="text-xl font-bold">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      )}
+            ]}
+          />
+
+          <CommercialProofLoop
+        eyebrow="Venue Proof Loop"
+        title="Show the venue story as verified local movement"
+        action={
+          weeklyTraffic > 0
+            ? `${weeklyTraffic} participant visits or proof-linked actions moved through your venues this week.`
+            : "Turn one venue into the anchor for a moment, offer, or proof-linked visit."
+        }
+        verification={
+          venues && venues.length > 0
+            ? "Use venue registration, QR / check-in validation, and redemption confirmation as proof."
+            : "Verification starts once the venue is registered and check-ins or redemptions can be validated."
+        }
+        outcome={
+          totalPoints > 0
+            ? `${totalPoints.toLocaleString()} points and repeat proof signals show measurable activity happened on-site.`
+            : "Report visits, validated redemptions, repeat traffic, and proof completion as the operating outcome."
+        }
+        repeatability={
+          isEstablishedMerchant
+            ? "Use the same venue setup, validation, and redemption playbook across multiple locations."
+            : "Once one venue loop works, repeat it with the same proof and redemption mechanics each week."
+        }
+          />
+
+          <Card className="border-emerald-500/20">
+            <CardContent className="p-5 sm:p-6">
+              <div className="mb-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-600">Market Graph</p>
+                  <h3 className="mt-2 font-serif text-2xl font-bold">See moments and pieces around your venue</h3>
+                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                    Merchants should be able to see what already happened nearby, what is currently active, and where venue pieces can participate through Gems.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" asChild>
+                    <Link to="/explore/moments">Explore Moments</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/marketplace">Piece Market</Link>
+                  </Button>
+                </div>
+              </div>
+
+              {venueMomentQuery.isLoading ? (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="h-24 rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {venueRelatedMoments.map((moment) => (
+                    <div key={moment.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                      <div className="flex min-w-0 items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="truncate font-semibold">{moment.title}</h4>
+                            {moment.venue_id && ownedVenueIds.has(moment.venue_id) ? (
+                              <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">Your venue</Badge>
+                            ) : (
+                              <Badge variant="outline">Nearby signal</Badge>
+                            )}
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                            {moment.description || moment.reward || "A moment that can inform venue activations and offer timing."}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {moment.venue_name || moment.city || moment.location || "Location pending"}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {(moment.participant_count || 0).toLocaleString()} participants
+                            </span>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/moments/${moment.slug || moment.id}`}>
+                            Open
+                            <ArrowRight className="ml-1 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
       {/* =====================================================================
           MY VENUES: Priority display
           ===================================================================== */}
-      {!isNewMerchant && (
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl font-bold">My Venues</h2>
-            {venues && venues.length > 2 && (
-              <Button variant="ghost" size="sm" onClick={() => setActiveTab("venues")}>
-                View all
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            )}
-          </div>
+          {!isNewMerchant && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-serif text-xl font-bold">My Venues</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Keep your active locations visible here; do the deeper editing inside the venue tools.
+                  </p>
+                </div>
+                {venues && venues.length > 2 && (
+                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("venues")}>
+                    View all
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                )}
+              </div>
 
           {venuesLoading ? (
             <div className="grid gap-4 md:grid-cols-2">
@@ -342,14 +406,14 @@ const MerchantDashboardV2 = () => {
                 </Card>
               ))}
             </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
 
       {/* =====================================================================
           MAIN TABS: Progressive disclosure
           ===================================================================== */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="venues" className="gap-2">
             <Store className="w-4 h-4" />
@@ -438,43 +502,56 @@ const MerchantDashboardV2 = () => {
             <SalesAnalyticsDashboard />
           </TabsContent>
         )}
-      </Tabs>
+          </Tabs>
+        </div>
 
-      {/* =====================================================================
-          ROLE ACTIVATION: Always visible guidance
-          ===================================================================== */}
-      <RoleActivationPanel
-        eyebrow="Merchant Today"
-        title={isNewMerchant ? "Start your venue journey" : "Grow your impact"}
-        description={
-          isNewMerchant 
-            ? "Register your first venue to begin anchoring community activity."
-            : "Master the operational loop: register, enable moments, validate proofs."
-        }
-        items={[
-          {
-            title: "Register venue",
-            description: "Add a trusted place for activity",
-            status: venues && venues.length > 0 ? "done" : "current",
-            href: "/dashboard/venues/add",
-            ctaLabel: "Add",
-          },
-          {
-            title: "Enable moments",
-            description: "Make venue available for events",
-            status: venues && venues.length > 0 ? "done" : "todo",
-            href: "/create-moment",
-            ctaLabel: "Create",
-          },
-          {
-            title: "Validate proofs",
-            description: "Approve check-ins for rewards",
-            status: weeklyTraffic > 0 ? "current" : "todo",
-            ctaLabel: "Validate",
-            onClick: () => setActiveTab("redemptions"),
-          },
-        ]}
-      />
+        <div className="space-y-6">
+          <RoleActivationPanel
+            eyebrow="Merchant Today"
+            title={isNewMerchant ? "Make one place ready for real visits" : "Keep the door connected to verified demand"}
+            description={
+              isNewMerchant 
+                ? "Register the place first. From there, moments, offers, creator missions, and rewards have somewhere real to land."
+                : "Keep the loop simple: host or receive the moment, validate the arrival or redemption, then use proof to bring people back."
+            }
+            items={[
+              {
+                title: "Register venue",
+                description: "Add the trusted place where visits, offers, and memories can happen.",
+                status: venues && venues.length > 0 ? "done" : "current",
+                href: "/dashboard/venues/add",
+                ctaLabel: "Add",
+              },
+              {
+                title: "Enable moments",
+                description: "Give people a reason to come now: a drop, ritual, tasting, reward, or local gathering.",
+                status: venues && venues.length > 0 ? "done" : "todo",
+                href: "/create/moment",
+                ctaLabel: "Create",
+              },
+              {
+                title: "Validate proofs",
+                description: "Confirm check-ins and redemptions so the visit counts for everyone involved.",
+                status: weeklyTraffic > 0 ? "current" : "todo",
+                ctaLabel: "Validate",
+                onClick: () => setActiveTab("redemptions"),
+              },
+            ]}
+          />
+
+          <DashboardQuickRoutesCard
+            description="Keep validation and venue tooling easy to reach without overwhelming the operating story."
+            routes={[
+              { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
+              { label: "Existing moments", href: "/explore/moments", icon: MapPin },
+              { label: "Validate activity", onClick: () => setActiveTab("redemptions"), icon: QrCode },
+              { label: isEstablishedMerchant ? "Open analytics" : "Manage products", onClick: () => setActiveTab(isEstablishedMerchant ? "analytics" : "products"), icon: Package },
+              { label: "Piece market", href: "/marketplace", icon: Coins },
+              { label: "Liquidity", href: "/liquidity", icon: TrendingUp },
+            ]}
+          />
+        </div>
+      </div>
     </div>
   );
 };

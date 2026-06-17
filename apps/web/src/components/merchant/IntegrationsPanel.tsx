@@ -60,9 +60,9 @@ const IntegrationsPanel = () => {
     return (
         <div className="space-y-6">
             {/* E-commerce Integrations */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-                <div className="flex items-start justify-between mb-8">
-                    <div>
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-8">
+                <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                         <h3 className="text-xl font-bold mb-1">E-commerce Integrations</h3>
                         <p className="text-muted-foreground text-sm">
                             Sync your existing products from Shopify, Square, or WooCommerce.
@@ -71,7 +71,7 @@ const IntegrationsPanel = () => {
                     {(shopify || square || woo) && (
                         <Badge
                             variant="outline"
-                            className="gap-1 text-emerald-600 border-emerald-500/20 bg-emerald-500/5"
+                            className="gap-1 border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
                         >
                             <CheckCircle className="w-3 h-3" />
                             Connected
@@ -82,7 +82,7 @@ const IntegrationsPanel = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Shopify Card */}
                     <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-[#96bf48]/10 flex items-center justify-center">
                                 <img
                                     src="https://cdn.worldvectorlogo.com/logos/shopify.svg"
@@ -91,7 +91,7 @@ const IntegrationsPanel = () => {
                                 />
                             </div>
                             {shopify ? (
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-0">
+                                <Badge className="border-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                     <CheckCircle className="w-3 h-3 mr-1" /> Connected
                                 </Badge>
                             ) : null}
@@ -119,7 +119,7 @@ const IntegrationsPanel = () => {
                                         </p>
                                     )}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -153,7 +153,7 @@ const IntegrationsPanel = () => {
                                     placeholder="your-store.myshopify.com"
                                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                                 />
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
                                     <Button
                                         size="sm"
                                         className="flex-1 bg-[#96bf48] hover:bg-[#7ea83a] text-white"
@@ -196,7 +196,7 @@ const IntegrationsPanel = () => {
 
                     {/* Square Card */}
                     <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-black/5 flex items-center justify-center">
                                 <img
                                     src="https://upload.wikimedia.org/wikipedia/commons/3/33/Square_app_logo.png"
@@ -205,7 +205,7 @@ const IntegrationsPanel = () => {
                                 />
                             </div>
                             {square ? (
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-0">
+                                <Badge className="border-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                     <CheckCircle className="w-3 h-3 mr-1" /> Connected
                                 </Badge>
                             ) : null}
@@ -231,7 +231,7 @@ const IntegrationsPanel = () => {
                                         </p>
                                     )}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -279,7 +279,7 @@ const IntegrationsPanel = () => {
 
                     {/* WooCommerce Card */}
                     <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-[#96588a]/10 flex items-center justify-center">
                                 <img
                                     src="https://cdn.worldvectorlogo.com/logos/woocommerce.svg"
@@ -288,7 +288,7 @@ const IntegrationsPanel = () => {
                                 />
                             </div>
                             {woo ? (
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-0">
+                                <Badge className="border-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                                     <CheckCircle className="w-3 h-3 mr-1" /> Connected
                                 </Badge>
                             ) : null}
@@ -314,7 +314,7 @@ const IntegrationsPanel = () => {
                                         </p>
                                     )}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
                                     <Button
                                         size="sm"
                                         variant="outline"
@@ -362,7 +362,7 @@ const IntegrationsPanel = () => {
                                     placeholder="Consumer Secret (cs_...)"
                                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none font-mono text-[11px]"
                                 />
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2 sm:flex-row">
                                     <Button
                                         size="sm"
                                         className="flex-1 bg-[#96588a] hover:bg-[#7d4b74] text-white"
@@ -407,7 +407,7 @@ const IntegrationsPanel = () => {
                 </div>
 
                 {/* Info box */}
-                <div className="mt-8 p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
+                <div className="mt-8 flex items-start gap-3 rounded-xl border border-primary/10 bg-primary/5 p-4">
                     <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div className="text-xs text-muted-foreground leading-relaxed">
                         <p className="font-bold text-primary mb-1">What happens when you connect?</p>
@@ -421,15 +421,15 @@ const IntegrationsPanel = () => {
 
             {/* Sync Status */}
             {!isLoading && integrations && integrations.filter(i => i.status === 'connected').length > 0 ? (
-                <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-8">
                     <h4 className="font-bold text-sm mb-4">Active Syncs</h4>
                     <div className="space-y-3">
                         {integrations.filter(i => i.status === 'connected').map((integration) => (
                             <div
                                 key={integration.id}
-                                className="flex items-center justify-between p-4 rounded-xl border border-border"
+                                className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
                             >
-                                <div className="flex items-center gap-3">
+                                <div className="flex min-w-0 items-center gap-3">
                                     <div
                                         className={`w-2 h-2 rounded-full ${integration.sync_status === "success"
                                                 ? "bg-emerald-500"
@@ -440,7 +440,7 @@ const IntegrationsPanel = () => {
                                                         : "bg-muted"
                                             }`}
                                     />
-                                    <div>
+                                    <div className="min-w-0">
                                         <p className="text-sm font-medium capitalize">{integration.provider}</p>
                                         <p className="text-[10px] text-muted-foreground">
                                             {integration.external_store_name} · {integration.products_synced} products
@@ -469,15 +469,15 @@ const IntegrationsPanel = () => {
             ) : null}
 
             {/* POS Integrations */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft">
-                <div className="flex items-start justify-between mb-8">
-                    <div>
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-8">
+                <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                         <h3 className="text-xl font-bold mb-1">Point of Sale (POS) Hub</h3>
                         <p className="text-muted-foreground text-sm">
                             Bridge digital participation with in-store sales attribution.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest">
+                    <div className="flex w-fit items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                         <Smartphone className="w-3 h-3" /> Attribution Ready
                     </div>
                 </div>

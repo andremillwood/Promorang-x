@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { 
-  Activity, 
+  Calendar,
   DollarSign, 
   Film, 
   Link2, 
   PlayCircle, 
-  Plus, 
   Sparkles, 
-  TrendingUp,
-  ChevronRight,
-  Compass,
   Eye,
   Zap,
   Award,
-  BarChart3
+  BarChart3,
+  Upload,
+  CheckCircle2,
+  Clock3,
+  ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,108 +22,146 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
+import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
 import { CreatorO2OSummaryPanel } from "@/components/host/CreatorO2OSummaryPanel";
 import { O2OLinkManager } from "@/components/host/O2OLinkManager";
 import { CreatorMissionPublisher } from "@/components/creator/CreatorMissionPublisher";
 import { CreatorEarningsTab } from "./host/CreatorEarningsTab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import { Separator } from "@/components/ui/separator";
+import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 
 // ============================================================================
 // CREATOR DASHBOARD V2
 // Action-first design with progressive disclosure
 // ============================================================================
 
+type CreatorStory = {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  platform?: string | null;
+  platform_url?: string | null;
+  views_count?: number | null;
+  impressions?: number | null;
+  shares_count?: number | null;
+  shares?: number | null;
+  conversions?: number | null;
+};
+
 const CreatorDashboardV2 = () => {
   const { user, session } = useAuth();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "studio";
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const [selectedContentId, setSelectedContentId] = useState<string>("");
 
-  // Fetch creator stats
-  const { data: creatorStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["creator-stats", user?.id],
+  const creatorContentQuery = useQuery({
+    queryKey: ["creator-content-library", user?.id],
     queryFn: async () => {
-      if (!session) return null;
-      // Mock data for now - replace with actual API
+      if (!session?.access_token) return [];
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/content/mine?limit=24`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "Failed to load your stories");
+      return payload?.content || [];
+    },
+    enabled: !!user && !!session,
+  });
+
+  const creatorLinksQuery = useQuery({
+    queryKey: ["creator-mission-links", user?.id],
+    queryFn: async () => {
+      if (!session?.access_token) return [];
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/o2o/links/mine`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "Failed to load your linked missions");
+      return payload?.links || [];
+    },
+    enabled: !!user && !!session,
+  });
+
+  const creatorSummaryQuery = useQuery({
+    queryKey: ["creator-dashboard-summary", user?.id],
+    queryFn: async () => {
+      if (!session?.access_token) return null;
+      const [summaryResponse, economicsResponse] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/o2o/creator-summary`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/creator-economics/me`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+      ]);
+
+      const summaryPayload = await summaryResponse.json();
+      const economicsPayload = await economicsResponse.json();
+      if (!summaryResponse.ok) throw new Error(summaryPayload?.error || "Failed to load creator summary");
+      if (!economicsResponse.ok) throw new Error(economicsPayload?.error || "Failed to load creator economics");
+
       return {
-        contentCount: 0,
-        missionCount: 0,
-        totalViews: 0,
-        earnings: 0,
-        hasPublished: false,
-        hasLinkedMission: false,
+        summary: summaryPayload?.summary || {},
+        economics: economicsPayload?.economics || {},
       };
     },
     enabled: !!user && !!session,
   });
 
-  // Calculate maturity
-  const isNewCreator = !creatorStats?.hasPublished;
-  const isActiveCreator = creatorStats?.hasPublished && creatorStats?.contentCount < 5;
-  const isEstablishedCreator = creatorStats?.contentCount >= 5;
+  const stories = creatorContentQuery.data || [];
+  const linkedMissions = creatorLinksQuery.data || [];
+  const economics = creatorSummaryQuery.data?.economics || {};
+  const earningsSummary = economics.summary || {};
+  const totalViews = (stories as CreatorStory[]).reduce((sum: number, item) => sum + Number(item.views_count || item.impressions || 0), 0);
+  const totalEarnings =
+    Number(earningsSummary.pending_value || 0) +
+    Number(earningsSummary.settled_value || 0);
+  const contentCount = stories.length;
+  const missionCount = linkedMissions.length;
+  const hasPublished = contentCount > 0;
+  const hasLinkedMission = missionCount > 0;
+  const isNewCreator = !hasPublished;
+  const statsLoading = creatorContentQuery.isLoading || creatorLinksQuery.isLoading || creatorSummaryQuery.isLoading;
+
+  const creatorStats = {
+    contentCount,
+    missionCount,
+    totalViews,
+    earnings: totalEarnings,
+    hasPublished,
+    hasLinkedMission,
+  };
+
+  const nextRecommendedStep = !hasPublished
+    ? "Publish your first story"
+    : !hasLinkedMission
+      ? "Turn one story into a mission"
+      : totalEarnings <= 0
+        ? "Drive the first verified conversion"
+        : "Scale the loop across more stories";
 
   return (
     <div className="space-y-6 pb-20">
-      {/* =====================================================================
-          HEADER: Context-aware welcome
-          ===================================================================== */}
-      {isNewCreator ? (
-        // Simple welcome for new creators
-        <section className="relative rounded-2xl bg-gradient-to-br from-primary/5 via-background to-accent/5 p-6 border border-primary/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
-                <Sparkles className="w-3 h-3" />
-                Creator Studio
-              </div>
-              <h1 className="font-serif text-2xl font-bold mb-1">
-                Welcome, <span className="italic text-primary">{user?.user_metadata?.full_name?.split(" ")[0] || "Creator"}</span>
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Turn stories into verified movement and measurable yield
-              </p>
-            </div>
-            <Button asChild className="rounded-full">
-              <Link to="/watch-unlock">
-                <Eye className="w-4 h-4 mr-2" />
-                Explore Missions
-              </Link>
-            </Button>
-          </div>
-        </section>
-      ) : (
-        // Full header for active creators
-        <section className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-2xl font-bold text-foreground">
-              Creator <span className="text-primary italic">Studio</span>
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Welcome back, {user?.user_metadata?.full_name?.split(" ")[0] || "Creator"}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {creatorStats && (
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Film className="w-4 h-4 text-primary" />
-                  {creatorStats.contentCount} stories
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Eye className="w-4 h-4 text-accent" />
-                  {creatorStats.totalViews.toLocaleString()} views
-                </span>
-              </div>
-            )}
-            <Button onClick={() => setActiveTab("publish")}>
-              <Plus className="w-4 h-4 mr-2" />
-              Publish
-            </Button>
-          </div>
-        </section>
-      )}
+      <DashboardHero
+        badge="Creator Studio"
+        title={isNewCreator ? "Turn your first story into movement" : "Create stories that move people"}
+        description="Publish content that can stand alone, launch a moment, support an existing gathering, or become a mission. Then track whether attention becomes joins, visits, unlocks, rewards, and real-world action."
+        actions={[
+          { label: "Publish", icon: Film, onClick: () => setActiveTab("publish") },
+          { label: "Create mission", icon: Link2, onClick: () => setActiveTab("missions") },
+          { label: "Missions", icon: Eye, href: "/missions" },
+        ]}
+        stats={[
+          { label: "Stories", value: creatorStats?.contentCount?.toLocaleString() || "0", helper: isNewCreator ? "Start by publishing one" : "Published so far", icon: Film },
+          { label: "Views", value: creatorStats?.totalViews?.toLocaleString() || "0", helper: "Audience attention", icon: Eye },
+          { label: "Missions", value: creatorStats?.missionCount?.toLocaleString() || "0", helper: "Connected experiences", icon: Link2 },
+          { label: "Earnings", value: `$${creatorStats?.earnings?.toLocaleString() || "0"}`, helper: "Measured outcome", icon: DollarSign },
+        ]}
+        isLoading={statsLoading}
+      />
 
       {/* =====================================================================
           NEW CREATOR: First Steps Guidance
@@ -131,15 +169,15 @@ const CreatorDashboardV2 = () => {
       {isNewCreator && (
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
           <CardContent className="p-6">
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-primary" />
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-lg mb-1">Start Creating</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Your first win is simple: publish a story, attach it to a mission, 
-                  then watch for your first conversion.
+                  Your first win is simple: publish a story, attach it to a mission or moment,
+                  then watch for the first person who moves because of it.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={() => setActiveTab("publish")}>
@@ -147,9 +185,9 @@ const CreatorDashboardV2 = () => {
                     Publish First Story
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/watch-unlock">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Browse Missions
+                    <Link to="/create/moment">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Launch Moment
                     </Link>
                   </Button>
                 </div>
@@ -235,7 +273,72 @@ const CreatorDashboardV2 = () => {
       {/* =====================================================================
           MAIN CONTENT: Tabs (Progressive disclosure)
           ===================================================================== */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
+        <div className="space-y-6">
+          <DashboardNextStepsSection
+            description={`Next best move: ${nextRecommendedStep.toLowerCase()}. The dashboard now exposes the full creator operating loop directly.`}
+            ctaLabel="Browse missions"
+            ctaHref="/missions"
+            items={[
+              {
+                title: "Publish a story",
+                description: "Create the content object that starts the loop.",
+                cta: "Open publisher",
+                onClick: () => setActiveTab("publish"),
+              },
+              {
+                title: "Connect to a mission",
+                description: "Attach your content to a real-world destination.",
+                cta: "Link mission",
+                onClick: () => setActiveTab("missions"),
+              },
+              {
+                title: "Track outcomes",
+                description: "Review whether audience attention turned into action.",
+                cta: "Open analytics",
+                onClick: () => setActiveTab("earnings"),
+              },
+            ]}
+          />
+
+          <Card className="shadow-soft">
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Workflow</p>
+                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Publish content, then turn it into missions</h3>
+                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                    The creator path is flexible: create a story, let it stand alone, launch a moment from it, connect it to an existing moment, or turn it into a mission when you want verified action.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={() => setActiveTab("publish")}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Content
+                  </Button>
+                  <Button variant="outline" onClick={() => setActiveTab("missions")}>
+                    <Link2 className="mr-2 h-4 w-4" />
+                    Create Mission
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {[
+                  { title: "1. Publish Story", detail: "Add the story metadata, URL, and preview image people will see.", icon: Film },
+                  { title: "2. Choose Its Shape", detail: "Keep it standalone, launch a new moment, or link it to an existing one.", icon: Calendar },
+                  { title: "3. Measure Movement", detail: "Track views, joins, unlocks, visits, and creator earnings as the proof layer.", icon: BarChart3 },
+                ].map((step) => (
+                  <div key={step.title} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                    <step.icon className="h-5 w-5 text-primary" />
+                    <p className="mt-3 font-semibold text-foreground">{step.title}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{step.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="studio" className="gap-2">
             <Sparkles className="w-4 h-4" />
@@ -245,18 +348,18 @@ const CreatorDashboardV2 = () => {
             <Film className="w-4 h-4" />
             Publish
           </TabsTrigger>
-          {!isNewCreator && (
-            <TabsTrigger value="missions" className="gap-2">
-              <Link2 className="w-4 h-4" />
-              Missions
-            </TabsTrigger>
-          )}
-          {isEstablishedCreator && (
-            <TabsTrigger value="earnings" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="content" className="gap-2">
+            <PlayCircle className="w-4 h-4" />
+            My Content
+          </TabsTrigger>
+          <TabsTrigger value="missions" className="gap-2">
+            <Link2 className="w-4 h-4" />
+            Create Mission
+          </TabsTrigger>
+          <TabsTrigger value="earnings" className="gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="studio" className="mt-0">
@@ -271,94 +374,181 @@ const CreatorDashboardV2 = () => {
         </TabsContent>
 
         <TabsContent value="publish" className="mt-0">
-          <CreatorMissionPublisher />
+          <CreatorMissionPublisher
+            onPublished={(content) => {
+              setSelectedContentId(String(content.id));
+              setActiveTab("missions");
+            }}
+          />
         </TabsContent>
 
-        {!isNewCreator && (
-          <TabsContent value="missions" className="mt-0">
-            <O2OLinkManager />
-          </TabsContent>
-        )}
-
-        {isEstablishedCreator && (
-          <TabsContent value="earnings" className="mt-0">
-            <CreatorEarningsTab />
-          </TabsContent>
-        )}
-      </Tabs>
-
-      {/* =====================================================================
-          QUICK ACTIONS: Context-aware
-          ===================================================================== */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="font-medium mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                icon: Film,
-                label: "Publish Story",
-                desc: "Create new content",
-                action: () => setActiveTab("publish"),
-                show: true,
-              },
-              {
-                icon: Link2,
-                label: "Link Mission",
-                desc: "Attach to moment",
-                action: () => setActiveTab("missions"),
-                show: !isNewCreator,
-              },
-              {
-                icon: PlayCircle,
-                label: "Watch Feed",
-                desc: "See missions",
-                href: "/watch-unlock",
-                show: true,
-              },
-              {
-                icon: DollarSign,
-                label: "Earnings",
-                desc: "Review yield",
-                action: () => setActiveTab("earnings"),
-                show: isEstablishedCreator,
-              },
-            ]
-              .filter((action) => action.show)
-              .map((action) =>
-                action.href ? (
-                  <Button
-                    key={action.label}
-                    variant="outline"
-                    className="justify-start h-auto py-4"
-                    asChild
-                  >
-                    <Link to={action.href}>
-                      <action.icon className="w-5 h-5 mr-3" />
-                      <div className="text-left">
-                        <p className="font-medium">{action.label}</p>
-                        <p className="text-xs text-muted-foreground">{action.desc}</p>
+        <TabsContent value="content" className="mt-0">
+          <Card className="shadow-soft">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">My Stories</p>
+                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Published content library</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    These are the stories you can reuse in missions, sponsor loops, and creator portfolio reporting.
+                  </p>
+                </div>
+                <Badge variant="outline" className="rounded-full">{contentCount} stories</Badge>
+              </div>
+              <div className="mt-6 space-y-3">
+                {creatorContentQuery.isLoading ? (
+                  Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-24 rounded-2xl" />)
+                ) : stories.length > 0 ? (
+                  (stories as CreatorStory[]).map((story) => (
+                    <div key={story.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-semibold text-foreground">{story.title || "Untitled story"}</p>
+                            <Badge variant="secondary" className="capitalize">{story.platform || "external"}</Badge>
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                            {story.description || "No description yet."}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
+                            <span>{Number(story.views_count || story.impressions || 0).toLocaleString()} views</span>
+                            <span>{Number(story.shares_count || story.shares || 0).toLocaleString()} shares</span>
+                            <span>{Number(story.conversions || 0).toLocaleString()} conversions</span>
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedContentId(String(story.id));
+                              setActiveTab("missions");
+                            }}
+                          >
+                            Link to mission
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" asChild>
+                            <Link to={`/create/moment?sourceContentId=${story.id}&sourceContentTitle=${encodeURIComponent(story.title || "Creator story")}`}>
+                              Launch moment
+                              <Calendar className="ml-2 h-4 w-4" />
+                            </Link>
+                          </Button>
+                          {story.platform_url ? (
+                            <Button variant="ghost" asChild>
+                              <a href={story.platform_url} target="_blank" rel="noreferrer">Open story</a>
+                            </Button>
+                          ) : null}
+                        </div>
                       </div>
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    key={action.label}
-                    variant="outline"
-                    className="justify-start h-auto py-4"
-                    onClick={action.action}
-                  >
-                    <action.icon className="w-5 h-5 mr-3" />
-                    <div className="text-left">
-                      <p className="font-medium">{action.label}</p>
-                      <p className="text-xs text-muted-foreground">{action.desc}</p>
                     </div>
-                  </Button>
-                )
-              )}
-          </div>
-        </CardContent>
-      </Card>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
+                    No stories published yet. Start in the Publish tab and create your first story.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="missions" className="mt-0">
+          <O2OLinkManager
+            initialContentId={selectedContentId}
+            onLinkCreated={() => {
+              setSelectedContentId("");
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="earnings" className="mt-0">
+          <CreatorEarningsTab />
+        </TabsContent>
+          </Tabs>
+        </div>
+
+        <div className="space-y-6">
+          <RoleActivationPanel
+            eyebrow="Creator Path"
+            title={isNewCreator ? "Turn one story into a reason to move" : "Keep the story connected to real action"}
+            description={
+              isNewCreator
+                ? "Start with one story. It can stand alone, launch a moment, or become a mission once there is a real action you want people to take."
+                : "Build the loop: publish the story, choose whether it stands alone or connects to a moment, read the proof, and keep creating around what actually moved people."
+            }
+            items={[
+              {
+                title: "Publish story",
+                description: "Create the content people can see, share, and remember.",
+                status: hasPublished ? "done" : "current",
+                ctaLabel: "Publish",
+                onClick: () => setActiveTab("publish"),
+              },
+              {
+                title: "Link mission",
+                description: "Connect the story to a moment, venue, offer, or action when it is ready to move people.",
+                status: hasLinkedMission ? "done" : hasPublished ? "current" : "todo",
+                ctaLabel: "Create mission",
+                onClick: () => setActiveTab("missions"),
+              },
+              {
+                title: "Read the outcome",
+                description: "Check whether people watched, joined, visited, unlocked, or earned because of it.",
+                status: totalEarnings > 0 ? "done" : hasLinkedMission ? "current" : "todo",
+                ctaLabel: "Review",
+                onClick: () => setActiveTab("earnings"),
+              },
+            ]}
+          />
+
+          <DashboardQuickRoutesCard
+            description="Keep discovery and publishing close without turning the dashboard into the whole product."
+            routes={[
+              { icon: Film, label: "Publish story", onClick: () => setActiveTab("publish") },
+              { icon: Calendar, label: "Launch moment", href: "/create/moment" },
+              { icon: Link2, label: "Create mission", onClick: () => setActiveTab("missions") },
+              { icon: PlayCircle, label: "My content", onClick: () => setActiveTab("content") },
+              { icon: BarChart3, label: "Review analytics", onClick: () => setActiveTab("earnings") },
+            ]}
+          />
+
+          <Card className="shadow-soft">
+            <CardContent className="p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">At a Glance</p>
+              <div className="mt-4 space-y-4">
+                {[
+                  {
+                    icon: hasPublished ? CheckCircle2 : Clock3,
+                    label: "Content status",
+                    value: hasPublished ? `${contentCount} published` : "No stories yet",
+                  },
+                  {
+                    icon: hasLinkedMission ? CheckCircle2 : Clock3,
+                    label: "Mission status",
+                    value: hasLinkedMission ? `${missionCount} linked` : "No linked missions yet",
+                  },
+                  {
+                    icon: BarChart3,
+                    label: "Creator value",
+                    value: `$${totalEarnings.toFixed(2)} tracked`,
+                  },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                        <p className="text-sm text-muted-foreground">{item.value}</p>
+                      </div>
+                    </div>
+                    <Separator className="mt-4 last:hidden" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

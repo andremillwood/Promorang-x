@@ -17,6 +17,7 @@ const GEMS_EXCHANGE_RATE = 1.00; // 1 Gem = $1.00 USD (simple 1:1)
 const MIN_GEMS_PURCHASE = 5;     // $5.00 minimum (5 Gems)
 const MAX_GEMS_PURCHASE = 1000;  // $1000 maximum per transaction (1000 Gems)
 const GEMS_PRECISION = 2;        // 2 decimal places
+const PURCHASE_REDEMPTION_HOLD_DAYS = 30;
 
 // =====================================================
 // BALANCE MANAGEMENT
@@ -32,6 +33,12 @@ async function getGemsBalance(userId) {
       balance: 0,
       currency: 'GEMS',
       usd_value: 0,
+      withdrawable_balance: 0,
+      pending_purchase_redemption_balance: 0,
+      locked_bonus_balance: 0,
+      purchased_balance: 0,
+      bonus_balance: 0,
+      trade_balance: 0,
     };
   }
 
@@ -48,6 +55,7 @@ async function getGemsBalance(userId) {
   }
 
   const balance = data?.balance || 0;
+  const redemptionSummary = await getRedemptionSummary(userId);
 
   return {
     user_id: userId,
@@ -57,6 +65,14 @@ async function getGemsBalance(userId) {
     lifetime_purchased: data?.gems_purchased_total || 0,
     lifetime_traded: data?.gems_traded_total || 0,
     lifetime_withdrawn: data?.gems_withdrawn_total || 0,
+    lifetime_bonus: data?.gems_bonus_total || 0,
+    withdrawable_balance: redemptionSummary.withdrawable_balance,
+    pending_purchase_redemption_balance: redemptionSummary.pending_purchase_redemption_balance,
+    locked_bonus_balance: redemptionSummary.locked_bonus_balance,
+    purchased_balance: redemptionSummary.purchased_balance,
+    bonus_balance: redemptionSummary.bonus_balance,
+    trade_balance: redemptionSummary.trade_balance,
+    next_purchase_redemption_at: redemptionSummary.next_purchase_redemption_at,
   };
 }
 
@@ -82,12 +98,16 @@ async function creditGems(userId, amount, source, metadata = {}) {
     const newPurchased = source === 'purchase' 
       ? roundGems(parseFloat(existing.gems_purchased_total || 0) + amountRounded)
       : existing.gems_purchased_total;
+    const newBonus = source === 'bonus'
+      ? roundGems(parseFloat(existing.gems_bonus_total || 0) + amountRounded)
+      : existing.gems_bonus_total;
 
     const { error } = await supabase
       .from('user_balances')
       .update({
         balance: newBalance,
         gems_purchased_total: newPurchased,
+        gems_bonus_total: newBonus,
         updated_at: new Date().toISOString(),
       })
       .eq('id', existing.id);
@@ -101,6 +121,7 @@ async function creditGems(userId, amount, source, metadata = {}) {
       currency: 'GEMS',
       balance: amountRounded,
       gems_purchased_total: source === 'purchase' ? amountRounded : 0,
+      gems_bonus_total: source === 'bonus' ? amountRounded : 0,
     });
 
     if (error) throw error;
@@ -176,6 +197,17 @@ async function recordGemsTransaction(userId, amount, type, metadata = {}) {
   if (!supabase) return;
 
   const balance = await getGemsBalance(userId);
+  const nowIso = new Date().toISOString();
+  const redeemableAfter = metadata.redeemable_after
+    || (type === 'purchase' && amount > 0 ? addDaysIso(nowIso, PURCHASE_REDEMPTION_HOLD_DAYS) : null);
+  const objectiveStatus = metadata.objective_status
+    || (metadata.objective_code ? 'pending' : 'not_applicable');
+  const redemptionStatus = metadata.redemption_status
+    || defaultRedemptionStatusForTransaction(type, amount, {
+      objectiveStatus,
+      redeemableAfter,
+      createdAt: nowIso,
+    });
 
   const { error } = await supabase.from('gems_transactions').insert({
     user_id: userId,
@@ -186,6 +218,7 @@ async function recordGemsTransaction(userId, amount, type, metadata = {}) {
     // Purchase metadata
     fiat_amount: metadata.fiat_amount,
     fiat_currency: metadata.fiat_currency || 'USD',
+    exchange_rate: metadata.exchange_rate || GEMS_EXCHANGE_RATE,
     stripe_payment_intent_id: metadata.stripe_payment_intent_id,
     
     // Trade metadata
@@ -196,8 +229,19 @@ async function recordGemsTransaction(userId, amount, type, metadata = {}) {
     
     // Withdrawal metadata
     withdrawal_method: metadata.withdrawal_method,
-    
+    gems_withdrawal_id: metadata.withdrawal_id,
+
+    // Bonus metadata
+    bonus_reason: metadata.bonus_reason || metadata.description || null,
+    issued_by: metadata.issued_by || null,
+
     description: metadata.description || `${type} transaction`,
+    redemption_status: redemptionStatus,
+    redeemable_after: redeemableAfter,
+    objective_code: metadata.objective_code || null,
+    objective_status: objectiveStatus,
+    objective_completed_at: metadata.objective_completed_at || null,
+    metadata: metadata.metadata || {},
   });
 
   if (error) {
@@ -338,12 +382,19 @@ async function requestWithdrawal(userId, gemsAmount, withdrawalMethod = 'bank_tr
   if (balance.balance < gemsAmount) {
     throw new Error(`Insufficient balance. Available: ${balance.balance} Gems`);
   }
+  if (balance.withdrawable_balance < gemsAmount) {
+    throw new Error(
+      `Only ${balance.withdrawable_balance.toFixed(2)} Gems are currently redeemable. ` +
+      `${balance.pending_purchase_redemption_balance.toFixed(2)} Gems are still in the 30-day hold and ` +
+      `${balance.locked_bonus_balance.toFixed(2)} bonus Gems are still locked to objective completion.`
+    );
+  }
 
   const usdAmount = gemsAmount * GEMS_EXCHANGE_RATE;
 
   // Minimum withdrawal
   if (usdAmount < 10) {
-    throw new Error('Minimum withdrawal is $10.00 (100 Gems)');
+    throw new Error('Minimum withdrawal is $10.00 (10 Gems)');
   }
 
   // Create withdrawal record
@@ -356,6 +407,9 @@ async function requestWithdrawal(userId, gemsAmount, withdrawalMethod = 'bank_tr
       withdrawal_method: withdrawalMethod,
       status: 'pending',
       exchange_rate: GEMS_EXCHANGE_RATE,
+      metadata: {
+        withdrawable_balance_at_request: balance.withdrawable_balance,
+      },
     })
     .select()
     .single();
@@ -561,6 +615,76 @@ async function issueBonusGems(userId, amount, reason, adminId = null) {
   };
 }
 
+/**
+ * Issue bonus Gems that stay locked until a stated objective is completed.
+ */
+async function issueObjectiveLockedBonusGems(userId, amount, reason, objectiveCode, adminId = null) {
+  if (!supabase) return { success: true };
+
+  const result = await creditGems(userId, amount, 'bonus', {
+    description: reason,
+    issued_by: adminId,
+    objective_code: objectiveCode,
+    objective_status: 'pending',
+    redemption_status: 'locked_objective',
+  });
+
+  return {
+    success: true,
+    gems_issued: amount,
+    objective_code: objectiveCode,
+    reason,
+    ...result,
+  };
+}
+
+/**
+ * Unlock bonus Gems for a completed objective.
+ */
+async function unlockObjectiveBonusGems(
+  userId,
+  objectiveCode,
+  {
+    completedAt = new Date().toISOString(),
+    adminId = null,
+    notes = null,
+  } = {}
+) {
+  if (!supabase) return { success: true };
+
+  const { data, error } = await supabase
+    .from('gems_transactions')
+    .update({
+      objective_status: 'completed',
+      objective_completed_at: completedAt,
+      redemption_status: 'redeemable',
+    })
+    .eq('user_id', userId)
+    .eq('transaction_type', 'bonus')
+    .eq('objective_code', objectiveCode)
+    .eq('objective_status', 'pending')
+    .select('id');
+
+  if (error) throw error;
+
+  if ((data?.length || 0) > 0) {
+    await recordGemsTransaction(userId, 0, 'adjustment', {
+      description: `Objective ${objectiveCode} completed. ${data.length} bonus Gem grant(s) unlocked for redemption.`,
+      issued_by: adminId,
+      objective_code: objectiveCode,
+      objective_status: 'completed',
+      objective_completed_at: completedAt,
+      metadata: notes ? { unlock_notes: notes } : {},
+    });
+  }
+
+  return {
+    success: true,
+    unlocked_count: data?.length || 0,
+    objective_code: objectiveCode,
+  };
+}
+
 // =====================================================
 // TRANSACTION HISTORY
 // =====================================================
@@ -586,7 +710,10 @@ async function getTransactionHistory(userId, limit = 50, offset = 0) {
   if (error) throw error;
 
   return {
-    transactions: data || [],
+    transactions: (data || []).map((transaction) => ({
+      ...transaction,
+      effective_redemption_status: getEffectiveRedemptionStatus(transaction, new Date()),
+    })),
     total: count || 0,
     has_more: (count || 0) > (offset + limit),
   };
@@ -606,6 +733,187 @@ function gemsToUsd(gems) {
 
 function usdToGems(usd) {
   return Math.floor(usd / GEMS_EXCHANGE_RATE);
+}
+
+function addDaysIso(baseIso, days) {
+  const date = new Date(baseIso);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString();
+}
+
+function defaultRedemptionStatusForTransaction(type, amount, context = {}) {
+  if (amount <= 0) return 'not_applicable';
+  if (type === 'purchase') return 'pending_30_day_hold';
+  if (type === 'bonus') {
+    return context.objectiveStatus === 'pending' ? 'locked_objective' : 'redeemable';
+  }
+  if (type === 'trade_in' || type === 'refund' || type === 'adjustment') return 'redeemable';
+  return 'not_applicable';
+}
+
+function getEffectiveRedemptionStatus(transaction, referenceDate = new Date()) {
+  if (Number(transaction.amount) <= 0) {
+    return transaction.redemption_status || 'not_applicable';
+  }
+
+  if (transaction.transaction_type === 'purchase') {
+    const redeemableAfter = transaction.redeemable_after
+      ? new Date(transaction.redeemable_after)
+      : new Date(new Date(transaction.created_at).getTime() + PURCHASE_REDEMPTION_HOLD_DAYS * 24 * 60 * 60 * 1000);
+    return referenceDate >= redeemableAfter ? 'redeemable' : 'pending_30_day_hold';
+  }
+
+  if (transaction.transaction_type === 'bonus') {
+    if ((transaction.objective_status || 'not_applicable') === 'pending') {
+      return 'locked_objective';
+    }
+    return transaction.redemption_status === 'non_redeemable' ? 'non_redeemable' : 'redeemable';
+  }
+
+  return transaction.redemption_status || defaultRedemptionStatusForTransaction(transaction.transaction_type, Number(transaction.amount));
+}
+
+function classifyCreditLot(transaction, referenceDate = new Date()) {
+  const amount = roundGems(Number(transaction.amount || 0));
+  if (amount <= 0) return null;
+
+  const status = getEffectiveRedemptionStatus(transaction, referenceDate);
+  const kind = transaction.transaction_type === 'purchase'
+    ? 'purchase'
+    : transaction.transaction_type === 'bonus'
+      ? 'bonus'
+      : 'trade';
+
+  return {
+    id: transaction.id,
+    createdAt: new Date(transaction.created_at),
+    amount,
+    remaining: amount,
+    status,
+    kind,
+    redeemableAfter: transaction.redeemable_after || null,
+  };
+}
+
+function getDebitConsumptionPriority(transaction, referenceDate = new Date()) {
+  if (transaction.transaction_type === 'withdrawal') {
+    return ['redeemable'];
+  }
+
+  if (transaction.transaction_type === 'trade_out' || transaction.transaction_type === 'fee') {
+    return ['redeemable', 'pending_30_day_hold', 'locked_objective', 'non_redeemable'];
+  }
+
+  return ['redeemable', 'pending_30_day_hold', 'locked_objective', 'non_redeemable'];
+}
+
+function allocateDebitAcrossLots(lots, debitTransaction) {
+  let remainingDebit = roundGems(Math.abs(Number(debitTransaction.amount || 0)));
+  const priority = getDebitConsumptionPriority(debitTransaction, new Date(debitTransaction.created_at));
+
+  for (const desiredStatus of priority) {
+    for (const lot of lots) {
+      if (remainingDebit <= 0) break;
+      if (lot.remaining <= 0 || lot.status !== desiredStatus) continue;
+
+      const applied = Math.min(lot.remaining, remainingDebit);
+      lot.remaining = roundGems(lot.remaining - applied);
+      remainingDebit = roundGems(remainingDebit - applied);
+    }
+  }
+
+  if (remainingDebit <= 0) return;
+
+  for (const lot of lots) {
+    if (remainingDebit <= 0) break;
+    if (lot.remaining <= 0) continue;
+
+    const applied = Math.min(lot.remaining, remainingDebit);
+    lot.remaining = roundGems(lot.remaining - applied);
+    remainingDebit = roundGems(remainingDebit - applied);
+  }
+}
+
+async function getRedemptionSummary(userId) {
+  if (!supabase) {
+    return {
+      withdrawable_balance: 0,
+      pending_purchase_redemption_balance: 0,
+      locked_bonus_balance: 0,
+      purchased_balance: 0,
+      bonus_balance: 0,
+      trade_balance: 0,
+      next_purchase_redemption_at: null,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from('gems_transactions')
+    .select('id, transaction_type, amount, created_at, redemption_status, redeemable_after, objective_status')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  const transactions = data || [];
+  const lots = [];
+
+  for (const transaction of transactions) {
+    const amount = Number(transaction.amount || 0);
+    if (amount > 0) {
+      const lot = classifyCreditLot(transaction);
+      if (lot) lots.push(lot);
+      continue;
+    }
+
+    if (amount < 0) {
+      allocateDebitAcrossLots(lots, transaction);
+    }
+  }
+
+  const summary = {
+    withdrawable_balance: 0,
+    pending_purchase_redemption_balance: 0,
+    locked_bonus_balance: 0,
+    purchased_balance: 0,
+    bonus_balance: 0,
+    trade_balance: 0,
+    next_purchase_redemption_at: null,
+  };
+
+  for (const lot of lots) {
+    if (lot.remaining <= 0) continue;
+
+    if (lot.kind === 'purchase') {
+      summary.purchased_balance = roundGems(summary.purchased_balance + lot.remaining);
+      if (lot.status === 'redeemable') {
+        summary.withdrawable_balance = roundGems(summary.withdrawable_balance + lot.remaining);
+      } else {
+        summary.pending_purchase_redemption_balance = roundGems(summary.pending_purchase_redemption_balance + lot.remaining);
+        if (!summary.next_purchase_redemption_at || new Date(lot.redeemableAfter) < new Date(summary.next_purchase_redemption_at)) {
+          summary.next_purchase_redemption_at = lot.redeemableAfter;
+        }
+      }
+      continue;
+    }
+
+    if (lot.kind === 'bonus') {
+      summary.bonus_balance = roundGems(summary.bonus_balance + lot.remaining);
+      if (lot.status === 'redeemable') {
+        summary.withdrawable_balance = roundGems(summary.withdrawable_balance + lot.remaining);
+      } else {
+        summary.locked_bonus_balance = roundGems(summary.locked_bonus_balance + lot.remaining);
+      }
+      continue;
+    }
+
+    summary.trade_balance = roundGems(summary.trade_balance + lot.remaining);
+    if (lot.status === 'redeemable') {
+      summary.withdrawable_balance = roundGems(summary.withdrawable_balance + lot.remaining);
+    }
+  }
+
+  return summary;
 }
 
 // =====================================================
@@ -632,6 +940,8 @@ module.exports = {
   
   // Bonus
   issueBonusGems,
+  issueObjectiveLockedBonusGems,
+  unlockObjectiveBonusGems,
   
   // History
   getTransactionHistory,
@@ -642,4 +952,5 @@ module.exports = {
   GEMS_EXCHANGE_RATE,
   MIN_GEMS_PURCHASE,
   MAX_GEMS_PURCHASE,
+  PURCHASE_REDEMPTION_HOLD_DAYS,
 };

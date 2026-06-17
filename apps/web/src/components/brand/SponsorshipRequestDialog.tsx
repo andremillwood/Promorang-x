@@ -22,10 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { DiscoverableMoment } from "@/hooks/useDiscoverMoments";
+import type { ExploreMoment } from "@/hooks/useExploreMoments";
 
 interface SponsorshipRequestDialogProps {
-  moment: DiscoverableMoment | null;
+  moment: ExploreMoment | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

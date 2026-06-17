@@ -918,10 +918,15 @@ export type Database = {
         Row: {
           campaign_id: string | null
           category: string
+          city: string | null
           check_in_code: string | null
+          content_origin: Database["public"]["Enums"]["moment_content_origin"]
+          country: string | null
+          country_code: string | null
           created_at: string
           description: string | null
           ends_at: string | null
+          creative_owner_id: string | null
           host_id: string
           id: string
           image_url: string | null
@@ -929,7 +934,11 @@ export type Database = {
           location: string
           max_participants: number | null
           moment_type: Database["public"]["Enums"]["moment_type"]
+          parent_moment_id: string | null
           reward: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
           starts_at: string
           status: Database["public"]["Enums"]["moment_status"]
           title: string
@@ -941,10 +950,15 @@ export type Database = {
         Insert: {
           campaign_id?: string | null
           category: string
+          city?: string | null
           check_in_code?: string | null
+          content_origin?: Database["public"]["Enums"]["moment_content_origin"]
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
+          creative_owner_id?: string | null
           host_id: string
           id?: string
           image_url?: string | null
@@ -952,7 +966,11 @@ export type Database = {
           location: string
           max_participants?: number | null
           moment_type?: Database["public"]["Enums"]["moment_type"]
+          parent_moment_id?: string | null
           reward?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["moment_status"]
           title: string
@@ -964,10 +982,15 @@ export type Database = {
         Update: {
           campaign_id?: string | null
           category?: string
+          city?: string | null
           check_in_code?: string | null
+          content_origin?: Database["public"]["Enums"]["moment_content_origin"]
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
+          creative_owner_id?: string | null
           host_id?: string
           id?: string
           image_url?: string | null
@@ -975,7 +998,11 @@ export type Database = {
           location?: string
           max_participants?: number | null
           moment_type?: Database["public"]["Enums"]["moment_type"]
+          parent_moment_id?: string | null
           reward?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["moment_status"]
           title?: string
@@ -990,6 +1017,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moments_parent_moment_id_fkey"
+            columns: ["parent_moment_id"]
+            isOneToOne: false
+            referencedRelation: "moments"
             referencedColumns: ["id"]
           },
           {
@@ -1613,7 +1647,161 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      view_public_commerce_directory: {
+        Row: {
+          address: string | null
+          auto_redeem_on_participation: boolean | null
+          booking_url: string | null
+          category: string | null
+          category_slug: string | null
+          city: string | null
+          city_slug: string | null
+          compare_at_price: number | null
+          country: string | null
+          country_slug: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          discount_type: string | null
+          discount_value: number | null
+          expires_at: string | null
+          fulfillment_mode: string | null
+          image_url: string | null
+          images: Json | null
+          inventory_quantity: number | null
+          is_active: boolean | null
+          is_redeemable_with_points: boolean | null
+          is_unlimited: boolean | null
+          listing_id: string | null
+          listing_kind: string | null
+          linked_moment_id: string | null
+          linked_moment_slug: string | null
+          linked_moment_title: string | null
+          location: string | null
+          low_stock_threshold: number | null
+          merchant_logo_url: string | null
+          merchant_name: string | null
+          merchant_slug: string | null
+          merchant_user_id: string | null
+          merchant_website: string | null
+          moment_exclusive: boolean | null
+          name: string | null
+          organization_id: string | null
+          points_cost: number | null
+          price: number | null
+          service_capacity: number | null
+          service_duration_minutes: number | null
+          sku: string | null
+          source_id: string | null
+          source_table: string | null
+          total_redemptions: number | null
+          total_sales: number | null
+          updated_at: string | null
+          variants: Json | null
+          venue_id: string | null
+          venue_name: string | null
+          venue_slug: string | null
+          venue_type: string | null
+          visibility: string | null
+        }
+        Relationships: []
+      }
+      view_public_brand_directory: {
+        Row: {
+          active_campaigns_count: number | null
+          associated_moments_count: number | null
+          created_at: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          slug: string | null
+          website_url: string | null
+        }
+        Relationships: []
+      }
+      view_public_content_directory: {
+        Row: {
+          associated_brand_names: string[] | null
+          associated_brand_slugs: string[] | null
+          category: string | null
+          category_slug: string | null
+          city: string | null
+          city_slug: string | null
+          country: string | null
+          country_slug: string | null
+          description: string | null
+          id: string | null
+          linked_moment_id: string | null
+          linked_moment_slug: string | null
+          linked_moment_title: string | null
+          location: string | null
+          media_url: string | null
+          platform: string | null
+          posted_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
+          title: string | null
+          venue_id: string | null
+          venue_name: string | null
+          venue_slug: string | null
+        }
+        Relationships: []
+      }
+      view_public_moment_directory: {
+        Row: {
+          associated_brand_ids: string[] | null
+          associated_brand_names: string[] | null
+          associated_brand_slugs: string[] | null
+          category: string | null
+          category_slug: string | null
+          city: string | null
+          city_slug: string | null
+          country: string | null
+          country_slug: string | null
+          description: string | null
+          ends_at: string | null
+          host_id: string | null
+          id: string | null
+          image_url: string | null
+          is_active: boolean | null
+          location: string | null
+          participant_count: number | null
+          reward: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
+          starts_at: string | null
+          title: string | null
+          venue_id: string | null
+          venue_name: string | null
+          venue_slug: string | null
+        }
+        Relationships: []
+      }
+      view_public_venue_directory: {
+        Row: {
+          active_moments_count: number | null
+          address: string | null
+          avg_rating: number | null
+          city: string | null
+          city_slug: string | null
+          country: string | null
+          country_slug: string | null
+          description: string | null
+          id: string | null
+          images: Json | null
+          location: string | null
+          name: string | null
+          popularity_score: number | null
+          slug: string | null
+          total_checkins: number | null
+          total_moments_hosted: number | null
+          venue_type: string | null
+          verification_status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -1643,6 +1831,12 @@ export type Database = {
       | "cancelled"
       | "expired"
       loyalty_tier: "bronze" | "silver" | "gold" | "platinum" | "ambassador"
+      moment_content_origin:
+      | "stakeholder_created"
+      | "platform_seed"
+      | "demo"
+      | "scraped"
+      | "imported"
       moment_status:
       | "draft"
       | "scheduled"

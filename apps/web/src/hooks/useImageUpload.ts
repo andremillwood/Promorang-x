@@ -11,27 +11,36 @@ export function useImageUpload() {
   const uploadImage = async (
     file: File,
     bucket: BucketType,
-    userId: string
+    userId: string,
+    options: { allowVideo?: boolean } = {}
   ): Promise<string | null> => {
     if (!file) return null;
 
+    const allowVideo = options.allowVideo === true;
+
     // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const validTypes = allowVideo
+      ? ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm", "video/quicktime"]
+      : ["image/jpeg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a JPEG, PNG, WebP, or GIF image.",
+        description: allowVideo
+          ? "Please upload a JPEG, PNG, WebP, GIF, MP4, WebM, or MOV file."
+          : "Please upload a JPEG, PNG, WebP, or GIF image.",
         variant: "destructive",
       });
       return null;
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Validate file size
+    const maxSize = allowVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast({
         title: "File too large",
-        description: "Please upload an image smaller than 5MB.",
+        description: allowVideo
+          ? "Please upload media smaller than 50MB."
+          : "Please upload an image smaller than 5MB.",
         variant: "destructive",
       });
       return null;

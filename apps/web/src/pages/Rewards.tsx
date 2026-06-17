@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRewards, useClaimReward, useRewardStats } from "@/hooks/useRewards";
 import { useUserBalance, useEconomyHistory } from "@/hooks/useEconomy";
@@ -113,7 +114,7 @@ const Rewards = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-black text-foreground mb-2 flex items-center gap-3">
+          <h1 className="mb-2 flex items-center gap-3 font-serif text-2xl font-black text-foreground sm:text-3xl">
             The Rewards Vault
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           </h1>
@@ -123,15 +124,24 @@ const Rewards = () => {
         </div>
         
         {/* Vault Security Widget */}
-        <div className="flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
             <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
                 <ShieldCheck className="w-6 h-6" />
             </div>
-            <div>
+            <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Vault Liquidity</p>
-                <p className="text-[10px] text-emerald-600/70 font-bold">$42,500 USD Locked in Rewards</p>
+                <p className="text-[10px] text-emerald-600/70 font-bold dark:text-emerald-400/80">$42,500 USD Locked in Rewards</p>
             </div>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button asChild variant="outline">
+          <Link to="/wallet">Open Wallet</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/marketplace">Open Marketplace</Link>
+        </Button>
       </div>
 
       <div className="mb-10">
@@ -155,7 +165,7 @@ const Rewards = () => {
             ) : (
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-foreground sm:text-4xl">{balance?.points?.toLocaleString() || 0}</span>
-                <span className="text-sm text-green-500 font-medium">Earned activity</span>
+                <span className="text-sm text-green-600 font-medium dark:text-green-400">Earned activity</span>
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1">
@@ -212,7 +222,7 @@ const Rewards = () => {
               <div className="h-2 w-full bg-secondary rounded-full overflow-hidden shadow-inner font-mono text-[8px] flex">
                 <div className="h-full bg-gradient-to-r from-orange-600 via-orange-400 to-amber-300 animate-pulse" style={{ width: '45%' }}></div>
               </div>
-              <div className="flex justify-between mt-2">
+              <div className="mt-2 flex items-center justify-between gap-3">
                 <p className="text-[10px] text-muted-foreground font-bold uppercase">Progress to Rank 3</p>
                 <p className="text-[10px] text-primary font-bold">45%</p>
               </div>
@@ -234,23 +244,23 @@ const Rewards = () => {
                  <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                     
                     {/* Rank 1 */}
-                    <div className="flex gap-4 p-4 rounded-xl border border-border bg-card opacity-50 grayscale">
+                    <div className="flex gap-4 rounded-xl border border-border bg-card p-4 opacity-50 grayscale">
                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-muted bg-muted/20">
                           <span className="font-black text-muted-foreground">1</span>
                        </div>
-                       <div>
+                       <div className="min-w-0">
                           <h4 className="font-bold text-foreground">General Admission</h4>
                           <p className="text-xs text-muted-foreground mt-1">Basic check-ins and standard rewards.</p>
                        </div>
                     </div>
 
                     {/* Rank 2 (Current) */}
-                    <div className="flex gap-4 p-4 rounded-xl border border-primary/30 bg-primary/5 ring-1 ring-primary/20 relative overflow-hidden">
+                    <div className="relative flex gap-4 overflow-hidden rounded-xl border border-primary/30 bg-primary/5 p-4 ring-1 ring-primary/20">
                        <div className="absolute top-2 right-2"><Badge variant="default" className="text-[9px] uppercase px-1">You</Badge></div>
                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary text-primary-foreground font-black shadow-md">
                           2
                        </div>
-                       <div>
+                       <div className="min-w-0">
                           <h4 className="font-bold text-primary">Verified Explorer</h4>
                           <p className="text-xs text-muted-foreground mt-1">Unlock minor multipliers. Validated in the Canon.</p>
                        </div>
@@ -259,22 +269,22 @@ const Rewards = () => {
                     {/* Rank 3 */}
                     <div className="flex gap-4 p-4 rounded-xl border border-border bg-card relative">
                        <div className="absolute top-2 right-2"><LockIcon className="w-3 h-3 text-muted-foreground/50" /></div>
-                       <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-slate-400 bg-slate-50">
-                          <span className="font-black text-slate-700">3</span>
+                       <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-muted-foreground/30 bg-muted">
+                          <span className="font-black text-muted-foreground">3</span>
                        </div>
-                       <div>
+                       <div className="min-w-0">
                           <h4 className="font-bold text-foreground">Priority Access</h4>
-                          <p className="text-xs text-muted-foreground mt-1 text-orange-600 font-medium">Unlocks 24-hour early access to high-value bounties.</p>
+                          <p className="mt-1 text-xs font-medium text-orange-600 dark:text-orange-400">Unlocks 24-hour early access to high-value bounties.</p>
                        </div>
                     </div>
 
                     {/* Rank 5 */}
                     <div className="flex gap-4 p-4 rounded-xl border border-border bg-card relative">
                        <div className="absolute top-2 right-2"><LockIcon className="w-3 h-3 text-muted-foreground/50" /></div>
-                       <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-orange-500 bg-orange-50 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
-                          <span className="font-black text-orange-600">5</span>
+                       <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-orange-500 bg-orange-500/10 shadow-[0_0_10px_rgba(249,115,22,0.3)]">
+                          <span className="font-black text-orange-600 dark:text-orange-400">5</span>
                        </div>
-                       <div>
+                       <div className="min-w-0">
                           <h4 className="font-bold text-foreground">The VIP Matrix</h4>
                           <ul className="text-xs text-muted-foreground mt-1 space-y-1 list-disc list-inside">
                              <li>Line skips at partner venues</li>
@@ -314,7 +324,7 @@ const Rewards = () => {
       </div>
 
       <Tabs defaultValue="perks" className="w-full">
-        <TabsList className="mb-8 bg-transparent border-b border-border rounded-none h-auto p-0 gap-8 justify-start">
+        <TabsList className="mb-8 justify-start gap-4 rounded-none border-b border-border bg-transparent p-0 sm:gap-8">
           <TabsTrigger
             value="perks"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-all"
@@ -343,7 +353,7 @@ const Rewards = () => {
           <div className="space-y-8">
             {/* Available Perks */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-serif text-xl font-semibold text-foreground">
                   Available for Unlock
                 </h2>
@@ -365,8 +375,8 @@ const Rewards = () => {
                   <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                     Attend moments and complete verified actions to earn exclusive brand perks.
                   </p>
-                  <Button variant="hero" onClick={() => navigate("/discover")}>
-                    Discover Moments
+                  <Button variant="hero" onClick={() => navigate("/explore/moments")}>
+                    Explore Moments
                   </Button>
                 </div>
               ) : (
@@ -379,7 +389,7 @@ const Rewards = () => {
                       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Key className="w-16 h-16" />
                       </div>
-                      <div className="flex items-start gap-4 relative z-10">
+                      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start">
                         <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center text-primary-foreground shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500">
                           <Gift className="w-8 h-8" />
                         </div>
@@ -401,7 +411,7 @@ const Rewards = () => {
                         </div>
                       </div>
 
-                      <div className="mt-6 flex gap-2">
+                      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
@@ -434,8 +444,8 @@ const Rewards = () => {
                                         {reward.redemption_code && (
                                             <div className="bg-white/5 rounded-2xl p-6 border border-white/5 text-center relative group">
                                                 <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-4">Digital Redemption Code</p>
-                                                <div className="flex items-center justify-center gap-4">
-                                                    <code className="text-4xl font-black text-primary tracking-tighter italic">
+                                                <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                                                    <code className="max-w-full break-all text-3xl font-black italic tracking-tighter text-primary sm:text-4xl">
                                                         {reward.redemption_code}
                                                     </code>
                                                     <Button
@@ -450,7 +460,7 @@ const Rewards = () => {
                                             </div>
                                         )}
 
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <Button
                                                 variant="outline"
                                                 className="border-white/10 hover:bg-white/5 text-white font-black uppercase tracking-widest text-[10px] h-12"
@@ -495,7 +505,7 @@ const Rewards = () => {
                   {claimedRewards.map((reward) => (
                     <div
                       key={reward.id}
-                      className="bg-card/50 border border-border/40 rounded-2xl p-4 flex items-center justify-between group grayscale hover:grayscale-0 transition-all duration-500"
+                      className="group flex flex-col gap-3 rounded-2xl border border-border/40 bg-card/50 p-4 grayscale transition-all duration-500 hover:grayscale-0 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="flex items-center gap-3 text-sm">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
@@ -564,7 +574,7 @@ const Rewards = () => {
             ) : (
               <div className="divide-y divide-border">
                 {history?.map((entry) => (
-                  <div key={entry.id} className="p-4 hover:bg-muted/30 transition-colors flex items-center justify-between gap-4">
+                  <div key={entry.id} className="flex flex-col gap-4 p-4 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4 min-w-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${entry.amount > 0 ? 'bg-green-500/10' : 'bg-red-500/10'
                         }`}>

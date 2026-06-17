@@ -5,7 +5,7 @@ export function EconomyPathGuide() {
   const steps = [
     { 
         icon: MapPin, 
-        label: "Discover", 
+        label: "Explore", 
         desc: "Find a local moment in your niche.",
         color: "text-blue-500",
         bg: "bg-blue-500/10"

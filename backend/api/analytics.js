@@ -4,7 +4,21 @@ const merchantAnalyticsService = require('../services/merchantAnalyticsService')
 const brandAnalyticsService = require('../services/brandAnalyticsService');
 const hostAnalyticsService = require('../services/hostAnalyticsService');
 const o2oAnalyticsService = require('../services/o2oAnalyticsService');
+const proofOutcomeService = require('../services/proofOutcomeService');
 const { requireAuth } = require('../middleware/auth');
+
+function withAnalyticsContract(role, dataset, payload, warnings = []) {
+    const isArray = Array.isArray(payload);
+    const rowCount = isArray ? payload.length : Object.values(payload || {}).filter(value => Number(value || 0) > 0).length;
+    return {
+        contract_version: '2026-06-15',
+        role,
+        dataset,
+        data_status: rowCount > 0 ? 'live' : 'empty',
+        warnings,
+        data: payload,
+    };
+}
 
 /**
  * Analytics API Routes
@@ -29,7 +43,9 @@ router.get('/merchant/sales/summary', requireAuth, async (req, res) => {
             { startDate, endDate }
         );
 
-        res.json(summary);
+        res.json(withAnalyticsContract('host', 'earnings_summary', summary, [
+            'Host analytics uses the backend contract wrapper so empty datasets are explicit instead of silent.',
+        ]));
     } catch (error) {
         console.error('Error fetching sales summary:', error);
         res.status(500).json({ error: error.message });
@@ -65,7 +81,9 @@ router.get('/merchant/products', requireAuth, async (req, res) => {
     try {
         const merchantId = req.user.id;
         const performance = await merchantAnalyticsService.getProductPerformance(merchantId);
-        res.json(performance);
+        res.json(withAnalyticsContract('host', 'moment_performance', performance, [
+            'If this dataset is empty, the host has no matched production moment performance rows for the current contract.',
+        ]));
     } catch (error) {
         console.error('Error fetching product performance:', error);
         res.status(500).json({ error: error.message });
@@ -268,6 +286,36 @@ router.get('/brand/campaigns/:id/spending', requireAuth, async (req, res) => {
         res.json(timeline);
     } catch (error) {
         console.error('Error fetching spending timeline:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/proof-outcome/moments/:id', requireAuth, async (req, res) => {
+    try {
+        const outcome = await proofOutcomeService.getMomentProofOutcome(req.params.id);
+        res.json(outcome);
+    } catch (error) {
+        console.error('Error fetching moment proof outcome:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/proof-outcome/host', requireAuth, async (req, res) => {
+    try {
+        const outcome = await proofOutcomeService.getHostProofOutcome(req.user.id);
+        res.json(outcome);
+    } catch (error) {
+        console.error('Error fetching host proof outcome:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/proof-outcome/brand/campaigns/:id', requireAuth, async (req, res) => {
+    try {
+        const outcome = await proofOutcomeService.getCampaignProofOutcome(req.params.id);
+        res.json(outcome);
+    } catch (error) {
+        console.error('Error fetching brand campaign proof outcome:', error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -1,347 +1,307 @@
 import { Link } from "react-router-dom";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-    Users,
-    Sparkles,
-    Calendar,
-    BarChart3,
-    QrCode,
-    Gift,
-    Check,
-    ArrowRight,
-    Zap,
-    TrendingUp,
+  ArrowRight,
+  BarChart3,
+  Calendar,
+  CheckCircle2,
+  Gift,
+  Handshake,
+  MapPin,
+  QrCode,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Zap,
 } from "lucide-react";
 
-const features = [
-    {
-        icon: Calendar,
-        title: "Easy Event Creation",
-        description:
-            "Create moments in minutes with our intuitive wizard. Add images, set capacity, define rewards, and publish.",
-    },
-    {
-        icon: Users,
-        title: "Participant Management",
-        description:
-            "Track RSVPs, manage check-ins, and engage with your community before, during, and after events.",
-    },
-    {
-        icon: QrCode,
-        title: "QR Check-In System",
-        description:
-            "Auto-generated QR codes for seamless check-ins. Verify attendance and trigger rewards automatically.",
-    },
-    {
-        icon: Gift,
-        title: "Built-In Rewards",
-        description:
-            "Incentivize participation with discounts, freebies, and exclusive access. Keep your community engaged.",
-    },
-    {
-        icon: BarChart3,
-        title: "Rich Analytics",
-        description:
-            "Understand your community with participation trends, engagement metrics, and growth insights.",
-    },
-    {
-        icon: Zap,
-        title: "Instant Bounties",
-        description:
-            "Access brand-sponsored bounties to fund your events. Get paid to host moments that matter.",
-    },
+const hostLoop = [
+  {
+    icon: Calendar,
+    title: "Create repeatable moments",
+    description: "Host a rhythm people can come back to instead of one-off noise that disappears after the weekend.",
+  },
+  {
+    icon: MapPin,
+    title: "Turn attendance into signal",
+    description: "Marks, check-ins, and repeat participation make your momentum measurable to the platform and future partners.",
+  },
+  {
+    icon: BarChart3,
+    title: "Build proof over time",
+    description: "Promorang gives hosts a better story than RSVPs alone: who showed up, who returned, and what actually moved.",
+  },
+  {
+    icon: Gift,
+    title: "Unlock funded support",
+    description: "When your scene becomes real and repeatable, sponsors and partners can fund reward pools, access, and moments through you.",
+  },
 ];
 
-const pricingTiers = [
-    {
-        name: "Free",
-        price: "$0",
-        period: "forever",
-        description: "Perfect for getting started",
-        features: [
-            "Up to 3 active moments",
-            "50 participants per moment",
-            "Basic analytics",
-            "QR check-in",
-            "Email support",
-        ],
-        cta: "Start Hosting Free",
-        popular: false,
-    },
-    {
-        name: "Pro",
-        price: "$19",
-        period: "/month",
-        description: "For growing communities",
-        features: [
-            "Unlimited moments",
-            "200 participants per moment",
-            "Advanced analytics",
-            "Custom branding",
-            "Priority support",
-            "Export data",
-        ],
-        cta: "Start Free Trial",
-        popular: true,
-    },
-    {
-        name: "Business",
-        price: "$49",
-        period: "/month",
-        description: "For established organizations",
-        features: [
-            "Everything in Pro",
-            "Unlimited participants",
-            "Team collaboration",
-            "API access",
-            "White-label options",
-            "Dedicated account manager",
-        ],
-        cta: "Contact Sales",
-        popular: false,
-    },
+const hostBenefits = [
+  {
+    icon: ShieldCheck,
+    title: "Verified participation",
+    description: "Use QR or in-person check-ins so attendance is more than a guess.",
+  },
+  {
+    icon: Users,
+    title: "Community memory",
+    description: "Promorang helps your regulars become visible and gives return behavior more meaning.",
+  },
+  {
+    icon: Sparkles,
+    title: "Reward design",
+    description: "Create moments that lead into access, perks, PromoShare relevance, and complementary Pieces where appropriate.",
+  },
+  {
+    icon: Handshake,
+    title: "Sponsor readiness",
+    description: "Build a stronger case for brand support once your participation patterns become trustworthy.",
+  },
+];
+
+const unlocks = [
+  "Consistent attendance around your scene",
+  "Clearer proof for sponsors and partners",
+  "Better repeat behavior from participants",
+  "Reward loops that feel local and intentional",
+];
+
+const metrics = [
+  { value: "3+", label: "repeat moments to build signal" },
+  { value: "50+", label: "verified participants that start to matter commercially" },
+  { value: "1", label: "coherent host story brands can actually understand" },
+];
+
+const tools = [
+  {
+    icon: Calendar,
+    title: "Moment creation",
+    description: "Set up gatherings, drops, rituals, and recurring formats without turning the experience into admin work.",
+  },
+  {
+    icon: QrCode,
+    title: "Check-in systems",
+    description: "Use simple verification so Promorang can separate real movement from soft intent.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Host signal",
+    description: "Track rhythm, return behavior, and local gravity instead of only counting vanity attendance.",
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics and sponsor proof",
+    description: "Show what your moments created across joins, returns, and community activity.",
+  },
 ];
 
 const Hosting = () => {
-    return (
-        <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
+      <SEO
+        title="Host on Promorang - Build the Room People Return To"
+        description="Promorang helps hosts create repeatable moments, turn participation into real signal, and unlock sponsor support when community momentum becomes measurable."
+        type="website"
+      />
 
-            {/* Hero Section */}
-            <section className="bg-gradient-hero pb-20 pt-24 sm:pt-28 md:pb-32 md:pt-40">
-                <div className="container px-6">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-4 py-2 text-accent shadow-sm animate-fade-in">
-                            <Sparkles className="w-4 h-4" />
-                            <span className="text-sm font-bold uppercase tracking-wide">The Digital Land Grab</span>
-                        </div>
-
-                        <h1 className="mb-6 font-serif text-4xl font-black leading-tight text-foreground animate-slide-up sm:text-5xl md:text-6xl">
-                            Build an Audience.
-                            <br className="hidden md:block"/>
-                            <span className="text-gradient-primary">Monetize Through Sponsors.</span>
-                        </h1>
-
-                        <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground animate-slide-up sm:text-lg md:text-xl" style={{ animationDelay: "0.1s" }}>
-                            Every moment you host is a deposit in your sponsorship attractiveness account. 
-                            Create 3 moments → Unlock brand matchmaking → Get paid to host. 
-                            You're not planning events—you're building a media property that brands will pay to access.
-                        </p>
-
-                        <div className="flex flex-col items-stretch justify-center gap-4 animate-slide-up sm:flex-row sm:items-center" style={{ animationDelay: "0.2s" }}>
-                            <Button variant="hero" size="xl" className="font-bold shadow-glow" asChild>
-                                <Link to="/auth?role=host">
-                                    Claim Your Niche
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                </Link>
-                            </Button>
-                            <Button variant="outline" size="lg" className="border-border/50 text-foreground" asChild>
-                                <Link to="/discover">View Early Adopters</Link>
-                            </Button>
-                        </div>
-
-                        <div className="mt-6 -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none sm:hidden">
-                            <div className="flex gap-3 pb-1">
-                                <div className="min-w-[220px] snap-start rounded-2xl border border-primary/15 bg-primary/5 p-4 text-left">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Journey</p>
-                                    <p className="mt-2 text-sm font-medium text-foreground">Claim your niche, create consistent moments, then convert that trust into sponsorship access.</p>
-                                </div>
-                                <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4 text-left">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Mobile first</p>
-                                    <p className="mt-2 text-sm text-muted-foreground">The page now stacks like an onboarding flow instead of a wide desktop pitch.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Features Section */}
-            <section className="py-20 md:py-32">
-                <div className="container px-6">
-                    <div className="max-w-2xl mx-auto text-center mb-16">
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                            Everything you need to host amazing moments
-                        </h2>
-                        <p className="text-lg text-muted-foreground">
-                            From creation to analytics, we've got you covered.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                        {features.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="group rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-lg"
-                            >
-                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                                    <feature.icon className="w-6 h-6 text-primary" />
-                                </div>
-                                <h3 className="font-semibold text-foreground text-lg mb-2">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-muted-foreground">{feature.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* The Sponsorship Flywheel */}
-            <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
-                <div className="absolute inset-0 bg-accent/5"></div>
-                <div className="container px-6 relative z-10">
-                    <div className="max-w-3xl mx-auto text-center mb-16">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 mb-6">
-                            <TrendingUp className="w-4 h-4" />
-                            <span className="text-sm font-bold uppercase tracking-wider">The Revenue Model</span>
-                        </div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-                            How You Earn as a Host
-                        </h2>
-                        <p className="text-cream/60 text-lg">
-                            It's not about ticket sales. It's about building a verified audience that brands pay to access.
-                        </p>
-                    </div>
-
-                    <div className="max-w-5xl mx-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                            {[
-                                { step: "1", title: "Create Moments", desc: "Host 3+ events", icon: Calendar, color: "bg-blue-500" },
-                                { step: "2", title: "Build Audience", desc: "Attract participants", icon: Users, color: "bg-amber-500" },
-                                { step: "3", title: "Unlock Match", desc: "Brands see your data", icon: Sparkles, color: "bg-primary" },
-                                { step: "4", title: "Get Sponsored", desc: "Funding for events", icon: Gift, color: "bg-emerald-500" },
-                                { step: "5", title: "Grow Loop", desc: "More = more sponsors", icon: TrendingUp, color: "bg-purple-500" },
-                            ].map((item, i) => (
-                                <div key={i} className="relative">
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-colors">
-                                        <div className={`w-12 h-12 rounded-full ${item.color} flex items-center justify-center mx-auto mb-4`}>
-                                            <item.icon className="w-6 h-6 text-white" />
-                                        </div>
-                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Step {item.step}</p>
-                                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                                        <p className="text-sm text-cream/50">{item.desc}</p>
-                                    </div>
-                                    {i < 4 && (
-                                        <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                                            <ArrowRight className="w-4 h-4 text-cream/20" />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                                <div>
-                                    <p className="text-4xl font-black text-primary mb-2">3</p>
-                                    <p className="text-sm font-semibold">Moments to unlock sponsorship matchmaking</p>
-                                </div>
-                                <div>
-                                    <p className="text-4xl font-black text-amber-500 mb-2">50+</p>
-                                    <p className="text-sm font-semibold">Participants needed to attract brand interest</p>
-                                </div>
-                                <div>
-                                    <p className="text-4xl font-black text-emerald-500 mb-2">$250-2.5k</p>
-                                    <p className="text-sm font-semibold">Typical sponsorship per funded moment</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Pricing Section */}
-            <section className="py-20 md:py-32 bg-gradient-warm">
-                <div className="container px-6">
-                    <div className="max-w-2xl mx-auto text-center mb-16">
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                            Start Free. Scale with Sponsors.
-                        </h2>
-                        <p className="text-lg text-muted-foreground">
-                            Free to start. Paid features unlock at higher tiers. But the real revenue? That's from brand sponsorships.
-                        </p>
-                    </div>
-
-                    <div className="grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-3 md:gap-8 mx-auto">
-                        {pricingTiers.map((tier, index) => (
-                            <div
-                                key={index}
-                                className={`relative rounded-2xl border bg-card p-6 transition-all md:p-8 ${tier.popular
-                                        ? "z-10 border-primary shadow-lg md:scale-105"
-                                        : "border-border"
-                                    }`}
-                            >
-                                {tier.popular && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                        <span className="px-4 py-1 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                                            Most Popular
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="text-center mb-6">
-                                    <h3 className="font-semibold text-foreground text-xl mb-2">
-                                        {tier.name}
-                                    </h3>
-                                    <div className="flex items-baseline justify-center gap-1">
-                                        <span className="font-serif text-4xl font-bold text-foreground">
-                                            {tier.price}
-                                        </span>
-                                        <span className="text-muted-foreground">{tier.period}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        {tier.description}
-                                    </p>
-                                </div>
-
-                                <ul className="space-y-3 mb-8">
-                                    {tier.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-sm">
-                                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                            <span className="text-foreground">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <Button
-                                    variant={tier.popular ? "hero" : "outline"}
-                                    className="w-full"
-                                    asChild
-                                >
-                                    <Link to="/auth?role=host">{tier.cta}</Link>
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
-                <div className="absolute inset-0 bg-accent/5"></div>
-                <div className="container px-6 relative z-10">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-white/5 border border-white/10 mb-6">
-                            <Users className="w-8 h-8 text-accent" />
-                        </div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6 text-foreground">
-                            Ready to lock in your Founding Host status?
-                        </h2>
-                        <p className="text-muted-foreground text-lg mb-8">
-                            Early adopters get permanent profile badges and priority matchmaking for brand sponsorships.
-                        </p>
-                        <Button variant="hero" size="xl" asChild>
-                            <Link to="/auth?role=host">
-                                Become a Founding Host
-                                <ArrowRight className="w-5 h-5 ml-2" />
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-            </section>
-
+      <section className="relative overflow-hidden bg-gradient-hero pb-20 pt-24 md:pb-28 md:pt-36">
+        <div className="absolute left-8 top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute bottom-8 right-8 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+        <div className="container relative z-10 px-6">
+          <div className="mx-auto max-w-4xl text-center">
+            <Badge className="mb-6 border-primary/20 bg-primary/10 text-primary" variant="outline">
+              <Sparkles className="mr-1 h-3 w-3" />
+              Host Signal
+            </Badge>
+            <h1 className="font-serif text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
+              Host the room
+              <span className="text-gradient-primary"> people return to.</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground md:text-xl">
+              Promorang is not just for creating events. It helps hosts build repeatable scenes, turn participation into real signal,
+              and unlock sponsor support when their community momentum becomes measurable and trusted.
+            </p>
+            <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
+              <Button variant="hero" size="xl" asChild>
+                <Link to="/auth?role=host">
+                  Start Hosting
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/for-brands">See Sponsor Logic</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-    );
+      </section>
+
+      <section className="border-y border-border bg-background py-20 md:py-24">
+        <div className="container px-6">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <Badge className="mb-4" variant="outline">
+              <Zap className="mr-1 h-3 w-3" />
+              The Host Loop
+            </Badge>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Hosting on Promorang is a progression system.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+              The goal is not to post random events. The goal is to become known for a scene people trust, return to, and tell others about.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {hostLoop.map((step) => (
+              <Card key={step.title} className="border-border bg-card shadow-sm">
+                <CardContent className="p-6">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <step.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-bold">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{step.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-charcoal py-20 text-white md:py-28">
+        <div className="container px-6">
+          <div className="grid gap-10 lg:grid-cols-[1fr_0.95fr] lg:items-center">
+            <div>
+              <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary" variant="outline">
+                <TrendingUp className="mr-1 h-3 w-3" />
+                Why It Matters
+              </Badge>
+              <h2 className="font-serif text-3xl font-bold md:text-5xl">
+                Marks turn hosting into something sponsors can understand.
+              </h2>
+              <p className="mt-5 text-lg leading-8 text-zinc-300">
+                A host becomes more valuable when participation is visible over time. Marks, repeat attendance, and real check-ins
+                create a better operating story than vague hype. That is what makes funded moments, reward pools, and partner interest more feasible.
+              </p>
+              <div className="mt-8 grid gap-3">
+                {unlocks.map((item) => (
+                  <div key={item} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    <span className="text-sm text-zinc-200">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 md:p-8">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Host thresholds</p>
+              <div className="mt-6 grid gap-4">
+                {metrics.map((metric) => (
+                  <div key={metric.label} className="rounded-2xl border border-white/10 bg-black/20 p-5 text-center">
+                    <p className="font-serif text-4xl font-bold text-white">{metric.value}</p>
+                    <p className="mt-2 text-sm text-zinc-300">{metric.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-background py-20 md:py-28">
+        <div className="container px-6">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <Badge className="mb-4" variant="outline">
+              <BarChart3 className="mr-1 h-3 w-3" />
+              Host Tools
+            </Badge>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Practical tools, but tied to a bigger story.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-muted-foreground">
+              Promorang should feel useful operationally, but the differentiator is what those tools allow you to prove over time.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {tools.map((tool) => (
+              <Card key={tool.title} className="border-border bg-card shadow-sm">
+                <CardContent className="p-6">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <tool.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">{tool.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{tool.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-muted/30 py-20 md:py-24">
+        <div className="container px-6">
+          <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+            <div>
+              <Badge className="mb-4" variant="outline">
+                <Gift className="mr-1 h-3 w-3" />
+                Funded Moments
+              </Badge>
+              <h2 className="font-serif text-3xl font-bold md:text-5xl">
+                Reward loops become stronger when brands can fund what already works.
+              </h2>
+              <p className="mt-5 text-lg leading-8 text-muted-foreground">
+                The right sponsor model is not interruptive advertising. It is helping hosts extend moments people already care about
+                through better perks, access, PromoShare cycles, and locally meaningful incentives.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8">
+              <div className="space-y-4">
+                {hostBenefits.map((benefit) => (
+                  <div key={benefit.title} className="flex gap-4 rounded-2xl border border-border/70 bg-background p-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <benefit.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{benefit.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-charcoal py-20 text-white md:py-28">
+        <div className="container px-6 text-center">
+          <h2 className="font-serif text-3xl font-bold md:text-5xl">
+            Build the scene first.
+            <span className="text-gradient-primary"> Let support follow the signal.</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-zinc-300">
+            The best host outcome is not a dashboard. It is a repeatable room, trusted people, and a stronger case for why your moments deserve backing.
+          </p>
+          <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
+            <Button variant="hero" size="xl" asChild>
+              <Link to="/auth?role=host">
+                Start Hosting
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="lg" className="text-white hover:bg-white/10 hover:text-white" asChild>
+              <Link to="/pricing">See Pricing</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Hosting;

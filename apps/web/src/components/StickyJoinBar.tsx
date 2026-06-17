@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
 import { Gift, Users, Flame, ChevronDown, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { AccessState } from "@/lib/access";
 
 interface StickyJoinBarProps {
     momentId: string;
@@ -17,6 +18,7 @@ interface StickyJoinBarProps {
     isLoggedIn: boolean;
     onJoin: () => void;
     isJoining?: boolean;
+    accessState?: AccessState;
     className?: string;
 }
 
@@ -36,6 +38,7 @@ export function StickyJoinBar({
     isLoggedIn,
     onJoin,
     isJoining = false,
+    accessState,
     className,
 }: StickyJoinBarProps) {
     const [isVisible, setIsVisible] = useState(false);
@@ -85,12 +88,15 @@ export function StickyJoinBar({
         if (isHost) return "Manage Moment";
         if (isJoined) return "You're Joined ✓";
         if (isFull) return "Moment Full";
+        if (accessState && accessState.key !== "available") return accessState.ctaLabel;
         return isJoining ? "Joining..." : "Join This Moment";
     };
 
     const getButtonVariant = () => {
         if (isPast || isFull) return "secondary" as const;
         if (isJoined) return "outline" as const;
+        if (accessState?.key === "requires_plus" || accessState?.key === "blocked") return "secondary" as const;
+        if (accessState?.key === "needs_keys") return "default" as const;
         return "hero" as const;
     };
 
@@ -113,6 +119,11 @@ export function StickyJoinBar({
                                     <Users className="h-4 w-4" />
                                     {participantCount} joined
                                 </span>
+                                {accessState && !isJoined && (
+                                    <span className="font-medium text-foreground">
+                                        {accessState.label}
+                                    </span>
+                                )}
                                 {reward && (
                                     <span className="flex items-center gap-1 text-accent">
                                         <Gift className="h-4 w-4" />
@@ -164,6 +175,7 @@ export function StickyJoinBar({
                                 <p className="text-sm text-muted-foreground truncate">
                                     {participantCount} {participantCount === 1 ? "person" : "people"} joined
                                     {maxParticipants && ` • ${maxParticipants - participantCount} spots left`}
+                                    {accessState && !isJoined && ` • ${accessState.label}`}
                                 </p>
                             </div>
                         </div>
@@ -186,7 +198,7 @@ export function StickyJoinBar({
                                 variant={getButtonVariant()}
                                 size="lg"
                                 onClick={onJoin}
-                                disabled={isPast || isFull || isJoining}
+                                disabled={isPast || isFull || isJoining || accessState?.canAttempt === false}
                                 className="flex-1 whitespace-nowrap sm:flex-none"
                             >
                                 {getButtonContent()}

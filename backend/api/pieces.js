@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const pieceTradingService = require('../services/pieceTradingService');
 const pieceMintingService = require('../services/pieceMintingService');
@@ -39,6 +39,138 @@ function invalidateCache(pattern) {
   for (const key of cache.keys()) {
     if (key.includes(pattern)) cache.delete(key);
   }
+}
+
+async function recordPoolAuditLog({
+  poolId = null,
+  actorId = null,
+  action,
+  pieceType = null,
+  assetId = null,
+  previousStatus = null,
+  newStatus = null,
+  metadata = {},
+}) {
+  if (!supabase || USE_DEMO || !action) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('piece_pool_audit_logs')
+      .insert({
+        pool_id: poolId,
+        actor_id: actorId,
+        action,
+        piece_type: pieceType,
+        asset_id: assetId,
+        previous_status: previousStatus,
+        new_status: newStatus,
+        metadata,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.warn('[Pieces API] pool audit log skipped:', error.message);
+    return null;
+  }
+}
+
+async function getAssetApproval(pieceType, assetId) {
+  if (!supabase || !pieceType || !assetId) return null;
+
+  const { data, error } = await supabase
+    .from('piece_asset_approvals')
+    .select('*')
+    .eq('piece_type', pieceType)
+    .eq('asset_id', assetId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+async function enrichPoolsWithAssets(pools = []) {
+  if (!supabase || pools.length === 0) return pools;
+
+  const contentAssetIds = pools
+    .filter(pool => pool.piece_type === 'content' && pool.asset_id)
+    .map(pool => pool.asset_id);
+
+  const contentAssets = new Map();
+  if (contentAssetIds.length > 0) {
+    const { data, error } = await supabase
+      .from('content_items')
+      .select('id,title,description,media_url,platform')
+      .in('id', contentAssetIds);
+
+    if (!error && data) {
+      data.forEach(item => {
+        contentAssets.set(item.id, {
+          id: item.id,
+          title: item.title,
+          name: item.title,
+          description: item.description,
+          image_url: item.media_url,
+          platform: item.platform,
+        });
+      });
+    }
+  }
+
+  return pools.map(pool => ({
+    ...pool,
+    asset: pool.asset || contentAssets.get(pool.asset_id) || {
+      id: pool.asset_id,
+      title: `${pool.piece_type} pool`,
+      name: `${pool.piece_type} pool`,
+    },
+  }));
+}
+
+async function fetchAssetDetails(pieceType, assetId) {
+  if (!supabase || !PIECE_TYPES.includes(pieceType) || !assetId) return null;
+
+  const tableConfig = {
+    content: { table: 'content_items', idColumn: 'id' },
+    moment: { table: 'moments', idColumn: 'id' },
+    host: { table: 'host_profiles', idColumn: 'id' },
+    venue: { table: 'venue_profiles', idColumn: 'id' },
+  };
+
+  const config = tableConfig[pieceType];
+  const { data, error } = await supabase
+    .from(config.table)
+    .select('*')
+    .eq(config.idColumn, assetId)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(`[Pieces API] asset fetch failed for ${pieceType}:${assetId}:`, error.message);
+  }
+
+  return data || null;
+}
+
+async function fetchPieceStats(pieceType, assetId) {
+  if (!supabase || !PIECE_TYPES.includes(pieceType) || !assetId) return null;
+
+  const statsConfig = {
+    content: { table: 'content_piece_stats', idColumn: 'content_id' },
+    moment: { table: 'moment_piece_stats', idColumn: 'moment_id' },
+    host: { table: 'host_piece_stats', idColumn: 'host_id' },
+    venue: { table: 'venue_piece_stats', idColumn: 'venue_id' },
+  };
+
+  const config = statsConfig[pieceType];
+  const { data } = await supabase
+    .from(config.table)
+    .select('*')
+    .eq(config.idColumn, assetId)
+    .maybeSingle();
+
+  return data || null;
 }
 
 // =====================================================
@@ -126,6 +258,54 @@ function generateDemoPieceStats(basePrice = 10) {
     change_7d: Number(((Math.random() - 0.5) * 20).toFixed(4)),
     change_30d: Number(((Math.random() - 0.5) * 40).toFixed(4)),
     holder_count: Math.floor(Math.random() * 50) + 5,
+  };
+}
+
+function getPieceJourney(pieceType) {
+  const shared = [
+    { step: 'Create or attend', description: 'Platform activity starts in moments, content missions, hosts, venues, and proof of participation.' },
+    { step: 'Mint or activate pieces', description: 'Eligible activity becomes a piece that can be held, tracked, and used in marketplace surfaces.' },
+    { step: 'Trade or pool', description: 'Active pools let users trade with Gems or provide liquidity when they understand the risk.' },
+    { step: 'Track portfolio', description: 'Holdings and pool positions roll up into a portfolio view for ongoing user success.' },
+  ];
+
+  const byType = {
+    content: 'Content pieces connect mission output, creator proof, and audience demand.',
+    moment: 'Moment pieces connect attendance, check-ins, proof, and event momentum.',
+    host: 'Host pieces connect reputation, completed moments, and host reliability.',
+    venue: 'Venue pieces connect place performance, repeat attendance, and local discovery.',
+  };
+
+  return {
+    summary: byType[pieceType] || byType.content,
+    steps: shared,
+  };
+}
+
+function getForecastLab(pieceType) {
+  const prompts = {
+    content: [
+      'Will this content piece increase verified engagement this week?',
+      'Will the next mission tied to this content attract more completions?',
+    ],
+    moment: [
+      'Will this moment hit its attendance target?',
+      'Will check-ins exceed last comparable moment?',
+    ],
+    host: [
+      'Will this host complete the next scheduled moment on time?',
+      'Will this host improve their participant satisfaction score?',
+    ],
+    venue: [
+      'Will this venue generate repeat attendance this month?',
+      'Will this venue attract a new sponsored moment?',
+    ],
+  };
+
+  return {
+    status: 'concept',
+    description: 'Forecasts are a product exploration layer for non-cash predictions about platform activity. They are not live financial markets.',
+    prompts: prompts[pieceType] || prompts.content,
   };
 }
 
@@ -456,12 +636,12 @@ router.get('/:pieceType/category/:slug', async (req, res) => {
 // =====================================================
 
 // GET /api/pieces/:pieceType/:id - Single piece details
-router.get('/:pieceType/:id', async (req, res) => {
+router.get('/:pieceType/:id', async (req, res, next) => {
   try {
     const { pieceType, id } = req.params;
     
     if (!PIECE_TYPES.includes(pieceType)) {
-      return res.status(400).json({ error: 'Invalid piece type' });
+      return next();
     }
     
     if (!supabase || USE_DEMO) {
@@ -538,6 +718,76 @@ router.get('/:pieceType/:id', async (req, res) => {
   } catch (error) {
     console.error(`[Pieces API] single piece error:`, error);
     res.status(500).json({ error: error.message || 'Failed to fetch piece' });
+  }
+});
+
+// GET /api/pieces/:pieceType/:id/profile - Piece profile with asset, pool, stats, and education metadata
+router.get('/:pieceType/:id/profile', async (req, res, next) => {
+  try {
+    const { pieceType, id } = req.params;
+
+    if (!PIECE_TYPES.includes(pieceType)) {
+      return next();
+    }
+
+    if (!supabase || USE_DEMO) {
+      const stats = generateDemoPieceStats(12);
+      return res.json({
+        piece_type: pieceType,
+        asset_id: id,
+        asset: {
+          id,
+          title: `${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)} Piece`,
+          name: `${pieceType.charAt(0).toUpperCase() + pieceType.slice(1)} Piece`,
+          description: 'Demo profile showing how pieces connect platform activity to ownership, liquidity, and portfolio value.',
+        },
+        stats,
+        pool: {
+          id: `demo-pool-${id}`,
+          piece_type: pieceType,
+          asset_id: id,
+          status: 'active',
+          pieces_reserve: 10000,
+          currency_reserve: 50000,
+          last_price: stats.current_price,
+          volume_24h: stats.volume_24h,
+        },
+        journey: getPieceJourney(pieceType),
+        forecast_lab: getForecastLab(pieceType),
+      });
+    }
+
+    const [asset, stats, poolResult] = await Promise.all([
+      fetchAssetDetails(pieceType, id),
+      fetchPieceStats(pieceType, id),
+      supabase
+        .from('piece_liquidity_pools')
+        .select('*')
+        .eq('piece_type', pieceType)
+        .eq('asset_id', id)
+        .in('status', ['active', 'paused'])
+        .order('created_at', { ascending: false })
+        .limit(1),
+    ]);
+
+    if (!asset) {
+      return res.status(404).json({ error: 'Piece asset not found' });
+    }
+
+    const [pool] = await enrichPoolsWithAssets(poolResult.data || []);
+
+    res.json({
+      piece_type: pieceType,
+      asset_id: id,
+      asset,
+      stats,
+      pool: pool || null,
+      journey: getPieceJourney(pieceType),
+      forecast_lab: getForecastLab(pieceType),
+    });
+  } catch (error) {
+    console.error('[Pieces API] profile error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch piece profile' });
   }
 });
 
@@ -784,6 +1034,54 @@ router.get('/search', async (req, res) => {
 // USER PORTFOLIO
 // =====================================================
 
+// GET /api/pieces/earnings/me - Current user's earned-piece event feed
+router.get('/earnings/me', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!supabase || USE_DEMO) {
+      return res.json({
+        user_id: userId,
+        events: [
+          {
+            id: 'demo-earning-1',
+            piece_type: 'moment',
+            quantity: 4,
+            reason: 'verified_attendance',
+            source_type: 'moment_checkin',
+            created_at: new Date().toISOString(),
+          },
+          {
+            id: 'demo-earning-2',
+            piece_type: 'content',
+            quantity: 3,
+            reason: 'content_attributed_checkin',
+            source_type: 'content_distribution_checkin',
+            created_at: new Date().toISOString(),
+          },
+        ],
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('piece_earning_events')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    res.json({
+      user_id: userId,
+      events: data || [],
+    });
+  } catch (error) {
+    console.error('[Pieces API] earnings feed error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch piece earnings' });
+  }
+});
+
 // GET /api/pieces/portfolio/me - Current user's piece portfolio
 router.get('/portfolio/me', requireAuth, async (req, res) => {
   try {
@@ -815,40 +1113,54 @@ router.get('/portfolio/me', requireAuth, async (req, res) => {
       });
     }
     
-    // Fetch all position types for user
-    const [contentPositions, momentPositions, hostPositions, venuePositions] = await Promise.all([
-      supabase.from('content_piece_positions').select(`*, piece:content_items!inner(id, title, creator_name), stats:content_piece_stats!inner(current_price)`).eq('holder_id', userId),
-      supabase.from('moment_piece_positions').select(`*, piece:moments!inner(id, title, venue_name), stats:moment_piece_stats!inner(current_price)`).eq('holder_id', userId),
-      supabase.from('host_piece_positions').select(`*, piece:host_profiles!inner(id, display_name), stats:host_piece_stats!inner(current_price)`).eq('holder_id', userId),
-      supabase.from('venue_piece_positions').select(`*, piece:venue_profiles!inner(id, name), stats:venue_piece_stats!inner(current_price)`).eq('holder_id', userId),
-    ]);
-    
-    const portfolio = {
-      content: (contentPositions.data || []).map(p => ({
-        ...p,
-        piece_type: 'content',
-        current_price: p.stats?.current_price,
-        pnl: Number(((p.stats?.current_price - p.avg_purchase_price) * p.pieces_owned).toFixed(2)),
-      })),
-      moment: (momentPositions.data || []).map(p => ({
-        ...p,
-        piece_type: 'moment',
-        current_price: p.stats?.current_price,
-        pnl: Number(((p.stats?.current_price - p.avg_purchase_price) * p.pieces_owned).toFixed(2)),
-      })),
-      host: (hostPositions.data || []).map(p => ({
-        ...p,
-        piece_type: 'host',
-        current_price: p.stats?.current_price,
-        pnl: Number(((p.stats?.current_price - p.avg_purchase_price) * p.pieces_owned).toFixed(2)),
-      })),
-      venue: (venuePositions.data || []).map(p => ({
-        ...p,
-        piece_type: 'venue',
-        current_price: p.stats?.current_price,
-        pnl: Number(((p.stats?.current_price - p.avg_purchase_price) * p.pieces_owned).toFixed(2)),
-      })),
+    const positionConfig = {
+      content: { table: 'content_piece_positions', assetId: 'content_id' },
+      moment: { table: 'moment_piece_positions', assetId: 'moment_id' },
+      host: { table: 'host_piece_positions', assetId: 'host_id' },
+      venue: { table: 'venue_piece_positions', assetId: 'venue_id' },
     };
+
+    const results = await Promise.all(
+      PIECE_TYPES.map(async pieceType => {
+        const config = positionConfig[pieceType];
+        const { data, error } = await supabase
+          .from(config.table)
+          .select('*')
+          .eq('holder_id', userId);
+
+        if (error) {
+          console.warn(`[Pieces API] portfolio ${pieceType} skipped:`, error.message);
+          return [pieceType, []];
+        }
+
+        const enriched = await Promise.all((data || []).map(async position => {
+          const assetId = position[config.assetId];
+          const [asset, stats] = await Promise.all([
+            fetchAssetDetails(pieceType, assetId),
+            fetchPieceStats(pieceType, assetId),
+          ]);
+
+          const currentPrice = Number(stats?.current_price || position.avg_purchase_price || 0);
+          const piecesOwned = Number(position.pieces_owned || 0);
+          const avgPrice = Number(position.avg_purchase_price || 0);
+
+          return {
+            ...position,
+            piece_type: pieceType,
+            asset_id: assetId,
+            piece: asset,
+            asset,
+            current_price: currentPrice,
+            pnl: Number(((currentPrice - avgPrice) * piecesOwned).toFixed(2)),
+            market_value: Number((currentPrice * piecesOwned).toFixed(2)),
+          };
+        }));
+
+        return [pieceType, enriched];
+      })
+    );
+    
+    const portfolio = Object.fromEntries(results);
     
     // Calculate totals
     let totalValue = 0;
@@ -856,7 +1168,7 @@ router.get('/portfolio/me', requireAuth, async (req, res) => {
     
     for (const type of PIECE_TYPES) {
       for (const pos of portfolio[type]) {
-        totalValue += (pos.current_price || 0) * pos.pieces_owned;
+        totalValue += pos.market_value || ((pos.current_price || 0) * pos.pieces_owned);
         totalPnl += pos.pnl || 0;
       }
     }
@@ -864,6 +1176,7 @@ router.get('/portfolio/me', requireAuth, async (req, res) => {
     res.json({
       user_id: userId,
       portfolio,
+      positions: PIECE_TYPES.flatMap(type => portfolio[type] || []),
       total_value: Number(totalValue.toFixed(2)),
       total_pnl: Number(totalPnl.toFixed(2)),
     });
@@ -1157,10 +1470,7 @@ router.get('/pools', async (req, res) => {
     
     let query = supabase
       .from('piece_liquidity_pools')
-      .select(`
-        *,
-        asset:asset_id(id, title, name, image_url)
-      `)
+      .select('*')
       .eq('status', status)
       .order('volume_24h', { ascending: false });
     
@@ -1172,14 +1482,112 @@ router.get('/pools', async (req, res) => {
     
     if (error) throw error;
     
+    const enrichedPools = await enrichPoolsWithAssets(pools || []);
+
     res.json({
-      pools: pools || [],
+      pools: enrichedPools,
       count: pools?.length || 0,
     });
   } catch (error) {
     console.error('[Pieces API] pools error:', error);
     res.status(500).json({
       error: error.message || 'Failed to fetch pools',
+    });
+  }
+});
+
+// GET /api/pieces/lp/positions - Get current user's LP positions
+router.get('/lp/positions', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (USE_DEMO || !supabase) {
+      const pools = Array.from({ length: 2 }, (_, i) => ({
+        id: `demo-pool-${i}`,
+        piece_type: i === 0 ? 'moment' : 'content',
+        asset_id: `demo-asset-${i}`,
+        pieces_reserve: 10000,
+        currency_reserve: 50000,
+        last_price: 5.00,
+        swap_fee_percent: 0.003,
+        lp_fee_percent: 0.0025,
+        volume_24h: 15000,
+        status: 'active',
+        asset: {
+          id: `demo-asset-${i}`,
+          title: i === 0 ? 'Demo Moment Pool' : 'Demo Content Pool',
+          name: i === 0 ? 'Demo Moment Pool' : 'Demo Content Pool',
+        },
+      }));
+
+      return res.json({
+        user_id: userId,
+        positions: pools.map((pool, i) => ({
+          pool_id: pool.id,
+          provider_id: userId,
+          lp_tokens: 1000 - i * 250,
+          pieces_deposited: 5000 - i * 1000,
+          currency_deposited: 25000 - i * 5000,
+          fees_earned_pieces: 50 - i * 10,
+          fees_earned_currency: 250 - i * 50,
+          pool,
+        })),
+      });
+    }
+
+    const positions = await pieceAMMService.getProviderPositions(userId);
+    const enrichedPools = await enrichPoolsWithAssets(
+      positions.map(position => position.pool).filter(Boolean)
+    );
+    const poolById = new Map(enrichedPools.map(pool => [pool.id, pool]));
+
+    res.json({
+      user_id: userId,
+      positions: positions.map(position => ({
+        ...position,
+        pool: poolById.get(position.pool_id) || position.pool,
+      })),
+      count: positions.length,
+    });
+  } catch (error) {
+    console.error('[Pieces API] lp positions error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch LP positions',
+    });
+  }
+});
+
+// GET /api/pieces/pools/:id - Get one liquidity pool
+router.get('/pools/:id', async (req, res) => {
+  try {
+    const poolId = req.params.id;
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        pool: {
+          id: poolId,
+          piece_type: 'moment',
+          asset_id: 'demo-asset',
+          pieces_reserve: 10000,
+          currency_reserve: 50000,
+          k_constant: 500000000,
+          last_price: 5.00,
+          swap_fee_percent: 0.003,
+          lp_fee_percent: 0.0025,
+          volume_24h: 15000,
+          status: 'active',
+        },
+      });
+    }
+
+    const pool = await pieceAMMService.getPool(poolId);
+    const [enrichedPool] = await enrichPoolsWithAssets(pool ? [pool] : []);
+
+    res.json({ pool: enrichedPool });
+  } catch (error) {
+    console.error('[Pieces API] pool by id error:', error);
+    res.status(404).json({
+      error: error.message || 'Pool not found',
     });
   }
 });
@@ -1261,6 +1669,20 @@ router.post('/:pieceType/:id/pool/create', requireAuth, async (req, res) => {
       initialCurrency: initial_currency,
       swapFeePercent: swap_fee_percent,
       createdBy: userId,
+    });
+
+    await recordPoolAuditLog({
+      poolId: result.pool?.id || null,
+      actorId: userId,
+      action: 'user_pool_created',
+      pieceType,
+      assetId: id,
+      newStatus: result.pool?.status || 'active',
+      metadata: {
+        initial_pieces,
+        initial_currency,
+        swap_fee_percent,
+      },
     });
     
     res.json(result);
@@ -1472,6 +1894,562 @@ router.get('/pools/:id/lp-position', requireAuth, async (req, res) => {
 });
 
 // =====================================================
+// ADMIN POOL OPERATIONS
+// =====================================================
+
+// GET /api/pieces/admin/assets - Search assets and include their trading approval
+router.get('/admin/assets', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { piece_type = 'content', q = '', limit = 25, approval_status } = req.query;
+
+    if (!PIECE_TYPES.includes(piece_type)) {
+      return res.status(400).json({ error: 'Invalid piece type' });
+    }
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        assets: [
+          {
+            id: '50000000-0000-0000-0000-000000000001',
+            title: 'Morning Productivity Stack',
+            name: 'Morning Productivity Stack',
+            status: 'published',
+            approval_status: 'approved',
+            piece_type,
+          },
+          {
+            id: '50000000-0000-0000-0000-000000000002',
+            title: '30-Day Wellness Challenge Recap',
+            name: '30-Day Wellness Challenge Recap',
+            status: 'published',
+            approval_status: 'pending',
+            piece_type,
+          },
+        ],
+      });
+    }
+
+    if (piece_type !== 'content') {
+      return res.json({
+        assets: [],
+        message: 'Admin asset search is currently enabled for content pools first.',
+      });
+    }
+
+    let query = supabase
+      .from('content_items')
+      .select('id,title,description,platform,status,created_at')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(Math.min(parseInt(limit, 10) || 25, 100));
+
+    if (q) {
+      query = query.ilike('title', `%${q}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const assetIds = (data || []).map(asset => asset.id);
+    let approvalQuery = supabase
+      .from('piece_asset_approvals')
+      .select('*')
+      .eq('piece_type', piece_type);
+    if (assetIds.length > 0) approvalQuery = approvalQuery.in('asset_id', assetIds);
+    const { data: approvals, error: approvalError } = await approvalQuery;
+    if (approvalError) throw approvalError;
+    const approvalByAsset = new Map((approvals || []).map(item => [item.asset_id, item]));
+
+    const assets = (data || []).map(asset => ({
+        ...asset,
+        name: asset.title,
+        piece_type,
+        approval_status: approvalByAsset.get(asset.id)?.status || 'pending',
+        approval: approvalByAsset.get(asset.id) || null,
+      }))
+      .filter(asset => !approval_status || asset.approval_status === approval_status);
+
+    res.json({
+      assets,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin assets error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch assets',
+    });
+  }
+});
+
+// PATCH /api/pieces/admin/assets/:pieceType/:assetId/approval
+router.patch('/admin/assets/:pieceType/:assetId/approval', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { pieceType, assetId } = req.params;
+    const { status, review_notes = null } = req.body || {};
+    const allowedStatuses = ['pending', 'approved', 'rejected', 'suspended'];
+
+    if (!PIECE_TYPES.includes(pieceType) || !allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid piece type or approval status' });
+    }
+
+    if (USE_DEMO || !supabase) {
+      return res.json({ success: true, approval: { piece_type: pieceType, asset_id: assetId, status, review_notes } });
+    }
+
+    const previous = await getAssetApproval(pieceType, assetId);
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('piece_asset_approvals')
+      .upsert({
+        piece_type: pieceType,
+        asset_id: assetId,
+        status,
+        review_notes,
+        submitted_by: previous?.submitted_by || req.user.id,
+        reviewed_by: req.user.id,
+        reviewed_at: now,
+        updated_at: now,
+      }, { onConflict: 'piece_type,asset_id' })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (status !== 'approved') {
+      await supabase
+        .from('piece_liquidity_pools')
+        .update({ status: 'paused', updated_at: now })
+        .eq('piece_type', pieceType)
+        .eq('asset_id', assetId)
+        .eq('status', 'active');
+    }
+
+    await recordPoolAuditLog({
+      actorId: req.user.id,
+      action: 'asset_approval_changed',
+      pieceType,
+      assetId,
+      previousStatus: previous?.status || null,
+      newStatus: status,
+      metadata: { review_notes },
+    });
+
+    res.json({ success: true, approval: data });
+  } catch (error) {
+    console.error('[Pieces API] asset approval error:', error);
+    res.status(400).json({ success: false, error: error.message || 'Failed to update asset approval' });
+  }
+});
+
+// GET /api/pieces/admin/pools - Admin pool listing with asset metadata
+router.get('/admin/pools', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { status, piece_type } = req.query;
+
+    if (USE_DEMO || !supabase) {
+      const pools = await enrichPoolsWithAssets([
+        {
+          id: '91000000-0000-0000-0000-000000000001',
+          piece_type: 'content',
+          asset_id: '50000000-0000-0000-0000-000000000001',
+          pieces_reserve: 12000,
+          currency_reserve: 60000,
+          last_price: 5,
+          volume_24h: 18500,
+          status: 'active',
+        },
+      ]);
+      return res.json({ pools, count: pools.length });
+    }
+
+    let query = supabase
+      .from('piece_liquidity_pools')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (status) query = query.eq('status', status);
+    if (piece_type) query = query.eq('piece_type', piece_type);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const pools = await enrichPoolsWithAssets(data || []);
+
+    res.json({
+      pools,
+      count: pools.length,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin pools error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch admin pools',
+    });
+  }
+});
+
+// GET /api/pieces/admin/pools/audit-logs - Recent pool lifecycle audit entries
+router.get('/admin/pools/audit-logs', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { pool_id, limit = 50 } = req.query;
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        logs: [
+          {
+            id: 'demo-audit-1',
+            pool_id: pool_id || 'demo-pool',
+            action: 'admin_pool_created',
+            piece_type: 'content',
+            new_status: 'active',
+            created_at: new Date().toISOString(),
+          },
+        ],
+      });
+    }
+
+    let query = supabase
+      .from('piece_pool_audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(Math.min(parseInt(limit, 10) || 50, 200));
+
+    if (pool_id) query = query.eq('pool_id', pool_id);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    res.json({ logs: data || [] });
+  } catch (error) {
+    console.error('[Pieces API] admin pool audit logs error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch pool audit logs',
+    });
+  }
+});
+
+// POST /api/pieces/admin/pools - Create approved liquidity pool
+router.post('/admin/pools', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const {
+      piece_type,
+      asset_id,
+      initial_pieces,
+      initial_currency,
+      swap_fee_percent,
+    } = req.body || {};
+
+    if (!PIECE_TYPES.includes(piece_type)) {
+      return res.status(400).json({ error: 'Invalid piece type' });
+    }
+
+    const initialPieces = Number(initial_pieces);
+    const initialCurrency = Number(initial_currency);
+
+    if (!asset_id || initialPieces <= 0 || initialCurrency <= 0) {
+      return res.status(400).json({
+        error: 'asset_id, initial_pieces, and initial_currency are required',
+      });
+    }
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        success: true,
+        pool: {
+          id: `demo-admin-pool-${Date.now()}`,
+          piece_type,
+          asset_id,
+          pieces_reserve: initialPieces,
+          currency_reserve: initialCurrency,
+          last_price: initialCurrency / initialPieces,
+          status: 'active',
+        },
+      });
+    }
+
+    if (piece_type === 'content') {
+      const { data: asset, error: assetError } = await supabase
+        .from('content_items')
+        .select('id,status')
+        .eq('id', asset_id)
+        .single();
+
+      if (assetError || !asset) {
+        return res.status(404).json({ error: 'Content asset not found' });
+      }
+
+      if (asset.status !== 'published') {
+        return res.status(400).json({ error: 'Only published content can receive a pool' });
+      }
+    }
+
+    const approval = await getAssetApproval(piece_type, asset_id);
+    if (approval?.status !== 'approved') {
+      return res.status(409).json({
+        error: 'Asset must be explicitly approved for trading before a pool can be created',
+        approval_status: approval?.status || 'pending',
+      });
+    }
+
+    const result = await pieceAMMService.createPool({
+      pieceType: piece_type,
+      assetId: asset_id,
+      initialPieces,
+      initialCurrency,
+      swapFeePercent: swap_fee_percent ? Number(swap_fee_percent) : undefined,
+      createdBy: req.user.id,
+    });
+
+    await recordPoolAuditLog({
+      poolId: result.pool?.id || null,
+      actorId: req.user.id,
+      action: 'admin_pool_created',
+      pieceType: piece_type,
+      assetId: asset_id,
+      newStatus: result.pool?.status || 'active',
+      metadata: {
+        initial_pieces: initialPieces,
+        initial_currency: initialCurrency,
+        swap_fee_percent,
+      },
+    });
+
+    const [pool] = await enrichPoolsWithAssets(result.pool ? [result.pool] : []);
+
+    res.json({
+      ...result,
+      pool,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin create pool error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to create pool',
+    });
+  }
+});
+
+// PATCH /api/pieces/admin/pools/:id/status - Pause, activate, or close pool
+router.patch('/admin/pools/:id/status', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body || {};
+    const allowedStatuses = ['active', 'paused', 'closed'];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid pool status' });
+    }
+
+    if (status === 'active' && !USE_DEMO && supabase) {
+      const { data: target } = await supabase
+        .from('piece_liquidity_pools')
+        .select('piece_type,asset_id')
+        .eq('id', id)
+        .maybeSingle();
+      const approval = target && await getAssetApproval(target.piece_type, target.asset_id);
+      if (approval?.status !== 'approved') {
+        return res.status(409).json({
+          error: 'Pool cannot be activated until its asset is approved for trading',
+          approval_status: approval?.status || 'pending',
+        });
+      }
+    }
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        success: true,
+        pool: { id, status },
+      });
+    }
+
+    const { data: before } = await supabase
+      .from('piece_liquidity_pools')
+      .select('id,status,piece_type,asset_id')
+      .eq('id', id)
+      .maybeSingle();
+
+    const { data, error } = await supabase
+      .from('piece_liquidity_pools')
+      .update({
+        status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await recordPoolAuditLog({
+      poolId: id,
+      actorId: req.user.id,
+      action: 'admin_pool_status_changed',
+      pieceType: data?.piece_type || before?.piece_type || null,
+      assetId: data?.asset_id || before?.asset_id || null,
+      previousStatus: before?.status || null,
+      newStatus: status,
+    });
+
+    const [pool] = await enrichPoolsWithAssets(data ? [data] : []);
+
+    res.json({
+      success: true,
+      pool,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin update pool status error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to update pool status',
+    });
+  }
+});
+
+// GET /api/pieces/admin/gems/objectives/pending - List objective-locked bonus Gems awaiting unlock
+router.get('/admin/gems/objectives/pending', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { user_id, objective_code, limit = 100 } = req.query;
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        pending_objectives: [
+          {
+            user_id: user_id || 'demo-user-id',
+            objective_code: objective_code || 'founding-pack-profile-complete',
+            locked_gems: 25,
+            grants_count: 1,
+            first_granted_at: new Date().toISOString(),
+            latest_granted_at: new Date().toISOString(),
+            user: {
+              email: 'demo@promorang.com',
+              display_name: 'Demo User',
+            },
+          },
+        ],
+        count: 1,
+      });
+    }
+
+    let query = supabase
+      .from('gems_transactions')
+      .select(`
+        user_id,
+        objective_code,
+        amount,
+        created_at,
+        user:users!gems_transactions_user_id_fkey (
+          id,
+          email,
+          display_name,
+          username
+        )
+      `)
+      .eq('transaction_type', 'bonus')
+      .eq('objective_status', 'pending')
+      .eq('redemption_status', 'locked_objective')
+      .gt('amount', 0)
+      .order('created_at', { ascending: true })
+      .limit(Math.min(parseInt(limit, 10) || 100, 500));
+
+    if (user_id) query = query.eq('user_id', user_id);
+    if (objective_code) query = query.eq('objective_code', objective_code);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const grouped = new Map();
+
+    for (const row of data || []) {
+      const key = `${row.user_id}:${row.objective_code}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          user_id: row.user_id,
+          objective_code: row.objective_code,
+          locked_gems: 0,
+          grants_count: 0,
+          first_granted_at: row.created_at,
+          latest_granted_at: row.created_at,
+          user: row.user || null,
+        });
+      }
+
+      const entry = grouped.get(key);
+      entry.locked_gems += Number(row.amount || 0);
+      entry.grants_count += 1;
+      if (new Date(row.created_at) < new Date(entry.first_granted_at)) entry.first_granted_at = row.created_at;
+      if (new Date(row.created_at) > new Date(entry.latest_granted_at)) entry.latest_granted_at = row.created_at;
+    }
+
+    const pendingObjectives = Array.from(grouped.values()).sort((a, b) =>
+      new Date(a.first_granted_at).getTime() - new Date(b.first_granted_at).getTime()
+    );
+
+    res.json({
+      pending_objectives: pendingObjectives,
+      count: pendingObjectives.length,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin pending objective gems error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch pending objective-locked bonus Gems',
+    });
+  }
+});
+
+// POST /api/pieces/admin/gems/objectives/unlock - Unlock bonus Gems for a completed objective
+router.post('/admin/gems/objectives/unlock', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { user_id, objective_code, completed_at, notes } = req.body || {};
+
+    if (!user_id || !objective_code) {
+      return res.status(400).json({
+        error: 'user_id and objective_code are required',
+      });
+    }
+
+    if (USE_DEMO || !supabase) {
+      return res.json({
+        success: true,
+        unlocked_count: 1,
+        user_id,
+        objective_code,
+        completed_at: completed_at || new Date().toISOString(),
+      });
+    }
+
+    const result = await gemsService.unlockObjectiveBonusGems(user_id, objective_code, {
+      completedAt: completed_at || new Date().toISOString(),
+      adminId: req.user.id,
+      notes: notes || null,
+    });
+
+    if (!result.unlocked_count) {
+      return res.status(404).json({
+        success: false,
+        error: 'No pending objective-locked bonus Gems found for that user/objective pair',
+      });
+    }
+
+    const updatedBalance = await gemsService.getGemsBalance(user_id);
+
+    res.json({
+      success: true,
+      ...result,
+      user_id,
+      balance: updatedBalance,
+    });
+  } catch (error) {
+    console.error('[Pieces API] admin unlock objective gems error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to unlock objective bonus Gems',
+    });
+  }
+});
+
+// =====================================================
 // GEMS TRADING ENDPOINTS
 // =====================================================
 
@@ -1487,6 +2465,13 @@ router.get('/gems/balance', requireAuth, async (req, res) => {
         currency: 'GEMS',
         usd_value: 50.00,
         exchange_rate: 1.00,
+        withdrawable_balance: 25,
+        pending_purchase_redemption_balance: 15,
+        locked_bonus_balance: 10,
+        purchased_balance: 40,
+        bonus_balance: 10,
+        trade_balance: 0,
+        next_purchase_redemption_at: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString(),
       });
     }
     
@@ -1536,7 +2521,7 @@ router.post('/gems/purchase', requireAuth, async (req, res) => {
       });
     }
     
-    const result = await gemsService.createPurchaseIntent(userId, usdAmount);
+    const result = await gemsService.createPurchaseIntent(userId, usd_amount);
     
     res.json(result);
   } catch (error) {
@@ -1563,14 +2548,19 @@ router.get('/gems/transactions', requireAuth, async (req, res) => {
             amount: 50,
             balance_after: 50,
             fiat_amount: 50.00,
+            redemption_status: 'pending_30_day_hold',
+            effective_redemption_status: 'pending_30_day_hold',
+            redeemable_after: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
             created_at: new Date().toISOString(),
           },
           {
             id: 'demo-tx-2',
-            transaction_type: 'trade_out',
-            amount: -5,
-            balance_after: 45,
-            pieces_amount: 5,
+            transaction_type: 'bonus',
+            amount: 10,
+            balance_after: 60,
+            redemption_status: 'locked_objective',
+            effective_redemption_status: 'locked_objective',
+            objective_status: 'pending',
             created_at: new Date().toISOString(),
           },
         ],
@@ -1621,7 +2611,7 @@ router.post('/pools/:id/trade/gems-to-pieces', requireAuth, async (req, res) => 
       .rpc('check_transaction_limits', {
         p_user_id: userId,
         p_transaction_type: 'trade_buy',
-        p_amount: gems_amount * 0.10, // Convert to USD value
+        p_amount: gems_amount * gemsService.GEMS_EXCHANGE_RATE,
       });
     
     if (!limits.allowed) {
@@ -1653,7 +2643,8 @@ router.post('/pools/:id/trade/gems-to-pieces', requireAuth, async (req, res) => 
     );
     
     // Record for limits
-    await simpleKYCService.recordTransaction(userId, 'trade_buy', gems_amount * 0.10);
+    await simpleKYCService.recordTransaction(userId, 'trade_buy', gems_amount * gemsService.GEMS_EXCHANGE_RATE);
+    
     
     res.json(result);
   } catch (error) {
@@ -1706,7 +2697,7 @@ router.post('/pools/:id/trade/pieces-to-gems', requireAuth, async (req, res) => 
     );
     
     // Record for limits
-    const usdValue = result.gems_received * 0.10;
+    const usdValue = result.gems_received * gemsService.GEMS_EXCHANGE_RATE;
     await simpleKYCService.recordTransaction(userId, 'trade_sell', usdValue);
     
     res.json(result);
@@ -1740,7 +2731,7 @@ router.post('/gems/withdrawal', requireAuth, async (req, res) => {
     }
     
     // Check withdrawal limits
-    const usdAmount = gems_amount * 0.10;
+    const usdAmount = gems_amount * gemsService.GEMS_EXCHANGE_RATE;
     const { data: limits } = await supabase
       .rpc('check_transaction_limits', {
         p_user_id: userId,
@@ -1889,9 +2880,8 @@ router.get('/kyc/submissions', requireAuth, async (req, res) => {
 // =====================================================
 
 // GET /api/pieces/admin/kyc/pending - Get pending KYC submissions
-router.get('/admin/kyc/pending', requireAuth, async (req, res) => {
+router.get('/admin/kyc/pending', requireAuth, requireAdmin, async (req, res) => {
   try {
-    // TODO: Add admin role check
     const { status } = req.query;
     
     if (USE_DEMO || !supabase) {
@@ -1924,7 +2914,7 @@ router.get('/admin/kyc/pending', requireAuth, async (req, res) => {
 });
 
 // GET /api/pieces/admin/kyc/:id - Get single submission details
-router.get('/admin/kyc/:id', requireAuth, async (req, res) => {
+router.get('/admin/kyc/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const submissionId = req.params.id;
     
@@ -1960,7 +2950,7 @@ router.get('/admin/kyc/:id', requireAuth, async (req, res) => {
 });
 
 // POST /api/pieces/admin/kyc/:id/approve - Approve KYC
-router.post('/admin/kyc/:id/approve', requireAuth, async (req, res) => {
+router.post('/admin/kyc/:id/approve', requireAuth, requireAdmin, async (req, res) => {
   try {
     const submissionId = req.params.id;
     const { level, notes } = req.body;
@@ -1987,7 +2977,7 @@ router.post('/admin/kyc/:id/approve', requireAuth, async (req, res) => {
 });
 
 // POST /api/pieces/admin/kyc/:id/reject - Reject KYC
-router.post('/admin/kyc/:id/reject', requireAuth, async (req, res) => {
+router.post('/admin/kyc/:id/reject', requireAuth, requireAdmin, async (req, res) => {
   try {
     const submissionId = req.params.id;
     const { reason, category } = req.body;

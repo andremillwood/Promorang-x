@@ -11,6 +11,7 @@ import { Sparkles, ChevronLeft, ChevronRight, Clock, Users, Trophy } from 'lucid
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFeaturedImpression } from '@/hooks/useFeaturedImpression';
+import { API_BASE_URL } from '@/lib/api';
 
 interface FeaturedPlacement {
   id: string;
@@ -62,7 +63,11 @@ export default function FeaturedHeroBanner() {
 
   const fetchFeaturedPlacements = async () => {
     try {
-      const response = await fetch('/api/featured-marketplace/active?placement_type=homepage_hero&limit=5');
+      const response = await fetch(`${API_BASE_URL}/featured-marketplace/active?placement_type=homepage_hero&limit=5`);
+      if (!response.ok) {
+        throw new Error(`Featured hero request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       
       if (data.success && data.placements.length > 0) {

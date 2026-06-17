@@ -11,6 +11,7 @@ const aiVerificationService = require('../services/aiVerificationService');
 const verificationService = require('../services/verificationService');
 const economyService = require('../services/economyService');
 const promoShareService = require('../services/promoShareService');
+const accessRulesService = require('../services/accessRulesService');
 
 
 /**
@@ -739,7 +740,7 @@ router.get('/applications/pending', async (req, res) => {
 });
 
 // Apply to drop
-router.post('/:id/apply', async (req, res) => {
+router.post('/:id/apply', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { application_message } = req.body;
@@ -780,7 +781,7 @@ router.post('/:id/apply', async (req, res) => {
       .from('drop_applications')
       .select('*')
       .eq('drop_id', id)
-      .eq('user_id', 1) // TODO: Get from authenticated user
+      .eq('user_id', req.user.id)
       .single();
 
     if (existingApplication && !checkError) {
@@ -799,17 +800,33 @@ router.post('/:id/apply', async (req, res) => {
       }
     }
 
-    // 2. Determine Cost
+    // 2. Determine Cost. Access rules can override this; legacy drop config remains the fallback.
     const dropTypeConfig = dropConfig.types[drop.drop_type] || {};
-    const cost = dropTypeConfig.promokey_cost || drop.key_cost || 0; // Fallback to drop property if config missing
+    const fallbackKeyCost = dropTypeConfig.promokey_cost || dropTypeConfig.cost || drop.key_cost || 0;
+    let accessResult = null;
 
-    // 3. Spend Currency
-    if (cost > 0) {
-      try {
-        await economyService.spendCurrency(req.user.id, 'promokeys', cost, 'drop_entry', id, `Applied to drop: ${drop.title}`);
-      } catch (ecoError) {
-        return res.status(402).json({ success: false, error: ecoError.message, code: 'INSUFFICIENT_FUNDS' });
-      }
+    // 3. Spend access Keys and record the unlock ledger.
+    try {
+      accessResult = await accessRulesService.consumeAccess({
+        userId: req.user.id,
+        objectType: 'drop',
+        objectId: id,
+        accessType: 'apply',
+        fallbackKeyCost,
+        source: 'drop_entry',
+        description: `Applied to drop: ${drop.title}`,
+        metadata: {
+          drop_type: drop.drop_type,
+          title: drop.title,
+        },
+      });
+    } catch (accessError) {
+      return res.status(accessError.statusCode || 402).json({
+        success: false,
+        error: accessError.message,
+        code: accessError.code || 'ACCESS_KEYS_REQUIRED',
+        ...(accessError.payload || {}),
+      });
     }
 
     // Create application
@@ -865,7 +882,8 @@ router.post('/:id/apply', async (req, res) => {
     res.json({
       success: true,
       application,
-      message: 'Application submitted successfully'
+      message: 'Application submitted successfully',
+      access: accessResult
     });
   } catch (error) {
     console.error('Error applying to drop:', error);

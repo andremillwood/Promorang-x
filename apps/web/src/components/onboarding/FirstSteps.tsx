@@ -111,7 +111,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
           description: "Browse local experiences and join something interesting",
           icon: Search,
           action: "Browse moments",
-          link: "/discover",
+          link: "/explore/moments",
           isComplete: hasJoined
         },
         {

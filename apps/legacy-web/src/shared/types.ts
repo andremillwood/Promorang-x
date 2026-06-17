@@ -553,6 +553,26 @@ export interface CouponRedemptionType {
 
 // ===== EVENT TYPES =====
 
+export interface EventSeriesType {
+  id: string;
+  creator_id: string | null;
+  source_event_id: string | null;
+  title: string;
+  description: string | null;
+  status: string;
+  timezone: string;
+  frequency: 'daily' | 'weekly' | 'monthly';
+  recurrence_interval: number;
+  recurrence_by_weekday: number[];
+  recurrence_day_of_month: number | null;
+  recurrence_until: string | null;
+  recurrence_count: number | null;
+  generation_horizon_days: number;
+  template_payload: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface EventType {
   id: string;
   creator_id: string;
@@ -591,6 +611,22 @@ export interface EventType {
   total_rsvps: number;
   average_rating: number;
   total_reviews: number;
+  series_id?: string | null;
+  source_event_id?: string | null;
+  clone_source_event_id?: string | null;
+  recurrence_enabled?: boolean;
+  recurrence_frequency?: 'daily' | 'weekly' | 'monthly' | null;
+  recurrence_interval?: number;
+  recurrence_by_weekday?: number[] | null;
+  recurrence_day_of_month?: number | null;
+  recurrence_timezone?: string | null;
+  recurrence_until?: string | null;
+  recurrence_count?: number | null;
+  generation_horizon_days?: number;
+  occurrence_index?: number;
+  is_series_exception?: boolean;
+  series_snapshot?: Record<string, unknown>;
+  total_verified_credits_pool?: number;
   created_at: string;
   updated_at: string;
 }

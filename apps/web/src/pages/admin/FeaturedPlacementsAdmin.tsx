@@ -215,12 +215,12 @@ export default function FeaturedPlacementsAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="flex items-center gap-3 text-2xl font-bold sm:text-3xl">
               <LayoutGrid className="w-8 h-8 text-primary" />
               Featured Placements Admin
             </h1>
@@ -235,7 +235,7 @@ export default function FeaturedPlacementsAdmin() {
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -295,7 +295,7 @@ export default function FeaturedPlacementsAdmin() {
               <CardTitle>Revenue by Placement Type</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {Object.entries(stats.by_type).map(([type, data]) => (
                   <div key={type} className="p-4 border rounded-lg">
                     <p className="font-medium text-sm">
@@ -322,7 +322,7 @@ export default function FeaturedPlacementsAdmin() {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
+              <TabsList className="mb-4 grid min-w-[520px] grid-cols-4">
                 <TabsTrigger value="pending_payment">Pending</TabsTrigger>
                 <TabsTrigger value="active">Active</TabsTrigger>
                 <TabsTrigger value="completed">Completed</TabsTrigger>
@@ -378,7 +378,7 @@ export default function FeaturedPlacementsAdmin() {
                             </p>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                               {STATUS_CONFIG[booking.status]?.icon}
                               <Badge className={STATUS_CONFIG[booking.status]?.color}>
                                 {STATUS_CONFIG[booking.status]?.label}

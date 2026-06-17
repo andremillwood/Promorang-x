@@ -3,7 +3,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StandingLeaderboard } from "@/components/StandingLeaderboard";
 import {
     Building2,
     Handshake,
@@ -12,53 +11,50 @@ import {
     Users,
     ArrowRight,
     Sparkles,
-    Search,
     ShieldCheck,
     Zap,
     Check,
     Crown
 } from "lucide-react";
 
-import { BrandEstimator } from "@/components/brand/BrandEstimator";
-
 const sponsorshipBenefits = [
     {
         icon: Target,
-        title: "Precision Matching",
+        title: "Participation Fit",
         description:
-            "Don't buy impressions. Fund specific outcomes. Match with moments that align with your brand values and mission.",
+            "Match your campaign to Moments, creators, venues, and audiences where people already have a reason to care.",
     },
     {
         icon: Handshake,
-        title: "Authentic Integration",
+        title: "Human Integration",
         description:
-            "No interrupting ads. Become the hero of the moment by enabling experiences that wouldn't happen without you.",
+            "Show up inside the experience instead of interrupting it. Give people a useful reason to participate.",
     },
     {
         icon: Users,
         title: "Verified Audiences",
         description:
-            "Connect with people who actually showed up. GPS-verified participation beats passive scroll depth every time.",
+            "See the people who joined, checked in, scanned, redeemed, posted, or returned after the campaign.",
     },
     {
         icon: BarChart3,
-        title: "Community Pulse",
+        title: "Participation Reporting",
         description:
-            "Understand what truly moves people. Explore the stories that resonate across the platform before you fund your next moment.",
+            "Read campaign performance through attendance, QR engagement, creator content, redemptions, and repeat movement.",
     },
     {
         icon: ShieldCheck,
-        title: "Real Impact",
+        title: "Proof You Can Trust",
         description:
-            "Track the journey from discovery to action. Celebrate verified stories and physical gatherings that you made possible.",
+            "Track the journey from visibility to action with verified Moments, proof submissions, and clear participation receipts.",
     },
 ];
 
 const stats = [
-    { value: "89%", label: "Average redemption rate" },
-    { value: "3.2x", label: "Higher engagement vs. ads" },
-    { value: "50K+", label: "Monthly active participants" },
-    { value: "15%", label: "Platform fee on sponsorships" },
+    { value: "Moments", label: "Campaign building blocks" },
+    { value: "Marks", label: "Verified participation" },
+    { value: "QR", label: "On-site engagement" },
+    { value: "UGC", label: "Creator and community proof" },
 ];
 
 const ForBrands = () => {
@@ -66,69 +62,101 @@ const ForBrands = () => {
     return (
         <div className="min-h-screen overflow-x-clip bg-background">
             <SEO
-                title="Promorang for Brands - Fund Proof, Not Promises"
-                description="Stop interrupting people. Start funding their lives. Sponsor real-world moments with GPS-verified proof of attendance. Pay for outcomes, not impressions."
+                title="Promorang for Brands - Turn Promotions Into Participation"
+                description="Promorang helps brands turn marketing visibility into measurable consumer participation through Moments, creators, venues, QR engagement, and campaign reporting."
                 type="website"
             />
 
             {/* Hero Section */}
-            <section className="overflow-x-clip bg-gradient-hero pb-16 pt-28 md:pb-32 md:pt-40">
-                <div className="container px-4 sm:px-6">
-                    <div className="mx-auto max-w-4xl min-w-0 text-center">
-                        <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary mb-8">
+            <section className="relative overflow-hidden bg-charcoal pb-16 pt-28 text-white md:pb-32 md:pt-40">
+                <div className="absolute left-1/2 top-16 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
+                <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-accent/10 blur-[120px]" />
+                <div className="container relative z-10 px-4 sm:px-6">
+                    <div className="grid gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-center">
+                    <div className="min-w-0">
+                        <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-primary mb-8">
                             <Building2 className="w-4 h-4" />
-                            <span className="min-w-0 text-sm font-medium">Precision Sponsor Infrastructure</span>
+                            <span className="min-w-0 text-sm font-medium">Participation Marketing Platform</span>
                         </div>
 
-                        <h1 className="mx-auto mb-6 max-w-[19rem] break-words font-serif text-[1.65rem] font-bold leading-tight text-foreground sm:max-w-4xl sm:text-4xl md:text-6xl">
-                            The Activation Layer for <br className="hidden sm:block" />
-                            <span className="text-gradient-primary">Real-World Sponsorship.</span>
+                        <h1 className="mb-6 max-w-4xl break-words font-serif text-4xl font-bold leading-tight text-white sm:text-5xl md:text-7xl">
+                            Turn Promotions <br className="hidden sm:block" />
+                            <span className="text-gradient-primary">Into Participation.</span>
                         </h1>
 
-                        <p className="mx-auto mb-10 max-w-[20rem] text-base text-muted-foreground sm:max-w-2xl sm:text-lg md:text-xl">
-                            Stop guessing. Promorang helps you **Discover the pulse** of 
-                            real-world communities. Fund moments that matter, support 
-                            physical gathering spots, and see the real proof of your impact.
+                        <p className="mb-10 max-w-2xl text-base leading-8 text-zinc-200 sm:text-lg md:text-xl">
+                            Promorang helps brands create Moments people actually want to join:
+                            better nights out, useful perks, local rituals, creator-led missions, and venue activations.
+                            Then you can see who showed up, scanned, redeemed, created content, and came back.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
                                 <a href="#outcomes">
-                                    Explore Outcomes
+                                    Explore Brand Flow
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </a>
                             </Button>
-                            <Button variant="outline" size="lg" asChild>
+                            <Button variant="outline" size="lg" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
                                 {user ? (
-                                    <Link to="/onboarding/brand">Enable Brand Dashboard</Link>
+                                    <Link to="/onboarding/brand">Start Brand Workspace</Link>
                                 ) : (
-                                    <Link to="/auth">Partner With Us</Link>
+                                    <Link to="/auth">Start a Brand Pilot</Link>
                                 )}
                             </Button>
                         </div>
                     </div>
+                    <div className="relative mx-auto w-full max-w-md">
+                        <div className="absolute -inset-5 rounded-[2rem] bg-primary/20 blur-[80px]" />
+                        <div className="relative rounded-3xl border border-white/15 bg-white/[0.07] p-5 shadow-2xl backdrop-blur-xl">
+                            <div className="mb-5 flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Participation Signal</p>
+                                    <p className="mt-1 text-sm text-zinc-300">Activation preview</p>
+                                </div>
+                                <Badge className="border-primary/20 bg-primary/15 text-primary">Live</Badge>
+                            </div>
+                            <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                                <h2 className="font-serif text-2xl font-bold text-white">Coffee Tour Weekend</h2>
+                                <p className="mt-2 text-sm leading-6 text-zinc-300">A Moment route that gives locals a reason to visit, scan, redeem, return, and talk.</p>
+                                <div className="mt-6 grid grid-cols-3 gap-3">
+                                    {[
+                                        ["Live", "redemptions"],
+                                        ["184", "Marks"],
+                                        ["Proof", "return signal"],
+                                    ].map(([value, label]) => (
+                                        <div key={label} className="rounded-xl bg-white/10 p-3 text-center">
+                                            <p className="font-serif text-xl font-bold text-white">{value}</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">{label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
                 </div>
             </section>
 
-            {/* ROI Section */}
+            {/* Participation Measurement Section */}
             <section className="py-20 md:py-32">
                 <div className="container px-4 sm:px-6">
                     <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary mb-6">
                                 <BarChart3 className="w-4 h-4" />
-                                <span className="text-sm font-medium">Measurement & ROI</span>
+                                <span className="text-sm font-medium">Participation Measurement</span>
                             </div>
 
                             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
-                                Stop Paying for "Impressions." <br />
-                                Start Paying for Verified Action.
+                                Move Beyond Awareness. <br />
+                                Measure What People Actually Do.
                             </h2>
 
                             <p className="text-lg text-muted-foreground mb-8">
-                                Already sponsoring Carnival or a local festival? Use Promorang to guarantee 
-                                people actually interact with your brand. Instantly generate an automated 
-                                ROI recap to justify your spend.
+                                Already promoting Carnival, a local festival, a product launch, or a neighborhood campaign?
+                                Use Promorang to turn visibility into Moments people join, remember,
+                                redeem, and return from with a clear recap of the participation your campaign created.
                             </p>
 
                             <div className="space-y-4 mb-8">
@@ -150,7 +178,7 @@ const ForBrands = () => {
                             </div>
 
                             <Button variant="hero" asChild>
-                                <Link to="/strategies">Explore Outcomes</Link>
+                                <Link to="/strategies">Explore Moment Ideas</Link>
                             </Button>
                         </div>
 
@@ -165,17 +193,17 @@ const ForBrands = () => {
                                     </div>
                                     <div className="space-y-4">
                                         {[
-                                            { title: "Yoga in the Park", yield: "84%", cost: "Active", velocity: "Heartfelt" },
-                                            { title: "Craft Coffee Tour", yield: "92%", cost: "Active", velocity: "Vibrant" },
+                                            { title: "Yoga in the Park", verified: "84%", status: "Active", energy: "Heartfelt" },
+                                            { title: "Craft Coffee Tour", verified: "92%", status: "Active", energy: "Vibrant" },
                                         ].map((intel, i) => (
                                             <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
                                                 <div>
                                                     <p className="text-xs font-bold text-white">{intel.title}</p>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Status: {intel.cost}</p>
+                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Status: {intel.status}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-xs font-black text-primary">{intel.yield} Verified</p>
-                                                    <p className="text-[9px] text-white/20 uppercase font-black">{intel.velocity}</p>
+                                                    <p className="text-xs font-black text-primary">{intel.verified} Verified</p>
+                                                    <p className="text-[9px] text-white/20 uppercase font-black">{intel.energy}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -206,18 +234,18 @@ const ForBrands = () => {
                 </div>
             </section>
 
-            {/* SKU Catalog Section */}
+            {/* Moment Catalog Section */}
             <section id="outcomes" className="py-20 bg-background border-y border-border">
                 <div className="container px-4 sm:px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-foreground mb-6">
-                            <span className="text-sm font-medium">Atomic Commercial Units</span>
+                            <span className="text-sm font-medium">Moments Are The Atomic Unit</span>
                         </div>
                         <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                            The Moment Catalog
+                            Build Campaigns From Human Moments
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            Sponsorship isn't an ad buy. It's a purchase of a specific outcome.
+                            A Moment is a small, understandable activation: a place, a reason to participate, a simple action path, and proof that people took part.
                         </p>
                     </div>
 
@@ -233,15 +261,15 @@ const ForBrands = () => {
                             <h3 className="text-xl font-bold mb-2">Community Moment</h3>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">SINGLE LOCATION</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Culture seeding, cold start, density building. Test the platform with minimal risk.
+                                Start with one place, one audience, and one clear reason for people to participate.
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Suggested Funding</span>
+                                    <span className="text-muted-foreground">Pilot Budget</span>
                                     <span className="font-mono font-medium">$0 – $150</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Platform Fee</span>
+                                    <span className="text-muted-foreground">Support Range</span>
                                     <span className="font-mono font-medium text-emerald-500">$0 – $30</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
@@ -262,11 +290,11 @@ const ForBrands = () => {
                             <h3 className="text-xl font-bold mb-2">Activation Moment</h3>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">Single Location</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Fund a specific moment. Get verified presence in a high-relevance environment.
+                                Create a specific Moment around a launch, venue, creator, or cultural occasion.
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Suggested Funding</span>
+                                    <span className="text-muted-foreground">Pilot Budget</span>
                                     <span className="font-mono font-medium">$250 – $750</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
@@ -290,11 +318,11 @@ const ForBrands = () => {
                             <h3 className="text-xl font-bold mb-2">Bounty Moment</h3>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">Distributed</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
-                                Commission outcomes across multiple hosts. Paying only for verified execution.
+                                Run the same participation brief across multiple hosts, creators, or venues with proof attached to each action.
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Suggested Funding</span>
+                                    <span className="text-muted-foreground">Pilot Budget</span>
                                     <span className="font-mono font-medium">$500 – $2.5k</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
@@ -319,7 +347,7 @@ const ForBrands = () => {
                             </p>
                             <div className="space-y-2 mb-8 text-sm">
                                 <div className="flex justify-between py-2 border-b border-border/50">
-                                    <span className="text-muted-foreground">Suggested Funding</span>
+                                    <span className="text-muted-foreground">Pilot Budget</span>
                                     <span className="font-mono font-medium">$150 – $500</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/50">
@@ -335,20 +363,20 @@ const ForBrands = () => {
                 </div>
             </section>
 
-            {/* Reward Catalyst Section */}
+            {/* Participation Playbooks Section */}
             <section id="catalyst" className="py-24 bg-charcoal relative overflow-hidden border-y border-white/5">
                 <div className="container px-6 relative z-10">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-[10px] font-black uppercase tracking-widest mb-6">
                             <Zap className="w-3 h-3" />
-                            Industry Reward Playbooks
+                            Industry Activation Playbooks
                         </div>
                         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-6 italic">
-                            Fueling <span className="text-primary">Community Gratitude.</span>
+                            Design Moments <span className="text-primary">People Want To Join.</span>
                         </h2>
                         <p className="text-white/60 text-lg">
-                            Each industry has unique ways to reward standing. Use these playbooks 
-                            to turn your specific products or services into elite community keys.
+                            Each industry has a different human reason to participate. Use these playbooks
+                            to turn products, places, and services into Moments people understand quickly.
                         </p>
                     </div>
 
@@ -358,28 +386,28 @@ const ForBrands = () => {
                                 industry: "Food & Beverage",
                                 description: "Hospitality and taste-makers.",
                                 idea: "Founder's Table",
-                                ideaDesc: "Reserved seating and off-menu items for Eminence participants.",
+                                ideaDesc: "Reserved seating and off-menu items for early guests who check in and share proof.",
                                 icon: Zap,
                             },
                             {
                                 industry: "Luxury & Retail",
                                 description: "Physical goods and limited drops.",
-                                idea: "Archive Access",
-                                ideaDesc: "Early access or 'Item #001' of the next collection for Luminaries.",
+                                idea: "Preview Drop",
+                                ideaDesc: "Early access to a product release for people who join the launch Moment.",
                                 icon: Sparkles,
                             },
                             {
                                 industry: "Professional Services",
                                 description: "Expertise and priority access.",
-                                idea: "Priority Standing",
-                                ideaDesc: "Skip-the-line support and private consulting for top storytellers.",
+                                idea: "Priority Session",
+                                ideaDesc: "A limited session for customers who complete a qualifying action path.",
                                 icon: ShieldCheck,
                             },
                             {
                                 industry: "Digital & SaaS",
                                 description: "Platforms and remote tools.",
-                                idea: "Legacy Features",
-                                ideaDesc: "Permanent feature unlocks and 'Founding Member' status badges.",
+                                idea: "Beta Circle",
+                                ideaDesc: "Invite engaged users into a small product feedback Moment with clear next steps.",
                                 icon: Target,
                             }
                         ].map((category, i) => (
@@ -411,22 +439,22 @@ const ForBrands = () => {
                                         <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                             <Sparkles className="w-5 h-5 text-blue-500" />
                                         </div>
-                                        <h4 className="font-bold text-lg">Sharing Power</h4>
+                                        <h4 className="font-bold text-lg">Community Reach</h4>
                                     </div>
                                     <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Social Reach</Badge>
                                 </div>
                                 <div className="space-y-6">
                                     <div className="p-4 bg-muted/50 rounded-2xl border border-border">
                                         <div className="flex justify-between mb-2">
-                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Community Level</span>
-                                            <span className="text-xs font-black text-primary">1.25x Boost</span>
+                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Participation Signal</span>
+                                            <span className="text-xs font-black text-primary">Strong</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                             <div className="w-[85%] h-full bg-primary" />
                                         </div>
                                     </div>
                                     <p className="text-sm text-center text-muted-foreground italic">
-                                        "When a top-level participant shares a moment, it reaches 50,000+ real followers in your target audience."
+                                        "When the right people join a Moment, your campaign moves through real social circles instead of staying in an ad slot."
                                     </p>
                                 </div>
                             </div>
@@ -435,21 +463,20 @@ const ForBrands = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
                                 <Users className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">The Sharing Bonus</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Creator And Community Amplification</span>
                             </div>
                             <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
                                 Reach the Right <span className="text-primary italic">People.</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                Our community members are more than attendees—they have real social followings. 
-                                We measure **Sharing Power** by looking at their follower count 
-                                across Instagram, Twitter, and more.
+                                A strong Moment gives creators and community members something real to talk about.
+                                Promorang helps connect campaign participation to the content, check-ins, referrals, and QR paths that show how the message traveled.
                             </p>
                             <div className="space-y-4">
                                 {[
-                                    { title: "Signup Bonus", desc: "Automatic points for linking verified social accounts." },
-                                    { title: "Sharing Bonuses", desc: "Bigger rewards for participants with a larger social audience." },
-                                    { title: "Campaign Reports", desc: "See exactly how far your funded moment traveled across social media." },
+                                    { title: "Creator Fit", desc: "Invite creators whose audience matches the Moment and location." },
+                                    { title: "Community Proof", desc: "Collect posts, check-ins, scans, and redemption activity in one campaign record." },
+                                    { title: "Campaign Reports", desc: "See how far your Moment traveled across people, places, and social media." },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
@@ -472,13 +499,13 @@ const ForBrands = () => {
                         <div className="text-center mb-16">
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 text-amber-500 border border-amber-500/30 mb-6">
                                 <Target className="w-4 h-4" />
-                                <span className="text-sm font-bold uppercase tracking-wider">The Incentive Engine</span>
+                                <span className="text-sm font-bold uppercase tracking-wider">Why People Participate</span>
                             </div>
                             <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
-                                Why Will People Actually Show Up?
+                                Why People Actually Show Up
                             </h2>
                             <p className="text-white/60 text-lg">
-                                The 89% redemption rate isn't magic. It's psychology.
+                                People show up when the offer feels human, scarce, and worth being part of.
                             </p>
                         </div>
 
@@ -488,24 +515,24 @@ const ForBrands = () => {
                                     <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
                                         <Sparkles className="w-6 h-6 text-amber-500" />
                                     </div>
-                                    <h3 className="font-bold text-xl text-white">They Earn Points</h3>
+                                    <h3 className="font-bold text-xl text-white">There Is A Clear Reason</h3>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">Join a moment</span>
-                                        <span className="font-bold text-amber-500">+25 pts</span>
+                                        <span className="text-white/60">Join a Moment</span>
+                                        <span className="font-bold text-amber-500">Plan</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">Check in at venue</span>
-                                        <span className="font-bold text-amber-500">+50 pts</span>
+                                        <span className="text-white/60">Check in at the venue</span>
+                                        <span className="font-bold text-amber-500">Proof</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                        <span className="text-white/60">7-day streak bonus</span>
-                                        <span className="font-bold text-amber-500">+100 pts</span>
+                                        <span className="text-white/60">Redeem or share</span>
+                                        <span className="font-bold text-amber-500">Action</span>
                                     </div>
                                 </div>
                                 <p className="text-sm text-white/40 mt-4">
-                                    1,000 points = 1 Key. Keys unlock exclusive funded moments.
+                                    The best activations are simple: know what to do, know where to go, and know what it unlocks.
                                 </p>
                             </div>
 
@@ -514,35 +541,34 @@ const ForBrands = () => {
                                     <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
                                         <Crown className="w-6 h-6 text-primary" />
                                     </div>
-                                    <h3 className="font-bold text-xl text-white">They Build Status</h3>
+                                    <h3 className="font-bold text-xl text-white">They Feel Part Of It</h3>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                        <span className="text-white/60">Newcomer → Regular → Insider</span>
+                                        <span className="text-white/60">Newcomer to regular to insider</span>
                                     </div>
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                        <span className="text-white/60">Insider → Luminary → Icon</span>
+                                        <span className="text-white/60">Insider to advocate to host</span>
                                     </div>
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span className="text-white/60">Higher rank = Early access + VIP moments</span>
+                                        <span className="text-white/60">Return visits create stronger community memory</span>
                                     </div>
                                 </div>
                                 <p className="text-sm text-white/40 mt-4">
-                                    Status is having access others don't. They earn it through consistency.
+                                    People return when the experience recognizes them without making the campaign feel mechanical.
                                 </p>
                             </div>
                         </div>
 
                         <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-2xl p-8 text-center">
                             <h3 className="font-serif text-2xl font-bold text-white mb-4">
-                                You're Not Buying Ads. You're Funding an Experience People Get Rewarded to Attend.
+                                You Are Not Buying Attention. You Are Creating A Moment People Can Join.
                             </h3>
                             <p className="text-white/70 mb-6 max-w-2xl mx-auto">
-                                That's why 89% show up. They're not doing you a favor—they're building their reputation. 
-                                You're just the sponsor that makes the whole economy work.
+                                The brand is not interrupting the Moment. It is making the Moment more useful, more social, or more memorable while receiving proof that real participation happened.
                             </p>
                             <div className="flex flex-wrap justify-center gap-4 text-sm">
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
@@ -551,11 +577,11 @@ const ForBrands = () => {
                                 </div>
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">Points economy drives behavior</span>
+                                    <span className="text-white">Clear participation path</span>
                                 </div>
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">Status unlocks exclusivity</span>
+                                    <span className="text-white">Creator and community context</span>
                                 </div>
                             </div>
                         </div>
@@ -568,21 +594,21 @@ const ForBrands = () => {
                 <div className="container px-6">
                     <div className="max-w-3xl mx-auto text-center">
                         <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
-                            Ready to fund proof, not promises?
+                            Ready to create a Moment people remember?
                         </h2>
                         <p className="text-cream/70 text-lg mb-8">
-                            Join leading brands already using Promorang to build authentic connections with precision.
+                            Start with one pilot activation, prove participation, then scale what works.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
                                 {user ? (
                                     <Link to="/onboarding/brand">
-                                        Enable Brand Dashboard
+                                        Start Brand Workspace
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 ) : (
                                     <Link to="/auth">
-                                        Partner with Us
+                                        Start a Brand Pilot
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 )}
@@ -594,7 +620,6 @@ const ForBrands = () => {
                     </div>
                 </div>
             </section>
-            <StandingLeaderboard />
         </div>
     );
 };

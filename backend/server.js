@@ -179,8 +179,10 @@ app.use('/api/events', require('./api/events'));
 
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/coupons', require('./api/coupons'));
+app.use('/api/offers', require('./api/offers'));
 app.use('/api/notifications', require('./api/notifications'));
 app.use('/api/referrals', require('./api/referrals'));
+app.use('/api/agency-clients', require('./api/agency-clients'));
 app.use('/api/activations', require('./api/activations'));
 app.use('/api/integrations', require('./api/integrations'));
 app.use('/api/ami', require('./api/ami'));
@@ -195,6 +197,7 @@ app.use('/api/admin', require('./api/admin'));
 app.use('/api/support', require('./api/support'));
 app.use('/api/moments', require('./api/moments'));
 app.use('/api/moments', require('./api/moment-pricing')); // Moment SKU pricing endpoints
+app.use('/api/moment-economy', require('./api/moment-economy'));
 app.use('/api/participation', require('./api/participation'));
 app.use('/api/pulse', require('./api/pulse'));
 app.use('/api/proof', require('./api/proof'));
@@ -202,6 +205,9 @@ app.use('/api/memories', require('./api/memories'));
 app.use('/api/impact', require('./api/impact'));
 app.use('/api/creator-economics', require('./api/creator-economics'));
 app.use('/api/analytics', require('./api/analytics'));
+app.use('/api/pieces', require('./api/pieces'));
+app.use('/api/promoshare', require('./api/promoshare'));
+app.use('/api/featured-marketplace', require('./api/featured-marketplace'));
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
 app.use('/api/cron', require('./api/cron')); // Serverless cron entrypoints
 app.use('/api/email', require('./api/email')); // Email event entrypoints

@@ -105,17 +105,17 @@ const SearchPage = () => {
                 </p>
             </div>
 
-            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto mb-12">
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <form onSubmit={handleSearch} className="relative mx-auto mb-12 flex max-w-2xl flex-col gap-3 sm:block">
+                <SearchIcon className="absolute left-4 top-7 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Search for anything..."
-                    className="pl-12 h-14 text-lg rounded-2xl shadow-soft"
+                    className="h-14 rounded-2xl pl-12 text-base shadow-soft sm:pr-32 sm:text-lg"
                 />
                 <Button
                     type="submit"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl h-10 px-6"
+                    className="h-11 w-full rounded-xl px-6 sm:absolute sm:right-2 sm:top-1/2 sm:h-10 sm:w-auto sm:-translate-y-1/2"
                     disabled={isLoading}
                 >
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
@@ -123,7 +123,7 @@ const SearchPage = () => {
             </form>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full justify-start mb-8 bg-transparent border-b rounded-none h-auto p-0 gap-8">
+                <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b bg-transparent p-0 sm:gap-8">
                     <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">All Results</TabsTrigger>
                     <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">Moments</TabsTrigger>
                     <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent pb-4 px-1">Brands</TabsTrigger>
@@ -150,9 +150,9 @@ const SearchPage = () => {
                                 <Link
                                     key={`${result.result_type}-${result.id}`}
                                     to={result.path}
-                                    className="group bg-card hover:bg-muted/50 border rounded-2xl p-4 transition-all duration-200 flex items-center gap-4"
+                                    className="group flex min-w-0 flex-col gap-4 rounded-2xl border bg-card p-4 transition-all duration-200 hover:bg-muted/50 sm:flex-row sm:items-center"
                                 >
-                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 border shadow-sm">
+                                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border bg-muted shadow-sm">
                                         {result.image_url ? (
                                             <img
                                                 src={result.image_url}
@@ -166,7 +166,7 @@ const SearchPage = () => {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2">
                                             <span className={cn(
                                                 "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1",
                                                 getTypeColor(result.result_type)
@@ -175,7 +175,7 @@ const SearchPage = () => {
                                                 {result.result_type}
                                             </span>
                                             <span className="text-xs text-muted-foreground">•</span>
-                                            <span className="text-xs text-muted-foreground truncate">{result.subtitle}</span>
+                                            <span className="min-w-0 truncate text-xs text-muted-foreground">{result.subtitle}</span>
                                         </div>
                                         <h3 className="text-lg font-bold group-hover:text-primary transition-colors truncate">
                                             {result.title}
@@ -210,7 +210,7 @@ const SearchPage = () => {
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Didn't find what you need?</h3>
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         <Button asChild variant="outline" size="sm">
-                            <Link to="/discover">Browse Moments</Link>
+                            <Link to="/explore/moments">Browse Moments</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm">
                             <Link to="/brands">Partner with Brands</Link>

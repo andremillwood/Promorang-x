@@ -9,6 +9,7 @@ import { KYCSubmissionForm } from '@/components/kyc/KYCSubmissionForm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 import { 
   Shield, 
   CheckCircle, 
@@ -37,6 +38,8 @@ interface KYCStatus {
   };
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
+
 export function KYCPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -52,7 +55,7 @@ export function KYCPage() {
 
   const fetchStatus = async () => {
     try {
-      const response = await fetch('/api/pieces/kyc/status', {
+      const response = await fetch(`${API_BASE}/pieces/kyc/status`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
@@ -121,6 +124,14 @@ export function KYCPage() {
           <p className="text-muted-foreground mt-2">
             Complete KYC verification to unlock trading and withdrawals
           </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/marketplace">Open Marketplace</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/liquidity">Liquidity Dashboard</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Status Card */}

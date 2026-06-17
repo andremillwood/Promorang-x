@@ -7,11 +7,12 @@ import {
     useElements,
 } from "@stripe/react-stripe-js";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CreditCard, CheckCircle } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // Stripe promise (initialized once)
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -42,14 +43,15 @@ const getStripe = async () => {
 interface CheckoutFormProps {
     clientSecret: string;
     amount: number;
-    onSuccess: () => void;
+    currency: string;
+    onSuccess: (paymentIntent?: any) => void;
     onCancel: () => void;
 }
 
 /**
  * Checkout form component (used inside Elements provider)
  */
-const CheckoutForm = ({ clientSecret, amount, onSuccess, onCancel }: CheckoutFormProps) => {
+const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: CheckoutFormProps) => {
     const stripe = useStripe();
     const elements = useElements();
     const { toast } = useToast();
@@ -83,11 +85,11 @@ const CheckoutForm = ({ clientSecret, amount, onSuccess, onCancel }: CheckoutFor
             } else if (paymentIntent && paymentIntent.status === 'succeeded') {
                 setPaymentSucceeded(true);
                 toast({
-                    title: "Payment Successful! 🎉",
-                    description: `Your payment of $${amount.toFixed(2)} has been processed.`,
+                    title: "Payment Successful",
+                    description: `Your payment of ${currency.toUpperCase()} ${amount.toLocaleString()} has been processed.`,
                 });
                 setTimeout(() => {
-                    onSuccess();
+                    onSuccess(paymentIntent);
                 }, 1500);
             }
         } catch (err: any) {
@@ -142,7 +144,7 @@ const CheckoutForm = ({ clientSecret, amount, onSuccess, onCancel }: CheckoutFor
                     ) : (
                         <>
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Pay ${amount.toFixed(2)}
+                            Pay {currency.toUpperCase()} {amount.toLocaleString()}
                         </>
                     )}
                 </Button>
@@ -153,8 +155,11 @@ const CheckoutForm = ({ clientSecret, amount, onSuccess, onCancel }: CheckoutFor
 
 interface StripeCheckoutProps {
     amount: number;
+    currency?: string;
+    paymentIntentPath?: string;
+    paymentIntentBody?: Record<string, any>;
     metadata?: Record<string, any>;
-    onSuccess: () => void;
+    onSuccess: (paymentIntent?: any) => void;
     onCancel: () => void;
 }
 
@@ -162,7 +167,15 @@ interface StripeCheckoutProps {
  * Stripe Checkout Component
  * Creates payment intent and renders Stripe Elements
  */
-const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCheckoutProps) => {
+const StripeCheckout = ({
+    amount,
+    currency = 'usd',
+    paymentIntentPath = '/api/stripe/payment-intent',
+    paymentIntentBody,
+    metadata = {},
+    onSuccess,
+    onCancel,
+}: StripeCheckoutProps) => {
     const { toast } = useToast();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -170,7 +183,7 @@ const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCh
 
     useEffect(() => {
         initializePayment();
-    }, [amount]);
+    }, [amount, currency, paymentIntentPath]);
 
     const initializePayment = async () => {
         setIsLoading(true);
@@ -188,16 +201,22 @@ const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCh
             }
             setStripeInstance(stripe);
 
+            const session = await supabase.auth.getSession();
+            const accessToken = session.data.session?.access_token;
+            if (!accessToken) {
+                throw new Error('Authentication session expired');
+            }
+
             // Create payment intent
-            const response = await fetch(`${API_URL}/api/stripe/payment-intent`, {
+            const response = await fetch(`${API_URL}${paymentIntentPath}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('userId')}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
-                body: JSON.stringify({
+                body: JSON.stringify(paymentIntentBody || {
                     amount,
-                    currency: 'usd',
+                    currency,
                     metadata,
                 }),
             });
@@ -207,7 +226,13 @@ const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCh
                 throw new Error(error.error || 'Failed to create payment intent');
             }
 
-            const { clientSecret: secret } = await response.json();
+            const payload = await response.json();
+            const intent = payload.intent || payload;
+            if (intent.manual_required) {
+                throw new Error(intent.message || 'Card payment is unavailable for this Moment');
+            }
+            const secret = intent.clientSecret || intent.client_secret;
+            if (!secret) throw new Error('Payment intent did not return a client secret');
             setClientSecret(secret);
         } catch (error: any) {
             console.error('Error initializing payment:', error);
@@ -268,7 +293,7 @@ const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCh
                     Complete Payment
                 </CardTitle>
                 <CardDescription>
-                    Total: ${amount.toFixed(2)} USD
+                    Total: {currency.toUpperCase()} {amount.toLocaleString()}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -276,6 +301,7 @@ const StripeCheckout = ({ amount, metadata = {}, onSuccess, onCancel }: StripeCh
                     <CheckoutForm
                         clientSecret={clientSecret}
                         amount={amount}
+                        currency={currency}
                         onSuccess={onSuccess}
                         onCancel={onCancel}
                     />

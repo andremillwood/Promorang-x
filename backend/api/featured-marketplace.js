@@ -11,7 +11,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const featuredMarketplaceService = require('../services/featuredMarketplaceService');
 
 /**
@@ -242,16 +242,8 @@ router.post('/:placementId/record-click', requireAuth, async (req, res) => {
  * GET /api/featured-marketplace/revenue-stats
  * Admin endpoint to get revenue statistics
  */
-router.get('/revenue-stats', requireAuth, async (req, res) => {
+router.get('/revenue-stats', requireAuth, requireAdmin, async (req, res) => {
     try {
-        // Check admin role (simplified - should check req.user.role)
-        if (!req.user.is_admin) {
-            return res.status(403).json({
-                success: false,
-                error: 'Admin access required'
-            });
-        }
-        
         const { start_date, end_date } = req.query;
         
         const stats = await featuredMarketplaceService.getRevenueStats(
@@ -276,16 +268,8 @@ router.get('/revenue-stats', requireAuth, async (req, res) => {
  * POST /api/featured-marketplace/:bookingId/activate
  * Admin endpoint to activate a booking after payment
  */
-router.post('/:bookingId/activate', requireAuth, async (req, res) => {
+router.post('/:bookingId/activate', requireAuth, requireAdmin, async (req, res) => {
     try {
-        // Check admin role
-        if (!req.user.is_admin) {
-            return res.status(403).json({
-                success: false,
-                error: 'Admin access required'
-            });
-        }
-        
         const { bookingId } = req.params;
         
         const result = await featuredMarketplaceService.activateBooking(bookingId);

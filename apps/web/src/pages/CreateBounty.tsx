@@ -67,7 +67,7 @@ const CreateBounty = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="mx-auto max-w-2xl">
             {/* Header */}
             <div className="mb-8">
                 <Button
@@ -78,12 +78,12 @@ const CreateBounty = () => {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Dashboard
                 </Button>
-                <div className="flex items-center gap-3 mb-2">
+                <div className="mb-2 flex items-start gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                         <Target className="w-6 h-6 text-primary" />
                     </div>
-                    <div>
-                        <h1 className="font-serif text-3xl font-bold text-gradient-primary">
+                    <div className="min-w-0">
+                        <h1 className="font-serif text-2xl font-bold text-gradient-primary sm:text-3xl">
                             Post a Bounty
                         </h1>
                         <p className="text-muted-foreground">
@@ -95,7 +95,7 @@ const CreateBounty = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6 pb-12">
                 {/* Core Details */}
-                <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
+                <div className="space-y-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
                     <h2 className="font-serif text-xl font-semibold flex items-center gap-2">
                         Bounty Scope
                     </h2>
@@ -136,10 +136,10 @@ const CreateBounty = () => {
                 </div>
 
                 {/* Targets & Logistics */}
-                <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
+                <div className="space-y-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
                     <h2 className="font-serif text-xl font-semibold">Targets & Logistics</h2>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="category">Target Category *</Label>
                             <Select
@@ -171,7 +171,7 @@ const CreateBounty = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="minParticipants" className="flex items-center gap-2">
                                 <Users className="w-3 h-3" />
@@ -201,9 +201,9 @@ const CreateBounty = () => {
                 </div>
 
                 {/* Payout */}
-                <div className="bg-gradient-warm border border-border rounded-2xl p-8 space-y-6 shadow-md text-foreground">
-                    <div className="flex items-center justify-between">
-                        <div>
+                <div className="space-y-6 rounded-2xl border border-border bg-gradient-warm p-4 text-foreground shadow-md sm:p-8">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
                             <h2 className="font-serif text-2xl font-bold mb-1">Total Payout</h2>
                             <p className="text-muted-foreground text-sm">Amount the host will receive upon approval</p>
                         </div>
@@ -222,7 +222,7 @@ const CreateBounty = () => {
                             value={formData.payoutAmount}
                             onChange={(e) => setFormData({ ...formData, payoutAmount: e.target.value })}
                             placeholder="250.00"
-                            className="pl-10 text-3xl h-16 bg-background/50 border-border font-bold focus:bg-background"
+                            className="h-16 bg-background/50 pl-10 text-2xl font-bold focus:bg-background sm:text-3xl"
                             required
                         />
                     </div>
@@ -233,7 +233,7 @@ const CreateBounty = () => {
                 </div>
 
                 {/* Submit */}
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                     <Button
                         type="button"
                         variant="outline"

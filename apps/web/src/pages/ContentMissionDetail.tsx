@@ -94,6 +94,13 @@ export default function ContentMissionDetail() {
 
   const mission = missionQuery.data;
   const metrics = metricsQuery.data;
+  const heroImage =
+    mission?.content?.banner_image_url ||
+    mission?.content?.thumbnail_url ||
+    mission?.content?.media_url ||
+    mission?.moment?.banner_image_url ||
+    mission?.moment?.image_url;
+  const galleryImages = Array.isArray(mission?.content?.gallery_images) ? mission.content.gallery_images : [];
   const actionCount = useMemo(() => {
     if (!metrics) return 0;
     return Number(metrics.total_engagement || 0);
@@ -139,7 +146,9 @@ export default function ContentMissionDetail() {
     <main className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
       <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft">
         <div className="relative h-72 overflow-hidden bg-muted sm:h-96">
-          <img src={mission.content?.media_url} alt={mission.content?.title} className="h-full w-full object-cover" />
+          {heroImage ? (
+            <img src={heroImage} alt={mission.content?.title} className="h-full w-full object-cover" />
+          ) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute left-5 top-5 flex flex-wrap gap-2">
             <Badge className="bg-black/60 text-white backdrop-blur">
@@ -162,6 +171,20 @@ export default function ContentMissionDetail() {
           </div>
         </div>
       </section>
+
+      {galleryImages.length > 0 ? (
+        <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+          <h2 className="font-serif text-2xl font-bold">Mission Gallery</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {galleryImages.map((image: { url: string; alt?: string; caption?: string }, index: number) => (
+              <figure key={`${image.url}-${index}`} className="overflow-hidden rounded-2xl border border-border bg-background">
+                <img src={image.url} alt={image.alt || image.caption || ""} className="aspect-video w-full object-cover" />
+                {image.caption ? <figcaption className="p-3 text-sm text-muted-foreground">{image.caption}</figcaption> : null}
+              </figure>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-6">

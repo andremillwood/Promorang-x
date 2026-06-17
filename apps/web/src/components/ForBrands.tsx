@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, TrendingUp, Shield, BarChart3 } from "lucide-react";
+import { Building2, Users, Shield, BarChart3 } from "lucide-react";
 
 const ForBrands = () => {
   return (
@@ -15,33 +15,33 @@ const ForBrands = () => {
             </div>
 
             <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
-              Be present where
-              <span className="text-gradient-primary"> meaning </span>
-              already exists
+              Turn promotions
+              <span className="text-gradient-primary"> into participation </span>
+              people remember
             </h2>
 
             <p className="text-cream/70 text-lg mb-8 leading-relaxed">
-              Stop interrupting. Start participating. Promorang lets you connect with
-              real people at real moments—without forcing attention or corrupting
-              the experience.
+              People do not want another ad. They want a better night, a useful perk,
+              a reason to try a place, or a memory worth keeping. Promorang helps brands
+              create Moments where people choose to show up, take part, and leave proof of real engagement.
             </p>
 
             <div className="space-y-5 mb-10">
               {[
                 {
-                  icon: TrendingUp,
-                  title: "Real Participation",
-                  text: "Reward people who actually show up and engage",
+                  icon: Users,
+                  title: "Create the Moment",
+                  text: "Shape an activation around a place, audience, and human reason to participate",
                 },
                 {
                   icon: Shield,
-                  title: "Credible Presence",
-                  text: "Build goodwill through genuine contribution",
+                  title: "Build Trust",
+                  text: "Show up as the brand making something useful, social, or memorable happen",
                 },
                 {
                   icon: BarChart3,
-                  title: "Measurable Outcomes",
-                  text: "Track real participation, not vanity metrics",
+                  title: "Measure Participation",
+                  text: "See check-ins, redemptions, content, QR engagement, and return signals",
                 },
               ].map((item, index) => (
                 <div key={index} className="flex items-start gap-4">

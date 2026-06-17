@@ -31,6 +31,33 @@ const CONFIG = {
     }
 };
 
+function normalizeCurrency(currency) {
+    if (currency === 'keys') return 'promokeys';
+    return currency;
+}
+
+async function recordParticipantKeysEarned(userId, amount, source, referenceId = null, description = '') {
+    if (!supabase || !userId || !amount || amount <= 0) return null;
+
+    try {
+        const { data, error } = await supabase.rpc('record_participant_keys_earned', {
+            p_user_id: userId,
+            p_keys: Math.floor(Number(amount)),
+            p_source: source || 'verified_activity',
+            p_metadata: {
+                reference_id: referenceId,
+                description
+            }
+        });
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('[Economy Service] Error recording participant key progress:', error);
+        return null;
+    }
+}
+
 /**
  * Get the current Gem to USD conversion rate
  */
@@ -90,6 +117,7 @@ async function getBalance(userId) {
  */
 async function addCurrency(userId, currency, amount, source, referenceId = null, description = '') {
     if (!supabase) throw new Error('Database not available');
+    currency = normalizeCurrency(currency);
     if (!CONFIG.currencies.includes(currency)) throw new Error(`Invalid currency: ${currency}`);
     if (amount <= 0) throw new Error('Amount must be positive');
 
@@ -139,6 +167,10 @@ async function addCurrency(userId, currency, amount, source, referenceId = null,
 
         if (updateError) throw updateError;
 
+        if (currency === 'promokeys' && !String(source || '').includes('refund')) {
+            await recordParticipantKeysEarned(userId, amount, source, referenceId, description);
+        }
+
         return { success: true, new_balance: newAmount };
     } catch (error) {
         console.error('[Economy Service] Error adding currency:', error);
@@ -151,6 +183,7 @@ async function addCurrency(userId, currency, amount, source, referenceId = null,
  */
 async function spendCurrency(userId, currency, amount, source, referenceId = null, description = '') {
     if (!supabase) throw new Error('Database not available');
+    currency = normalizeCurrency(currency);
     if (!CONFIG.currencies.includes(currency)) throw new Error(`Invalid currency: ${currency}`);
     if (amount <= 0) throw new Error('Amount must be positive');
 
@@ -450,6 +483,7 @@ module.exports = {
     getBalance,
     addCurrency,
     spendCurrency,
+    recordParticipantKeysEarned,
     convertPointsToPromoKeys,
     getMasterKeyStatus,
     unlockMasterKey,

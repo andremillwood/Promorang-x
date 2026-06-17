@@ -31,7 +31,7 @@ export function MerchantInventoryTab() {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
         {statsLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
@@ -64,7 +64,7 @@ export function MerchantInventoryTab() {
 
       {/* Products List */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="font-semibold text-foreground">Products</h3>
           <Button asChild>
             <Link to="/dashboard/products/add">
@@ -85,7 +85,7 @@ export function MerchantInventoryTab() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="bg-card rounded-xl p-4 border border-border flex items-center gap-4"
+                className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center"
               >
                 <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
                   {product.images && product.images.length > 0 ? (
@@ -99,7 +99,7 @@ export function MerchantInventoryTab() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2">
                     <h4 className="font-medium text-foreground truncate">{product.name}</h4>
                     {!product.is_active && (
                       <Badge variant="secondary">Inactive</Badge>
@@ -117,7 +117,7 @@ export function MerchantInventoryTab() {
                     <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:ml-auto">
                   <Button variant="ghost" size="icon">
                     <Edit className="w-4 h-4" />
                   </Button>
@@ -171,9 +171,9 @@ export function MerchantInventoryTab() {
               .map((redemption) => (
                 <div
                   key={redemption.id}
-                  className="bg-card rounded-xl p-4 border border-yellow-500/50 flex items-center justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-yellow-500/50 bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-foreground">
                       Order #{redemption.id.slice(0, 8)}
                     </p>

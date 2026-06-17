@@ -1,4 +1,8 @@
 const { supabase } = require('../lib/supabase');
+const promoShareEntryService = require('./promoShareEntryService');
+const promoShareQualificationService = require('./promoShareQualificationService');
+const promoShareAuditService = require('./promoShareAuditService');
+const offerService = require('./offerService');
 
 // ============================================
 // DEFAULT CONFIGURATION (can be overridden per cycle)
@@ -313,16 +317,39 @@ const promoShareService = {
         if (!supabase) return null;
 
         try {
-            const { cycle_type, start_at, end_at, config, rewards } = cycleData;
+            const {
+                cycle_type,
+                cycle_name,
+                start_at,
+                end_at,
+                config,
+                rewards,
+                eligibility_config,
+                weight_config,
+                selection_config,
+                distribution_config,
+                sponsor_config,
+                funding_model
+            } = cycleData;
+
+            const configEligibility = config?.eligibility_config || {};
+            const configWeight = config?.weight_config || {};
 
             // 1. Create Cycle
             const { data: cycle, error } = await supabase
                 .from('promoshare_cycles')
                 .insert({
                     cycle_type,
+                    cycle_name,
                     start_at,
                     end_at,
                     config: config || {},
+                    eligibility_config: eligibility_config || configEligibility,
+                    weight_config: weight_config || configWeight,
+                    selection_config: selection_config || {},
+                    distribution_config: distribution_config || {},
+                    sponsor_config: sponsor_config || {},
+                    funding_model: funding_model || 'platform',
                     status: 'active'
                 })
                 .select()
@@ -614,202 +641,35 @@ const promoShareService = {
      * Record an entry for a specific action
      */
     async recordEntry(cycleId, userId, entryData) {
-        if (!supabase) return null;
-
-        const { data: entry, error } = await supabase
-            .from('promoshare_entries')
-            .upsert({
-                cycle_id: cycleId,
-                user_id: userId,
-                source_type: entryData.source_type,
-                source_action: entryData.source_action,
-                source_id: entryData.source_id,
-                entry_count: entryData.entry_count || 1,
-                weight_value: entryData.weight_value || 1,
-                metadata: entryData.metadata || {}
-            }, {
-                onConflict: 'cycle_id,user_id,source_type,source_id',
-                ignoreDuplicates: false
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('[PromoShare] Error recording entry:', error);
-            return null;
-        }
-
-        return entry;
+        return promoShareEntryService.recordEntry(cycleId, userId, entryData);
     },
 
     /**
      * Get or create user stats for a cycle
      */
     async getOrCreateUserStats(cycleId, userId) {
-        if (!supabase) return null;
-
-        // Try to get existing
-        const { data: existing } = await supabase
-            .from('promoshare_user_stats')
-            .select('*')
-            .eq('cycle_id', cycleId)
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (existing) return existing;
-
-        // Create new stats record
-        const { data: created, error } = await supabase
-            .from('promoshare_user_stats')
-            .insert({
-                cycle_id: cycleId,
-                user_id: userId,
-                status: USER_STATES.NOT_QUALIFIED,
-                first_activity_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('[PromoShare] Error creating user stats:', error);
-            return null;
-        }
-
-        return created;
+        return promoShareQualificationService.getOrCreateUserStats(cycleId, userId);
     },
 
     /**
      * Recalculate user eligibility and weight for a cycle
      */
     async recalculateUserStats(cycleId, userId) {
-        if (!supabase) return null;
-
-        // Get cycle configuration
-        const { data: cycle } = await supabase
-            .from('promoshare_cycles')
-            .select('eligibility_config, weight_config')
-            .eq('id', cycleId)
-            .single();
-
-        const eligibilityRules = { ...DEFAULT_ELIGIBILITY_RULES, ...(cycle?.eligibility_config || {}) };
-        const weightConfig = { ...DEFAULT_WEIGHT_CONFIG, ...(cycle?.weight_config || {}) };
-
-        // Get aggregated entry data
-        const { data: entries } = await supabase
-            .from('promoshare_entries')
-            .select('source_type, entry_count, weight_value')
-            .eq('cycle_id', cycleId)
-            .eq('user_id', userId);
-
-        // Calculate activity counts
-        const stats = {
-            verified_moves_count: 0,
-            moments_joined_count: 0,
-            proofs_approved_count: 0,
-            referral_count: 0,
-            total_entries: 0
-        };
-
-        (entries || []).forEach(entry => {
-            stats.total_entries += entry.entry_count || 0;
-            if (entry.source_type === 'move') stats.verified_moves_count += entry.entry_count;
-            if (entry.source_type === 'moment') stats.moments_joined_count += entry.entry_count;
-            if (entry.source_type === 'proof') stats.proofs_approved_count += entry.entry_count;
-            if (entry.source_type === 'referral') stats.referral_count += entry.entry_count;
-        });
-
-        // Get user tier info
-        const { data: user } = await supabase
-            .from('users')
-            .select('user_tier, subscription_status')
-            .eq('id', userId)
-            .single();
-
-        const isPaidSubscriber = user?.subscription_status === 'active' && user?.user_tier !== 'free';
-        const tierMultiplier = isPaidSubscriber ? weightConfig.paid_tier_multiplier : weightConfig.free_tier_multiplier;
-
-        // Calculate eligibility
-        const isEligible = this.calculateEligibility(stats, eligibilityRules, isPaidSubscriber);
-
-        // Calculate weight
-        const weightScore = this.calculateWeight(stats, weightConfig, tierMultiplier);
-
-        // Determine status
-        let status = isEligible ? USER_STATES.QUALIFIED : USER_STATES.NOT_QUALIFIED;
-
-        // Check if disqualified
-        const { data: userRecord } = await supabase
-            .from('promoshare_user_stats')
-            .select('risk_score, disqualified')
-            .eq('cycle_id', cycleId)
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (userRecord?.disqualified || (userRecord?.risk_score || 0) > 50) {
-            status = userRecord?.disqualified ? USER_STATES.DISQUALIFIED : USER_STATES.UNDER_REVIEW;
-        }
-
-        // Update user stats
-        const { data: updated } = await supabase
-            .from('promoshare_user_stats')
-            .update({
-                eligible: isEligible,
-                status: status,
-                verified_moves_count: stats.verified_moves_count,
-                moments_joined_count: stats.moments_joined_count,
-                proofs_submitted_count: stats.proofs_approved_count,
-                referral_count: stats.referral_count,
-                total_entries: stats.total_entries,
-                base_entry_score: weightConfig.base_entry,
-                activity_score: (stats.verified_moves_count * weightConfig.move_weight) +
-                    (stats.moments_joined_count * weightConfig.moment_weight) +
-                    (stats.proofs_approved_count * weightConfig.proof_weight),
-                referral_bonus: stats.referral_count * weightConfig.referral_weight,
-                tier_multiplier: tierMultiplier,
-                final_weight: weightScore,
-                last_activity_at: new Date().toISOString(),
-                last_computed_at: new Date().toISOString()
-            })
-            .eq('cycle_id', cycleId)
-            .eq('user_id', userId)
-            .select()
-            .single();
-
-        return updated;
+        return promoShareQualificationService.recalculateUserStats(cycleId, userId);
     },
 
     /**
      * Calculate if user meets eligibility criteria
      */
     calculateEligibility(stats, rules, isPaidSubscriber) {
-        // Check each rule - user must meet at least one primary rule
-        const hasMinMoves = stats.verified_moves_count >= rules.min_verified_moves;
-        const hasMinMoments = stats.moments_joined_count >= rules.min_moments_joined;
-        const hasMinReferrals = stats.referral_count >= rules.min_referrals;
-        const hasSubscription = isPaidSubscriber && rules.subscription_qualifies;
-        const hasMinProofs = stats.proofs_approved_count >= rules.min_proofs_approved;
-        const hasActivityScore = (stats.verified_moves_count + stats.moments_joined_count + stats.referral_count) >= rules.min_activity_score;
-
-        // User is eligible if they meet ANY of the main criteria
-        return hasMinMoves || hasMinMoments || hasMinReferrals || hasSubscription || hasMinProofs || hasActivityScore;
+        return promoShareQualificationService.calculateEligibility(stats, rules, isPaidSubscriber);
     },
 
     /**
      * Calculate user's weight score
      */
     calculateWeight(stats, config, tierMultiplier) {
-        let weight = config.base_entry;
-
-        // Activity weights
-        weight += stats.verified_moves_count * config.move_weight;
-        weight += stats.moments_joined_count * config.moment_weight;
-        weight += stats.proofs_approved_count * config.proof_weight;
-        weight += stats.referral_count * config.referral_weight;
-
-        // Apply tier multiplier
-        weight = Math.floor(weight * tierMultiplier);
-
-        return weight;
+        return promoShareQualificationService.calculateWeight(stats, config, tierMultiplier);
     },
 
     // ============================================
@@ -997,6 +857,19 @@ const promoShareService = {
                     .single();
 
                 winners.push(winnerRecord);
+
+                try {
+                    await offerService.issueForEvent({
+                        userId: user.user_id,
+                        channel: 'promoshare',
+                        event: 'winner',
+                        sourceId: cycleId,
+                        sourceEventId: winnerRecord?.id || `${cycleId}:${user.user_id}:${bucketName}`,
+                        context: { cycle_id: cycleId, bucket: bucketName, winner_id: winnerRecord?.id, rank }
+                    });
+                } catch (offerError) {
+                    console.warn('[PromoShare] unified offer issuance skipped:', offerError.message);
+                }
             }
         }
 
@@ -1261,51 +1134,15 @@ const promoShareService = {
      * Calculate progress to qualification
      */
     calculateProgressToQualify(stats, eligibilityConfig) {
-        const rules = { ...DEFAULT_ELIGIBILITY_RULES, ...(eligibilityConfig || {}) };
-
-        return {
-            moves: {
-                current: stats?.verified_moves_count || 0,
-                required: rules.min_verified_moves,
-                complete: (stats?.verified_moves_count || 0) >= rules.min_verified_moves
-            },
-            moments: {
-                current: stats?.moments_joined_count || 0,
-                required: rules.min_moments_joined,
-                complete: (stats?.moments_joined_count || 0) >= rules.min_moments_joined
-            },
-            referrals: {
-                current: stats?.referral_count || 0,
-                required: rules.min_referrals,
-                complete: (stats?.referral_count || 0) >= rules.min_referrals
-            }
-        };
+        return promoShareQualificationService.calculateProgressToQualify(stats, eligibilityConfig);
     },
 
     async getUserEntries(cycleId, userId) {
-        if (!supabase) return [];
-
-        const { data } = await supabase
-            .from('promoshare_entries')
-            .select('*')
-            .eq('cycle_id', cycleId)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        return data || [];
+        return promoShareEntryService.getUserEntries(cycleId, userId);
     },
 
     async getRecentEntries(userId, limit = 10) {
-        if (!supabase) return [];
-
-        const { data } = await supabase
-            .from('promoshare_entries')
-            .select('*, cycles:cycle_id(cycle_type, cycle_name)')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false })
-            .limit(limit);
-
-        return data || [];
+        return promoShareEntryService.getRecentEntries(userId, limit);
     },
 
     async getUserHistory(userId, limit = 5) {
@@ -1329,80 +1166,21 @@ const promoShareService = {
      * Write audit log entry
      */
     async auditLog(cycleId, userId, actionType, actorType, actorId, payload) {
-        if (!supabase) return null;
-
-        try {
-            const { data } = await supabase
-                .from('promoshare_audit_log')
-                .insert({
-                    cycle_id: cycleId,
-                    user_id: userId,
-                    action_type: actionType,
-                    actor_type: actorType,
-                    actor_id: actorId,
-                    payload: payload || {}
-                })
-                .select()
-                .single();
-
-            return data;
-        } catch (error) {
-            console.error('[PromoShare] Audit log error:', error);
-            return null;
-        }
+        return promoShareAuditService.auditLog(cycleId, userId, actionType, actorType, actorId, payload);
     },
 
     /**
      * Queue a notification for a user
      */
     async queueNotification(cycleId, userId, notificationType, data) {
-        if (!supabase) return null;
-
-        try {
-            const { data: notification } = await supabase
-                .from('promoshare_notifications')
-                .insert({
-                    cycle_id: cycleId,
-                    user_id: userId,
-                    notification_type: notificationType,
-                    title: data.title,
-                    message: data.message,
-                    action_url: data.action_url,
-                    channels: data.channels || ['in_app'],
-                    metadata: data.metadata || {}
-                })
-                .select()
-                .single();
-
-            return notification;
-        } catch (error) {
-            console.error('[PromoShare] Notification queue error:', error);
-            return null;
-        }
+        return promoShareAuditService.queueNotification(cycleId, userId, notificationType, data);
     },
 
     /**
      * Get audit log for a cycle (admin)
      */
     async getAuditLog(cycleId, options = {}) {
-        if (!supabase) return [];
-
-        let query = supabase
-            .from('promoshare_audit_log')
-            .select('*')
-            .eq('cycle_id', cycleId)
-            .order('created_at', { ascending: false });
-
-        if (options.limit) {
-            query = query.limit(options.limit);
-        }
-
-        if (options.action_type) {
-            query = query.eq('action_type', options.action_type);
-        }
-
-        const { data } = await query;
-        return data || [];
+        return promoShareAuditService.getAuditLog(cycleId, options);
     },
 
     // ============================================

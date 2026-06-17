@@ -133,7 +133,7 @@ export function SuggestedMoments({ limit = 3, onDismiss }: SuggestedMomentsProps
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-accent" />
               <span className="text-xs font-bold uppercase tracking-wider text-accent">
-                Discover
+                Explore
               </span>
             </div>
             <h2 className="text-xl font-bold font-serif">Moments for You</h2>
@@ -243,7 +243,7 @@ export function SuggestedMoments({ limit = 3, onDismiss }: SuggestedMomentsProps
             {moments.length} {moments.length === 1 ? "experience" : "experiences"} found near you
           </p>
           <Button variant="ghost" size="sm" asChild>
-            <Link to="/discover" className="group">
+            <Link to="/explore/moments" className="group">
               Browse All
               <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </Link>

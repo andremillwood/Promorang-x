@@ -77,7 +77,7 @@ const WatchUnlock = () => {
             <Link to="/pulse">View Pulse</Link>
           </Button>
           <Button asChild variant="hero">
-            <Link to="/discover">Discover Moments</Link>
+            <Link to="/explore/moments">Explore Moments</Link>
           </Button>
         </div>
       </div>

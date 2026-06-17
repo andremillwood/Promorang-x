@@ -5,20 +5,26 @@ import logo from "@/assets/promorang-logo-full.png";
 
 const footerLinks = {
   discover: [
-    { label: "Browse Moments", href: "/discover" },
-    { label: "Near Me", href: "/discover?filter=nearby" },
-    { label: "Trending", href: "/discover?filter=trending" },
-    { label: "Strategy Index", href: "/strategies" },
-    { label: "Bounty Board", href: "/bounties" },
+    { label: "Moments", href: "/explore/moments" },
+    { label: "Discover", href: "/discover" },
+    { label: "Content", href: "/explore/content" },
+    { label: "Rewards", href: "/explore/rewards" },
+    { label: "Venues", href: "/explore/venues" },
   ],
-  create: [
-    { label: "For Brands", href: "/for-brands" },
-    { label: "For Merchants", href: "/for-merchants" },
-    { label: "For Agencies", href: "/for-agencies" },
-    { label: "For Hosts", href: "/host" },
+  how: [
+    { label: "Keys", href: "/economy/keys" },
+    { label: "Pieces", href: "/economy/pieces" },
+    { label: "Network value", href: "/economy/network" },
+    { label: "PromoShare", href: "/promoshare" },
     { label: "Pricing", href: "/pricing" },
   ],
-  // Removed Company links as they point to dead endpoints
+  partners: [
+    { label: "For Brands", href: "/for-brands" },
+    { label: "For Creators", href: "/for-creators" },
+    { label: "For Merchants", href: "/for-merchants" },
+    { label: "For Hosts", href: "/for-communities" },
+    { label: "For Agencies", href: "/for-agencies" },
+  ],
   support: [
     { label: "Help Center", href: "/help" },
     { label: "Contact Us", href: "/contact" },
@@ -34,15 +40,15 @@ const Footer = () => {
       <div className="container px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-            The world is waiting for your next moment
+            Find the moment you want to be part of.
           </h2>
           <p className="mb-8 text-base text-muted-foreground sm:text-lg">
-            Join thousands of people discovering experiences that matter.
+            Show up, leave your Mark, and let the best parts of the night keep building after it ends.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
               <Link to="/auth">
-                Get Started Free
+                Get Started
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
@@ -53,20 +59,20 @@ const Footer = () => {
       {/* Footer Links */}
       <div className="border-t border-border">
         <div className="container px-4 py-12 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/">
                 <img src={logo} alt="Promorang" className="h-8 w-auto mb-4" />
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Where moments happen, together.
+                Moments, people, proof, and the value that stays with them.
               </p>
             </div>
 
             {/* Discover Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Discover</h4>
+              <h4 className="font-semibold text-foreground mb-4">Explore</h4>
               <ul className="space-y-3">
                 {footerLinks.discover.map((link) => (
                   <li key={link.label}>
@@ -81,11 +87,11 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Create Links */}
+            {/* How It Works Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Create</h4>
+              <h4 className="font-semibold text-foreground mb-4">How it works</h4>
               <ul className="space-y-3">
-                {footerLinks.create.map((link) => (
+                {footerLinks.how.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
@@ -98,7 +104,22 @@ const Footer = () => {
               </ul>
             </div>
 
-
+            {/* Partner Links */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">For partners</h4>
+              <ul className="space-y-3">
+                {footerLinks.partners.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {/* Support Links */}
             <div>

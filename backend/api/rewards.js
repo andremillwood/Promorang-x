@@ -502,12 +502,16 @@ async function processRedemption(userId, coupon) {
   if (coupon.reward_type === 'credit') {
     if (supabase) {
       try {
-        const field = coupon.value_unit === 'gems' ? 'gems_balance' : 'keys_balance';
-        await supabase.rpc('increment_user_balance', {
-          p_user_id: userId,
-          p_field: field,
-          p_amount: coupon.value,
-        });
+        const economyService = require('../services/economyService');
+        const currency = coupon.value_unit === 'gems' ? 'gems' : 'promokeys';
+        await economyService.addCurrency(
+          userId,
+          currency,
+          Number(coupon.value),
+          'reward_redemption',
+          coupon.id,
+          `Redeemed reward: ${coupon.title}`
+        );
       } catch (error) {
         console.error('Error crediting user account:', error);
       }

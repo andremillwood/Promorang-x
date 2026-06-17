@@ -1,7 +1,7 @@
 # Gems Architecture Guide
-## Using Virtual Currency as Trading Intermediary
+## Using Gems as a Branded USD Ledger
 
-This document explains how Gems solves the compliance and wallet cost problems.
+This document explains the current Gems ledger model, including cash-redemption controls.
 
 ---
 
@@ -17,16 +17,16 @@ User pays $50 → Stripe → Buy Pieces
 
 ### With Gems:
 ```
-User pays $50 → Stripe → Gets 500 Gems
+User pays $50 → Stripe → Gets 50 Gems
                               ↓
-                    [Gems are virtual currency - SAFE]
+                    [Gems are internal branded USD value]
                               ↓
-              Trade 500 Gems → Get 10 Pieces
+               Trade 50 Gems → Get 10 Pieces
                     ↓
             [No Stripe involvement - just internal exchange]
 ```
 
-**Key insight:** Gems are a closed-loop virtual currency like "tokens at an arcade" or "V-Bucks in Fortnite". They're NOT a security, NOT a cryptocurrency, just platform credits.
+**Current product rule:** `1 Gem = $1.00 USD`. Purchased Gems may be redeemed for cash only after a 30-day hold. Objective-based bonus Gems remain locked for cash redemption until the objective is completed.
 
 ---
 
@@ -55,7 +55,7 @@ User pays $50 → Stripe → Gets 500 Gems
 │   DEPOSIT    │  │    TRADE     │  │  WITHDRAWAL  │
 │              │  │              │  │              │
 │ Buy Gems     │  │ Gems→Pieces  │  │ Sell Gems    │
-│ $50 → 500G   │  │ (Internal)   │  │ (Cash out)   │
+│ $50 → 50G    │  │ (Internal)   │  │ (Cash out)   │
 │              │  │              │  │              │
 │ Uses Stripe  │  │ NO Stripe!   │  │ Uses Stripe  │
 │ ✅ Safe      │  │ ✅ Safe      │  │ ✅ Safe      │
@@ -97,14 +97,14 @@ const paymentIntent = await stripe.paymentIntents.create({
   currency: 'usd',
   metadata: { 
     user_id: userId,
-    gems_amount: 500,  // 500 Gems at $0.10 each
+    gems_amount: 50,  // 50 Gems at $1.00 each
     type: 'gems_purchase'  // NOT piece_trading!
   }
 });
 
 // Webhook on success:
-// Credit 500 Gems to user's internal balance
-await creditGemsBalance(userId, 500);
+// Credit 50 Gems to user's internal balance
+await creditGemsBalance(userId, 50);
 ```
 
 **Stripe sees:** Virtual currency purchase (like buying V-Bucks)  
@@ -113,16 +113,16 @@ await creditGemsBalance(userId, 500);
 ### 2. Trading Gems for Pieces
 
 ```javascript
-// User trades 500 Gems for Pieces
+// User trades 50 Gems for Pieces
 POST /api/pieces/pools/:id/swap
 {
   type: 'gems_to_pieces',  // NOT currency!
-  gems_amount: 500,
+  gems_amount: 50,
   min_pieces_out: 9.5
 }
 
 // Server:
-// 1. Deduct 500 Gems from user balance (database update)
+// 1. Deduct 50 Gems from user balance (database update)
 // 2. Execute AMM swap
 // 3. Credit 10 Pieces to user's position
 // 4. Stripe not involved AT ALL
@@ -147,7 +147,7 @@ POST /api/pieces/pools/:id/swap
 // 3. Deduct 10 Pieces from position
 ```
 
-User now has 480 Gems they can:
+User now has 48 Gems they can:
 - Use to buy other pieces
 - Hold for future trading
 - Withdraw to fiat (via Stripe)
@@ -155,18 +155,21 @@ User now has 480 Gems they can:
 ### 4. Withdrawing Gems (Fiat Off-Ramp)
 
 ```javascript
-// User wants to cash out 480 Gems
+// User wants to cash out 48 Gems
 POST /api/gems/withdraw
 {
-  gems_amount: 480,
+  gems_amount: 48,
   withdrawal_method: 'bank_transfer'
 }
 
 // Server:
-// 1. Deduct 480 Gems from balance
-// 2. Convert: 480 Gems × $0.10 = $48.00
-// 3. Create Stripe transfer or PayPal payout
-// 4. User receives $48.00 in bank account
+// 1. Verify at least 48 Gems are withdrawable
+//    - purchased Gems older than 30 days
+//    - bonus Gems with completed objectives
+// 2. Deduct 48 Gems from balance
+// 3. Convert: 48 Gems × $1.00 = $48.00
+// 4. Create Stripe transfer or PayPal payout
+// 5. User receives $48.00 in bank account
 ```
 
 **Stripe sees:** Payout to user (standard merchant payout)  
@@ -218,6 +221,13 @@ CREATE TABLE gems_transactions (
   fiat_amount numeric(14,2),
   fiat_currency text DEFAULT 'USD',
   stripe_payment_intent_id text,
+
+  -- Redemption controls
+  redemption_status text,
+  redeemable_after timestamptz,
+  objective_code text,
+  objective_status text,
+  objective_completed_at timestamptz,
   
   -- For trades
   piece_type text,
@@ -232,6 +242,19 @@ CREATE TABLE gems_transactions (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 ```
+
+## Redemption Model
+
+- `Purchased Gems`: spendable immediately in-app, cash redeemable after 30 days.
+- `Bonus Gems`: spendable in-app, cash redeemable only if the linked objective is completed.
+- `Withdrawable balance`: derived from the transaction ledger, not just the raw wallet total.
+- `Wallet UI`: shows total Gems, withdrawable Gems, Gems still in the 30-day hold, and bonus Gems locked to objectives.
+
+### Admin Objective Unlock Workflow
+
+- `GET /api/pieces/admin/gems/objectives/pending`: lists grouped objective-locked bonus grants that are still waiting to be unlocked.
+- `POST /api/pieces/admin/gems/objectives/unlock`: unlocks all pending bonus grants for a given `user_id` and `objective_code`.
+- Unlocking creates an `adjustment` ledger event for audit visibility and preserves the original bonus grant rows.
 
 ---
 
@@ -258,8 +281,8 @@ Stripe Dashboard shows:
 └── $150 payout to User C (gems_withdrawal)
 
 Stripe does NOT see:
-├── User A traded 500 Gems → 10 Pieces
-├── User B bought 20 Pieces for 1000 Gems
+├── User A traded 50 Gems → 10 Pieces
+├── User B bought 20 Pieces for 100 Gems
 └── Pieces prices fluctuated
 ```
 
@@ -278,16 +301,7 @@ $100 = 100 Gems
 **Pros:** Simple, predictable  
 **Cons:** No flexibility, exchange rate risk on platform
 
-### Floating Exchange Rate:
-```
-1 Gem = $0.08 - $0.12 (based on volume)
-High volume → better rate for buyers
-```
-
-**Pros:** Can incentivize large purchases  
-**Cons:** More complex
-
-**Recommendation:** Using 1:1 ratio for simplicity
+**Canonical rule:** Promorang should communicate a fixed `1 Gem = $1.00 USD` exchange rate anywhere users buy, hold, or redeem Gems. Avoid public floating-rate language unless the product and settlement systems actually support it.
 
 ---
 
@@ -320,7 +334,7 @@ High volume → better rate for buyers
 
 ### Day 1: Sign Up
 1. User signs up for Promorang
-2. Gets 100 bonus Gems (signup reward)
+2. Gets 10 bonus Gems (signup reward)
 3. KYC pending
 
 ### Day 2: KYC Approved
@@ -329,14 +343,14 @@ High volume → better rate for buyers
 3. User can now trade
 
 ### Day 3: First Purchase
-1. User buys 500 Gems for $50 (Stripe)
-2. User now has 600 Gems total
+1. User buys 50 Gems for $50 (Stripe)
+2. User now has 60 Gems total
 
 ### Day 4: Trading
 1. User browses piece marketplace
 2. Sees "DJ Set Piece" priced at 50 Gems
 3. Executes swap: 50 Gems → 1 DJ Set Piece
-4. Balance: 550 Gems, 1 DJ Set Piece
+4. Balance: 10 Gems, 1 DJ Set Piece
 
 ### Day 5: Price Goes Up
 1. DJ Set Piece now worth 75 Gems

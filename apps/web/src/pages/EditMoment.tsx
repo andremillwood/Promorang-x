@@ -6,10 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
+import { MediaGalleryUpload, type GalleryImage } from "@/components/MediaGalleryUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -36,16 +39,48 @@ import {
   momentArchetypes,
   conversionTypes,
 } from "@/lib/moment-taxonomy";
+import type { Tables } from "@/integrations/supabase/types";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const recurrenceWeekdayOptions = [
+  { value: 0, label: "Sun" },
+  { value: 1, label: "Mon" },
+  { value: 2, label: "Tue" },
+  { value: 3, label: "Wed" },
+  { value: 4, label: "Thu" },
+  { value: 5, label: "Fri" },
+  { value: 6, label: "Sat" },
+] as const;
+
+type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 
 const EditMoment = () => {
   const { id } = useParams<{ id: string }>();
-  const { user, roles } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { uploadImage, uploading } = useImageUpload();
 
+  type EditableMomentRecord = Tables<"moments"> & {
+    venue_category?: string | null;
+    moment_archetype?: string | null;
+    conversion_type?: string | null;
+    recurrence_enabled?: boolean;
+    recurrence_frequency?: RecurrenceFrequency | null;
+    recurrence_interval?: number | null;
+    recurrence_by_weekday?: number[] | null;
+    recurrence_day_of_month?: number | null;
+    recurrence_timezone?: string | null;
+    recurrence_until?: string | null;
+    recurrence_count?: number | null;
+    banner_image_url?: string | null;
+    gallery_images?: GalleryImage[] | null;
+  };
+
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -60,10 +95,18 @@ const EditMoment = () => {
     maxParticipants: "",
     reward: "",
     imageUrl: "",
+    bannerImageUrl: "",
+    galleryImages: [] as GalleryImage[],
     isActive: true,
+    recurrenceEnabled: false,
+    recurrenceFrequency: "weekly" as RecurrenceFrequency,
+    recurrenceInterval: "1",
+    recurrenceByWeekday: [] as number[],
+    recurrenceDayOfMonth: "",
+    recurrenceTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    recurrenceUntil: "",
+    recurrenceCount: "",
   });
-
-  const primaryRole = roles[0] || "host";
 
   // Fetch moment data
   const { isLoading } = useQuery({
@@ -88,13 +131,15 @@ const EditMoment = () => {
         return null;
       }
 
+      const recurrenceData = data as EditableMomentRecord;
+
       setFormData({
         title: data.title,
         description: data.description || "",
         category: data.category,
-        venueCategory: (data as any).venue_category || "",
-        momentArchetype: (data as any).moment_archetype || "",
-        conversionType: (data as any).conversion_type || "check_in",
+        venueCategory: recurrenceData.venue_category || "",
+        momentArchetype: recurrenceData.moment_archetype || "",
+        conversionType: recurrenceData.conversion_type || "check_in",
         location: data.location,
         venueName: data.venue_name || "",
         startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
@@ -102,7 +147,17 @@ const EditMoment = () => {
         maxParticipants: data.max_participants?.toString() || "",
         reward: data.reward || "",
         imageUrl: data.image_url || "",
+        bannerImageUrl: recurrenceData.banner_image_url || "",
+        galleryImages: Array.isArray(recurrenceData.gallery_images) ? recurrenceData.gallery_images : [],
         isActive: data.is_active,
+        recurrenceEnabled: recurrenceData.recurrence_enabled || false,
+        recurrenceFrequency: (recurrenceData.recurrence_frequency || "weekly") as RecurrenceFrequency,
+        recurrenceInterval: String(recurrenceData.recurrence_interval || 1),
+        recurrenceByWeekday: Array.isArray(recurrenceData.recurrence_by_weekday) ? recurrenceData.recurrence_by_weekday : [],
+        recurrenceDayOfMonth: recurrenceData.recurrence_day_of_month?.toString() || "",
+        recurrenceTimezone: recurrenceData.recurrence_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+        recurrenceUntil: recurrenceData.recurrence_until ? new Date(recurrenceData.recurrence_until).toISOString().slice(0, 16) : "",
+        recurrenceCount: recurrenceData.recurrence_count?.toString() || "",
       });
 
       return data;
@@ -114,6 +169,8 @@ const EditMoment = () => {
   const updateMutation = useMutation({
     mutationFn: async () => {
       let imageUrl = formData.imageUrl;
+      let bannerImageUrl = formData.bannerImageUrl;
+      let galleryImages = formData.galleryImages || [];
 
       if (imageFile && user) {
         const uploadedUrl = await uploadImage(imageFile, "moment-images", user.id);
@@ -122,9 +179,36 @@ const EditMoment = () => {
         }
       }
 
-      const { error } = await supabase
-        .from("moments")
-        .update({
+      if (bannerImageFile && user) {
+        const uploadedUrl = await uploadImage(bannerImageFile, "moment-images", user.id);
+        if (uploadedUrl) {
+          bannerImageUrl = uploadedUrl;
+        }
+      }
+
+      if (galleryFiles.length > 0 && user) {
+        const uploadedGallery = await Promise.all(
+          galleryFiles.map((file) => uploadImage(file, "moment-images", user.id))
+        );
+        let uploadIndex = 0;
+        galleryImages = galleryImages.map((image) => {
+          if (!image.url.startsWith("data:")) return image;
+          const uploadedUrl = uploadedGallery[uploadIndex++];
+          return uploadedUrl ? { ...image, url: uploadedUrl, media_type: "image" as const } : image;
+        });
+      }
+
+      const session = await supabase.auth.getSession();
+      const accessToken = session.data.session?.access_token;
+      if (!accessToken) throw new Error("Authentication session expired");
+
+      const response = await fetch(`${API_URL}/api/moment-economy/moments/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
           title: formData.title,
           description: formData.description || null,
           category: formData.category,
@@ -138,11 +222,31 @@ const EditMoment = () => {
           max_participants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
           reward: formData.reward || null,
           image_url: imageUrl || null,
+          banner_image_url: bannerImageUrl || null,
+          gallery_images: galleryImages,
           is_active: formData.isActive,
-        })
-        .eq("id", id);
+          recurrence_enabled: formData.recurrenceEnabled,
+          recurrence_frequency: formData.recurrenceEnabled ? formData.recurrenceFrequency : null,
+          recurrence_interval: formData.recurrenceEnabled ? Number(formData.recurrenceInterval || 1) : 1,
+          recurrence_by_weekday: formData.recurrenceEnabled ? formData.recurrenceByWeekday : [],
+          recurrence_day_of_month:
+            formData.recurrenceEnabled && formData.recurrenceFrequency === "monthly" && formData.recurrenceDayOfMonth
+              ? Number(formData.recurrenceDayOfMonth)
+              : null,
+          recurrence_timezone: formData.recurrenceTimezone,
+          recurrence_until:
+            formData.recurrenceEnabled && formData.recurrenceUntil
+              ? new Date(formData.recurrenceUntil).toISOString()
+              : null,
+          recurrence_count:
+            formData.recurrenceEnabled && formData.recurrenceCount
+              ? Number(formData.recurrenceCount)
+              : null,
+        }),
+      });
 
-      if (error) throw error;
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "Failed to update moment");
     },
     onSuccess: () => {
       toast({
@@ -153,10 +257,11 @@ const EditMoment = () => {
       queryClient.invalidateQueries({ queryKey: ["hosted-moments"] });
       navigate(`/moments/${id}`);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Unknown error";
       toast({
         title: "Update failed",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     },
@@ -180,10 +285,11 @@ const EditMoment = () => {
       queryClient.invalidateQueries({ queryKey: ["hosted-moments"] });
       navigate("/dashboard");
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Unknown error";
       toast({
         title: "Delete failed",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     },
@@ -192,6 +298,21 @@ const EditMoment = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate();
+  };
+
+  const handleGalleryFilesSelect = async (files: File[]) => {
+    setGalleryFiles((prev) => [...prev, ...files]);
+    const previews = await Promise.all(
+      files.map(
+        (file) =>
+          new Promise<GalleryImage>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve({ url: reader.result as string, alt: file.name, caption: "" });
+            reader.readAsDataURL(file);
+          })
+      )
+    );
+    setFormData((prev) => ({ ...prev, galleryImages: [...prev.galleryImages, ...previews] }));
   };
 
   if (!user) {
@@ -229,13 +350,36 @@ const EditMoment = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Cover Image */}
           <div className="bg-card border border-border rounded-2xl p-6">
-            <Label className="mb-3 block">Cover Image</Label>
+            <Label className="mb-3 block">Display Picture</Label>
             <ImageUpload
               value={formData.imageUrl}
               onChange={(url) => setFormData({ ...formData, imageUrl: url || "" })}
               onFileSelect={setImageFile}
               uploading={uploading}
               aspectRatio="video"
+            />
+            <p className="mt-2 text-sm text-muted-foreground">Used on cards, compact previews, and discovery surfaces.</p>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <Label className="mb-3 block">Banner Image</Label>
+            <ImageUpload
+              value={formData.bannerImageUrl}
+              onChange={(url) => setFormData({ ...formData, bannerImageUrl: url || "" })}
+              onFileSelect={setBannerImageFile}
+              uploading={uploading}
+              aspectRatio="banner"
+            />
+            <p className="mt-2 text-sm text-muted-foreground">Wide image for the moment page hero and featured banners.</p>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <Label className="mb-3 block">Supporting Event Images</Label>
+            <MediaGalleryUpload
+              value={formData.galleryImages}
+              onChange={(images) => setFormData({ ...formData, galleryImages: images })}
+              onFilesSelect={handleGalleryFilesSelect}
+              uploading={uploading}
             />
           </div>
 
@@ -390,6 +534,118 @@ const EditMoment = () => {
                   onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
                 />
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-semibold text-foreground">Recurring Schedule</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Convert this moment into a repeatable rhythm and adjust the schedule after creation.
+                  </p>
+                </div>
+                <Switch
+                  checked={formData.recurrenceEnabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, recurrenceEnabled: checked })}
+                />
+              </div>
+
+              {formData.recurrenceEnabled && (
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <Label>Frequency</Label>
+                      <Select
+                        value={formData.recurrenceFrequency}
+                        onValueChange={(value) => setFormData({ ...formData, recurrenceFrequency: value as RecurrenceFrequency })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="editRecurrenceInterval">Repeat Every</Label>
+                      <Input
+                        id="editRecurrenceInterval"
+                        type="number"
+                        min={1}
+                        value={formData.recurrenceInterval}
+                        onChange={(e) => setFormData({ ...formData, recurrenceInterval: e.target.value || "1" })}
+                      />
+                    </div>
+                  </div>
+
+                  {formData.recurrenceFrequency === "weekly" && (
+                    <div>
+                      <Label className="mb-3 block">Weekdays</Label>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-7">
+                        {recurrenceWeekdayOptions.map((day) => {
+                          const checked = formData.recurrenceByWeekday.includes(day.value);
+                          return (
+                            <label key={day.value} className="flex items-center gap-2 rounded-xl border border-border/60 bg-card px-3 py-2 text-sm">
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={(nextChecked) =>
+                                  setFormData({
+                                    ...formData,
+                                    recurrenceByWeekday: nextChecked
+                                      ? [...formData.recurrenceByWeekday, day.value].sort((a, b) => a - b)
+                                      : formData.recurrenceByWeekday.filter((value) => value !== day.value),
+                                  })
+                                }
+                              />
+                              <span>{day.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.recurrenceFrequency === "monthly" && (
+                    <div>
+                      <Label htmlFor="editRecurrenceDayOfMonth">Day of Month</Label>
+                      <Input
+                        id="editRecurrenceDayOfMonth"
+                        type="number"
+                        min={1}
+                        max={31}
+                        value={formData.recurrenceDayOfMonth}
+                        onChange={(e) => setFormData({ ...formData, recurrenceDayOfMonth: e.target.value })}
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="editRecurrenceUntil">Repeat Until</Label>
+                      <Input
+                        id="editRecurrenceUntil"
+                        type="datetime-local"
+                        value={formData.recurrenceUntil}
+                        onChange={(e) => setFormData({ ...formData, recurrenceUntil: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="editRecurrenceCount">Occurrence Cap</Label>
+                      <Input
+                        id="editRecurrenceCount"
+                        type="number"
+                        min={1}
+                        value={formData.recurrenceCount}
+                        onChange={(e) => setFormData({ ...formData, recurrenceCount: e.target.value })}
+                        placeholder="Optional"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

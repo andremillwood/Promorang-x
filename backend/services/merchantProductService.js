@@ -22,11 +22,21 @@ async function createProduct(merchantId, productData) {
             name,
             description,
             category,
+            price,
             price_usd,
+            points_cost,
             price_points,
             image_url,
+            images,
             venue_id,
+            organization_id,
+            listing_kind,
+            fulfillment_mode,
+            booking_url,
+            service_duration_minutes,
+            service_capacity,
             inventory_count,
+            inventory_quantity,
             low_stock_threshold,
             redemption_limit_per_user,
             expires_at,
@@ -35,24 +45,39 @@ async function createProduct(merchantId, productData) {
             discount_value,
         } = productData;
 
+        const normalizedPrice = price ?? price_usd ?? 0;
+        const normalizedPointsCost = points_cost ?? price_points ?? null;
+        const normalizedInventory = inventory_quantity ?? inventory_count ?? null;
+        const normalizedImages = images || (image_url ? [image_url] : []);
+
         const { data, error } = await supabase
             .from('merchant_products')
             .insert({
                 merchant_id: merchantId,
+                organization_id,
                 name,
                 description,
                 category,
+                price: normalizedPrice,
                 price_usd,
+                points_cost: normalizedPointsCost,
                 price_points,
                 image_url,
+                images: normalizedImages,
                 venue_id,
-                inventory_count,
+                inventory_quantity: normalizedInventory,
+                inventory_count: normalizedInventory,
                 low_stock_threshold: low_stock_threshold || 10,
                 redemption_limit_per_user,
                 expires_at,
                 terms_conditions,
                 discount_type,
                 discount_value,
+                listing_kind: listing_kind || (String(category || '').toLowerCase() === 'service' ? 'service' : 'product'),
+                fulfillment_mode: fulfillment_mode || 'pickup',
+                booking_url,
+                service_duration_minutes,
+                service_capacity,
                 is_active: true,
             })
             .select()
@@ -61,13 +86,13 @@ async function createProduct(merchantId, productData) {
         if (error) throw error;
 
         // Log initial inventory if set
-        if (inventory_count !== null && inventory_count !== undefined) {
+        if (normalizedInventory !== null && normalizedInventory !== undefined) {
             await logInventoryChange(
                 data.id,
                 'restock',
-                inventory_count,
+                normalizedInventory,
                 0,
-                inventory_count,
+                normalizedInventory,
                 'Initial stock',
                 merchantId
             );
@@ -142,9 +167,35 @@ async function getProductById(productId) {
  */
 async function updateProduct(productId, merchantId, updates) {
     try {
+        const normalizedUpdates = { ...updates };
+
+        if (normalizedUpdates.price === undefined && normalizedUpdates.price_usd !== undefined) {
+            normalizedUpdates.price = normalizedUpdates.price_usd;
+        }
+
+        if (normalizedUpdates.points_cost === undefined && normalizedUpdates.price_points !== undefined) {
+            normalizedUpdates.points_cost = normalizedUpdates.price_points;
+        }
+
+        if (normalizedUpdates.inventory_quantity === undefined && normalizedUpdates.inventory_count !== undefined) {
+            normalizedUpdates.inventory_quantity = normalizedUpdates.inventory_count;
+        }
+
+        if (normalizedUpdates.inventory_count === undefined && normalizedUpdates.inventory_quantity !== undefined) {
+            normalizedUpdates.inventory_count = normalizedUpdates.inventory_quantity;
+        }
+
+        if (normalizedUpdates.images === undefined && normalizedUpdates.image_url) {
+            normalizedUpdates.images = [normalizedUpdates.image_url];
+        }
+
+        if (!normalizedUpdates.listing_kind && String(normalizedUpdates.category || '').toLowerCase() === 'service') {
+            normalizedUpdates.listing_kind = 'service';
+        }
+
         const { data, error } = await supabase
             .from('merchant_products')
-            .update(updates)
+            .update(normalizedUpdates)
             .eq('id', productId)
             .eq('merchant_id', merchantId)
             .select()
@@ -203,13 +254,16 @@ async function updateInventory(productId, merchantId, newCount, reason = 'Manual
             throw new Error('Unauthorized: Not your product');
         }
 
-        const previousCount = product.inventory_count || 0;
+        const previousCount = product.inventory_count ?? product.inventory_quantity ?? 0;
         const change = newCount - previousCount;
 
         // Update inventory
         const { data, error } = await supabase
             .from('merchant_products')
-            .update({ inventory_count: newCount })
+            .update({
+                inventory_count: newCount,
+                inventory_quantity: newCount,
+            })
             .eq('id', productId)
             .select()
             .single();
@@ -297,12 +351,15 @@ async function getLowStockProducts(merchantId) {
             .from('merchant_products')
             .select('*')
             .eq('merchant_id', merchantId)
-            .eq('is_active', true)
-            .not('inventory_count', 'is', null)
-            .filter('inventory_count', 'lte', 'low_stock_threshold');
+            .eq('is_active', true);
 
         if (error) throw error;
-        return data || [];
+
+        return (data || []).filter((product) => {
+            const inventory = product.inventory_count ?? product.inventory_quantity;
+            if (inventory === null || inventory === undefined) return false;
+            return inventory <= (product.low_stock_threshold || 10);
+        });
     } catch (error) {
         console.error('Error fetching low stock products:', error);
         throw new Error(`Failed to fetch low stock products: ${error.message}`);
@@ -328,7 +385,8 @@ async function createSale(productId, userId, saleData) {
         const product = await getProductById(productId);
 
         // Check inventory
-        if (product.inventory_count !== null && product.inventory_count <= 0) {
+        const inventory = product.inventory_count ?? product.inventory_quantity;
+        if (inventory !== null && inventory !== undefined && inventory <= 0) {
             throw new Error('Product is out of stock');
         }
 

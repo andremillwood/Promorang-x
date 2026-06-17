@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import SEO from '@/components/SEO';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { SponsoredPoolBanner, SponsoredPoolCard } from '@/components/featured/SponsoredBadge';
+import { SponsoredPoolBanner } from '@/components/featured/SponsoredBadge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +15,6 @@ import {
   Ticket,
   Target,
   Zap,
-  TrendingUp,
   Clock,
   Gift,
   CheckCircle2,
@@ -22,11 +23,11 @@ import {
   ChevronRight,
   History,
   Activity,
-  Users,
   Share2,
   Award
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 
 interface CycleStats {
   cycle_id: string;
@@ -79,21 +80,74 @@ interface PromoShareData {
   }>;
 }
 
+interface SponsorPool {
+  id: string;
+  cycle_name: string;
+  status: string;
+  metrics?: {
+    qualified_users?: number;
+  };
+  sponsor_config?: {
+    prize_pool?: number;
+  };
+}
+
+interface FeaturedPoolPlacement {
+  id: string;
+  entity_id: string;
+  end_date?: string;
+  user?: {
+    display_name?: string;
+    profile_image?: string;
+  };
+  entity_data?: {
+    title?: string;
+    description?: string;
+    prize_pool?: number;
+    participant_count?: number;
+  };
+}
+
 const PromoShare = () => {
-  const { user } = useAuth();
+  const { user, session, activeRole } = useAuth();
   const [data, setData] = useState<PromoShareData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [featuredPools, setFeaturedPools] = useState<any[]>([]);
+  const [featuredPools, setFeaturedPools] = useState<FeaturedPoolPlacement[]>([]);
+  const [sponsorPools, setSponsorPools] = useState<SponsorPool[]>([]);
 
   useEffect(() => {
-    fetchPromoShareData();
     fetchFeaturedPools();
   }, []);
 
+  useEffect(() => {
+    if (!session?.access_token) {
+      setLoading(false);
+      setData(null);
+      setSponsorPools([]);
+      return;
+    }
+
+    fetchPromoShareData(session.access_token);
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    if (!['brand', 'agency', 'merchant'].includes(activeRole || '')) {
+      setSponsorPools([]);
+      return;
+    }
+
+    fetchSponsorPools(session.access_token);
+  }, [session?.access_token, activeRole]);
+
   const fetchFeaturedPools = async () => {
     try {
-      const response = await fetch('/api/featured-marketplace/active?placement_type=promoshare_homepage_banner&limit=3');
+      const response = await fetch(`${API_BASE_URL}/featured-marketplace/active?placement_type=promoshare_homepage_banner&limit=3`);
+      if (!response.ok) {
+        throw new Error(`Featured pools request failed with ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.success) {
         setFeaturedPools(data.placements);
@@ -103,13 +157,18 @@ const PromoShare = () => {
     }
   };
 
-  const fetchPromoShareData = async () => {
+  const fetchPromoShareData = async (accessToken: string) => {
     try {
-      const response = await fetch('/api/promoshare/dashboard', {
+      const response = await fetch(`${API_BASE_URL}/promoshare/dashboard`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          'Authorization': `Bearer ${accessToken}`
         }
       });
+
+      if (!response.ok) {
+        throw new Error(`PromoShare dashboard request failed with ${response.status}`);
+      }
+
       const result = await response.json();
       if (result.success) {
         setData(result.data);
@@ -121,6 +180,24 @@ const PromoShare = () => {
       toast.error('Failed to load PromoShare data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSponsorPools = async (accessToken: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/promoshare/sponsors/pools`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) return;
+      const result = await response.json();
+      if (result.success) {
+        setSponsorPools(result.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching sponsor pools:', error);
     }
   };
 
@@ -170,12 +247,31 @@ const PromoShare = () => {
 
   if (!data) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-5xl px-4 py-8">
+        <SEO
+          title="PromoShare - Qualified Reward Cycles"
+          description="PromoShare turns verified participation, repeat movement, and referrals into recurring qualified reward relevance inside Promorang."
+        />
+        <div className="mb-8 rounded-[2rem] border border-border bg-card p-6 md:p-8">
+          <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary" variant="outline">
+            <Sparkles className="w-3 h-3 mr-1" />
+            What PromoShare Is
+          </Badge>
+          <h1 className="text-3xl font-bold">Qualified recurring rewards</h1>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground">
+            PromoShare is the layer that tracks which participants stay relevant over time. Verified actions, real joins,
+            referrals, and repeat movement can increase your weight in active cycles. It is structured, not random.
+          </p>
+        </div>
         <Card>
           <CardContent className="py-12 text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Unable to Load PromoShare</h2>
-            <p className="text-muted-foreground">Please try again later</p>
+            <h2 className="text-xl font-semibold mb-2">
+              {user ? 'Unable to Load PromoShare' : 'Sign In Required'}
+            </h2>
+            <p className="text-muted-foreground">
+              {user ? 'PromoShare could not load right now. Try again shortly.' : 'Sign in to view your PromoShare dashboard and cycle standing.'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -185,9 +281,16 @@ const PromoShare = () => {
   const primaryCycle = data.user_stats_by_cycle?.[0];
   const totalWeight = data.user_stats_by_cycle?.reduce((sum, c) => sum + (c.weight || 0), 0) || 0;
   const totalEntries = data.user_stats_by_cycle?.reduce((sum, c) => sum + (c.total_entries || 0), 0) || 0;
+  const isSponsorView = ['brand', 'agency', 'merchant'].includes(activeRole || '');
+  const isHostView = activeRole === 'host';
+  const activeSponsorPools = sponsorPools.filter((pool) => pool.status === 'active');
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <SEO
+        title="PromoShare - Qualified Reward Cycles"
+        description="Track your active PromoShare cycles, weight, entries, and win history based on verified participation across Promorang."
+      />
       {/* Featured Pool Banner - PromoShare Homepage Banner ($200/day) */}
       {featuredPools.length > 0 && (
         <div className="mb-8">
@@ -212,21 +315,137 @@ const PromoShare = () => {
 
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="mb-2 flex min-w-0 items-start gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">PromoShare</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold sm:text-3xl">PromoShare</h1>
             <p className="text-muted-foreground">
-              Your activity earns you recurring rewards and recognition
+              Qualified reward cycles for verified participation, repeat movement, and network contribution
             </p>
           </div>
         </div>
       </div>
 
+      {(isSponsorView || isHostView) && (
+        <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          {isSponsorView && (
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>Sponsor Layer</CardTitle>
+                <CardDescription>PromoShare as a brand-facing operating surface, not just a participant reward page.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Pools</p>
+                    <p className="mt-1 text-2xl font-bold">{activeSponsorPools.length}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Total Pools</p>
+                    <p className="mt-1 text-2xl font-bold">{sponsorPools.length}</p>
+                  </div>
+                </div>
+                <p className="text-sm leading-7 text-muted-foreground">
+                  Sponsor-funded pools now sit inside the same verified-action system as participant qualification. That means brands can track whether real movement is producing qualified users, not just impressions.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild size="sm">
+                    <Link to="/sponsor-dashboard">Manage Pools</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/dashboard">Open Brand Workspace</Link>
+                  </Button>
+                </div>
+                {sponsorPools.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    {sponsorPools.slice(0, 2).map((pool) => (
+                      <div key={pool.id} className="rounded-lg border p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium">{pool.cycle_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {pool.sponsor_config?.prize_pool || 0} prize pool • {pool.metrics?.qualified_users || 0} qualified users
+                            </p>
+                          </div>
+                          <Badge variant="secondary">{pool.status}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {isHostView && (
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle>Host Layer</CardTitle>
+                <CardDescription>How your moments feed recurring qualification instead of one-off check-ins.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm leading-7 text-muted-foreground">
+                  Hosts influence PromoShare by creating moments that produce verified joins, proof-approved movement, repeat attendance, and credible referral loops. PromoShare should help you see whether your programming is generating durable relevance.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-sm font-medium">Join Moments</p>
+                    <p className="mt-1 text-xs text-muted-foreground">First-time joins now count into qualification.</p>
+                  </div>
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-sm font-medium">Verify Proof</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Proof-approved movement now carries higher PromoShare weight.</p>
+                  </div>
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-sm font-medium">Repeat Returns</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Recurring activity improves the cycle signal over time.</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild size="sm">
+                    <Link to="/moments">Browse Moments</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/create/moment">Create Moment</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      <div className="mb-8 grid gap-4 md:grid-cols-3">
+        <Card className="border-border">
+          <CardContent className="p-6">
+            <p className="text-sm font-semibold text-foreground">1. Participate for real</p>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              Moments joined, verified actions, and real-world movement matter more than passive browsing.
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-border">
+          <CardContent className="p-6">
+            <p className="text-sm font-semibold text-foreground">2. Build weight over time</p>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              Your cycle standing grows through quality participation, repeat activity, and referrals where relevant.
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-border">
+          <CardContent className="p-6">
+            <p className="text-sm font-semibold text-foreground">3. Enter qualified cycles</p>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              PromoShare is designed around qualified recurring relevance, not guaranteed payouts for every action.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-fit">
+        <TabsList className="grid w-full min-w-[560px] grid-cols-4 lg:w-fit">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="cycles">Active Cycles</TabsTrigger>
           <TabsTrigger value="activity">My Activity</TabsTrigger>
@@ -239,8 +458,8 @@ const PromoShare = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-sm text-muted-foreground">Current Weight</p>
                     <p className="text-2xl font-bold">{totalWeight}</p>
                   </div>
@@ -331,7 +550,7 @@ const PromoShare = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          primaryCycle.progress_to_qualify?.moves?.complete ? 'bg-green-500/20 text-green-600' : 'bg-gray-200 text-gray-500'
+                          primaryCycle.progress_to_qualify?.moves?.complete ? 'bg-green-500/20 text-green-600' : 'bg-muted text-muted-foreground'
                         }`}>
                           {primaryCycle.progress_to_qualify?.moves?.complete ? (
                             <CheckCircle2 className="w-4 h-4" />
@@ -349,7 +568,7 @@ const PromoShare = () => {
 
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          primaryCycle.progress_to_qualify?.moments?.complete ? 'bg-green-500/20 text-green-600' : 'bg-gray-200 text-gray-500'
+                          primaryCycle.progress_to_qualify?.moments?.complete ? 'bg-green-500/20 text-green-600' : 'bg-muted text-muted-foreground'
                         }`}>
                           {primaryCycle.progress_to_qualify?.moments?.complete ? (
                             <CheckCircle2 className="w-4 h-4" />
@@ -367,7 +586,7 @@ const PromoShare = () => {
 
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          primaryCycle.progress_to_qualify?.referrals?.complete ? 'bg-green-500/20 text-green-600' : 'bg-gray-200 text-gray-500'
+                          primaryCycle.progress_to_qualify?.referrals?.complete ? 'bg-green-500/20 text-green-600' : 'bg-muted text-muted-foreground'
                         }`}>
                           {primaryCycle.progress_to_qualify?.referrals?.complete ? (
                             <CheckCircle2 className="w-4 h-4" />
@@ -388,10 +607,10 @@ const PromoShare = () => {
 
                 {primaryCycle.eligible && (
                   <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
                     <div>
-                      <p className="font-medium text-green-800">You're Qualified!</p>
-                      <p className="text-sm text-green-700">
+                      <p className="font-medium text-green-800 dark:text-green-300">You're Qualified!</p>
+                      <p className="text-sm text-green-700 dark:text-green-400">
                         Your activity has earned you {primaryCycle.weight} weight points. Keep participating to increase your chances!
                       </p>
                     </div>
@@ -446,8 +665,8 @@ const PromoShare = () => {
           {data.draws?.map((draw) => (
             <Card key={draw.id}>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <CardTitle className="capitalize">{draw.cycle_type} Draw</CardTitle>
                     <CardDescription>{formatTimeRemaining(draw.end_at)}</CardDescription>
                   </div>
@@ -456,18 +675,18 @@ const PromoShare = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm text-muted-foreground mb-1">Jackpot</p>
                       <p className="text-2xl font-bold text-primary">{draw.jackpot_amount.toLocaleString()} Gems</p>
                     </div>
-                    <Separator orientation="vertical" className="h-12" />
-                    <div className="flex-1">
+                    <Separator orientation="vertical" className="hidden h-12 sm:block" />
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm text-muted-foreground mb-1">Total Entries</p>
                       <p className="text-2xl font-bold">{draw.totalTickets.toLocaleString()}</p>
                     </div>
-                    <Separator orientation="vertical" className="h-12" />
-                    <div className="flex-1">
+                    <Separator orientation="vertical" className="hidden h-12 sm:block" />
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm text-muted-foreground mb-1">Your Chance</p>
                       <p className="text-2xl font-bold">
                         {draw.totalTickets > 0 ? ((draw.userTickets / draw.totalTickets) * 100).toFixed(2) : 0}%
@@ -517,9 +736,9 @@ const PromoShare = () => {
                   {data.recent_entries?.map((entry) => (
                     <div
                       key={entry.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                      className="flex flex-col gap-3 rounded-lg bg-muted/50 p-3 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                           {entry.source_type === 'move' && <Activity className="w-4 h-4 text-primary" />}
                           {entry.source_type === 'moment' && <Zap className="w-4 h-4 text-primary" />}
@@ -529,7 +748,7 @@ const PromoShare = () => {
                             <Award className="w-4 h-4 text-primary" />
                           )}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-medium capitalize">{entry.source_action || entry.source_type}</p>
                           <p className="text-xs text-muted-foreground">
                             {entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'}
@@ -596,13 +815,13 @@ const PromoShare = () => {
                   {data.history.map((win) => (
                     <div
                       key={win.id}
-                      className="flex items-center justify-between p-4 rounded-lg border"
+                    className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex min-w-0 items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
                           <Trophy className="w-6 h-6 text-yellow-500" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-semibold">{win.prize_description}</p>
                           <p className="text-sm text-muted-foreground">
                             {win.cycles?.cycle_name || win.cycles?.cycle_type} • {win.selection_bucket}

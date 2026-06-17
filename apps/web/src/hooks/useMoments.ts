@@ -129,12 +129,15 @@ export function useCheckIn() {
 
       return payload;
     },
-    onSuccess: () => {
+    onSuccess: (payload) => {
       toast({
-        title: "Checked in! 🎉",
-        description: "You're now checked in to this moment.",
+        title: payload?.memory ? "Marked and saved" : "Checked in",
+        description: payload?.memory
+          ? "Your Mark is now in your Vault as an I was there memory."
+          : "You're now checked in to this moment.",
       });
       queryClient.invalidateQueries({ queryKey: ["joined-moments"] });
+      queryClient.invalidateQueries({ queryKey: ["vault"] });
     },
     onError: (error: any) => {
       toast({

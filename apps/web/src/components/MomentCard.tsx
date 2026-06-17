@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles } from "lucide-react";
+import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, ShieldCheck, Repeat2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
+import { buildMomentPath } from "@/lib/discovery";
 
 type Moment = Tables<"moments"> & {
   participant_count?: number;
   is_saved?: boolean;
   isExample?: boolean;
+  content_origin?: "stakeholder_created" | "platform_seed" | "demo" | "scraped" | "imported" | null;
+  recurrence_enabled?: boolean | null;
+  recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
+  recurrence_interval?: number | null;
   venue_category?: string | null;
   moment_archetype?: string | null;
   conversion_type?: string | null;
@@ -55,6 +60,27 @@ const categoryGradients: Record<string, string> = {
   networking: "from-slate-400/20 to-gray-500/30",
   outdoor: "from-green-400/20 to-lime-500/30",
   arts: "from-fuchsia-400/20 to-violet-500/30",
+};
+
+const getOriginLabel = (moment: Moment) => {
+  if (moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed") {
+    return { label: "Example", tone: "bg-slate-500/90 text-white", Icon: Sparkles };
+  }
+
+  if (moment.content_origin === "scraped" || moment.content_origin === "imported") {
+    return { label: "Discovered", tone: "bg-sky-600/90 text-white", Icon: Sparkles };
+  }
+
+  return { label: "Real host", tone: "bg-emerald-600/90 text-white", Icon: ShieldCheck };
+};
+
+const getRecurrenceLabel = (moment: Moment) => {
+  if (!moment.recurrence_enabled || !moment.recurrence_frequency) return null;
+  const frequency = moment.recurrence_frequency;
+  const interval = Number(moment.recurrence_interval || 1);
+  if (frequency === "daily") return interval > 1 ? `Every ${interval} days` : "Daily";
+  if (frequency === "monthly") return interval > 1 ? `Every ${interval} months` : "Monthly";
+  return interval > 1 ? `Every ${interval} weeks` : "Weekly";
 };
 
 /**
@@ -119,10 +145,12 @@ export function MomentCard({
   const archetypeLabel = getTaxonomyLabel(momentArchetypes, moment.moment_archetype);
   const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment.venue_category);
   const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
+  const originLabel = getOriginLabel(moment);
+  const recurrenceLabel = getRecurrenceLabel(moment);
 
   return (
     <Link
-      to={`/moments/${moment.id}`}
+      to={buildMomentPath({ id: moment.id, slug: (moment as any).slug })}
       className={cn(
         "group relative block overflow-hidden rounded-2xl border border-border/50 bg-card touch-manipulation",
         "transition-all duration-300 ease-out",
@@ -181,10 +209,14 @@ export function MomentCard({
 
         {/* Urgency Badges - Groupon style */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {moment.isExample && (
-            <span className="px-2.5 py-1 bg-slate-500/90 backdrop-blur-sm text-white text-xs font-medium rounded-full shadow-md flex items-center gap-1">
-              <Sparkles className="h-3 w-3" />
-              Example
+          <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-medium rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
+            <originLabel.Icon className="h-3 w-3" />
+            {originLabel.label}
+          </span>
+          {recurrenceLabel && (
+            <span className="px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground text-xs font-semibold rounded-full shadow-md flex items-center gap-1">
+              <Repeat2 className="h-3 w-3 text-primary" />
+              {recurrenceLabel}
             </span>
           )}
           {isAlmostFull && (

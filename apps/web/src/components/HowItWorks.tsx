@@ -1,34 +1,36 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Users, Gift, Sparkles, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 
 const features = [
   {
     icon: Users,
-    title: "1. Begin the Search",
-    description: "Find the pulse of your niche. From secret tastings to hidden workshops, discover the experiences that bring people together.",
+    title: "1. Find your kind of moment",
+    description: "Browse drops, tastings, service rituals, creator missions, and neighborhood gatherings that match how you like to spend real time.",
   },
   {
     icon: MapPin,
-    title: "2. Show Up & Check In",
-    description: "A shared moment, confirmed by your presence. Show up, enter a simple PIN, and earn points for being part of the real experience.",
+    title: "2. Show up and leave a Mark",
+    description: "Arrive, check in, and let the moment count. Your Mark starts the reward loop without making the experience feel like paperwork.",
   },
   {
     icon: Sparkles,
-    title: "3. Build Your Reputation",
-    description: "From newcomer to community leader. Your consistency builds your level, unlocking exclusive brand perks along the way.",
+    title: "3. Earn pieces and standing",
+    description: "Early participants and power performers can unlock complementary pieces tied to verified participation, referral movement, and repeat momentum.",
   },
   {
     icon: Gift,
-    title: "4. Stepping Into the Vault",
-    description: "Redeem your reputation for stories yet to be told. Use your keys to unlock once-in-a-lifetime perks from the brands you love.",
+    title: "4. Unlock PromoShare and Gems",
+    description: "Use points, Keys, pieces, and PromoShare entries to reach better access, recurring reward cycles, and Gems that power the marketplace.",
   },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="py-20 md:py-32 bg-background overflow-hidden">
-      <div className="container px-6">
+    <section className="relative py-20 md:py-32 bg-background overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="container relative z-10 px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -38,16 +40,16 @@ const HowItWorks = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Gatherings made simple
+              How Promorang Works
             </h2>
             <p className="text-lg text-muted-foreground">
-              Connect in the real world. Share authentic stories that resonate across your community and beyond.
+              Simple enough for a night out. Structured enough to power a whole local economy around verified participation, pieces, and network growth.
             </p>
           </motion.div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 mb-16">
           {features.map((feature, index) => (
             <motion.div 
               key={index} 
@@ -55,9 +57,10 @@ const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group text-center p-8 rounded-3xl bg-card border border-border/40 hover:shadow-soft-xl transition-all duration-300"
+              className="group relative overflow-hidden text-center p-8 rounded-2xl bg-card border border-border/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated"
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary text-primary-foreground mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+              <div className="absolute inset-x-8 top-0 h-1 rounded-b-full bg-gradient-primary opacity-80" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary text-primary-foreground mb-6 shadow-lg shadow-primary/20 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
                 <feature.icon className="w-7 h-7" />
               </div>
               <h3 className="font-serif text-xl font-bold text-foreground mb-4">
@@ -76,23 +79,23 @@ const HowItWorks = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-sunset p-10 md:p-16 text-center shadow-elevated"
+          className="relative overflow-hidden rounded-3xl bg-charcoal p-8 text-center shadow-elevated md:p-16"
         >
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMThDMzYgMTMuNzkxIDM0LjIwOSAxMiAzMiAxMnMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bS0xOCAxOGMwLTIuMjA5LTEuNzkxLTQtNC00cy00IDEuNzkxLTQgNCAxLjc5MSA0IDQgNCA0LTEuNzkxIDQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
+          <div className="absolute left-1/2 top-0 h-60 w-60 -translate-x-1/2 rounded-full bg-primary/30 blur-[90px]" />
           <div className="relative z-10">
-            <h3 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-4 italic">
-              Ready to begin your journey?
+            <h3 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4 italic">
+              Ready to find your first Mark?
             </h3>
-            <p className="text-primary-foreground/90 max-w-xl mx-auto mb-10 text-lg">
-              Whether you're looking to join experiences or host them for your community, 
-              your journey starts right here.
+            <p className="text-zinc-200 max-w-xl mx-auto mb-10 text-lg">
+              Start with one moment. Then let Marks, pieces, PromoShare, and your growing network turn that consistency into something that compounds.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Button variant="warm" size="xl" className="font-bold uppercase tracking-widest px-10 h-14 shadow-glow rounded-2xl">
-                Enter the Community
+              <Button variant="hero" size="xl" className="font-bold uppercase tracking-widest px-10 h-14 shadow-glow rounded-2xl" asChild>
+                <Link to="/explore/moments">Find Moments</Link>
               </Button>
-              <Button variant="ghost" size="lg" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground font-bold uppercase tracking-wider">
-                Browse Stories
+              <Button variant="ghost" size="lg" className="text-white hover:bg-white/10 hover:text-white font-bold uppercase tracking-wider" asChild>
+                <Link to="/why-join">See Why Join</Link>
               </Button>
             </div>
           </div>

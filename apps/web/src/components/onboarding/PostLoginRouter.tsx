@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 
 /**
  * Post-Login Router
@@ -10,12 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 export function PostLoginRouter() {
   const { user, activeRole, profile, loading } = useAuth();
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     if (loading || !user) return;
 
     const determineLandingPage = async () => {
+      const demoSession = readDemoSession();
+      if (demoSession) {
+        navigate(getDemoLandingPath(demoSession.role), { replace: true });
+        return;
+      }
+
       // Check if first-time user (no completed onboarding)
       const { data: onboardingCheck } = await supabase
         .from('user_preferences')
@@ -32,26 +38,54 @@ export function PostLoginRouter() {
       );
 
       // Check for first actions based on role
-      const { data: momentCount } = await supabase
+      const { count: momentCount } = await supabase
         .from('moments')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('host_id', user.id);
 
-      const { data: joinedCount } = await supabase
+      const { count: joinedCount } = await supabase
         .from('moment_participants')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
+
+      const { count: campaignCount } = await supabase
+        .from('campaigns')
+        .select('id', { count: 'exact', head: true })
+        .eq('brand_id', user.id);
+
+      const { count: venueCount } = await supabase
+        .from('venues')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_id', user.id);
+
+      const creatorFilters = [
+        profile?.username ? `creator_username.eq.${profile.username}` : null,
+        user.user_metadata?.username ? `creator_username.eq.${user.user_metadata.username}` : null,
+        profile?.display_name ? `creator_name.eq.${profile.display_name}` : null,
+        user.user_metadata?.full_name ? `creator_name.eq.${user.user_metadata.full_name}` : null,
+        user.email ? `creator_name.eq.${user.email}` : null,
+      ].filter(Boolean);
+
+      const { count: creatorContentCount } = creatorFilters.length
+        ? await supabase
+            .from('content_pieces')
+            .select('id', { count: 'exact', head: true })
+            .or(creatorFilters.join(','))
+        : { count: 0 };
 
       const hasCreatedContent = (momentCount || 0) > 0;
       const hasJoinedContent = (joinedCount || 0) > 0;
+      const hasCreatedCampaign = (campaignCount || 0) > 0;
+      const hasRegisteredVenue = (venueCount || 0) > 0;
+      const hasPublishedCreatorContent = (creatorContentCount || 0) > 0;
 
       // Role-specific routing
       switch (activeRole) {
         case "brand":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding/brand", { replace: true });
-          } else if (!hasCreatedContent) {
-            navigate("/dashboard/brand/campaigns/create", { replace: true });
+          } else if (!hasCreatedCampaign) {
+            navigate("/create/campaign", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }
@@ -59,8 +93,8 @@ export function PostLoginRouter() {
 
         case "merchant":
           if (!hasCompletedOnboarding) {
-            navigate("/onboarding/merchant", { replace: true });
-          } else if (!hasCreatedContent) {
+            navigate("/onboarding", { replace: true });
+          } else if (!hasRegisteredVenue) {
             navigate("/dashboard/venues/add?firstTime=true", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
@@ -71,7 +105,7 @@ export function PostLoginRouter() {
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
           } else if (!hasCreatedContent) {
-            navigate("/create-moment?firstTime=true", { replace: true });
+            navigate("/create/moment?firstTime=true", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }
@@ -80,10 +114,10 @@ export function PostLoginRouter() {
         case "creator":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
-          } else if (!hasCreatedContent) {
-            navigate("/watch-unlock", { replace: true });
+          } else if (!hasPublishedCreatorContent) {
+            navigate("/dashboard?tab=publish", { replace: true });
           } else {
-            navigate("/dashboard", { replace: true });
+            navigate("/dashboard?tab=missions", { replace: true });
           }
           break;
 
@@ -100,8 +134,6 @@ export function PostLoginRouter() {
           }
           break;
       }
-
-      setChecking(false);
     };
 
     determineLandingPage();

@@ -8,6 +8,7 @@ interface SEOProps {
     image?: string;
     url?: string;
     schema?: Record<string, any>;
+    noindex?: boolean;
 }
 
 export default function SEO({
@@ -17,7 +18,8 @@ export default function SEO({
     type = 'website',
     image,
     url,
-    schema
+    schema,
+    noindex = false,
 }: SEOProps) {
     const siteTitle = title === 'Promorang' ? title : `${title} | Promorang`;
 
@@ -26,6 +28,9 @@ export default function SEO({
             {/* Standard metadata tags */}
             <title>{siteTitle}</title>
             <meta name='description' content={description} />
+            <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+            <meta property="og:site_name" content={name} />
+            {url && <link rel="canonical" href={url} />}
 
             {/* Open Graph tags */}
             <meta property="og:type" content={type} />

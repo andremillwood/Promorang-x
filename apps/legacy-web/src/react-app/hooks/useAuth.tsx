@@ -38,15 +38,15 @@ interface AuthContextType {
   signUp: (email: string, password: string, username: string, displayName?: string) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
   demoLogin: {
-    creator: () => Promise<AuthResponse>;
-    investor: () => Promise<AuthResponse>;
-    advertiser: () => Promise<AuthResponse>;
-    operator: () => Promise<AuthResponse>;
-    merchant: () => Promise<AuthResponse>;
-    matrix: () => Promise<AuthResponse>;
-    samplingMerchant: () => Promise<AuthResponse>;
-    activeSampling: () => Promise<AuthResponse>;
-    graduatedMerchant: () => Promise<AuthResponse>;
+    creator: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    investor: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    advertiser: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    operator: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    merchant: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    matrix: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    samplingMerchant: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    activeSampling: (demoEmailRecipient?: string) => Promise<AuthResponse>;
+    graduatedMerchant: (demoEmailRecipient?: string) => Promise<AuthResponse>;
     state0: () => Promise<AuthResponse>;
     state1: () => Promise<AuthResponse>;
     state2: () => Promise<AuthResponse>;
@@ -256,9 +256,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const demoLogin = {
-    creator: async () => {
+    creator: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/creator');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/creator', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -269,9 +269,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    investor: async () => {
+    investor: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/investor');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/investor', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -282,9 +282,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    advertiser: async () => {
+    advertiser: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/advertiser');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/advertiser', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -295,9 +295,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    operator: async () => {
+    operator: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/operator');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/operator', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -308,9 +308,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    merchant: async () => {
+    merchant: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/merchant');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/merchant', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -321,9 +321,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    matrix: async () => {
+    matrix: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/matrix');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/matrix', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -334,9 +334,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Matrix demo login failed' } };
       }
     },
-    samplingMerchant: async () => {
+    samplingMerchant: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/sampling-merchant');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/sampling-merchant', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -347,9 +347,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    activeSampling: async () => {
+    activeSampling: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/active-sampling');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/active-sampling', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);
@@ -360,9 +360,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: { message: e.message || 'Demo login failed' } };
       }
     },
-    graduatedMerchant: async () => {
+    graduatedMerchant: async (demoEmailRecipient?: string) => {
       try {
-        const response = await api.post<{ token: string, user: User }>('/auth/demo/graduated-merchant');
+        const response = await api.post<{ token: string, user: User }>('/auth/demo/graduated-merchant', { demo_email: demoEmailRecipient });
         if (response && response.token) {
           setAccessToken(response.token);
           if (response.user) setUser(response.user);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Building2, Store, Users, Map, PlayCircle, CheckCircle2, CircleDot, Briefcase } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, MapPin, Heart, Clock, User, Gamepad2, Store, Users, PlayCircle, CheckCircle2, CircleDot, Briefcase } from "lucide-react";
 import { useCreateUserPreferences, UserPreferencesInput } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -58,9 +58,9 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     state: "",
     location_sharing_enabled: false,
   });
-  const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "agency" | null>(null);
+  const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
 
-  const { setActiveRole, roles } = useAuth();
+  const { setActiveRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
 
   const steps = [
@@ -106,6 +106,16 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       nextTitle: "You’ll start as a host.",
       nextSubtitle: "Create a moment, monitor whether it is forming, then review proof so the loop closes.",
       checklist: ["Create your first moment", "Monitor pulse formation", "Review your first proof"],
+    },
+    merchant: {
+      nextTitle: "You’ll start as a merchant.",
+      nextSubtitle: "Register one place, make it ready for moments or offers, then validate the first visit that comes through the door.",
+      checklist: ["Register your first venue", "Enable a moment or offer", "Validate the first check-in"],
+    },
+    brand: {
+      nextTitle: "You’ll start as a brand.",
+      nextSubtitle: "Fund one clear action, connect the right creators or places, then read the proof before you scale.",
+      checklist: ["Create your first campaign", "Connect creators or venues", "Review the first outcome"],
     },
     agency: {
       nextTitle: "You’ll start as an agency operator.",
@@ -276,6 +286,46 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                         <div>
                             <h3 className="font-bold text-lg">The Mayor</h3>
                             <p className="text-sm text-muted-foreground">Own your local niche. Run gatherings, drops, rituals, and founder moments that make places feel alive.</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                            setPersona("merchant");
+                            setActiveRole("merchant");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "merchant"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                            <Store className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Merchant</h3>
+                            <p className="text-sm text-muted-foreground">Bring verified visits, redemptions, and repeat movement into a real place people already care about.</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                            setPersona("brand");
+                            setActiveRole("brand");
+                        }}
+                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                            persona === "brand"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-muted"
+                        }`}
+                      >
+                        <div className="h-16 w-16 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                            <Briefcase className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">The Brand</h3>
+                            <p className="text-sm text-muted-foreground">Fund moments, creator missions, and local offers that people can join, prove, remember, and return from.</p>
                         </div>
                       </button>
 

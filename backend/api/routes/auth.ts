@@ -1,4 +1,4 @@
-import { Router, urlencoded, json } from 'express';
+import { Router, urlencoded, json, Request, Response } from 'express';
 import { authService } from '../../src/auth/service';
 import { requireAuth } from '../_core/auth';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ const loginSchema = z.object({
 });
 
 // Logout route
-router.post('/api/auth/logout', requireAuth, async (req, res) => {
+router.post('/api/auth/logout', requireAuth, async (req: Request, res: Response) => {
   try {
     const bodyRefreshToken = typeof req.body?.refreshToken === 'string' ? req.body.refreshToken : undefined;
     const headerRefreshToken = typeof req.headers['x-refresh-token'] === 'string' ? req.headers['x-refresh-token'] : undefined;
@@ -43,7 +43,7 @@ router.use(urlencoded({ extended: true }));
 router.use(json());
 
 // Login route
-router.post('/api/auth/login', async (req, res) => {
+router.post('/api/auth/login', async (req: Request, res: Response) => {
   console.log('Login request received:', {
     contentType: req.headers['content-type'],
     body: req.body,

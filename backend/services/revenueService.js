@@ -8,6 +8,23 @@ const supabase = global.supabase || serviceSupabase || null;
 const promoShareService = require('./promoShareService');
 
 const PROMOSHARE_PERCENTAGE = 0.05; // 5%
+const PARTICIPANT_TIER_ALIASES = {
+    plus: 'plus',
+    promorang_plus: 'plus',
+    participant_plus: 'plus',
+    pro: 'pro',
+    promorang_pro: 'pro',
+    participant_pro: 'pro',
+    elite: 'elite',
+    promorang_elite: 'elite',
+    participant_elite: 'elite',
+};
+
+function normalizeParticipantTier(tier) {
+    if (!tier) return null;
+    const normalized = String(tier).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    return PARTICIPANT_TIER_ALIASES[normalized] || null;
+}
 
 const revenueService = {
     /**
@@ -21,6 +38,9 @@ const revenueService = {
         if (!amount || amount <= 0) return null;
 
         const promoShareAmount = amount * PROMOSHARE_PERCENTAGE;
+        const parsedTransactionId = typeof sourceId === 'string' && /^[0-9a-f-]{36}$/i.test(sourceId)
+            ? sourceId
+            : null;
 
         try {
             // 1. Get Active Cycle to allocate to
@@ -36,28 +56,7 @@ const revenueService = {
             const { data: ledgerEntry, error } = await supabase
                 .from('promoshare_revenue_ledger')
                 .insert({
-                    source_transaction_id: null, // We might not have internal DB ID yet, so we use string source_id in description or extend schema?
-                    // Schema has source_transaction_id as BIGINT referencing transactions(id).
-                    // If the source is external (Stripe ID), we might need to store it alternatively or ensure internal transaction exists first.
-                    // For now, let's assume we might lose strict FK constraints if we pass stripe ID.
-                    // Requirement says "actual revenue earned". 
-                    // Let's modify schema or usage?
-                    // Schema: `source_transaction_id BIGINT REFERENCES transactions(id)`
-                    // This implies we must have a local transaction record first.
-                    // `payments.js` logs stripe events but doesn't explicitly Insert into `transactions` table in the snippets shown.
-                    // Wait, `transactions` table exists.
-                    // Let's assume we should insert a local transaction record first if one doesn't exist?
-                    // Or relax the column to allow null and store stripe ID in a separate column?
-                    // For MVP stability: I will treat `source_transaction_id` as nullable and add specific `external_id` column or store in `source_type` / metadata?
-                    // The schema I created: `source_transaction_id BIGINT REFERENCES transactions(id)`.
-                    // Does `payments.js` create a transaction record? 
-                    // Lines 220-228 in `payments.js`: `// TODO: credit wallet / mark invoice paid`. It does NOT seem to insert into `transactions` table yet.
-                    // I should probably ensure `payments.js` inserts into `transactions` properly, then I use that ID.
-
-                    // Update: I will create a transaction record if needed or just skip the FK for now if complexity is high.
-                    // But `revenue_ledger` depends on it.
-                    // Let's rely on `allocated_cycle_id`.
-
+                    source_transaction_id: parsedTransactionId,
                     source_type: sourceType,
                     total_amount: amount,
                     promoshare_amount: promoShareAmount,
@@ -79,6 +78,48 @@ const revenueService = {
         } catch (error) {
             console.error('[Revenue Service] Error tracking revenue:', error);
             return null; // Don't block main flow
+        }
+    },
+
+    normalizeParticipantTier,
+
+    /**
+     * Track a paid participant tier and allocate configured percentages to
+     * PromoShare, liquidity reserve, local impact, and platform pools.
+     */
+    async trackParticipantSubscriptionRevenue({
+        userId,
+        tierKey,
+        amount,
+        currency = 'USD',
+        provider = 'stripe',
+        providerPaymentId = null,
+        providerSubscriptionId = null,
+        metadata = {}
+    }) {
+        if (!supabase) return null;
+        if (!userId || !amount || amount <= 0) return null;
+
+        const normalizedTier = normalizeParticipantTier(tierKey);
+        if (!normalizedTier) return null;
+
+        try {
+            const { data, error } = await supabase.rpc('apply_participant_subscription_payment', {
+                p_user_id: userId,
+                p_tier_key: normalizedTier,
+                p_amount: amount,
+                p_currency: currency,
+                p_provider: provider,
+                p_provider_payment_id: providerPaymentId,
+                p_provider_subscription_id: providerSubscriptionId,
+                p_metadata: metadata
+            });
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('[Revenue Service] Error tracking participant subscription allocation:', error);
+            return null;
         }
     },
 

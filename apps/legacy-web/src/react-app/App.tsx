@@ -347,6 +347,7 @@ function App() {
                   <Route path="/events/:id" element={<Navigate to="/moments/:id" replace />} />
                   <Route path="/events/create-simple" element={<TodayLayout><CreateEventSimple /></TodayLayout>} />
                   <Route path="/events/create" element={<ProtectedLayout><CreateEvent /></ProtectedLayout>} />
+                  <Route path="/events/:id/edit" element={<ProtectedLayout><CreateEvent /></ProtectedLayout>} />
 
                   {/* Ticket Routes */}
                   <Route path="/tickets" element={<ProtectedLayout><MyTickets /></ProtectedLayout>} />

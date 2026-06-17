@@ -72,9 +72,9 @@ export function HostSponsorshipRequests() {
                <Badge variant="outline" className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50">Coming Soon</Badge>
            </div>
            
-           <div className="bg-gradient-warm rounded-xl p-6 border border-border/50 opacity-80 pointer-events-none filter sepia-[0.2]">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
+           <div className="pointer-events-none rounded-xl border border-border/50 bg-gradient-warm p-4 opacity-80 sepia-[0.2] filter sm:p-6">
+                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
                       <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center p-1">
                           <span className="text-white font-bold text-xs">NIKE</span>
                       </div>
@@ -87,7 +87,7 @@ export function HostSponsorshipRequests() {
                         </p>
                       </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="text-2xl font-black text-emerald-600">
                       $500
                     </p>
@@ -100,7 +100,7 @@ export function HostSponsorshipRequests() {
                   <p className="text-sm text-foreground">Host a 5k run with at least 50 verified attendees. Mention Nike Run Club in the event description and require photo check-ins.</p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button size="sm" className="flex-1 opacity-50">
                     <Check className="w-4 h-4 mr-1" />
                     Accept Offer
@@ -130,8 +130,8 @@ export function HostSponsorshipRequests() {
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                       <DollarSign className="w-20 h-20 text-emerald-500" />
                   </div>
-                  <div className="flex items-start justify-between relative z-10">
-                     <div className="space-y-4">
+                  <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                     <div className="min-w-0 space-y-4">
                         <div>
                            <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">USD Funded & Locked</Badge>
                            <h4 className="text-2xl font-black italic font-serif">
@@ -139,12 +139,12 @@ export function HostSponsorshipRequests() {
                            </h4>
                            <p className="text-sm text-foreground/60 font-medium">Sponsored by Brand Partner</p>
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                            <div>
                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Moment Budget</p>
                               <p className="text-xl font-black text-emerald-600">${request.bid_amount}</p>
                            </div>
-                           <div className="h-8 w-px bg-emerald-500/20" />
+                           <div className="hidden h-8 w-px bg-emerald-500/20 sm:block" />
                            <div>
                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Host Liquidity</p>
                               <p className="text-[10px] font-bold text-foreground uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Verified Payouts</p>
@@ -173,8 +173,8 @@ export function HostSponsorshipRequests() {
                 key={request.id}
                 className="bg-card rounded-xl p-5 border border-yellow-500/50"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <p className="font-medium text-foreground">
                       Brand: {request.brand_id.slice(0, 8)}...
                     </p>
@@ -182,7 +182,7 @@ export function HostSponsorshipRequests() {
                       For moment: {request.moment_id.slice(0, 8)}...
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="text-2xl font-bold text-emerald-500">
                       ${request.bid_amount}
                     </p>
@@ -207,7 +207,7 @@ export function HostSponsorshipRequests() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                <div className="mb-4 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                   <span>Received {format(new Date(request.created_at), "MMM d, yyyy")}</span>
                   {request.expires_at && (
                     <span className="flex items-center gap-1">
@@ -217,7 +217,7 @@ export function HostSponsorshipRequests() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     size="sm"
                     onClick={() => handleRespond(request.id, "accepted")}
@@ -296,7 +296,7 @@ export function HostSponsorshipRequests() {
           {requests.map((request) => (
             <div
               key={request.id}
-              className="bg-card rounded-xl p-4 border border-border flex items-center justify-between"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="font-medium text-foreground">

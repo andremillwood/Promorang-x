@@ -88,11 +88,11 @@ export const TeamManagement = () => {
                     <p className="text-muted-foreground">Manage roles and permissions for your organization.</p>
                 </div>
 
-                <form onSubmit={handleInvite} className="flex gap-2">
+                <form onSubmit={handleInvite} className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                     <Input
                         type="email"
                         placeholder="colleague@agency.com"
-                        className="w-64 bg-card"
+                        className="w-full bg-card sm:w-64"
                         value={inviteEmail}
                         onChange={(e) => setInviteEmail(e.target.value)}
                     />
@@ -104,7 +104,7 @@ export const TeamManagement = () => {
             </div>
 
             <div className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-soft">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto touch-pan-x">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-border/40 bg-muted/30">
@@ -131,7 +131,7 @@ export const TeamManagement = () => {
                                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
                                                 {member.profiles?.full_name?.charAt(0) || "U"}
                                             </div>
-                                            <div>
+                                            <div className="min-w-0">
                                                 <p className="font-semibold text-sm">{member.profiles?.full_name}</p>
                                                 <p className="text-[10px] text-muted-foreground">Active</p>
                                             </div>
@@ -162,7 +162,7 @@ export const TeamManagement = () => {
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
                 <div className="bg-primary/5 rounded-2xl p-6 border border-primary/20">
                     <h4 className="font-bold text-sm mb-2 flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4 text-primary" />

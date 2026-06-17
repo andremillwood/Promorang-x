@@ -5,19 +5,21 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE
 // ALWAYS use the Service Role Key for backend operations
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+let supabase = null;
+
 if (!supabaseUrl || !supabaseServiceKey) {
   console.warn('⚠️  Supabase Administrative credentials NOT found. Backend operations will fail.');
+} else {
+  supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
 }
 
-const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
-
 // Test connection silently
-if (supabaseUrl && supabaseServiceKey) {
+if (supabase) {
   supabase.from('users').select('count', { count: 'exact', head: true })
     .then(({ error }) => {
       if (error) console.error('[Supabase] Auth Bridge connection warning:', error.message);
@@ -27,5 +29,5 @@ if (supabaseUrl && supabaseServiceKey) {
 
 module.exports = { 
   supabase,
-  admin: supabase.auth.admin
+  admin: supabase?.auth?.admin || null
 };

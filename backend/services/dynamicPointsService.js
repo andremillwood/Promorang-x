@@ -243,6 +243,13 @@ async function autoConvertToKeys(userId) {
                 p_user_id: userId,
                 p_amount: keysToConvert,
             });
+            await economyService.recordParticipantKeysEarned(
+                userId,
+                keysToConvert,
+                'points_conversion',
+                null,
+                `Converted ${pointsToConvert} dynamic points`
+            );
         }
 
         console.log(`[DynamicPoints] Converted ${pointsToConvert} points to ${keysToConvert} keys for user ${userId}`);

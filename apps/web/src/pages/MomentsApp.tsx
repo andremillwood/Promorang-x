@@ -55,9 +55,9 @@ const MomentsApp = () => {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <Button variant="outline" className="gap-2 rounded-2xl" asChild>
-                        <Link to="/discover">
+                        <Link to="/explore/moments">
                             <Search className="w-4 h-4" />
-                            Discover More
+                            Explore More
                         </Link>
                     </Button>
                     <Button className="gap-2 rounded-2xl shadow-glow">
@@ -91,7 +91,7 @@ const MomentsApp = () => {
                                 <p className="text-foreground font-bold text-lg mb-2">Ready for something new?</p>
                                 <p className="text-muted-foreground mb-6 text-sm">You don't have any upcoming moments scheduled yet.</p>
                                 <Button variant="default" className="rounded-2xl px-8" asChild>
-                                    <Link to="/discover">Browse the Feed</Link>
+                                    <Link to="/for-you">Open For You</Link>
                                 </Button>
                             </div>
                         ) : (
@@ -210,7 +210,7 @@ const MomentsApp = () => {
                             </div>
                             <div className="mt-6 pt-6 border-t border-border/50 flex flex-col gap-3">
                                 <Button variant="hero" className="w-full shadow-lg" asChild>
-                                    <Link to="/discover">Add to Canon +</Link>
+                                    <Link to="/explore/moments">Add to Canon +</Link>
                                 </Button>
                                 <Link to="/dashboard/rewards" className="flex items-center justify-center group text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
                                     View Rewards <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />

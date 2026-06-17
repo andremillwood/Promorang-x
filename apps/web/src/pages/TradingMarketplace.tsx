@@ -5,14 +5,16 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { GemsBalance } from '@/components/trading/GemsBalance';
 import { PieceCard } from '@/components/trading/PieceCard';
 import { TradeModal } from '@/components/trading/TradeModal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, TrendingUp, Gem, Loader2 } from 'lucide-react';
+import { Search, Filter, TrendingUp, Gem, Loader2, ShieldCheck, TriangleAlert, Route, WalletCards } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface Piece {
@@ -34,7 +36,7 @@ interface Piece {
 }
 
 export function TradingMarketplace() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [filteredPieces, setFilteredPieces] = useState<Piece[]>([]);
@@ -46,13 +48,15 @@ export function TradingMarketplace() {
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [gemsBalance, setGemsBalance] = useState(0);
   const [userPieces, setUserPieces] = useState(0);
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
+  const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
 
   useEffect(() => {
-    if (user) {
+    if (user && session?.access_token) {
       fetchPools();
       fetchGemsBalance();
     }
-  }, [user]);
+  }, [user, session?.access_token]);
 
   useEffect(() => {
     filterPieces();
@@ -61,9 +65,9 @@ export function TradingMarketplace() {
   const fetchPools = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/pieces/pools?status=active', {
+      const response = await fetch(apiUrl('/pieces/pools?status=active'), {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${session?.access_token}`,
         },
       });
       
@@ -87,9 +91,9 @@ export function TradingMarketplace() {
 
   const fetchGemsBalance = async () => {
     try {
-      const response = await fetch('/api/pieces/gems/balance', {
+      const response = await fetch(apiUrl('/pieces/gems/balance'), {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${session?.access_token}`,
         },
       });
       
@@ -164,6 +168,20 @@ export function TradingMarketplace() {
               <p className="text-muted-foreground mt-1">
                 Buy and sell pieces with Gems
               </p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/portfolio">Portfolio</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/kyc">Check KYC Status</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/liquidity">Provide Liquidity</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/vault">Back to Vault</Link>
+                </Button>
+              </div>
             </div>
             <div className="w-full md:w-auto">
               <GemsBalance />
@@ -210,6 +228,54 @@ export function TradingMarketplace() {
 
       {/* Market Stats */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        <Alert className="mb-6 border-primary/20 bg-primary/5">
+          <ShieldCheck className="h-4 w-4" />
+          <AlertTitle>How pieces connect Promorang</AlertTitle>
+          <AlertDescription className="space-y-3">
+            <p>
+              Moments, content missions, hosts, and venues create activity. Eligible activity becomes pieces, pieces can sit in your portfolio, and active pools let users trade or provide liquidity with Gems.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/explore/moments">Explore Moments</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/watch-unlock">Watch & Unlock</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/kyc">Review KYC</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/liquidity">Open Liquidity</Link>
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+
+        <div className="mb-8 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-lg border bg-card p-4">
+            <Route className="mb-3 h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Earn From Moments</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Join a moment for early participant pieces. Check in for verified attendance pieces. Invite people who show up to earn contributor pieces.
+            </p>
+          </div>
+          <div className="rounded-lg border bg-card p-4">
+            <WalletCards className="mb-3 h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Portfolio</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your portfolio shows piece holdings across content, moments, hosts, and venues with links to each profile.
+            </p>
+          </div>
+          <div className="rounded-lg border bg-card p-4">
+            <TrendingUp className="mb-3 h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Earn From Content</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Content-attributed joins, check-ins, and verified proof can award pieces when distribution turns into real activity.
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="rounded-lg border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -246,13 +312,21 @@ export function TradingMarketplace() {
         {/* Pieces Grid */}
         {filteredPieces.length === 0 ? (
           <div className="text-center py-12">
-            <Gem className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold">No pieces found</h3>
+            <TriangleAlert className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold">No active trading pools</h3>
             <p className="text-muted-foreground">
               {searchQuery 
                 ? `No results for "${searchQuery}"` 
-                : 'No active trading pools available'}
+                : 'Trading inventory is not currently available for this filter set.'}
             </p>
+            <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/promoshare">Open PromoShare</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/vault">Return to Vault</Link>
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

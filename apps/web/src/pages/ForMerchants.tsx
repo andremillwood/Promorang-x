@@ -20,9 +20,9 @@ import {
 const merchantBenefits = [
     {
         icon: MapPin,
-        title: "A Trusted Local Spot",
+        title: "A Trusted Local Stage",
         description:
-            "Position your space as a key part of the neighborhood. List your venue to become a destination for local storytellers.",
+            "Position your space as part of the neighborhood story. List your venue so hosts, creators, and brands can route real moments through your doors.",
     },
     {
         icon: Users,
@@ -32,22 +32,22 @@ const merchantBenefits = [
     },
     {
         icon: ShieldCheck,
-        title: "Face-to-Face Welcomes",
+        title: "Verified Welcomes",
         description:
-            "A simple way to build trust. Greet guests at your counter and enter a quick PIN to confirm they've arrived.",
+            "Greet guests at your counter, confirm arrival with a quick PIN or scan, and turn a visit into proof that rewards and campaigns can trust.",
     },
     {
         icon: TrendingUp,
-        title: "Social Spread",
+        title: "Proof You Can Reuse",
         description:
-            "Host people with significant social reach. Watch as your shop, salon, cafe, or service desk gets shared across local networks in real-time.",
+            "See which moments, offers, and creator stories brought people in so you can repeat what worked instead of guessing.",
     },
 ];
 
 const stats = [
-    { value: "45%", label: "People who return" },
-    { value: "2.5x", label: "Longer stays" },
-    { value: "500+", label: "Partner Venues" },
+    { value: "Visits", label: "Verified in person" },
+    { value: "Offers", label: "Controlled redemptions" },
+    { value: "Proof", label: "Reusable local signal" },
     { value: "$0", label: "Cost to list" },
 ];
 
@@ -72,13 +72,13 @@ const ForMerchants = () => {
                         </div>
 
                         <h1 className="mx-auto mb-6 max-w-[18rem] break-words font-serif text-[1.8rem] font-bold italic leading-tight text-white sm:max-w-4xl sm:text-4xl md:text-7xl">
-                            Become a <span className="text-primary">Trusted Spot.</span>
+                            Become the Place <span className="text-primary">People Return To.</span>
                         </h1>
 
                         <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg md:text-xl">
                             Your space is more than four walls. It can be a boutique drop point, a salon ritual, a grocery sampling station,
-                            a trusted barber chair, or a neighborhood service hub. Host the moments that matter and let the social reach of your guests
-                            help more people discover your venue.
+                            a trusted barber chair, or a neighborhood service hub. Host the moments people want to talk about,
+                            verify the visits that actually happen, and give people a reason to come back.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -89,8 +89,21 @@ const ForMerchants = () => {
                                 </Link>
                             </Button>
                             <Button variant="outline" className="text-white border-white/20 hover:bg-white/5" size="lg" asChild>
-                                <Link to="/discover">See what's happening</Link>
+                                <Link to="/explore/moments">See what's happening</Link>
                             </Button>
+                        </div>
+
+                        <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
+                            {[
+                                ["Welcome", "Turn arrival into a human first impression."],
+                                ["Validate", "Confirm check-ins, redemptions, and visits."],
+                                ["Return", "Use proof to create repeat-worthy offers."],
+                            ].map(([title, text]) => (
+                                <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur">
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">{title}</p>
+                                    <p className="mt-2 text-sm leading-6 text-zinc-300">{text}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -111,7 +124,7 @@ const ForMerchants = () => {
                             <p className="text-lg text-muted-foreground mb-8">
                                 We've kept things simple and human. When a guest arrives for a drop, service appointment,
                                 sampling mission, or visit ritual, a quick PIN at your counter confirms they're really there.
-                                It's a simple way to verify visits and unlock rewards, founder memories, and return-driving perks for your patrons.
+                                It is a simple way to welcome people, unlock rewards, protect limited offers, issue founder memories, and create return-driving perks for your patrons.
                             </p>
                             
                             <div className="grid gap-6">

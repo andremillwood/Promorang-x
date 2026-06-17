@@ -1,26 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const promoShareService = require('../services/promoShareService');
-const { requireAuth, resolveAdvertiserContext } = require('../middleware/auth');
-
-// ============================================
-// ADMIN MIDDLEWARE
-// ============================================
-const requireAdmin = async (req, res, next) => {
-    // Check if user has admin role
-    const { supabase } = require('../lib/supabase');
-    const { data: role } = await supabase
-        .from('user_roles')
-        .select('*')
-        .eq('user_id', req.user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-
-    if (!role && req.user.user_type !== 'admin') {
-        return res.status(403).json({ success: false, error: 'Admin access required' });
-    }
-    next();
-};
+const { requireAuth, requireAdmin, resolveAdvertiserContext } = require('../middleware/auth');
 
 // Apply auth to all routes
 router.use(requireAuth);

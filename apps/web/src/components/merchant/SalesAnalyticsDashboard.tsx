@@ -106,14 +106,14 @@ const SalesAnalyticsDashboard = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                     <h2 className="text-2xl font-bold text-foreground">Sales Analytics</h2>
                     <p className="text-muted-foreground">Track your performance and insights</p>
                 </div>
 
                 <Select value={timeRange} onValueChange={setTimeRange}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -229,12 +229,12 @@ const SalesAnalyticsDashboard = () => {
                     {topProducts.length > 0 ? (
                         <div className="space-y-3">
                             {topProducts.map((product, index) => (
-                                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div className="flex items-center gap-3">
+                                <div key={index} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex min-w-0 items-center gap-3">
                                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
                                             {index + 1}
                                         </div>
-                                        <div>
+                                        <div className="min-w-0">
                                             <p className="font-medium">{product.name}</p>
                                             <p className="text-sm text-muted-foreground">{product.category}</p>
                                         </div>
@@ -260,15 +260,15 @@ const SalesAnalyticsDashboard = () => {
                         <CardDescription>Understanding your customers</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between gap-3">
                             <span className="text-sm text-muted-foreground">Avg. Purchases per Customer</span>
                             <span className="font-bold">{customerInsights?.avgPurchasesPerCustomer?.toFixed(1) || 0}</span>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between gap-3">
                             <span className="text-sm text-muted-foreground">Repeat Customer Rate</span>
                             <span className="font-bold">{customerInsights?.repeatCustomerRate?.toFixed(1) || 0}%</span>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between gap-3">
                             <span className="text-sm text-muted-foreground">Total Purchases</span>
                             <span className="font-bold">{customerInsights?.totalPurchases || 0}</span>
                         </div>
@@ -281,11 +281,11 @@ const SalesAnalyticsDashboard = () => {
                         <CardDescription>Track redemption activity</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between gap-3">
                             <span className="text-sm text-muted-foreground">Validated</span>
                             <Badge variant="default">{summary?.validatedRedemptions || 0}</Badge>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between gap-3">
                             <span className="text-sm text-muted-foreground">Pending</span>
                             <Badge variant="secondary">{summary?.pendingRedemptions || 0}</Badge>
                         </div>

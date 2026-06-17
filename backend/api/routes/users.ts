@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { supabaseAdmin } from '../_core/supabase';
 import { handleError, AuthenticatedRequest } from '../_core/apiUtils';
 import { requireAuth } from '../_core/auth';
@@ -6,7 +6,7 @@ import { requireAuth } from '../_core/auth';
 const router = Router();
 
 // Get current user profile
-router.get('/me', requireAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'User not authenticated' });
@@ -30,7 +30,7 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res) => {
 });
 
 // Get user wallets
-router.get('/me/wallets', requireAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/me/wallets', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'User not authenticated' });

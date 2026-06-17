@@ -26,6 +26,50 @@ const supabase = supabaseUrl && supabaseServiceKey
   })
   : null;
 
+const DEMO_USER_ID_PREFIXES = ['demo-', 'a0000000', '00000000-0000-'];
+const ADMIN_ROLES = ['admin', 'master_admin', 'moderator'];
+
+function isDemoUserId(userId) {
+  const value = String(userId || '');
+  return DEMO_USER_ID_PREFIXES.some((prefix) => value.startsWith(prefix));
+}
+
+async function getUserRoles(userId) {
+  if (!supabase || !userId || isDemoUserId(userId)) {
+    return [];
+  }
+
+  const roles = new Set();
+
+  const { data: userRecord, error: userError } = await supabase
+    .from('users')
+    .select('role, user_type')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (userError) {
+    console.warn('[Auth] Failed to fetch user role:', userError.message);
+  }
+
+  if (userRecord?.role) roles.add(userRecord.role);
+  if (userRecord?.user_type) roles.add(userRecord.user_type);
+
+  const { data: roleRecords, error: roleError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId);
+
+  if (roleError) {
+    console.warn('[Auth] Failed to fetch user_roles:', roleError.message);
+  }
+
+  for (const row of roleRecords || []) {
+    if (row?.role) roles.add(row.role);
+  }
+
+  return Array.from(roles);
+}
+
 /**
  * Middleware to require authentication for protected routes
  * Verifies the Supabase JWT token and attaches the user to the request object
@@ -134,39 +178,18 @@ async function requireAuth(req, res, next) {
       res.setHeader('X-Auth-Error', authError?.message || 'Verification failed');
       res.setHeader('X-Auth-Status', authError?.status || 'Unknown');
       
-      // FALLBACK: Manual JWT verification or Trust-on-Decode Recovery
-      // This ensures that even if the backend's connection to Supabase Auth API is flaky,
-      // or if the JWT_SECRET is out of sync, we can still recover the session.
+      // Fallback to local signature verification only. Never trust decoded JWTs
+      // without signature verification in production.
       try {
         let verified = null;
         if (jwtSecret) {
           try {
             verified = jwt.verify(token, jwtSecret);
-            console.log('[Auth] 🛡️ Token verified manually via JWT_SECRET fallback');
+            console.log('[Auth] Token verified manually via JWT_SECRET fallback');
           } catch (jwtErr) {
-            console.warn('[Auth] ⚠️ Manual JWT signature verification failed:', jwtErr.message);
+            console.warn('[Auth] Manual JWT signature verification failed:', jwtErr.message);
             res.setHeader('X-Auth-JWT-Error', jwtErr.message);
-            
-            // RECOVERY MODE: Trust-on-Decode
-            const decoded = jwt.decode(token);
-            
-            // Ultra-forgiving fallback: if it's structurally an object with a user ID (sub), trust it.
-            if (decoded && typeof decoded === 'object' && decoded.sub) {
-              console.log('[Auth] 🆘 RECOVERY MODE: Blindly trusting decoded token with sub:', decoded.sub);
-              verified = decoded;
-              res.setHeader('X-Auth-Recovery-Mode', 'active-unrestricted');
-            } else {
-              console.warn('[Auth] ❌ Recovery Mode failed: Token not decodable or missing sub');
-            }
           }
-        } else {
-           // Ultra-forgiving fallback if jwtSecret isn't even present
-           const decoded = jwt.decode(token);
-           if (decoded && typeof decoded === 'object' && decoded.sub) {
-             console.log('[Auth] 🆘 RECOVERY MODE: No secret. Trusting decoded token with sub:', decoded.sub);
-             verified = decoded;
-             res.setHeader('X-Auth-Recovery-Mode', 'active-no-secret');
-           }
         }
 
         if (verified) {
@@ -191,7 +214,7 @@ async function requireAuth(req, res, next) {
         error: 'Authentication failed',
         code: 'INVALID_TOKEN',
         details: authError?.message || 'Token verification failed',
-        hint: 'Backend couldn\'t verify your token. Recovery check also failed.',
+        hint: 'Backend could not verify your token.',
         auth_service_error: authError?.message
       });
     }
@@ -479,28 +502,29 @@ const requireAdmin = async (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  // Development Bypass (Optional: strict mode can disable this)
-  if (process.env.NODE_ENV === 'development') {
-    // In dev, let everyone pass for now unless checking specific role logic
-    // OR enforce roles even in dev if we want to test RBAC properly.
-    // Let's enforce it now that we have role support.
-    // If mocking, we assume req.user is populated by some mock logic or earlier middleware.
+  const tokenRoles = [
+    req.user.role,
+    req.user.user_type,
+    req.user.token_payload?.role,
+    req.user.token_payload?.user_role,
+    req.user.token_payload?.user_metadata?.role,
+    req.user.token_payload?.user_metadata?.user_type
+  ].filter(Boolean);
 
-    // Fallback for demo emails if DB lookup failed to populate role
-    const adminEmails = ['andremillwood@gmail.com', 'admin@promorang.com'];
-    if (adminEmails.includes(req.user.email)) {
-      return next();
-    }
-  }
-
-  // Check role from DB (assuming populated in req.user by requireAuth)
-  const allowedRoles = ['admin', 'master_admin', 'moderator']; // Moderators can access admin panel views
-  if (allowedRoles.includes(req.user.role || 'user')) {
+  if (tokenRoles.some((role) => ADMIN_ROLES.includes(role))) {
     return next();
   }
 
-  // Specific fallback for Master Admin email if role missing
-  if (req.user.email === 'andremillwood@gmail.com') return next();
+  try {
+    const roles = await getUserRoles(req.user.id);
+    if (roles.some((role) => ADMIN_ROLES.includes(role))) {
+      req.user.roles = Array.from(new Set([...(req.user.roles || []), ...roles]));
+      req.user.role = roles.find((role) => ADMIN_ROLES.includes(role)) || req.user.role;
+      return next();
+    }
+  } catch (error) {
+    console.error('[Auth] Admin role lookup failed:', error.message);
+  }
 
   return res.status(403).json({ error: 'Admin access required' });
 };
@@ -508,13 +532,28 @@ const requireAdmin = async (req, res, next) => {
 const requireMasterAdmin = async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
 
-  // HARDCODED MASTER ADMIN
-  if (req.user.email === 'andremillwood@gmail.com') {
+  const tokenRoles = [
+    req.user.role,
+    req.user.user_type,
+    req.user.token_payload?.role,
+    req.user.token_payload?.user_role,
+    req.user.token_payload?.user_metadata?.role,
+    req.user.token_payload?.user_metadata?.user_type
+  ].filter(Boolean);
+
+  if (tokenRoles.includes('master_admin')) {
     return next();
   }
 
-  if (req.user.role === 'master_admin') {
-    return next();
+  try {
+    const roles = await getUserRoles(req.user.id);
+    if (roles.includes('master_admin')) {
+      req.user.roles = Array.from(new Set([...(req.user.roles || []), ...roles]));
+      req.user.role = 'master_admin';
+      return next();
+    }
+  } catch (error) {
+    console.error('[Auth] Master admin role lookup failed:', error.message);
   }
 
   return res.status(403).json({ error: 'Master Admin privileges required' });
@@ -530,7 +569,7 @@ const requireRole = (roles) => (req, res, next) => {
   const allowedRoles = Array.isArray(roles) ? roles : [roles];
   const userRole = req.user.user_type || req.user.role;
 
-  if (allowedRoles.includes(userRole)) {
+  if (allowedRoles.includes(userRole) || allowedRoles.includes(req.user.role)) {
     return next();
   }
 

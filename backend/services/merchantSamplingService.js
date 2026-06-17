@@ -15,6 +15,7 @@
  */
 
 const { supabase } = require('../lib/supabase');
+const demoExperienceEmailService = require('./demoExperienceEmailService');
 
 // Merchant state enum
 const MerchantState = {
@@ -245,6 +246,11 @@ async function createSamplingActivation(advertiserId, activationData) {
       activation_id: activation.id
     });
 
+    demoExperienceEmailService.sendSamplingActivationCreatedEmail(advertiserId, activation)
+      .catch((emailError) => {
+        console.error('[MerchantSampling] Error sending activation email:', emailError);
+      });
+
     return { success: true, activation };
   } catch (err) {
     console.error('[MerchantSampling] createSamplingActivation error:', err);
@@ -354,6 +360,14 @@ async function recordParticipation(activationId, userId, actionType, userMaturit
       return { success: false, error: 'Failed to record participation' };
     }
 
+    demoExperienceEmailService.sendSamplingParticipationEmail({
+      advertiserId: activation.advertiser_id,
+      activation,
+      participation,
+    }).catch((emailError) => {
+      console.error('[MerchantSampling] Error sending participation email:', emailError);
+    });
+
     // Check graduation triggers after each participation
     await checkGraduationTriggers(activation.advertiser_id, activationId);
 
@@ -377,13 +391,24 @@ async function verifyParticipation(participationId, verificationMethod = 'social
         verification_method: verificationMethod
       })
       .eq('id', participationId)
-      .select('*, sampling_activations!inner(advertiser_id)')
+      .select('*, sampling_activations!inner(id, advertiser_id, name)')
       .single();
 
     if (error) {
       console.error('[MerchantSampling] Error verifying participation:', error);
       return { success: false, error: 'Failed to verify participation' };
     }
+
+    demoExperienceEmailService.sendSamplingVerificationEmail({
+      advertiserId: participation.sampling_activations.advertiser_id,
+      activation: {
+        id: participation.activation_id,
+        name: participation.sampling_activations.name,
+      },
+      participation,
+    }).catch((emailError) => {
+      console.error('[MerchantSampling] Error sending verification email:', emailError);
+    });
 
     // Check graduation triggers after verification
     await checkGraduationTriggers(
@@ -433,6 +458,14 @@ async function recordRedemption(participationId, redemptionValue) {
     if (updateError) {
       console.error('[MerchantSampling] Error updating redemption count:', updateError);
     }
+
+    demoExperienceEmailService.sendSamplingRedemptionEmail({
+      advertiserId: activation.advertiser_id,
+      activation,
+      participation,
+    }).catch((emailError) => {
+      console.error('[MerchantSampling] Error sending redemption email:', emailError);
+    });
 
     // Check if all redemptions used
     if (activation.current_redemptions + 1 >= activation.max_redemptions) {
@@ -558,6 +591,19 @@ async function checkGraduationTriggers(advertiserId, activationId) {
         console.error('[MerchantSampling] Error sending graduation notification:', notifyError);
       }
 
+      demoExperienceEmailService.sendSamplingGraduationEmail({
+        advertiserId,
+        activationId,
+        graduationReason,
+        metrics: {
+          redemption_rate: redemptionRate,
+          verified_actions: verifiedActions,
+          entry_user_participants: entryUserParticipants,
+        },
+      }).catch((emailError) => {
+        console.error('[MerchantSampling] Error sending graduation email:', emailError);
+      });
+
       return { graduated: true, reason: graduationReason };
     }
 
@@ -617,6 +663,21 @@ async function requestGraduation(advertiserId, requestType) {
   } catch (notifyError) {
     console.error('[MerchantSampling] Error sending graduation notification:', notifyError);
   }
+
+  demoExperienceEmailService.sendSamplingGraduationEmail({
+    advertiserId,
+    activationId: activation.id,
+    graduationReason: `merchant_request_${requestType}`,
+    metrics: {
+      redemption_rate: activation.max_redemptions > 0
+        ? activation.current_redemptions / activation.max_redemptions
+        : 0,
+      verified_actions: null,
+      entry_user_participants: null,
+    },
+  }).catch((emailError) => {
+    console.error('[MerchantSampling] Error sending manual graduation email:', emailError);
+  });
 
   return { success: true };
 }

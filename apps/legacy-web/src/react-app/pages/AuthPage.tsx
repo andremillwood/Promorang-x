@@ -15,6 +15,7 @@ export default function AuthPage() {
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [referrerInfo, setReferrerInfo] = useState<any>(null);
   const [demoStatus, setDemoStatus] = useState<{ status: string; missing?: number } | null>(null);
+  const [demoEmail, setDemoEmail] = useState('');
   const [isInitializing, setIsInitializing] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -145,7 +146,18 @@ export default function AuthPage() {
     setError(null);
     setLoadingDemo(type);
     try {
-      const result = await demoLogin[type]();
+      const normalizedDemoEmail = demoEmail.trim().toLowerCase();
+      if (!normalizedDemoEmail) {
+        setError('Enter the inbox where demo emails should be sent.');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedDemoEmail)) {
+        setError('Enter a valid email address for demo notifications.');
+        return;
+      }
+
+      const result = await (demoLogin[type] as (email?: string) => Promise<any>)(normalizedDemoEmail);
       if (result.error) {
         setError(typeof result.error === 'string' ? result.error : result.error.message || 'Demo login failed');
       } else {
@@ -311,6 +323,23 @@ export default function AuthPage() {
 
         {/* Demo Login Buttons */}
         <div className="space-y-4">
+          <div className="bg-pr-surface-card border border-pr-border rounded-xl p-4">
+            <label htmlFor="demo-email" className="block text-[10px] font-bold text-pr-text-2 uppercase tracking-wider mb-2">
+              Demo Email Inbox
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pr-text-3" />
+              <input
+                id="demo-email"
+                type="email"
+                value={demoEmail}
+                onChange={(event) => setDemoEmail(event.target.value)}
+                placeholder="you@example.com"
+                className="w-full pl-10 pr-3 py-2 rounded-lg bg-pr-surface-background border border-pr-border text-pr-text-1 placeholder:text-pr-text-3 focus:outline-none focus:ring-2 focus:ring-pr-primary"
+              />
+            </div>
+          </div>
+
           {/* Creator Role Pool */}
           <div className="bg-pr-surface-card border border-pr-border rounded-xl overflow-hidden">
             <div className="bg-pr-surface-2 px-4 py-2 border-b border-pr-border flex justify-between items-center">

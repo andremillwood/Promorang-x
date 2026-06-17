@@ -20,6 +20,10 @@ import {
   Scale,
   Settings,
   Zap,
+  LifeBuoy,
+  Activity,
+  Megaphone,
+  KeyRound,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
@@ -30,6 +34,10 @@ import { AdminCreateMomentTab } from "@/components/admin/AdminCreateMomentTab";
 import { AdminEconomyTab } from "@/components/admin/AdminEconomyTab";
 import { AdminModerationTab } from "@/components/admin/AdminModerationTab";
 import { AdminConfigTab } from "@/components/admin/AdminConfigTab";
+import { AdminSupportTab } from "@/components/admin/AdminSupportTab";
+import { AdminOperationsTab } from "@/components/admin/AdminOperationsTab";
+import { AdminPromoPushTab } from "@/components/admin/AdminPromoPushTab";
+import { AdminAccessRulesTab } from "@/components/admin/AdminAccessRulesTab";
 import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
 
 const AdminDashboard = () => {
@@ -116,10 +124,18 @@ const AdminDashboard = () => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="overflow-x-auto pb-2">
-            <TabsList className="grid h-auto min-w-[860px] w-full max-w-none grid-cols-10 rounded-2xl bg-muted/60 p-1">
+            <TabsList className="grid h-auto min-w-[1240px] w-full max-w-none grid-cols-[repeat(14,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
+              </TabsTrigger>
+              <TabsTrigger value="operations" className="flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Operations
+              </TabsTrigger>
+              <TabsTrigger value="promopush" className="flex items-center gap-2">
+                <Megaphone className="w-4 h-4" />
+                PromoPush
               </TabsTrigger>
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -141,9 +157,17 @@ const AdminDashboard = () => {
                 <Coins className="w-4 h-4" />
                 Economy
               </TabsTrigger>
+              <TabsTrigger value="access" className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4" />
+                Access
+              </TabsTrigger>
               <TabsTrigger value="moderation" className="flex items-center gap-2">
                 <Scale className="w-4 h-4" />
                 Moderation
+              </TabsTrigger>
+              <TabsTrigger value="support" className="flex items-center gap-2">
+                <LifeBuoy className="w-4 h-4" />
+                Support
               </TabsTrigger>
               <TabsTrigger value="config" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
@@ -162,6 +186,14 @@ const AdminDashboard = () => {
 
             <TabsContent value="overview">
               <AdminAnalyticsTab />
+            </TabsContent>
+
+            <TabsContent value="operations">
+              <AdminOperationsTab />
+            </TabsContent>
+
+            <TabsContent value="promopush">
+              <AdminPromoPushTab />
             </TabsContent>
 
             <TabsContent value="users">
@@ -184,8 +216,16 @@ const AdminDashboard = () => {
               <AdminEconomyTab />
             </TabsContent>
 
+            <TabsContent value="access">
+              <AdminAccessRulesTab />
+            </TabsContent>
+
             <TabsContent value="moderation">
               <AdminModerationTab />
+            </TabsContent>
+
+            <TabsContent value="support">
+              <AdminSupportTab />
             </TabsContent>
 
             <TabsContent value="config">

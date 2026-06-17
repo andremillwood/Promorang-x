@@ -186,7 +186,7 @@ const UserProfilePage = () => {
                 <div className="pt-24 pb-12 px-4 text-center">
                     <h1 className="font-serif text-2xl font-bold mb-4">User not found</h1>
                     <Button asChild>
-                        <Link to="/discover">Discover Moments</Link>
+                        <Link to="/explore/moments">Explore Moments</Link>
                     </Button>
                 </div>
             </div>

@@ -5,6 +5,7 @@
  */
 
 const { Resend } = require('resend');
+const { resolveEmailRecipient } = require('./demoEmailRouting');
 
 // Initialize Resend client
 // Initialize Resend client
@@ -30,12 +31,29 @@ if (resendApiKey) {
   };
 }
 
+const DEFAULT_FRONTEND_URL = 'https://promorang.co';
+
+function buildPublicAssetUrl(path) {
+  const baseUrl = (process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL).replace(/\/+$/, '');
+  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 // Email configuration
 const EMAIL_CONFIG = {
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'Promorang <onboarding@resend.dev>',
-  frontendUrl: process.env.FRONTEND_URL || 'https://promorang.co',
+  frontendUrl: process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL,
   supportEmail: 'support@promorang.co',
+  logoUrl: process.env.EMAIL_LOGO_URL || buildPublicAssetUrl('/email-assets/promorang-logo.png'),
 };
+
+function getBackendSupabase() {
+  try {
+    return require('../lib/supabase').supabase;
+  } catch (error) {
+    console.warn('[EmailService] Supabase unavailable; demo email routing disabled:', error.message);
+    return null;
+  }
+}
 
 // Promorang Brand Colors
 // A moment platform - warm, inviting, human
@@ -141,39 +159,33 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
     }
     
     .brand-lockup {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       margin-bottom: 28px;
-    }
-    
-    .brand-logo {
-      max-width: 180px;
-      max-height: 60px;
-      height: auto;
-      display: block;
-    }
-    
-    .brand-mark {
-      width: 44px;
-      height: 44px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      backdrop-filter: blur(10px);
-    }
-    
-    .brand-wordmark {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: 26px;
-      font-weight: 600;
-      color: #ffffff;
-      letter-spacing: -0.01em;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow: 0 10px 30px rgba(31, 31, 31, 0.12);
       text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 10px 0 0;
+      border: 0;
+    }
+
+    .brand-fallback {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1F1F1F;
+      letter-spacing: 0;
+      text-decoration: none;
+      vertical-align: middle;
     }
     
     .header h1 {
@@ -300,9 +312,9 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
     }
     
     .info-card-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
+      display: table;
+      width: 100%;
+      padding: 10px 0;
       border-bottom: 1px solid #e4e4e7;
       font-size: 14px;
     }
@@ -312,12 +324,17 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
     }
     
     .info-card-label {
+      display: table-cell;
       color: ${BRAND.textMuted};
+      padding-right: 16px;
     }
     
     .info-card-value {
+      display: table-cell;
+      text-align: right;
       color: ${BRAND.text};
       font-weight: 500;
+      white-space: nowrap;
     }
     
     .feature-list {
@@ -358,32 +375,46 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
     }
     
     .footer {
-      background: ${BRAND.gradientSubtle};
+      background: #ffffff;
       padding: 40px;
       text-align: center;
       border-top: 1px solid ${BRAND.border};
     }
-    
+
+    .footer-logo {
+      width: 26px;
+      height: 26px;
+      display: inline-block;
+      margin: 0 8px 18px 0;
+      vertical-align: middle;
+      border: 0;
+    }
+
+    .footer-brand {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: ${BRAND.text};
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 26px;
+      text-decoration: none;
+      vertical-align: middle;
+    }
+
     .social-links {
       margin: 0 0 24px;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.8;
     }
-    
+
     .social-links a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: #ffffff;
-      border-radius: 50%;
+      display: inline-block;
       color: ${BRAND.textMuted};
       text-decoration: none;
-      font-size: 14px;
-      border: 1px solid ${BRAND.border};
-      transition: all 0.2s ease;
+      font-weight: 600;
+      margin: 0 10px;
     }
     
     .footer-links {
@@ -399,15 +430,6 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
       font-weight: 500;
     }
     
-    .footer-brand {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: ${BRAND.text};
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
-    }
-    
     .footer-copyright {
       font-size: 12px;
       color: ${BRAND.textMuted};
@@ -420,6 +442,34 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
       margin: 32px 0;
     }
     
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    .metrics-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid #e4e4e7;
+      font-size: 14px;
+    }
+
+    .metrics-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .metrics-table-label {
+      color: ${BRAND.textMuted};
+      padding-right: 16px;
+    }
+
+    .metrics-table-value {
+      color: ${BRAND.text};
+      font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
+    }
+
     @media only screen and (max-width: 600px) {
       body { background-color: #ffffff; }
       .email-wrapper {
@@ -431,6 +481,12 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
       .header h1 { font-size: 24px; }
       .footer { padding: 32px 24px; }
       .cta-secondary { display: block; margin: 12px 0 0; }
+      .info-card-label, .info-card-value {
+        display: block;
+        text-align: left;
+        white-space: normal;
+      }
+      .info-card-value { margin-top: 4px; }
     }
   </style>
 </head>
@@ -443,9 +499,10 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
         <div class="email-wrapper">
           <div class="header">
             <div class="header-content">
-              <div class="brand-lockup">
-                <img src="data:image/png;base64,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" alt="Promorang" class="brand-logo" />
-              </div>
+              <a href="${EMAIL_CONFIG.frontendUrl}" class="brand-lockup">
+                <img src="${EMAIL_CONFIG.logoUrl}" width="34" height="34" alt="" class="brand-logo" />
+                <span class="brand-fallback">Promorang</span>
+              </a>
               <h1>${title}</h1>
             </div>
           </div>
@@ -467,12 +524,15 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
           </div>
           
           <div class="footer">
-            <div class="footer-brand">Promorang</div>
+            <a href="${EMAIL_CONFIG.frontendUrl}" class="footer-brand">
+              <img src="${EMAIL_CONFIG.logoUrl}" width="26" height="26" alt="" class="footer-logo" />
+              Promorang
+            </a>
             <div class="social-links">
-              <a href="https://twitter.com/promorang" title="X (Twitter)">𝕏</a>
-              <a href="https://instagram.com/promorang" title="Instagram">IG</a>
-              <a href="https://linkedin.com/company/promorang" title="LinkedIn">in</a>
-              <a href="https://discord.gg/promorang" title="Discord">DC</a>
+              <a href="https://twitter.com/promorang" title="X (Twitter)">X / Twitter</a>
+              <a href="https://instagram.com/promorang" title="Instagram">Instagram</a>
+              <a href="https://linkedin.com/company/promorang" title="LinkedIn">LinkedIn</a>
+              <a href="https://discord.gg/promorang" title="Discord">Discord</a>
             </div>
             <div class="footer-links">
               <a href="${EMAIL_CONFIG.frontendUrl}/settings/notifications">Preferences</a>
@@ -495,11 +555,17 @@ function getBaseTemplate({ title, preheader, content, ctaUrl, ctaText, footerNot
 /**
  * Send an email using Resend
  */
-async function sendEmail({ to, subject, html, text, replyTo, tags }) {
+async function sendEmail({ to, subject, html, text, replyTo, tags, userId, emailType, metadata }) {
   try {
+    const recipients = Array.isArray(to) ? to : [to];
+    const supabase = getBackendSupabase();
+    const resolvedRecipients = await Promise.all(
+      recipients.map((recipient) => resolveEmailRecipient(supabase, recipient))
+    );
+
     const { data, error } = await resend.emails.send({
       from: EMAIL_CONFIG.fromAddress,
-      to: Array.isArray(to) ? to : [to],
+      to: resolvedRecipients,
       subject,
       html,
       text,
@@ -512,11 +578,77 @@ async function sendEmail({ to, subject, html, text, replyTo, tags }) {
       return { success: false, error: error.message };
     }
 
-    console.log('Email sent successfully:', data?.id);
+    console.log('Email sent successfully:', data?.id, 'to:', resolvedRecipients.join(', '));
+    await logSentEmailEvents({
+      supabase,
+      recipients,
+      resolvedRecipients,
+      subject,
+      tags,
+      messageId: data?.id,
+      userId,
+      emailType,
+      metadata,
+    });
     return { success: true, messageId: data?.id };
   } catch (err) {
     console.error('Failed to send email:', err);
     return { success: false, error: err.message };
+  }
+}
+
+async function logSentEmailEvents({ supabase, recipients, resolvedRecipients, subject, tags, messageId, userId, emailType, metadata }) {
+  if (!supabase) return;
+
+  try {
+    const typeTag = Array.isArray(tags)
+      ? tags.find((tag) => tag?.name === 'type')?.value
+      : null;
+
+    const finalEmailType = emailType || typeTag || 'transactional';
+
+    if (userId) {
+      await supabase.from('email_events').insert({
+        user_id: userId,
+        email_type: finalEmailType,
+        event_type: 'sent',
+        metadata: {
+          subject,
+          message_id: messageId,
+          recipients: resolvedRecipients,
+          ...metadata,
+        },
+      });
+      return;
+    }
+
+    for (let index = 0; index < recipients.length; index += 1) {
+      const originalRecipient = recipients[index];
+      if (typeof originalRecipient !== 'string') continue;
+
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', originalRecipient.trim().toLowerCase())
+        .maybeSingle();
+
+      if (!user?.id) continue;
+
+      await supabase.from('email_events').insert({
+        user_id: user.id,
+        email_type: finalEmailType,
+        event_type: 'sent',
+        metadata: {
+          subject,
+          message_id: messageId,
+          original_recipient: originalRecipient,
+          resolved_recipient: resolvedRecipients[index],
+          ...metadata,
+        },
+      });
+    }
+  } catch (error) {
+    console.warn('[Resend] Failed to log email event:', error.message);
   }
 }
 
@@ -1049,6 +1181,114 @@ async function sendKycRequiredEmail(userEmail, userName, reason) {
     html,
     text: `Identity verification is required. Please complete it at ${EMAIL_CONFIG.frontendUrl}/settings/kyc`,
     tags: [{ name: 'type', value: 'kyc-required' }],
+  });
+}
+
+async function sendKycApprovedEmail(userEmail, userName, approvalData = {}) {
+  const { level = 'intermediate', limits } = approvalData;
+
+  const html = getBaseTemplate({
+    title: 'Verification Approved',
+    preheader: 'Your account is now verified for trading and withdrawals.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+
+      <p>Your identity verification has been approved. Your account now has <strong>${level}</strong> verification access.</p>
+
+      <div class="info-card">
+        <div class="info-card-row">
+          <span class="info-card-label">KYC Level</span>
+          <span class="info-card-value">${level}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Daily Deposit Limit</span>
+          <span class="info-card-value">$${limits?.daily_deposit_limit || limits?.daily_deposit || 0}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Daily Withdrawal Limit</span>
+          <span class="info-card-value">$${limits?.daily_withdrawal_limit || limits?.daily_withdrawal || 0}</span>
+        </div>
+        <div class="info-card-row">
+          <span class="info-card-label">Max Single Trade</span>
+          <span class="info-card-value">$${limits?.max_single_trade || limits?.max_single_trade_amount || 0}</span>
+        </div>
+      </div>
+
+      <p>You can now continue with trading, withdrawals, and higher account limits.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
+    ctaText: 'View Verification',
+    footerNote: 'If anything on your profile looks incorrect, reply to this email and support will review it.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Your Promorang verification was approved',
+    html,
+    text: `Your verification was approved at level ${level}. View your status at ${EMAIL_CONFIG.frontendUrl}/kyc`,
+    tags: [{ name: 'type', value: 'kyc-approved' }],
+  });
+}
+
+async function sendKycRejectedEmail(userEmail, userName, rejectionData = {}) {
+  const { reason, category } = rejectionData;
+
+  const html = getBaseTemplate({
+    title: 'Verification Update',
+    preheader: 'Your identity verification needs changes before approval.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+
+      <p>We reviewed your verification submission and could not approve it yet.</p>
+
+      <div class="meta-info">
+        <strong>Reason:</strong> ${reason || 'Your submission needs clarification or clearer documents.'}<br>
+        ${category ? `<strong>Category:</strong> ${category}` : ''}
+      </div>
+
+      <p>You can resubmit with updated information and clearer documentation.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
+    ctaText: 'Review and Resubmit',
+    footerNote: 'Support can help if you need clarification on the rejection reason.',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Your Promorang verification needs updates',
+    html,
+    text: `Your verification was not approved. Reason: ${reason || 'Please review your submission and resubmit.'} Visit ${EMAIL_CONFIG.frontendUrl}/kyc`,
+    tags: [{ name: 'type', value: 'kyc-rejected' }],
+  });
+}
+
+async function sendKycAdditionalInfoEmail(userEmail, userName, requestData = {}) {
+  const { requestedInfo } = requestData;
+
+  const html = getBaseTemplate({
+    title: 'More Information Needed',
+    preheader: 'We need one more update to complete your verification.',
+    content: `
+      <p>Hi ${userName || 'there'},</p>
+
+      <p>Your verification review is in progress, but we need additional information before we can finish it.</p>
+
+      <div class="meta-info">
+        ${requestedInfo || 'Please log in and review your verification request for the exact details.'}
+      </div>
+
+      <p>Once you update the requested information, the review can continue.</p>
+    `,
+    ctaUrl: `${EMAIL_CONFIG.frontendUrl}/kyc`,
+    ctaText: 'Update Verification',
+  });
+
+  return sendEmail({
+    to: userEmail,
+    subject: 'Additional information needed for verification',
+    html,
+    text: `We need more information to complete your verification. ${requestedInfo || ''} Visit ${EMAIL_CONFIG.frontendUrl}/kyc`,
+    tags: [{ name: 'type', value: 'kyc-additional-info' }],
   });
 }
 
@@ -1950,6 +2190,9 @@ module.exports = {
   sendWithdrawalRequestedEmail,
   sendWithdrawalCompletedEmail,
   sendKycRequiredEmail,
+  sendKycApprovedEmail,
+  sendKycRejectedEmail,
+  sendKycAdditionalInfoEmail,
 
   // Engagement
   sendStreakMilestoneEmail,

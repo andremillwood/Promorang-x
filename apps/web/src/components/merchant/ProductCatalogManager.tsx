@@ -39,8 +39,11 @@ interface Product {
     name: string;
     description?: string;
     category?: string;
+    price?: number;
     price_usd?: number;
+    points_cost?: number;
     price_points?: number;
+    inventory_quantity?: number;
     inventory_count?: number;
     low_stock_threshold?: number;
     total_sales: number;
@@ -108,12 +111,17 @@ const ProductCatalogManager = () => {
                 name: formData.name,
                 description: formData.description,
                 category: formData.category,
+                price: formData.price_usd ? parseFloat(formData.price_usd) : null,
                 price_usd: formData.price_usd ? parseFloat(formData.price_usd) : null,
+                points_cost: formData.price_points ? parseInt(formData.price_points) : null,
                 price_points: formData.price_points ? parseInt(formData.price_points) : null,
+                inventory_quantity: formData.inventory_count ? parseInt(formData.inventory_count) : null,
                 inventory_count: formData.inventory_count ? parseInt(formData.inventory_count) : null,
                 low_stock_threshold: parseInt(formData.low_stock_threshold),
                 discount_type: formData.discount_type || null,
                 discount_value: formData.discount_value ? parseFloat(formData.discount_value) : null,
+                listing_kind: formData.category === "service" ? "service" : "product",
+                fulfillment_mode: formData.category === "service" ? "booking" : "pickup",
             };
 
             const url = editingProduct
@@ -156,9 +164,9 @@ const ProductCatalogManager = () => {
             name: product.name,
             description: product.description || "",
             category: product.category || "",
-            price_usd: product.price_usd?.toString() || "",
-            price_points: product.price_points?.toString() || "",
-            inventory_count: product.inventory_count?.toString() || "",
+            price_usd: (product.price_usd ?? product.price)?.toString() || "",
+            price_points: (product.price_points ?? product.points_cost)?.toString() || "",
+            inventory_count: (product.inventory_count ?? product.inventory_quantity)?.toString() || "",
             low_stock_threshold: product.low_stock_threshold?.toString() || "10",
             discount_type: "",
             discount_value: "",
@@ -210,14 +218,15 @@ const ProductCatalogManager = () => {
     };
 
     const isLowStock = (product: Product) => {
-        if (product.inventory_count === null || product.inventory_count === undefined) return false;
-        return product.inventory_count <= (product.low_stock_threshold || 10);
+        const inventory = product.inventory_count ?? product.inventory_quantity;
+        if (inventory === null || inventory === undefined) return false;
+        return inventory <= (product.low_stock_threshold || 10);
     };
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                     <h2 className="text-2xl font-bold text-foreground">Product Catalog</h2>
                     <p className="text-muted-foreground">Manage your products and inventory</p>
                 </div>
@@ -232,7 +241,7 @@ const ProductCatalogManager = () => {
                             Add Product
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-2xl">
                         <DialogHeader>
                             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
                             <DialogDescription>
@@ -241,8 +250,8 @@ const ProductCatalogManager = () => {
                         </DialogHeader>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="sm:col-span-2">
                                     <Label htmlFor="name">Product Name *</Label>
                                     <Input
                                         id="name"
@@ -252,7 +261,7 @@ const ProductCatalogManager = () => {
                                     />
                                 </div>
 
-                                <div className="col-span-2">
+                                <div className="sm:col-span-2">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea
                                         id="description"
@@ -342,7 +351,7 @@ const ProductCatalogManager = () => {
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 pt-4">
+                            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
                                     Cancel
                                 </Button>
@@ -385,19 +394,23 @@ const ProductCatalogManager = () => {
                             <TableBody>
                                 {products.map((product) => (
                                     <TableRow key={product.id}>
-                                        <TableCell className="font-medium">{product.name}</TableCell>
-                                        <TableCell>{product.category || 'Uncategorized'}</TableCell>
-                                        <TableCell>
-                                            {product.price_usd && `$${product.price_usd.toFixed(2)}`}
-                                            {product.price_usd && product.price_points && ' / '}
-                                            {product.price_points && `${product.price_points} pts`}
+                                        <TableCell className="font-medium">
+                                            <span className="block min-w-[11rem] max-w-[18rem] truncate">{product.name}</span>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                {product.inventory_count !== null ? (
+                                            <span className="block min-w-[8rem] truncate">{product.category || 'Uncategorized'}</span>
+                                        </TableCell>
+                                        <TableCell>
+                                            {(product.price_usd ?? product.price) && `$${Number(product.price_usd ?? product.price).toFixed(2)}`}
+                                            {(product.price_usd ?? product.price) && (product.price_points ?? product.points_cost) && ' / '}
+                                            {(product.price_points ?? product.points_cost) && `${product.price_points ?? product.points_cost} pts`}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex min-w-[7rem] items-center gap-2">
+                                                {(product.inventory_count ?? product.inventory_quantity) !== null ? (
                                                     <>
                                                         <Package className="w-4 h-4" />
-                                                        {product.inventory_count}
+                                                        {product.inventory_count ?? product.inventory_quantity}
                                                         {isLowStock(product) && (
                                                             <AlertTriangle className="w-4 h-4 text-amber-500" />
                                                         )}

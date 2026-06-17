@@ -6,7 +6,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -56,7 +58,7 @@ interface LPPosition {
 }
 
 export function LiquidityDashboard() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const [pools, setPools] = useState<Pool[]>([]);
   const [positions, setPositions] = useState<LPPosition[]>([]);
@@ -65,25 +67,30 @@ export function LiquidityDashboard() {
   const [isLpModalOpen, setIsLpModalOpen] = useState(false);
   const [gemsBalance, setGemsBalance] = useState(0);
   const [userPieces, setUserPieces] = useState<{[key: string]: number}>({});
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
+  const apiUrl = (path: string) => `${apiBaseUrl}${apiBaseUrl.endsWith('/api') ? '' : '/api'}${path}`;
 
   useEffect(() => {
-    if (user) {
+    if (user && session?.access_token) {
       fetchData();
     }
-  }, [user]);
+  }, [user, session?.access_token]);
 
   const fetchData = async () => {
+    if (!session?.access_token) return;
+
     setLoading(true);
     try {
+      const authHeaders = { 'Authorization': `Bearer ${session.access_token}` };
       const [poolsRes, positionsRes, balanceRes] = await Promise.all([
-        fetch('/api/pieces/pools?status=active', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        fetch(apiUrl('/pieces/pools?status=active'), {
+          headers: authHeaders,
         }),
-        fetch('/api/pieces/lp/positions', {  // Would need this endpoint
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        fetch(apiUrl('/pieces/lp/positions'), {
+          headers: authHeaders,
         }).catch(() => ({ ok: false })),
-        fetch('/api/pieces/gems/balance', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        fetch(apiUrl('/pieces/gems/balance'), {
+          headers: authHeaders,
         }),
       ]);
 
@@ -172,6 +179,14 @@ export function LiquidityDashboard() {
               <p className="text-muted-foreground mt-1">
                 Deposit Gems and Pieces to earn trading fees
               </p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/kyc">Review KYC</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/vault">Open Vault</Link>
+                </Button>
+              </div>
             </div>
             <Button onClick={() => window.location.href = '/marketplace'}>
               <ArrowUpRight className="h-4 w-4 mr-1" />
@@ -182,6 +197,14 @@ export function LiquidityDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <Alert className="mb-6 border-primary/20 bg-primary/5">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Liquidity readiness</AlertTitle>
+          <AlertDescription>
+            Liquidity is an advanced surface. Pool browsing is live, but position reporting and deeper portfolio behavior still depend on backend endpoints that need fuller production validation.
+          </AlertDescription>
+        </Alert>
+
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>

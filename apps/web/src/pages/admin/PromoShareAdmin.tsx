@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 import {
   Play,
   Pause,
@@ -70,7 +71,7 @@ interface SimulationResult {
 }
 
 const PromoShareAdmin = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState('cycles');
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [selectedCycle, setSelectedCycle] = useState<Cycle | null>(null);
@@ -95,13 +96,14 @@ const PromoShareAdmin = () => {
   });
 
   useEffect(() => {
-    fetchCycles();
-  }, []);
+    if (!session?.access_token) return;
+    fetchCycles(session.access_token);
+  }, [session?.access_token]);
 
-  const fetchCycles = async () => {
+  const fetchCycles = async (accessToken: string) => {
     try {
-      const response = await fetch('/api/promoshare/cycles/current', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+      const response = await fetch(`${API_BASE_URL}/promoshare/cycles/current`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
       });
       const result = await response.json();
       if (result.success) {
@@ -116,13 +118,13 @@ const PromoShareAdmin = () => {
   };
 
   const simulateDraw = async () => {
-    if (!selectedCycle) return;
+    if (!selectedCycle || !session?.access_token) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/promoshare/admin/cycles/${selectedCycle.id}/simulate`, {
+      const response = await fetch(`${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/simulate`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({})
@@ -142,7 +144,7 @@ const PromoShareAdmin = () => {
   };
 
   const executeDraw = async (tiered: boolean = false) => {
-    if (!selectedCycle) return;
+    if (!selectedCycle || !session?.access_token) return;
     if (!confirm(`Are you sure you want to execute the ${tiered ? 'tiered ' : ''}draw? This cannot be undone.`)) {
       return;
     }
@@ -150,20 +152,20 @@ const PromoShareAdmin = () => {
     setLoading(true);
     try {
       const endpoint = tiered
-        ? `/api/promoshare/admin/cycles/${selectedCycle.id}/execute-tiered`
-        : `/api/promoshare/admin/cycles/${selectedCycle.id}/execute`;
+        ? `${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/execute-tiered`
+        : `${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/execute`;
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         }
       });
       const result = await response.json();
       if (result.success) {
         toast.success(`Draw executed! ${result.data.total_winners || result.data.winners?.length || 0} winners selected.`);
-        fetchCycles();
+        fetchCycles(session.access_token);
       } else {
         toast.error(result.error || 'Draw failed');
       }
@@ -175,10 +177,10 @@ const PromoShareAdmin = () => {
   };
 
   const fetchQualifiedUsers = async () => {
-    if (!selectedCycle) return;
+    if (!selectedCycle || !session?.access_token) return;
     try {
-      const response = await fetch(`/api/promoshare/admin/cycles/${selectedCycle.id}/qualified`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+      const response = await fetch(`${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/qualified`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       const result = await response.json();
       if (result.success) {
@@ -190,10 +192,10 @@ const PromoShareAdmin = () => {
   };
 
   const fetchAuditLog = async () => {
-    if (!selectedCycle) return;
+    if (!selectedCycle || !session?.access_token) return;
     try {
-      const response = await fetch(`/api/promoshare/admin/cycles/${selectedCycle.id}/audit`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+      const response = await fetch(`${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/audit`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       const result = await response.json();
       if (result.success) {
@@ -205,12 +207,13 @@ const PromoShareAdmin = () => {
   };
 
   const createCycle = async () => {
+    if (!session?.access_token) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/promoshare/admin/cycles', {
+      const response = await fetch(`${API_BASE_URL}/promoshare/admin/cycles`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -234,7 +237,7 @@ const PromoShareAdmin = () => {
       const result = await response.json();
       if (result.success) {
         toast.success('Cycle created successfully');
-        fetchCycles();
+        fetchCycles(session.access_token);
         setActiveTab('cycles');
       } else {
         toast.error(result.error || 'Failed to create cycle');
@@ -247,12 +250,12 @@ const PromoShareAdmin = () => {
   };
 
   const recalculateStats = async () => {
-    if (!selectedCycle) return;
+    if (!selectedCycle || !session?.access_token) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/promoshare/admin/cycles/${selectedCycle.id}/recalculate`, {
+      const response = await fetch(`${API_BASE_URL}/promoshare/admin/cycles/${selectedCycle.id}/recalculate`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       const result = await response.json();
       if (result.success) {

@@ -2,11 +2,11 @@ import { format } from "date-fns";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { DiscoverableMoment } from "@/hooks/useDiscoverMoments";
+import type { ExploreMoment } from "@/hooks/useExploreMoments";
 
 interface MomentDiscoveryCardProps {
-  moment: DiscoverableMoment;
-  onSponsor: (moment: DiscoverableMoment) => void;
+  moment: ExploreMoment;
+  onSponsor: (moment: ExploreMoment) => void;
 }
 
 export function MomentDiscoveryCard({ moment, onSponsor }: MomentDiscoveryCardProps) {

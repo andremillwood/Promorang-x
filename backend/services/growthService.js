@@ -1,5 +1,6 @@
-const { supabase } = require('../lib/supabase');
 const { incrementGems, decrementGems } = require('../lib/rpc');
+
+const getSupabase = () => global.supabase || require('../lib/supabase').supabase;
 
 const demoChannels = () => ([
   {
@@ -73,6 +74,7 @@ const demoFundingProjects = () => ({
  * @returns {Promise<Array>} List of staking channels
  */
 const getStakingChannels = async () => {
+  const supabase = getSupabase();
   if (!supabase) {
     return demoChannels();
   }
@@ -96,6 +98,7 @@ const getStakingChannels = async () => {
  * @returns {Promise<Array>} List of user's staking positions
  */
 const getUserStakingPositions = async (userId) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return demoPositions(userId);
   }
@@ -125,6 +128,7 @@ const getUserStakingPositions = async (userId) => {
  * @returns {Promise<Object>} Created staking position
  */
 const createStakingPosition = async (userId, channelId, amount) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return {
       id: `demo-position-${Date.now()}`,
@@ -224,6 +228,7 @@ const createStakingPosition = async (userId, channelId, amount) => {
  * @returns {Promise<Object>} Result with rewards claimed
  */
 const claimStakingRewards = async (userId, positionId) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return {
       position: {
@@ -318,6 +323,7 @@ const claimStakingRewards = async (userId, positionId) => {
  * @returns {Promise<Object>} Paginated list of funding projects
  */
 const getFundingProjects = async ({ limit = 10, offset = 0, status = 'active' } = {}) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return demoFundingProjects();
   }
@@ -351,6 +357,7 @@ const getFundingProjects = async ({ limit = 10, offset = 0, status = 'active' } 
  * @returns {Promise<Object>} Created project
  */
 const createFundingProject = async (creatorId, projectData) => {
+  const supabase = getSupabase();
   const { title, description, target_amount, rewards } = projectData;
 
   if (!title || !description || !target_amount) {
@@ -405,6 +412,7 @@ const createFundingProject = async (creatorId, projectData) => {
  * @returns {Promise<Object>} Result of the pledge
  */
 const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return {
       success: true,
@@ -480,6 +488,7 @@ const pledgeToProject = async (backerId, projectId, amount, rewardTier) => {
  * @returns {Promise<Array>} List of creator rewards
  */
 const getCreatorRewards = async (userId, { status } = {}) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return [
       {
@@ -521,6 +530,7 @@ const getCreatorRewards = async (userId, { status } = {}) => {
  * @returns {Promise<Object>} Paginated list of ledger entries
  */
 const getUserLedger = async (userId, { limit = 20, offset = 0 } = {}) => {
+  const supabase = getSupabase();
   if (!supabase) {
     return {
       entries: [

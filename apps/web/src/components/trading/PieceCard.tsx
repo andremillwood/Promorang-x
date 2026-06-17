@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Info, ShoppingCart, Tag } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 interface Piece {
   id: string;
   piece_type: 'content' | 'moment' | 'host' | 'venue';
+  asset_id?: string;
   title: string;
   image_url?: string;
   last_price: number;
@@ -34,6 +36,7 @@ interface PieceCardProps {
 
 export function PieceCard({ piece, onTrade }: PieceCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const assetId = piece.asset?.id || piece.asset_id || piece.id;
 
   const priceChange = piece.price_24h_ago 
     ? ((piece.last_price - piece.price_24h_ago) / piece.price_24h_ago) * 100
@@ -120,6 +123,9 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
+          <Button asChild variant="outline" className="flex-1">
+            <Link to={`/pieces/${piece.piece_type}/${assetId}`}>Details</Link>
+          </Button>
           <Button 
             className="flex-1 bg-green-600 hover:bg-green-700"
             onClick={() => onTrade(piece, 'buy')}
@@ -129,7 +135,6 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
           </Button>
           <Button 
             variant="outline" 
-            className="flex-1"
             onClick={() => onTrade(piece, 'sell')}
           >
             Sell

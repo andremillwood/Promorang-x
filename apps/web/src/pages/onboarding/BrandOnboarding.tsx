@@ -46,8 +46,8 @@ export default function BrandOnboarding() {
             if (!response.ok) throw new Error(data.error || 'Failed to create organization');
 
             toast({
-                title: "Welcome Aboard!",
-                description: `${formData.name} has been established.`,
+                title: "Brand workspace ready",
+                description: `${formData.name} can start planning a first Moment.`,
             });
 
             // Refresh profile to update roles
@@ -74,17 +74,17 @@ export default function BrandOnboarding() {
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                         <Sparkles className="w-6 h-6 text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold font-serif">Establish Your Presence</h1>
+                    <h1 className="text-3xl font-bold font-serif">Start Your Brand Activation</h1>
                     <p className="text-muted-foreground">
-                        Create a professional identity to unlock powerful tools.
+                        Set up a simple workspace for campaigns, Moments, QR engagement, and participation reporting.
                     </p>
                 </div>
 
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                     <form onSubmit={handleSubmit}>
                         <CardHeader>
-                            <CardTitle>Organization Details</CardTitle>
-                            <CardDescription>Tell us about your business.</CardDescription>
+                            <CardTitle>Brand Details</CardTitle>
+                            <CardDescription>Tell us where your first participation campaign should live.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function BrandOnboarding() {
                                     <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="name"
-                                        placeholder="Acme Corp"
+                                        placeholder="Blue Mountain Coffee Co."
                                         className="pl-9"
                                         value={formData.name}
                                         onChange={(e) => handleChange('name', e.target.value)}
@@ -112,9 +112,9 @@ export default function BrandOnboarding() {
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="brand">Brand (I want to promote)</SelectItem>
-                                        <SelectItem value="merchant">Merchant (I have a venue)</SelectItem>
-                                        <SelectItem value="agency">Agency (I manage others)</SelectItem>
+                                        <SelectItem value="brand">Brand (I want to run activations)</SelectItem>
+                                        <SelectItem value="merchant">Venue or merchant (I host participation)</SelectItem>
+                                        <SelectItem value="agency">Agency (I manage brand campaigns)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -123,7 +123,7 @@ export default function BrandOnboarding() {
                                 <Label htmlFor="industry">Industry</Label>
                                 <Input
                                     id="industry"
-                                    placeholder="e.g. Fashion, Tech, Hospitality"
+                                    placeholder="e.g. Food & beverage, music, retail, hospitality"
                                     value={formData.industry}
                                     onChange={(e) => handleChange('industry', e.target.value)}
                                 />
@@ -161,7 +161,7 @@ export default function BrandOnboarding() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-                                {loading ? "Creating..." : "Create Organization"}
+                                {loading ? "Creating..." : "Create Brand Workspace"}
                             </Button>
                         </CardFooter>
                     </form>

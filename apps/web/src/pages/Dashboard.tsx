@@ -1,20 +1,32 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import ParticipantDashboardV2 from "@/components/dashboards/ParticipantDashboardV2";
-import CreatorDashboardV2 from "@/components/dashboards/CreatorDashboardV2";
-import HostDashboardV2 from "@/components/dashboards/HostDashboardV2";
-import BrandDashboardV2 from "@/components/dashboards/BrandDashboardV2";
-import MerchantDashboardV2 from "@/components/dashboards/MerchantDashboardV2";
-import AgencyDashboard from "@/components/dashboards/AgencyDashboard";
+import { DemoExperienceBanner } from "@/components/demo/DemoExperienceBanner";
+import { Suspense, lazy } from "react";
+
+const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/ParticipantDashboardV2"));
+const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
+const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
+const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
+const MerchantDashboardV2 = lazy(() => import("@/components/dashboards/MerchantDashboardV2"));
+const AgencyDashboard = lazy(() => import("@/components/dashboards/AgencyDashboard"));
+
+const dashboardFallback = (
+  <div className="flex min-h-[40vh] items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
+
+const dashboardByRole = {
+  participant: ParticipantDashboardV2,
+  creator: CreatorDashboardV2,
+  host: HostDashboardV2,
+  brand: BrandDashboardV2,
+  merchant: MerchantDashboardV2,
+  agency: AgencyDashboard,
+} as const;
 
 const Dashboard = () => {
-  const { user, activeRole, loading, organizations, activeOrgId } = useAuth();
-  const currentOrg = organizations.find((org) => org.id === activeOrgId);
-  const isAgencyWorkspace = currentOrg?.type === "agency";
-  
-  // Enforce V2 dashboard universally
-  const useV2Dashboard = true;
-
+  const { user, activeRole, loading } = useAuth();
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -27,23 +39,17 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  switch (activeRole) {
-    case "creator":
-      return <CreatorDashboardV2 />;
-    case "host":
-      return <HostDashboardV2 />;
-    case "agency":
-      return <AgencyDashboard />;
-    case "brand":
-      if (isAgencyWorkspace) return <AgencyDashboard />;
-      return <BrandDashboardV2 />;
-    case "merchant":
-      return <MerchantDashboardV2 />;
-    case "participant":
-      return <ParticipantDashboardV2 />;
-    default:
-      return <ParticipantDashboardV2 />;
-  }
+  const resolvedRole = activeRole || "participant";
+  const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
+
+  return (
+    <>
+      <DemoExperienceBanner role={resolvedRole} />
+      <Suspense fallback={dashboardFallback}>
+        <ResolvedDashboard />
+      </Suspense>
+    </>
+  );
 };
 
 export default Dashboard;

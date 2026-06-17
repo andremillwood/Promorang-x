@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { supabaseAdmin } from '../_core/supabase';
 import { handleError, AuthenticatedRequest } from '../_core/apiUtils';
 import { requireAuth } from '../_core/auth';
@@ -6,7 +6,7 @@ import { requireAuth } from '../_core/auth';
 const router = Router();
 
 // Get all content
-router.get('/', requireAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { data: content, error } = await supabaseAdmin
       .from('content')
@@ -22,7 +22,7 @@ router.get('/', requireAuth, async (req: AuthenticatedRequest, res) => {
 });
 
 // Get sponsored content
-router.get('/sponsored', requireAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/sponsored', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { data: sponsoredContent, error } = await supabaseAdmin
       .from('content')

@@ -381,6 +381,7 @@ async function processWebhookEvent(event) {
             // Payment Intent events
             case 'payment_intent.succeeded':
                 await updatePaymentIntentStatus(event.data.object.id, 'succeeded');
+                await handleMomentEconomyPaymentSucceeded(event.data.object);
                 break;
 
             case 'payment_intent.payment_failed':
@@ -440,6 +441,19 @@ async function processWebhookEvent(event) {
     } catch (error) {
         console.error(`Error processing webhook event ${event.type}:`, error);
         await markWebhookEventProcessed(event.id, false, error.message);
+        throw error;
+    }
+}
+
+async function handleMomentEconomyPaymentSucceeded(paymentIntent) {
+    try {
+        const metadata = paymentIntent?.metadata || {};
+        if (metadata.economy_flow !== 'moment_economy_v1') return;
+
+        const momentEconomyService = require('./momentEconomyService');
+        await momentEconomyService.confirmStripeMomentPaymentIntent(paymentIntent);
+    } catch (error) {
+        console.error('Error handling Moment Economy payment:', error);
         throw error;
     }
 }

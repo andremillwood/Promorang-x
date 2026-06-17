@@ -43,12 +43,26 @@ interface WithdrawalRequest {
     };
 }
 
+interface MomentManualPayout {
+    id: string;
+    moment_id: string;
+    user_id: string;
+    amount_jmd: number;
+    status: 'queued' | 'processing' | 'paid' | 'cancelled';
+    due_at: string;
+    created_at: string;
+    moment?: {
+        title?: string;
+    };
+}
+
 export const AdminPayoutsTab = () => {
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState<string | null>(null);
     const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
+    const [momentPayouts, setMomentPayouts] = useState<MomentManualPayout[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState<string>("pending");
 
@@ -74,8 +88,23 @@ export const AdminPayoutsTab = () => {
         }
     };
 
+    const fetchMomentPayouts = async () => {
+        if (!session?.access_token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/moment-economy/admin/payouts`, {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error || "Failed to fetch Moment payouts");
+            setMomentPayouts(data.payouts || []);
+        } catch (error) {
+            console.error("Error fetching Moment payouts:", error);
+        }
+    };
+
     useEffect(() => {
         fetchRequests();
+        fetchMomentPayouts();
     }, [session]);
 
     const handleUpdateStatus = async (requestId: string, status: string, note: string) => {
@@ -104,6 +133,55 @@ export const AdminPayoutsTab = () => {
         }
     };
 
+    const handleMarkMomentPayoutPaid = async (payoutId: string) => {
+        const paymentReference = prompt("Payment reference for this Moment payout:");
+        if (!paymentReference) return;
+
+        setIsUpdating(payoutId);
+        try {
+            const res = await fetch(`${API_URL}/api/moment-economy/admin/payouts/${payoutId}/paid`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({ payment_reference: paymentReference })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error || "Failed to mark payout paid");
+            toast({ title: "Moment payout marked paid", description: "Ledger-linked payout has been completed." });
+            fetchMomentPayouts();
+        } catch (error: any) {
+            toast({ title: "Payout Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsUpdating(null);
+        }
+    };
+
+    const handleAttemptAutomatedMomentPayout = async (payoutId: string) => {
+        setIsUpdating(payoutId);
+        try {
+            const res = await fetch(`${API_URL}/api/moment-economy/admin/payouts/${payoutId}/attempt-automated`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error || "Automated payout failed");
+            toast({
+                title: data.paid ? "Automated payout sent" : "Manual payout required",
+                description: data.paid ? `Stripe transfer ${data.transfer?.transferId}` : data.reason,
+            });
+            fetchMomentPayouts();
+        } catch (error: any) {
+            toast({ title: "Automated Payout Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsUpdating(null);
+        }
+    };
+
     const filteredRequests = requests.filter(req => {
         const matchesSearch = req.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             req.payout_method.method_type.toLowerCase().includes(searchTerm.toLowerCase());
@@ -123,6 +201,47 @@ export const AdminPayoutsTab = () => {
 
     return (
         <div className="space-y-6">
+            <Card className="border-primary/20">
+                <CardHeader>
+                    <CardTitle>Moment Payout Queue</CardTitle>
+                    <CardDescription>Manual fallback payouts queued from verified Move proofs. Pay within 24 hours.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {momentPayouts.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No Moment payouts queued.</p>
+                    ) : (
+                        momentPayouts.map((payout) => (
+                            <div key={payout.id} className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="font-semibold">{payout.moment?.title || "Moment payout"}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        JMD {Number(payout.amount_jmd || 0).toLocaleString()} due {new Date(payout.due_at).toLocaleString()}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline">{payout.status}</Badge>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        disabled={isUpdating === payout.id}
+                                        onClick={() => handleAttemptAutomatedMomentPayout(payout.id)}
+                                    >
+                                        Try Stripe
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        disabled={isUpdating === payout.id}
+                                        onClick={() => handleMarkMomentPayoutPaid(payout.id)}
+                                    >
+                                        {isUpdating === payout.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Mark Paid"}
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </CardContent>
+            </Card>
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

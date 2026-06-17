@@ -56,12 +56,12 @@ export function RoleActivationPanel({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-4">
         {items.map((item, index) => {
           const StatusIcon = statusIcon[item.status];
 
           return (
-            <div key={item.title} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+            <div key={item.title} className="min-w-0 rounded-2xl border border-border/60 bg-background/70 p-4">
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
@@ -72,23 +72,23 @@ export function RoleActivationPanel({
                   <StatusIcon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold text-foreground">{index + 1}. {item.title}</p>
-                    <span className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <p className="break-words font-semibold text-foreground">{index + 1}. {item.title}</p>
+                    <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
                       {item.status === "done" ? "Done" : item.status === "current" ? "Now" : "Next"}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+                  <p className="mt-1 break-words text-sm text-muted-foreground">{item.description}</p>
                   {item.href ? (
                     item.href.startsWith("/") ? (
-                      <Button variant="outline" size="sm" className="mt-4" asChild>
+                      <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" asChild>
                         <a href={item.href}>
                           {item.ctaLabel || "Open"}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
                       </Button>
                     ) : (
-                      <Button variant="outline" size="sm" className="mt-4" asChild>
+                      <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" asChild>
                         <a href={item.href}>
                           {item.ctaLabel || "Open"}
                           <ArrowRight className="ml-2 h-4 w-4" />
@@ -96,7 +96,7 @@ export function RoleActivationPanel({
                       </Button>
                     )
                   ) : item.onClick ? (
-                    <Button variant="outline" size="sm" className="mt-4" onClick={item.onClick}>
+                    <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" onClick={item.onClick}>
                       {item.ctaLabel || "Open"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

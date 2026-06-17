@@ -22,7 +22,7 @@ const dailyLayerService = require('../services/dailyLayerService');
  * - Create daily_featured headline
  * - Create daily_draw with Phase 0 prizes
  */
-const dayResetJob = cron.schedule('0 10 * * *', async () => {
+async function runDayReset() {
     console.log('====================================');
     console.log('[CRON] PROMORANG DAY RESET - 10:00 UTC');
     console.log('====================================');
@@ -42,11 +42,17 @@ const dayResetJob = cron.schedule('0 10 * * *', async () => {
 
         const duration = Date.now() - startTime;
         console.log(`[CRON] Day reset complete in ${duration}ms`);
+        return { success: true, headlineId: headline?.id || null, drawId: draw?.id || null };
     } catch (error) {
         console.error('[CRON] Day reset failed:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const dayResetJob = cron.schedule('0 10 * * *', async () => {
+    await runDayReset();
 }, {
-    scheduled: true,
+    scheduled: false,
     timezone: 'UTC'
 });
 
@@ -59,13 +65,13 @@ const dayResetJob = cron.schedule('0 10 * * *', async () => {
  * - Snapshot leaderboard (for "yesterday's final rank")
  * - Execute draw and award prizes
  */
-const dayCloseJob = cron.schedule('59 9 * * *', async () => {
+async function runDayClose(date = null) {
     console.log('====================================');
     console.log('[CRON] PROMORANG DAY CLOSE - 09:59 UTC');
     console.log('====================================');
 
     const startTime = Date.now();
-    const currentDate = dailyLayerService.getPromorangDate();
+    const currentDate = date || dailyLayerService.getPromorangDate();
 
     try {
         // Snapshot leaderboard
@@ -80,11 +86,17 @@ const dayCloseJob = cron.schedule('59 9 * * *', async () => {
 
         const duration = Date.now() - startTime;
         console.log(`[CRON] Day close complete in ${duration}ms`);
+        return { success: true, date: currentDate, winners: winners?.length || 0, snapshotUsers: snapshot?.total_users || 0 };
     } catch (error) {
         console.error('[CRON] Day close failed:', error);
+        return { success: false, error: error.message };
     }
+}
+
+const dayCloseJob = cron.schedule('59 9 * * *', async () => {
+    await runDayClose();
 }, {
-    scheduled: true,
+    scheduled: false,
     timezone: 'UTC'
 });
 
@@ -98,15 +110,7 @@ const dayCloseJob = cron.schedule('59 9 * * *', async () => {
  */
 async function triggerDayReset() {
     console.log('[MANUAL] Triggering day reset...');
-    try {
-        await dailyLayerService.initDailyHeadline();
-        await dailyLayerService.initDailyDraw();
-        console.log('[MANUAL] Day reset complete');
-        return { success: true };
-    } catch (error) {
-        console.error('[MANUAL] Day reset failed:', error);
-        return { success: false, error: error.message };
-    }
+    return runDayReset();
 }
 
 /**
@@ -116,15 +120,27 @@ async function triggerDayReset() {
 async function triggerDayClose(date = null) {
     const targetDate = date || dailyLayerService.getPromorangDate();
     console.log(`[MANUAL] Triggering day close for ${targetDate}...`);
-    try {
-        await dailyLayerService.snapshotLeaderboard(targetDate);
-        await dailyLayerService.executeDailyDraw(targetDate);
-        console.log('[MANUAL] Day close complete');
-        return { success: true };
-    } catch (error) {
-        console.error('[MANUAL] Day close failed:', error);
-        return { success: false, error: error.message };
-    }
+    return runDayClose(targetDate);
+}
+
+async function runDailyLayerMaintenance() {
+    const closeResult = await runDayClose();
+    const resetResult = await runDayReset();
+    return {
+        close: closeResult,
+        reset: resetResult,
+    };
+}
+
+function start() {
+    dayCloseJob.start();
+    dayResetJob.start();
+    console.log('[DailyLayerJob] Started local cron jobs');
+}
+
+function stop() {
+    dayCloseJob.stop();
+    dayResetJob.stop();
 }
 
 // =============================================
@@ -144,4 +160,7 @@ module.exports = {
     dayCloseJob,
     triggerDayReset,
     triggerDayClose,
+    runDailyLayerMaintenance,
+    start,
+    stop,
 };

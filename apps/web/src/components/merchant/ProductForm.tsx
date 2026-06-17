@@ -124,7 +124,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Info */}
-        <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+        <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <Package className="w-5 h-5" />
             Basic Information
@@ -162,7 +162,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             )}
           />
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid gap-6 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="category"
@@ -205,13 +205,13 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         </div>
 
         {/* Pricing */}
-        <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+        <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
             Pricing
           </h3>
 
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid gap-6 sm:grid-cols-3">
             <FormField
               control={form.control}
               name="price"
@@ -273,7 +273,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         </div>
 
         {/* Inventory */}
-        <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+        <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground">Inventory</h3>
 
           <FormField
@@ -294,8 +294,8 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             control={form.control}
             name="is_active"
             render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border border-border p-4">
-                <div>
+              <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <FormLabel className="text-base">Active</FormLabel>
                   <FormDescription>
                     Product is visible and available for purchase
@@ -310,7 +310,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         </div>
 
         {/* Points Redemption */}
-        <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+        <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <Award className="w-5 h-5" />
             Points Redemption
@@ -320,8 +320,8 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             control={form.control}
             name="is_redeemable_with_points"
             render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border border-border p-4">
-                <div>
+              <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <FormLabel className="text-base">Enable Point Redemption</FormLabel>
                   <FormDescription>
                     Allow customers to purchase this product with PromoPoints
@@ -361,7 +361,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
           <Button
             type="button"
             variant="outline"

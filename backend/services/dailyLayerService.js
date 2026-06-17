@@ -13,6 +13,7 @@
 
 
 const supabaseModule = require('../lib/supabase');
+const promoShareService = require('./promoShareService');
 // Handle both export styles: module.exports = supabase AND module.exports.supabase = supabase
 const supabase = supabaseModule?.supabase || supabaseModule || null;
 
@@ -358,10 +359,15 @@ async function executeDailyDraw(date = null) {
         for (const winner of winners) {
             try {
                 if (winner.prize_type === 'keys') {
-                    await supabase.rpc('add_keys', {
-                        p_user_id: winner.user_id,
-                        p_amount: winner.prize_amount,
-                    });
+                    const economyService = require('./economyService');
+                    await economyService.addCurrency(
+                        winner.user_id,
+                        'promokeys',
+                        winner.prize_amount,
+                        'daily_draw',
+                        null,
+                        'Daily draw PromoKey prize'
+                    );
                 }
                 // Boost prizes are applied to tomorrow's multiplier
                 // Badge prizes would be handled by a badge service
@@ -646,6 +652,29 @@ async function recordVerifiedAction({ userId, actionType, verificationMode, acti
             await streakService.checkIn(userId);
         } catch (e) {
             // ignore streak error
+        }
+
+        try {
+            const promoShareActionType = actionType === 'PROMORANG_DROP'
+                ? (actionLabel === 'submit_proof' ? 'drop_proof_submitted' : 'drop_verified_action')
+                : actionType.toLowerCase();
+
+            const sourceType = metadata.promoshare_source_type
+                || (referenceType === 'moment' ? 'moment' : referenceType === 'referral' ? 'referral' : 'move');
+
+            await promoShareService.recordVerifiedAction(userId, promoShareActionType, {
+                source_type: sourceType,
+                source_id: metadata.promoshare_source_id || referenceId?.toString?.() || null,
+                entry_count: metadata.promoshare_entry_count || 1,
+                weight_value: metadata.promoshare_weight_value || 1,
+                verification_mode: verificationMode,
+                action_label: actionLabel,
+                reference_type: referenceType,
+                reference_id: referenceId,
+                ...metadata,
+            });
+        } catch (promoShareError) {
+            console.warn('[DailyLayer] Failed to record PromoShare action:', promoShareError.message);
         }
 
         return { success: true, action };

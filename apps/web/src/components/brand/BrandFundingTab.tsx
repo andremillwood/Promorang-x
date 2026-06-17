@@ -86,8 +86,8 @@ export function BrandFundingTab() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                     <h2 className="text-xl font-serif font-bold">Funding Opportunities</h2>
                     <p className="text-muted-foreground">Discover and sponsor high-potential moments from the community.</p>
                 </div>
@@ -110,12 +110,12 @@ export function BrandFundingTab() {
                     {proposals.map((proposal) => (
                         <Card key={proposal.id} className="group hover:shadow-soft-xl transition-all duration-300 border-border/60">
                             <CardHeader className="pb-3">
-                                <div className="flex justify-between items-start gap-4">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
                                     <Badge variant="outline" className="mb-2 capitalize">
                                         {proposal.type}
                                     </Badge>
                                     {proposal.moment_tier && (
-                                        <Badge className="mb-2 bg-gradient-primary text-white border-0 capitalize">
+                                        <Badge className="mb-2 border-0 bg-gradient-primary text-white capitalize">
                                             {proposal.moment_tier} Tier
                                         </Badge>
                                     )}
@@ -127,14 +127,14 @@ export function BrandFundingTab() {
                             </CardHeader>
 
                             <CardContent className="space-y-4 text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
                                     <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs font-bold">
                                         {proposal.organizer?.full_name?.charAt(0) || "?"}
                                     </div>
-                                    <span className="font-medium text-foreground">{proposal.organizer?.full_name || "Unknown Host"}</span>
+                                    <span className="truncate font-medium text-foreground">{proposal.organizer?.full_name || "Unknown Host"}</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2 text-muted-foreground text-xs font-medium">
+                                <div className="grid grid-cols-1 gap-2 text-xs font-medium text-muted-foreground sm:grid-cols-2">
                                     <div className="flex items-center gap-1.5 p-2 bg-secondary/50 rounded-lg">
                                         <MapPin className="w-3.5 h-3.5 text-primary" />
                                         <span className="truncate">{proposal.location}</span>

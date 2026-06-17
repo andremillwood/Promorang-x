@@ -23,7 +23,7 @@ const PricingPage = () => {
         <div className="min-h-screen bg-background">
             <SEO
                 title="Pricing - Pay Per Moment, Not Per User"
-                description="Transparent, per-Moment pricing for brands, merchants, hosts, and participants. Participate free. Pay to scale."
+                description="Transparent Promorang pricing for brands, merchants, hosts, and participants. Fund moments, reward pools, and real-world participation instead of paying for passive reach."
                 type="website"
             />
 
@@ -37,9 +37,38 @@ const PricingPage = () => {
                         </h1>
 
                         <p className="mx-auto mb-10 max-w-2xl text-base text-muted-foreground sm:text-lg md:text-xl">
-                            Participate free. Brands and Merchants pay to scale. No hidden fees.
-                            Just transparent, per-Moment pricing.
+                            Participants join free. Operators pay when they want to fund moments, sponsor behavior,
+                            or scale repeatable formats. Pricing is tied to real-world outcomes, not seats on a dashboard.
                         </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="border-y border-border bg-secondary/30 py-16">
+                <div className="container px-4 sm:px-6">
+                    <div className="mx-auto max-w-5xl">
+                        <div className="mx-auto max-w-3xl text-center">
+                            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
+                                What you are actually paying for
+                            </h2>
+                            <p className="mt-4 text-lg text-muted-foreground">
+                                Promorang pricing should map to a real behavior loop: moments, verification, reward pools, and repeat movement.
+                            </p>
+                        </div>
+
+                        <div className="mt-10 grid gap-4 md:grid-cols-4">
+                            {[
+                                ['Moments', 'The real-world experience people join.'],
+                                ['Verification', 'Marks and check-ins that prove it happened.'],
+                                ['Reward Pools', 'Perks, PromoShare relevance, and funded participation.'],
+                                ['Repeat Signal', 'The community pattern that makes future spend more valuable.'],
+                            ].map(([title, text]) => (
+                                <div key={title} className="rounded-2xl border border-border bg-card p-5">
+                                    <p className="text-sm font-bold text-foreground">{title}</p>
+                                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{text}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -293,7 +322,7 @@ const PricingPage = () => {
                                     Host Pricing
                                 </h2>
                                 <p className="text-lg text-muted-foreground">
-                                    Build a record. Scale what works.
+                                    Start free, build signal, and earn the right to operate bigger funded moments.
                                 </p>
                             </div>
 
@@ -306,9 +335,9 @@ const PricingPage = () => {
                                         <ul className="space-y-3">
                                             {[
                                                 'Create Community Moments',
-                                                'Claim Brand Rewards',
-                                                'Build execution record',
-                                                'Earn from Moments',
+                                                'Build a verified host record',
+                                                'Track repeat participation',
+                                                'Start proving your scene',
                                             ].map((feature, i) => (
                                                 <li key={i} className="flex items-start gap-3 text-sm">
                                                     <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
@@ -324,9 +353,9 @@ const PricingPage = () => {
                                         <ul className="space-y-3">
                                             {[
                                                 '90%+ fulfillment rate',
-                                                'Low rejection rate',
-                                                'Repeat brand satisfaction',
-                                                'Level progression',
+                                                'Low friction check-ins',
+                                                'Repeat participant trust',
+                                                'Level progression and stronger standing',
                                             ].map((feature, i) => (
                                                 <li key={i} className="flex items-start gap-3 text-sm">
                                                     <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
@@ -342,9 +371,9 @@ const PricingPage = () => {
                                         <ul className="space-y-3">
                                             {[
                                                 'Higher-value Brand Rewards',
-                                                'Preferred brand matching',
-                                                'Replication rights',
-                                                'Advanced tooling',
+                                                'Preferred brand and sponsor matching',
+                                                'Repeatable format replication',
+                                                'Advanced tooling and support',
                                             ].map((feature, i) => (
                                                 <li key={i} className="flex items-start gap-3 text-sm">
                                                     <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
@@ -364,61 +393,50 @@ const PricingPage = () => {
                                     Participant Pricing
                                 </h2>
                                 <p className="text-lg text-muted-foreground">
-                                    Participate, earn, and build your record for free.
+                                    Start free, earn your way up through Keys, or subscribe for immediate standing.
                                 </p>
                             </div>
 
                             <div className="max-w-4xl mx-auto">
-                                <div className="bg-card rounded-xl p-8 border-2 border-primary shadow-xl mb-8">
-                                    <div className="text-center mb-6">
-                                        <h3 className="text-2xl font-bold mb-2">Free Forever</h3>
-                                        <p className="text-muted-foreground">Participation is always free</p>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <ul className="space-y-3">
-                                            {[
-                                                'Join Moments',
-                                                'Check in and participate',
-                                                'Build your community level',
-                                                'Accumulate verified Records',
-                                            ].map((feature, i) => (
-                                                <li key={i} className="flex items-center gap-3">
-                                                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                                    <span className="text-sm">{feature}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <ul className="space-y-3">
-                                            {[
-                                                'View personal history',
-                                                'Earn rewards',
-                                                'No payment required',
-                                                'No hidden fees',
-                                            ].map((feature, i) => (
-                                                <li key={i} className="flex items-center gap-3">
-                                                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                                                    <span className="text-sm">{feature}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                                <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+                                    {[
+                                        ['Free', '$0', '1.0x', '100%', 'Points, Keys, and non-cash PromoShare entries.'],
+                                        ['Plus', '$9.99/mo', '1.25x', '90%', 'Cash/Gem PromoShare access and boosted tickets.'],
+                                        ['Pro', '$24.99/mo', '1.5x', '75%', 'Higher caps, priority access, and premium missions.'],
+                                        ['Elite', '$49.99/mo', '2.0x', '60%', 'Largest boosts, premium pools, and local impact funding.'],
+                                    ].map(([tier, price, points, keyCost, description]) => (
+                                        <div key={tier} className="rounded-xl border border-border bg-card p-6">
+                                            <h3 className="text-xl font-bold">{tier}</h3>
+                                            <div className="mt-2 text-3xl font-bold text-foreground">{price}</div>
+                                            <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
+                                            <div className="mt-5 space-y-2 text-sm">
+                                                <div className="flex justify-between gap-4">
+                                                    <span className="text-muted-foreground">Points</span>
+                                                    <span className="font-medium">{points}</span>
+                                                </div>
+                                                <div className="flex justify-between gap-4">
+                                                    <span className="text-muted-foreground">Key cost</span>
+                                                    <span className="font-medium">{keyCost}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
 
-                                <div className="bg-muted/30 rounded-xl p-8 text-center">
-                                    <h4 className="font-semibold mb-4">Earn Priority Access</h4>
-                                    <p className="text-sm text-muted-foreground mb-6">
-                                        Priority access is earned through **consistency** and **your community level**.
-                                        There are no paid tiers for participants. The more you participate, the more you unlock.
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
-                                        <div className="flex items-center gap-3 text-sm font-medium">
-                                            <TrendingUp className="w-4 h-4 text-secondary" />
-                                            <span>Higher Rank = Better Odds</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-sm font-medium">
-                                            <Zap className="w-4 h-4 text-secondary" />
-                                            <span>Consistent Streaks = Priority</span>
-                                        </div>
+                                <div className="mt-8 grid gap-6 rounded-xl bg-muted/30 p-8 md:grid-cols-2">
+                                    <div>
+                                        <h4 className="font-semibold mb-3">Earn Active Standing</h4>
+                                        <p className="text-sm leading-7 text-muted-foreground">
+                                            Free participants can unlock temporary Plus, Pro, or Elite standing by earning enough Keys from verified activity in a month.
+                                            Cash/Gem PromoShare access starts at Plus standing, whether paid or earned.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold mb-3">Membership Powers The Pool</h4>
+                                        <p className="text-sm leading-7 text-muted-foreground">
+                                            A configured percentage of every paid participant tier funds PromoShare rewards, liquidity reserves, and higher-tier local impact pools.
+                                            Rewards still depend on verified participation and cycle outcomes.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +453,7 @@ const PricingPage = () => {
                             Ready to get started?
                         </h2>
                         <p className="text-cream/70 text-lg mb-8">
-                            No subscriptions. No commitments. Just transparent, per-Moment pricing.
+                            Start where you are. Fund moments when you need them. Scale once the signal is real.
                         </p>
                         <Button variant="hero" size="xl" asChild>
                             <Link to="/auth">

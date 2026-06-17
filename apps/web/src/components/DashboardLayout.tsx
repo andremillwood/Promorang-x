@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo.png";
@@ -7,7 +7,6 @@ import {
   Home,
   Calendar,
   Users,
-  Gift,
   Settings,
   LogOut,
   Menu,
@@ -22,9 +21,15 @@ import {
   Plus,
   ShoppingBag,
   Activity,
+  Bell,
   Archive,
   PlayCircle,
   Search,
+  WalletCards,
+  Briefcase,
+  Film,
+  Layers,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,55 +41,192 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { DemoExperienceBanner } from "@/components/demo/DemoExperienceBanner";
+import { DemoCoachmark } from "@/components/demo/DemoCoachmark";
 
-type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "admin";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
 interface DashboardLayoutProps {
   children: ReactNode;
   currentRole: UserRole;
 }
 
-const roleNavItems: Record<UserRole, { icon: typeof Home; label: string; href: string }[]> = {
+type NavItem = {
+  icon: typeof Home;
+  label: string;
+  href: string;
+  experimental?: boolean;
+  group?: "primary" | "utility";
+};
+
+const showExperimentalEconomy =
+  import.meta.env.VITE_SHOW_EXPERIMENTAL_ECONOMY === "true";
+
+const filterReleaseNav = <T extends NavItem>(items: T[]) =>
+  items.filter((item) => !item.experimental || showExperimentalEconomy);
+
+const pageLabels: Array<{ match: string; label: string; description: string }> = [
+  { match: "/pulse", label: "Pulse", description: "What is forming now and where real-world energy is already visible." },
+  { match: "/discover", label: "Discover", description: "A calmer browsing layer for moments, venues, rewards, and content." },
+  { match: "/create", label: "Create", description: "Launch a moment, mission, or campaign from a single creation spine." },
+  { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
+  { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
+  { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
+  { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
+  { match: "/promoshare", label: "PromoShare", description: "Qualified reward cycles, recurring relevance, and sponsor-funded upside." },
+  { match: "/missions", label: "Missions", description: "Proof-bearing actions and linked creator or sponsor prompts." },
+  { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
+  { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
+  { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active workspace." },
+  { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and workspace-level configuration." },
+  { match: "/dashboard", label: "Dashboard", description: "Role-specific control center for the work that matters now." },
+  { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
+];
+
+const getPageMeta = (pathname: string, search: string, role: UserRole) => {
+  if (pathname === "/dashboard" && role === "creator") {
+    const params = new URLSearchParams(search);
+    const tab = params.get("tab");
+    if (tab === "publish") {
+      return {
+        label: "Publish",
+        description: "Upload creator content, add its preview asset, and prepare it for mission linking.",
+      };
+    }
+    if (tab === "missions") {
+      return {
+        label: "Create Mission",
+        description: "Link a creator story to a real-world moment and define the unlock path.",
+      };
+    }
+    if (tab === "content") {
+      return {
+        label: "My Content",
+        description: "Review the stories you have already published and reuse them in new mission loops.",
+      };
+    }
+  }
+
+  return pageLabels.find((item) => pathname === item.match || pathname.startsWith(item.match + "/")) || pageLabels[pageLabels.length - 2];
+};
+
+const isNavItemActive = (pathname: string, href: string, search: string) => {
+  const [itemPath, itemQuery] = href.split("?");
+  if (itemQuery) {
+    return pathname === itemPath && search.includes(itemQuery);
+  }
+  return pathname === itemPath || pathname.startsWith(itemPath + "/");
+};
+
+const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Activity, label: "Pulse", href: "/pulse" },
-    { icon: PlayCircle, label: "Watch & Unlock", href: "/watch-unlock" },
-    { icon: Archive, label: "Vault", href: "/vault" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
+    { icon: Archive, label: "Vault", href: "/vault", group: "primary" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
+    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Archive, label: "Saved", href: "/saved", group: "utility" },
+    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
+    { icon: ShoppingBag, label: "Marketplace", href: "/marketplace", experimental: true, group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   creator: [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: PlayCircle, label: "Missions", href: "/watch-unlock" },
-    { icon: BarChart3, label: "Yield", href: "/dashboard?tab=earnings" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", group: "primary" },
+    { icon: Sparkles, label: "Create Mission", href: "/dashboard?tab=missions", group: "primary" },
+    { icon: Megaphone, label: "PromoPush", href: "/promopush/creator", group: "primary" },
+    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
+    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
+    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Film, label: "My Content", href: "/dashboard?tab=content", group: "utility" },
+    { icon: Archive, label: "Saved", href: "/saved", group: "utility" },
+    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
+    { icon: ShoppingBag, label: "Marketplace", href: "/marketplace", experimental: true, group: "utility" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard?tab=earnings", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   host: [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Sparkles, label: "Create Moment", href: "/create-moment" },
-    { icon: Activity, label: "Pulse", href: "/pulse" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Sparkles, label: "Create", href: "/create/moment", group: "primary" },
+    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
+    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
+    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
+    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Archive, label: "Saved", href: "/saved", group: "utility" },
+    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
+    { icon: ShoppingBag, label: "Marketplace", href: "/marketplace", experimental: true, group: "utility" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   brand: [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Sparkles, label: "Flash Launch", href: "/dashboard/brand/campaigns/create" },
-    { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
+    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
+    { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns", group: "primary" },
+    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
+    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   merchant: [
-    { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: MapPin, label: "Venues", href: "/dashboard/venues" },
-    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: Sparkles, label: "Create Moment", href: "/create/moment", group: "primary" },
+    { icon: MapPin, label: "Venues", href: "/dashboard/venues", group: "primary" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
+    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+  ],
+  agency: [
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Briefcase, label: "Clients", href: "/dashboard", group: "primary" },
+    { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
+    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+  ],
+  promoter: [
+    { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", group: "primary" },
+    { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
+    { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+  ],
+  marketing: [
+    { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   admin: [
-    { icon: Home, label: "Admin Dashboard", href: "/admin" },
-    { icon: Search, label: "Search", href: "/search" },
-    { icon: Users, label: "Users", href: "/admin?tab=users" },
-    { icon: Calendar, label: "Moments", href: "/admin?tab=moments" },
-    { icon: BarChart3, label: "Analytics", href: "/admin?tab=analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: Home, label: "Admin Dashboard", href: "/admin", group: "primary" },
+    { icon: Search, label: "Search", href: "/search", group: "primary" },
+    { icon: Users, label: "Users", href: "/admin?tab=users", group: "primary" },
+    { icon: Calendar, label: "Moments", href: "/admin?tab=moments", group: "primary" },
+    { icon: BarChart3, label: "Analytics", href: "/admin?tab=analytics", group: "utility" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
 };
 
@@ -94,6 +236,9 @@ const roleLabels: Record<UserRole, { icon: typeof Users; label: string; color: s
   host: { icon: Sparkles, label: "Host", color: "bg-primary" },
   brand: { icon: Building2, label: "Brand", color: "bg-primary" },
   merchant: { icon: Store, label: "Merchant", color: "bg-emerald-500" },
+  agency: { icon: Briefcase, label: "Agency", color: "bg-sky-600" },
+  promoter: { icon: Megaphone, label: "Promoter", color: "bg-[#FF6A00]" },
+  marketing: { icon: Megaphone, label: "Marketing", color: "bg-[#FFC300]" },
   admin: { icon: Settings, label: "Admin", color: "bg-destructive" },
 };
 
@@ -109,53 +254,77 @@ const safeRoleInfo = (role: string | undefined | null) => {
 const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const { user, roles, organizations, activeOrgId, setActiveOrgId, agencyClients, setActiveRole, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeOrg = organizations.find(o => o.id === activeOrgId);
 
   // Safe role resolution — never crashes, always falls back to participant
   const safeRole = currentRole && roleNavItems[currentRole] ? currentRole : 'participant';
-  const navItems = roleNavItems[safeRole] || FALLBACK_NAV;
+  const navItems = filterReleaseNav(roleNavItems[safeRole] || FALLBACK_NAV);
+  const primaryNavItems = navItems.filter((item) => item.group !== "utility");
+  const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
+  const showCompactDemoBanner = location.pathname !== "/dashboard";
+  const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  const mobileNavItems: Record<UserRole, { icon: typeof Home; label: string; href: string; accent?: boolean }[]> = {
+  const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
     participant: [
-      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
       { icon: Activity, label: "Pulse", href: "/pulse" },
-      { icon: PlayCircle, label: "Unlock", href: "/watch-unlock", accent: true },
+      { icon: Search, label: "Discover", href: "/discover", accent: true },
       { icon: Archive, label: "Vault", href: "/vault" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     creator: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: PlayCircle, label: "Missions", href: "/watch-unlock", accent: true },
-      { icon: BarChart3, label: "Yield", href: "/dashboard?tab=earnings" },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: PlayCircle, label: "Missions", href: "/missions" },
+      { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", accent: true },
+      { icon: Megaphone, label: "PromoPush", href: "/promopush/creator" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     host: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Plus, label: "Create", href: "/create-moment", accent: true },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
       { icon: Activity, label: "Pulse", href: "/pulse" },
-      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
+      { icon: Plus, label: "Create", href: "/create/moment", accent: true },
+      { icon: Archive, label: "Vault", href: "/vault" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     brand: [
-      { icon: Home, label: "Home", href: "/dashboard" },
-      { icon: Plus, label: "Launch", href: "/dashboard/brand/campaigns/create", accent: true },
-      { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns" },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Plus, label: "Create", href: "/create/campaign", accent: true },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     merchant: [
-      { icon: Home, label: "Home", href: "/dashboard" },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
       { icon: Plus, label: "Add", href: "/dashboard/venues/add", accent: true },
       { icon: MapPin, label: "Venues", href: "/dashboard/venues" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    agency: [
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Briefcase, label: "Clients", href: "/dashboard", accent: true },
+      { icon: Sparkles, label: "Create", href: "/create/campaign" },
+      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    promoter: [
+      { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", accent: true },
+      { icon: Search, label: "Discover", href: "/discover" },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ],
+    marketing: [
+      { icon: Megaphone, label: "PromoPush", href: "/promopush", accent: true },
+      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     admin: [
@@ -167,7 +336,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     ],
   };
 
-  const currentMobileNav = mobileNavItems[safeRole];
+  const currentMobileNav = filterReleaseNav(mobileNavItems[safeRole]);
 
   return (
     <div className="app-shell-mobile relative flex min-h-screen overflow-x-clip bg-background transition-colors duration-300">
@@ -196,23 +365,75 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
           <div className="flex-1 px-4 space-y-8 overflow-y-auto pt-4">
             <div>
               <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
-                Main Menu
+                Product Spine
               </p>
               <nav className="space-y-1.5">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-foreground/80 hover:text-primary hover:bg-primary/5 hover:shadow-sm transition-all duration-200 group"
-                  >
-                    <div className="p-2 rounded-lg bg-transparent text-foreground/70 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                {primaryNavItems.map((item) => (
+                  (() => {
+                    const active = isNavItemActive(location.pathname, item.href, location.search);
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                          active
+                            ? "bg-primary/10 text-primary shadow-sm"
+                            : "text-foreground/80 hover:text-primary hover:bg-primary/5 hover:shadow-sm",
+                        )}
+                      >
+                    <div className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      active
+                        ? "bg-primary/15 text-primary"
+                        : "bg-transparent text-foreground/70 group-hover:bg-primary/10 group-hover:text-primary",
+                    )}>
                       <item.icon className="w-5 h-5" />
                     </div>
                     <span className="font-semibold text-sm">{item.label}</span>
-                  </Link>
+                      </Link>
+                    );
+                  })()
                 ))}
               </nav>
             </div>
+
+            {utilityNavItems.length > 0 && (
+              <div>
+                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
+                  Utilities
+                </p>
+                <nav className="space-y-1.5">
+                  {utilityNavItems.map((item) => (
+                    (() => {
+                      const active = isNavItemActive(location.pathname, item.href, location.search);
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          className={cn(
+                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                            active
+                              ? "bg-primary/10 text-primary shadow-sm"
+                              : "text-foreground/80 hover:text-primary hover:bg-primary/5 hover:shadow-sm",
+                          )}
+                        >
+                      <div className={cn(
+                        "p-2 rounded-lg transition-colors",
+                        active
+                          ? "bg-primary/15 text-primary"
+                          : "bg-transparent text-foreground/70 group-hover:bg-primary/10 group-hover:text-primary",
+                      )}>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-semibold text-sm">{item.label}</span>
+                        </Link>
+                      );
+                    })()
+                  ))}
+                </nav>
+              </div>
+            )}
 
             {/* Quick Actions / Divider */}
             <div className="pt-2">
@@ -265,7 +486,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </div>
 
             {/* Organization Switcher (Only for non-participant roles) */}
-            {currentRole !== "participant" && (
+            {safeRole !== "participant" && (
               <div className="pt-2">
                 <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
                   Organization
@@ -358,25 +579,26 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <div className="w-12 h-12 rounded-2xl bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-soft group-hover/profile:rotate-3 transition-transform">
                     {user?.email?.charAt(0)?.toUpperCase() || "?"}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full" title="Consistency Rank 3" />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground truncate group-hover/profile:text-primary transition-colors">
                     {user?.user_metadata?.full_name || user?.email?.split("@")[0]}
                   </p>
-                  <p className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Level 3 Pioneer</p>
+                  <p className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">{roleInfo.label} Workspace</p>
                 </div>
               </Link>
 
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="text-center p-2 rounded-xl bg-muted/50">
-                  <p className="text-xs font-bold text-foreground">1,240</p>
-                  <p className="text-[10px] text-foreground/60 uppercase">Points</p>
-                </div>
-                <div className="text-center p-2 rounded-xl bg-muted/50">
-                  <p className="text-xs font-bold text-foreground">12</p>
-                  <p className="text-[10px] text-foreground/60 uppercase">Days</p>
-                </div>
+              <div className="mb-4 rounded-2xl border border-border/50 bg-muted/40 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Current Context</p>
+                <p className="mt-2 text-sm font-semibold text-foreground truncate">
+                  {activeOrg?.name || "Personal Workspace"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {safeRole === "participant"
+                    ? "Use the product spine to move between live discovery, memory, and personal tools."
+                    : "Use the dashboard for role-specific operations and keep the product spine for the participant-facing experience."}
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -407,7 +629,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       {/* Main Content */}
       <main className="relative min-w-0 min-h-screen flex-1 overflow-x-clip lg:pl-72">
         {/* Mobile Header */}
-        <div className="pt-safe lg:hidden sticky top-0 z-30 bg-background/85 backdrop-blur-xl border-b border-border/50 p-4 shadow-sm">
+        <div className="pt-safe lg:hidden sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/50 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -425,23 +647,54 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               {(user?.email || "?").charAt(0).toUpperCase()}
             </Link>
           </div>
+          <div className="mt-3 rounded-2xl border border-border/60 bg-card/70 px-4 py-3 shadow-soft">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">{roleInfo.label}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{pageMeta.label}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{pageMeta.description}</p>
+              </div>
+              <div className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", roleInfo.color)} />
+            </div>
+          </div>
         </div>
 
         {/* Page Content */}
-        <div className="relative z-10 p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:p-12">
+        <div className="relative z-10 p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:px-10 lg:pb-14 lg:pt-8 xl:px-12">
           <div className="mx-auto w-full max-w-7xl min-w-0">
-            {children}
+            <div className="mb-5 hidden lg:flex items-start justify-between gap-6 rounded-[1.75rem] border border-border/70 bg-card/80 p-5 shadow-soft">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                  <roleInfo.icon className="h-3.5 w-3.5" />
+                  {roleInfo.label}
+                </div>
+                <h1 className="mt-3 font-serif text-3xl font-bold text-foreground">{pageMeta.label}</h1>
+                <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{pageMeta.description}</p>
+              </div>
+              <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active workspace</p>
+                <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "Personal Workspace"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {safeRole === "participant" ? "Core product surfaces stay separate from advanced tools." : "Operations live here; product navigation stays separate in the spine."}
+                </p>
+              </div>
+            </div>
+            {showCompactDemoBanner ? (
+              <DemoExperienceBanner role={safeRole === "admin" ? null : safeRole} variant="compact" />
+            ) : null}
+            <div className="pt-1 lg:pt-0">
+              {children}
+            </div>
           </div>
         </div>
       </main>
 
+      <DemoCoachmark />
+
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/92 backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-2 pb-2 pt-2">
           {currentMobileNav.map((item) => {
-            const [itemPath, itemQuery] = item.href.split("?");
-            const isActive = itemQuery
-              ? location.pathname === itemPath && location.search.includes(itemQuery)
-              : location.pathname === itemPath || location.pathname.startsWith(itemPath + "/");
+            const isActive = isNavItemActive(location.pathname, item.href, location.search);
             return (
               <Link
                 key={item.href}

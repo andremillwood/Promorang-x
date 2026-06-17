@@ -48,23 +48,33 @@ const MomentsSection = () => {
     );
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-warm" data-tour="moments-section">
-      <div className="container px-6">
+    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-warm" data-tour="moments-section">
+      <div className="absolute right-0 top-24 h-80 w-80 rounded-full bg-primary/10 blur-[100px]" />
+      <div className="container relative z-10 px-6">
         {/* Demo Event Banner */}
         <div className="max-w-5xl mx-auto mb-12">
           <DemoEventBanner variant="home" />
         </div>
 
         {/* Section Header */}
-        <div className="max-w-2xl mb-12">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Real-world moments taking shape around you
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            {showingExamples
-              ? "These examples show how drops, service rituals, grocery missions, and creator unlocks can look in your city. Launch the first one, claim founding status, and start the mayor story."
-              : "Browse live moments across retail, service, wellness, community, and creator-led unlocks. Each one is a real-world interaction with proof, reward, and memory potential."}
-          </p>
+        <div className="mb-12 grid gap-8 lg:grid-cols-[1fr_0.55fr] lg:items-end">
+          <div className="max-w-2xl">
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-primary">Live Discovery</p>
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-foreground mb-4">
+              Find Something Worth Showing Up For
+            </h2>
+            <p className="text-lg leading-8 text-muted-foreground">
+              {showingExamples
+                ? "These examples show the kinds of drops, rituals, creator missions, and local experiences Promorang can bring into your city. The point is simple: find the room, show up, and let the Mark start opening more."
+                : "Browse live moments across retail, service, wellness, community, and creator-led unlocks. Each one can help you earn points, become known, and unlock what comes next."}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Moment signal</p>
+            <p className="mt-2 font-serif text-3xl font-bold text-foreground">Join once.</p>
+            <p className="font-serif text-3xl font-bold text-primary">Return stronger.</p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">Every card below is a possible doorway into people, places, perks, and progress.</p>
+          </div>
         </div>
 
         {/* Category Pills */}
@@ -74,8 +84,8 @@ const MomentsSection = () => {
               key={filter.value}
               onClick={() => setActiveCategory(filter.value)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === filter.value
-                ? "bg-primary text-primary-foreground"
-                : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground border border-border"
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground border border-border shadow-sm"
                 }`}
             >
               {filter.label}
@@ -104,15 +114,15 @@ const MomentsSection = () => {
         </div>
 
         {/* Enhanced CTA Section */}
-        <div className="mt-16 pt-12 border-t border-border/50">
+        <div className="mt-16 rounded-3xl border border-border bg-card p-8 shadow-card md:p-10">
           <div className="text-center max-w-3xl mx-auto">
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-              {showingExamples ? "Ready to create the first real moment?" : "Ready to create your own moments?"}
+              {showingExamples ? "Nothing near you yet? That can be your opening." : "Ready to create your own moments?"}
             </h3>
             <p className="text-lg text-muted-foreground mb-8">
               {showingExamples
-                ? "If your area is still quiet, that is the opportunity. Launch the first drop, ritual, service unlock, or community gathering, become a founding mayor, and give the neighborhood something real to rally around."
-                : "Whether you're a host, creator, merchant, or brand, Promorang makes it possible to program real-world interactions that people can verify, remember, and return to."}
+                ? "If your area is still quiet, help start the first drop, ritual, service unlock, or community gathering. Promorang is built for the people who make a place feel alive."
+                : "Whether you're a host, creator, merchant, or brand, Promorang makes it possible to program real-world interactions people want to join, remember, and return to."}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
@@ -130,7 +140,7 @@ const MomentsSection = () => {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                to="/discover"
+                to="/explore/moments"
                 className="inline-flex items-center gap-2 text-primary font-medium hover:underline underline-offset-4"
               >
                 Explore all moments

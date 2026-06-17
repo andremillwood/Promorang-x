@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
+const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
 const { sendWelcomeEmail } = require('../services/resendService');
+const { normalizeEmail } = require('../services/demoEmailRouting');
+const demoExperienceEmailService = require('../services/demoExperienceEmailService');
 
 // Body is already parsed by express.json() in api/index.js
 
@@ -86,6 +89,87 @@ const DEMO_ACCOUNTS = [
   }
 ];
 
+const STABLE_DEMO_AUTH = {
+  participant: {
+    email: 'demo.participant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.participant',
+    display_name: 'Demo Participant',
+  },
+  creator: {
+    email: 'demo.participant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.participant',
+    display_name: 'Demo Participant',
+  },
+  host: {
+    email: 'demo.host@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.host',
+    display_name: 'Demo Host',
+  },
+  brand: {
+    email: 'demo.brand@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.brand',
+    display_name: 'Demo Brand',
+  },
+  merchant: {
+    email: 'demo.merchant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.merchant',
+    display_name: 'Demo Merchant',
+  },
+  agency: {
+    email: 'demo.brand@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.brand',
+    display_name: 'Demo Brand',
+  },
+  investor: {
+    email: 'demo.brand@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.brand',
+    display_name: 'Demo Brand',
+  },
+  advertiser: {
+    email: 'demo.brand@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.brand',
+    display_name: 'Demo Brand',
+  },
+  operator: {
+    email: 'demo.host@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.host',
+    display_name: 'Demo Host',
+  },
+  matrix: {
+    email: 'demo.host@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.host',
+    display_name: 'Demo Host',
+  },
+  'sampling-merchant': {
+    email: 'demo.merchant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.merchant',
+    display_name: 'Demo Merchant',
+  },
+  'active-sampling': {
+    email: 'demo.merchant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.merchant',
+    display_name: 'Demo Merchant',
+  },
+  'graduated-merchant': {
+    email: 'demo.merchant@promorang.co',
+    password: 'Promorang2025!',
+    username: 'demo.merchant',
+    display_name: 'Demo Merchant',
+  },
+};
+
 // Helper function to generate JWT token
 const generateToken = (user) => {
   return jwt.sign(
@@ -108,6 +192,152 @@ const verifyToken = (token) => {
   } catch (error) {
     return null;
   }
+};
+
+const findAuthUserByEmail = async (email) => {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail || !supabase) return null;
+
+  let page = 1;
+  const perPage = 200;
+
+  while (page <= 10) {
+    const { data, error } = await supabase.auth.admin.listUsers({
+      page,
+      perPage,
+    });
+
+    if (error) {
+      console.warn(`[Auth] listUsers lookup failed for ${normalizedEmail}: ${error.message}`);
+      return null;
+    }
+
+    const users = data?.users || [];
+    const matchedUser = users.find((user) => user.email?.trim().toLowerCase() === normalizedEmail);
+    if (matchedUser) {
+      return matchedUser;
+    }
+
+    if (users.length < perPage) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return null;
+};
+
+const deleteLegacyDemoProfile = async ({ email, id }) => {
+  if (!supabase) return;
+
+  const legacyIds = new Set();
+
+  if (id) legacyIds.add(id);
+
+  if (email) {
+    const { data: usersByEmail, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email);
+
+    if (error) throw error;
+    for (const row of usersByEmail || []) {
+      if (row?.id) legacyIds.add(row.id);
+    }
+  }
+
+  for (const legacyId of legacyIds) {
+    await supabase.from('user_roles').delete().eq('user_id', legacyId);
+    await supabase.from('profiles').delete().eq('id', legacyId);
+    await supabase.from('users').delete().eq('id', legacyId);
+  }
+};
+
+const ensurePublicDemoRecords = async ({ userId, email, username, displayName, userType }) => {
+  if (!supabase || !userId) return null;
+
+  const { data: userRow, error: userError } = await supabase
+    .from('users')
+    .upsert({
+      id: userId,
+      email,
+      username,
+      display_name: displayName,
+      user_type: userType,
+    }, { onConflict: 'id' })
+    .select()
+    .single();
+
+  if (userError) throw userError;
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .upsert({
+      id: userId,
+      username,
+      display_name: displayName,
+      user_type: userType,
+    }, { onConflict: 'id' });
+
+  if (profileError) throw profileError;
+
+  return userRow;
+};
+
+const createRecoverySupabaseClient = () => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseRecoveryKey =
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseRecoveryKey) return null;
+
+  return createClient(supabaseUrl, supabaseRecoveryKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+};
+
+const recoverAuthUserIdByPassword = async ({ email, password }) => {
+  if (!supabase || !email || !password) return null;
+
+  const recoveryClient = createRecoverySupabaseClient();
+  if (!recoveryClient) return null;
+
+  const candidatePasswords = Array.from(new Set([
+    password,
+    'demo123456',
+    'demo123',
+    'Promorang2025!',
+  ].filter(Boolean)));
+
+  for (const candidatePassword of candidatePasswords) {
+    try {
+      const { data, error } = await recoveryClient.auth.signInWithPassword({
+        email,
+        password: candidatePassword,
+      });
+
+      if (error) {
+        console.warn(`[Auth] Password-based auth recovery failed for ${email} using candidate password: ${error.message}`);
+        continue;
+      }
+
+      return {
+        userId: data?.user?.id || null,
+        matchedPassword: candidatePassword,
+      };
+    } catch (error) {
+      console.warn(`[Auth] Password-based auth recovery threw for ${email}: ${error.message}`);
+    }
+  }
+
+  return null;
 };
 
 // Middleware to verify JWT token
@@ -558,20 +788,26 @@ router.post('/demo/:role', async (req, res) => {
   
   try {
     const role = req.params.role;
+    const demoEmailRecipient = normalizeEmail(
+      req.body?.demo_email || req.body?.email || req.body?.recipientEmail
+    );
     console.log(`[Auth] Demo login request received for role: ${role}`);
 
     const roleMap = {
-      'participant': { email: 'demo.participant@promorang.co', username: 'demo_participant', name: 'Demo Participant', user_type: 'creator' },
-      'host': { email: 'demo.host@promorang.co', username: 'demo_host', name: 'Demo Host', user_type: 'creator' },
-      'brand': { email: 'demo.brand@promorang.co', username: 'demo_brand', name: 'Demo Brand', user_type: 'brand' },
-      'merchant': { email: 'demo.merchant@promorang.co', username: 'demo_merchant', name: 'Demo Merchant', user_type: 'merchant' },
-      'agency': { email: 'demo.agency@promorang.co', username: 'demo_agency', name: 'Demo Agency', user_type: 'agency' },
+      'participant': { email: 'demo.participant@promorang.co', username: 'demo.participant', name: 'Demo Participant', user_type: 'participant' },
+      'host': { email: 'demo.host@promorang.co', username: 'demo.host', name: 'Demo Host', user_type: 'host' },
+      'brand': { email: 'demo.brand@promorang.co', username: 'demo.brand', name: 'Demo Brand', user_type: 'brand' },
+      'merchant': { email: 'demo.merchant@promorang.co', username: 'demo.merchant', name: 'Demo Merchant', user_type: 'merchant' },
+      'agency': { email: 'demo.agency@promorang.co', username: 'demo.agency', name: 'Demo Agency', user_type: 'agency' },
       // Legacy mappings
       'creator': { email: 'creator@promorang.co', username: 'demo_creator', name: 'Demo Creator', user_type: 'creator' },
       'investor': { email: 'investor@promorang.co', username: 'demo_investor', name: 'Demo Investor', user_type: 'investor' },
       'advertiser': { email: 'advertiser@promorang.co', username: 'demo_advertiser', name: 'Demo Advertiser', user_type: 'advertiser' },
       'operator': { email: 'operator@promorang.co', username: 'demo_operator', name: 'Demo Operator', user_type: 'operator' },
-      'matrix': { email: 'matrix_demo@promorang.co', username: 'matrix_builder', name: 'Matrix Builder Demo', user_type: 'matrix_builder' }
+      'matrix': { email: 'matrix_demo@promorang.co', username: 'matrix_builder', name: 'Matrix Builder Demo', user_type: 'matrix_builder' },
+      'sampling-merchant': { email: 'sampling_merchant@promorang.co', username: 'sampling_merchant', name: 'Sample Coffee Shop', user_type: 'advertiser' },
+      'active-sampling': { email: 'active_sampling@promorang.co', username: 'active_sampling', name: 'Downtown Boutique', user_type: 'advertiser' },
+      'graduated-merchant': { email: 'graduated_merchant@promorang.co', username: 'graduated_merchant', name: 'Fitness Studio Pro', user_type: 'advertiser' }
     };
 
     const demoAccount = roleMap[role];
@@ -579,7 +815,9 @@ router.post('/demo/:role', async (req, res) => {
       return res.status(400).json({ success: false, error: `Invalid demo role: ${role}` });
     }
 
-    const password = 'demo123456';
+    const stableBinding = STABLE_DEMO_AUTH[role] || null;
+    const password = stableBinding?.password || 'demo123456';
+    const targetEmail = (stableBinding?.email || demoAccount.email).trim().toLowerCase();
 
     if (!supabase) {
       // Mock mode
@@ -589,39 +827,222 @@ router.post('/demo/:role', async (req, res) => {
         points_balance: 1000,
         user_tier: 'free'
       });
-      return res.json({ success: true, user: demoAccount, token });
+      return res.json({
+        success: true,
+        user: demoAccount,
+        token,
+        demo_email_recipient: demoEmailRecipient
+      });
     }
 
-    // 1. Ensure user exists and is confirmed in Supabase Auth (Admin API avoids rate limits)
-    const targetEmail = demoAccount.email.trim().toLowerCase();
-    
-    // Check if we have a profile to get the ID
+    // Stable demo bindings avoid brittle runtime auth-user mutation in production.
+    // We sign into a known seeded auth account and layer the requested demo role onto it.
+    if (stableBinding) {
+      let { data: seededProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', targetEmail)
+        .maybeSingle();
+
+      const existingAuthUser = await findAuthUserByEmail(targetEmail);
+      let userId = existingAuthUser?.id || seededProfile?.id || null;
+      const stableUsername = stableBinding?.username || demoAccount.username;
+      const stableDisplayName = stableBinding?.display_name || demoAccount.name;
+      const stableMetadata = {
+        full_name: stableDisplayName,
+        user_type: demoAccount.user_type,
+        username: stableUsername,
+      };
+
+      if (!userId) {
+        const recoveredAuth = await recoverAuthUserIdByPassword({
+          email: targetEmail,
+          password,
+        });
+        userId = recoveredAuth?.userId || null;
+      }
+
+      if (seededProfile?.id && existingAuthUser?.id && seededProfile.id !== existingAuthUser.id) {
+        console.warn(
+          `[Auth] Removing mismatched demo profile for ${targetEmail}. public.users=${seededProfile.id}, auth.users=${existingAuthUser.id}`
+        );
+        await deleteLegacyDemoProfile({ id: seededProfile.id, email: targetEmail });
+        seededProfile = null;
+      }
+
+      if (userId) {
+        try {
+          await supabase.auth.admin.updateUserById(userId, {
+            email: targetEmail,
+            password,
+            email_confirm: true,
+            user_metadata: stableMetadata,
+          });
+        } catch (authUpdateError) {
+          console.warn(`[Auth] Stable demo auth user repair needed for ${targetEmail}:`, authUpdateError.message);
+          await deleteLegacyDemoProfile({ id: userId, email: targetEmail });
+          userId = null;
+          seededProfile = null;
+        }
+      }
+
+      if (!userId) {
+        const { data: created, error: createError } = await supabase.auth.admin.createUser({
+          email: targetEmail,
+          password,
+          email_confirm: true,
+          user_metadata: stableMetadata,
+        });
+
+        if (createError) {
+          const alreadyExists =
+            createError.message?.includes('already been registered') ||
+            createError.message?.includes('already registered');
+
+          if (!alreadyExists) throw createError;
+
+          console.warn(`[Auth] Stable demo auth user already exists for ${targetEmail}; attempting profile-based recovery.`);
+          userId = seededProfile?.id || userId || null;
+          if (!userId) {
+            const recoveredAuth = await recoverAuthUserIdByPassword({
+              email: targetEmail,
+              password,
+            });
+            userId = recoveredAuth?.userId || null;
+          }
+          if (!userId) throw createError;
+
+          await supabase.auth.admin.updateUserById(userId, {
+            email: targetEmail,
+            password,
+            email_confirm: true,
+            user_metadata: stableMetadata,
+          });
+        } else {
+          userId = created.user.id;
+        }
+      }
+
+      await ensurePublicDemoRecords({
+        userId,
+        email: targetEmail,
+        username: stableUsername,
+        displayName: stableDisplayName,
+        userType: demoAccount.user_type,
+      });
+
+      if (demoEmailRecipient && userId) {
+        await supabase
+          .from('users')
+          .update({ demo_email_recipient: demoEmailRecipient })
+          .eq('id', userId);
+      }
+
+      if (userId) {
+        try {
+          await supabase
+            .from('user_roles')
+            .upsert([{ user_id: userId, role }], { onConflict: 'user_id,role' });
+        } catch (roleError) {
+          console.warn(`[Auth] Failed to attach demo role ${role} to seeded user ${targetEmail}:`, roleError.message);
+        }
+      }
+
+      demoExperienceEmailService.sendDemoSessionStartedEmail({
+        role,
+        demoAccount,
+        demoUserId: userId,
+        demoEmailRecipient,
+      }).catch((emailError) => {
+        console.warn('[Auth] Failed to send demo session email:', emailError.message);
+      });
+
+      return res.json({
+        success: true,
+        message: 'Stable demo user ready',
+        email: targetEmail,
+        password,
+        demo_email_recipient: demoEmailRecipient,
+      });
+    }
+
+    // 1. Ensure user exists and is confirmed in Supabase Auth.
+
     let { data: profileRecord } = await supabase.from('users')
       .select('id')
       .eq('email', targetEmail)
       .maybeSingle();
-    
-    let userId = profileRecord?.id;
-    
+
+    const existingAuthUser = await findAuthUserByEmail(targetEmail);
+    let userId = existingAuthUser?.id || null;
+
     try {
-      if (userId) {
-        // CASE A: Direct Sync for existing profiles
-        console.log(`[Auth] High-speed sync for ${targetEmail} (ID: ${userId})`);
+      if (existingAuthUser?.id) {
+        // CASE A: Auth user already exists. Sync password and metadata there.
+        console.log(`[Auth] Syncing existing auth user for ${targetEmail} (ID: ${existingAuthUser.id})`);
         await supabase.auth.admin.updateUserById(userId, {
           password: password,
-          email_confirm: true
+          email_confirm: true,
+          user_metadata: {
+            ...(existingAuthUser.user_metadata || {}),
+            full_name: demoAccount.name,
+            user_type: demoAccount.user_type,
+            username: demoAccount.username,
+          },
         });
       } else {
-        // CASE B: Clean Creation for new profiles
-        console.log(`[Auth] High-speed creation for ${targetEmail}`);
+        // CASE B: We have a legacy public.users row without a matching auth user.
+        // Delete the stale profile so we can recreate auth + app rows cleanly.
+        if (profileRecord?.id) {
+          console.warn(`[Auth] Removing stale demo app profile for ${targetEmail} (legacy ID: ${profileRecord.id})`);
+          await deleteLegacyDemoProfile({ id: profileRecord.id, email: targetEmail });
+          profileRecord = null;
+        }
+
+        // CASE C: Clean creation for a brand new demo auth user.
+        console.log(`[Auth] Creating new auth user for ${targetEmail}`);
         const { data: created, error: createError } = await supabase.auth.admin.createUser({
           email: targetEmail,
           password: password,
           email_confirm: true,
-          user_metadata: { full_name: demoAccount.name }
+          user_metadata: {
+            full_name: demoAccount.name,
+            user_type: demoAccount.user_type,
+            username: demoAccount.username,
+          }
         });
-        if (createError) throw createError;
-        userId = created.user.id;
+        if (createError) {
+          const alreadyExists =
+            createError.message?.includes('already been registered') ||
+            createError.message?.includes('already registered');
+
+          if (!alreadyExists) throw createError;
+
+          console.warn(`[Auth] Demo auth user already exists for ${targetEmail}; recovering existing user.`);
+          const recoveredAuthUser = await findAuthUserByEmail(targetEmail);
+          userId = recoveredAuthUser?.id || profileRecord?.id || null;
+          if (!userId) {
+            const recoveredAuth = await recoverAuthUserIdByPassword({
+              email: targetEmail,
+              password,
+            });
+            userId = recoveredAuth?.userId || null;
+          }
+          if (!userId) throw createError;
+
+          await supabase.auth.admin.updateUserById(userId, {
+            password: password,
+            email_confirm: true,
+            user_metadata: {
+              ...(recoveredAuthUser.user_metadata || {}),
+              full_name: demoAccount.name,
+              user_type: demoAccount.user_type,
+              username: demoAccount.username,
+            },
+          });
+        } else {
+          userId = created.user.id;
+        }
       }
     } catch (authOpError) {
       console.error("[Auth] SDK Operation failed:", authOpError);
@@ -648,18 +1069,50 @@ router.post('/demo/:role', async (req, res) => {
 
       if (profileError) throw profileError;
       userProfile = newProfile;
+    } else {
+      const { data: updatedProfile, error: profileUpdateError } = await supabase
+        .from('users')
+        .update({
+          email: targetEmail,
+          username: demoAccount.username,
+          display_name: demoAccount.name,
+          user_type: demoAccount.user_type,
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (profileUpdateError) throw profileUpdateError;
+      userProfile = updatedProfile;
+    }
+
+    if (demoEmailRecipient) {
+      await supabase
+        .from('users')
+        .update({ demo_email_recipient: demoEmailRecipient })
+        .eq('id', userId);
     }
 
     // 3. Ensure role exists in 'user_roles'
     const dbRole = role === 'participant' || role === 'host' ? role : demoAccount.user_type;
     await supabase.from('user_roles').upsert([{ user_id: userId, role: dbRole }], { onConflict: 'user_id' }).select();
 
+    demoExperienceEmailService.sendDemoSessionStartedEmail({
+      role,
+      demoAccount,
+      demoUserId: userId,
+      demoEmailRecipient,
+    }).catch((emailError) => {
+      console.warn('[Auth] Failed to send demo session email:', emailError.message);
+    });
+
     // 4. Return success (Frontend will then do a standard login which is now safe/confirmed)
     return res.json({
       success: true,
       message: 'Demo user prepared',
       email: demoAccount.email,
-      password: password
+      password: password,
+      demo_email_recipient: demoEmailRecipient
     });
 
   } catch (error) {

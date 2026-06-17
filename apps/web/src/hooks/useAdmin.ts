@@ -3,17 +3,50 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
+const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
+
 export interface UserWithProfile {
   id: string;
-  email: string;
-  created_at: string;
+  email: string | null;
+  created_at: string | null;
+  kyc_status: string | null;
   profile: {
     full_name: string | null;
     avatar_url: string | null;
     bio: string | null;
     location: string | null;
+    display_name: string | null;
+    username: string | null;
+    suspended: boolean;
+    suspension_reason: string | null;
   } | null;
   roles: string[];
+  qualification: {
+    is_qualified_for_money: boolean;
+    has_no_violations: boolean | null;
+    disqualification_reason: string | null;
+    disqualified_at: string | null;
+  } | null;
+  latest_qualification_event: {
+    event_type: string;
+    reason: string | null;
+    created_at: string | null;
+  } | null;
+  activity: {
+    hosted_count: number;
+    active_hosted_count: number;
+    joinable_hosted_count: number;
+    joined_count: number;
+    total_content: number;
+    pending_content: number;
+    rejected_content: number;
+    approved_content: number;
+    open_support_tickets: number;
+    total_support_tickets: number;
+    escalated_tickets: number;
+    latest_activity_at: string | null;
+  };
+  moderation_flags: string[];
 }
 
 export interface PlatformStats {
@@ -46,10 +79,67 @@ export interface MomentForApproval {
   };
 }
 
+export interface ModerationOverview {
+  summary: {
+    total_moments: number;
+    active_moments: number;
+    joinable_moments: number;
+    total_participants: number;
+    total_check_ins: number;
+    pending_proofs: number;
+    pending_content: number;
+    rejected_content: number;
+  };
+  moments: Array<{
+    id: string;
+    title: string;
+    status: string;
+    visibility: string;
+    location: string;
+    starts_at: string;
+    created_at: string;
+    host: {
+      id: string;
+      name: string;
+      avatar_url: string | null;
+    };
+    metrics: {
+      participants: number;
+      check_ins: number;
+      proofs_pending: number;
+      proofs_verified: number;
+      proofs_rejected: number;
+      content_approved: number;
+      content_pending: number;
+      content_rejected: number;
+    };
+  }>;
+  content: Array<{
+    id: string;
+    type: "media" | "review";
+    moment_id: string;
+    moment_title: string;
+    user_id: string;
+    moderation_status: string;
+    created_at: string;
+    preview: string;
+    media_url?: string;
+    rating?: number;
+    is_verified_participant?: boolean;
+    user: {
+      id: string;
+      name: string;
+      avatar_url: string | null;
+    };
+  }>;
+}
+
 // Check if user is admin
 export function useIsAdmin() {
   const { roles } = useAuth();
-  return roles.includes("admin" as any);
+  return (roles as string[]).some((role) =>
+    ["admin", "administrator", "master_admin", "moderator"].includes(role)
+  );
 }
 
 // Fetch platform-wide stats
@@ -147,43 +237,25 @@ export function usePlatformStats() {
 
 // Fetch all users with profiles and roles
 export function useAllUsers() {
-  const { user } = useAuth();
+  const { session, user } = useAuth();
 
   return useQuery({
     queryKey: ["admin-all-users"],
     queryFn: async () => {
-      // Get all profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Get all roles
-      const { data: allRoles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      if (rolesError) throw rolesError;
-
-      // Merge data
-      return profiles.map((profile) => ({
-        id: profile.user_id,
-        email: "", // Email not stored in profiles, would need auth admin access
-        created_at: profile.created_at,
-        profile: {
-          full_name: profile.full_name,
-          avatar_url: profile.avatar_url,
-          bio: profile.bio,
-          location: profile.location,
+      const response = await fetch(`${API_URL}/api/admin/users/roster`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
         },
-        roles: allRoles
-          ?.filter((r) => r.user_id === profile.user_id)
-          .map((r) => r.role) || [],
-      })) as UserWithProfile[];
+      });
+
+      const payload = await response.json().catch(() => ({ users: [] }));
+      if (!response.ok || payload.success === false) {
+        throw new Error(payload.error || "Failed to load admin users");
+      }
+
+      return (payload.users || []) as UserWithProfile[];
     },
-    enabled: !!user,
+    enabled: !!user && !!session?.access_token,
   });
 }
 
@@ -255,6 +327,83 @@ export function useUpdateMomentStatus() {
     onError: (error: any) => {
       toast({
         title: "Error updating moment",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export function useModerationOverview() {
+  const { session, user } = useAuth();
+
+  return useQuery({
+    queryKey: ["admin-moderation-overview"],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/admin/moderation/overview`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.success === false) {
+        throw new Error(payload.error || "Failed to load moderation overview");
+      }
+
+      return {
+        summary: payload.summary || {},
+        moments: payload.moments || [],
+        content: payload.content || [],
+      } as ModerationOverview;
+    },
+    enabled: !!user && !!session?.access_token,
+  });
+}
+
+export function useUpdateUserSuspension() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { session } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      suspended,
+      reason,
+    }: {
+      userId: string;
+      suspended: boolean;
+      reason?: string;
+    }) => {
+      const response = await fetch(`${API_URL}/api/admin/users/${userId}/suspend`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ suspended, reason: reason || null }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.success === false) {
+        throw new Error(payload.error || "Failed to update user suspension");
+      }
+
+      return true;
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: variables.suspended ? "User suspended" : "User restored",
+        description: variables.suspended
+          ? "The account is now blocked from normal platform use."
+          : "The suspension has been removed.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-all-users"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Suspension update failed",
         description: error.message,
         variant: "destructive",
       });

@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MomentStatusBadge } from "@/components/MomentStatusBadge";
+import { ShareButton } from "@/components/ShareButton";
 import {
   ArrowLeft,
   Calendar,
@@ -16,6 +17,7 @@ import {
   Download,
   FileText,
   Clock,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Tables } from "@/integrations/supabase/types";
@@ -62,7 +64,7 @@ const MomentRecord = () => {
 
       if (momentError) throw momentError;
       if (!momentData) {
-        navigate("/discover");
+        navigate("/explore/moments");
         return;
       }
 
@@ -174,7 +176,7 @@ const MomentRecord = () => {
         <div className="pt-24 pb-12 px-4 text-center">
           <h1 className="font-serif text-2xl font-bold mb-4">Record not found</h1>
           <Button asChild>
-            <Link to="/discover">Browse Moments</Link>
+            <Link to="/explore/moments">Browse Moments</Link>
           </Button>
         </div>
       </div>
@@ -222,6 +224,41 @@ const MomentRecord = () => {
               <MomentStatusBadge status={status as any} />
             </div>
           </div>
+
+          <section className="mb-8 overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 shadow-soft">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  I was there
+                </div>
+                <h2 className="mt-4 font-serif text-3xl font-bold text-foreground">
+                  This is the shareable receipt of the moment.
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  A record should feel warmer than a report. It shows who gathered, what was verified, and why the moment can keep living as a memory, recap, creator clip, or crew proof.
+                </p>
+              </div>
+              <ShareButton
+                title={`I was there: ${moment.title}`}
+                description={`A verified Promorang moment with ${stats?.verifiedParticipants || 0} Marks.`}
+              />
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-4">
+              {[
+                { label: "Joined", value: stats?.totalParticipants || 0 },
+                { label: "Marks", value: stats?.verifiedParticipants || 0 },
+                { label: "Rewards", value: stats?.rewardsClaimed || 0 },
+                { label: "Memory", value: status === "closed" ? "Kept" : "Forming" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">{item.label}</p>
+                  <p className="mt-2 text-2xl font-bold text-foreground">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
