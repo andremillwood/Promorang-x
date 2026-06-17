@@ -46,9 +46,9 @@ type ProofValue = {
 };
 
 const routes = [
-  { icon: Ticket, title: "Find moments", href: "/explore/moments", text: "See where the mechanic becomes useful in real participation." },
-  { icon: WalletCards, title: "Open wallet", href: "/wallet", text: "Track balances, access, and value connected to your activity." },
-  { icon: Sparkles, title: "Create a moment", href: "/moments/create", text: "Turn a gathering, mission, or offer into a live surface." },
+  { icon: Ticket, title: "Find moments", href: "/explore/moments", text: "See real opportunities where this becomes useful." },
+  { icon: WalletCards, title: "Open wallet", href: "/wallet", text: "See what you have earned, unlocked, or saved." },
+  { icon: Sparkles, title: "Create a moment", href: "/moments/create", text: "Turn a gathering, mission, or offer into something people can join." },
 ];
 
 const concepts: Record<ConceptKey, {
@@ -71,77 +71,77 @@ const concepts: Record<ConceptKey, {
     eyebrow: "How it works",
     title: "Promorang turns real moments into useful value.",
     description:
-      "The system starts with moments people can actually join. From there, Marks, Points, Keys, Pieces, content, PromoShare, Gems, and network value help participation become easier to prove, remember, reward, and repeat.",
+      "Start with something real: a moment people can join, host, sponsor, or document. Promorang then helps that activity become easier to prove, remember, reward, and repeat.",
     stake:
-      "The point is not to make users learn a vocabulary list. The point is to show each stakeholder how a real-world action becomes proof, access, memory, rewards, and better future decisions.",
+      "Different people need different answers. Participants want to know what they can join or earn. Hosts want better attendance and follow-up. Brands want proof their spend created real activity. Creators want their content connected to something people can act on.",
     icon: Compass,
     primaryCta: "Find moments",
     primaryHref: "/explore/moments",
     secondaryCta: "Create a moment",
     secondaryHref: "/moments/create",
     proof: [
-      { label: "First action", value: "Moment", helper: "A real thing to attend, host, fund, create, or verify." },
-      { label: "First proof", value: "Mark", helper: "A record that someone actually showed up or contributed." },
-      { label: "Compounding value", value: "Access", helper: "Points, Keys, Pieces, Gems, and network value build from proof." },
+      { label: "What starts it", value: "A moment", helper: "Something real to attend, host, sponsor, create, or document." },
+      { label: "What proves it", value: "A Mark", helper: "A record that someone showed up or contributed." },
+      { label: "What follows", value: "Value", helper: "Access, rewards, content, memory, and stronger reasons to return." },
     ],
     roles: [
       {
         role: "Participants",
-        why: "You need to know why showing up is worth more than scrolling.",
-        outcome: "Promorang gives participation a record that can turn into access, rewards, memory, and standing.",
+        why: "You want to know what is worth showing up for.",
+        outcome: "Promorang helps your participation count toward access, rewards, memories, and better future invitations.",
         action: "Start with moments",
         href: "/explore/moments",
         icon: Users,
       },
       {
         role: "Hosts and venues",
-        why: "You need more than promotion; you need proof that the right people came and may return.",
-        outcome: "Moments, Marks, Keys, and network value help turn attendance into a repeatable participation loop.",
+        why: "You need more than a flyer and a headcount.",
+        outcome: "Promorang helps you see who came, what happened, and how to bring the right people back.",
         action: "Create a moment",
         href: "/moments/create",
         icon: MapPin,
       },
       {
         role: "Brands",
-        why: "You need funded activity to create signal, not vague awareness.",
-        outcome: "Promorang connects sponsorship to participation, content, rewards, Gems, and measurable movement.",
+        why: "You need sponsorship to produce real activity, not just impressions.",
+        outcome: "Promorang connects spend to attendance, content, rewards, and proof people acted.",
         action: "Explore brand use",
         href: "/for-brands",
         icon: Building2,
       },
       {
         role: "Creators",
-        why: "You need creative activity to become part of the moment, not sit outside it.",
-        outcome: "Content can point back into moments, prove participation, and help creator-led rooms compound.",
+        why: "You need content to lead somewhere useful.",
+        outcome: "Promorang lets content point back to moments, participation, rewards, and people who may return.",
         action: "Explore creator use",
         href: "/for-creators",
         icon: PlayCircle,
       },
     ],
     steps: [
-      { label: "01", title: "Moment", text: "A live opportunity gives people a reason to show up, host, create, or fund." },
-      { label: "02", title: "Proof", text: "Marks, check-ins, content, referrals, and actions create a record of what happened." },
-      { label: "03", title: "Value", text: "Points, Keys, Pieces, PromoShare, Gems, and network value make the record useful later." },
+      { label: "01", title: "Create or join", text: "Someone publishes a moment and people decide to participate." },
+      { label: "02", title: "Prove it happened", text: "Marks, check-ins, content, referrals, and actions create a record." },
+      { label: "03", title: "Use the record", text: "That record can support access, rewards, memory, and future decisions." },
     ],
     receipts: ["Moments", "Marks", "Points", "Keys", "Pieces", "Content", "PromoShare", "Gems", "Network value"],
-    closing: "The overview matters because users should understand the whole loop before deciding where they fit.",
+    closing: "The simple version: real activity creates a record, and that record can become useful later.",
   },
   moments: {
     eyebrow: "Moments",
     title: "Moments are the unit everything else has to point back to.",
     description:
-      "A moment is the live surface where participation happens: an event, drop, mission, offer, ritual, gathering, or activity that people can join, verify, and build around.",
+      "A moment is something people can actually join: an event, drop, mission, offer, ritual, gathering, or activity.",
     stake:
-      "Without moments, the system becomes abstract. Moments keep Promorang grounded in real activity so value is tied to places, people, hosts, content, and proof.",
+      "Moments keep Promorang tied to real activity. They give every Mark, reward, piece of content, and invitation a clear place to point back to.",
     icon: Ticket,
     primaryCta: "Browse moments",
     primaryHref: "/explore/moments",
     secondaryCta: "Create a moment",
     secondaryHref: "/moments/create",
     proof: [
-      { label: "Participant value", value: "Reason", helper: "A clear invitation to go somewhere, do something, or contribute." },
-      { label: "Host value", value: "Surface", helper: "A place to organize attendance, proof, access, and follow-up." },
-      { label: "Brand value", value: "Activation", helper: "A concrete context where funded value can be earned or used." },
+      { label: "For participants", value: "Reason", helper: "A clear invitation to go somewhere, do something, or contribute." },
+      { label: "For hosts", value: "Surface", helper: "A place to organize attendance, proof, access, and follow-up." },
+      { label: "For brands", value: "Activation", helper: "A concrete context where funded value can be earned or used." },
     ],
     roles: [
       {
@@ -154,7 +154,7 @@ const concepts: Record<ConceptKey, {
       },
       {
         role: "Hosts and venues",
-        why: "Your event should become a structured participation surface, not just a flyer.",
+        why: "Your event should be more useful than a flyer.",
         outcome: "Moments connect discovery, check-in, Marks, access, content, rewards, and return behavior.",
         action: "Host a moment",
         href: "/moments/create",
@@ -178,7 +178,7 @@ const concepts: Record<ConceptKey, {
       },
     ],
     steps: [
-      { label: "01", title: "Publish", text: "A host, creator, venue, or brand creates a moment with intent and context." },
+      { label: "01", title: "Publish", text: "A host, creator, venue, or brand creates a moment with a clear reason to join." },
       { label: "02", title: "Participate", text: "People join, check in, invite, create, or complete the activity." },
       { label: "03", title: "Remember", text: "The moment becomes a record that can unlock access, rewards, content, and future value." },
     ],
@@ -187,9 +187,9 @@ const concepts: Record<ConceptKey, {
   },
   points: {
     eyebrow: "Marks and Points",
-    title: "Marks and Points make participation legible.",
+    title: "Marks and Points show that participation happened.",
     description:
-      "Marks record that someone showed up or contributed. Points are the early progression signal that helps Promorang recognize useful activity before it becomes access, rewards, or deeper standing.",
+      "Marks record that someone showed up or contributed. Points help show useful activity before it becomes access, rewards, or a better record.",
     stake:
       "Participants need proof their effort counts. Hosts and brands need a way to distinguish real movement from empty attention. Marks and Points create the first readable layer.",
     icon: Coins,
@@ -198,15 +198,15 @@ const concepts: Record<ConceptKey, {
     secondaryCta: "Open activity",
     secondaryHref: "/activity",
     proof: [
-      { label: "Participant value", value: "Progress", helper: "Your activity becomes visible and easier to build on." },
-      { label: "Host value", value: "Proof", helper: "Attendance and contribution become more useful than a headcount." },
-      { label: "Brand value", value: "Signal", helper: "Rewards can follow verified behavior instead of broad guessing." },
+      { label: "For participants", value: "Progress", helper: "Your activity becomes visible and easier to build on." },
+      { label: "For hosts", value: "Proof", helper: "Attendance and contribution become more useful than a headcount." },
+      { label: "For brands", value: "Signal", helper: "Rewards can follow verified behavior instead of broad guessing." },
     ],
     roles: [
       {
         role: "Participants",
         why: "You need your real activity to count somewhere.",
-        outcome: "Marks and Points help your attendance, reviews, content, and contribution become part of your standing.",
+        outcome: "Marks and Points help your attendance, reviews, content, and contribution become part of your record.",
         action: "Join a moment",
         href: "/explore/moments",
         icon: Users,
@@ -222,7 +222,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Brands",
         why: "You need a better basis for offers, perks, and sponsored rewards.",
-        outcome: "Points give campaigns a participation signal before higher-value rewards are issued.",
+        outcome: "Points give campaigns a way to reward verified participation instead of guessing who cared.",
         action: "Design a campaign",
         href: "/for-brands",
         icon: Building2,
@@ -230,7 +230,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Creators",
         why: "You need your audience actions to connect to something measurable.",
-        outcome: "Marks and Points help creator-led participation turn into proof, eligibility, and future access.",
+        outcome: "Marks and Points help creator-led participation turn into proof, reward access, and future invitations.",
         action: "Create a mission",
         href: "/for-creators",
         icon: PlayCircle,
@@ -239,7 +239,7 @@ const concepts: Record<ConceptKey, {
     steps: [
       { label: "01", title: "Attend", text: "A participant joins a moment, place, mission, or offer." },
       { label: "02", title: "Mark", text: "Promorang records a verified action tied to that real context." },
-      { label: "03", title: "Progress", text: "Points help activity become access, standing, reward eligibility, or stronger signal." },
+      { label: "03", title: "Progress", text: "Points help activity become access, rewards, future invitations, or a stronger record." },
     ],
     receipts: ["Marks", "Check-ins", "Reviews", "Photos", "Referrals", "Progression"],
     closing: "Marks and Points matter because nobody should have to guess what participation happened.",
@@ -248,7 +248,7 @@ const concepts: Record<ConceptKey, {
     eyebrow: "Access",
     title: "Keys make limited access feel earned, not arbitrary.",
     description:
-      "When capacity, rewards, or intent matter, Keys help Promorang decide who should get through the door without turning the experience into a cold application process.",
+      "When space, rewards, or follow-through matter, Keys help Promorang decide who should get access without turning the experience into a cold application process.",
     stake:
       "Keys are for moments where space, perks, or rewards are limited. They help hosts invite people who have already shown real interest, and they help participants understand why they earned access.",
     icon: KeyRound,
@@ -257,9 +257,9 @@ const concepts: Record<ConceptKey, {
     secondaryCta: "Open wallet",
     secondaryHref: "/wallet",
     proof: [
-      { label: "Participant value", value: "Access", helper: "Use earned history to reach limited moments and offers." },
-      { label: "Host value", value: "Intent", helper: "Protect capacity for people with stronger signals." },
-      { label: "Brand value", value: "Quality", helper: "Put budget behind people more likely to follow through." },
+      { label: "For participants", value: "Access", helper: "Use earned history to reach limited moments and offers." },
+      { label: "For hosts", value: "Intent", helper: "Protect capacity for people with a stronger history of showing up." },
+      { label: "For brands", value: "Quality", helper: "Put budget behind people more likely to follow through." },
     ],
     roles: [
       {
@@ -273,7 +273,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Hosts and venues",
         why: "A full RSVP list is not the same as a full room.",
-        outcome: "Keys add light friction so scarce space goes to people with better intent and participation history.",
+        outcome: "Keys add light friction so scarce space goes to people with a better history of showing up.",
         action: "Create a gated moment",
         href: "/moments/create",
         icon: MapPin,
@@ -300,14 +300,14 @@ const concepts: Record<ConceptKey, {
       { label: "02", title: "Earn Keys", text: "Consistent participation can give you Keys for limited moments, rewards, or offers." },
       { label: "03", title: "Use them", text: "Spend Keys when a host, venue, or campaign limits access to people with stronger history." },
     ],
-    receipts: ["Limited moments", "Funded rewards", "Capacity control", "Priority access", "Higher-intent rooms"],
+    receipts: ["Limited moments", "Funded rewards", "Capacity control", "Priority access", "Higher-trust rooms"],
     closing: "Keys are useful when a moment cannot simply be open to everyone.",
   },
   pieces: {
     eyebrow: "Lasting Upside",
-    title: "Pieces give meaningful participation somewhere to live.",
+    title: "Pieces give important participation a place to live.",
     description:
-      "A good moment should not disappear the second it ends. Pieces turn early contribution, strong signal, and cultural memory into something people can return to.",
+      "A good moment should not disappear the second it ends. Pieces give early contribution, strong participation, and shared memory a place people can return to.",
     stake:
       "The value is continuity. Participants get remembered, hosts get identity, and sponsors get a story connected to actual movement instead of a campaign that evaporates.",
     icon: Sparkles,
@@ -316,9 +316,9 @@ const concepts: Record<ConceptKey, {
     secondaryCta: "View portfolio",
     secondaryHref: "/portfolio",
     proof: [
-      { label: "Participant value", value: "Memory", helper: "Participation can become visible beyond one night." },
-      { label: "Host value", value: "Identity", helper: "Recurring moments can develop a durable profile." },
-      { label: "Brand value", value: "Story", helper: "Sponsorship can attach to proof people revisit." },
+      { label: "For participants", value: "Memory", helper: "Participation can become visible beyond one night." },
+      { label: "For hosts", value: "Identity", helper: "Recurring moments can develop a lasting profile." },
+      { label: "For brands", value: "Story", helper: "Sponsorship can attach to proof people revisit." },
     ],
     roles: [
       {
@@ -332,7 +332,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Hosts and venues",
         why: "Recurring rooms need identity, not just another listing.",
-        outcome: "Pieces help a moment, venue, or community build a durable surface around proof, memory, and return behavior.",
+        outcome: "Pieces help a moment, venue, or community build a lasting record around proof, memory, and return behavior.",
         action: "Create a recurring moment",
         href: "/moments/create",
         icon: MapPin,
@@ -347,7 +347,7 @@ const concepts: Record<ConceptKey, {
       },
       {
         role: "Creators",
-        why: "Your creative labor needs a place to compound.",
+        why: "Your creative work needs a place where it can keep mattering.",
         outcome: "Pieces can give missions, drops, and cultural moments a visible home that credits participation and keeps momentum alive.",
         action: "Explore creator use",
         href: "/for-creators",
@@ -355,11 +355,11 @@ const concepts: Record<ConceptKey, {
       },
     ],
     steps: [
-      { label: "01", title: "Moment happens", text: "People show up, create, refer, verify, or contribute signal." },
+      { label: "01", title: "Moment happens", text: "People show up, create, refer, verify, or contribute." },
       { label: "02", title: "Proof collects", text: "Marks, content, and activity create a stronger record around the moment." },
-      { label: "03", title: "Piece persists", text: "The best signal can live in a profile, vault, or portfolio instead of disappearing." },
+      { label: "03", title: "Piece persists", text: "The strongest proof can live in a profile, vault, or portfolio instead of disappearing." },
     ],
-    receipts: ["Early participation", "Creator missions", "Moment identity", "Vault memory", "Portfolio signal"],
+    receipts: ["Early participation", "Creator missions", "Moment identity", "Vault memory", "Portfolio record"],
     closing: "Pieces matter when a moment deserves a life after the feed.",
   },
   content: {
@@ -375,15 +375,15 @@ const concepts: Record<ConceptKey, {
     secondaryCta: "Create a moment",
     secondaryHref: "/moments/create",
     proof: [
-      { label: "Participant value", value: "Proof", helper: "Content helps your contribution become visible." },
-      { label: "Host value", value: "Memory", helper: "A moment can keep working after the room clears." },
-      { label: "Brand value", value: "Evidence", helper: "Campaign value is easier to understand when content points to participation." },
+      { label: "For participants", value: "Proof", helper: "Content helps your contribution become visible." },
+      { label: "For hosts", value: "Memory", helper: "A moment can keep working after the room clears." },
+      { label: "For brands", value: "Evidence", helper: "Campaign value is easier to understand when content points to participation." },
     ],
     roles: [
       {
         role: "Participants",
         why: "You may help a moment by documenting, reviewing, or sharing what happened.",
-        outcome: "Content can strengthen your signal when it is connected to a real moment or place.",
+        outcome: "Content can strengthen your record when it is connected to a real moment or place.",
         action: "Explore content",
         href: "/explore/content",
         icon: Users,
@@ -423,26 +423,26 @@ const concepts: Record<ConceptKey, {
   },
   "promoshare-gems": {
     eyebrow: "PromoShare and Gems",
-    title: "PromoShare and Gems turn qualified activity into usable reward value.",
+    title: "PromoShare and Gems turn verified activity into usable reward value.",
     description:
-      "PromoShare is the qualified reward layer. Gems are the spendable unit that makes funded value easier to track, use, and govern across moments, rewards, pieces, and marketplace activity.",
+      "PromoShare tracks who qualifies for reward cycles. Gems are the spendable unit that makes funded value easier to track and use across moments, rewards, pieces, and marketplace activity.",
     stake:
-      "This is where Promorang has to be most clear: rewards should feel earned, funded, capped, and connected to verified contribution instead of vague cash promises.",
+      "This is where Promorang has to be most clear: rewards should feel earned, funded, limited, and connected to verified contribution.",
     icon: Gem,
     primaryCta: "See PromoShare",
     primaryHref: "/promoshare",
     secondaryCta: "Open wallet",
     secondaryHref: "/wallet",
     proof: [
-      { label: "Participant value", value: "Reward", helper: "Qualified activity can become useful value." },
-      { label: "Host value", value: "Incentive", helper: "Rewards can support attendance, contribution, and return behavior." },
-      { label: "Brand value", value: "Governance", helper: "Funded value can be capped, measured, and tied to proof." },
+      { label: "For participants", value: "Reward", helper: "Qualified activity can become useful value." },
+      { label: "For hosts", value: "Incentive", helper: "Rewards can support attendance, contribution, and return behavior." },
+      { label: "For brands", value: "Governance", helper: "Funded value can be capped, measured, and tied to proof." },
     ],
     roles: [
       {
         role: "Participants",
         why: "You need to know what can be earned and why it is legitimate.",
-        outcome: "PromoShare and Gems make reward eligibility easier to understand, track, and use.",
+        outcome: "PromoShare and Gems make reward access easier to understand, track, and use.",
         action: "Open wallet",
         href: "/wallet",
         icon: Users,
@@ -474,8 +474,8 @@ const concepts: Record<ConceptKey, {
     ],
     steps: [
       { label: "01", title: "Qualify", text: "A user completes activity tied to a real moment, campaign, or contribution." },
-      { label: "02", title: "Enter", text: "PromoShare eligibility records the qualified action under the correct rules." },
-      { label: "03", title: "Use", text: "Gems make value legible as spendable, trackable, and governed platform utility." },
+      { label: "02", title: "Enter", text: "PromoShare records the verified action under the correct reward rules." },
+      { label: "03", title: "Use", text: "Gems make reward value easier to spend, track, and explain." },
     ],
     receipts: ["Reward cycles", "Gems", "Eligibility", "Funded campaigns", "Wallet", "Payout-safe value"],
     closing: "PromoShare and Gems matter when rewards need to feel earned, measured, and useful.",
@@ -486,22 +486,22 @@ const concepts: Record<ConceptKey, {
     description:
       "Promorang is not only about one person earning something. It is about rooms getting stronger when people return, bring friends, create content, and help a place become part of their life.",
     stake:
-      "The value is compounding behavior: repeat visits, trusted referrals, creator proof, and community rhythm that make a moment more useful to everyone involved.",
+      "The value is repeat behavior: people returning, inviting others, creating proof, and helping a moment become more useful to everyone involved.",
     icon: Users,
     primaryCta: "Explore communities",
     primaryHref: "/for-communities",
     secondaryCta: "See PromoShare",
     secondaryHref: "/promoshare",
     proof: [
-      { label: "Participant value", value: "Standing", helper: "Your relationships and repeat behavior can become visible." },
-      { label: "Host value", value: "Return", helper: "A good room becomes easier to rebuild." },
-      { label: "Brand value", value: "Movement", helper: "Campaigns gain value when people carry them forward." },
+      { label: "For participants", value: "Standing", helper: "Your relationships and repeat behavior can become visible." },
+      { label: "For hosts", value: "Return", helper: "A good room becomes easier to rebuild." },
+      { label: "For brands", value: "Movement", helper: "Campaigns gain value when people carry them forward." },
     ],
     roles: [
       {
         role: "Participants",
         why: "You often create value by bringing people, posting proof, and returning.",
-        outcome: "Network value helps that contribution become part of your standing instead of invisible background labor.",
+        outcome: "Network value helps that contribution become visible instead of disappearing into the background.",
         action: "Find your next room",
         href: "/explore/moments",
         icon: Users,
@@ -534,7 +534,7 @@ const concepts: Record<ConceptKey, {
     steps: [
       { label: "01", title: "People gather", text: "A room forms around a moment, place, creator, brand, or community." },
       { label: "02", title: "Signal spreads", text: "Referrals, content, repeat visits, and Marks show what is actually moving." },
-      { label: "03", title: "Value compounds", text: "Better rooms, stronger offers, PromoShare relevance, and future access become easier to justify." },
+      { label: "03", title: "Value grows", text: "Better rooms, stronger offers, PromoShare access, and future invitations become easier to justify." },
     ],
     receipts: ["Referrals", "Repeat visits", "Creator content", "PromoShare relevance", "Community rhythm"],
     closing: "Network value matters when the people around a moment are part of the product.",
@@ -587,7 +587,7 @@ export default function EconomyConcept() {
             </div>
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur md:p-6">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Why stakeholders should care</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Why this matters</p>
               <p className="mt-4 text-2xl font-semibold leading-snug text-white md:text-3xl">
                 {data.stake}
               </p>
@@ -616,10 +616,10 @@ export default function EconomyConcept() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Who this helps</p>
               <h2 className="mt-3 max-w-md font-serif text-4xl font-bold leading-tight">
-                What does this mean for each person?
+                What does this mean for different users?
               </h2>
               <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
-                Each part of Promorang should help someone make a clearer decision: join, host, fund, create, return, or trust what happened.
+                The language changes by role because each person comes with a different question: should I join, host, fund, create, or come back?
               </p>
             </div>
 
@@ -688,7 +688,7 @@ export default function EconomyConcept() {
               </div>
               <h2 className="mt-5 font-serif text-3xl font-bold">What should someone do next?</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                After someone understands this, give them a useful next step: join a moment, create one, fund one, or check their record.
+                The next step should match the visitor: join a moment, create one, fund one, or check the record of what happened.
               </p>
             </div>
           </div>
