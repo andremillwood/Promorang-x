@@ -20,6 +20,7 @@ import {
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ConceptKey = "overview" | "moments" | "points" | "keys" | "pieces" | "content" | "promoshare-gems" | "network";
 type IconType = typeof KeyRound;
@@ -50,6 +51,8 @@ const routes = [
   { icon: WalletCards, title: "Open wallet", href: "/wallet", text: "See what you have earned, unlocked, or saved." },
   { icon: Sparkles, title: "Create a moment", href: "/moments/create", text: "Turn a gathering, mission, or offer into something people can join." },
 ];
+
+const roleLabel = (role: string) => role.replace("Hosts and venues", "Hosts");
 
 const concepts: Record<ConceptKey, {
   eyebrow: string;
@@ -587,24 +590,62 @@ export default function EconomyConcept() {
             </div>
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur md:p-6">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Why this matters</p>
-              <p className="mt-4 text-2xl font-semibold leading-snug text-white md:text-3xl">
-                {data.stake}
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Choose your lens</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">
+                Promorang should not explain the whole system to everyone at once. Pick the role closest to you and the page changes the answer.
               </p>
-              <div className="mt-6 grid gap-3">
-                {data.proof.map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400">{item.label}</p>
-                        <p className="mt-2 text-xl font-bold text-white">{item.value}</p>
+
+              <Tabs defaultValue="0" className="mt-5">
+                <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1.5 md:grid-cols-4">
+                  {data.roles.map((role, index) => (
+                    <TabsTrigger
+                      key={role.role}
+                      value={String(index)}
+                      className="rounded-xl px-3 py-2 text-xs font-bold text-zinc-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      {roleLabel(role.role)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {data.roles.map((role, index) => (
+                  <TabsContent key={role.role} value={String(index)} className="mt-5 space-y-4">
+                    <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                          <role.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">{role.role}</p>
+                          <h2 className="mt-2 text-2xl font-semibold leading-tight text-white md:text-3xl">
+                            {role.why}
+                          </h2>
+                          <p className="mt-3 text-sm leading-7 text-zinc-300">{role.outcome}</p>
+                        </div>
                       </div>
-                      <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                      <Button variant="hero" className="mt-5 w-full sm:w-auto" asChild>
+                        <Link to={role.href}>
+                          {role.action}
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-zinc-300">{item.helper}</p>
-                  </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {data.proof.map((item) => (
+                        <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{item.label}</p>
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          </div>
+                          <p className="mt-3 text-lg font-bold text-white">{item.value}</p>
+                          <p className="mt-2 text-xs leading-5 text-zinc-300">{item.helper}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
                 ))}
-              </div>
+              </Tabs>
             </div>
           </div>
         </div>
@@ -616,33 +657,52 @@ export default function EconomyConcept() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Who this helps</p>
               <h2 className="mt-3 max-w-md font-serif text-4xl font-bold leading-tight">
-                What does this mean for different users?
+                One page, different answers.
               </h2>
               <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
-                The language changes by role because each person comes with a different question: should I join, host, fund, create, or come back?
+                The platform can share one value system, but the pitch should change by role. This section lets each visitor see the promise that belongs to them.
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              {data.roles.map((role) => (
-                <Link
-                  key={role.role}
-                  to={role.href}
-                  className="group flex min-h-[17rem] flex-col rounded-[1.5rem] border border-black/10 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-xl"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <role.icon className="h-5 w-5" />
+            <Tabs defaultValue="0" className="rounded-[1.75rem] border border-black/10 bg-white p-4 shadow-sm md:p-5">
+              <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-[#f7f3ed] p-1.5 md:grid-cols-4">
+                {data.roles.map((role, index) => (
+                  <TabsTrigger
+                    key={role.role}
+                    value={String(index)}
+                    className="rounded-xl px-3 py-3 text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    {roleLabel(role.role)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {data.roles.map((role, index) => (
+                <TabsContent key={role.role} value={String(index)} className="mt-5">
+                  <Link
+                    to={role.href}
+                    className="group block rounded-[1.35rem] border border-black/10 bg-[#fbfaf8] p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-xl md:p-7"
+                  >
+                    <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                      <div className="flex max-w-2xl items-start gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                          <role.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{role.role}</p>
+                          <h3 className="mt-3 font-serif text-3xl font-bold leading-tight">{role.why}</h3>
+                          <p className="mt-4 text-base leading-7 text-muted-foreground">{role.outcome}</p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-white px-4 py-2 text-sm font-bold text-primary">
+                        {role.action}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </div>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                  </div>
-                  <h3 className="mt-5 font-serif text-2xl font-bold">{role.role}</h3>
-                  <p className="mt-3 text-sm font-semibold leading-6 text-foreground">{role.why}</p>
-                  <p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">{role.outcome}</p>
-                  <span className="mt-5 text-sm font-bold text-primary">{role.action}</span>
-                </Link>
+                  </Link>
+                </TabsContent>
               ))}
-            </div>
+            </Tabs>
           </div>
 
           <div className="mt-10 rounded-[2rem] border border-black/10 bg-[#242321] p-5 text-white md:p-8">
