@@ -250,7 +250,7 @@ const concepts: Record<ConceptKey, {
     description:
       "When capacity, rewards, or intent matter, Keys help Promorang decide who should get through the door without turning the experience into a cold application process.",
     stake:
-      "The value is not the key itself. The value is a better room: fewer empty claims, more qualified attendance, and funded access that goes to people likely to show up.",
+      "Keys are for moments where space, perks, or rewards are limited. They help hosts invite people who have already shown real interest, and they help participants understand why they earned access.",
     icon: KeyRound,
     primaryCta: "Find gated moments",
     primaryHref: "/explore/moments",
@@ -280,16 +280,16 @@ const concepts: Record<ConceptKey, {
       },
       {
         role: "Brands",
-        why: "Sponsored access should not feel like a random giveaway.",
-        outcome: "Keys make access feel earned, improving signal quality before perks, samples, or VIP inventory are released.",
+        why: "If you sponsor perks or VIP access, you want them going to people who are likely to show up and care.",
+        outcome: "Keys make access feel earned before samples, perks, or limited inventory are released.",
         action: "Fund better access",
         href: "/for-brands",
         icon: Building2,
       },
       {
         role: "Creators",
-        why: "Your best rooms need people who will participate, share, and return.",
-        outcome: "Keys help creator-led drops and missions protect momentum without making the invitation feel closed off.",
+        why: "If you run a drop, mission, or intimate room, you need the right people in it.",
+        outcome: "Keys help protect limited creator-led moments without making the invitation feel closed off.",
         action: "Build with Promorang",
         href: "/for-creators",
         icon: PlayCircle,
@@ -297,11 +297,11 @@ const concepts: Record<ConceptKey, {
     ],
     steps: [
       { label: "01", title: "Show up", text: "Join real moments and leave Marks that record participation." },
-      { label: "02", title: "Earn signal", text: "Consistent activity can translate into Keys and stronger access standing." },
-      { label: "03", title: "Unlock", text: "Use Keys when a room, reward, offer, or opportunity has limited capacity." },
+      { label: "02", title: "Earn Keys", text: "Consistent participation can give you Keys for limited moments, rewards, or offers." },
+      { label: "03", title: "Use them", text: "Spend Keys when a host, venue, or campaign limits access to people with stronger history." },
     ],
     receipts: ["Limited moments", "Funded rewards", "Capacity control", "Priority access", "Higher-intent rooms"],
-    closing: "Keys matter when openness alone would weaken the moment.",
+    closing: "Keys are useful when a moment cannot simply be open to everyone.",
   },
   pieces: {
     eyebrow: "Lasting Upside",
@@ -614,12 +614,12 @@ export default function EconomyConcept() {
         <div className="container px-6">
           <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Stakeholder matrix</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Who this helps</p>
               <h2 className="mt-3 max-w-md font-serif text-4xl font-bold leading-tight">
-                What changes for each person in the system?
+                What does this mean for each person?
               </h2>
               <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
-                A mechanic only matters if it helps someone make a better decision: join, host, fund, create, return, or trust the room.
+                Each part of Promorang should help someone make a clearer decision: join, host, fund, create, return, or trust what happened.
               </p>
             </div>
 
@@ -648,8 +648,8 @@ export default function EconomyConcept() {
           <div className="mt-10 rounded-[2rem] border border-black/10 bg-[#242321] p-5 text-white md:p-8">
             <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] md:items-center">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Operating model</p>
-                <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl">How the value moves</h2>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">What happens</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl">The simple version</h2>
                 <p className="mt-3 text-sm leading-7 text-zinc-300">{data.closing}</p>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
@@ -668,8 +668,8 @@ export default function EconomyConcept() {
             <div className="rounded-[1.75rem] border border-black/10 bg-white p-6 shadow-sm md:p-8">
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Where this shows up</p>
-                  <h2 className="mt-3 font-serif text-3xl font-bold">Signals users can recognize</h2>
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Where users see this</p>
+                  <h2 className="mt-3 font-serif text-3xl font-bold">Places this appears in the product</h2>
                 </div>
                 <ShieldCheck className="h-10 w-10 text-primary" />
               </div>
@@ -686,9 +686,9 @@ export default function EconomyConcept() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <h2 className="mt-5 font-serif text-3xl font-bold">The page should not end in explanation.</h2>
+              <h2 className="mt-5 font-serif text-3xl font-bold">What should someone do next?</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                The next move is always practical: join something, create something, fund something, or inspect the value record.
+                After someone understands this, give them a useful next step: join a moment, create one, fund one, or check their record.
               </p>
             </div>
           </div>
