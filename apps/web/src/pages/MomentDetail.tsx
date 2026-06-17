@@ -27,6 +27,7 @@ import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
 import { MomentSocialArtifact } from "@/components/social/MomentSocialArtifact";
+import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import {
   ArrowLeft,
   Calendar,
@@ -46,6 +47,9 @@ import {
   Activity,
   ShieldCheck,
   Repeat2,
+  GitBranch,
+  Route,
+  Target,
 } from "lucide-react";
 import { MerchantVerificationModal } from "@/components/merchant/MerchantVerificationModal";
 import type { Tables } from "@/integrations/supabase/types";
@@ -792,6 +796,14 @@ const MomentDetail = () => {
                     </Link>
                   </Button>
                 )}
+                {isHost && !moment.parent_moment_id && (
+                  <Button variant="outline" size="sm" className="snap-start shrink-0" asChild>
+                    <Link to={`/create/moment?parentMomentId=${moment.id}`}>
+                      <GitBranch className="w-4 h-4 mr-2" />
+                      Sub-moment
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -915,7 +927,29 @@ const MomentDetail = () => {
                   </span>
                 )}
               </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <MomentValuePath
+                variant="detail"
+                className="mt-6"
+                steps={[
+                  {
+                    label: moment.expected_action_unit || conversionLabel || "Join",
+                    detail: getProofActionCopy(),
+                    Icon: Route,
+                  },
+                  {
+                    label: moment.proof_type || "Proof",
+                    detail: proofSummary.length > 0 ? `${proofSummary.length} requirement${proofSummary.length === 1 ? "" : "s"}` : "Lightweight verification",
+                    Icon: Target,
+                  },
+                  {
+                    label: moment.reward ? "Reward" : "Mark",
+                    detail: rewardLabel,
+                    Icon: Sparkles,
+                  },
+                ]}
+              />
+
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
                   <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">What this is</p>
                   <p className="mt-2 text-sm font-medium text-foreground">{getArchetypeNarrative()}</p>
@@ -961,6 +995,57 @@ const MomentDetail = () => {
               </div>
             </div>
 
+            {(moment.parent_moment_id || (isHost && !moment.parent_moment_id)) && (
+              <div className="overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-card to-card">
+                <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
+                  <div className="p-5 sm:p-6">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-soft">
+                        <GitBranch className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
+                          Moment lineage
+                        </p>
+                        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">
+                          {moment.parent_moment_id ? "This is a sub-moment" : "Create activity inside this moment"}
+                        </h3>
+                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                          {moment.parent_moment_id
+                            ? "This moment lives inside a larger parent experience, while its creative or activity owner can still shape what happens here."
+                            : "Use a sub-moment when a DJ set, workshop, creator mission, sponsor activation, or activity area needs its own owner and proof path inside the larger moment."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-violet-500/20 bg-background/55 p-5 md:border-l md:border-t-0 sm:p-6">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
+                        <span className="text-muted-foreground">Parent</span>
+                        <span className="font-semibold text-foreground">{moment.parent_moment_id ? "Connected" : "This moment"}</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
+                        <span className="text-muted-foreground">Creative owner</span>
+                        <span className="font-semibold text-foreground">{moment.creative_owner_id ? "Assigned" : "Host-owned"}</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
+                        <span className="text-muted-foreground">Value path</span>
+                        <span className="font-semibold text-foreground">Independent proof</span>
+                      </div>
+                    </div>
+                    {isHost && !moment.parent_moment_id && (
+                      <Button asChild className="mt-4 w-full">
+                        <Link to={`/create/moment?parentMomentId=${moment.id}`}>
+                          <GitBranch className="mr-2 h-4 w-4" />
+                          Create sub-moment
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -975,23 +1060,15 @@ const MomentDetail = () => {
                   </Button>
                 )}
               </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Step {joinStepCount}</p>
-                  <p className="mt-2 font-semibold text-foreground">Join the moment</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Reserve your place in the room and attach yourself to the live story.</p>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Step {verifyStepCount}</p>
-                  <p className="mt-2 font-semibold text-foreground">Verify the action</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Use code, location, media, or merchant confirmation to prove completion.</p>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Step {keepStepCount}</p>
-                  <p className="mt-2 font-semibold text-foreground">Keep the value</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Earn rewards, progress, and memory-backed status that stays with you.</p>
-                </div>
-              </div>
+              <MomentValuePath
+                variant="detail"
+                className="mt-5 bg-background/65"
+                steps={[
+                  { label: `Step ${joinStepCount}: Join`, detail: "Reserve your place" },
+                  { label: `Step ${verifyStepCount}: Verify`, detail: "Complete proof" },
+                  { label: `Step ${keepStepCount}: Keep`, detail: "Build memory and value" },
+                ]}
+              />
             </div>
 
             <MomentSocialArtifact

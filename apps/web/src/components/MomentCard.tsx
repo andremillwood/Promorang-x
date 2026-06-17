@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, Repeat2, Route, Target } from "lucide-react";
+import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, Repeat2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
 import { buildMomentPath } from "@/lib/discovery";
+import { MomentValuePath } from "@/components/moments/MomentValuePath";
 
 type Moment = Tables<"moments"> & {
   participant_count?: number;
@@ -331,24 +332,14 @@ export function MomentCard({
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-3">
-          <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 text-center">
-            <div className="min-w-0">
-              <Route className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
-              <p className="truncate text-[11px] font-bold text-foreground">{actionLabel}</p>
-            </div>
-            <span className="h-px w-4 bg-border" />
-            <div className="min-w-0">
-              <Target className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
-              <p className="truncate text-[11px] font-bold text-foreground">{moment.proof_type || "Proof"}</p>
-            </div>
-            <span className="h-px w-4 bg-border" />
-            <div className="min-w-0">
-              <Sparkles className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
-              <p className="truncate text-[11px] font-bold text-foreground">{unlockLabel}</p>
-            </div>
-          </div>
-        </div>
+        <MomentValuePath
+          className="mt-4"
+          steps={[
+            { label: actionLabel },
+            { label: moment.proof_type || "Proof" },
+            { label: unlockLabel },
+          ]}
+        />
 
         {/* Footer - Social Proof + Points */}
         <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
