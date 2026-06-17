@@ -190,7 +190,7 @@ const MomentDetail = () => {
     ? { label: "Example content", className: "bg-slate-500/10 text-slate-700 dark:text-slate-200", Icon: Sparkles }
     : moment?.content_origin === "scraped" || moment?.content_origin === "imported"
       ? { label: "Discovered listing", className: "bg-sky-500/10 text-sky-700 dark:text-sky-200", Icon: Sparkles }
-      : { label: "Real host-created", className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200", Icon: ShieldCheck };
+      : null;
 
   // Fetch UGC data
   const { data: momentMedia } = useMomentMedia(resolvedMomentId || "");
@@ -819,10 +819,12 @@ const MomentDetail = () => {
             <section className="rounded-[2rem] border border-border/70 bg-card p-6 shadow-soft sm:p-8">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <MomentStatusBadge status={(moment.status as MomentStatus) || (isPast ? 'closed' : 'joinable')} />
-                <span className={`px-3 py-1 text-sm rounded-full flex items-center gap-1 ${originSummary.className}`}>
-                  <originSummary.Icon className="h-3 w-3" />
-                  {originSummary.label}
-                </span>
+                {originSummary && (
+                  <span className={`px-3 py-1 text-sm rounded-full flex items-center gap-1 ${originSummary.className}`}>
+                    <originSummary.Icon className="h-3 w-3" />
+                    {originSummary.label}
+                  </span>
+                )}
                 <span className="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full">
                   {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
                 </span>

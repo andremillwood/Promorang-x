@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Clock, MapPin, Search, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import { BookOpen, Clock, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
@@ -38,6 +38,7 @@ const ExploreMoments = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState<"soonest" | "popular">("soonest");
+  const [momentMode, setMomentMode] = useState<"live" | "recurring" | "examples">("live");
 
   const momentsQuery = useQuery({
     queryKey: ["explore-moments", activeCategory],
@@ -76,6 +77,7 @@ const ExploreMoments = () => {
   const filteredMoments = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     const base = (momentsQuery.data || []).filter((moment) => {
+      if (momentMode === "recurring" && !moment.recurrence_enabled) return false;
       if (!query) return true;
 
       const brands = Array.isArray(moment.associated_brand_names) ? moment.associated_brand_names.join(" ") : "";
@@ -100,7 +102,7 @@ const ExploreMoments = () => {
 
       return new Date(a.starts_at || "").getTime() - new Date(b.starts_at || "").getTime();
     });
-  }, [momentsQuery.data, searchQuery, sortBy]);
+  }, [momentsQuery.data, momentMode, searchQuery, sortBy]);
 
   const featuredLocations = Array.from(
     new Map(
@@ -154,7 +156,7 @@ const ExploreMoments = () => {
                   Browse moments without collapsing everything into the feed.
                 </h1>
                 <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-                  Live stakeholder-created moments carry the value. Example moments sit beside them as a playbook so people can learn what to do before they commit.
+                  Find live moments first. Use examples when you want to understand the pattern before creating, hosting, or joining one.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -162,7 +164,7 @@ const ExploreMoments = () => {
                   <Link to="/for-you">Open For You</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/create-moment">Create a moment</Link>
+                  <Link to="/create/moment">Create a moment</Link>
                 </Button>
               </div>
             </div>
@@ -255,19 +257,41 @@ const ExploreMoments = () => {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-serif text-2xl font-bold">Live opportunities</h2>
-                <Badge variant="secondary" className="rounded-full">
-                  <ShieldCheck className="mr-1 h-3 w-3" />
-                  Real stakeholder content
-                </Badge>
+                <h2 className="font-serif text-2xl font-bold">
+                  {momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Moments to join"}
+                </h2>
               </div>
-              <p className="text-sm text-muted-foreground">These are the moments users can join, attend, prove, and turn into value.</p>
+              <p className="text-sm text-muted-foreground">
+                {momentMode === "examples"
+                  ? "Examples explain how a moment can work without pretending to be live supply."
+                  : momentMode === "recurring"
+                    ? "Weekly, monthly, and repeatable moments build familiarity, standing, and return behavior."
+                    : "Browse what people can join, attend, prove, and turn into value."}
+              </p>
             </div>
-            {!momentsQuery.isLoading ? (
-              <Badge variant="outline" className="rounded-full">
-                {filteredMoments.length} moments
-              </Badge>
-            ) : null}
+            <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
+              {[
+                { value: "live", label: "Live", icon: Sparkles },
+                { value: "recurring", label: "Recurring", icon: Repeat2 },
+                { value: "examples", label: "Examples", icon: BookOpen },
+              ].map((mode) => {
+                const Icon = mode.icon;
+                const active = momentMode === mode.value;
+                return (
+                  <button
+                    key={mode.value}
+                    type="button"
+                    onClick={() => setMomentMode(mode.value as typeof momentMode)}
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition ${
+                      active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {mode.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {linkedContentQuery.data && linkedContentQuery.data.length > 0 && !searchQuery && activeCategory === "all" ? (
@@ -306,6 +330,29 @@ const ExploreMoments = () => {
                   </div>
                 ))}
               </MasonryGrid>
+            ) : momentMode === "examples" ? (
+              <section className="rounded-[1.75rem] border border-dashed border-primary/30 bg-primary/5 p-5 shadow-soft">
+                <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Example playbook</p>
+                    <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Learn the pattern before taking action</h2>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                      These examples teach action, proof, reward, and memory patterns. They are not counted as live supply.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline">
+                    <Link to="/create/moment">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Build from a pattern
+                    </Link>
+                  </Button>
+                </div>
+                <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={20}>
+                  {exampleMoments.map((moment) => (
+                    <MomentCard key={moment.id} moment={moment as any} />
+                  ))}
+                </MasonryGrid>
+              </section>
             ) : filteredMoments.length > 0 ? (
               <MasonryGrid columns={{ sm: 1, md: 2, lg: 3, xl: 4 }} gap={20}>
                 {filteredMoments.map((moment) => (
@@ -336,37 +383,12 @@ const ExploreMoments = () => {
                     <Link to="/for-you">Open For You</Link>
                   </Button>
                   <Button asChild>
-                    <Link to="/create-moment">Create a moment</Link>
+                    <Link to="/create/moment">Create a moment</Link>
                   </Button>
                 </div>
               </div>
             )}
           </div>
-
-          {!searchQuery && activeCategory === "all" ? (
-            <section className="mt-10 rounded-[1.75rem] border border-dashed border-primary/30 bg-primary/5 p-5 shadow-soft">
-              <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Example playbook</p>
-                  <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Learn the pattern before taking action</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    Examples show how a moment converts attention into an action, proof, reward, and memory. They educate without being counted as live supply.
-                  </p>
-                </div>
-                <Button asChild variant="outline">
-                  <Link to="/create-moment">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Build from a pattern
-                  </Link>
-                </Button>
-              </div>
-              <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={20}>
-                {exampleMoments.map((moment) => (
-                  <MomentCard key={moment.id} moment={moment as any} />
-                ))}
-              </MasonryGrid>
-            </section>
-          ) : null}
 
           {!isLoading && filteredMoments.length > 0 ? (
             <div className="mt-8 flex flex-wrap justify-center gap-3">

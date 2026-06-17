@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, Calendar, MapPin, Users, Gift, Check, Eye, Lock, UserPlus, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, MapPin, Users, Gift, Check, Eye, Lock, UserPlus, Sparkles, Repeat2, GitBranch, Megaphone, Store, Clapperboard, Route, Target } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { MatchmakingSuggestions } from "@/components/matchmaking/MatchmakingSuggestions";
 import { z } from "zod";
@@ -99,6 +99,7 @@ type RecurrenceFormState = {
   recurrenceUntil: string;
   recurrenceCount: number | "";
 };
+type CreationTypeId = typeof creationTypes[number]["id"];
 
 const visibilityOptions = [
   { value: "open", label: "Open", description: "Anyone can discover and join", icon: Eye },
@@ -114,6 +115,75 @@ const steps = [
 ];
 
 const DEFAULT_MOMENT_TYPE = "community";
+
+const creationTypes = [
+  {
+    id: "moment",
+    label: "Moment",
+    eyebrow: "One-time or dated",
+    description: "A gathering, drop, visit, or activity people can join and prove.",
+    icon: Calendar,
+    archetype: "",
+    conversionType: "check_in",
+    recurring: false,
+    moveTitle: "Check in and prove attendance",
+  },
+  {
+    id: "recurring",
+    label: "Recurring Moment",
+    eyebrow: "Weekly or repeatable",
+    description: "A repeat ritual that should build return behavior and standing over time.",
+    icon: Repeat2,
+    archetype: "gathering",
+    conversionType: "repeat_visit",
+    recurring: true,
+    moveTitle: "Return, check in, and build standing",
+  },
+  {
+    id: "submoment",
+    label: "Sub-moment",
+    eyebrow: "Inside a larger moment",
+    description: "A creative or activity layer with its own owner inside a parent moment.",
+    icon: GitBranch,
+    archetype: "activation",
+    conversionType: "check_in",
+    recurring: false,
+    moveTitle: "Complete the sub-moment action",
+  },
+  {
+    id: "creator",
+    label: "Creator Mission",
+    eyebrow: "Content to attendance",
+    description: "Turn a story, creator drop, or media artifact into a physical action.",
+    icon: Clapperboard,
+    archetype: "content",
+    conversionType: "check_in",
+    recurring: false,
+    moveTitle: "Watch, arrive, and leave a Mark",
+  },
+  {
+    id: "merchant",
+    label: "Merchant Activation",
+    eyebrow: "Visit, sample, buy",
+    description: "Drive verified visits, samples, appointments, purchases, or repeat behavior.",
+    icon: Store,
+    archetype: "visit",
+    conversionType: "purchase",
+    recurring: false,
+    moveTitle: "Visit and complete the verified action",
+  },
+  {
+    id: "campaign",
+    label: "Brand Campaign",
+    eyebrow: "Sponsored movement",
+    description: "Coordinate a funded activation with proof, caps, and reward logic.",
+    icon: Megaphone,
+    archetype: "activation",
+    conversionType: "sample",
+    recurring: false,
+    moveTitle: "Complete the campaign proof",
+  },
+] as const;
 
 type MechanicTemplate = {
   name: string;
@@ -151,6 +221,9 @@ const CreateMoment = () => {
     recurrenceUntil: "",
     recurrenceCount: "",
   });
+  const [creationType, setCreationType] = useState<CreationTypeId>(
+    parentMomentId ? "submoment" : sourceContentId ? "creator" : "moment"
+  );
 
   // Auto-start create moment tour for new users
   useEffect(() => {
@@ -292,6 +365,26 @@ const CreateMoment = () => {
         return newErrors;
       });
     }
+  };
+
+  const selectedCreationType = creationTypes.find((type) => type.id === creationType) || creationTypes[0];
+
+  const handleCreationTypeSelect = (typeId: CreationTypeId) => {
+    const nextType = creationTypes.find((type) => type.id === typeId) || creationTypes[0];
+    setCreationType(typeId);
+    setFormData((prev) => ({
+      ...prev,
+      momentArchetype: nextType.archetype || prev.momentArchetype,
+      conversionType: nextType.conversionType || prev.conversionType,
+      moveTitle: nextType.moveTitle,
+      moneySource: typeId === "campaign" ? "host" : prev.moneySource,
+      rewardPoolJmd: typeId === "campaign" && prev.rewardPoolJmd === 0 ? 5000 : prev.rewardPoolJmd,
+      totalFundedJmd: typeId === "campaign" && (prev.totalFundedJmd || 0) === 0 ? 5000 : prev.totalFundedJmd,
+    }));
+    setRecurrence((prev) => ({
+      ...prev,
+      recurrenceEnabled: nextType.recurring || prev.recurrenceEnabled,
+    }));
   };
 
   const validateStep = (step: number): boolean => {
@@ -1285,6 +1378,8 @@ const CreateMoment = () => {
     return null;
   }
 
+  const SelectedCreationIcon = selectedCreationType.icon;
+
   return (
     <div className="mx-auto max-w-5xl">
       {/* Header */}
@@ -1301,9 +1396,58 @@ const CreateMoment = () => {
           Create a Moment
         </h1>
         <p className="text-muted-foreground mt-2">
-          Bring people together for an unforgettable experience
+          Choose the operating pattern first, then fill only the details that make the moment work.
         </p>
       </div>
+
+      <section className="mb-8 rounded-[2rem] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-4 shadow-soft sm:p-6">
+        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creation type</p>
+            <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">What are you creating?</h2>
+          </div>
+          <p className="max-w-xl text-sm text-muted-foreground">
+            This choice shapes recurrence, ownership, proof, rewards, and how Promorang explains the value path to participants.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {creationTypes.map((type) => {
+            const Icon = type.icon;
+            const active = creationType === type.id;
+            const disabled = type.id === "submoment" && !parentMomentId;
+            return (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => !disabled && handleCreationTypeSelect(type.id)}
+                disabled={disabled}
+                className={`group rounded-2xl border p-4 text-left transition ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground shadow-elevated"
+                    : disabled
+                      ? "border-border/60 bg-muted/30 text-muted-foreground opacity-75"
+                      : "border-border bg-background/80 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    active ? "bg-primary-foreground/15" : "bg-primary/10 text-primary"
+                  }`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span>
+                    <span className="block text-[10px] font-black uppercase tracking-[0.18em] opacity-75">{type.eyebrow}</span>
+                    <span className="mt-1 block text-base font-bold">{type.label}</span>
+                    <span className={`mt-1 block text-sm ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                      {disabled ? "Open this from a parent moment to assign sub-moment ownership." : type.description}
+                    </span>
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Progress Steps */}
       <div className="mb-8">
@@ -1384,14 +1528,63 @@ const CreateMoment = () => {
           )}
 
           {currentStep < 4 && (
-            <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed bg-muted/30 p-6 text-center sm:min-h-[300px] sm:p-8">
-              <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center mb-4 shadow-sm">
-                <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+            <div className="h-full min-h-[300px] rounded-2xl border border-border bg-card p-5 shadow-soft">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
+                  <SelectedCreationIcon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Moment blueprint</p>
+                  <h4 className="mt-1 font-serif text-xl font-bold text-foreground">{selectedCreationType.label}</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">{selectedCreationType.description}</p>
+                </div>
               </div>
-              <h4 className="font-semibold text-sm mb-1">Ecosystem Intelligence</h4>
-              <p className="text-xs text-muted-foreground px-4">
-                Finish your details to unlock category-specific sponsor and venue matches.
-              </p>
+
+              <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
+                <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 text-center">
+                  <div className="min-w-0">
+                    <Route className="mx-auto mb-1 h-4 w-4 text-primary" />
+                    <p className="truncate text-xs font-bold text-foreground">{getTaxonomyLabel(conversionTypes, formData.conversionType) || "Action"}</p>
+                    <p className="text-[10px] text-muted-foreground">participant does</p>
+                  </div>
+                  <span className="h-px w-5 bg-border" />
+                  <div className="min-w-0">
+                    <Target className="mx-auto mb-1 h-4 w-4 text-primary" />
+                    <p className="truncate text-xs font-bold text-foreground">{formData.proofType || "Proof"}</p>
+                    <p className="text-[10px] text-muted-foreground">system verifies</p>
+                  </div>
+                  <span className="h-px w-5 bg-border" />
+                  <div className="min-w-0">
+                    <Sparkles className="mx-auto mb-1 h-4 w-4 text-primary" />
+                    <p className="truncate text-xs font-bold text-foreground">{formData.reward ? "Reward" : "Mark"}</p>
+                    <p className="text-[10px] text-muted-foreground">value unlocks</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-3 text-sm">
+                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
+                  <span className="text-muted-foreground">Recurrence</span>
+                  <span className="font-semibold text-foreground">{recurrence.recurrenceEnabled ? "Enabled" : "Off"}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
+                  <span className="text-muted-foreground">Ownership</span>
+                  <span className="font-semibold text-foreground">{parentMomentId ? "Sub-moment owner" : "Primary owner"}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
+                  <span className="text-muted-foreground">Supply type</span>
+                  <span className="font-semibold text-foreground">Stakeholder-created</span>
+                </div>
+              </div>
+
+              {parentMomentId && (
+                <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">
+                  <p className="font-semibold text-foreground">Sub-moment lineage</p>
+                  <p className="mt-1 text-muted-foreground">
+                    This will publish inside a parent moment while giving the creative/activity owner their own operating surface.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, ShieldCheck, Repeat2 } from "lucide-react";
+import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, Repeat2, Route, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
@@ -18,6 +18,7 @@ type Moment = Tables<"moments"> & {
   venue_category?: string | null;
   moment_archetype?: string | null;
   conversion_type?: string | null;
+  proof_type?: string | null;
   host?: {
     full_name: string;
     avatar_url: string | null;
@@ -64,14 +65,14 @@ const categoryGradients: Record<string, string> = {
 
 const getOriginLabel = (moment: Moment) => {
   if (moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed") {
-    return { label: "Example", tone: "bg-slate-500/90 text-white", Icon: Sparkles };
+    return { label: "Example playbook", tone: "bg-slate-950/90 text-white ring-1 ring-white/15", Icon: Sparkles };
   }
 
   if (moment.content_origin === "scraped" || moment.content_origin === "imported") {
-    return { label: "Discovered", tone: "bg-sky-600/90 text-white", Icon: Sparkles };
+    return { label: "Discovered listing", tone: "bg-sky-600/90 text-white", Icon: Sparkles };
   }
 
-  return { label: "Real host", tone: "bg-emerald-600/90 text-white", Icon: ShieldCheck };
+  return null;
 };
 
 const getRecurrenceLabel = (moment: Moment) => {
@@ -81,6 +82,14 @@ const getRecurrenceLabel = (moment: Moment) => {
   if (frequency === "daily") return interval > 1 ? `Every ${interval} days` : "Daily";
   if (frequency === "monthly") return interval > 1 ? `Every ${interval} months` : "Monthly";
   return interval > 1 ? `Every ${interval} weeks` : "Weekly";
+};
+
+const formActionLabel = (conversionType?: string | null) => {
+  if (!conversionType) return null;
+  return conversionType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 /**
@@ -147,6 +156,9 @@ export function MomentCard({
   const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
   const originLabel = getOriginLabel(moment);
   const recurrenceLabel = getRecurrenceLabel(moment);
+  const isExampleMoment = Boolean(moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed");
+  const actionLabel = conversionLabel || formActionLabel(moment.conversion_type) || "Check-in";
+  const unlockLabel = moment.reward ? "Reward available" : recurrenceLabel ? "Build standing" : "Earn a Mark";
 
   return (
     <Link
@@ -207,14 +219,15 @@ export function MomentCard({
           </Button>
         </div>
 
-        {/* Urgency Badges - Groupon style */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-medium rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
-            <originLabel.Icon className="h-3 w-3" />
-            {originLabel.label}
-          </span>
+          {originLabel && (
+            <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
+              <originLabel.Icon className="h-3 w-3" />
+              {originLabel.label}
+            </span>
+          )}
           {recurrenceLabel && (
-            <span className="px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground text-xs font-semibold rounded-full shadow-md flex items-center gap-1">
+            <span className="px-2.5 py-1 bg-background/92 backdrop-blur-sm text-foreground text-xs font-semibold rounded-full shadow-md flex items-center gap-1">
               <Repeat2 className="h-3 w-3 text-primary" />
               {recurrenceLabel}
             </span>
@@ -232,19 +245,14 @@ export function MomentCard({
             </span>
           )}
           {moment.reward && (
-            <span className="px-2.5 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full shadow-md">
-              🎁 {moment.reward}
+            <span className="max-w-[13rem] truncate px-2.5 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full shadow-md">
+              {moment.reward}
             </span>
           )}
-          {/* Points Badge - Always visible */}
-          <span className="px-2.5 py-1 bg-amber-500 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-md flex items-center gap-1">
-            <Sparkles className="h-3 w-3" />
-            +75 pts
-          </span>
           {moment.venue_name && (
             <span className="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              Ground Anchor
+              Venue
             </span>
           )}
         </div>
@@ -252,10 +260,12 @@ export function MomentCard({
         {/* Bottom Gradient */}
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
 
-        {/* Category Badge - Bottom */}
-        <div className="absolute bottom-3 left-3">
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
           <span className="px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full shadow-sm">
             {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
+          </span>
+          <span className="rounded-full bg-black/65 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+            {isExampleMoment ? "Learn pattern" : "Join path"}
           </span>
         </div>
       </div>
@@ -285,7 +295,19 @@ export function MomentCard({
           </div>
         )}
 
-        {/* Title */}
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          {archetypeLabel && (
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+              {archetypeLabel}
+            </span>
+          )}
+          {venueCategoryLabel && (
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-600">
+              {venueCategoryLabel}
+            </span>
+          )}
+        </div>
+
         <h3 className={cn(
           "font-serif font-semibold text-foreground line-clamp-2 mb-2",
           "group-hover:text-primary transition-colors",
@@ -296,20 +318,6 @@ export function MomentCard({
 
         {/* Meta Info */}
         <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-          {(archetypeLabel || venueCategoryLabel) && (
-            <div className="flex flex-wrap gap-1.5">
-              {archetypeLabel && (
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-                  {archetypeLabel}
-                </span>
-              )}
-              {venueCategoryLabel && (
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-600">
-                  {venueCategoryLabel}
-                </span>
-              )}
-            </div>
-          )}
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-primary" />
             <span>{formatDate(moment.starts_at)}</span>
@@ -320,6 +328,25 @@ export function MomentCard({
           <div className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 text-primary" />
             <span className="truncate">{moment.venue_name || moment.location}</span>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border/60 bg-muted/30 p-3">
+          <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 text-center">
+            <div className="min-w-0">
+              <Route className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
+              <p className="truncate text-[11px] font-bold text-foreground">{actionLabel}</p>
+            </div>
+            <span className="h-px w-4 bg-border" />
+            <div className="min-w-0">
+              <Target className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
+              <p className="truncate text-[11px] font-bold text-foreground">{moment.proof_type || "Proof"}</p>
+            </div>
+            <span className="h-px w-4 bg-border" />
+            <div className="min-w-0">
+              <Sparkles className="mx-auto mb-1 h-3.5 w-3.5 text-primary" />
+              <p className="truncate text-[11px] font-bold text-foreground">{unlockLabel}</p>
+            </div>
           </div>
         </div>
 
@@ -339,8 +366,8 @@ export function MomentCard({
 
           {/* Points Preview */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
-              Join +25 • {conversionLabel || "Check-in"} +50
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+              Mark path
             </span>
           </div>
         </div>
