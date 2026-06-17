@@ -7,12 +7,13 @@ import type { Tables } from "@/integrations/supabase/types";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
+import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import { demoMoments } from "@/data/demo-moments";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Clock, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, BookOpen, Clock, Compass, MapPin, Repeat2, Search, Sparkles, TrendingUp } from "lucide-react";
 import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
@@ -129,6 +130,10 @@ const ExploreMoments = () => {
     .slice(0, 6);
 
   const isLoading = momentsQuery.isLoading || linkedContentQuery.isLoading;
+  const liveCount = momentsQuery.data?.length || 0;
+  const recurringCount = (momentsQuery.data || []).filter((moment) => moment.recurrence_enabled).length;
+  const activeModeLabel =
+    momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Moments to join";
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,120 +151,127 @@ const ExploreMoments = () => {
 
       <section className="px-4 pb-8 pt-24 sm:pt-28">
         <div className="mx-auto max-w-7xl">
-          <div className="rounded-[2rem] border border-primary/10 bg-gradient-to-br from-primary/5 via-background to-accent/10 p-6 shadow-soft sm:p-8">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <Badge variant="secondary" className="mb-4 rounded-full px-3 py-1">
-                  Moment Discovery
-                </Badge>
-                <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                  Browse moments without collapsing everything into the feed.
-                </h1>
-                <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-                  Find live moments first. Use examples when you want to understand the pattern before creating, hosting, or joining one.
-                </p>
+          <div className="overflow-hidden rounded-[2rem] border border-border bg-charcoal text-white shadow-elevated">
+            <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="relative overflow-hidden p-6 sm:p-8 lg:p-10">
+                <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-primary/20 blur-[100px]" />
+                <div className="relative z-10">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5">
+                    <Compass className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">Moment discovery</span>
+                  </div>
+                  <h1 className="font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    Find the next room worth entering.
+                  </h1>
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300 sm:text-base">
+                    Search live moments first. Switch to recurring when you want reliable rituals, or examples when you want to learn the pattern before creating one.
+                  </p>
+                  <div className="mt-6 grid grid-cols-3 gap-2">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400">Live</p>
+                      <p className="mt-1 font-serif text-2xl font-bold text-white">{liveCount}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400">Recurring</p>
+                      <p className="mt-1 font-serif text-2xl font-bold text-white">{recurringCount}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400">Examples</p>
+                      <p className="mt-1 font-serif text-2xl font-bold text-white">{exampleMoments.length}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="outline">
-                  <Link to="/for-you">Open For You</Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/create/moment">Create a moment</Link>
-                </Button>
+
+              <div className="border-t border-white/10 bg-white/[0.04] p-5 lg:border-l lg:border-t-0 sm:p-6 lg:p-8">
+                <div className="rounded-3xl border border-white/10 bg-black/20 p-4 backdrop-blur">
+                  <MomentValuePath
+                    variant="detail"
+                    className="border-white/10 bg-white/[0.06]"
+                    steps={[
+                      { label: "Choose", detail: "Moment, ritual, playbook" },
+                      { label: "Prove", detail: "Code, GPS, host, media" },
+                      { label: "Unlock", detail: "Mark, access, reward" },
+                    ]}
+                  />
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <Button asChild variant="hero">
+                      <Link to="/for-you">
+                        Open For You
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="border-white/20 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
+                      <Link to="/create/moment">Create a moment</Link>
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 rounded-[1.5rem] border border-border bg-card/80 p-4 shadow-soft">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search moments by title, location, venue, brand, or category..."
-                className="h-12 pl-11"
-              />
-            </div>
+          <div className="sticky top-20 z-20 mt-5 rounded-[1.5rem] border border-border bg-background/95 p-3 shadow-soft backdrop-blur">
+            <div className="grid gap-3 xl:grid-cols-[minmax(280px,0.9fr)_1.35fr_auto] xl:items-center">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search title, place, host, brand..."
+                  className="h-12 rounded-2xl pl-11"
+                />
+              </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {categories.map((category) => (
+              <div className="flex gap-2 overflow-x-auto pb-1 xl:pb-0">
+                {categories.map((category) => (
+                  <button
+                    key={category.value}
+                    type="button"
+                    onClick={() => setActiveCategory(category.value)}
+                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                      activeCategory === category.value
+                        ? "bg-primary text-primary-foreground shadow-soft"
+                        : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="mr-1.5">{category.emoji}</span>
+                    {category.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex shrink-0 gap-2">
                 <button
-                  key={category.value}
                   type="button"
-                  onClick={() => setActiveCategory(category.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                    activeCategory === category.value
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/80"
+                  onClick={() => setSortBy("soonest")}
+                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-all ${
+                    sortBy === "soonest" ? "bg-primary text-primary-foreground shadow-soft" : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <span className="mr-1.5">{category.emoji}</span>
-                  {category.label}
+                  <Clock className="mr-1.5 h-4 w-4" />
+                  Soonest
                 </button>
-              ))}
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setSortBy("soonest")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                  sortBy === "soonest" ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
-                }`}
-              >
-                <Clock className="mr-1.5 inline h-4 w-4" />
-                Soonest
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortBy("popular")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                  sortBy === "popular" ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
-                }`}
-              >
-                <TrendingUp className="mr-1.5 inline h-4 w-4" />
-                Popular
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-[1.5rem] border border-border bg-card/80 p-4 shadow-soft">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Archive paths</p>
-                <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Browse by category and location</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Public archive pages let people move from a moment into cities, countries, venues, and connected content without relying on a single discovery page.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {categories.filter((category) => category.value !== "all").slice(0, 6).map((category) => (
-                  <Button key={category.value} asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to={`/categories/${slugifySegment(category.value)}`}>{category.label}</Link>
-                  </Button>
-                ))}
-                <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to="/explore/content">Content</Link>
-                </Button>
+                <button
+                  type="button"
+                  onClick={() => setSortBy("popular")}
+                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-all ${
+                    sortBy === "popular" ? "bg-primary text-primary-foreground shadow-soft" : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <TrendingUp className="mr-1.5 h-4 w-4" />
+                  Popular
+                </button>
               </div>
             </div>
-            {featuredLocations.length > 0 ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {featuredLocations.map((location) => (
-                  <Button key={location.href!} asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to={location.href!}>{location.label}</Link>
-                  </Button>
-                ))}
-              </div>
-            ) : null}
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-serif text-2xl font-bold">
-                  {momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Moments to join"}
-                </h2>
+                <h2 className="font-serif text-2xl font-bold">{activeModeLabel}</h2>
+                {momentMode !== "examples" && !momentsQuery.isLoading ? (
+                  <Badge variant="outline" className="rounded-full">{filteredMoments.length} shown</Badge>
+                ) : null}
               </div>
               <p className="text-sm text-muted-foreground">
                 {momentMode === "examples"
@@ -293,28 +305,6 @@ const ExploreMoments = () => {
               })}
             </div>
           </div>
-
-          {linkedContentQuery.data && linkedContentQuery.data.length > 0 && !searchQuery && activeCategory === "all" ? (
-            <div className="mt-6 rounded-[1.75rem] border border-border bg-card/80 p-5 shadow-soft">
-              <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked content</p>
-                  <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Media that points back into moments</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    Content stays browseable in its own surface, but it should also remain visible here as proof that discovery objects connect to each other.
-                  </p>
-                </div>
-                <Button asChild variant="outline">
-                  <Link to="/explore/content">Browse all content</Link>
-                </Button>
-              </div>
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {linkedContentQuery.data.map((item) => (
-                  <PublicContentCard key={item.id} item={item} />
-                ))}
-              </div>
-            </div>
-          ) : null}
 
           <div className="mt-6">
             {isLoading ? (
@@ -403,6 +393,57 @@ const ExploreMoments = () => {
               </Button>
             </div>
           ) : null}
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Archive paths</p>
+              <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Browse by category and place</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use archives when you want a direct path into cities, countries, venues, and category pages.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {categories.filter((category) => category.value !== "all").slice(0, 6).map((category) => (
+                  <Button key={category.value} asChild variant="outline" size="sm" className="rounded-full">
+                    <Link to={`/categories/${slugifySegment(category.value)}`}>{category.label}</Link>
+                  </Button>
+                ))}
+                <Button asChild variant="outline" size="sm" className="rounded-full">
+                  <Link to="/explore/content">Content</Link>
+                </Button>
+              </div>
+              {featuredLocations.length > 0 ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {featuredLocations.map((location) => (
+                    <Button key={location.href!} asChild variant="outline" size="sm" className="rounded-full">
+                      <Link to={location.href!}>{location.label}</Link>
+                    </Button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            {linkedContentQuery.data && linkedContentQuery.data.length > 0 && !searchQuery && activeCategory === "all" ? (
+              <div className="rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked content</p>
+                    <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Media with a moment path</h2>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                      Content belongs here when it points people toward a place, activity, or proof path.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <Link to="/explore/content">Browse all</Link>
+                  </Button>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {linkedContentQuery.data.slice(0, 2).map((item) => (
+                    <PublicContentCard key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </section>
     </div>
