@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import SEO from "@/components/SEO";
 import MomentsSection from "@/components/MomentsSection";
+import HomeActionStrip from "@/components/HomeActionStrip";
 import ForBrands from "@/components/ForBrands";
 import ForCreatorsSection from "@/components/ForCreatorsSection";
 import EconomyLoop from "@/components/EconomyLoop";
@@ -26,14 +27,15 @@ const Index = () => {
         description="Discover real-world moments, leave your Mark, unlock points, keys, complementary pieces, PromoShare eligibility, Gems, and stronger network growth from the communities you join."
       />
       <Hero />
-      <StakeholderPaths />
+      <HomeActionStrip />
+      <MomentsSection />
       
       {/* Featured Hero Banner - Premium Placements ($150/day) */}
       <div className="container max-w-6xl mx-auto px-4 relative z-10">
         <FeaturedHeroBanner />
       </div>
 
-      <MomentsSection />
+      <StakeholderPaths />
 
       <EconomyLoop />
       

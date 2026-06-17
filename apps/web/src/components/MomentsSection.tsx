@@ -48,20 +48,24 @@ const MomentsSection = () => {
     );
 
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-warm" data-tour="moments-section">
+    <section className="relative overflow-hidden bg-gradient-warm py-14 md:py-20" data-tour="moments-section">
       <div className="absolute right-0 top-24 h-80 w-80 rounded-full bg-primary/10 blur-[100px]" />
       <div className="container relative z-10 px-6">
         {/* Demo Event Banner */}
-        <div className="max-w-5xl mx-auto mb-12">
-          <DemoEventBanner variant="home" />
-        </div>
+        {showingExamples && (
+          <div className="max-w-5xl mx-auto mb-8">
+            <DemoEventBanner variant="home" />
+          </div>
+        )}
 
         {/* Section Header */}
-        <div className="mb-12 grid gap-8 lg:grid-cols-[1fr_0.55fr] lg:items-end">
+        <div className="mb-8 grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
           <div className="max-w-2xl">
-            <p className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-primary">Live Discovery</p>
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-primary">
+              {showingExamples ? "Example Playbooks" : "Live Discovery"}
+            </p>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Find Something Worth Showing Up For
+              {showingExamples ? "Learn the moment pattern." : "Find something worth showing up for."}
             </h2>
             <p className="text-lg leading-8 text-muted-foreground">
               {showingExamples
@@ -71,14 +75,37 @@ const MomentsSection = () => {
           </div>
           <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Moment signal</p>
-            <p className="mt-2 font-serif text-3xl font-bold text-foreground">Join once.</p>
-            <p className="font-serif text-3xl font-bold text-primary">Return stronger.</p>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">Every card below is a possible doorway into people, places, perks, and progress.</p>
+            <p className="mt-2 font-serif text-3xl font-bold text-foreground">
+              {showingExamples ? "Examples teach." : "Join once."}
+            </p>
+            <p className="font-serif text-3xl font-bold text-primary">
+              {showingExamples ? "Live moments convert." : "Return stronger."}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {showingExamples
+                ? "Example cards are labeled as patterns. Real supply should feel normal when it appears."
+                : "Every card below is a doorway into people, places, perks, and progress."}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                to="/explore/moments"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+              >
+                Explore all
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/create/moment"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-bold text-foreground transition hover:bg-secondary"
+              >
+                Create one
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Category Pills */}
-        <div className="flex flex-wrap gap-3 mb-10">
+        <div className="flex flex-wrap gap-3 mb-8">
           {filters.map((filter) => (
             <button
               key={filter.value}
@@ -114,7 +141,7 @@ const MomentsSection = () => {
         </div>
 
         {/* Enhanced CTA Section */}
-        <div className="mt-16 rounded-3xl border border-border bg-card p-8 shadow-card md:p-10">
+        <div className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
           <div className="text-center max-w-3xl mx-auto">
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
               {showingExamples ? "Nothing near you yet? That can be your opening." : "Ready to create your own moments?"}
@@ -126,7 +153,7 @@ const MomentsSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                to="/create-moment"
+                to="/create/moment"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all shadow-soft hover:shadow-elevated"
               >
                 Host a Moment
