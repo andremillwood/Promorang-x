@@ -12,11 +12,14 @@ const footerLinks = {
     { label: "Venues", href: "/explore/venues" },
   ],
   how: [
+    { label: "Overview", href: "/economy" },
+    { label: "Moments", href: "/economy/moments" },
+    { label: "Marks & Points", href: "/economy/points" },
     { label: "Keys", href: "/economy/keys" },
     { label: "Pieces", href: "/economy/pieces" },
+    { label: "Content", href: "/economy/content" },
+    { label: "PromoShare & Gems", href: "/economy/promoshare-gems" },
     { label: "Network value", href: "/economy/network" },
-    { label: "PromoShare", href: "/promoshare" },
-    { label: "Pricing", href: "/pricing" },
   ],
   partners: [
     { label: "For Brands", href: "/for-brands" },

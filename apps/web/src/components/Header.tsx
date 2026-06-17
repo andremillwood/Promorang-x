@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
-import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles } from "lucide-react";
+import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -60,40 +60,97 @@ const Header = () => {
               <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium text-sm outline-none">
                 How it works <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72 p-2 rounded-2xl shadow-elevated border-border/50">
+              <DropdownMenuContent align="end" className="w-[34rem] p-2 rounded-2xl shadow-elevated border-border/50">
                 <DropdownMenuItem asChild>
-                  <Link to="/economy/keys" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                  <Link to="/economy" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <KeyRound className="w-4 h-4" />
+                      <Compass className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Keys</p>
-                      <p className="text-[10px] text-muted-foreground">How limited access opens</p>
+                      <p className="font-bold text-sm">Overview</p>
+                      <p className="text-[10px] text-muted-foreground">How the whole value loop works</p>
                     </div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/economy/pieces" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm">Pieces</p>
-                      <p className="text-[10px] text-muted-foreground">When participation lives on</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/economy/network" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm">Network value</p>
-                      <p className="text-[10px] text-muted-foreground">How people make moments stronger</p>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
+                <div className="grid grid-cols-2 gap-1">
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/moments" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                        <Ticket className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Moments</p>
+                        <p className="text-[10px] text-muted-foreground">Where participation starts</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/points" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                        <Coins className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Marks & Points</p>
+                        <p className="text-[10px] text-muted-foreground">How proof becomes progress</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/keys" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <KeyRound className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Keys</p>
+                        <p className="text-[10px] text-muted-foreground">How limited access opens</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/pieces" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Pieces</p>
+                        <p className="text-[10px] text-muted-foreground">When participation lives on</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/content" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Content</p>
+                        <p className="text-[10px] text-muted-foreground">Proof and media connected to moments</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/promoshare-gems" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
+                        <Gem className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">PromoShare & Gems</p>
+                        <p className="text-[10px] text-muted-foreground">How qualified reward value works</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/economy/network" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Network value</p>
+                        <p className="text-[10px] text-muted-foreground">How people make moments stronger</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
@@ -409,11 +466,26 @@ const Header = () => {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">How it works</h4>
                 <div className="flex flex-col gap-2">
+                  <Link to="/economy" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Overview
+                  </Link>
+                  <Link to="/economy/moments" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Moments
+                  </Link>
+                  <Link to="/economy/points" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Marks & Points
+                  </Link>
                   <Link to="/economy/keys" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Keys
                   </Link>
                   <Link to="/economy/pieces" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Pieces
+                  </Link>
+                  <Link to="/economy/content" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    Content
+                  </Link>
+                  <Link to="/economy/promoshare-gems" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                    PromoShare & Gems
                   </Link>
                   <Link to="/economy/network" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Network value
