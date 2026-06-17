@@ -590,9 +590,9 @@ export default function EconomyConcept() {
             </div>
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur md:p-6">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Choose your lens</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Choose your path</p>
               <p className="mt-3 text-sm leading-6 text-zinc-300">
-                Promorang should not explain the whole system to everyone at once. Pick the role closest to you and the page changes the answer.
+                Start with the role closest to you. Each path shows why the system matters and what to do next.
               </p>
 
               <Tabs defaultValue="0" className="mt-5">
@@ -653,59 +653,7 @@ export default function EconomyConcept() {
 
       <section className="py-12 md:py-16">
         <div className="container px-6">
-          <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Who this helps</p>
-              <h2 className="mt-3 max-w-md font-serif text-4xl font-bold leading-tight">
-                One page, different answers.
-              </h2>
-              <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
-                The platform can share one value system, but the pitch should change by role. This section lets each visitor see the promise that belongs to them.
-              </p>
-            </div>
-
-            <Tabs defaultValue="0" className="rounded-[1.75rem] border border-black/10 bg-white p-4 shadow-sm md:p-5">
-              <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-[#f7f3ed] p-1.5 md:grid-cols-4">
-                {data.roles.map((role, index) => (
-                  <TabsTrigger
-                    key={role.role}
-                    value={String(index)}
-                    className="rounded-xl px-3 py-3 text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    {roleLabel(role.role)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {data.roles.map((role, index) => (
-                <TabsContent key={role.role} value={String(index)} className="mt-5">
-                  <Link
-                    to={role.href}
-                    className="group block rounded-[1.35rem] border border-black/10 bg-[#fbfaf8] p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-xl md:p-7"
-                  >
-                    <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                      <div className="flex max-w-2xl items-start gap-4">
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                          <role.icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{role.role}</p>
-                          <h3 className="mt-3 font-serif text-3xl font-bold leading-tight">{role.why}</h3>
-                          <p className="mt-4 text-base leading-7 text-muted-foreground">{role.outcome}</p>
-                        </div>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-white px-4 py-2 text-sm font-bold text-primary">
-                        {role.action}
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </div>
-                    </div>
-                  </Link>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-black/10 bg-[#242321] p-5 text-white md:p-8">
+          <div className="rounded-[2rem] border border-black/10 bg-[#242321] p-5 text-white md:p-8">
             <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] md:items-center">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">What happens</p>
@@ -748,7 +696,7 @@ export default function EconomyConcept() {
               </div>
               <h2 className="mt-5 font-serif text-3xl font-bold">What should someone do next?</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                The next step should match the visitor: join a moment, create one, fund one, or check the record of what happened.
+                Join something worth showing up for, create a moment others can act on, or open your record to see what your activity is building.
               </p>
             </div>
           </div>
