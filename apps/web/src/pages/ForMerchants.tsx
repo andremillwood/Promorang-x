@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import {
     Store,
     Users,
@@ -47,7 +48,7 @@ const merchantBenefits = [
 const stats = [
     { value: "Visits", label: "Verified in person" },
     { value: "Offers", label: "Controlled redemptions" },
-    { value: "Proof", label: "Reusable local signal" },
+    { value: "Proof", label: "Reusable local record" },
     { value: "$0", label: "Cost to list" },
 ];
 
@@ -80,6 +81,16 @@ const ForMerchants = () => {
                             a trusted barber chair, or a neighborhood service hub. Host the moments people want to talk about,
                             verify the visits that actually happen, and give people a reason to come back.
                         </p>
+
+                        <MarketingPromiseStrip
+                            variant="dark"
+                            className="mx-auto mb-8 max-w-5xl text-left"
+                            items={[
+                                { label: "Situation", text: "Foot traffic is valuable only when people remember why they came." },
+                                { label: "Promorang makes possible", text: "Your place becomes a stage for moments, verified welcomes, rewards, and return visits." },
+                                { label: "Next move", text: "List your spot and create one reason for people to visit this week." },
+                            ]}
+                        />
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>

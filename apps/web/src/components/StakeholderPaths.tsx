@@ -112,7 +112,7 @@ export function StakeholderPaths() {
             What brings you to Promorang?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-muted-foreground">
-            Choose the option that sounds most like you. We will show you the useful part first, without making you learn the whole platform.
+            Choose the role closest to your real problem. Promorang becomes clearer when the first answer matches the decision you are trying to make.
           </p>
         </div>
 

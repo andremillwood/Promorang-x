@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Gem, Gift, KeyRound, MapPin, Sparkles, Ticket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 
 const steps = [
   {
@@ -22,7 +23,7 @@ const steps = [
     title: "Show up and leave a Mark",
     description: "Arrive, check in, and let the moment count. Your Mark starts the reward loop without making the night feel like paperwork.",
     action: "Check in on-site",
-    unlock: "A verified memory and standing signal",
+    unlock: "A verified memory and standing record",
     proof: "Mark",
     cta: "See check-in flow",
     href: "/moments",
@@ -72,7 +73,7 @@ const explainerCards = [
   {
     icon: Sparkles,
     title: "Pieces",
-    text: "Pieces give early, consistent, or high-signal participation a lasting place to live.",
+    text: "Pieces give early, consistent, or high-value participation a lasting place to live.",
     href: "/economy/pieces",
   },
   {
@@ -103,6 +104,17 @@ export function EconomyLoop() {
             Promorang starts with people finding things worth showing up for. From there, Marks, Keys, Pieces, PromoShare, Gems, and your network help the value stick around after the moment ends.
           </p>
         </div>
+
+        <MarketingPromiseStrip
+          className="mx-auto mt-8 max-w-5xl"
+          items={[
+            { label: "Human meaning", text: "A Mark says: I was there, I helped, this counted." },
+            { label: "Practical value", text: "Proof can open access, rewards, memories, pieces, and stronger invitations." },
+            { label: "Best first action", text: "Start with one moment instead of trying to learn the whole economy." },
+          ]}
+          ctaLabel="Find your first Mark"
+          ctaHref="/explore/moments"
+        />
 
         <div className="mt-14 overflow-hidden rounded-[2rem] border border-border bg-card shadow-elevated">
           <div className="grid lg:grid-cols-[0.42fr_0.58fr]">

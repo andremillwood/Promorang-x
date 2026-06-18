@@ -4,6 +4,7 @@ import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MomentPricingCalculator } from '@/components/MomentPricingCalculator';
+import MarketingPromiseStrip from '@/components/MarketingPromiseStrip';
 import {
     Users,
     Building2,
@@ -40,6 +41,16 @@ const PricingPage = () => {
                             Participants join free. Operators pay when they want to fund moments, sponsor behavior,
                             or scale repeatable formats. Pricing is tied to real-world outcomes, not seats on a dashboard.
                         </p>
+                        <MarketingPromiseStrip
+                            className="mx-auto max-w-5xl text-left"
+                            items={[
+                                { label: 'Situation', text: 'Most marketing spend buys attention before anyone knows whether people will act.' },
+                                { label: 'Promorang makes possible', text: 'Budget funds moments, verification, reward pools, and repeat movement.' },
+                                { label: 'Next move', text: 'Choose your role, then start with the smallest moment that can prove demand.' },
+                            ]}
+                            ctaLabel="Compare by role"
+                            ctaHref="#pricing-by-role"
+                        />
                     </div>
                 </div>
             </section>
@@ -74,7 +85,7 @@ const PricingPage = () => {
             </section>
 
             {/* Stakeholder Tabs */}
-            <section className="py-16 md:py-32">
+            <section id="pricing-by-role" className="py-16 md:py-32">
                 <div className="container px-4 sm:px-6">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-6xl mx-auto">
                         <TabsList className="mb-8 grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 sm:mb-12 sm:grid-cols-4">
@@ -322,7 +333,7 @@ const PricingPage = () => {
                                     Host Pricing
                                 </h2>
                                 <p className="text-lg text-muted-foreground">
-                                    Start free, build signal, and earn the right to operate bigger funded moments.
+                                    Start free, build proof, and earn the right to operate bigger funded moments.
                                 </p>
                             </div>
 
@@ -453,7 +464,7 @@ const PricingPage = () => {
                             Ready to get started?
                         </h2>
                         <p className="text-cream/70 text-lg mb-8">
-                            Start where you are. Fund moments when you need them. Scale once the signal is real.
+                            Start where you are. Fund moments when you need them. Scale once the proof is real.
                         </p>
                         <Button variant="hero" size="xl" asChild>
                             <Link to="/auth">

@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import {
     Building2,
     Handshake,
@@ -90,6 +91,16 @@ const ForBrands = () => {
                             Then you can see who showed up, scanned, redeemed, created content, and came back.
                         </p>
 
+                        <MarketingPromiseStrip
+                            variant="dark"
+                            className="mb-8 max-w-3xl"
+                            items={[
+                                { label: "Situation", text: "Awareness is easy to buy. Real participation is harder to prove." },
+                                { label: "Promorang makes possible", text: "Your spend becomes a moment people can attend, redeem, share, and remember." },
+                                { label: "Next move", text: "Start with one activation that can prove attendance before scaling the campaign." },
+                            ]}
+                        />
+
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Button variant="hero" size="xl" asChild>
                                 <a href="#outcomes">
@@ -123,7 +134,7 @@ const ForBrands = () => {
                                     {[
                                         ["Live", "redemptions"],
                                         ["184", "Marks"],
-                                        ["Proof", "return signal"],
+                                        ["Proof", "return record"],
                                     ].map(([value, label]) => (
                                         <div key={label} className="rounded-xl bg-white/10 p-3 text-center">
                                             <p className="font-serif text-xl font-bold text-white">{value}</p>

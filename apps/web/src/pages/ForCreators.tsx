@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 
 const creatorBenefits = [
@@ -98,6 +99,16 @@ const ForCreators = () => {
               Promorang gives creators a way to turn attention into places people actually go. Publish a story, attach it to a boutique,
               cafe, salon, studio, grocery mission, or live gathering, and let your audience unlock a real-world experience through your narrative.
             </p>
+
+            <MarketingPromiseStrip
+              variant="dark"
+              className="mx-auto mb-8 max-w-5xl text-left"
+              items={[
+                { label: "Situation", text: "Views prove attention, but they rarely prove that your taste moved anyone." },
+                { label: "Promorang makes possible", text: "Stories become missions people can join, verify, and turn into rewardable action." },
+                { label: "Next move", text: "Publish one creator mission tied to a place, product, or gathering." },
+              ]}
+            />
 
             <div className="flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
               <Button variant="hero" size="xl" asChild>
@@ -239,8 +250,8 @@ const ForCreators = () => {
                 Earn from measurable movement, not soft promises.
               </h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                The point is not to make creators sound like media kits. The point is to give them a better operating system:
-                one that tracks what stories caused in the real world and lets that performance compound.
+                The point is not to make creators sound like media kits. The point is to give them a record:
+                one that shows what their stories caused in the real world and lets that performance compound.
               </p>
             </div>
 
@@ -332,7 +343,7 @@ const ForCreators = () => {
               <span className="text-sm font-bold">Creator CTA</span>
             </div>
             <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
-              If your audience moves, your business model should notice.
+              If your audience moves, your business model can grow with it.
             </h2>
             <p className="mt-4 text-lg leading-8 text-zinc-300">
               Start publishing creator-led missions, link them to real-world unlocks, and build a proof layer around what your stories actually do.

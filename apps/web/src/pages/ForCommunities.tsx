@@ -3,6 +3,7 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import {
   ArrowRight,
   CheckCircle2,
@@ -29,7 +30,7 @@ const communityLoop = [
   {
     icon: TrendingUp,
     title: "Build trusted momentum",
-    description: "Repeat participation, referrals, and better rooms create signal that grows your standing over time.",
+    description: "Repeat participation, referrals, and better rooms create proof that grows your standing over time.",
   },
   {
     icon: Gift,
@@ -57,7 +58,7 @@ const levels = [
   {
     name: "Eminence",
     icon: ShieldCheck,
-    description: "A pillar whose community signal is strong enough to attract backing.",
+    description: "A pillar whose community record is strong enough to attract backing.",
   },
 ];
 
@@ -79,7 +80,7 @@ const ForCommunities = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Promorang for Communities - Build a Scene People Return To"
-        description="Create repeatable moments, turn attendance into real signal, and grow a community whose momentum can unlock trust, PromoShare relevance, and partner opportunity."
+        description="Create repeatable moments, turn attendance into visible proof, and grow a community whose momentum can unlock trust, PromoShare relevance, and partner opportunity."
         type="website"
       />
 
@@ -100,6 +101,16 @@ const ForCommunities = () => {
               Promorang helps communities do more than host gatherings. It turns real participation into Marks, standing,
               network value, PromoShare relevance, and a stronger case for future backing.
             </p>
+
+            <MarketingPromiseStrip
+              variant="dark"
+              className="mx-auto mb-8 max-w-5xl text-left"
+              items={[
+                { label: "Situation", text: "A good room can fill once and still disappear without a record." },
+                { label: "Promorang makes possible", text: "Return behavior, referrals, and trusted participation become visible over time." },
+                { label: "Next move", text: "Create one repeatable moment that gives your people a reason to come back." },
+              ]}
+            />
 
             <div className="flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
               <Button variant="hero" size="xl" asChild>
@@ -124,7 +135,7 @@ const ForCommunities = () => {
               The Community Loop
             </Badge>
             <h2 className="font-serif text-3xl font-bold md:text-5xl">
-              Community growth should be visible, not vague.
+              Community growth becomes visible, not vague.
             </h2>
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
               The strongest communities create repeat movement. Promorang gives that movement a structure people can feel and partners can understand.
@@ -188,7 +199,7 @@ const ForCommunities = () => {
                 Network Growth
               </Badge>
               <h2 className="font-serif text-3xl font-bold md:text-5xl">
-                Your crew should create stronger signal, not just bigger numbers.
+                Your crew creates stronger proof, not just bigger numbers.
               </h2>
               <div className="mt-6 space-y-3">
                 {networkPoints.map((item) => (

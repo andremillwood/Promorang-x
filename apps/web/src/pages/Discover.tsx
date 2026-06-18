@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import {
   ArrowRight,
   Building2,
@@ -221,11 +222,21 @@ const Discover = () => {
                     <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">Discovery command center</span>
                   </div>
                   <h1 className="max-w-4xl font-serif text-4xl font-black tracking-tight text-white sm:text-5xl">
-                    Choose what kind of value you want to find.
+                    Find the surface that matches your next move.
                   </h1>
                   <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300 sm:text-base">
-                    The homepage explains why Promorang exists. Discover helps you choose the right surface: moments to join, venues to understand, rewards to unlock, content that leads somewhere, or live urgency in Pulse.
+                    Browse by intent instead of scrolling a single feed: join a moment, inspect a place, find a reward, follow content into action, or open Pulse when something is forming now.
                   </p>
+
+                  <MarketingPromiseStrip
+                    variant="dark"
+                    className="mt-6"
+                    items={[
+                      { label: "Situation", text: "You know you want something real to do, but not every opportunity belongs in one feed." },
+                      { label: "Promorang makes possible", text: "Discovery separates moments, places, rewards, and stories so comparison feels calm." },
+                      { label: "Next move", text: "Start with the object you care about, then act when the right path appears." },
+                    ]}
+                  />
 
                   <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {discoveryStats.map((stat) => (
@@ -245,7 +256,7 @@ const Discover = () => {
                     className="border-white/10 bg-white/[0.06]"
                     steps={[
                       { label: "Mode", detail: "Moment, place, reward, story" },
-                      { label: "Signal", detail: `${totalSignals} public signals loaded` },
+                      { label: "Live proof", detail: `${totalSignals} public items loaded` },
                       { label: "Action", detail: "Join, visit, unlock, create" },
                     ]}
                   />

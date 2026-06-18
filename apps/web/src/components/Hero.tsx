@@ -6,6 +6,7 @@ import { ArrowRight, CalendarDays, Gift, KeyRound, MapPin, PlayCircle, ShieldChe
 import { supabase } from "@/integrations/supabase/client";
 import { demoMoments } from "@/data/demo-moments";
 import heroImage from "@/assets/hero-moments.jpg";
+import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 
 const heroMarks = [
   { icon: MapPin, label: "Find a Moment", detail: "Pop-ups, rituals, drops, gatherings" },
@@ -278,10 +279,20 @@ const Hero = () => {
             </h1>
 
             <p className="mb-8 max-w-2xl text-lg leading-8 text-zinc-200 animate-slide-up md:text-xl" style={{ animationDelay: "0.1s" }}>
-              Promorang helps you find real moments worth leaving the house for.
-              Attend, leave your Mark, and turn showing up into perks, access,
-              community standing, and qualified earnings.
+              Promorang makes real life count. Find something worth doing, leave your Mark when you arrive, and let participation become access, rewards, memory, and invitations.
             </p>
+
+            <MarketingPromiseStrip
+              variant="dark"
+              className="mb-8 max-w-3xl animate-slide-up"
+              items={[
+                { label: "Situation", text: "Plans, promotions, and posts disappear unless someone actually shows up." },
+                { label: "Promorang makes possible", text: "Real-world participation becomes a record people, hosts, creators, and brands can use." },
+                { label: "Next move", text: "Find a moment near you or choose the role that matches why you are here." },
+              ]}
+              ctaLabel="Choose your path"
+              ctaHref="#choose-your-path"
+            />
 
             <div className="mb-10 grid max-w-3xl gap-3 animate-slide-up sm:grid-cols-3" style={{ animationDelay: "0.15s" }}>
               {heroMarks.map((item, index) => (
@@ -415,7 +426,7 @@ const Hero = () => {
             </p>
             <p className="text-sm leading-6 md:text-base">
               For people, it means getting remembered, rewarded, and invited back.
-              For hosts, venues, and brands, it becomes the signal that real community is forming.
+              For hosts, venues, and brands, it becomes proof that real community is forming.
             </p>
           </div>
         </div>
