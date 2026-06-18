@@ -52,7 +52,7 @@ const PricingPage = () => {
                                 What you are actually paying for
                             </h2>
                             <p className="mt-4 text-lg text-muted-foreground">
-                                Promorang pricing should map to a real behavior loop: moments, verification, reward pools, and repeat movement.
+                                Promorang pricing maps to a real behavior loop: moments, verification, reward pools, and repeat movement.
                             </p>
                         </div>
 

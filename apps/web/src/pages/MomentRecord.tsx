@@ -236,7 +236,7 @@ const MomentRecord = () => {
                   This is the shareable receipt of the moment.
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  A record should feel warmer than a report. It shows who gathered, what was verified, and why the moment can keep living as a memory, recap, creator clip, or crew proof.
+                  A record is warmer than a report. It shows who gathered, what was verified, and why the moment can keep living as a memory, recap, creator clip, or crew proof.
                 </p>
               </div>
               <ShareButton

@@ -156,11 +156,11 @@ const ForCommunities = () => {
                 Community Levels
               </Badge>
               <h2 className="font-serif text-3xl font-bold md:text-5xl">
-                Reputation should compound for the people holding the room together.
+                Reputation compounds for the people holding the room together.
               </h2>
               <p className="mt-5 text-lg leading-8 text-zinc-300">
-                Community leadership should feel earned. The more consistently you create spaces people trust and return to,
-                the more your standing should deepen across the platform.
+                Community leadership is earned through consistency. The more you create spaces people trust and return to,
+                the more your standing deepens across the platform.
               </p>
             </div>
 

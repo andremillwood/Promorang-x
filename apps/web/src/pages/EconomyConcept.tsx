@@ -694,7 +694,7 @@ export default function EconomyConcept() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <h2 className="mt-5 font-serif text-3xl font-bold">What should someone do next?</h2>
+              <h2 className="mt-5 font-serif text-3xl font-bold">Choose a next step</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
                 Join something worth showing up for, create a moment others can act on, or open your record to see what your activity is building.
               </p>

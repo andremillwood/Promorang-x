@@ -223,7 +223,7 @@ const Hosting = () => {
               Practical tools, but tied to a bigger story.
             </h2>
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              Promorang should feel useful operationally, but the differentiator is what those tools allow you to prove over time.
+              Promorang gives hosts practical tools and a stronger record of what those tools help prove over time.
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">

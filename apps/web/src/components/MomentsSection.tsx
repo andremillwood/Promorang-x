@@ -83,7 +83,7 @@ const MomentsSection = () => {
             </p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               {showingExamples
-                ? "Example cards are labeled as patterns. Real supply should feel normal when it appears."
+                ? "Examples are labeled as patterns so live moments can stay easy to recognize."
                 : "Every card below is a doorway into people, places, perks, and progress."}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">

@@ -301,7 +301,7 @@ export function ValueProposition() {
               </h3>
             </div>
             <p className="max-w-xl text-sm leading-7 text-zinc-300">
-              Tiers should not feel like badges to read about. They should tell you what to do next, what opens now, and why the value is protected.
+              Each tier shows what to do next, what opens now, and why higher-value rewards are protected.
             </p>
           </div>
 

@@ -309,7 +309,7 @@ const Discover = () => {
                   </div>
                   <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
                     <p className="font-semibold text-foreground">Use Pulse when movement is already forming.</p>
-                    <p className="mt-2 text-sm text-muted-foreground">Pulse should feel more live, dense, and time-sensitive: rooms forming, signals spiking, and moments gaining heat.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Pulse is more live, dense, and time-sensitive: rooms forming, signals spiking, and moments gaining heat.</p>
                   </div>
                 </div>
               </CardContent>

@@ -41,7 +41,7 @@ export function HomeActionStrip() {
               One simple loop, different reasons to use it.
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Promorang should get people to a useful action fast. Find something, prove the real-world action, then keep the value that came from showing up.
+              Find something worth doing, prove the real-world action, then keep the value that came from showing up.
             </p>
             <MomentValuePath
               variant="detail"
