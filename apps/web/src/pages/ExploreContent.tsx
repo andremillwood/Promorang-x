@@ -81,7 +81,7 @@ const ExploreContent = () => {
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl">
-                  Explore content in the discovery graph.
+                  Explore connected creator stories.
                 </h1>
                 <p className="mt-4 text-sm text-muted-foreground sm:text-base">
                   Stories are a starting point, not just proof after the fact. A piece of content can stand alone, launch a moment, support a venue or brand, or become the mission that sends people somewhere real.
@@ -131,7 +131,7 @@ const ExploreContent = () => {
           <div className="mt-6 flex items-center justify-between">
             <div>
               <h2 className="font-serif text-2xl font-bold">Browseable content</h2>
-              <p className="text-sm text-muted-foreground">Public stories in the Promorang discovery graph.</p>
+              <p className="text-sm text-muted-foreground">Public stories connected to moments, venues, brands, and offers.</p>
             </div>
             {!contentQuery.isLoading ? (
               <Badge variant="outline" className="rounded-full">

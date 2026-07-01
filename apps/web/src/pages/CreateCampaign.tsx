@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateCampaign } from "@/hooks/useCampaigns";
-import { useCampaignCompiler, CompiledCampaign } from "@/hooks/useCampaignCompiler";
+import { useCampaignCompiler } from "@/hooks/useCampaignCompiler";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { Sparkles, ShieldCheck, Gift, Target, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cultureImages } from "@/data/culture-demo";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -52,7 +53,10 @@ Expected Outcome: ${compiledData.outcome.volume}
   };
 
   return (
-    <div className="max-w-2xl mx-auto pt-10 pb-20 px-4">
+    <div className="relative min-h-screen overflow-hidden bg-[#090909] px-4 pb-20 pt-8 text-white">
+      <img src={cultureImages.openMic} alt="" className="pointer-events-none absolute inset-0 h-[520px] w-full object-cover opacity-20" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-gradient-to-b from-black/30 via-[#090909]/85 to-[#090909]" />
+      <div className="relative mx-auto max-w-5xl">
       <AnimatePresence mode="wait">
         {!compiledData ? (
           <motion.div
@@ -60,28 +64,40 @@ Expected Outcome: ${compiledData.outcome.volume}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col items-center justify-center min-h-[60vh] space-y-6"
+            className="grid min-h-[68vh] items-center gap-8 lg:grid-cols-[minmax(0,1.1fr)_380px]"
           >
-            <div className="w-full relative shadow-lg rounded-3xl overflow-hidden border border-border bg-card focus-within:border-primary/50 transition-colors">
-              <div className="p-8">
-                <label htmlFor="prompt" className="block text-2xl font-bold font-serif mb-6 text-foreground text-center">
-                  What do you want customers to do?
+            <div className="space-y-6">
+              <div>
+                <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-orange-400">Campaign compiler</p>
+                <h1 className="max-w-3xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl">
+                  Turn a desired outcome into verified movement.
+                </h1>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
+                  Describe the action you want in plain language. Promorang will shape it into a Moment, moves, proof, reward, and expected outcome so the campaign is ready to launch with intent.
+                </p>
+              </div>
+
+              <div className="relative w-full overflow-hidden rounded-lg border border-orange-500/25 bg-[#111]/95 transition-colors focus-within:border-orange-500/70">
+                <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/20 blur-[90px]" />
+                <div className="relative p-6 sm:p-8">
+                  <label htmlFor="prompt" className="mb-5 block text-2xl font-black tracking-tight text-white">
+                    What should people do, prove, or unlock?
                 </label>
                 <Textarea
                   id="prompt"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g., Get people to post first bite reactions to my wings"
-                  className="text-xl min-h-[120px] resize-none border-none shadow-none focus-visible:ring-0 p-0 bg-transparent text-center placeholder:text-muted-foreground/40"
+                  placeholder="e.g., Get people to visit this weekend, check in, post first bite reactions, and unlock a return offer."
+                  className="min-h-[150px] resize-none border-none bg-transparent p-0 text-xl text-white shadow-none focus-visible:ring-0 placeholder:text-white/25"
                   autoFocus
                 />
               </div>
-              <div className="bg-muted/30 p-4 border-t border-border flex justify-center">
+                <div className="relative border-t border-border bg-background/50 p-4">
                 <Button
                   onClick={handleCompile}
                   disabled={!prompt.trim() || isCompiling}
                   size="lg"
-                  className="w-full sm:w-auto rounded-full px-12 font-bold shadow-md bg-foreground text-background hover:bg-foreground/90 transition-all text-lg h-14"
+                    className="h-14 w-full rounded-md bg-orange-500 px-10 text-base font-black text-black hover:bg-orange-400"
                 >
                   {isCompiling ? (
                     <motion.div 
@@ -94,8 +110,26 @@ Expected Outcome: ${compiledData.outcome.volume}
                   ) : (
                     <Sparkles className="w-5 h-5 mr-2" />
                   )}
-                  {isCompiling ? "Compiling..." : "Generate Insights"}
+                    {isCompiling ? "Compiling proof loop..." : "Compile proof loop"}
                 </Button>
+              </div>
+            </div>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-[#111]/90 p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-orange-400">What gets generated</p>
+              <div className="mt-5 space-y-3">
+                {[
+                  { icon: Target, title: "Moment", copy: "The action surface people can understand and join." },
+                  { icon: ShieldCheck, title: "Proof", copy: "The verification signal that gives the action value." },
+                  { icon: Gift, title: "Unlock", copy: "The reward, status, or return path earned by completion." },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-lg border border-white/10 bg-black/40 p-4">
+                    <item.icon className="h-5 w-5 text-orange-400" />
+                    <p className="mt-3 font-black text-white">{item.title}</p>
+                    <p className="mt-1 text-sm leading-6 text-white/45">{item.copy}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -104,13 +138,13 @@ Expected Outcome: ${compiledData.outcome.volume}
             key="preview-phase"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="space-y-6 bg-card border border-border shadow-xl rounded-3xl overflow-hidden"
+            className="mx-auto max-w-3xl overflow-hidden rounded-lg border border-orange-500/25 bg-[#111]"
           >
-            <div className="p-8 text-center bg-muted/20 border-b border-border">
-               <span className="inline-block px-3 py-1 bg-primary/20 text-primary-foreground font-bold rounded-full text-xs tracking-widest uppercase mb-4">
+            <div className="border-b border-border bg-gradient-to-br from-primary/10 via-card to-background p-8">
+               <span className="mb-4 inline-block rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-black uppercase tracking-widest text-primary">
                  Tier {compiledData.moment.tier}
                </span>
-               <h2 className="text-3xl font-serif font-bold text-foreground mb-2">
+               <h2 className="mb-3 text-4xl font-black leading-[0.95] tracking-tight text-white">
                  {compiledData.moment.name}
                </h2>
                <p className="text-muted-foreground">{compiledData.moment.description}</p>
@@ -133,6 +167,7 @@ Expected Outcome: ${compiledData.outcome.volume}
                         {i + 1}
                       </span>
                       <span>{move}</span>
+                      {i < compiledData.moves.length - 1 && <ArrowRight className="mx-3 hidden h-4 w-4 text-muted-foreground sm:block" />}
                     </div>
                   ))}
                 </div>
@@ -163,9 +198,9 @@ Expected Outcome: ${compiledData.outcome.volume}
                <Button 
                  onClick={handleLaunch}
                  disabled={createCampaign.isPending}
-                 className="w-full rounded-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+                 className="h-14 w-full rounded-md bg-orange-500 text-lg font-bold text-black hover:bg-orange-400"
                >
-                 {createCampaign.isPending ? "Executing..." : "Launch Campaign"}
+                 {createCampaign.isPending ? "Launching..." : "Launch proof-backed campaign"}
                </Button>
                <button 
                  onClick={() => setCompiledData(null)}
@@ -177,6 +212,7 @@ Expected Outcome: ${compiledData.outcome.volume}
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 };

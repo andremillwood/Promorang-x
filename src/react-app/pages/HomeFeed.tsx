@@ -36,6 +36,7 @@ import ShareModal from '@/react-app/components/ShareModal';
 import SavedContentModal from '@/react-app/components/SavedContentModal';
 import CommentSystem from '@/react-app/components/CommentSystem';
 import PrimaryCTA from '@/react-app/components/PrimaryCTA';
+import { OpportunitySurface, ReceiptCard } from '@/react-app/components/OpportunitySurface';
 
 export default function HomeFeed() {
   const { user } = useAuth();
@@ -149,7 +150,7 @@ export default function HomeFeed() {
 
   const handleSocialAction = async (action: string, contentId?: number) => {
     try {
-      const response = await fetch('/api/users/social-action', {
+      const response = await fetch('/api/content/social-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -408,9 +409,29 @@ export default function HomeFeed() {
   }
 
   const smartCTA = getSmartCTA();
+  const pulseSignals = [
+    { label: 'Content', value: contentFeed.length, detail: 'live pieces' },
+    { label: 'Drops', value: dropFeed.length, detail: 'open asks' },
+    { label: 'Sponsored', value: sponsoredContent.length, detail: 'funded moves' },
+    { label: 'Saved', value: 'Vault', detail: 'retained value' }
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <OpportunitySurface
+        eyebrow="Pulse"
+        title={`What is moving now${user?.google_user_data?.given_name ? `, ${user.google_user_data.given_name}` : ''}`}
+        description="Your live surface for content momentum, funded drops, social actions, and saved value. Scan what is fresh, choose the next useful action, then keep the receipt in your wallet or Vault."
+        primaryAction={{ label: 'Browse opportunities', onClick: () => setActiveTab('drops') }}
+        secondaryAction={{ label: 'Open social feed', onClick: () => setActiveTab('social') }}
+        signals={pulseSignals}
+      >
+        <div className="rounded-2xl bg-white/10 p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Product loop</p>
+          <p className="mt-2 text-sm font-bold leading-6 text-slate-200">Discover -> Act -> Prove -> Earn -> Save</p>
+        </div>
+      </OpportunitySurface>
+
       {/* Primary CTA - One Action Path */}
       <PrimaryCTA className="mb-2" />
 
@@ -498,6 +519,37 @@ export default function HomeFeed() {
             </button>
           )}
         </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <ReceiptCard
+          icon={Flame}
+          label="Signal"
+          title="Fresh movement"
+          description="Pulse prioritizes sponsored content, high-value drops, and active share opportunities."
+          tone="orange"
+        />
+        <ReceiptCard
+          icon={Target}
+          label="Action"
+          title="Clear next step"
+          description="Each item keeps the existing buy, share, fund, comment, save, and external move actions."
+          tone="blue"
+        />
+        <ReceiptCard
+          icon={Diamond}
+          label="Reward"
+          title="Visible upside"
+          description="Gems, keys, points, shares, and funding potential stay visible before commitment."
+          tone="purple"
+        />
+        <ReceiptCard
+          icon={Bookmark}
+          label="Retain"
+          title="Saved value"
+          description="Saved content, wallet balances, and streaks connect the feed back to return behavior."
+          tone="green"
+        />
       </div>
 
       {/* Enhanced Feed Tabs */}

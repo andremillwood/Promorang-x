@@ -62,33 +62,33 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
       const hasUsername = !!profile?.username;
 
       // Check if joined any moments
-      const { data: joined } = await supabase
+      const { count: joinedCount } = await supabase
         .from('moment_participants')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id);
 
-      const hasJoined = (joined || 0) > 0;
+      const hasJoined = (joinedCount || 0) > 0;
 
       // Check if checked in
-      const { data: checkedIn } = await supabase
+      const { count: checkedInCount } = await supabase
         .from('moment_participants')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('status', 'checked_in');
 
-      const hasCheckedIn = (checkedIn || 0) > 0;
+      const hasCheckedIn = (checkedInCount || 0) > 0;
 
       // Check if following anyone
-      const { data: following } = await supabase
+      const { count: followingCount } = await supabase
         .from('user_follows')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('follower_id', user.id);
 
-      const hasFollowing = (following || 0) > 0;
+      const hasFollowing = (followingCount || 0) > 0;
 
       // Check if earned rewards
-      const { data: rewards } = await supabase
-        .from('user_balances')
+      const { data: rewards } = await (supabase as any)
+        .from('economy_wallets')
         .select('points, promokeys, gems')
         .eq('user_id', user.id)
         .single();
@@ -111,7 +111,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
           description: "Browse local experiences and join something interesting",
           icon: Search,
           action: "Browse moments",
-          link: "/explore/moments",
+          link: "/discover",
           isComplete: hasJoined
         },
         {
@@ -129,7 +129,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
           description: "Connect with hosts and creators you like",
           icon: Users,
           action: "Find people",
-          link: "/search?category=user",
+          link: "/creators",
           isComplete: hasFollowing
         },
         {

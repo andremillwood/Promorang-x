@@ -64,12 +64,13 @@ export function SavedCollections({
     const totalSaved = collections.reduce((sum, c) => sum + c.moments.length, 0);
 
     return (
-        <div className={cn("", className)}>
+        <div className={cn("text-white", className)}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="font-serif text-2xl font-bold">Saved</h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Your collections</p>
+                    <h2 className="text-3xl font-black tracking-tight">Worth returning to</h2>
+                    <p className="mt-1 text-sm text-white/45">
                         {totalSaved} moment{totalSaved !== 1 ? "s" : ""} in {collections.length} collection{collections.length !== 1 ? "s" : ""}
                     </p>
                 </div>
@@ -77,11 +78,12 @@ export function SavedCollections({
                     <Button
                         variant="ghost"
                         size="icon"
+                        className="border border-white/10 text-white hover:bg-white/10 hover:text-white"
                         onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
                     >
                         {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsCreating(true)}>
+                    <Button variant="outline" size="sm" className="border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white" onClick={() => setIsCreating(true)}>
                         <Plus className="h-4 w-4 mr-2" />
                         New Collection
                     </Button>
@@ -90,13 +92,13 @@ export function SavedCollections({
 
             {/* Create Collection Modal */}
             {isCreating && (
-                <div className="mb-6 p-4 bg-card border border-border rounded-xl">
+                <div className="mb-6 rounded-lg border border-orange-500/30 bg-white/[0.04] p-4">
                     <input
                         type="text"
                         placeholder="Collection name..."
                         value={newCollectionName}
                         onChange={(e) => setNewCollectionName(e.target.value)}
-                        className="w-full px-3 py-2 bg-background border border-border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="mb-3 w-full rounded-md border border-white/15 bg-black px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                         autoFocus
                     />
                     <div className="flex gap-2">
@@ -117,8 +119,8 @@ export function SavedCollections({
                     className={cn(
                         "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
                         selectedCollection === null
-                            ? "bg-primary text-primary-foreground shadow-soft"
-                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            ? "bg-orange-500 text-black"
+                            : "border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"
                     )}
                 >
                     All Saved
@@ -130,8 +132,8 @@ export function SavedCollections({
                         className={cn(
                             "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2",
                             selectedCollection === collection.id
-                                ? "bg-primary text-primary-foreground shadow-soft"
-                                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                ? "bg-orange-500 text-black"
+                                : "border border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"
                         )}
                     >
                         {collection.name}
@@ -143,19 +145,19 @@ export function SavedCollections({
             {/* Collection Grid */}
             {selectedCollection === null ? (
                 // Show all collections as cards
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {collections.map(collection => (
                         <button
                             key={collection.id}
                             onClick={() => setSelectedCollection(collection.id)}
-                            className="group relative aspect-square rounded-2xl overflow-hidden bg-secondary"
+                            className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-white/10 bg-[#141414] text-left"
                         >
                             {/* Collection Cover */}
                             {collection.moments[0]?.image_url ? (
                                 <img
                                     src={collection.moments[0].image_url}
                                     alt=""
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center">
@@ -164,11 +166,11 @@ export function SavedCollections({
                             )}
 
                             {/* Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
                             {/* Info */}
                             <div className="absolute bottom-0 left-0 right-0 p-4">
-                                <h3 className="font-medium text-white text-lg">{collection.name}</h3>
+                                <h3 className="text-xl font-black text-white">{collection.name}</h3>
                                 <p className="text-white/70 text-sm">
                                     {collection.moments.length} moment{collection.moments.length !== 1 ? "s" : ""}
                                 </p>
@@ -214,7 +216,7 @@ export function SavedCollections({
                             <Bookmark className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
                             <p className="text-muted-foreground">No moments in this collection yet</p>
                             <Button variant="outline" asChild className="mt-4">
-                                <Link to="/explore/moments">Explore Moments</Link>
+                                <Link to="/discover">Explore Moments</Link>
                             </Button>
                         </div>
                     )}
@@ -230,7 +232,7 @@ export function SavedCollections({
                         Save moments you're interested in and organize them into collections
                     </p>
                     <Button asChild>
-                        <Link to="/explore/moments">Explore Moments</Link>
+                        <Link to="/discover">Explore Moments</Link>
                     </Button>
                 </div>
             )}

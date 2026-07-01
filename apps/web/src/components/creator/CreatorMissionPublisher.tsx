@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MediaGalleryUpload, type GalleryImage } from "@/components/MediaGalleryUpload";
 import { useToast } from "@/hooks/use-toast";
-import { Film, ImagePlus, Link2, Loader2, Sparkles, Upload } from "lucide-react";
+import { Film, ImagePlus, Link2, Loader2, Upload, ArrowRight, Eye, ShieldCheck, Gift } from "lucide-react";
+import { cultureImages } from "@/data/culture-demo";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -166,14 +167,14 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
     <div className="space-y-6">
       <div>
         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Publishing</p>
-        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Publish a story</h3>
+        <h3 className="mt-2 text-3xl font-black tracking-tight text-foreground">Give people a story worth following somewhere.</h3>
         <p className="mt-2 text-sm text-muted-foreground">
           Start with the story itself. It can live on its own, launch a release moment, support an existing gathering, or become a mission that moves people into the world.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <div className="rounded-lg border border-border bg-card p-5 sm:p-7">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
@@ -277,39 +278,48 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
 
             <Button
-              variant="hero"
-              className="w-full"
+              className="h-12 w-full bg-primary font-black"
               onClick={() => createContent.mutate()}
               disabled={!publisherReady || createContent.isPending || uploadingImage}
             >
               {createContent.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Film className="mr-2 h-4 w-4" />}
-              Publish Story
+              Publish story <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">How creators fit the loop</p>
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="relative aspect-[4/3] overflow-hidden bg-black">
+            <img src={mediaUrl || bannerImageUrl || cultureImages.openMic} alt="" className="h-full w-full object-cover opacity-75" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+              <Badge className="mb-3 bg-orange-500 text-black">{platform}</Badge>
+              <h4 className="text-2xl font-black leading-tight">{title || "Your story appears here"}</h4>
+              <p className="mt-2 line-clamp-2 text-sm text-white/60">{description || "Add the promise, point of view, or invitation that gives people a reason to care."}</p>
+            </div>
           </div>
-          <div className="mt-5 space-y-4">
-            {[
-              "Publish a story people can watch, share, save, and come back to.",
-              "Let it stand alone, use it to launch a moment, or pair it with an existing place or gathering.",
-              "Turn the story into a mission when you want watch, join, visit, redeem, or proof behavior.",
-              "Track attention, joins, unlocks, memories, and creator earnings from the same story spine.",
-            ].map((step, index) => (
-              <div key={step} className="rounded-2xl border border-border/60 bg-background/70 p-4">
-                <div className="flex items-start gap-3">
-                  <Badge className="bg-primary/10 text-primary border border-primary/20">{index + 1}</Badge>
-                  <p className="text-sm text-muted-foreground">{step}</p>
+          <div className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Participant preview</p><p className="mt-1 text-sm text-muted-foreground">{publisherReady ? "Ready to publish and shape into a mission." : "Add a title and destination URL to continue."}</p></div>
+              <Eye className="h-5 w-5 text-primary" />
+            </div>
+            <div className="mt-6 grid grid-cols-5 gap-1">
+              {[
+                { label: "Story", icon: Film },
+                { label: "Audience", icon: Eye },
+                { label: "Action", icon: ArrowRight },
+                { label: "Proof", icon: ShieldCheck },
+                { label: "Unlock", icon: Gift },
+              ].map((stage, index) => (
+                <div key={stage.label} className="text-center">
+                  <div className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full border ${index === 0 ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}><stage.icon className="h-3.5 w-3.5" /></div>
+                  <p className="mt-2 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">{stage.label}</p>
                 </div>
-              </div>
-            ))}
-            <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground">
+              ))}
+            </div>
+            <div className="mt-6 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground">
               <Link2 className="mb-2 h-4 w-4 text-primary" />
-              After publishing, choose the next shape: keep it as a story, create a launch moment from it, or use the Mission Builder below to connect it to an active moment.
+              Publishing saves the story, then opens Mission Builder with this content already selected.
             </div>
           </div>
         </div>

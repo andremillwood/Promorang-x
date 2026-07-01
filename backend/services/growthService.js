@@ -193,7 +193,7 @@ const createStakingPosition = async (userId, channelId, amount) => {
   }
 
   // Record the transaction in the ledger
-  const { error: ledgerError } = await supabase
+  const { data: ledgerEntry, error: ledgerError } = await supabase
     .from('growth_ledger')
     .insert({
       user_id: userId,
@@ -282,7 +282,7 @@ const claimStakingRewards = async (userId, positionId) => {
   }
 
   // Record the reward in the ledger
-  const { error: ledgerError } = await supabase
+  const { data: ledgerEntry, error: ledgerError } = await supabase
     .from('growth_ledger')
     .insert({
       user_id: userId,
@@ -292,19 +292,30 @@ const claimStakingRewards = async (userId, positionId) => {
       currency: 'gems',
       status: 'completed',
       metadata: { position_id: positionId },
-    });
+    })
+    .select('id')
+    .single();
 
   if (ledgerError) {
     console.error('Error recording reward transaction:', ledgerError);
-    // In a real app, you might want to handle this error appropriately
+    throw new Error('Failed to record staking reward');
   }
 
-  // Update user's gem balance
-  const { error: balanceError } = await incrementGems(userId, rewards);
+  // Credit the reward and its 5% direct-referral commission atomically.
+  const { error: balanceError } = await supabase.rpc('credit_user_earning', {
+    p_user_id: userId,
+    p_earning_type: 'staking_reward',
+    p_amount: rewards,
+    p_currency: 'gems',
+    p_source_table: 'growth_ledger',
+    p_source_transaction_id: ledgerEntry.id,
+    p_metadata: { position_id: positionId }
+  });
 
   if (balanceError) {
     console.error('Error updating user balance:', balanceError);
-    // In a real app, you might want to handle this error appropriately
+    await supabase.from('growth_ledger').delete().eq('id', ledgerEntry.id);
+    throw new Error('Failed to credit staking reward');
   }
 
   return {

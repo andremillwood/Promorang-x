@@ -10,7 +10,8 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
-import { ArrowLeft, CalendarDays, MapPin, ShoppingBag, Star } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star } from "lucide-react";
+import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -121,12 +122,17 @@ export default function VenueProfile() {
   const content = contentQuery.data || [];
   const commerceListings = commerceQuery.data || [];
   const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading;
+  const placeRail = [
+    { label: "Arrive", body: "Find a Moment, service, or offer worth showing up for.", icon: MapPin },
+    { label: "Check in", body: "Use GPS, codes, host confirmation, or proof to mark the visit.", icon: CheckCircle2 },
+    { label: "Unlock", body: "Create reward eligibility, Vault memory, status, and future access.", icon: Gem },
+  ];
 
   if (!isLoading && !venue) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <h1 className="font-serif text-3xl font-bold text-foreground">Venue not found</h1>
-        <p className="mt-3 text-muted-foreground">This venue profile is not available yet.</p>
+        <h1 className="text-3xl font-black uppercase tracking-[-0.04em] text-foreground">Place not found</h1>
+        <p className="mt-3 text-muted-foreground">This place profile is not available yet.</p>
         <Button asChild variant="hero" className="mt-6">
           <Link to="/explore/moments">Browse moments</Link>
         </Button>
@@ -167,7 +173,7 @@ export default function VenueProfile() {
         </div>
       ) : venue ? (
         <>
-          <section className="rounded-[2rem] border border-border bg-card px-6 py-8 shadow-soft">
+          <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-6 py-8 text-white shadow-2xl">
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -175,15 +181,15 @@ export default function VenueProfile() {
               </Link>
             </Button>
 
-            <div className="flex flex-col gap-4">
-              <Badge variant="outline" className="w-fit text-[11px] font-black uppercase tracking-[0.24em]">
-                Venue profile
-              </Badge>
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:items-end">
+              <div className="flex flex-col gap-4">
+                <Badge variant="outline" className="w-fit border-primary/35 bg-primary/10 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                  Place profile
+                </Badge>
                 <div>
-                  <h1 className="font-serif text-4xl font-black text-foreground sm:text-5xl">{venue.name}</h1>
-                  <p className="mt-3 max-w-3xl text-base text-muted-foreground">
-                    {venue.description || "A public venue page for browsing moments and linked content happening here."}
+                  <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1><VerifiedPioneerBadge beneficiaryType="venue" beneficiaryId={venue.id} /></div>
+                  <p className="mt-4 max-w-3xl text-base leading-7 text-white/68">
+                    {venue.description || "A public place page for browsing Moments, offers, proof paths, and creator content happening here."}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -194,25 +200,61 @@ export default function VenueProfile() {
                       {venue.avg_rating.toFixed(1)}
                     </Badge>
                   ) : null}
-                  <Badge variant="secondary">{venue.active_moments_count || 0} active moments</Badge>
+                  <Badge variant="secondary">{venue.active_moments_count || 0} active Moments</Badge>
+                </div>
+                <div className="flex flex-wrap gap-4 text-sm text-white/62">
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    {formatLocationLabel(venue.city, venue.country) || venue.location || "Location pending"}
+                  </span>
+                  {venue.address && <span>{venue.address}</span>}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  {formatLocationLabel(venue.city, venue.country) || venue.location || "Location pending"}
-                </span>
-                {venue.address && <span>{venue.address}</span>}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Proof at this place</p>
+                <p className="mt-3 text-sm leading-6 text-white/64">
+                  Places matter when they help people move: attend, check in, redeem, record proof, and return with more status than they arrived with.
+                </p>
+                <div className="mt-5 grid grid-cols-3 gap-2">
+                  {[
+                    ["Moments", moments.length],
+                    ["Offers", commerceListings.length],
+                    ["Content", content.length],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-white/10 bg-black/25 p-3 text-center">
+                      <p className="text-xl font-black">{value}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                  <Button asChild>
+                    <Link to="/explore/moments">Find a Moment</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
+                    <Link to="/marketplace">View offers</Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </section>
 
           <div className="mt-10 space-y-12">
+            <section className="grid gap-3 md:grid-cols-3">
+              {placeRail.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-border bg-card/80 p-4 shadow-soft">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-primary">{item.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </section>
+
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Moments at this venue</h2>
-                  <p className="text-sm text-muted-foreground">Public experiences tied to this place.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Moments at this place</h2>
+                  <p className="text-sm text-muted-foreground">Public experiences where attendance can become proof, memory, and value.</p>
                 </div>
                 <Badge variant="secondary">{moments.length}</Badge>
               </div>
@@ -239,8 +281,8 @@ export default function VenueProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Products and services</h2>
-                  <p className="text-sm text-muted-foreground">Public offers, redemptions, and bookable services tied to this place.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Offers and services</h2>
+                  <p className="text-sm text-muted-foreground">Public offers, redemptions, and bookable services that can connect Wallet value to real-world action.</p>
                 </div>
                 <Badge variant="secondary">{commerceListings.length}</Badge>
               </div>
@@ -260,7 +302,7 @@ export default function VenueProfile() {
                       <div className="space-y-4 p-5">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <h3 className="font-serif text-xl font-bold text-foreground">{listing.name}</h3>
+                            <h3 className="text-xl font-black tracking-[-0.03em] text-foreground">{listing.name}</h3>
                             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                               {listing.description || "Available through this venue."}
                             </p>
@@ -306,8 +348,8 @@ export default function VenueProfile() {
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold text-foreground">Linked content</h2>
-                  <p className="text-sm text-muted-foreground">Content that resolves into venue-based experiences.</p>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Linked content</h2>
+                  <p className="text-sm text-muted-foreground">Content that points people toward this place, a Moment, or a proof path.</p>
                 </div>
                 <Badge variant="secondary">{content.length}</Badge>
               </div>

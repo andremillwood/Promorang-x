@@ -49,15 +49,15 @@ const AgencyDashboard = () => {
   return (
     <div className="space-y-6 sm:space-y-8">
       <DashboardHero
-        badge="Agency Command"
+        badge="Agency Portfolio"
         title="Operate multi-client work from one proof layer"
-        description={`${activeOrg?.name || "Agency workspace"} should feel like an operator cockpit: launch client activations, match the right collaborators, and export verified outcomes.`}
+        description={`${activeOrg?.name || "Agency portfolio"} brings client activations, collaborator matching, and verified outcomes into one client-ready view.`}
         actions={[
           { label: "Agency story", href: "/for-agencies", icon: Sparkles },
           { label: "Create campaign", href: "/create/campaign", icon: Plus },
         ]}
         stats={[
-          { label: "Client Workspaces", value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
+          { label: "Client Accounts", value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
           { label: "Brand Clients", value: brandClients.toString(), helper: "Brand relationships", icon: Building2, accentClass: "text-sky-300" },
           { label: "Venue Clients", value: venueClients.toString(), helper: "Venue relationships", icon: Store, accentClass: "text-emerald-300" },
           { label: "Operating Mode", value: "Managed", helper: "Agency-led operations", icon: Link2, accentClass: "text-amber-300" },
@@ -67,10 +67,10 @@ const AgencyDashboard = () => {
       <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Current Workspace</p>
-            <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">{activeOrg?.name || "Agency workspace"}</h3>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Current Account</p>
+            <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">{activeOrg?.name || "Agency portfolio"}</h3>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              This is the command layer you use to attach brand and venue workspaces, switch into them, and prove client outcomes back out.
+              Use this view to connect brand and venue clients, manage their work, and package clear proof of outcomes.
             </p>
           </div>
           <QuickAddClient organizationId={activeOrgId} />
@@ -82,11 +82,11 @@ const AgencyDashboard = () => {
       <RoleActivationPanel
         eyebrow="Agency Today"
         title="Prove one client outcome end to end."
-        description="Agencies win when they make the first managed result undeniable: add a client workspace, launch a campaign, then show the attributed movement back to that client."
+        description="Agencies win when they make the first managed result undeniable: add a client account, launch a campaign, then show the attributed movement back to that client."
         items={[
           {
             title: "Add first client",
-            description: "Connect the first brand or venue workspace you will operate for.",
+            description: "Connect the first brand or venue account you will manage.",
             status: agencyClients.length > 0 ? "done" : "current",
             ctaLabel: "Add client",
             onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }),
@@ -112,9 +112,9 @@ const AgencyDashboard = () => {
           <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">How This Works</p>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <p>Connect a brand or venue workspace to this agency command center.</p>
-              <p>Switch into that workspace when you need to operate campaigns or reporting from the client perspective.</p>
-              <p>The client can remove the agency connection later from their brand workspace.</p>
+              <p>Connect a brand or venue account to your agency portfolio.</p>
+              <p>Open that account when you need to manage campaigns or reporting from the client perspective.</p>
+              <p>The client can remove the agency connection later from their own account settings.</p>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ const AgencyDashboard = () => {
                         <div>
                           <p className="font-semibold text-foreground">{client.name}</p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {relationship.relationship_type ? `${relationship.relationship_type} relationship` : "Managed workspace"}
+                            {relationship.relationship_type ? `${relationship.relationship_type} relationship` : "Managed account"}
                           </p>
                         </div>
                       </div>
@@ -174,7 +174,7 @@ const AgencyDashboard = () => {
                           if (client.type === "merchant") setActiveRole("merchant");
                         }}
                       >
-                        Switch to workspace
+                        Open account
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                       <Button
@@ -205,7 +205,7 @@ const AgencyDashboard = () => {
               })
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No agency clients connected yet. Add a client workspace to start operating campaigns across brands and venues.
+                No agency clients connected yet. Add a client account to start operating campaigns across brands and venues.
               </div>
             )}
           </div>
@@ -218,7 +218,7 @@ const AgencyDashboard = () => {
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {[
-              "Operate multiple client workspaces from one Promorang command layer.",
+              "Operate multiple client accounts from one Promorang portfolio.",
               "Use creator-to-footfall attribution as the proof layer for client reporting.",
               "Coordinate brand, venue, creator, and participant outcomes in one loop.",
               "Package Founder, Mayor, Catalyst, and Memory mechanics as managed campaigns.",
@@ -233,13 +233,13 @@ const AgencyDashboard = () => {
             ))}
           </div>
           <div className="mt-5 rounded-2xl border border-primary/10 bg-primary/5 p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Client switching</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Client accounts</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Use the organization switcher in the shell or the “Switch to workspace” action above to move into a specific brand or venue before managing their campaigns.
+              Use the account switcher or the “Open account” action above to move into a specific brand or venue before managing their campaigns.
             </p>
             <Button asChild size="sm" variant="ghost" className="mt-3">
               <Link to="/dashboard">
-                Open workspace switcher
+                Open account switcher
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

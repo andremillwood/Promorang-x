@@ -16,6 +16,12 @@ export function PostLoginRouter() {
     if (loading || !user) return;
 
     const determineLandingPage = async () => {
+      const requestedNext = sessionStorage.getItem("promorang_post_auth_next");
+      if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
+        sessionStorage.removeItem("promorang_post_auth_next");
+        navigate(requestedNext, { replace: true });
+        return;
+      }
       const demoSession = readDemoSession();
       if (demoSession) {
         navigate(getDemoLandingPath(demoSession.role), { replace: true });
@@ -58,6 +64,11 @@ export function PostLoginRouter() {
         .select('id', { count: 'exact', head: true })
         .eq('owner_id', user.id);
 
+      const { count: offerCount } = await supabase
+        .from('offers')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_user_id', user.id);
+
       const creatorFilters = [
         profile?.username ? `creator_username.eq.${profile.username}` : null,
         user.user_metadata?.username ? `creator_username.eq.${user.user_metadata.username}` : null,
@@ -77,13 +88,20 @@ export function PostLoginRouter() {
       const hasJoinedContent = (joinedCount || 0) > 0;
       const hasCreatedCampaign = (campaignCount || 0) > 0;
       const hasRegisteredVenue = (venueCount || 0) > 0;
+      const hasCreatedFundedActivation = (offerCount || 0) > 0;
       const hasPublishedCreatorContent = (creatorContentCount || 0) > 0;
 
       // Role-specific routing
       switch (activeRole) {
+        case "admin":
+          navigate("/admin?tab=proof-builder", { replace: true });
+          break;
+
         case "brand":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding/brand", { replace: true });
+          } else if (!hasCreatedFundedActivation) {
+            navigate("/offers?template=promoshare-funded-cycle", { replace: true });
           } else if (!hasCreatedCampaign) {
             navigate("/create/campaign", { replace: true });
           } else {
@@ -96,6 +114,8 @@ export function PostLoginRouter() {
             navigate("/onboarding", { replace: true });
           } else if (!hasRegisteredVenue) {
             navigate("/dashboard/venues/add?firstTime=true", { replace: true });
+          } else if (!hasCreatedFundedActivation) {
+            navigate("/offers?template=slow-hour-checkin", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }
@@ -104,6 +124,8 @@ export function PostLoginRouter() {
         case "host":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
+          } else if (!hasCreatedFundedActivation) {
+            navigate("/offers?template=slow-hour-checkin", { replace: true });
           } else if (!hasCreatedContent) {
             navigate("/create/moment?firstTime=true", { replace: true });
           } else {
@@ -114,6 +136,8 @@ export function PostLoginRouter() {
         case "creator":
           if (!hasCompletedOnboarding) {
             navigate("/onboarding", { replace: true });
+          } else if (!hasCreatedFundedActivation) {
+            navigate("/offers?template=content-mission", { replace: true });
           } else if (!hasPublishedCreatorContent) {
             navigate("/dashboard?tab=publish", { replace: true });
           } else {

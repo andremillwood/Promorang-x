@@ -83,7 +83,7 @@ const HostDashboardV2 = () => {
   return (
     <div className="space-y-6 pb-20">
       <DashboardHero
-        badge="Host Sanctuary"
+        badge="Host Control Room"
         title={isNewHost ? "Create the first moment worth showing up for" : "Run live moments with clear proof"}
         description="Hosts create the real-world loop: launch the moment, watch it form, review the proof, then repeat what worked."
         actions={[
@@ -95,7 +95,7 @@ const HostDashboardV2 = () => {
           { label: "Active moments", value: upcomingMoments.length.toLocaleString(), helper: "Currently on your calendar", icon: Calendar },
           { label: "Participants", value: totalParticipants.toLocaleString(), helper: "Across hosted moments", icon: Users },
           { label: "Points generated", value: economy?.pointsGenerated?.toLocaleString() || "0", helper: "Distributed through moments", icon: Coins },
-          { label: "Past events", value: pastMoments.length.toLocaleString(), helper: "Already completed", icon: TrendingUp },
+          { label: "Past moments", value: pastMoments.length.toLocaleString(), helper: "Already completed", icon: TrendingUp },
         ]}
         isLoading={statsLoading || economyLoading}
       />
@@ -104,14 +104,14 @@ const HostDashboardV2 = () => {
           NEW HOST: First Steps
           ===================================================================== */}
       {isNewHost && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">Create Your First Moment</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Create your first proof-ready moment</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Your first win: create a live moment with clear venue, timing, 
                   proof requirements, and rewards.
@@ -120,11 +120,11 @@ const HostDashboardV2 = () => {
                   <Button asChild>
                     <Link to="/create/moment">
                       <Plus className="w-4 h-4 mr-2" />
-                      Create First Moment
+                      Create Moment
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/discover/moments">
+                    <Link to="/discover">
                       <Eye className="w-4 h-4 mr-2" />
                       See Examples
                     </Link>
@@ -211,7 +211,7 @@ const HostDashboardV2 = () => {
         <section>
           <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-serif text-xl font-bold">Upcoming Moments</h2>
+              <h2 className="text-2xl font-black tracking-[-0.04em]">Upcoming Moments</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 The dashboard should keep your active schedule close, not replace moment detail pages.
               </p>
@@ -463,7 +463,7 @@ const HostDashboardV2 = () => {
                 <Badge variant="outline" className="mb-3 rounded-full">
                   Host Economy Layer
                 </Badge>
-                <h2 className="font-serif text-xl font-bold">Show participants what comes after attendance</h2>
+                <h2 className="text-2xl font-black tracking-[-0.04em]">Show participants what comes after attendance</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   If your moments can generate pieces, pull liquidity, or build PromoShare relevance, that path should be intentionally legible from the host side.
                 </p>

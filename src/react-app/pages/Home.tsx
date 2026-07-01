@@ -1,29 +1,241 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@getmocha/users-service/react';
 import { useNavigate } from 'react-router';
-import { 
-  ArrowRight, 
-  CheckCircle, 
-  Star, 
-  TrendingUp, 
-  Users, 
-  Zap, 
-  Target,
-  ChevronRight,
+import {
+  ArrowRight,
+  BarChart3,
+  Calculator,
+  CheckCircle,
+  Clock,
+  Compass,
+  Eye,
+  Flame,
+  Handshake,
   Play,
-  Sparkles,
   Shield,
-  Activity
+  Sparkles,
+  Star,
+  Target,
+  TrendingUp,
+  Users,
+  Zap
 } from 'lucide-react';
+
+const opportunityCards = [
+  {
+    label: 'Creator moment',
+    title: 'A short-form drop is gaining early velocity',
+    meta: 'Open for backers',
+    signal: '+38% saves',
+    action: 'Back the moment',
+    tone: 'from-orange-500 to-red-500'
+  },
+  {
+    label: 'Brand mission',
+    title: 'A local launch needs verified attention',
+    meta: 'Proof required',
+    signal: '5 day sprint',
+    action: 'Join the mission',
+    tone: 'from-blue-500 to-cyan-500'
+  },
+  {
+    label: 'Place activation',
+    title: 'A weekend experience is filling fast',
+    meta: 'Limited spots',
+    signal: '82% claimed',
+    action: 'Reserve a role',
+    tone: 'from-emerald-500 to-teal-500'
+  }
+];
+
+const stakeholderPaths = [
+  {
+    icon: Sparkles,
+    title: 'Creators',
+    outcome: 'Turn attention into funded momentum.',
+    proof: 'Pre-launch backing, social proof, repeat supporters',
+    cta: 'Create a moment'
+  },
+  {
+    icon: Users,
+    title: 'Participants',
+    outcome: 'Discover things worth doing, sharing, and backing.',
+    proof: 'Missions, rewards, saved value, visible progress',
+    cta: 'Browse opportunities'
+  },
+  {
+    icon: Target,
+    title: 'Brands',
+    outcome: 'Buy verified action instead of vague impressions.',
+    proof: 'Proof capture, completion quality, campaign dashboards',
+    cta: 'Launch a campaign'
+  },
+  {
+    icon: Handshake,
+    title: 'Hosts and merchants',
+    outcome: 'Convert local moments into foot traffic and loyalty.',
+    proof: 'Check-ins, redemptions, community memory',
+    cta: 'Activate a place'
+  }
+];
+
+const successFactors = [
+  { icon: Eye, label: 'Discoverable', text: 'Every card shows what it is, who it helps, and the next action.' },
+  { icon: Shield, label: 'Verifiable', text: 'Proof, status, and reward rules are visible before commitment.' },
+  { icon: BarChart3, label: 'Measurable', text: 'Creators and brands see momentum, completion, and value returned.' },
+  { icon: CheckCircle, label: 'Retainable', text: 'Wallet, saved items, and achievements give every journey a reason to return.' }
+];
+
+const pathTabs = [
+  {
+    id: 'participants',
+    label: 'Participants',
+    headline: 'Find tasks, moments, and places that are worth your next move.',
+    copy: 'Browse rewards, proof requirements, timelines, and upside before you commit. The product should feel like a market of choices, not a maze of panels.',
+    actions: ['Join proof missions', 'Back creator moments', 'Save rewards to Vault'],
+    cta: 'Start earning'
+  },
+  {
+    id: 'creators',
+    label: 'Creators',
+    headline: 'Launch moments with early backing and visible momentum.',
+    copy: 'Creators need pre-launch signal, funding, repeat supporters, and a path from content to community value.',
+    actions: ['Fund upcoming drops', 'Sell momentum shares', 'Convert supporters into advocates'],
+    cta: 'Create a moment'
+  },
+  {
+    id: 'brands',
+    label: 'Brands',
+    headline: 'Buy verified action instead of hoping impressions turn into intent.',
+    copy: 'Commercial users need pricing clarity, proof dashboards, UGC rights, and confidence that real people completed real actions.',
+    actions: ['100 real people campaigns', 'Proof capture and dashboards', 'UGC and local activation'],
+    cta: 'Launch campaign'
+  },
+  {
+    id: 'hosts',
+    label: 'Hosts',
+    headline: 'Turn local energy into check-ins, memories, and repeat visits.',
+    copy: 'Hosts and merchants need discovery, foot traffic, redemptions, and a reason for people to come back after the event.',
+    actions: ['Place activations', 'Reward redemptions', 'Community memory capture'],
+    cta: 'Activate a place'
+  }
+];
+
+const earningMechanics = [
+  {
+    icon: Zap,
+    title: 'Fuel the Moment',
+    description: 'Boost upcoming content and earn participation rewards.',
+    signal: '$25 avg',
+    tone: 'bg-blue-50 text-blue-700 border-blue-100'
+  },
+  {
+    icon: TrendingUp,
+    title: 'Equity Trading',
+    description: 'Own permanent shares of viral moments and follow the upside.',
+    signal: '12.5% ROI',
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100'
+  },
+  {
+    icon: Target,
+    title: 'Social Arbitrage',
+    description: 'Spot early signals and predict which moments will trend next.',
+    signal: '87% win rate',
+    tone: 'bg-violet-50 text-violet-700 border-violet-100'
+  },
+  {
+    icon: Users,
+    title: 'Moment Scaling',
+    description: 'Help brands and hosts turn ideas into measurable movement.',
+    signal: 'Direct rewards',
+    tone: 'bg-orange-50 text-orange-700 border-orange-100'
+  }
+];
+
+const calculatorPackages = [
+  {
+    id: 'starter',
+    label: 'Hero Bundle',
+    price: 25000,
+    actions: 100,
+    ugc: '10-20 UGC pieces',
+    delivery: '5 days',
+    proof: 'Full proof dashboard'
+  },
+  {
+    id: 'growth',
+    label: 'Customer Activation',
+    price: 120000,
+    actions: 750,
+    ugc: 'Multi-day venue proof',
+    delivery: '7-14 days',
+    proof: 'Advanced audience targeting'
+  },
+  {
+    id: 'scale',
+    label: 'Market Movement',
+    price: 300000,
+    actions: 2200,
+    ugc: 'Campaign content library',
+    delivery: '30 days',
+    proof: 'ROI and retention reporting'
+  }
+];
+
+const platformSignals = ['Instagram', 'TikTok', 'YouTube', 'X', 'LinkedIn', 'Facebook'];
+
+const proofStories = [
+  {
+    name: 'Sarah Chen',
+    role: 'Early creator',
+    result: '$247',
+    label: 'first month',
+    quote: 'Made money before I had a large audience because people could back the idea early.'
+  },
+  {
+    name: 'Mike Rodriguez',
+    role: 'Participant',
+    result: '$384',
+    label: '2 months',
+    quote: 'The best part is seeing what is open now, what proof is needed, and what I keep after.'
+  },
+  {
+    name: 'Local Coffee Co.',
+    role: 'Brand partner',
+    result: '100+',
+    label: 'verified actions',
+    quote: 'We needed authentic local activity, not another abstract impressions report.'
+  }
+];
 
 export default function Home() {
   const { user, isPending, redirectToLogin } = useAuth();
   const navigate = useNavigate();
+  const [activePath, setActivePath] = useState(pathTabs[0]);
+  const [selectedPackage, setSelectedPackage] = useState(calculatorPackages[0]);
   const [activeStats, setActiveStats] = useState({
     earners: 127,
     payout: 0.3,
-    earnings: 12
+    opportunities: 18
   });
+
+  const marketStrip = useMemo(() => [
+    { label: 'Live opportunities', value: activeStats.opportunities.toString(), change: '+4 today' },
+    { label: 'Early members', value: activeStats.earners.toLocaleString(), change: 'growing' },
+    { label: 'Weekly value', value: `${activeStats.payout.toFixed(1)}k gems`, change: 'paid out' },
+    { label: 'Proof rate', value: '95%', change: 'verified' }
+  ], [activeStats]);
+
+  const calculatorResults = useMemo(() => {
+    const costPerAction = Math.round(selectedPackage.price / selectedPackage.actions);
+    const estimatedReach = selectedPackage.actions * 8;
+
+    return {
+      costPerAction,
+      estimatedReach,
+      proofValue: selectedPackage.actions >= 1000 ? 'Advanced' : 'Verified'
+    };
+  }, [selectedPackage]);
 
   useEffect(() => {
     if (!isPending && user) {
@@ -31,467 +243,468 @@ export default function Home() {
     }
   }, [user, isPending, navigate]);
 
-  // Animate stats on load
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStats(prev => ({
-        earners: prev.earners + Math.floor(Math.random() * 5),
-        payout: prev.payout + (Math.random() * 0.1),
-        earnings: prev.earnings + Math.floor(Math.random() * 3)
+        earners: prev.earners + Math.floor(Math.random() * 4),
+        payout: prev.payout + Math.random() * 0.06,
+        opportunities: Math.min(prev.opportunities + Math.floor(Math.random() * 2), 32)
       }));
-    }, 3000);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, []);
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-3 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading Promorang...</p>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-orange-400 border-t-transparent" />
+          <p className="font-medium text-slate-300">Loading Promorang...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Modern Navigation */}
-      <nav className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <img 
-                src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
-                alt="Promorang"
-                className="h-8 w-auto transition-transform hover:scale-105"
-              />
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">How it Works</a>
-              <a href="#success-stories" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Success Stories</a>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={async () => {
-                  console.log('Sign In clicked');
-                  try {
-                    console.log('Calling redirectToLogin...');
-                    await redirectToLogin();
-                    console.log('redirectToLogin completed');
-                  } catch (error) {
-                    console.error('redirectToLogin error:', error);
-                  }
-                }}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={async () => {
-                  console.log('Start Earning clicked');
-                  try {
-                    console.log('Calling redirectToLogin...');
-                    await redirectToLogin();
-                    console.log('redirectToLogin completed');
-                  } catch (error) {
-                    console.error('redirectToLogin error:', error);
-                  }
-                }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Start Earning
-              </button>
-            </div>
+    <div className="min-h-screen bg-[#f7f3ec] text-slate-950">
+      <nav className="sticky top-0 z-50 border-b border-slate-900/10 bg-[#f7f3ec]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <img
+            src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
+            alt="Promorang"
+            className="h-8 w-auto"
+          />
+          <div className="hidden items-center gap-7 md:flex">
+            <a href="#discover" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Discover</a>
+            <a href="#mechanics" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Earn</a>
+            <a href="#calculator" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Calculator</a>
+            <a href="#paths" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Journeys</a>
+            <a href="#trust" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Success factors</a>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => redirectToLogin()} className="text-sm font-semibold text-slate-700 hover:text-slate-950">
+              Sign in
+            </button>
+            <button
+              onClick={() => redirectToLogin()}
+              className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5 hover:bg-slate-800"
+            >
+              Enter market
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Reverted Creator/Investor Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='30'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          opacity: 0.5
-        }}></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-8">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></div>
-              Currently paying out {activeStats.payout.toFixed(1)}k+ gems weekly
-            </div>
-
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-tight mb-8">
-              Own the 
-              <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Moments.
-              </span>
-            </h1>
-            
-            <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Promorang is the social equity market. Invest in viral content, trade shares in top Moments, and share the upside of the creators you believe in.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <button
-                onClick={() => redirectToLogin()}
-                className="group bg-gray-900 hover:bg-black text-white px-10 py-5 rounded-2xl font-bold text-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center"
-              >
-                Enter the Market
-                <TrendingUp className="ml-2 w-6 h-6" />
-              </button>
-              <button
-                onClick={() => navigate('/activate')}
-                className="group bg-white border-2 border-gray-200 hover:border-gray-900 text-gray-900 px-10 py-5 rounded-2xl font-bold text-xl transition-all flex items-center justify-center"
-              >
-                Brand Solutions
-                <Target className="ml-2 w-6 h-6 group-hover:rotate-12 transition-transform" />
-              </button>
-            </div>
-            
-            <p className="text-sm text-gray-500 font-medium">No experience required. Open for Creators, Investors, and Brands.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Simplified Brands Section - Links to /activate */}
-      <section className="bg-gray-900 py-20 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="lg:w-1/2">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-6">Running a business?</h2>
-              <p className="text-xl text-gray-400 mb-8 leading-relaxed">
-                We get 100+ real people to interact with your brand in days. Guaranteed outcomes, verified proof.
+      <main>
+        <section className="relative overflow-hidden border-b border-slate-900/10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.22),transparent_34%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.18),transparent_30%)]" />
+          <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
+            <div className="flex flex-col justify-center">
+              <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                Live discovery, verified action, shared upside
+              </div>
+              <h1 className="max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+                Scroll the moments worth acting on.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
+                Promorang turns campaigns, creator drops, places, and community missions into a discovery market where people can choose what to back, prove what they did, and keep the value they helped create.
               </p>
-              <button 
-                onClick={() => navigate('/activate')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center transition-all"
-              >
-                Launch Brand Campaign
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </button>
-            </div>
-            <div className="lg:w-1/2 grid grid-cols-2 gap-4">
-               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-bold text-blue-400">100+</div>
-                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Real People</div>
-               </div>
-               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-bold text-purple-400">95%</div>
-                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Completion</div>
-               </div>
-               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-bold text-green-400">OCR</div>
-                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Verification</div>
-               </div>
-               <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-                  <div className="text-2xl font-bold text-orange-400">5 Days</div>
-                  <div className="text-sm text-gray-400 font-medium uppercase tracking-widest">Delivery</div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Trust Bar */}
-      <section className="bg-white border-b border-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-500 text-sm mb-8">Creators earn across these platforms</p>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center">
-            {[
-              { name: 'Instagram', icon: '📷', color: 'from-purple-500 to-pink-500', url: 'https://instagram.com' },
-              { name: 'TikTok', icon: '🎵', color: 'from-gray-900 to-gray-700', url: 'https://tiktok.com' },
-              { name: 'YouTube', icon: '📺', color: 'from-red-600 to-red-500', url: 'https://youtube.com' },
-              { name: 'Twitter', icon: '🐦', color: 'from-blue-500 to-blue-400', url: 'https://twitter.com' },
-              { name: 'LinkedIn', icon: '💼', color: 'from-blue-700 to-blue-600', url: 'https://linkedin.com' },
-              { name: 'Facebook', icon: '👥', color: 'from-blue-600 to-blue-500', url: 'https://facebook.com' }
-            ].map((platform) => (
-              <a 
-                key={platform.name}
-                href={platform.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group text-center hover:scale-110 transition-all duration-200"
-              >
-                <div className={`bg-gradient-to-tr ${platform.color} rounded-xl h-14 w-14 mx-auto flex items-center justify-center text-white font-bold text-xl group-hover:shadow-lg transition-shadow mb-2`}>
-                  {platform.icon}
-                </div>
-                <p className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">{platform.name}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Simplified Features Section */}
-      <section id="features" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Four Ways to Earn
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Multiple income streams designed for creators, investors, and brands
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Simplified Feature Cards */}
-            {[
-              {
-                icon: <Zap className="w-8 h-8 text-blue-600" />,
-                title: "Fuel the Moment",
-                description: "Boost upcoming content and earn participation rewards",
-                payout: "$25 avg",
-                bgColorClass: "bg-blue-100",
-                textColorClass: "text-blue-600"
-              },
-              {
-                icon: <TrendingUp className="w-8 h-8 text-green-600" />,
-                title: "Equity Trading",
-                description: "Own permanent shares of viral Moments",
-                payout: "12.5% ROI",
-                bgColorClass: "bg-green-100",
-                textColorClass: "text-green-600"
-              },
-              {
-                icon: <Target className="w-8 h-8 text-purple-600" />,
-                title: "Social Arbitrage",
-                description: "Predict which Moments will trend next",
-                payout: "87% win rate",
-                bgColorClass: "bg-purple-100",
-                textColorClass: "text-purple-600"
-              },
-              {
-                icon: <Users className="w-8 h-8 text-orange-600" />,
-                title: "Moment Scaling",
-                description: "Help brands turn ideas into movements",
-                payout: "Direct rewards",
-                bgColorClass: "bg-orange-100",
-                textColorClass: "text-orange-600"
-              }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-                <div className={`${feature.bgColorClass} rounded-xl p-3 w-fit mb-4`}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 mb-4">{feature.description}</p>
-                <div className={`${feature.textColorClass} font-semibold text-sm`}>
-                  {feature.payout}
-                </div>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={() => redirectToLogin()}
+                  className="group inline-flex items-center justify-center rounded-full bg-orange-600 px-7 py-4 text-base font-black text-white shadow-xl shadow-orange-600/20 transition hover:-translate-y-0.5 hover:bg-orange-700"
+                >
+                  Start discovering
+                  <ArrowRight className="ml-2 h-5 w-5 transition group-hover:translate-x-1" />
+                </button>
+                <button
+                  onClick={() => navigate('/activate')}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-900/15 bg-white/75 px-7 py-4 text-base font-black text-slate-950 transition hover:border-slate-950"
+                >
+                  Build a campaign
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* Simplified How it Works */}
-      <section id="how-it-works" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Start Earning in 3 Steps
-            </h2>
-            <p className="text-xl text-gray-600">Simple. Fast. Profitable.</p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-12 max-w-4xl mx-auto">
-            {[
-              {
-                step: "1",
-                title: "Sign Up Free",
-                description: "Create your account in under 2 minutes",
-                colorClass: "bg-gradient-to-r from-blue-500 to-blue-600"
-              },
-              {
-                step: "2", 
-                title: "Choose Your Path",
-                description: "Select earning methods that fit your style",
-                colorClass: "bg-gradient-to-r from-purple-500 to-purple-600"
-              },
-              {
-                step: "3",
-                title: "Get Paid",
-                description: "Withdraw earnings instantly to your account",
-                colorClass: "bg-gradient-to-r from-green-500 to-green-600"
-              }
-            ].map((step, index) => (
-              <div key={index} className="text-center">
-                <div className={`${step.colorClass} rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 text-white font-bold text-2xl shadow-lg`}>
-                  {step.step}
+            <div id="discover" className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-3 shadow-2xl shadow-slate-950/20">
+              <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 text-white">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-orange-300">Pulse board</p>
+                  <h2 className="text-xl font-black">Open now</h2>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
+                <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">LIVE</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Social Proof */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-12">Growing with Our Early Community</h2>
-          
-          <div className="grid lg:grid-cols-4 gap-8 mb-12">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <div className="text-4xl font-bold mb-2 text-yellow-300">{activeStats.earners.toLocaleString()}</div>
-              <div className="text-blue-100">Early Adopters</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <div className="text-4xl font-bold mb-2 text-green-300">${activeStats.payout.toFixed(1)}k</div>
-              <div className="text-blue-100">Paid Out So Far</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <div className="text-4xl font-bold mb-2 text-pink-300">4.8★</div>
-              <div className="text-blue-100">Early User Rating</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-              <div className="text-4xl font-bold mb-2 text-orange-300">${activeStats.earnings}</div>
-              <div className="text-blue-100">Average Weekly Earnings</div>
+              <div className="space-y-3 p-2">
+                {opportunityCards.map((card) => (
+                  <article key={card.title} className="group rounded-3xl bg-white p-4 transition hover:-translate-y-1">
+                    <div className={`mb-4 h-2 rounded-full bg-gradient-to-r ${card.tone}`} />
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{card.label}</p>
+                        <h3 className="mt-2 text-xl font-black leading-tight text-slate-950">{card.title}</h3>
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{card.signal}</span>
+                    </div>
+                    <div className="mt-5 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-2 text-sm font-bold text-slate-500">
+                        <Clock className="h-4 w-4" />
+                        {card.meta}
+                      </span>
+                      <button onClick={() => redirectToLogin()} className="inline-flex items-center text-sm font-black text-orange-700">
+                        {card.action}
+                        <ArrowRight className="ml-1 h-4 w-4" />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl px-8 py-6 inline-block">
-            <div className="flex items-center space-x-3">
-              <Sparkles className="w-6 h-6 animate-pulse" />
-              <span className="font-bold text-lg">Be part of something new from the ground up</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Streamlined Success Stories */}
-      <section id="success-stories" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Real People, Real Results
-            </h2>
-            <p className="text-xl text-gray-600">Success stories from our community</p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Chen",
-                role: "Early Creator", 
-                earnings: "$247",
-                timeframe: "first month",
-                quote: "Made $25 on my first day with zero followers. Love being an early adopter!"
-              },
-              {
-                name: "Mike Rodriguez", 
-                role: "Beta Tester",
-                earnings: "$384",
-                timeframe: "2 months",
-                quote: "Getting in early feels amazing. The platform has real potential."
-              },
-              {
-                name: "Local Coffee Co.",
-                role: "Early Brand Partner",
-                earnings: "Great reach", 
-                timeframe: "6 weeks",
-                quote: "Loving the authentic engagement from real early users. Quality over quantity."
-              }
-            ].map((story, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mr-4"></div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">{story.name}</h4>
-                    <p className="text-gray-600 text-sm">{story.role}</p>
-                  </div>
+          <div className="relative border-t border-slate-900/10 bg-white/60">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+              {marketStrip.map((item) => (
+                <div key={item.label} className="px-4 py-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
+                  <p className="mt-1 text-2xl font-black text-slate-950">{item.value}</p>
+                  <p className="text-sm font-bold text-emerald-700">{item.change}</p>
                 </div>
-                
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-                  <div className="text-lg font-bold text-green-600">{story.earnings}</div>
-                  <div className="text-xs text-green-700">in {story.timeframe}</div>
-                </div>
-                
-                <p className="text-gray-700 italic">"{story.quote}"</p>
-                
-                <div className="flex items-center text-yellow-500 mt-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="mechanics" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Choose your path</p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">The marketing promise stays: multiple ways to earn, create, activate, and grow.</h2>
+              <p className="mt-4 text-lg leading-8 text-slate-700">
+                The platform should preserve the strong conversion copy while making it easier to scan, compare, and act. These are not explanation panels anymore; they are entry points.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-slate-900/10 bg-white p-3 shadow-xl shadow-slate-950/5">
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                {pathTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActivePath(tab)}
+                    className={`rounded-2xl px-3 py-3 text-sm font-black transition ${
+                      activePath.id === tab.id
+                        ? 'bg-slate-950 text-white shadow-lg shadow-slate-950/15'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-3 rounded-[1.5rem] bg-[#f7f3ec] p-6">
+                <h3 className="text-3xl font-black leading-tight text-slate-950">{activePath.headline}</h3>
+                <p className="mt-4 text-base leading-7 text-slate-700">{activePath.copy}</p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {activePath.actions.map((action) => (
+                    <div key={action} className="rounded-2xl border border-slate-900/10 bg-white p-4">
+                      <CheckCircle className="mb-3 h-5 w-5 text-emerald-600" />
+                      <p className="text-sm font-bold leading-5 text-slate-800">{action}</p>
+                    </div>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Your Financial Freedom Starts Now
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Join thousands of creators already earning on Promorang
-          </p>
-          
-          <button
-            onClick={() => {
-              console.log('Final CTA clicked');
-              redirectToLogin();
-            }}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center"
-          >
-            Start Earning Today
-            <ChevronRight className="ml-2 w-5 h-5" />
-          </button>
-
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="font-bold text-green-300 flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                100% Free to Start
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="font-bold text-yellow-300 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Grow Your Wealth
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="font-bold text-blue-300 flex items-center justify-center">
-                <Shield className="w-4 h-4 mr-2" />
-                Secure & Trusted
+                <button
+                  onClick={() => activePath.id === 'brands' || activePath.id === 'hosts' ? navigate('/activate') : redirectToLogin()}
+                  className="mt-6 inline-flex items-center rounded-full bg-orange-600 px-6 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-orange-700"
+                >
+                  {activePath.cta}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Clean Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
-              <img 
-                src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
-                alt="Promorang"
-                className="h-8 w-auto mr-4"
-              />
-              <p className="text-gray-600 text-sm">
-                Transform your influence into income
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {earningMechanics.map((mechanic) => {
+              const Icon = mechanic.icon;
+              return (
+                <article key={mechanic.title} className={`rounded-3xl border p-6 ${mechanic.tone}`}>
+                  <Icon className="mb-5 h-8 w-8" />
+                  <h3 className="text-xl font-black text-slate-950">{mechanic.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-700">{mechanic.description}</p>
+                  <p className="mt-5 text-sm font-black">{mechanic.signal}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section id="calculator" className="bg-white py-16 lg:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Commercial calculator</p>
+                <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Keep the pricing clarity. Make the outcome obvious.</h2>
+                <p className="mt-4 text-lg leading-8 text-slate-700">
+                  Brands need a concrete starting point: price, actions, proof, delivery, and expected value before they talk to anyone.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/activate')}
+                className="inline-flex items-center justify-center rounded-full border border-slate-900/15 bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:-translate-y-0.5"
+              >
+                See business page
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[1fr_0.85fr]">
+              <div className="grid gap-4 md:grid-cols-3">
+                {calculatorPackages.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedPackage(item)}
+                    className={`rounded-3xl border p-6 text-left transition hover:-translate-y-1 ${
+                      selectedPackage.id === item.id
+                        ? 'border-orange-500 bg-orange-50 shadow-xl shadow-orange-600/10'
+                        : 'border-slate-900/10 bg-[#f7f3ec] hover:border-slate-900/25'
+                    }`}
+                  >
+                    <p className="text-sm font-black uppercase tracking-[0.18em] text-slate-500">{item.delivery}</p>
+                    <h3 className="mt-3 text-2xl font-black text-slate-950">{item.label}</h3>
+                    <p className="mt-3 text-3xl font-black text-orange-700">JMD ${item.price.toLocaleString()}</p>
+                    <div className="mt-5 space-y-3 text-sm font-bold text-slate-700">
+                      <p>{item.actions.toLocaleString()} verified actions</p>
+                      <p>{item.ugc}</p>
+                      <p>{item.proof}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-950/20">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                    <Calculator className="h-6 w-6 text-orange-300" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">Estimate</p>
+                    <h3 className="text-2xl font-black">{selectedPackage.label}</h3>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-white/10 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Cost/action</p>
+                    <p className="mt-2 text-3xl font-black">JMD ${calculatorResults.costPerAction}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/10 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Est. reach</p>
+                    <p className="mt-2 text-3xl font-black">{calculatorResults.estimatedReach.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/10 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Proof</p>
+                    <p className="mt-2 text-3xl font-black">{calculatorResults.proofValue}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/10 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Delivery</p>
+                    <p className="mt-2 text-3xl font-black">{selectedPackage.delivery}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => redirectToLogin()}
+                  className="mt-6 flex w-full items-center justify-center rounded-full bg-white px-6 py-4 font-black text-slate-950 transition hover:-translate-y-0.5"
+                >
+                  Launch this package
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="paths" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="mb-10 max-w-3xl">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Stakeholder journeys</p>
+            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">One platform, four reasons to care.</h2>
+            <p className="mt-4 text-lg leading-8 text-slate-700">
+              The product should meet each stakeholder with an action, not a lecture: discover, create, verify, measure, and come back.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {stakeholderPaths.map((path) => {
+              const Icon = path.icon;
+              return (
+                <article key={path.title} className="rounded-3xl border border-slate-900/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-950">{path.title}</h3>
+                  <p className="mt-3 text-base font-semibold leading-7 text-slate-800">{path.outcome}</p>
+                  <p className="mt-4 text-sm leading-6 text-slate-600">{path.proof}</p>
+                  <button onClick={() => redirectToLogin()} className="mt-6 inline-flex items-center text-sm font-black text-orange-700">
+                    {path.cta}
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="bg-slate-950 py-16 text-white lg:py-24">
+          <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-300">How it behaves</p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">From browsing to proof in one loop.</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ['Discover', 'Browse live opportunities by role, reward, urgency, and proof needed.', Compass],
+                ['Choose', 'Commit to a mission, moment, campaign, or place with clear expectations.', Play],
+                ['Act', 'Complete the social, local, or creative task with guided proof capture.', Zap],
+                ['Keep value', 'Track earnings, status, memories, and next-best actions in the wallet.', Flame]
+              ].map(([title, text, Icon], index) => {
+                const StepIcon = Icon as typeof Compass;
+                return (
+                  <div key={title as string} className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                    <div className="mb-5 flex items-center justify-between">
+                      <StepIcon className="h-6 w-6 text-orange-300" />
+                      <span className="text-sm font-black text-white/40">0{index + 1}</span>
+                    </div>
+                    <h3 className="text-xl font-black">{title as string}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{text as string}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-slate-900/10 bg-[#f7f3ec] py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 text-center">
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Platform reach</p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Creators earn across the channels people already use.</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {platformSignals.map((platform) => (
+                <div key={platform} className="rounded-3xl border border-slate-900/10 bg-white p-5 text-center shadow-sm">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white">
+                    {platform.slice(0, 2).toUpperCase()}
+                  </div>
+                  <p className="text-sm font-black text-slate-800">{platform}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white py-16 lg:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Social proof</p>
+                <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Real people, real results, now framed as a product loop.</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-2xl bg-emerald-50 px-4 py-3">
+                  <p className="text-2xl font-black text-emerald-700">{activeStats.earners.toLocaleString()}</p>
+                  <p className="text-xs font-bold text-emerald-900">Early adopters</p>
+                </div>
+                <div className="rounded-2xl bg-orange-50 px-4 py-3">
+                  <p className="text-2xl font-black text-orange-700">${activeStats.payout.toFixed(1)}k</p>
+                  <p className="text-xs font-bold text-orange-900">Paid out</p>
+                </div>
+                <div className="rounded-2xl bg-blue-50 px-4 py-3">
+                  <p className="text-2xl font-black text-blue-700">4.8</p>
+                  <p className="text-xs font-bold text-blue-900">Rating</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              {proofStories.map((story) => (
+                <article key={story.name} className="rounded-3xl border border-slate-900/10 bg-[#f7f3ec] p-6">
+                  <div className="mb-5 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-black text-slate-950">{story.name}</h3>
+                      <p className="text-sm font-bold text-slate-500">{story.role}</p>
+                    </div>
+                    <div className="rounded-2xl bg-white px-4 py-3 text-right">
+                      <p className="text-2xl font-black text-orange-700">{story.result}</p>
+                      <p className="text-xs font-bold text-slate-500">{story.label}</p>
+                    </div>
+                  </div>
+                  <p className="text-base leading-7 text-slate-700">"{story.quote}"</p>
+                  <div className="mt-5 flex text-orange-500">
+                    {[...Array(5)].map((_, index) => (
+                      <Star key={index} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="trust" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.25fr]">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Success factors</p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Design standards for the platform, not just the page.</h2>
+              <p className="mt-4 text-lg leading-8 text-slate-700">
+                A stronger Promorang should help people scan quickly, trust what they see, and understand why their next action matters.
               </p>
             </div>
-            <div className="flex space-x-8 text-sm text-gray-600">
-              <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
-              <a href="#" className="hover:text-gray-900 transition-colors">Support</a>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {successFactors.map((factor) => {
+                const Icon = factor.icon;
+                return (
+                  <div key={factor.label} className="rounded-3xl border border-slate-900/10 bg-white p-6">
+                    <Icon className="mb-5 h-7 w-7 text-orange-600" />
+                    <h3 className="text-xl font-black text-slate-950">{factor.label}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{factor.text}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500 text-sm">
-            <p>&copy; 2024 Promorang. All rights reserved.</p>
+        </section>
+
+        <section className="px-4 pb-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl rounded-[2rem] bg-orange-600 px-6 py-10 text-white shadow-2xl shadow-orange-600/20 sm:px-10 lg:flex lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Ready to enter the live market?</h2>
+              <p className="mt-3 max-w-2xl text-orange-50">Start with discovery, then grow into creation, campaigns, and measurable stakeholder value.</p>
+            </div>
+            <button
+              onClick={() => redirectToLogin()}
+              className="mt-6 inline-flex items-center rounded-full bg-white px-7 py-4 font-black text-orange-700 transition hover:-translate-y-0.5 lg:mt-0"
+            >
+              Open Promorang
+              <TrendingUp className="ml-2 h-5 w-5" />
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-slate-900/10 bg-white/50 py-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 text-sm text-slate-600 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div className="flex items-center gap-4">
+            <img
+              src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
+              alt="Promorang"
+              className="h-8 w-auto"
+            />
+            <span>Discovery, action, and verified value.</span>
+          </div>
+          <div className="flex gap-6 font-semibold">
+            <a href="#discover" className="hover:text-slate-950">Discover</a>
+            <a href="#paths" className="hover:text-slate-950">Journeys</a>
+            <a href="#trust" className="hover:text-slate-950">Trust</a>
           </div>
         </div>
       </footer>

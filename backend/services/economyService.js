@@ -4,6 +4,7 @@
  */
 
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const crypto = require('crypto');
 const supabase = global.supabase || serviceSupabase || null;
 
 // Economy Configuration (v3.2)
@@ -86,7 +87,7 @@ async function getBalance(userId) {
 
     try {
         let { data, error } = await supabase
-            .from('user_balances')
+            .from('economy_wallets')
             .select('*')
             .eq('user_id', userId)
             .single();
@@ -94,7 +95,7 @@ async function getBalance(userId) {
         if (error && error.code === 'PGRST116') {
             // Balance not found, create one
             const { data: newData, error: createError } = await supabase
-                .from('user_balances')
+                .from('economy_wallets')
                 .insert({ user_id: userId })
                 .select()
                 .single();
@@ -122,56 +123,25 @@ async function addCurrency(userId, currency, amount, source, referenceId = null,
     if (amount <= 0) throw new Error('Amount must be positive');
 
     try {
-        // 1. Record Transaction
-        const transactionData = {
-            user_id: userId,
-            currency,
-            amount,
-            transaction_type: 'earn',
-            source,
-            reference_id: referenceId,
-            description
-        };
-
-        // If currency is Gems, track the USD value
-        if (currency === 'gems') {
-            const rate = await getGemUSDRate();
-            transactionData.usd_rate_at_time = rate;
-            transactionData.usd_value = (amount * rate).toFixed(2);
-        }
-
-        const { error: txError } = await supabase
-            .from('transaction_history')
-            .insert(transactionData);
-
-        if (txError) throw txError;
-
-        // 2. Update Balance (using atomic increment if possible, or simple update)
-        // Supabase supports rpc for atomic increment, but let's use a simple update for now or raw sql if needed.
-        // Actually, postgREST doesn't support atomic increment easily without RPC.
-        // We will fetch and update for MVP, realizing race condition risk.
-        // Optimized: Create a DB function `increment_balance` usually, but avoiding new migrations if not needed.
-        // Let's rely on stored procedure if I had created it. 
-        // Fallback: Read-Modify-Write.
-
-        // Better: We can rely on a trigger on transaction_history to update balance? No, keeping logic here is explicit.
-        // I'll stick to Read-Modify-Write for this task scope, but noted for improvement.
-
-        const { data: currentBalance } = await getBalance(userId);
-        const newAmount = (Number(currentBalance[currency]) || 0) + amount;
-
-        const { error: updateError } = await supabase
-            .from('user_balances')
-            .update({ [currency]: newAmount, updated_at: new Date() })
-            .eq('user_id', userId);
-
-        if (updateError) throw updateError;
+        const { data: transaction, error } = await supabase.rpc('post_economy_transaction', {
+            p_user_id: userId,
+            p_currency: currency,
+            p_amount: amount,
+            p_transaction_type: 'earn',
+            p_source: source,
+            p_idempotency_key: `${source}:earn:${referenceId || crypto.randomUUID()}:${currency}`,
+            p_reference_id: referenceId,
+            p_reference_table: null,
+            p_description: description,
+            p_metadata: {}
+        });
+        if (error) throw error;
 
         if (currency === 'promokeys' && !String(source || '').includes('refund')) {
             await recordParticipantKeysEarned(userId, amount, source, referenceId, description);
         }
 
-        return { success: true, new_balance: newAmount };
+        return { success: true, new_balance: transaction.balance_after, transaction };
     } catch (error) {
         console.error('[Economy Service] Error adding currency:', error);
         throw error;
@@ -188,47 +158,20 @@ async function spendCurrency(userId, currency, amount, source, referenceId = nul
     if (amount <= 0) throw new Error('Amount must be positive');
 
     try {
-        const { data: balance } = await getBalance(userId);
-        const currentAmount = Number(balance[currency]) || 0;
-
-        if (currentAmount < amount) {
-            throw new Error(`Insufficient ${currency} balance`);
-        }
-
-        // 1. Record Transaction
-        const transactionData = {
-            user_id: userId,
-            currency,
-            amount: -amount, // Negative for spend
-            transaction_type: 'spend',
-            source,
-            reference_id: referenceId,
-            description
-        };
-
-        // If currency is Gems, track the USD value
-        if (currency === 'gems') {
-            const rate = await getGemUSDRate();
-            transactionData.usd_rate_at_time = rate;
-            transactionData.usd_value = (-amount * rate).toFixed(2);
-        }
-
-        const { error: txError } = await supabase
-            .from('transaction_history')
-            .insert(transactionData);
-
-        if (txError) throw txError;
-
-        // 2. Update Balance
-        const newAmount = currentAmount - amount;
-        const { error: updateError } = await supabase
-            .from('user_balances')
-            .update({ [currency]: newAmount, updated_at: new Date() })
-            .eq('user_id', userId);
-
-        if (updateError) throw updateError;
-
-        return { success: true, new_balance: newAmount };
+        const { data: transaction, error } = await supabase.rpc('post_economy_transaction', {
+            p_user_id: userId,
+            p_currency: currency,
+            p_amount: -amount,
+            p_transaction_type: 'spend',
+            p_source: source,
+            p_idempotency_key: `${source}:spend:${referenceId || crypto.randomUUID()}:${currency}`,
+            p_reference_id: referenceId,
+            p_reference_table: null,
+            p_description: description,
+            p_metadata: {}
+        });
+        if (error) throw error;
+        return { success: true, new_balance: transaction.balance_after, transaction };
     } catch (error) {
         console.error('[Economy Service] Error spending currency:', error);
         throw error;
@@ -245,35 +188,13 @@ async function convertPointsToPromoKeys(userId, quantity = 1) {
     const totalCost = rate * quantity;
 
     try {
-        const { data: balance } = await getBalance(userId);
-
-        // Check Daily Cap
-        const lastReset = new Date(balance.last_daily_conversion_reset);
-        const now = new Date();
-        const isToday = lastReset.getDate() === now.getDate() && lastReset.getMonth() === now.getMonth() && lastReset.getFullYear() === now.getFullYear();
-
-        let dailyCount = isToday ? (balance.daily_conversions_count || 0) : 0;
-
-        if (dailyCount + quantity > daily_cap) {
-            throw new Error(`Daily conversion limit reached (${daily_cap} keys per day)`);
-        }
-
-        // Spend Points
-        await spendCurrency(userId, 'points', totalCost, 'conversion_to_promokeys');
-
-        // Add PromoKeys
-        await addCurrency(userId, 'promokeys', quantity, 'conversion_from_points');
-
-        // Update Daily Stats
-        await supabase
-            .from('user_balances')
-            .update({
-                daily_conversions_count: dailyCount + quantity,
-                last_daily_conversion_reset: isToday ? balance.last_daily_conversion_reset : now
-            })
-            .eq('user_id', userId);
-
-        return { success: true, message: `Converted ${totalCost} Points to ${quantity} PromoKeys` };
+        const { data: balance, error } = await supabase.rpc('convert_points_to_promokeys', {
+            p_user_id: userId,
+            p_quantity: quantity,
+            p_idempotency_key: `points-to-promokeys:${userId}:${crypto.randomUUID()}`
+        });
+        if (error) throw error;
+        return { success: true, balance, message: `Converted ${totalCost} Points to ${quantity} PromoKeys` };
     } catch (error) {
         console.error('[Economy Service] Error converting points:', error);
         throw error;
@@ -317,7 +238,7 @@ async function unlockMasterKey(userId) {
         expiresAt.setHours(expiresAt.getHours() + CONFIG.master_key.duration_hours);
 
         await supabase
-            .from('user_balances')
+            .from('economy_wallets')
             .update({
                 master_key_unlocked: true,
                 master_key_expires_at: expiresAt.toISOString()

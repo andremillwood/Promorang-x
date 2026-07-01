@@ -1,9 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { DemoExperienceBanner } from "@/components/demo/DemoExperienceBanner";
 import { Suspense, lazy } from "react";
 
-const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/ParticipantDashboardV2"));
+const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
 const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
@@ -43,12 +42,9 @@ const Dashboard = () => {
   const ResolvedDashboard = dashboardByRole[resolvedRole] || ParticipantDashboardV2;
 
   return (
-    <>
-      <DemoExperienceBanner role={resolvedRole} />
-      <Suspense fallback={dashboardFallback}>
-        <ResolvedDashboard />
-      </Suspense>
-    </>
+    <Suspense fallback={dashboardFallback}>
+      <ResolvedDashboard />
+    </Suspense>
   );
 };
 

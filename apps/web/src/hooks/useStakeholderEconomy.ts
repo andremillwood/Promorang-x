@@ -27,8 +27,8 @@ export function useBrandEconomy() {
             if (momentIds.length === 0) return { totalPointsDistributed: 0, totalKeysImpacted: 0, activeMomentROI: 0, unusualActivityCount: 0 };
 
             // 2. Sum points from transaction_history where reference_id is in momentIds
-            const { data: transactions, error } = await supabase
-                .from("transaction_history")
+            const { data: transactions, error } = await (supabase as any)
+                .from("economy_transactions")
                 .select("amount")
                 .eq("currency", "points")
                 .in("reference_id", momentIds);
@@ -75,8 +75,8 @@ export function useMerchantEconomy() {
             if (momentIds.length === 0) return { totalPointsEarned: 0, visitorCount: 0, yieldPerVisitor: 0 };
 
             // 3. Sum points for these moments
-            const { data: transactions, error } = await supabase
-                .from("transaction_history")
+            const { data: transactions, error } = await (supabase as any)
+                .from("economy_transactions")
                 .select("amount")
                 .eq("currency", "points")
                 .in("reference_id", momentIds);
@@ -112,8 +112,8 @@ export function useHostEconomy() {
             const momentIds = moments?.map(m => m.id) || [];
             if (momentIds.length === 0) return { economicInfluence: 0, pointsGenerated: 0 };
 
-            const { data: transactions, error } = await supabase
-                .from("transaction_history")
+            const { data: transactions, error } = await (supabase as any)
+                .from("economy_transactions")
                 .select("amount")
                 .eq("currency", "points")
                 .in("reference_id", momentIds);

@@ -11,11 +11,11 @@ import { PieceCard } from '@/components/trading/PieceCard';
 import { TradeModal } from '@/components/trading/TradeModal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, TrendingUp, Gem, Loader2, ShieldCheck, TriangleAlert, Route, WalletCards } from 'lucide-react';
+import { Search, Filter, TrendingUp, Gem, Loader2, TriangleAlert, Route, WalletCards } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { cultureImages } from '@/data/culture-demo';
 
 interface Piece {
   id: string;
@@ -155,18 +155,20 @@ export function TradingMarketplace() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[#090909] text-white">
       {/* Header */}
-      <div className="border-b bg-card/70 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+      <section className="relative overflow-hidden border-b border-white/10">
+        <img src={cultureImages.momentConcert} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
+        <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-20 sm:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Gem className="h-8 w-8 text-violet-500" />
-                Piece Marketplace
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><Gem className="h-3.5 w-3.5" /> Active piece market</div>
+              <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
+                Back the culture already proving itself.
               </h1>
-              <p className="text-muted-foreground mt-1">
-                Buy and sell pieces with Gems
+              <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
+                Explore active positions tied to moments, stories, hosts, and places with visible market signal.
               </p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="sm">
@@ -188,10 +190,10 @@ export function TradingMarketplace() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Filters */}
-      <div className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
+      <div className="sticky top-0 z-10 border-b border-white/10 bg-[#090909]/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -228,48 +230,24 @@ export function TradingMarketplace() {
 
       {/* Market Stats */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Alert className="mb-6 border-primary/20 bg-primary/5">
-          <ShieldCheck className="h-4 w-4" />
-          <AlertTitle>How pieces connect Promorang</AlertTitle>
-          <AlertDescription className="space-y-3">
-            <p>
-              Moments, content missions, hosts, and venues create activity. Eligible activity becomes pieces, pieces can sit in your portfolio, and active pools let users trade or provide liquidity with Gems.
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/explore/moments">Explore Moments</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/watch-unlock">Watch & Unlock</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/kyc">Review KYC</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/liquidity">Open Liquidity</Link>
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-
         <div className="mb-8 grid gap-4 lg:grid-cols-3">
           <div className="rounded-lg border bg-card p-4">
             <Route className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Earn From Moments</h2>
+            <h2 className="font-semibold">Earn through proof</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Join a moment for early participant pieces. Check in for verified attendance pieces. Invite people who show up to earn contributor pieces.
             </p>
           </div>
           <div className="rounded-lg border bg-card p-4">
             <WalletCards className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Portfolio</h2>
+            <h2 className="font-semibold">Keep your positions</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Your portfolio shows piece holdings across content, moments, hosts, and venues with links to each profile.
             </p>
           </div>
           <div className="rounded-lg border bg-card p-4">
             <TrendingUp className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Earn From Content</h2>
+            <h2 className="font-semibold">Back active signal</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Content-attributed joins, check-ins, and verified proof can award pieces when distribution turns into real activity.
             </p>

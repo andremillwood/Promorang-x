@@ -46,7 +46,7 @@ export default function BrandOnboarding() {
             if (!response.ok) throw new Error(data.error || 'Failed to create organization');
 
             toast({
-                title: "Brand workspace ready",
+                title: "Brand account ready",
                 description: `${formData.name} can start planning a first Moment.`,
             });
 
@@ -76,7 +76,7 @@ export default function BrandOnboarding() {
                     </div>
                     <h1 className="text-3xl font-bold font-serif">Start Your Brand Activation</h1>
                     <p className="text-muted-foreground">
-                        Set up a simple workspace for campaigns, Moments, QR engagement, and participation reporting.
+                        Set up your brand account for campaigns, Moments, QR engagement, and participation reporting.
                     </p>
                 </div>
 
@@ -161,7 +161,7 @@ export default function BrandOnboarding() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-                                {loading ? "Creating..." : "Create Brand Workspace"}
+                                {loading ? "Creating..." : "Create Brand Account"}
                             </Button>
                         </CardFooter>
                     </form>

@@ -1,5 +1,5 @@
 /**
- * Liquidity Provider Dashboard
+ * Liquidity Provider Surface
  * Shows all pools where user can provide liquidity
  * Displays earnings, APRs, and positions
  */
@@ -168,16 +168,19 @@ export function LiquidityDashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="border-b bg-card/70 backdrop-blur">
+      <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.18),transparent_34%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(18,18,18,0.94))] backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Droplets className="h-8 w-8 text-violet-500" />
-                Liquidity Provider
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">
+                <Droplets className="h-3.5 w-3.5" />
+                Pieces Liquidity
+              </div>
+              <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-6xl">
+                Back the value moving through Promorang.
               </h1>
-              <p className="text-muted-foreground mt-1">
-                Deposit Gems and Pieces to earn trading fees
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
+                Add Gems and Pieces to active pools so cultural value can trade with less friction. This is the advanced layer for people who want to support Moments, creators, venues, and status-backed assets.
               </p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="sm">
@@ -190,7 +193,7 @@ export function LiquidityDashboard() {
             </div>
             <Button onClick={() => window.location.href = '/marketplace'}>
               <ArrowUpRight className="h-4 w-4 mr-1" />
-              Trade Pieces
+              Open Marketplace
             </Button>
           </div>
         </div>
@@ -199,11 +202,25 @@ export function LiquidityDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Alert className="mb-6 border-primary/20 bg-primary/5">
           <Info className="h-4 w-4" />
-          <AlertTitle>Liquidity readiness</AlertTitle>
+          <AlertTitle>Advanced value layer</AlertTitle>
           <AlertDescription>
-            Liquidity is an advanced surface. Pool browsing is live, but position reporting and deeper portfolio behavior still depend on backend endpoints that need fuller production validation.
+            Liquidity supports Pieces by pairing them with Gems. Pool browsing is live, but position reporting and deeper portfolio behavior still depend on backend endpoints that need fuller production validation. Review KYC and risk before adding funds.
           </AlertDescription>
         </Alert>
+
+        <div className="mb-8 grid gap-3 md:grid-cols-4">
+          {[
+            ["Choose a pool", "Back a Moment, creator, host, venue, or content asset with real market signal."],
+            ["Pair value", "Deposit equal value of Pieces and Gems so trades can move."],
+            ["Earn fees", "Trading activity can return fees to liquidity providers."],
+            ["Manage risk", "Track exposure, redemption rules, KYC, and impermanent loss before scaling."],
+          ].map(([label, body]) => (
+            <div key={label} className="rounded-2xl border border-white/10 bg-card/70 p-4">
+              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{label}</div>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
+            </div>
+          ))}
+        </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -211,7 +228,7 @@ export function LiquidityDashboard() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Wallet className="h-4 w-4" />
-                Total Deposited
+                Value Backed
               </div>
               <div className="text-2xl font-bold mt-1">{totalDeposited.toFixed(2)} Gems</div>
               <div className="text-sm text-muted-foreground">
@@ -230,7 +247,7 @@ export function LiquidityDashboard() {
                 +{totalFeesEarned.toFixed(4)} Gems
               </div>
               <div className="text-sm text-muted-foreground">
-                Lifetime earnings
+                lifetime fee signal
               </div>
             </CardContent>
           </Card>
@@ -243,7 +260,7 @@ export function LiquidityDashboard() {
               </div>
               <div className="text-2xl font-bold mt-1">{positions.length}</div>
               <div className="text-sm text-muted-foreground">
-                pools
+                pools supported
               </div>
             </CardContent>
           </Card>
@@ -256,7 +273,7 @@ export function LiquidityDashboard() {
               </div>
               <div className="text-2xl font-bold mt-1">{gemsBalance.toFixed(2)}</div>
               <div className="text-sm text-muted-foreground">
-                Ready to deposit
+                ready to pair
               </div>
             </CardContent>
           </Card>
@@ -266,7 +283,7 @@ export function LiquidityDashboard() {
           <TabsList>
             <TabsTrigger value="all">All Pools</TabsTrigger>
             <TabsTrigger value="my-positions">My Positions ({positions.length})</TabsTrigger>
-            <TabsTrigger value="high-apr">High APR</TabsTrigger>
+            <TabsTrigger value="high-apr">High Signal</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -291,7 +308,7 @@ export function LiquidityDashboard() {
                           <div className="text-2xl font-bold text-green-600">
                             {apr.toFixed(0)}%
                           </div>
-                          <div className="text-xs text-muted-foreground">APR</div>
+                          <div className="text-xs text-muted-foreground">fee signal</div>
                         </div>
                       </div>
                     </CardHeader>
@@ -357,7 +374,7 @@ export function LiquidityDashboard() {
                 <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No positions yet</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start earning fees by adding liquidity to pools
+                  Start supporting Pieces by adding liquidity to an active pool.
                 </p>
                 <Button onClick={() => document.querySelector('[value="all"]')?.dispatchEvent(new Event('click'))}>
                   Browse Pools
@@ -446,7 +463,7 @@ export function LiquidityDashboard() {
                           </Badge>
                           <Badge className="bg-green-100 text-green-800">
                             <TrendingUp className="h-3 w-3 mr-1" />
-                            Top APR
+                            Top Signal
                           </Badge>
                         </div>
                         <CardTitle className="text-lg mt-2">
@@ -472,36 +489,36 @@ export function LiquidityDashboard() {
         </Tabs>
 
         {/* Info Section */}
-        <Card className="mt-8 bg-blue-50 border-blue-200">
+        <Card className="mt-8 border-primary/20 bg-primary/5">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
+            <CardTitle className="flex items-center gap-2">
               <Info className="h-5 w-5" />
-              How Liquidity Providing Works
+              How Liquidity Works
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-blue-700">
+          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <div className="font-semibold">1. Deposit</div>
+                <div className="font-semibold">1. Pair Value</div>
                 <p className="text-sm">
                   Add equal value of Pieces and Gems to a pool. You receive LP tokens representing your share.
                 </p>
               </div>
               <div className="space-y-2">
-                <div className="font-semibold">2. Earn Fees</div>
+                <div className="font-semibold">2. Support Movement</div>
                 <p className="text-sm">
                   Every trade pays 0.25% fees to LPs. Your earnings auto-compound in the pool.
                 </p>
               </div>
               <div className="space-y-2">
-                <div className="font-semibold">3. Withdraw Anytime</div>
+                <div className="font-semibold">3. Exit With Awareness</div>
                 <p className="text-sm">
                   Remove your liquidity anytime. You get back your deposit + earned fees (minus impermanent loss).
                 </p>
               </div>
             </div>
             
-            <div className="text-sm bg-blue-100 rounded-lg p-3">
+            <div className="text-sm rounded-lg border border-white/10 bg-background/60 p-3 text-muted-foreground">
               <strong>Impermanent Loss:</strong> If piece prices change significantly, you may get back different amounts than deposited. 
               Higher trading volume = more fees = less impact from IL.
             </div>

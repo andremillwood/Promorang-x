@@ -225,16 +225,16 @@ const BrandDashboardV2 = () => {
   return (
     <div className="space-y-6 pb-20">
       <DashboardHero
-        badge="PromoPush Dashboard"
+        badge="Brand Control Room"
         title={isNewBrand ? "Launch the first campaign you can actually prove" : "Turn campaign attention into verified movement"}
-        description="Fund a moment, drop, or reward people actually want, verify who acted, attribute what happened, then scale the communities that moved."
+        description="Fund a moment, drop, or reward people actually want, verify who acted, attribute what happened, then scale the scenes that moved."
         actions={[
           { label: "Quick launch", icon: Zap, onClick: () => setIsFlashCompilerOpen(!isFlashCompilerOpen) },
           { label: "Create offer", icon: Gift, href: "/dashboard/offers" },
           { label: isEstablishedBrand ? "Insights" : "Planner", icon: BarChart3, onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner") },
         ]}
         stats={[
-          { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live right now", icon: Target },
+          { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live proof loops", icon: Target },
           { label: "Participants", value: totalImpressions.toLocaleString(), helper: "Attributed actions", icon: Users },
           { label: "Redemptions", value: totalRedemptions.toLocaleString(), helper: "Outcome signals", icon: Gift },
           { label: "Points given", value: economy?.totalPointsDistributed?.toLocaleString() || "0", helper: "Distributed through campaigns", icon: Coins },
@@ -266,14 +266,14 @@ const BrandDashboardV2 = () => {
           NEW BRAND: First Campaign Guidance
           ===================================================================== */}
       {isNewBrand && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Target className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">Launch Your First PromoPush</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first proof-backed PromoPush</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and proof-bearing outcomes.
                 </p>
@@ -354,7 +354,7 @@ const BrandDashboardV2 = () => {
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Agency Access</p>
-              <h3 className="mt-2 font-serif text-2xl font-bold">Who is managing this brand?</h3>
+              <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Who is moving this brand?</h3>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                 Connect the agencies allowed to operate this workspace, review pending requests, and remove an agency when the relationship ends.
               </p>
@@ -428,7 +428,7 @@ const BrandDashboardV2 = () => {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No agencies are connected to this brand workspace yet.
+                No agencies are connected to this brand account yet.
               </div>
             )}
           </div>
@@ -509,7 +509,7 @@ const BrandDashboardV2 = () => {
             <section>
               <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-serif text-xl font-bold">
+                  <h2 className="text-2xl font-black tracking-[-0.04em]">
                     {activeCampaigns.length > 0 ? "Active Campaigns" : "Your Campaigns"}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -538,7 +538,7 @@ const BrandDashboardV2 = () => {
                 <Button asChild>
                   <Link to="/create/campaign">
                     <Plus className="w-4 h-4 mr-2" />
-                    Create First Campaign
+                    Create Proof Loop
                   </Link>
                 </Button>
               </CardContent>
@@ -635,7 +635,7 @@ const BrandDashboardV2 = () => {
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Brand Opportunities</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">See moments and creator content in the same workspace</h3>
+                  <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">See moments and creator content in the same workspace</h3>
                   <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
                     Brands should not have to jump between unrelated browse pages. This view surfaces active moments and public creator media together so you can decide what to sponsor, join, or turn into campaign input.
                   </p>
@@ -662,7 +662,7 @@ const BrandDashboardV2 = () => {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moments</p>
-                    <h4 className="mt-1 font-serif text-xl font-bold">
+                    <h4 className="mt-1 text-2xl font-black tracking-[-0.04em]">
                       {directlyAssociatedMoments.length > 0 ? "Moments already touching your brand" : "Moments worth evaluating"}
                     </h4>
                   </div>
@@ -734,7 +734,7 @@ const BrandDashboardV2 = () => {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Content</p>
-                    <h4 className="mt-1 font-serif text-xl font-bold">
+                    <h4 className="mt-1 text-2xl font-black tracking-[-0.04em]">
                       {directlyAssociatedContent.length > 0 ? "Creator media already near your graph" : "Content worth matching"}
                     </h4>
                   </div>
@@ -796,7 +796,7 @@ const BrandDashboardV2 = () => {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Venues</p>
-                    <h4 className="mt-1 font-serif text-xl font-bold">Places where campaigns can become proof</h4>
+                    <h4 className="mt-1 text-2xl font-black tracking-[-0.04em]">Places where campaigns can become proof</h4>
                   </div>
                   <Badge variant="outline" className="rounded-full">
                     {workspaceVenues.length} visible
@@ -855,7 +855,7 @@ const BrandDashboardV2 = () => {
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Correlation Layer</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Map content to moments before you spend</h3>
+                  <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Map content to moments before you spend</h3>
                   <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
                     The important question for a brand is not just “what content exists?” or “what moments are live?” It is whether a creator asset and a physical moment reinforce the same behavior loop.
                   </p>
@@ -1017,9 +1017,9 @@ const BrandDashboardV2 = () => {
                   <Badge variant="outline" className="mb-3 rounded-full">
                     Value Systems
                   </Badge>
-                  <h3 className="font-serif text-xl font-bold">See the post-campaign layer clearly</h3>
+                  <h3 className="text-2xl font-black tracking-[-0.04em]">See the post-campaign layer clearly</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Brands should be able to understand not just the campaign, but the stakeholder experiences that continue after verified participation starts compounding.
+                    Brands should be able to understand not just the campaign, but the moments, scenes, rewards, and status surfaces that keep working after verified participation starts compounding.
                   </p>
                 </div>
                 <Coins className="h-5 w-5 text-primary" />
@@ -1113,7 +1113,7 @@ const BrandDashboardV2 = () => {
 
           <DashboardQuickRoutesCard
             title="Brand Routes"
-            description="Keep campaign tools close, but also make the downstream stakeholder experiences visible."
+            description="Keep campaign tools close, but also make downstream moments, scenes, proof, and rewards visible."
             routes={[
               { label: "Create campaign", href: "/create/campaign", icon: Target },
               { label: "Opportunities", onClick: () => setActiveTab("opportunities"), icon: Sparkles },

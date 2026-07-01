@@ -15,7 +15,6 @@ import {
     ShieldCheck,
     Zap,
     Check,
-    Crown
 } from "lucide-react";
 
 const sponsorshipBenefits = [
@@ -23,7 +22,7 @@ const sponsorshipBenefits = [
         icon: Target,
         title: "Participation Fit",
         description:
-            "Match your campaign to Moments, creators, venues, and audiences where people already have a reason to care.",
+            "Match your campaign to Moments, creators, venues, Scenes, and audiences where people already have a reason to care.",
     },
     {
         icon: Handshake,
@@ -55,7 +54,7 @@ const stats = [
     { value: "Moments", label: "Campaign building blocks" },
     { value: "Marks", label: "Verified participation" },
     { value: "QR", label: "On-site engagement" },
-    { value: "UGC", label: "Creator and community proof" },
+    { value: "UGC", label: "Creator and Scene proof" },
 ];
 
 const ForBrands = () => {
@@ -80,7 +79,7 @@ const ForBrands = () => {
                             <span className="min-w-0 text-sm font-medium">Participation Marketing Platform</span>
                         </div>
 
-                        <h1 className="mb-6 max-w-4xl break-words font-serif text-4xl font-bold leading-tight text-white sm:text-5xl md:text-7xl">
+                        <h1 className="mb-6 max-w-4xl break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-white sm:text-6xl md:text-7xl">
                             Turn Promotions <br className="hidden sm:block" />
                             <span className="text-gradient-primary">Into Participation.</span>
                         </h1>
@@ -110,7 +109,7 @@ const ForBrands = () => {
                             </Button>
                             <Button variant="outline" size="lg" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
                                 {user ? (
-                                    <Link to="/onboarding/brand">Start Brand Workspace</Link>
+                                    <Link to="/onboarding/brand">Start Brand Account</Link>
                                 ) : (
                                     <Link to="/auth">Start a Brand Pilot</Link>
                                 )}
@@ -128,7 +127,7 @@ const ForBrands = () => {
                                 <Badge className="border-primary/20 bg-primary/15 text-primary">Live</Badge>
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                                <h2 className="font-serif text-2xl font-bold text-white">Coffee Tour Weekend</h2>
+                                <h2 className="text-2xl font-black tracking-[-0.04em] text-white">Coffee Tour Weekend</h2>
                                 <p className="mt-2 text-sm leading-6 text-zinc-300">A Moment route that gives locals a reason to visit, scan, redeem, return, and talk.</p>
                                 <div className="mt-6 grid grid-cols-3 gap-3">
                                     {[
@@ -137,7 +136,7 @@ const ForBrands = () => {
                                         ["Proof", "return record"],
                                     ].map(([value, label]) => (
                                         <div key={label} className="rounded-xl bg-white/10 p-3 text-center">
-                                            <p className="font-serif text-xl font-bold text-white">{value}</p>
+                                            <p className="text-xl font-black text-white">{value}</p>
                                             <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">{label}</p>
                                         </div>
                                     ))}
@@ -159,7 +158,7 @@ const ForBrands = () => {
                                 <span className="text-sm font-medium">Participation Measurement</span>
                             </div>
 
-                            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-6">
+                            <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground md:text-5xl">
                                 Move Beyond Awareness. <br />
                                 Measure What People Actually Do.
                             </h2>
@@ -193,13 +192,13 @@ const ForBrands = () => {
                             </Button>
                         </div>
 
-                        {/* Community Pulse Preview */}
+                        {/* Scene Pulse Preview */}
                         <div className="relative">
                             <div className="bg-charcoal rounded-3xl p-8 border border-white/10 shadow-2xl relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/30 transition-colors" />
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-8">
-                                        <h4 className="font-serif text-xl font-bold text-white italic">Community Pulse</h4>
+                                        <h4 className="text-xl font-black tracking-[-0.04em] text-white">Scene Pulse</h4>
                                         <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">Live Feed</Badge>
                                     </div>
                                     <div className="space-y-4">
@@ -235,7 +234,7 @@ const ForBrands = () => {
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center">
-                                <p className="font-serif text-3xl md:text-4xl font-bold text-primary">
+                                <p className="text-3xl font-black text-primary md:text-4xl">
                                     {stat.value}
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
@@ -252,7 +251,7 @@ const ForBrands = () => {
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-foreground mb-6">
                             <span className="text-sm font-medium">Moments Are The Atomic Unit</span>
                         </div>
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+                        <h2 className="mb-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground md:text-5xl">
                             Build Campaigns From Human Moments
                         </h2>
                         <p className="text-lg text-muted-foreground">
@@ -261,7 +260,7 @@ const ForBrands = () => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                        {/* Community Moment - Entry Level */}
+                        {/* Scene Moment - Entry Level */}
                         <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-all">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-4 text-xs font-bold">
                                 START HERE
@@ -269,7 +268,7 @@ const ForBrands = () => {
                             <div className="h-12 w-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6 text-emerald-600">
                                 <Users className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Community Moment</h3>
+                            <h3 className="text-xl font-bold mb-2">Scene Moment</h3>
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">SINGLE LOCATION</p>
                             <p className="text-muted-foreground mb-6 min-h-[48px]">
                                 Start with one place, one audience, and one clear reason for people to participate.
@@ -382,7 +381,7 @@ const ForBrands = () => {
                             <Zap className="w-3 h-3" />
                             Industry Activation Playbooks
                         </div>
-                        <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-6 italic">
+                        <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
                             Design Moments <span className="text-primary">People Want To Join.</span>
                         </h2>
                         <p className="text-white/60 text-lg">
@@ -450,7 +449,7 @@ const ForBrands = () => {
                                         <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                                             <Sparkles className="w-5 h-5 text-blue-500" />
                                         </div>
-                                        <h4 className="font-bold text-lg">Community Reach</h4>
+                                        <h4 className="font-bold text-lg">Scene Reach</h4>
                                     </div>
                                     <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Social Reach</Badge>
                                 </div>
@@ -474,19 +473,19 @@ const ForBrands = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
                                 <Users className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Creator And Community Amplification</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Creator And Scene Amplification</span>
                             </div>
-                            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
+                            <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                                 Reach the Right <span className="text-primary italic">People.</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
-                                A strong Moment gives creators and community members something real to talk about.
+                                A strong Moment gives creators and scene members something real to talk about.
                                 Promorang helps connect campaign participation to the content, check-ins, referrals, and QR paths that show how the message traveled.
                             </p>
                             <div className="space-y-4">
                                 {[
                                     { title: "Creator Fit", desc: "Invite creators whose audience matches the Moment and location." },
-                                    { title: "Community Proof", desc: "Collect posts, check-ins, scans, and redemption activity in one campaign record." },
+                                    { title: "Scene Proof", desc: "Collect posts, check-ins, scans, and redemption activity in one campaign record." },
                                     { title: "Campaign Reports", desc: "See how far your Moment traveled across people, places, and social media." },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
@@ -512,7 +511,7 @@ const ForBrands = () => {
                                 <Target className="w-4 h-4" />
                                 <span className="text-sm font-bold uppercase tracking-wider">Why People Participate</span>
                             </div>
-                            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+                            <h2 className="mb-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
                                 Why People Actually Show Up
                             </h2>
                             <p className="text-white/60 text-lg">
@@ -550,7 +549,7 @@ const ForBrands = () => {
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                                        <Crown className="w-6 h-6 text-primary" />
+                                        <Sparkles className="w-6 h-6 text-primary" />
                                     </div>
                                     <h3 className="font-bold text-xl text-white">They Feel Part Of It</h3>
                                 </div>
@@ -565,7 +564,7 @@ const ForBrands = () => {
                                     </div>
                                     <div className="flex items-center gap-3 py-2">
                                         <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span className="text-white/60">Return visits create stronger community memory</span>
+                                        <span className="text-white/60">Return visits create stronger Scene memory</span>
                                     </div>
                                 </div>
                                 <p className="text-sm text-white/40 mt-4">
@@ -575,7 +574,7 @@ const ForBrands = () => {
                         </div>
 
                         <div className="bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-2xl p-8 text-center">
-                            <h3 className="font-serif text-2xl font-bold text-white mb-4">
+                            <h3 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white">
                                 You Are Not Buying Attention. You Are Creating A Moment People Can Join.
                             </h3>
                             <p className="text-white/70 mb-6 max-w-2xl mx-auto">
@@ -592,7 +591,7 @@ const ForBrands = () => {
                                 </div>
                                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                                     <Check className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-white">Creator and community context</span>
+                                    <span className="text-white">Creator and Scene context</span>
                                 </div>
                             </div>
                         </div>
@@ -604,7 +603,7 @@ const ForBrands = () => {
             <section className="py-20 md:py-32 bg-charcoal text-cream">
                 <div className="container px-6">
                     <div className="max-w-3xl mx-auto text-center">
-                        <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
+                        <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                             Ready to create a Moment people remember?
                         </h2>
                         <p className="text-cream/70 text-lg mb-8">
@@ -614,7 +613,7 @@ const ForBrands = () => {
                             <Button variant="hero" size="xl" asChild>
                                 {user ? (
                                     <Link to="/onboarding/brand">
-                                        Start Brand Workspace
+                                        Start Brand Account
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 ) : (

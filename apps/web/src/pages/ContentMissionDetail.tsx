@@ -143,13 +143,14 @@ export default function ContentMissionDetail() {
   const pulseClass = pulseTone[(mission.moment?.pulse_state as keyof typeof pulseTone) || "dormant"];
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
-      <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft">
-        <div className="relative h-72 overflow-hidden bg-muted sm:h-96">
+    <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
+      <section className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-soft">
+        <div className="relative min-h-[560px] overflow-hidden bg-black">
           {heroImage ? (
-            <img src={heroImage} alt={mission.content?.title} className="h-full w-full object-cover" />
+            <img src={heroImage} alt={mission.content?.title} className="absolute inset-0 h-full w-full object-cover opacity-70" />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
           <div className="absolute left-5 top-5 flex flex-wrap gap-2">
             <Badge className="bg-black/60 text-white backdrop-blur">
               {mission.content?.platform}
@@ -158,11 +159,11 @@ export default function ContentMissionDetail() {
               {mission.moment?.pulse_state || "forming"}
             </Badge>
           </div>
-          <div className="absolute bottom-5 left-5 right-5">
+          <div className="absolute bottom-8 left-6 right-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/70">
               {mission.content?.creator_name}
             </p>
-            <h1 className="mt-2 max-w-3xl font-serif text-3xl font-bold text-white sm:text-4xl">
+            <h1 className="mt-2 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.06em] text-white sm:text-7xl">
               {mission.content?.title}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">

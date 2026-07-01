@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const venueCategories = [
   { value: "general", label: "General" },
@@ -35,6 +36,7 @@ const AddVenue = () => {
   const navigate = useNavigate();
   const createVenue = useCreateVenue();
   const { uploadImage, uploading } = useImageUpload();
+  const { toast } = useToast();
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
@@ -77,6 +79,10 @@ const AddVenue = () => {
       image_url: imageUrl || null,
     });
 
+    toast({
+      title: "Venue submitted for the Genesis record",
+      description: "Verification is required before its Pioneer onboarding receipt becomes eligible.",
+    });
     navigate("/dashboard");
   };
 

@@ -8,6 +8,7 @@ export interface UserBalance {
     promokeys: number;
     gems: number;
     gold: number;
+    usd: number;
     master_key_unlocked: boolean;
     master_key_expires_at: string | null;
     updated_at: string;
@@ -32,8 +33,8 @@ export function useUserBalance() {
         queryFn: async () => {
             if (!user) return null;
 
-            const { data, error } = await supabase
-                .from("user_balances")
+            const { data, error } = await (supabase as any)
+                .from("economy_wallets")
                 .select("*")
                 .eq("user_id", user.id)
                 .maybeSingle();
@@ -48,6 +49,7 @@ export function useUserBalance() {
                     promokeys: 0,
                     gems: 0,
                     gold: 0,
+                    usd: 0,
                     master_key_unlocked: false,
                     master_key_expires_at: null,
                     updated_at: new Date().toISOString()
@@ -68,8 +70,8 @@ export function useEconomyHistory() {
         queryFn: async () => {
             if (!user) return [];
 
-            const { data, error } = await supabase
-                .from("transaction_history")
+            const { data, error } = await (supabase as any)
+                .from("economy_transactions")
                 .select("*")
                 .eq("user_id", user.id)
                 .order("created_at", { ascending: false })

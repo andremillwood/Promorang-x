@@ -5,6 +5,7 @@
  */
 
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { supabase: serviceSupabase } = require('../lib/supabase');
@@ -1256,42 +1257,18 @@ router.post('/:pieceType/:id/buy', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Quantity must be greater than 0' });
     }
     
-    // Use demo mode if configured
     if (USE_DEMO || !supabase) {
-      return res.json({
-        success: true,
-        message: 'Trade executed (demo mode)',
-        trade: {
-          piece_type: pieceType,
-          asset_id: id,
-          buyer_id: userId,
-          quantity,
-          price_per_piece: max_price || 10.00,
-          total_value: (max_price || 10.00) * quantity,
-          fees: {
-            platform: (max_price || 10.00) * quantity * 0.01,
-            creator: (max_price || 10.00) * quantity * 0.005,
-            liquidity: (max_price || 10.00) * quantity * 0.005,
-            total: (max_price || 10.00) * quantity * 0.02,
-          },
-          executed_at: new Date().toISOString(),
-        },
-      });
+      return res.status(503).json({ success: false, error: 'Pieces trading is unavailable in demo mode' });
     }
-    
-    // Execute real trade
-    const result = await pieceTradingService.executeMarketBuy({
-      pieceType,
-      assetId: id,
-      buyerId: userId,
-      quantity,
-      maxPrice: max_price || 10000, // Default high max
+    if (!listing_id) return res.status(422).json({ success: false, error: 'A specific listing is required for atomic settlement' });
+    const { data: trade, error } = await supabase.rpc('buy_piece_listing', {
+      p_listing: listing_id,
+      p_buyer: userId,
+      p_quantity: Number(quantity),
+      p_idempotency: req.get('Idempotency-Key') || `piece-buy:${userId}:${listing_id}:${crypto.randomUUID()}`
     });
-    
-    res.json({
-      success: true,
-      ...result,
-    });
+    if (error) throw error;
+    res.json({ success: true, trade });
   } catch (error) {
     console.error('[Pieces API] buy error:', error);
     res.status(400).json({ 
@@ -1322,34 +1299,13 @@ router.post('/:pieceType/:id/sell', requireAuth, async (req, res) => {
     
     // Use demo mode if configured
     if (USE_DEMO || !supabase) {
-      return res.json({
-        success: true,
-        message: 'Listing created (demo mode)',
-        listing: {
-          id: 'demo-listing-' + Date.now(),
-          piece_type: pieceType,
-          asset_id: id,
-          seller_id: userId,
-          quantity,
-          price_per_piece: min_price,
-          listing_type: 'sell',
-          status: 'active',
-          expires_at: expires_at || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date().toISOString(),
-        },
-      });
+      return res.status(503).json({ success: false, error: 'Pieces trading is unavailable in demo mode' });
     }
-    
-    // Create real listing
-    const listing = await pieceTradingService.createSellListing({
-      pieceType,
-      assetId: id,
-      sellerId: userId,
-      quantity,
-      pricePerPiece: min_price,
-      expiresAt: expires_at,
+    const { data: listing, error } = await supabase.rpc('create_escrowed_piece_listing', {
+      p_type: pieceType, p_asset: id, p_seller: userId,
+      p_quantity: Number(quantity), p_price: Number(min_price), p_expires: expires_at || null
     });
-    
+    if (error) throw error;
     res.json({
       success: true,
       listing,
@@ -2624,29 +2580,20 @@ router.post('/pools/:id/trade/gems-to-pieces', requireAuth, async (req, res) => 
     }
     
     if (USE_DEMO || !supabase) {
-      return res.json({
-        success: true,
-        message: 'Trade executed (demo mode)',
-        gems_spent: gems_amount,
-        pieces_received: gems_amount,  // 1:1 ratio for simplicity
-        effective_price: 1.00,
-        new_gems_balance: 45,
-      });
+      return res.status(503).json({ success: false, error: 'Pieces trading is unavailable in demo mode' });
     }
-    
-    const result = await gemsService.tradeGemsForPieces(
-      userId,
-      poolId,
-      gems_amount,
-      min_pieces_out,
-      slippage_tolerance
-    );
+    const { data: swap, error: swapError } = await supabase.rpc('swap_gems_for_pieces', {
+      p_pool: poolId, p_trader: userId, p_gems: Number(gems_amount),
+      p_min_pieces: Number(min_pieces_out || 0),
+      p_idempotency: req.get('Idempotency-Key') || `amm-buy:${userId}:${poolId}:${crypto.randomUUID()}`
+    });
+    if (swapError) throw swapError;
     
     // Record for limits
     await simpleKYCService.recordTransaction(userId, 'trade_buy', gems_amount * gemsService.GEMS_EXCHANGE_RATE);
     
     
-    res.json(result);
+    res.json({ success: true, swap });
   } catch (error) {
     console.error('[Pieces API] gems to pieces trade error:', error);
     res.status(400).json({
@@ -2678,29 +2625,20 @@ router.post('/pools/:id/trade/pieces-to-gems', requireAuth, async (req, res) => 
     }
     
     if (USE_DEMO || !supabase) {
-      return res.json({
-        success: true,
-        message: 'Trade executed (demo mode)',
-        pieces_sold: pieces_amount,
-        gems_received: pieces_amount,  // 1:1 ratio for simplicity
-        effective_price: 1.00,
-        new_gems_balance: 55,
-      });
+      return res.status(503).json({ success: false, error: 'Pieces trading is unavailable in demo mode' });
     }
-    
-    const result = await gemsService.tradePiecesForGems(
-      userId,
-      poolId,
-      pieces_amount,
-      min_gems_out,
-      slippage_tolerance
-    );
+    const { data: swap, error: swapError } = await supabase.rpc('swap_pieces_for_gems', {
+      p_pool: poolId, p_trader: userId, p_pieces: Number(pieces_amount),
+      p_min_gems: Number(min_gems_out || 0),
+      p_idempotency: req.get('Idempotency-Key') || `amm-sell:${userId}:${poolId}:${crypto.randomUUID()}`
+    });
+    if (swapError) throw swapError;
     
     // Record for limits
-    const usdValue = result.gems_received * gemsService.GEMS_EXCHANGE_RATE;
+    const usdValue = Number(swap.amount_out || 0) * gemsService.GEMS_EXCHANGE_RATE;
     await simpleKYCService.recordTransaction(userId, 'trade_sell', usdValue);
     
-    res.json(result);
+    res.json({ success: true, swap });
   } catch (error) {
     console.error('[Pieces API] pieces to gems trade error:', error);
     res.status(400).json({
@@ -3195,26 +3133,52 @@ router.post('/dividends/claim', requireAuth, async (req, res) => {
     const { dividend_ids } = req.body;
     
     if (USE_DEMO || !supabase) {
-      return res.json({
-        success: true,
-        message: 'Dividends claimed (demo mode)',
-        claimed: 0,
-        total_amount: 0,
-      });
+      return res.status(503).json({ success: false, error: 'Piece distributions are unavailable in demo mode' });
     }
-    
-    const result = await pieceDividendService.claimDividends(userId, dividend_ids);
-    
-    res.json({
-      success: true,
-      ...result,
+    const { data: totalAmount, error } = await supabase.rpc('claim_piece_dividends', {
+      p_holder: userId, p_ids: Array.isArray(dividend_ids) && dividend_ids.length ? dividend_ids : null
     });
+    if (error) throw error;
+    res.json({ success: true, total_amount: Number(totalAmount || 0) });
   } catch (error) {
     console.error('[Pieces API] claim dividends error:', error);
     res.status(400).json({
       success: false,
       error: error.message || 'Failed to claim dividends',
     });
+  }
+});
+
+router.get('/controls', requireAuth, async (_req, res) => {
+  try {
+    const { data, error } = await supabase.from('piece_market_controls').select('*').single();
+    if (error) throw error;
+    res.json({ success: true, controls: data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.patch('/controls', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const allowed = ['trading_enabled', 'amm_enabled', 'dividends_enabled', 'suspension_reason'];
+    const updates = Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => allowed.includes(key)));
+    updates.updated_at = new Date().toISOString();
+    const { data, error } = await supabase.from('piece_market_controls').update(updates).eq('singleton', true).select().single();
+    if (error) throw error;
+    res.json({ success: true, controls: data });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/reconciliation', requireAuth, requireAdmin, async (_req, res) => {
+  try {
+    const { data, error } = await supabase.from('piece_supply_reconciliation').select('*').neq('difference', 0);
+    if (error) throw error;
+    res.json({ success: true, discrepancies: data || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -35,7 +35,7 @@ async function trackEarning(params) {
 
   try {
     // Calculate and process commission
-    const commission = await referralService.calculateCommission({
+    const commissions = await referralService.calculateCommission({
       referredUserId: userId,
       earningType,
       earningAmount: amount,
@@ -45,7 +45,8 @@ async function trackEarning(params) {
       metadata,
     });
 
-    if (commission) {
+    if (commissions.length > 0) {
+      const commission = commissions[0];
       console.log(`[Referral Tracker] Commission calculated for user ${userId}: ${commission.commission_amount} ${commission.commission_currency}`);
 
       // Check if user should be activated
@@ -55,7 +56,7 @@ async function trackEarning(params) {
       await referralService.updateReferralTier(commission.referrer_id);
     }
 
-    return commission;
+    return commissions;
   } catch (error) {
     console.error('[Referral Tracker] Error tracking earning:', error);
     return null;

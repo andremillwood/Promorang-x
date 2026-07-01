@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
     UserPlus,
@@ -147,16 +147,16 @@ export function ActivityFeed({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold text-lg">Activity</h3>
+                    <Bell className="h-5 w-5 text-orange-400" />
+                    <h3 className="text-lg font-bold text-white">Latest signals</h3>
                     {unreadCount > 0 && (
-                        <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                        <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-black">
                             {unreadCount}
                         </span>
                     )}
                 </div>
                 {unreadCount > 0 && (
-                    <Button variant="ghost" size="sm" onClick={handleMarkAllRead}>
+                    <Button className="text-white/55 hover:bg-white/10 hover:text-white" variant="ghost" size="sm" onClick={handleMarkAllRead}>
                         Mark all read
                     </Button>
                 )}
@@ -182,15 +182,15 @@ export function ActivityFeed({
                         const content = (
                             <div
                                 className={cn(
-                                    "flex items-start gap-3 p-3 rounded-xl transition-colors",
-                                    isUnread ? "bg-primary/5" : "hover:bg-secondary/50",
+                                    "flex items-start gap-4 border-b border-white/[0.07] p-4 transition-colors last:border-0 sm:p-5",
+                                    isUnread ? "bg-orange-500/[0.06]" : "hover:bg-white/[0.04]",
                                     link && "cursor-pointer"
                                 )}
                                 onClick={() => isUnread && handleMarkRead(event.id)}
                             >
                                 {/* Icon */}
                                 <div className={cn(
-                                    "flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-white",
+                                    "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-white",
                                     colorClass
                                 )}>
                                     <Icon className="h-5 w-5" />
@@ -201,11 +201,11 @@ export function ActivityFeed({
                                     <div className="flex items-start justify-between gap-2">
                                         <p className={cn(
                                             "text-sm leading-snug",
-                                            isUnread ? "font-medium" : "text-muted-foreground"
+                                            isUnread ? "font-semibold text-white" : "text-white/55"
                                         )}>
                                             {getEventMessage(event)}
                                         </p>
-                                        <span className="flex-shrink-0 text-xs text-muted-foreground">
+                                        <span className="flex-shrink-0 text-xs text-white/35">
                                             {formatTimeAgo(event.created_at)}
                                         </span>
                                     </div>
@@ -227,7 +227,7 @@ export function ActivityFeed({
 
                                 {/* Unread indicator */}
                                 {isUnread && (
-                                    <div className="flex-shrink-0 h-2 w-2 rounded-full bg-primary mt-2" />
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500" />
                                 )}
                             </div>
                         );

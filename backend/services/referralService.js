@@ -347,6 +347,27 @@ async function calculateCommission(params) {
   }
 
   try {
+    // Direct referral earnings are paid by one atomic, idempotent database call.
+    // This is the canonical policy: 5% in the same currency the referred user earned.
+    const { data: directCommissions, error: directError } = await supabase.rpc(
+      'award_direct_referral_commission',
+      {
+        p_referred_user_id: referredUserId,
+        p_earning_type: earningType,
+        p_earning_amount: earningAmount,
+        p_earning_currency: earningCurrency,
+        p_source_transaction_id: sourceTransactionId,
+        p_source_table: sourceTable,
+        p_metadata: metadata,
+      }
+    );
+
+    if (directError) throw directError;
+    return directCommissions || [];
+
+    /*
+     * Legacy multi-level guild payout is intentionally disabled. The product policy
+     * is a single 5% reward to the user who made the referral.
     const results = [];
     let currentChildId = referredUserId;
 
@@ -411,6 +432,7 @@ async function calculateCommission(params) {
     }
 
     return results;
+    */
   } catch (error) {
     console.error('[Referral Service] Error calculating Guild commissions:', error);
     throw error;

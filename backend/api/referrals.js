@@ -510,7 +510,7 @@ router.post('/track-earning', async (req, res) => {
       metadata: metadata || {},
     });
 
-    if (!commission) {
+    if (!commission || commission.length === 0) {
       return sendSuccess(res, {
         commission_calculated: false,
         message: 'No active referral found for user',
@@ -521,7 +521,7 @@ router.post('/track-earning', async (req, res) => {
     await referralService.activateReferral(user_id);
 
     // Update referrer's tier if needed
-    await referralService.updateReferralTier(commission.referrer_id);
+    await referralService.updateReferralTier(commission[0].referrer_id);
 
     return sendSuccess(res, {
       commission_calculated: true,

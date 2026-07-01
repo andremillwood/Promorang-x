@@ -1,25 +1,32 @@
 import { useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, Filter, Loader2, Users } from "lucide-react";
+import { Bell, Loader2, Radio, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import DashboardLayout from "@/components/DashboardLayout";
-
-const filterOptions = [
-    { value: "all", label: "All" },
-    { value: "system", label: "System Alerts" },
-    { value: "payout", label: "Payouts" },
-    { value: "inventory", label: "Inventory" },
-    { value: "social", label: "Social" },
-];
+import { cultureImages } from "@/data/culture-demo";
 
 const Activity = () => {
     const { user, roles } = useAuth();
     const primaryRole = roles[0] || "participant";
     const [filter, setFilter] = useState("all");
+    const isOperator = ["brand", "merchant", "host", "agency", "admin"].includes(primaryRole);
+    const filterOptions = isOperator
+        ? [
+            { value: "all", label: "Everything" },
+            { value: "social", label: "People & proof" },
+            { value: "payout", label: "Payouts" },
+            { value: "inventory", label: "Inventory" },
+            { value: "system", label: "Operational" },
+        ]
+        : [
+            { value: "all", label: "Everything" },
+            { value: "social", label: "Your scene" },
+            { value: "proof", label: "Proof & rewards" },
+            { value: "system", label: "Promorang" },
+        ];
 
     const { data: events, isLoading, refetch } = useQuery({
         queryKey: ["personalized-feed", user?.id],
@@ -73,6 +80,7 @@ const Activity = () => {
         if (filter === "system") return ["low_stock", "budget_alert", "system", "notification"].includes(e.event_type);
         if (filter === "payout") return e.event_type === "payout";
         if (filter === "inventory") return e.event_type === "low_stock";
+        if (filter === "proof") return ["reward", "check_in", "drop_completion", "redemption"].includes(e.event_type);
         if (filter === "social") return ["follow", "join", "comment", "reaction", "reward", "post", "drop_completion"].includes(e.event_type);
         return true;
     });
@@ -89,63 +97,87 @@ const Activity = () => {
     };
 
     return (
-        <main className="max-w-2xl mx-auto space-y-8">
-            {/* Page Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                        <Bell className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="font-serif text-2xl font-bold">Activity Log</h1>
-                        <p className="text-sm text-muted-foreground">
-                            History of your notifications and alerts
+        <main className="min-h-screen bg-[#090909] pb-16 text-white">
+            <section className="relative overflow-hidden border-b border-white/10">
+                <img src={cultureImages.openMic} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
+                <div className="relative mx-auto flex min-h-[330px] max-w-6xl items-end px-5 pb-10 pt-20 sm:px-8">
+                    <div className="max-w-2xl">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur">
+                            <Radio className="h-3.5 w-3.5" /> Your signal
+                        </div>
+                        <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
+                            See what moved because you showed up.
+                        </h1>
+                        <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
+                            Proof confirmed, rewards earned, people responding, and moments drawing closer.
                         </p>
+                    </div>
+                    <div className="ml-auto hidden gap-8 pb-2 lg:flex">
+                        <div><p className="text-3xl font-black">{events?.length || 0}</p><p className="text-xs text-white/45">Recent signals</p></div>
+                        <div><p className="text-3xl font-black text-orange-400">{filteredEvents.length}</p><p className="text-xs text-white/45">In this view</p></div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {filterOptions.map(option => (
-                    <button
-                        key={option.value}
-                        onClick={() => setFilter(option.value)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${filter === option.value
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-card border border-border hover:bg-muted"
-                            }`}
-                    >
-                        {option.label}
-                    </button>
-                ))}
-            </div>
+            <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+                <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    {filterOptions.map(option => (
+                        <button
+                            key={option.value}
+                            onClick={() => setFilter(option.value)}
+                            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${filter === option.value
+                                ? "border-orange-500 bg-orange-500 text-black"
+                                : "border-white/10 bg-white/[0.04] text-white/55 hover:bg-white/10 hover:text-white"
+                                }`}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
 
-            {/* Activity Feed */}
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111]">
                 {isLoading ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-muted-foreground gap-4">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p>Loading your feed...</p>
+                    <div className="flex flex-col items-center justify-center gap-4 py-24 text-white/50">
+                        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+                        <p>Listening for your latest signals...</p>
                     </div>
                 ) : filteredEvents.length === 0 ? (
-                    <div className="py-16 text-center">
-                        <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                        <h3 className="font-medium text-lg mb-2">Your feed is empty</h3>
-                        <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
-                            Follow creators and hosts to see their moments in your personalized feed
-                        </p>
-                        <div className="flex gap-2 justify-center">
-                            <Button asChild variant="outline" size="sm">
-                                <Link to="/search?category=user">Find People</Link>
-                            </Button>
-                            <Button asChild size="sm">
-                                <Link to="/following">Your Following</Link>
-                            </Button>
+                    <div className="grid min-h-[380px] md:grid-cols-[1.25fr_.75fr]">
+                        <div className="flex flex-col justify-end border-b border-white/10 p-7 md:border-b-0 md:border-r md:p-10">
+                            <Sparkles className="mb-8 h-8 w-8 text-orange-400" />
+                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Nothing new in this view</p>
+                            <h2 className="max-w-lg text-3xl font-black leading-tight">Your next signal begins with one worthwhile action.</h2>
+                            <p className="mt-4 max-w-lg text-sm leading-6 text-white/50">
+                                Join a moment, verify attendance, or follow a creator. The useful changes will collect here.
+                            </p>
+                            <div className="mt-7 flex flex-wrap gap-3">
+                                <Button asChild className="bg-orange-500 font-bold text-black hover:bg-orange-400">
+                                    <Link to="/discover">Find a moment <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                </Button>
+                                <Button asChild variant="outline" className="border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                                    <Link to="/creators">Follow creators</Link>
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-5 p-7 md:p-10">
+                            {[
+                                ["Choose", "Save or join something worth your time."],
+                                ["Prove", "Check in or complete the requested action."],
+                                ["Unlock", "See status, rewards, and new access arrive here."],
+                            ].map(([title, copy], index) => (
+                                <div key={title} className="flex gap-4">
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-orange-500/35 text-xs font-bold text-orange-400">{index + 1}</div>
+                                    <div><p className="font-bold">{title}</p><p className="mt-1 text-sm leading-5 text-white/45">{copy}</p></div>
+                                </div>
+                            ))}
+                            <div className="flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-white/40">
+                                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Proof-bearing updates stay easy to spot.
+                            </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="p-2">
+                    <div className="p-3 sm:p-5">
                         <ActivityFeed
                             events={filteredEvents}
                             onMarkRead={handleMarkRead}
@@ -153,6 +185,7 @@ const Activity = () => {
                         />
                     </div>
                 )}
+                </div>
             </div>
         </main>
     );

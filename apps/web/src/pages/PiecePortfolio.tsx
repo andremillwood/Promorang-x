@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
+import { cultureImages } from '@/data/culture-demo';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -105,16 +105,18 @@ export function PiecePortfolio() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="border-b bg-card/70">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between">
+    <div className="min-h-screen bg-[#090909] text-white">
+      <section className="relative overflow-hidden border-b border-white/10">
+        <img src={cultureImages.streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
+        <div className="relative mx-auto flex min-h-[350px] max-w-7xl flex-col justify-end gap-6 px-5 pb-10 pt-20 sm:px-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="flex items-center gap-2 text-3xl font-bold">
-              <WalletCards className="h-8 w-8 text-primary" />
-              Piece Portfolio
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><WalletCards className="h-3.5 w-3.5" /> Earned positions</div>
+            <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
+              Keep a stake in what you helped move.
             </h1>
-            <p className="mt-1 text-muted-foreground">
-              Track the pieces you hold across content, moments, hosts, and venues.
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
+              Pieces make qualified participation visible across moments, stories, hosts, and places.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
@@ -126,25 +128,18 @@ export function PiecePortfolio() {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        <Alert className="mb-6">
-          <Gem className="h-4 w-4" />
-          <AlertTitle>Portfolio connects the economy</AlertTitle>
-          <AlertDescription>
-            Join a moment to earn early participant pieces. Check in to earn verified attendance pieces. Invite people who show up or complete content-attributed proof to earn performance pieces.
-          </AlertDescription>
-        </Alert>
+      <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
 
         <div className="mb-8 grid gap-4 md:grid-cols-3">
-          <Card>
+          <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Total Value</CardTitle>
             </CardHeader>
             <CardContent className="text-3xl font-bold">{totalValue.toFixed(2)} Gems</CardContent>
           </Card>
-          <Card>
+          <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Total P/L</CardTitle>
             </CardHeader>
@@ -153,7 +148,7 @@ export function PiecePortfolio() {
               {totalPnl.toFixed(2)}
             </CardContent>
           </Card>
-          <Card>
+          <Card className="rounded-lg border-white/10 bg-[#111]">
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">Positions</CardTitle>
             </CardHeader>
@@ -163,12 +158,13 @@ export function PiecePortfolio() {
 
         {positions.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
-            <h2 className="text-xl font-semibold">No pieces yet</h2>
+            <Gem className="mx-auto mb-5 h-8 w-8 text-orange-400" />
+            <h2 className="text-2xl font-black">Your first piece begins with proof.</h2>
             <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-              Join moments, complete missions, trade active pools, or provide liquidity to start building a portfolio.
+              Join something worth showing up for, complete the action, and verify it. Eligible participation can become a position you keep.
             </p>
             <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-              <Button asChild variant="outline"><Link to="/explore/moments">Explore Moments</Link></Button>
+              <Button asChild variant="outline"><Link to="/discover">Find a moment</Link></Button>
               <Button asChild><Link to="/marketplace">Open Marketplace</Link></Button>
             </div>
           </div>

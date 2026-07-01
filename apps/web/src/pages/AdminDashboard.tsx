@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin, usePlatformStats } from "@/hooks/useAdmin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,7 @@ import {
   Activity,
   Megaphone,
   KeyRound,
+  Target,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
@@ -38,13 +39,48 @@ import { AdminSupportTab } from "@/components/admin/AdminSupportTab";
 import { AdminOperationsTab } from "@/components/admin/AdminOperationsTab";
 import { AdminPromoPushTab } from "@/components/admin/AdminPromoPushTab";
 import { AdminAccessRulesTab } from "@/components/admin/AdminAccessRulesTab";
+import { AdminProofBuilderTab } from "@/components/admin/AdminProofBuilderTab";
+import { AdminPioneerReviewTab } from "@/components/admin/AdminPioneerReviewTab";
 import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
+
+const ADMIN_TABS = new Set([
+  "overview",
+  "proof-builder",
+  "pioneer",
+  "operations",
+  "promopush",
+  "users",
+  "moments",
+  "applications",
+  "payouts",
+  "economy",
+  "access",
+  "moderation",
+  "support",
+  "config",
+  "compiler",
+  "create-moment",
+]);
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const initialTab = requestedTab && ADMIN_TABS.has(requestedTab) ? requestedTab : "proof-builder";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  };
+
+  useEffect(() => {
+    if (requestedTab && ADMIN_TABS.has(requestedTab) && requestedTab !== activeTab) {
+      setActiveTab(requestedTab);
+    }
+  }, [requestedTab, activeTab]);
 
   // Redirect non-admins
   if (!authLoading && !user) {
@@ -122,12 +158,20 @@ const AdminDashboard = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <div className="overflow-x-auto pb-2">
-            <TabsList className="grid h-auto min-w-[1240px] w-full max-w-none grid-cols-[repeat(14,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
+            <TabsList className="grid h-auto min-w-[1320px] w-full max-w-none grid-cols-[repeat(15,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
+              </TabsTrigger>
+              <TabsTrigger value="proof-builder" className="flex items-center gap-2 text-primary font-bold">
+                <Target className="w-4 h-4" />
+                Proof
+              </TabsTrigger>
+              <TabsTrigger value="pioneer" className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Pioneer
               </TabsTrigger>
               <TabsTrigger value="operations" className="flex items-center gap-2">
                 <Activity className="w-4 h-4" />
@@ -186,6 +230,13 @@ const AdminDashboard = () => {
 
             <TabsContent value="overview">
               <AdminAnalyticsTab />
+            </TabsContent>
+
+            <TabsContent value="proof-builder">
+              <AdminProofBuilderTab />
+            </TabsContent>
+            <TabsContent value="pioneer">
+              <AdminPioneerReviewTab />
             </TabsContent>
 
             <TabsContent value="operations">

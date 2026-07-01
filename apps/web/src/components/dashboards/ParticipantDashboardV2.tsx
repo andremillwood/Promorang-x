@@ -10,7 +10,6 @@ import {
   Key,
   Layers,
   MapPin,
-  Search,
   Sparkles,
   Target,
   TrendingUp,
@@ -23,8 +22,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { FirstSteps } from "@/components/onboarding/FirstSteps";
-import { SuggestedMoments } from "@/components/discovery/SuggestedMoments";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { DashboardHero, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
 import { MasonryGrid } from "@/components/MasonryGrid";
@@ -40,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cultureEvents } from "@/data/culture-demo";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -76,6 +74,7 @@ const ParticipantDashboardV2 = () => {
   ).size;
   const visibleMarks = stats?.checkedIn || pastMoments.length || 0;
   const visibleMemories = pastMoments.length;
+  const heroImage = cultureEvents[0]?.image;
 
   const pointsToNextKey = 1000;
   const currentPointsProgress = balance ? balance.points % pointsToNextKey : 0;
@@ -132,41 +131,70 @@ const ParticipantDashboardV2 = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      <FirstSteps />
-
-      {isNewUser && !momentsLoading ? <SuggestedMoments limit={3} /> : null}
-
       <DashboardHero
-        badge="Participant Dashboard"
-        title={isNewUser ? `Start your momentum, ${firstName}` : `Welcome back, ${firstName}`}
-        description="Find a moment, unlock access when needed, show up, and leave a Mark. This is where your real participation turns into Keys, rewards, memories, and future priority."
+        badge="For you"
+        title={isNewUser ? `Start moving, ${firstName}` : `Welcome back, ${firstName}`}
+        description="Find what is live, show up, prove it, and keep the value. Your participation should feel like culture in motion, not a report."
         actions={[
-          { label: "Pulse", href: "/pulse", icon: TrendingUp },
+          { label: "Live now", href: "/pulse", icon: TrendingUp },
           { label: "Discover", href: "/discover", icon: Compass },
           { label: "Vault", href: "/vault", icon: Gift },
         ]}
         stats={statCards.map((stat) => ({ ...stat, accentClass: stat.accent }))}
         isLoading={balanceLoading || statsLoading}
+        imageSrc={heroImage}
         glowClassName="bg-[radial-gradient(circle_at_top_left,_rgba(255,167,38,0.22),_transparent_42%),radial-gradient(circle_at_bottom_right,_rgba(244,81,30,0.18),_transparent_34%)]"
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
-        <div className="space-y-6">
-          <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/8 via-card to-accent/8">
+      <RoleActivationPanel
+        eyebrow="Your next move"
+        title={hasJoinedMoments ? "Make your participation count" : "Choose one thing worth showing up for"}
+        description={
+          hasJoinedMoments
+            ? "Check in at the moment, leave proof, and your attendance becomes access, status, and something worth keeping."
+            : "Start with a moment. Promorang will reveal proof, rewards, and deeper tools when they become useful."
+        }
+        items={[
+          {
+            title: "Choose",
+            description: "Join a moment that feels worth your time",
+            status: hasJoinedMoments ? "done" : "current",
+            href: "/discover",
+            ctaLabel: "Discover",
+          },
+          {
+            title: "Prove",
+            description: "Check in so your presence becomes verified",
+            status: hasCheckedIn ? "done" : hasJoinedMoments ? "current" : "todo",
+            href: "/pulse",
+            ctaLabel: "Check in",
+          },
+          {
+            title: "Unlock",
+            description: "Keep the access, rewards, and status you earn",
+            status: hasPoints ? "done" : hasCheckedIn ? "current" : "todo",
+            href: "/vault",
+            ctaLabel: "Open Vault",
+          },
+        ]}
+      />
+
+      <div className="space-y-6">
+          <Card className="overflow-hidden rounded-[1.5rem] border-white/10 bg-black text-white shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
             <CardContent className="p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-2xl">
-                  <Badge className="rounded-full bg-primary/10 text-primary border border-primary/20">
-                    Social Identity
+                  <Badge className="rounded-full border border-primary/30 bg-primary/15 text-primary">
+                    Your scene graph
                   </Badge>
-                  <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">
-                    Your Promorang should feel like your scene, not just your stats.
+                  <h2 className="mt-3 text-3xl font-black uppercase leading-[0.88] tracking-[-0.06em] text-white md:text-4xl">
+                    Your scene starts with where you show up.
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Marks, people, places, streaks, and memories are the social layer. They show where you were, who you move with, and what keeps pulling you back.
+                  <p className="mt-2 text-sm leading-6 text-white/62">
+                    Marks, people, places, streaks, and memories become your proof trail. Use them to unlock access, rewards, and stronger placement over time.
                   </p>
                 </div>
-                <Button asChild variant="outline" className="shrink-0">
+                <Button asChild variant="outline" className="shrink-0 border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
                   <Link to="/profile">
                     View profile
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -182,11 +210,11 @@ const ParticipantDashboardV2 = () => {
                   { label: "My streak", value: String(profile?.streak_count || 0), helper: "Consistency over time", icon: Zap },
                   { label: "My memories", value: visibleMemories.toLocaleString(), helper: "Moments that stayed with you", icon: HeartHandshake },
                 ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                  <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                     <item.icon className="h-4 w-4 text-primary" />
-                    <p className="mt-3 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{item.label}</p>
-                    <p className="mt-2 text-2xl font-bold text-foreground">{item.value}</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.helper}</p>
+                    <p className="mt-3 text-[11px] font-black uppercase tracking-[0.2em] text-white/42">{item.label}</p>
+                    <p className="mt-2 text-2xl font-black text-white">{item.value}</p>
+                    <p className="mt-1 text-xs leading-5 text-white/55">{item.helper}</p>
                   </div>
                 ))}
               </div>
@@ -197,9 +225,9 @@ const ParticipantDashboardV2 = () => {
             <CardContent className="p-0">
               <div className="flex items-center justify-between border-b border-border/50 p-6">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold">What&apos;s next</h2>
+                  <h2 className="text-2xl font-black tracking-[-0.04em]">Live choices</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Stay close to the next moment that needs your attention.
+                    Start with one moment worth acting on. The system can teach the rest after you move.
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
@@ -218,27 +246,67 @@ const ParticipantDashboardV2 = () => {
                     ))}
                   </div>
                 ) : upcomingMoments.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-border/70 bg-muted/20 px-6 py-10 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <Calendar className="h-7 w-7" />
-                    </div>
-                    <h3 className="text-lg font-semibold">Your calendar is open</h3>
-                    <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                      Use Discover when you want to browse with intent, or jump into Pulse when you want to catch what is forming right now.
-                    </p>
-                    <div className="mt-5 flex flex-wrap justify-center gap-3">
-                      <Button asChild>
-                        <Link to="/discover">
-                          <Compass className="mr-2 h-4 w-4" />
-                          Browse Discover
-                        </Link>
-                      </Button>
-                      <Button variant="outline" asChild>
-                        <Link to="/search">
-                          <Search className="mr-2 h-4 w-4" />
-                          Search
-                        </Link>
-                      </Button>
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {cultureEvents.slice(0, 3).map((event) => (
+                      <Link
+                        key={event.momentId}
+                        to={`/moments/${event.momentId}`}
+                        className="group overflow-hidden rounded-3xl border border-white/10 bg-black text-white shadow-[0_18px_60px_rgba(0,0,0,0.22)] transition hover:-translate-y-0.5 hover:border-primary/45"
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <img
+                            src={event.image}
+                            alt=""
+                            className="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
+                          <div className="absolute left-4 top-4 rounded-lg bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary-foreground">
+                            {event.date}
+                          </div>
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                              {event.category}
+                            </p>
+                            <h3 className="mt-1 text-2xl font-black uppercase leading-[0.9] tracking-[-0.05em]">
+                              {event.shortTitle}
+                            </h3>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 p-4">
+                          <div className="min-w-0 text-xs text-white/62">
+                            <p className="truncate font-semibold text-white">{event.place}</p>
+                            <p className="mt-1">{event.attending} interested</p>
+                          </div>
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-primary transition group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                            <ArrowRight className="h-4 w-4" />
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                    <div className="flex min-h-[260px] flex-col justify-between rounded-3xl border border-dashed border-border/70 bg-muted/20 p-6">
+                      <div>
+                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                          <Calendar className="h-7 w-7" />
+                        </div>
+                        <h3 className="text-xl font-black tracking-[-0.04em]">Browse with intent</h3>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          Choose a moment, check what proof is needed, then show up. Everything else unlocks from that first action.
+                        </p>
+                      </div>
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <Button asChild>
+                          <Link to="/discover">
+                            <Compass className="mr-2 h-4 w-4" />
+                            Discover
+                          </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                          <Link to="/pulse">
+                            <TrendingUp className="mr-2 h-4 w-4" />
+                            Live Pulse
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -320,9 +388,9 @@ const ParticipantDashboardV2 = () => {
                     <Badge variant="outline" className="mb-3 rounded-full">
                       Momentum
                     </Badge>
-                    <h2 className="font-serif text-xl font-bold">Your current standing</h2>
+                    <h2 className="text-2xl font-black tracking-[-0.04em]">Your current standing</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Progress toward more access, better placement, and stronger reputation.
+                      Your proof is becoming status: more access, better placement, and stronger reputation.
                     </p>
                   </div>
                   {tierStatus ? <TierBadge tier={tierStatus.current_tier} size="sm" showProgress={false} /> : null}
@@ -396,9 +464,9 @@ const ParticipantDashboardV2 = () => {
                     <Badge variant="outline" className="mb-3 rounded-full">
                       Value Layer
                     </Badge>
-                    <h2 className="font-serif text-xl font-bold">Keep what you earn</h2>
+                    <h2 className="text-2xl font-black tracking-[-0.04em]">Keep what you earn</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Vault is for memories and status. Wallet is for balances and mechanics.
+                      Vault is where proof becomes memory and status. Wallet keeps the balances and mechanics close.
                     </p>
                   </div>
                   <Gift className="h-5 w-5 text-primary" />
@@ -457,7 +525,7 @@ const ParticipantDashboardV2 = () => {
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-serif text-2xl font-bold">Recent memories</h2>
+                  <h2 className="text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Recent memories</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Vault should carry the long-tail value. This preview keeps the dashboard light.
                   </p>
@@ -476,48 +544,17 @@ const ParticipantDashboardV2 = () => {
               </MasonryGrid>
             </section>
           ) : null}
-        </div>
 
-        <div className="space-y-6">
           {hasJoinedMoments ? <StreakWidget count={profile?.streak_count || 0} /> : null}
 
-          <RoleActivationPanel
-            eyebrow="Next Moves"
-            title="Turn today into access"
-            description="The simplest loop is enough: join something real, verify that you were there, then keep the value in your record."
-            items={[
-              {
-                title: "Join a moment",
-                description: "Find something worth showing up for",
-                status: hasJoinedMoments ? "done" : "current",
-                href: "/discover",
-                ctaLabel: "Discover",
-              },
-              {
-                title: "Verify attendance",
-                description: "Check in so your action counts",
-                status: hasCheckedIn ? "done" : hasJoinedMoments ? "current" : "todo",
-                href: "/pulse",
-                ctaLabel: "Open Pulse",
-              },
-              {
-                title: "Unlock your vault",
-                description: "Keep memories, rewards, and earned upside visible",
-                status: hasPoints ? "done" : hasCheckedIn ? "current" : "todo",
-                href: "/vault",
-                ctaLabel: "Open Vault",
-              },
-            ]}
-          />
-
-          <Card className="border-border/60">
+          {!isNewUser ? <Card className="border-border/60">
             <CardContent className="p-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <Badge variant="outline" className="mb-3 rounded-full">
                     Next Layer
                   </Badge>
-                  <h2 className="font-serif text-xl font-bold">Where your momentum can go next</h2>
+                  <h2 className="text-2xl font-black tracking-[-0.04em]">Where your momentum can go next</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     These are not the first screens a participant needs, but they should become visible once showing up starts turning into value.
                   </p>
@@ -574,23 +611,21 @@ const ParticipantDashboardV2 = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> : null}
 
-          <DashboardQuickRoutesCard
-            title="Operational Routes"
-            description="Keep the utility tools close and the compounding-value layer visible."
+          {!isNewUser ? <DashboardQuickRoutesCard
+            title="More value tools"
+            description="These deepen the experience after someone has discovered, joined, and verified a few moments."
             routes={[
-              { label: "Activity", href: "/activity", icon: Sparkles },
               { label: "Saved", href: "/saved", icon: Gift },
               { label: "Wallet", href: "/wallet", icon: Wallet },
               { label: "Pieces", href: "/portfolio", icon: Layers },
-              { label: "Piece market", href: "/marketplace", icon: Compass },
               { label: "Liquidity", href: "/liquidity", icon: TrendingUp },
               { label: "PromoShare", href: "/promoshare", icon: Zap },
             ]}
-          />
+          /> : null}
 
-          {maturityState < 3 ? (
+          {!isNewUser && maturityState < 3 ? (
             <Card className="border-primary/15 bg-gradient-to-br from-primary/8 via-background to-accent/5">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-3">
@@ -633,7 +668,6 @@ const ParticipantDashboardV2 = () => {
               </CardContent>
             </Card>
           ) : null}
-        </div>
       </div>
     </div>
   );

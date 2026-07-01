@@ -21,6 +21,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { demoMoments } from "@/data/demo-moments";
+import { cultureImages } from "@/data/culture-demo";
+import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 
 interface UserProfile {
     id: string;
@@ -45,10 +48,10 @@ interface ProfileStats {
 // Mock data
 const mockProfile: UserProfile = {
     id: "user-123",
-    full_name: "Sarah Chen",
+    full_name: "Andre Millwood",
     avatar_url: null,
-    bio: "Yoga instructor & wellness enthusiast. Creating meaningful moments through mindful experiences. 🧘‍♀️✨",
-    location: "San Francisco, CA",
+    bio: "Building and backing moments where culture, proof, and participation create value people can keep.",
+    location: "Kingston, Jamaica",
     created_at: "2024-03-15",
     is_verified: true,
     is_superhost: true,
@@ -63,36 +66,7 @@ const mockStats: ProfileStats = {
     reviewCount: 156,
 };
 
-const mockMoments = [
-    {
-        id: "pm1",
-        title: "Morning Yoga Flow",
-        description: "Start your day right with energizing yoga",
-        category: "fitness",
-        starts_at: new Date(Date.now() + 2 * 24 * 3600000).toISOString(),
-        location: "Sunrise Studio",
-        image_url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400",
-        host_id: "user-123",
-        max_participants: 15,
-        reward: "Free yoga mat",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: "pm2",
-        title: "Meditation Workshop",
-        description: "Learn the art of mindfulness",
-        category: "workshop",
-        starts_at: new Date(Date.now() + 5 * 24 * 3600000).toISOString(),
-        location: "Zen Garden",
-        image_url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400",
-        host_id: "user-123",
-        max_participants: 20,
-        reward: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-];
+const mockMoments = demoMoments.slice(0, 4);
 
 const UserProfilePage = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -134,7 +108,7 @@ const UserProfilePage = () => {
                         id: user.id,
                         full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
                         avatar_url: user.user_metadata?.avatar_url || null,
-                        bio: "New member of the Promorang community.",
+                        bio: "New to the Promorang scene.",
                         location: "Global",
                         is_verified: false,
                         is_superhost: false,
@@ -186,7 +160,7 @@ const UserProfilePage = () => {
                 <div className="pt-24 pb-12 px-4 text-center">
                     <h1 className="font-serif text-2xl font-bold mb-4">User not found</h1>
                     <Button asChild>
-                        <Link to="/explore/moments">Explore Moments</Link>
+                        <Link to="/discover">Explore Moments</Link>
                     </Button>
                 </div>
             </div>
@@ -194,15 +168,18 @@ const UserProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-
-            <main className="pt-20 pb-16 px-4">
-                <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-[#090909] text-white">
+            <main className="pb-16">
+                <section className="relative overflow-hidden border-b border-white/10">
+                    <img src={cultureImages.momentConcert} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
+                <div className="relative mx-auto max-w-6xl px-5 pb-10 pt-28 sm:px-8">
                     {/* Profile Header */}
-                    <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
+                    <div className="flex flex-col items-start gap-6 md:flex-row md:items-end">
                         {/* Avatar */}
                         <div className="relative">
-                            <div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-gradient-primary flex items-center justify-center text-4xl text-white font-medium overflow-hidden">
+                            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-black bg-orange-500 text-4xl font-black text-black shadow-2xl md:h-36 md:w-36">
                                 {profile.avatar_url ? (
                                     <img src={profile.avatar_url} alt={profile.full_name} className="h-full w-full object-cover" />
                                 ) : (
@@ -219,7 +196,7 @@ const UserProfilePage = () => {
                         {/* Info */}
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 mb-2">
-                                <h1 className="font-serif text-2xl md:text-3xl font-bold">{profile.full_name}</h1>
+                                <div className="flex flex-wrap items-center gap-3"><h1 className="text-4xl font-black tracking-tight md:text-5xl">{profile.full_name}</h1><VerifiedPioneerBadge beneficiaryType="user" beneficiaryId={profile.id} /></div>
                                 {profile.is_verified && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-xs font-medium rounded-full">
                                         <Shield className="h-3 w-3" />
@@ -235,20 +212,20 @@ const UserProfilePage = () => {
                             </div>
 
                             {profile.location && (
-                                <p className="text-muted-foreground flex items-center gap-1 mb-2">
+                                <p className="mb-3 flex items-center gap-1 text-white/55">
                                     <MapPin className="h-4 w-4" />
                                     {profile.location}
                                 </p>
                             )}
 
                             {profile.bio && (
-                                <p className="text-foreground mb-4 max-w-xl">{profile.bio}</p>
+                                <p className="mb-5 max-w-xl leading-7 text-white/70">{profile.bio}</p>
                             )}
 
                             {/* Actions */}
                             <div className="flex flex-wrap items-center gap-3">
                                 {isOwnProfile ? (
-                                    <Button variant="outline" asChild>
+                                    <Button variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white" asChild>
                                         <Link to="/dashboard/settings">
                                             <Settings className="h-4 w-4 mr-2" />
                                             Edit Profile
@@ -276,32 +253,35 @@ const UserProfilePage = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+                </section>
+                <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        <div className="bg-card border border-border rounded-xl p-4 text-center">
-                            <p className="font-semibold text-2xl text-foreground">{stats?.momentsHosted}</p>
-                            <p className="text-sm text-muted-foreground">Moments Hosted</p>
+                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                            <p className="text-2xl font-black text-white">{stats?.momentsHosted}</p>
+                            <p className="text-sm text-white/40">Moments hosted</p>
                         </div>
-                        <div className="bg-card border border-border rounded-xl p-4 text-center">
-                            <p className="font-semibold text-2xl text-foreground">{stats?.momentsAttended}</p>
-                            <p className="text-sm text-muted-foreground">Attended</p>
+                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                            <p className="text-2xl font-black text-white">{stats?.momentsAttended}</p>
+                            <p className="text-sm text-white/40">Verified marks</p>
                         </div>
-                        <div className="bg-card border border-border rounded-xl p-4 text-center">
-                            <p className="font-semibold text-2xl text-foreground flex items-center justify-center gap-1">
+                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                            <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
                                 {stats?.rating}
                                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                             </p>
-                            <p className="text-sm text-muted-foreground">{stats?.reviewCount} reviews</p>
+                            <p className="text-sm text-white/40">{stats?.reviewCount} trust signals</p>
                         </div>
-                        <div className="bg-card border border-border rounded-xl p-4 text-center">
-                            <p className="font-semibold text-2xl text-foreground">{stats?.followers?.toLocaleString()}</p>
-                            <p className="text-sm text-muted-foreground">Followers</p>
+                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                            <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
+                            <p className="text-sm text-white/40">People connected</p>
                         </div>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-1 border-b border-border mb-6">
+                    <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
                         {[
                             { id: "hosted" as const, label: "Hosted", icon: Grid },
                             { id: "attended" as const, label: "Attended", icon: Calendar },
@@ -313,8 +293,8 @@ const UserProfilePage = () => {
                                 className={cn(
                                     "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
                                     activeTab === tab.id
-                                        ? "border-primary text-foreground"
-                                        : "border-transparent text-muted-foreground hover:text-foreground"
+                                        ? "border-orange-500 text-white"
+                                        : "border-transparent text-white/40 hover:text-white"
                                 )}
                             >
                                 <tab.icon className="h-4 w-4" />

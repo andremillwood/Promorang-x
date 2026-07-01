@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import DashboardLayout from "@/components/DashboardLayout";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +34,19 @@ import {
   CreditCard,
   Bell,
   Shield,
-  Smartphone
+  Sparkles,
+  Compass,
+  Check,
+  ArrowRight,
+  LockKeyhole
 } from "lucide-react";
 import { z } from "zod";
+import { useUserPreferences, useUpdateUserPreferences } from "@/hooks/useUserPreferences";
+import { cultureImages } from "@/data/culture-demo";
+import { Link } from "react-router-dom";
+
+const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
+const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -52,12 +61,17 @@ const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
+  const { data: preferences } = useUserPreferences();
+  const updatePreferences = useUpdateUserPreferences();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [locationSharing, setLocationSharing] = useState(false);
 
   // Profile Form Data
   const [formData, setFormData] = useState<ProfileFormData>({
@@ -80,6 +94,21 @@ const Settings = () => {
   });
 
   const primaryRole = roles[0] || "participant";
+  const completionItems = [
+    Boolean(avatarUrl),
+    Boolean(formData.fullName?.trim()),
+    Boolean(formData.location?.trim()),
+    Boolean(formData.bio?.trim()),
+    selectedCategories.length > 0,
+  ];
+  const completion = Math.round((completionItems.filter(Boolean).length / completionItems.length) * 100);
+
+  useEffect(() => {
+    if (!preferences) return;
+    setSelectedCategories(preferences.preferred_categories || []);
+    setSelectedTimes(preferences.preferred_times || []);
+    setLocationSharing(preferences.location_sharing_enabled || false);
+  }, [preferences]);
 
   useEffect(() => {
     if (user) {
@@ -294,6 +323,19 @@ const Settings = () => {
     setSaving(false);
   }
 
+  const toggleChoice = (value: string, current: string[], setter: (values: string[]) => void) => {
+    setter(current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+  };
+
+  const handlePreferenceSubmit = async () => {
+    await updatePreferences.mutateAsync({
+      preferred_categories: selectedCategories,
+      preferred_times: selectedTimes,
+      location_sharing_enabled: locationSharing,
+      city: formData.location || preferences?.city || null,
+    });
+  };
+
   const handleDeleteAccount = async () => {
     if (!user) return;
     setDeleting(true);
@@ -328,30 +370,43 @@ const Settings = () => {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
-        Settings
-      </h1>
-      <p className="text-muted-foreground mb-8">
-        Manage your identity, payments, and security.
-      </p>
+    <div className="min-h-screen bg-[#090909] pb-20 text-white">
+      <section className="relative overflow-hidden border-b border-white/10">
+        <img src={cultureImages.streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/40" />
+        <div className="relative mx-auto grid min-h-[330px] max-w-6xl items-end gap-8 px-5 pb-10 pt-20 sm:px-8 lg:grid-cols-[1fr_320px]">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5" /> Shape your Promorang
+            </div>
+            <h1 className="max-w-2xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">Make the platform know what moves you.</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">Your identity and preferences sharpen discovery, make proof recognizable, and help the right opportunities find you.</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur">
+            <div className="flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400">Profile signal</p><p className="mt-2 text-3xl font-black">{completion}%</p></div><span className="text-xs text-white/40">{completionItems.filter(Boolean).length} of 5 complete</span></div>
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-orange-500 transition-all" style={{ width: `${completion}%` }} /></div>
+            <p className="mt-4 text-xs leading-5 text-white/45">{completion === 100 ? "Your signal is strong. Keep it current as your scene changes." : "Add the missing details to improve recommendations and recognition."}</p>
+          </div>
+        </div>
+      </section>
 
       {loading ? (
-        <div className="space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6 px-5 py-10 sm:px-8">
           <Skeleton className="h-24 w-24 rounded-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-32 w-full" />
         </div>
       ) : (
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="profile" className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
           <div className="overflow-x-auto pb-2">
-          <TabsList className="mb-6 h-auto min-w-max justify-start gap-2 rounded-2xl bg-muted/60 p-1">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="access-rank">Access Rank</TabsTrigger>
-            <TabsTrigger value="payouts">Payouts</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsList className="mb-8 h-auto min-w-max justify-start gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
+            <TabsTrigger value="profile">Identity</TabsTrigger>
+            <TabsTrigger value="preferences">Discovery</TabsTrigger>
+            <TabsTrigger value="access-rank">Status</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="payouts">Payouts</TabsTrigger>
+            <TabsTrigger value="account">Privacy & account</TabsTrigger>
           </TabsList>
           </div>
 
@@ -460,6 +515,57 @@ const Settings = () => {
                 </Button>
               </div>
             </form>
+          </TabsContent>
+
+          <TabsContent value="preferences">
+            <div className="grid max-w-4xl gap-5 lg:grid-cols-[1fr_300px]">
+              <div className="rounded-lg border border-white/10 bg-[#111] p-6 sm:p-8">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Tune your discovery</p>
+                <h2 className="mt-3 text-2xl font-black">What deserves a place in your feed?</h2>
+                <p className="mt-2 text-sm leading-6 text-white/45">Choose broadly enough to discover, narrowly enough that Promorang learns your taste.</p>
+                <div className="mt-7 flex flex-wrap gap-2">
+                  {discoveryCategories.map((category) => {
+                    const active = selectedCategories.includes(category);
+                    return <button type="button" key={category} onClick={() => toggleChoice(category, selectedCategories, setSelectedCategories)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-orange-500 bg-orange-500 text-black" : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/10"}`}>{active && <Check className="mr-1.5 inline h-3.5 w-3.5" />}{category}</button>;
+                  })}
+                </div>
+                <div className="mt-9 border-t border-white/10 pt-7">
+                  <h3 className="font-bold">When are you usually open to something?</h3>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {preferredTimes.map((time) => <button type="button" key={time} onClick={() => toggleChoice(time, selectedTimes, setSelectedTimes)} className={`rounded-md border px-3 py-2 text-sm transition ${selectedTimes.includes(time) ? "border-orange-500/60 bg-orange-500/15 text-orange-300" : "border-white/10 text-white/55 hover:bg-white/[0.05]"}`}>{time}</button>)}
+                  </div>
+                </div>
+                <div className="mt-8 flex items-center justify-between gap-5 rounded-lg border border-white/10 bg-black/40 p-4">
+                  <div><p className="font-semibold">Use my location for nearby moments</p><p className="mt-1 text-xs leading-5 text-white/40">Promorang can prioritize moments and scenes within reach.</p></div>
+                  <Switch checked={locationSharing} onCheckedChange={setLocationSharing} />
+                </div>
+                <Button onClick={handlePreferenceSubmit} disabled={updatePreferences.isPending || selectedCategories.length === 0} className="mt-7 bg-orange-500 font-bold text-black hover:bg-orange-400">
+                  {updatePreferences.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save discovery preferences
+                </Button>
+              </div>
+              <aside className="rounded-lg border border-orange-500/25 bg-gradient-to-b from-orange-500/10 to-transparent p-6">
+                <Compass className="h-7 w-7 text-orange-400" />
+                <h3 className="mt-8 text-xl font-black">This changes what comes forward.</h3>
+                <div className="mt-6 space-y-5 text-sm text-white/50">
+                  <p>Discover ranks moments closer to your interests and location.</p>
+                  <p>Pulse brings forward activity from scenes you are more likely to value.</p>
+                  <p>Creator and host suggestions become more relevant over time.</p>
+                </div>
+                <Link to="/discover" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-orange-400">See your discovery <ArrowRight className="h-4 w-4" /></Link>
+              </aside>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="access-rank">
+            <div className="grid max-w-4xl gap-5 md:grid-cols-[1fr_320px]">
+              <div className="rounded-lg border border-white/10 bg-[#111] p-7">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">Your standing</p>
+                <h2 className="mt-3 text-3xl font-black">Status is earned in public, controlled by you.</h2>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">Verified attendance, completed missions, repeat scenes, and trusted contributions build a proof trail. That trail can unlock earlier access, stronger placement, and better opportunities.</p>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">{[["Explorer", "Current level"], ["Contributor", "Next unlock"], ["Host", "Mastery path"]].map(([title, copy], index) => <div key={title} className={`rounded-lg border p-4 ${index === 0 ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-black/30"}`}><p className="text-xs text-white/35">0{index + 1}</p><p className="mt-5 font-bold">{title}</p><p className="mt-1 text-xs text-white/40">{copy}</p></div>)}</div>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-[#111] p-6"><LockKeyhole className="h-6 w-6 text-orange-400" /><h3 className="mt-6 text-xl font-black">Proof visibility</h3><p className="mt-3 text-sm leading-6 text-white/45">Your public profile can show earned status without exposing private receipts or sensitive account details.</p><Button asChild variant="outline" className="mt-7 w-full border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"><Link to="/profile">View public profile</Link></Button></div>
+            </div>
           </TabsContent>
 
           {/* --- PAYOUTS TAB --- */}

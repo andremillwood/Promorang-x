@@ -7,6 +7,10 @@ import type { Tables } from "@/integrations/supabase/types";
 import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
 import { buildMomentPath } from "@/lib/discovery";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
+import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
+import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
+import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
+import { ValuePreview } from "@/components/value/ValueJourney";
 
 type Moment = Tables<"moments"> & {
   participant_count?: number;
@@ -66,7 +70,7 @@ const categoryGradients: Record<string, string> = {
 
 const getOriginLabel = (moment: Moment) => {
   if (moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed") {
-    return { label: "Example playbook", tone: "bg-slate-950/90 text-white ring-1 ring-white/15", Icon: Sparkles };
+    return null;
   }
 
   if (moment.content_origin === "scraped" || moment.content_origin === "imported") {
@@ -179,6 +183,9 @@ export function MomentCard({
         gradient,
         imageHeight
       )}>
+        {isExampleMoment && (
+          <ContentProvenanceBadge className="absolute left-3 top-3 z-20" />
+        )}
         {/* Moment Image or Background Pattern */}
         {moment.image_url ? (
           <img
@@ -340,6 +347,25 @@ export function MomentCard({
             { label: unlockLabel },
           ]}
         />
+
+        <ValuePreview
+          className="mt-3"
+          humanValue={moment.reward || "Build your visible reputation by showing up"}
+          proof={`${moment.proof_type || actionLabel} verifies participation`}
+          reward={moment.reward ? "Reward after review" : "Mark, Points, and future access"}
+        />
+
+        <OpportunityTerms
+          compact
+          className="mt-3"
+          cost="Free to join"
+          reward={moment.reward || unlockLabel}
+          funding={moment.reward ? "Host / sponsor" : "Progress mode"}
+          proof={moment.proof_type || actionLabel}
+          settlement={moment.reward ? "After proof review" : "Recorded immediately"}
+        />
+
+        <PromoShareEligibilityPanel variant="compact" className="mt-3" />
 
         {/* Footer - Social Proof + Points */}
         <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">

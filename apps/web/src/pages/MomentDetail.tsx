@@ -28,6 +28,7 @@ import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
 import { MomentSocialArtifact } from "@/components/social/MomentSocialArtifact";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
+import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
 import {
   ArrowLeft,
   Calendar,
@@ -703,7 +704,7 @@ const MomentDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <div className="pt-24 pb-12 px-4 text-center">
-          <h1 className="font-serif text-2xl font-bold mb-4">Moment not found</h1>
+          <h1 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Moment not found</h1>
           <Button asChild>
             <Link to="/explore/moments">Browse Moments</Link>
           </Button>
@@ -713,7 +714,7 @@ const MomentDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen bg-[#070707] text-white transition-colors duration-300">
       <SEO
         title={moment.title}
         description={moment.description || `Join ${moment.title} on Promorang`}
@@ -745,19 +746,77 @@ const MomentDetail = () => {
         }}
       />
 
-      {/* Hero Image Gallery */}
-      <div className="pt-16">
-        {galleryImages.length > 0 ? (
-          <ImageGallery images={galleryImages} />
-        ) : (
-          <div className="h-80 md:h-96 bg-gradient-warm flex items-center justify-center">
-            <span className="text-9xl opacity-50">{getCategoryEmoji(moment.category)}</span>
+      <div className="relative min-h-[620px] overflow-hidden bg-black pt-16">
+        <div className="absolute inset-0 pt-16">
+          {galleryImages.length > 0 ? (
+            <ImageGallery images={galleryImages} />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-zinc-950 via-orange-950 to-black">
+              <span className="text-9xl opacity-50">{getCategoryEmoji(moment.category)}</span>
+            </div>
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35" />
+        <div className="relative mx-auto flex min-h-[604px] max-w-7xl items-end px-4 pb-8 sm:px-6 lg:px-8">
+          <div className="grid w-full gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
+            <div>
+              <Button variant="ghost" className="mb-5 border border-white/15 bg-black/35 text-white hover:bg-white/10 hover:text-white" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+              <div className="flex flex-wrap gap-2">
+                <MomentStatusBadge status={(moment.status as MomentStatus) || (isPast ? "closed" : "joinable")} />
+                <Badge className="border-white/15 bg-black/55 text-white">{moment.category || "Moment"}</Badge>
+                {moment.pulse_state ? <Badge className="bg-primary text-primary-foreground">{moment.pulse_state}</Badge> : null}
+              </div>
+              <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] text-white sm:text-7xl">{moment.title}</h1>
+              <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
+                <span className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" />{new Date(moment.starts_at).toLocaleString()}</span>
+                <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{moment.venue_name || moment.location}</span>
+                <span className="flex items-center gap-2"><Users className="h-4 w-4 text-primary" />{participantCount} joined</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/15 bg-black/70 p-5 backdrop-blur-xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{isCheckedIn ? "Proof captured" : isJoined ? "You are in" : "Your next move"}</p>
+              <h2 className="mt-2 text-2xl font-black text-white">{isCheckedIn ? "Keep what you unlocked" : isJoined ? getProofActionCopy() : accessState.ctaLabel}</h2>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                {isCheckedIn ? rewardLabel : isJoined ? `Complete ${proofSummary.length || 1} proof step${proofSummary.length === 1 ? "" : "s"} to make your presence count.` : `${getProofActionCopy()}, earn proof, and unlock ${rewardLabel.toLowerCase()}.`}
+              </p>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  { label: "Join", active: isJoined, value: participantCount },
+                  { label: "Proof", active: isCheckedIn, value: proofSummary.length || 1 },
+                  { label: "Unlock", active: isCheckedIn, value: moment.reward ? "Ready" : "Status" },
+                ].map((item) => (
+                  <div key={item.label} className={`rounded-xl p-3 ${item.active ? "bg-emerald-500/15" : "bg-white/[0.06]"}`}>
+                    <p className="text-lg font-black">{item.value}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/40">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                {isPast ? (
+                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/record`}>View moment record</Link></Button>
+                ) : !user ? (
+                  <Button asChild className="w-full"><Link to="/auth"><LogIn className="mr-2 h-4 w-4" />Sign in to join</Link></Button>
+                ) : isHost ? (
+                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/edit`}>Manage moment</Link></Button>
+                ) : isJoined && !isCheckedIn ? (
+                  <Button asChild className="w-full"><Link to={withPromoPushParams(`/moments/${moment.id}/checkin`)}>Start proof <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+                ) : isCheckedIn ? (
+                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/record`}>Open your memory</Link></Button>
+                ) : (
+                  <Button className="w-full" onClick={handleJoin} disabled={isJoining || isFull || cooldownActive || accessState.canAttempt === false}>{isJoining ? "Joining..." : accessState.ctaLabel}</Button>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 text-foreground">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8">
@@ -886,10 +945,6 @@ const MomentDetail = () => {
                 )}
               </div>
 
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-2">
-                {moment.title}
-              </h1>
-
               {/* Social Proof & FOMO Facepile */}
               <div className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-2xl border border-border/50 bg-card/50 p-3 text-sm text-muted-foreground shadow-sm">
                 <div className="flex items-center gap-2 min-w-0">
@@ -986,7 +1041,7 @@ const MomentDetail = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Why this moment matters</p>
-                  <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">The story</h2>
+                  <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">The story</h2>
                 </div>
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
@@ -1007,7 +1062,7 @@ const MomentDetail = () => {
                         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
                           Moment lineage
                         </p>
-                        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">
+                        <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">
                           {moment.parent_moment_id ? "This is a sub-moment" : "Create activity inside this moment"}
                         </h3>
                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -1050,7 +1105,7 @@ const MomentDetail = () => {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">How this works</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">From join to memory</h3>
+                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">From join to memory</h3>
                 </div>
                 {!isPast && (
                   <Button asChild variant="outline" className="shrink-0">
@@ -1083,11 +1138,18 @@ const MomentDetail = () => {
               memoryHref={`/moments/${moment.id}/record`}
             />
 
+            <PromoShareEligibilityPanel
+              actionLabel={moment.expected_action_unit?.toLowerCase() || conversionLabel?.toLowerCase() || "verified action"}
+              proofLabel={moment.proof_type || "proof"}
+              poolLabel={moment.venue_name ? `${moment.venue_name} and campaign pools` : "campaign, city, and sponsor pools"}
+              funded={Number(economy?.economics?.reward_pool_jmd || 0) > 0 || Boolean(moment.reward)}
+            />
+
             <div className="rounded-3xl border border-border bg-card p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">What this can unlock</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Go beyond the check-in</h3>
+                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Go beyond the check-in</h3>
                   <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                     If this moment turns into recurring attendance, verified action, or funded demand, participants should know where that momentum can go next.
                   </p>
@@ -1164,7 +1226,7 @@ const MomentDetail = () => {
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Access</p>
-                      <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">{accessState.label}</h3>
+                      <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{accessState.label}</h3>
                       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{accessState.description}</p>
                     </div>
                     <Badge variant={accessState.key === "unlocked" || accessState.key === "available" ? "default" : "outline"} className="shrink-0">
@@ -1201,7 +1263,7 @@ const MomentDetail = () => {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Host Control</p>
-                    <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Shape the room before it fills.</h3>
+                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Shape the room before it fills.</h3>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                       Use Keys, standing, timing, and capacity to make this moment feel intentional for guests, useful for the venue, and measurable for sponsors.
                     </p>
@@ -1230,7 +1292,7 @@ const MomentDetail = () => {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moment Economy</p>
-                    <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Money in, rules, money out</h3>
+                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Money in, rules, money out</h3>
                   </div>
                   <Badge variant={economy.economics.funding_status === "locked" ? "default" : "outline"}>
                     {economy.economics.funding_status}
@@ -1340,7 +1402,7 @@ const MomentDetail = () => {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Verification Flow</p>
-                    <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">What participants need to prove</h3>
+                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">What participants need to prove</h3>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                       The check-in step should feel predictable. This moment exposes the verification expectations before someone commits.
                     </p>
@@ -1556,7 +1618,7 @@ const MomentDetail = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif text-xl font-bold mb-4 flex items-center justify-between">
+                  <h3 className="mb-4 flex items-center justify-between text-2xl font-black tracking-[-0.04em]">
                     <div className="flex items-center gap-2">
                         <MessageSquare className="h-5 w-5 text-primary" />
                         The Moment Wall
@@ -1573,7 +1635,7 @@ const MomentDetail = () => {
             ) : (
               <div className="py-4 text-center border-t border-b border-border/50 bg-secondary/10 rounded-xl">
                 <p className="text-sm text-muted-foreground italic">
-                  Complete your check-in to unlock community activity.
+                  Complete your check-in to unlock Scene activity.
                 </p>
               </div>
             )}
@@ -1588,7 +1650,7 @@ const MomentDetail = () => {
             {/* Legacy Reviews Section - To be removed after migration */}
             {momentReviews && momentReviews.length > 0 && (
               <div className="mt-6 opacity-50">
-                <h3 className="font-serif text-lg font-semibold mb-4 flex items-center gap-2 text-muted-foreground">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-black tracking-[-0.03em] text-muted-foreground">
                   <Star className="h-4 w-4" />
                   Legacy Reviews ({momentReviews.length})
                 </h3>

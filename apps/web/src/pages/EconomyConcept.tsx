@@ -21,6 +21,7 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cultureEvents } from "@/data/culture-demo";
 
 type ConceptKey = "overview" | "moments" | "points" | "keys" | "pieces" | "content" | "promoshare-gems" | "network";
 type IconType = typeof KeyRound;
@@ -49,7 +50,7 @@ type ProofValue = {
 const routes = [
   { icon: Ticket, title: "Find moments", href: "/explore/moments", text: "See real opportunities where this becomes useful." },
   { icon: WalletCards, title: "Open wallet", href: "/wallet", text: "See what you have earned, unlocked, or saved." },
-  { icon: Sparkles, title: "Create a moment", href: "/moments/create", text: "Turn a gathering, mission, or offer into something people can join." },
+  { icon: Sparkles, title: "Create a moment", href: "/create/moment", text: "Turn a gathering, mission, or offer into something people can join." },
 ];
 
 const roleLabel = (role: string) => role.replace("Hosts and venues", "Hosts");
@@ -81,7 +82,7 @@ const concepts: Record<ConceptKey, {
     primaryCta: "Find moments",
     primaryHref: "/explore/moments",
     secondaryCta: "Create a moment",
-    secondaryHref: "/moments/create",
+    secondaryHref: "/create/moment",
     proof: [
       { label: "What starts it", value: "A moment", helper: "Something real to attend, host, sponsor, create, or document." },
       { label: "What proves it", value: "A Mark", helper: "A record that someone showed up or contributed." },
@@ -101,7 +102,7 @@ const concepts: Record<ConceptKey, {
         why: "You need more than a flyer and a headcount.",
         outcome: "Promorang helps you see who came, what happened, and how to bring the right people back.",
         action: "Create a moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -140,7 +141,7 @@ const concepts: Record<ConceptKey, {
     primaryCta: "Browse moments",
     primaryHref: "/explore/moments",
     secondaryCta: "Create a moment",
-    secondaryHref: "/moments/create",
+    secondaryHref: "/create/moment",
     proof: [
       { label: "For participants", value: "Reason", helper: "A clear invitation to go somewhere, do something, or contribute." },
       { label: "For hosts", value: "Surface", helper: "A place to organize attendance, proof, access, and follow-up." },
@@ -160,7 +161,7 @@ const concepts: Record<ConceptKey, {
         why: "Your event should be more useful than a flyer.",
         outcome: "Moments connect discovery, check-in, Marks, access, content, rewards, and return behavior.",
         action: "Host a moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -219,7 +220,7 @@ const concepts: Record<ConceptKey, {
         why: "You need to know who actually showed up and helped the room.",
         outcome: "Marks and Points help separate actual participation from passive interest.",
         action: "Track participation",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -278,7 +279,7 @@ const concepts: Record<ConceptKey, {
         why: "A full RSVP list is not the same as a full room.",
         outcome: "Keys add light friction so scarce space goes to people with a better history of showing up.",
         action: "Create a gated moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -337,7 +338,7 @@ const concepts: Record<ConceptKey, {
         why: "Recurring rooms need identity, not just another listing.",
         outcome: "Pieces help a moment, venue, or community build a lasting record around proof, memory, and return behavior.",
         action: "Create a recurring moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -376,7 +377,7 @@ const concepts: Record<ConceptKey, {
     primaryCta: "Browse content",
     primaryHref: "/explore/content",
     secondaryCta: "Create a moment",
-    secondaryHref: "/moments/create",
+    secondaryHref: "/create/moment",
     proof: [
       { label: "For participants", value: "Proof", helper: "Content helps your contribution become visible." },
       { label: "For hosts", value: "Memory", helper: "A moment can keep working after the room clears." },
@@ -396,7 +397,7 @@ const concepts: Record<ConceptKey, {
         why: "Your best moments need proof people can revisit.",
         outcome: "Content helps future guests, sponsors, and communities understand why the room mattered.",
         action: "Create a content-ready moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -455,7 +456,7 @@ const concepts: Record<ConceptKey, {
         why: "You need incentives that drive quality participation, not random discount hunting.",
         outcome: "Qualified reward loops can support specific actions, repeat visits, and campaign goals.",
         action: "Create a rewardable moment",
-        href: "/moments/create",
+        href: "/create/moment",
         icon: MapPin,
       },
       {
@@ -556,7 +557,7 @@ export default function EconomyConcept() {
   const Icon = data.icon;
 
   return (
-    <div className="min-h-screen bg-[#f7f3ed] text-foreground">
+    <div className="min-h-screen bg-[#090909] text-white">
       <SEO title={`${data.eyebrow} - Promorang`} description={data.description} />
 
       <section className="relative overflow-hidden border-b border-black/10 bg-[#1e1e1d] pb-12 pt-28 text-white md:pb-16 md:pt-32">
@@ -651,9 +652,13 @@ export default function EconomyConcept() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="relative overflow-hidden py-12 md:py-16">
+        <div className="pointer-events-none absolute inset-0 opacity-20">
+          <img src={cultureEvents[1].image} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+        </div>
         <div className="container px-6">
-          <div className="rounded-[2rem] border border-black/10 bg-[#242321] p-5 text-white md:p-8">
+          <div className="relative rounded-[2rem] border border-white/10 bg-[#151515]/95 p-5 text-white shadow-2xl md:p-8">
             <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] md:items-center">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">What happens</p>
@@ -673,29 +678,30 @@ export default function EconomyConcept() {
           </div>
 
           <div className="mt-10 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
-            <div className="rounded-[1.75rem] border border-black/10 bg-white p-6 shadow-sm md:p-8">
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl md:p-8">
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Where users see this</p>
-                  <h2 className="mt-3 font-serif text-3xl font-bold">Places this appears in the product</h2>
+                  <h2 className="mt-3 font-serif text-3xl font-bold text-white">See it inside real activity</h2>
                 </div>
                 <ShieldCheck className="h-10 w-10 text-primary" />
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
                 {data.receipts.map((item) => (
-                  <span key={item} className="rounded-full border border-black/10 bg-[#f7f3ed] px-4 py-2 text-sm font-semibold text-foreground">
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-zinc-200">
                     {item}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-6 md:p-8">
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-primary/30 bg-primary/[0.12] p-6 md:p-8">
+              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <h2 className="mt-5 font-serif text-3xl font-bold">Choose a next step</h2>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              <h2 className="relative mt-5 font-serif text-3xl font-bold text-white">Choose a next step</h2>
+              <p className="relative mt-3 text-sm leading-7 text-zinc-300">
                 Join something worth showing up for, create a moment others can act on, or open your record to see what your activity is building.
               </p>
             </div>
@@ -706,7 +712,7 @@ export default function EconomyConcept() {
               <Link
                 key={route.title}
                 to={route.href}
-                className="group rounded-[1.25rem] border border-black/10 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                className="group rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-white/[0.07]"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -714,10 +720,10 @@ export default function EconomyConcept() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-foreground">{route.title}</p>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                      <p className="font-semibold text-white">{route.title}</p>
+                      <ArrowRight className="h-4 w-4 text-zinc-500 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{route.text}</p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">{route.text}</p>
                   </div>
                 </div>
               </Link>

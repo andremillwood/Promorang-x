@@ -8,6 +8,7 @@ const dailyLayerService = require('../services/dailyLayerService');
 const bountyService = require('../services/bountyService');
 const missionAttributionService = require('../services/missionAttributionService');
 const offerService = require('../services/offerService');
+const contentDistributionService = require('../services/contentDistributionService');
 
 const DEFAULT_CACHE_TTL_MS = Number(process.env.API_CACHE_TTL_MS || 15000);
 const cacheStore = new Map();
@@ -1195,79 +1196,14 @@ router.post('/buy-shares', async (req, res) => {
 });
 
 // Record social action (like, comment, share, save)
-router.post('/social-action', async (req, res) => {
+router.post('/social-action', requireAuth, async (req, res) => {
   try {
-    const { action_type, reference_id, reference_type } = req.body;
-
-    if (!supabase) {
-      const pointsEarned = action_type === 'like' ? 1 : action_type === 'comment' ? 3 : action_type === 'share' ? 5 : 2;
-      return res.json({
-        success: true,
-        points_earned: pointsEarned,
-        multiplier: 1.0
-      });
-    }
-
-    const userId = 1; // TODO: Get from authenticated user
-
-    // Check if user already performed this action
-    const { data: existingAction, error: checkError } = await supabase
-      .from('social_actions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('action_type', action_type)
-      .eq('reference_id', reference_id)
-      .eq('reference_type', reference_type)
-      .single();
-
-    if (existingAction && !checkError) {
-      return res.status(400).json({ success: false, error: `You have already ${action_type}d this content!` });
-    }
-
-    // Calculate points based on action type
-    const pointsMap = { like: 1, comment: 3, save: 2, share: 5 };
-    const basePoints = pointsMap[action_type] || 1;
-    const multiplier = 1.0; // TODO: Calculate based on user tier and streak
-    const pointsEarned = basePoints * multiplier;
-
-    // Record the social action
-    const { error } = await supabase
-      .from('social_actions')
-      .insert({
-        user_id: userId,
-        action_type,
-        reference_id,
-        reference_type,
-        points_earned: pointsEarned,
-        multiplier
-      });
-
-    if (error) {
-      console.error('Database error recording social action:', error);
-      return res.status(500).json({ success: false, error: 'Failed to record action' });
-    }
-
-    // Update user points
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        points_balance: supabase.raw(`points_balance + ${pointsEarned}`),
-        xp_points: supabase.raw(`xp_points + ${pointsEarned}`)
-      })
-      .eq('id', userId);
-
-    if (updateError) {
-      console.error('Database error updating user points:', updateError);
-    }
-
-    res.json({
-      success: true,
-      points_earned: pointsEarned,
-      multiplier
-    });
+    const result = await contentDistributionService.recordOrganicAction(req.user.id, req.body);
+    res.status(result.duplicate ? 200 : 201).json({ success: true, ...result });
   } catch (error) {
     console.error('Error recording social action:', error);
-    res.status(500).json({ success: false, error: 'Failed to record social action' });
+    const status = /unsupported|required/i.test(error.message) ? 422 : 500;
+    res.status(status).json({ success: false, error: error.message || 'Failed to record social action' });
   }
 });
 

@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Save, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Trash2, Calendar, ShieldCheck, Sparkles } from "lucide-react";
 import {
   momentCategories,
   venueCategories,
@@ -321,9 +321,9 @@ const EditMoment = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 rounded-[2rem] border border-primary/20 bg-gradient-to-br from-card via-card to-primary/10 p-6 shadow-soft">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
@@ -332,12 +332,26 @@ const EditMoment = () => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <h1 className="font-serif text-3xl font-bold text-foreground">
-          Edit Moment
+        <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moment Control</p>
+        <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-foreground">
+          Keep the moment sharp.
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Update your moment details
+        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+          Update the promise, place, schedule, proof signal, and reward so participants know exactly why to show up and what their action unlocks.
         </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            { icon: Calendar, label: "Timing", copy: "Keep the room current" },
+            { icon: ShieldCheck, label: "Proof", copy: "Protect verified value" },
+            { icon: Sparkles, label: "Unlock", copy: "Clarify the reward path" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+              <item.icon className="h-5 w-5 text-primary" />
+              <p className="mt-3 font-black tracking-[-0.02em] text-foreground">{item.label}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.copy}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
@@ -358,7 +372,7 @@ const EditMoment = () => {
               uploading={uploading}
               aspectRatio="video"
             />
-            <p className="mt-2 text-sm text-muted-foreground">Used on cards, compact previews, and discovery surfaces.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Used on cards, compact previews, and public listings.</p>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6">
@@ -374,7 +388,7 @@ const EditMoment = () => {
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6">
-            <Label className="mb-3 block">Supporting Event Images</Label>
+            <Label className="mb-3 block">Supporting Moment Images</Label>
             <MediaGalleryUpload
               value={formData.galleryImages}
               onChange={(images) => setFormData({ ...formData, galleryImages: images })}
@@ -385,7 +399,7 @@ const EditMoment = () => {
 
           {/* Basic Info */}
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Basic Information</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Promise</h2>
 
             <div>
               <Label htmlFor="title">Title *</Label>
@@ -488,7 +502,7 @@ const EditMoment = () => {
 
           {/* Location */}
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Location</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Place</h2>
 
             <div>
               <Label htmlFor="venueName">Venue Name</Label>
@@ -512,7 +526,7 @@ const EditMoment = () => {
 
           {/* Date & Time */}
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Date & Time</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Timing</h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -651,7 +665,7 @@ const EditMoment = () => {
 
           {/* Additional Details */}
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Additional Details</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Proof, Capacity, Unlock</h2>
 
             <div>
               <Label htmlFor="maxParticipants">Max Participants</Label>

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function CommunityImpactMatrix() {
   const metrics = [
-    { label: "Community Density", value: "High", score: 92, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Scene Density", value: "High", score: 92, color: "text-blue-600", bg: "bg-blue-50" },
     { label: "Retention Rate", value: "78%", score: 78, color: "text-purple-600", bg: "bg-purple-50" },
     { label: "Viral Index", value: "3.4x", score: 85, color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Avg. Participant Value", value: "$64", score: 64, color: "text-orange-600", bg: "bg-orange-50" },
@@ -21,7 +21,7 @@ export function CommunityImpactMatrix() {
                 <ShieldCheck className="w-4 h-4 text-primary" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary">Verified Social Density</span>
             </div>
-            <h2 className="text-3xl font-serif font-black italic mb-2">The Community Matrix</h2>
+            <h2 className="mb-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">The Scene Matrix</h2>
             <p className="text-white/60 text-sm max-w-sm mx-auto">This is how sponsors see your audience value. Real souls, real actions.</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export function CommunityImpactMatrix() {
                       <Zap className="w-8 h-8 text-primary mx-auto opacity-50" />
                       <div>
                           <p className="text-xs font-bold text-foreground">Dominant in: <span className="text-primary italic">SoHo, Downtown, Artisan Districts</span></p>
-                          <p className="text-[10px] text-muted-foreground mt-1">Your community is concentrated in high-spend retail corridors.</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">Your scene is concentrated in high-spend cultural corridors.</p>
                       </div>
                   </div>
               </div>
@@ -75,7 +75,7 @@ export function CommunityImpactMatrix() {
                   <Heart className="w-4 h-4 text-primary" />
               </div>
               <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter">Community Pulse</p>
+                  <p className="text-[10px] font-bold uppercase tracking-tighter">Scene Pulse</p>
                   <p className="text-xs text-white/60">Loyalty level is at an all-time high.</p>
               </div>
           </div>

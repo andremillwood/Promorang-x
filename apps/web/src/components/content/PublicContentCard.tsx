@@ -53,7 +53,7 @@ export function PublicContentCard({ item }: PublicContentCardProps) {
             {item.title || "Untitled content"}
           </h3>
           <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-            {item.description || "Creator content connected to the Promorang discovery graph."}
+            {item.description || "Creator content connected to moments, venues, brands, and offers."}
           </p>
         </div>
 

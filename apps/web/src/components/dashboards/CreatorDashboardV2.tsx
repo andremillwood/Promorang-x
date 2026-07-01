@@ -146,9 +146,9 @@ const CreatorDashboardV2 = () => {
   return (
     <div className="space-y-6 pb-20">
       <DashboardHero
-        badge="Creator Studio"
+        badge="Creator Proof Studio"
         title={isNewCreator ? "Turn your first story into movement" : "Create stories that move people"}
-        description="Publish content that can stand alone, launch a moment, support an existing gathering, or become a mission. Then track whether attention becomes joins, visits, unlocks, rewards, and real-world action."
+        description="Publish stories that can stand alone, launch a moment, support a scene, or become a mission. Then track whether attention becomes joins, visits, unlocks, rewards, and real-world proof."
         actions={[
           { label: "Publish", icon: Film, onClick: () => setActiveTab("publish") },
           { label: "Create mission", icon: Link2, onClick: () => setActiveTab("missions") },
@@ -167,14 +167,14 @@ const CreatorDashboardV2 = () => {
           NEW CREATOR: First Steps Guidance
           ===================================================================== */}
       {isNewCreator && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10">
           <CardContent className="p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-lg mb-1">Start Creating</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Start with one story that can move people</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Your first win is simple: publish a story, attach it to a mission or moment,
                   then watch for the first person who moves because of it.
@@ -182,7 +182,7 @@ const CreatorDashboardV2 = () => {
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={() => setActiveTab("publish")}>
                     <Film className="w-4 h-4 mr-2" />
-                    Publish First Story
+                    Publish Story
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/create/moment">
@@ -306,9 +306,9 @@ const CreatorDashboardV2 = () => {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Workflow</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Publish content, then turn it into missions</h3>
+                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Publish stories, then turn them into movement</h3>
                   <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    The creator path is flexible: create a story, let it stand alone, launch a moment from it, connect it to an existing moment, or turn it into a mission when you want verified action.
+                    The creator path is flexible: create a story, let it stand alone, launch a moment from it, connect it to a scene, or turn it into a mission when you want verified action.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -388,7 +388,7 @@ const CreatorDashboardV2 = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">My Stories</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Published content library</h3>
+                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Published story library</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
                     These are the stories you can reuse in missions, sponsor loops, and creator portfolio reporting.
                   </p>

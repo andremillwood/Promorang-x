@@ -27,6 +27,17 @@ const ForBrands = lazy(() => import("./pages/ForBrands"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const Communities = lazy(() => import("./pages/Communities"));
+const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+const Creators = lazy(() => import("./pages/Creators"));
+const CreatorDetail = lazy(() => import("./pages/CreatorDetail"));
+const EventExperienceDetail = lazy(() => import("./pages/EventExperienceDetail"));
+const GrowthHub = lazy(() => import("./pages/GrowthHub"));
+const PioneerPoints = lazy(() => import("./pages/PioneerPoints"));
+const Pioneers = lazy(() => import("./pages/Pioneers"));
+const OrganizerWorkspace = lazy(() => import("./pages/OrganizerWorkspace"));
+const OrganizerLanding = lazy(() => import("./pages/OrganizerLanding"));
 const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Pricing = lazy(() => import("./pages/Pricing"));
@@ -43,6 +54,7 @@ const ExploreMoments = lazy(() => import("./pages/ExploreMoments"));
 const ExploreVenues = lazy(() => import("./pages/ExploreVenues"));
 const ExploreRewards = lazy(() => import("./pages/ExploreRewards"));
 const ExploreContent = lazy(() => import("./pages/ExploreContent"));
+const Momentum = lazy(() => import("./pages/Momentum"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const WatchUnlock = lazy(() => import("./pages/WatchUnlock"));
 const ContentMissionDetail = lazy(() => import("./pages/ContentMissionDetail"));
@@ -86,6 +98,8 @@ const UGCReview = lazy(() => import("./pages/UGCReview"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PromoShare = lazy(() => import("./pages/PromoShare"));
+const ContentDrops = lazy(() => import("./pages/ContentDrops"));
+const ContentDropDetail = lazy(() => import("./pages/ContentDropDetail"));
 const OfferStudio = lazy(() => import("./pages/OfferStudio"));
 const PromoPush = lazy(() => import("./pages/PromoPush"));
 const PromoPushCreator = lazy(() => import("./pages/PromoPushCreator"));
@@ -136,6 +150,13 @@ const App = () => (
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
                     <Route path="/for-agencies" element={<ForAgencies />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/scenes" element={<Communities />} />
+                    <Route path="/scenes/:slug" element={<CommunityDetail />} />
+                    <Route path="/communities" element={<Navigate to="/scenes" replace />} />
+                    <Route path="/communities/:slug" element={<CommunityDetail />} />
+                    <Route path="/creators" element={<Creators />} />
+                    <Route path="/creators/:handle" element={<CreatorDetail />} />
                     <Route path="/economy" element={<EconomyConcept />} />
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
@@ -156,6 +177,7 @@ const App = () => (
                     <Route path="/create/bounty" element={<CreateBounty />} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
                     <Route path="/for-you" element={<Navigate to="/pulse" replace />} />
+                    <Route path="/live" element={<Pulse />} />
                     <Route path="/explore" element={<Navigate to="/discover" replace />} />
                     <Route path="/discover" element={<Discover />} />
                     <Route path="/discover/moments" element={<ExploreMoments />} />
@@ -166,12 +188,16 @@ const App = () => (
                     <Route path="/explore/venues" element={<Navigate to="/discover/venues" replace />} />
                     <Route path="/explore/rewards" element={<Navigate to="/discover/rewards" replace />} />
                     <Route path="/explore/content" element={<Navigate to="/discover/content" replace />} />
+                    <Route path="/events" element={<Navigate to="/discover/moments" replace />} />
+                    <Route path="/events/:slug" element={<EventExperienceDetail />} />
+                    <Route path="/momentum" element={<Momentum />} />
                     <Route path="/pulse" element={<Pulse />} />
                     <Route path="/missions" element={<WatchUnlock />} />
                     <Route path="/missions/:id" element={<ContentMissionDetail />} />
                     <Route path="/watch-unlock" element={<Navigate to="/missions" replace />} />
                     <Route path="/watch-unlock/:id" element={<ContentMissionDetail />} />
                     <Route path="/search" element={<Search />} />
+                    <Route path="/notifications" element={<Activity />} />
                     <Route path="/brands" element={<Brands />} />
                     <Route path="/brands/:slug" element={<BrandProfile />} />
                     <Route path="/merchants" element={<Merchants />} />
@@ -189,6 +215,32 @@ const App = () => (
                     <Route path="/moments/:id/checkin" element={<CheckIn />} />
                     <Route path="/bounties" element={<BountyBoard />} />
                     <Route path="/momentsapp" element={<MomentsApp />} />
+                    <Route path="/growth" element={<GrowthHub />} />
+                    <Route path="/pioneers" element={<Pioneers />} />
+                    <Route path="/growth/pioneer" element={<ProtectedRoute><PioneerPoints /></ProtectedRoute>} />
+                    <Route path="/growth/content" element={<Navigate to="/content-drops" replace />} />
+                    <Route path="/growth/promoshare" element={<Navigate to="/promoshare" replace />} />
+                    <Route path="/growth/campaigns" element={<Navigate to="/promopush" replace />} />
+                    <Route path="/growth/referrals" element={<Navigate to="/promopush/promoter" replace />} />
+                    <Route path="/growth/pieces" element={<Navigate to="/portfolio" replace />} />
+                    <Route path="/growth/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
+                    <Route path="/growth/earnings" element={<Navigate to="/wallet" replace />} />
+                    <Route path="/organizer" element={<OrganizerLanding />} />
+                    <Route path="/organizer/events" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/events/new" element={<Navigate to="/create/moment" replace />} />
+                    <Route path="/organizer/events/:id" element={<Navigate to="/dashboard?tab=moments" replace />} />
+                    <Route path="/organizer/events/:id/attendees" element={<Navigate to="/dashboard/participants" replace />} />
+                    <Route path="/organizer/events/:id/check-in" element={<Navigate to="/dashboard/activity" replace />} />
+                    <Route path="/organizer/events/:id/promote" element={<Navigate to="/promopush" replace />} />
+                    <Route path="/organizer/events/:id/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
+                    <Route path="/organizer/communities" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/scenes" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/promoters" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/revenue" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/tickets" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/settings" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/check-ins" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
+                    <Route path="/organizer/analytics" element={<ProtectedRoute><OrganizerWorkspace /></ProtectedRoute>} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/dashboard/participant" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard/creator" element={<Navigate to="/dashboard" replace />} />
@@ -209,6 +261,8 @@ const App = () => (
                     <Route path="/dashboard/rewards" element={<Navigate to="/vault" replace />} />
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                     <Route path="/promoshare" element={<PromoShare />} />
+                    <Route path="/content-drops" element={<ContentDrops />} />
+                    <Route path="/content-drops/:id" element={<ContentDropDetail />} />
                     <Route path="/offers" element={<ProtectedRoute><OfferStudio /></ProtectedRoute>} />
                     <Route path="/dashboard/offers" element={<ProtectedRoute><OfferStudio /></ProtectedRoute>} />
                     <Route path="/promopush" element={<ProtectedRoute><PromoPush /></ProtectedRoute>} />

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { amiService } from "@/services/ami";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,10 +109,10 @@ const visibilityOptions = [
 ];
 
 const steps = [
-  { id: 1, title: "Basic Info", icon: Calendar },
-  { id: 2, title: "Location", icon: MapPin },
-  { id: 3, title: "Details", icon: Users },
-  { id: 4, title: "Review", icon: Check },
+  { id: 1, title: "Promise", icon: Calendar },
+  { id: 2, title: "Place", icon: MapPin },
+  { id: 3, title: "Proof", icon: Users },
+  { id: 4, title: "Launch", icon: Check },
 ];
 
 const DEFAULT_MOMENT_TYPE = "community";
@@ -535,7 +536,7 @@ const CreateMoment = () => {
         GPS: "code",
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/moment-economy/moments`, {
+      const response = await fetch(`${API_BASE_URL}/moment-economy/moments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -620,7 +621,7 @@ const CreateMoment = () => {
       const createdMomentId = payload?.moment?.id;
       if (sourceContentId && createdMomentId) {
         try {
-          await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/o2o/links`, {
+          await fetch(`${API_BASE_URL}/o2o/links`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -646,7 +647,7 @@ const CreateMoment = () => {
           ? "Your story now has a launch moment and a mission link."
           : formData.moneySource === "entry"
             ? "Entry payments can now fund this Sprint."
-            : "Funded pool locked and ready for verified payouts.",
+            : "Funded pool locked. Completing this Moment with verified participation may also build your Genesis Season record.",
       });
 
       navigate("/dashboard");
@@ -667,8 +668,8 @@ const CreateMoment = () => {
       case 1:
         return (
           <div className="space-y-6">
-            <p className="text-sm text-muted-foreground uppercase tracking-widest font-serif italic mb-2">Step 1</p>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Basic Info</h2>
+            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Orientation</p>
+            <h2 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Promise of the moment</h2>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <Label htmlFor="title">Moment Title *</Label>
@@ -862,7 +863,7 @@ const CreateMoment = () => {
                 aspectRatio="video"
               />
               <p className="text-muted-foreground text-sm mt-2">
-                Used on cards, compact previews, and discovery surfaces.
+                Used on cards, compact previews, and public listings.
               </p>
             </div>
 
@@ -881,7 +882,7 @@ const CreateMoment = () => {
             </div>
 
             <div>
-              <Label className="mb-3 block">Supporting Event Images</Label>
+              <Label className="mb-3 block">Supporting Moment Images</Label>
               <MediaGalleryUpload
                 value={formData.galleryImages || []}
                 onChange={(images) => updateField("galleryImages", images)}
@@ -1273,8 +1274,9 @@ const CreateMoment = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-serif text-xl font-semibold mb-4">{formData.title}</h3>
+            <div className="rounded-[2rem] border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-6">
+              <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Launch Review</p>
+              <h3 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{formData.title}</h3>
 
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1359,10 +1361,10 @@ const CreateMoment = () => {
             <div className="rounded-xl border border-accent/30 bg-accent/10 p-4">
               <p className="text-sm">
                 {formData.visibility === "open"
-                  ? "✨ Your moment will go live immediately after creation. Participants can discover and join it right away!"
+                  ? "Your moment will go live immediately after creation. Participants can discover it, choose it, act on it, and leave verified proof behind."
                   : formData.visibility === "invite"
-                    ? "🔗 Your moment will be visible only to people you share the link with."
-                    : "🔒 Your moment will be private and hidden from discovery."}
+                    ? "Your moment will be visible only to people you share the link with, giving you a more controlled proof loop."
+                    : "Your moment will stay private and hidden from discovery until you are ready to open the room."}
               </p>
             </div>
           </div>
@@ -1392,11 +1394,11 @@ const CreateMoment = () => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Button>
-        <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-          Create a Moment
+        <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-foreground sm:text-6xl">
+          Build a moment people can prove.
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Choose the operating pattern first, then fill only the details that make the moment work.
+        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+          Choose the operating pattern, define the promise, set the proof, and make the unlock clear before it goes live.
         </p>
       </div>
 
@@ -1404,7 +1406,7 @@ const CreateMoment = () => {
         <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creation type</p>
-            <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">What are you creating?</h2>
+            <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">What are you creating?</h2>
           </div>
           <p className="max-w-xl text-sm text-muted-foreground">
             This choice shapes recurrence, ownership, proof, rewards, and how Promorang explains the value path to participants.
@@ -1535,7 +1537,7 @@ const CreateMoment = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Moment blueprint</p>
-                  <h4 className="mt-1 font-serif text-xl font-bold text-foreground">{selectedCreationType.label}</h4>
+                  <h4 className="mt-1 text-2xl font-black tracking-[-0.04em] text-foreground">{selectedCreationType.label}</h4>
                   <p className="mt-1 text-sm text-muted-foreground">{selectedCreationType.description}</p>
                 </div>
               </div>

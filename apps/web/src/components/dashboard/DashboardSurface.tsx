@@ -51,6 +51,7 @@ interface DashboardHeroProps {
   stats?: DashboardHeroStat[];
   isLoading?: boolean;
   glowClassName?: string;
+  imageSrc?: string;
 }
 
 export const DashboardHero = ({
@@ -61,37 +62,40 @@ export const DashboardHero = ({
   stats = [],
   isLoading = false,
   glowClassName,
+  imageSrc,
 }: DashboardHeroProps) => {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-charcoal p-6 text-white sm:p-8">
+    <section className="relative overflow-hidden rounded-lg border border-white/10 bg-black text-white shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
+      {imageSrc ? (
+        <img src={imageSrc} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+      ) : null}
       <div
         className={cn(
-          "absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,167,38,0.20),_transparent_40%),radial-gradient(circle_at_bottom_right,_rgba(244,81,30,0.16),_transparent_34%)]",
+          "absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,106,0,0.28),transparent_32%),radial-gradient(circle_at_86%_80%,rgba(255,195,0,0.12),transparent_28%)]",
           glowClassName,
         )}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] via-transparent to-black/25" />
-
-      <div className="relative space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.72)_48%,rgba(0,0,0,0.46)_100%),linear-gradient(to_bottom,transparent,rgba(0,0,0,0.55))]" />
+      <div className="relative">
+        <div className="flex min-h-[300px] flex-col justify-end gap-7 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-3">
-            <Badge variant="secondary" className="w-fit rounded-full border-0 bg-white/10 px-3 py-1 text-white/90">
+            <Badge variant="secondary" className="w-fit rounded-full border border-orange-500/30 bg-black/40 px-3 py-1 text-orange-300">
               {badge}
             </Badge>
             <div className="space-y-2">
-              <h1 className="font-serif text-3xl font-bold sm:text-4xl">{title}</h1>
-              <p className="max-w-xl text-sm text-white/75 sm:text-base">{description}</p>
+              <h1 className="font-sans text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">{title}</h1>
+              <p className="max-w-xl text-sm leading-6 text-white/65 sm:text-base">{description}</p>
             </div>
           </div>
 
-          <div className={cn("grid grid-cols-1 gap-3", actions.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
-            {actions.map((action) =>
+          <div className="flex flex-wrap gap-2">
+            {actions.map((action, index) =>
               action.href ? (
                 <Button
                   key={action.label}
                   asChild
-                  variant="secondary"
-                  className="justify-between rounded-2xl border-0 bg-white/10 px-4 text-white hover:bg-white/15"
+                  variant={index === 0 ? "default" : "secondary"}
+                  className={cn("justify-between rounded-md px-4 font-bold", index === 0 ? "bg-orange-500 text-black hover:bg-orange-400" : "border border-white/10 bg-white/10 text-white hover:bg-white/15")}
                 >
                   <Link to={action.href}>
                     <span className="flex items-center gap-2">
@@ -104,8 +108,8 @@ export const DashboardHero = ({
               ) : (
                 <Button
                   key={action.label}
-                  variant="secondary"
-                  className="justify-between rounded-2xl border-0 bg-white/10 px-4 text-white hover:bg-white/15"
+                  variant={index === 0 ? "default" : "secondary"}
+                  className={cn("justify-between rounded-md px-4 font-bold", index === 0 ? "bg-orange-500 text-black hover:bg-orange-400" : "border border-white/10 bg-white/10 text-white hover:bg-white/15")}
                   onClick={action.onClick}
                 >
                   <span className="flex items-center gap-2">
@@ -120,10 +124,9 @@ export const DashboardHero = ({
         </div>
 
         {stats.length > 0 ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid border-t border-white/10 bg-black/55 sm:grid-cols-2 xl:grid-cols-4">
             {(isLoading ? Array.from({ length: stats.length || 4 }) : stats).map((stat, index) => (
-              <Card key={index} className="border-white/10 bg-white/5 text-white shadow-none">
-                <CardContent className="p-4">
+              <div key={index} className="border-b border-white/10 p-5 text-white last:border-b-0 sm:border-r xl:border-b-0">
                   {isLoading ? (
                     <div className="space-y-3">
                       <Skeleton className="h-4 w-20 bg-white/10" />
@@ -136,12 +139,11 @@ export const DashboardHero = ({
                         <span className="text-xs uppercase tracking-[0.2em] text-white/60">{stat.label}</span>
                         <stat.icon className={cn("h-4 w-4", stat.accentClass || "text-primary-light")} />
                       </div>
-                      <div className="text-3xl font-semibold">{stat.value}</div>
+                      <div className="text-3xl font-black tracking-tight">{stat.value}</div>
                       <div className="mt-1 text-xs text-white/65">{stat.helper}</div>
                     </>
                   )}
-                </CardContent>
-              </Card>
+              </div>
             ))}
           </div>
         ) : null}
@@ -162,9 +164,9 @@ export const DashboardQuickRoutesCard = ({
   routes,
 }: DashboardQuickRoutesCardProps) => {
   return (
-    <Card className="border-border/60">
+    <Card className="overflow-hidden rounded-lg border-border/60 bg-card/80 shadow-soft">
       <CardContent className="p-6">
-        <h3 className="font-semibold">{title}</h3>
+        <h3 className="text-xl font-black tracking-[-0.03em]">{title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         <div className="mt-4 space-y-2">
           {routes.map((route) =>
@@ -228,11 +230,11 @@ export const DashboardNextStepsSection = ({
   items,
 }: DashboardNextStepsSectionProps) => {
   return (
-    <Card className="border-border/60">
+    <Card className="rounded-lg border-border/60">
       <CardContent className="p-6">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-serif text-2xl font-bold">{title}</h2>
+            <h2 className="text-2xl font-black tracking-[-0.04em]">{title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           </div>
           {ctaLabel ? (
@@ -255,7 +257,7 @@ export const DashboardNextStepsSection = ({
         <div className="grid gap-3 md:grid-cols-3">
           {items.map((item) =>
             item.href ? (
-              <Button key={item.title} variant="outline" className="h-auto justify-start rounded-3xl p-0" asChild>
+              <Button key={item.title} variant="outline" className="h-auto justify-start rounded-lg p-0" asChild>
                 <Link to={item.href} className="block w-full p-5 text-left">
                   <h3 className="font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
@@ -270,7 +272,7 @@ export const DashboardNextStepsSection = ({
                 key={item.title}
                 type="button"
                 onClick={item.onClick}
-                className="rounded-3xl border border-border/60 bg-muted/20 p-5 text-left transition-all hover:border-primary/30 hover:shadow-soft"
+                className="rounded-lg border border-border/60 bg-muted/20 p-5 text-left transition-all hover:border-primary/30 hover:shadow-soft"
               >
                 <h3 className="font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>

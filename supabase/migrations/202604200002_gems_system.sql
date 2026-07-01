@@ -117,8 +117,7 @@ CREATE TABLE IF NOT EXISTS public.gems_withdrawals (
     CHECK (withdrawal_method IN ('bank_transfer', 'paypal', 'crypto')),
   
   -- Status
-  status text NOT NULL DEFAULT 'pending' 
-    CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
   
   -- Processing
   requested_at timestamptz NOT NULL DEFAULT timezone('utc', now()),
@@ -200,6 +199,7 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 
 -- Update user balance timestamp
+DROP TRIGGER IF EXISTS trg_user_balance_touch ON public.user_balances;
 DROP FUNCTION IF EXISTS public.touch_user_balance_updated_at();
 CREATE OR REPLACE FUNCTION public.touch_user_balance_updated_at()
 RETURNS TRIGGER AS $$
@@ -209,14 +209,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_user_balance_touch') THEN
-    CREATE TRIGGER trg_user_balance_touch
-      BEFORE UPDATE ON public.user_balances
-      FOR EACH ROW EXECUTE FUNCTION public.touch_user_balance_updated_at();
-  END IF;
-END $$;
+CREATE TRIGGER trg_user_balance_touch
+  BEFORE UPDATE ON public.user_balances
+  FOR EACH ROW EXECUTE FUNCTION public.touch_user_balance_updated_at();
 
 -- =====================================================
 -- 6. RLS POLICIES

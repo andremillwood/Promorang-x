@@ -91,19 +91,38 @@ const Marketplace = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Search & Filter Header */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold tracking-tight mb-2 flex items-center gap-3">
-                        Local Marketplace <Store className="w-8 h-8 text-primary" />
-                    </h1>
-                    <p className="text-muted-foreground">Support local venues, services, and rewards from one commerce directory.</p>
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-5 shadow-2xl md:p-8">
+                <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
+                            <Store className="h-3.5 w-3.5" />
+                            Marketplace
+                        </div>
+                        <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-6xl">
+                            Spend locally. Build status.
+                        </h1>
+                        <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
+                            Discover offers, services, and rewards from Promorang merchants. Purchases and redemptions should move you closer to value: Points, access, proof receipts, and future eligibility.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-2 text-xs text-white/70 sm:grid-cols-3 md:w-[34rem]">
+                        {["Buy or book", "Earn signal", "Unlock more"].map((label) => (
+                            <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                                <div className="font-black uppercase tracking-[0.18em] text-primary">{label}</div>
+                                <p className="mt-1 leading-5">
+                                    {label === "Buy or book" ? "Choose an offer that matches your next move." : label === "Earn signal" ? "Points and receipts strengthen your record." : "Use access and status toward better Moments."}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="flex w-full md:w-auto gap-3">
+                <div className="mt-6 flex w-full gap-3 md:max-w-xl">
                     <div className="relative flex-1 md:w-80">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search products or venues..."
+                            placeholder="Search offers, venues, rewards..."
                             className="pl-10 bg-card rounded-xl border-border/40 focus:ring-primary/20"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -230,8 +249,8 @@ const Marketplace = () => {
             {/* Value Prop Banner */}
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-white/10 relative overflow-hidden">
                 <div className="relative z-10 max-w-2xl">
-                    <h2 className="text-2xl font-serif font-bold mb-2">Spend $1, Earn 10 Points</h2>
-                    <p className="text-muted-foreground text-sm">Every direct purchase from a local merchant earns you Access Points. Points are used to build your Access Rank and qualify for exclusive, limited-entry moments.</p>
+                    <h2 className="text-3xl font-black uppercase leading-none tracking-[-0.04em] mb-2">Every purchase should move you.</h2>
+                    <p className="text-muted-foreground text-sm">Direct purchases from local merchants can earn Access Points, receipts, and eligibility. Marketplace is not just checkout; it is one way your local support becomes visible status inside Promorang.</p>
                     <Button variant="link" className="p-0 text-primary mt-4 h-auto">
                         Learn about Access Ranks <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

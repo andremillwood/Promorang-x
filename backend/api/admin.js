@@ -10,6 +10,109 @@ router.use(requireAuth);
 router.use(requireAdmin);
 
 /**
+ * GET /api/admin/pioneer-events
+ * Review queue and audit history for Pioneer contribution receipts.
+ */
+router.get('/pioneer-events', async (req, res) => {
+    try {
+        if (!supabase) return res.json({ events: [], total: 0 });
+        const status = String(req.query.status || 'pending');
+        const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+        let query = supabase
+            .from('pioneer_point_events')
+            .select('*', { count: 'exact' })
+            .order('occurred_at', { ascending: false })
+            .limit(limit);
+        if (status !== 'all') query = query.eq('status', status);
+        if (req.query.contributor_type) query = query.eq('contributor_type', req.query.contributor_type);
+        const { data, error, count } = await query;
+        if (error) throw error;
+
+        const venueIds = [...new Set((data || []).filter((event) => event.beneficiary_type === 'venue').map((event) => event.beneficiary_id))];
+        let venueMap = {};
+        if (venueIds.length) {
+            const { data: venues, error: venueError } = await supabase
+                .from('venues').select('id,name,address,owner_id,image_url').in('id', venueIds);
+            if (venueError) throw venueError;
+            venueMap = Object.fromEntries((venues || []).map((venue) => [venue.id, venue]));
+        }
+        res.json({
+            events: (data || []).map((event) => ({ ...event, venue: venueMap[event.beneficiary_id] || null })),
+            total: count || 0,
+        });
+    } catch (error) {
+        console.error('Admin Pioneer Queue Error:', error);
+        res.status(500).json({ error: error.message || 'Failed to load Pioneer review queue' });
+    }
+});
+
+/**
+ * PATCH /api/admin/pioneer-events/:id/review
+ * Verify, reject, or reverse a Pioneer receipt through the audited database function.
+ */
+router.patch('/pioneer-events/:id/review', async (req, res) => {
+    try {
+        const { decision, reason = null } = req.body || {};
+        if (!['verified', 'rejected', 'reversed'].includes(decision)) {
+            return res.status(400).json({ error: 'decision must be verified, rejected, or reversed' });
+        }
+        if (['rejected', 'reversed'].includes(decision) && !String(reason || '').trim()) {
+            return res.status(400).json({ error: 'A reason is required for rejection or reversal' });
+        }
+        if (!supabase) return res.json({ success: true, event: { id: req.params.id, status: decision, reason } });
+        const { data, error } = await supabase.rpc('review_pioneer_event', {
+            p_event_id: req.params.id,
+            p_decision: decision,
+            p_reviewer_id: req.user.id,
+            p_reason: reason,
+        });
+        if (error) throw error;
+        res.json({ success: true, event: data });
+    } catch (error) {
+        console.error('Admin Pioneer Review Error:', error);
+        res.status(400).json({ error: error.message || 'Failed to review Pioneer receipt' });
+    }
+});
+
+router.post('/pioneer-events/bulk-review', async (req,res) => {
+    try {
+        const ids=Array.isArray(req.body?.ids)?req.body.ids.slice(0,100):[];
+        const decision=req.body?.decision;
+        const reason=req.body?.reason||null;
+        if(!ids.length || !['verified','rejected'].includes(decision)) return res.status(400).json({error:'ids and valid decision required'});
+        if(decision==='rejected' && !String(reason||'').trim()) return res.status(400).json({error:'Reason required'});
+        const results=[];
+        for(const id of ids){
+            const {data,error}=await supabase.rpc('review_pioneer_event',{p_event_id:id,p_decision:decision,p_reviewer_id:req.user.id,p_reason:reason});
+            results.push({id,success:!error,event:data,error:error?.message});
+        }
+        res.json({results});
+    } catch(error){ res.status(400).json({error:error.message||'Bulk review failed'}); }
+});
+
+router.post('/pioneer-seasons/:id/freeze', async (req,res) => {
+    try {
+        const {data,error}=await supabase.rpc('freeze_pioneer_season',{p_season_id:req.params.id});
+        if(error) throw error; res.json({season:data});
+    } catch(error){ res.status(400).json({error:error.message||'Freeze failed'}); }
+});
+
+router.post('/pioneer-seasons/:id/allocate', requireMasterAdmin, async (req,res) => {
+    try {
+        const {data,error}=await supabase.rpc('allocate_pioneer_season',{p_season_id:req.params.id});
+        if(error) throw error; res.json({allocations:data});
+    } catch(error){ res.status(400).json({error:error.message||'Allocation failed'}); }
+});
+
+router.get('/pioneer-fraud-flags', async (req,res) => {
+    try {
+        let query=supabase.from('pioneer_fraud_flags').select('*,pioneer_point_events(*)').order('created_at',{ascending:false}).limit(100);
+        if(req.query.status && req.query.status!=='all') query=query.eq('status',req.query.status);
+        const {data,error}=await query; if(error) throw error; res.json({flags:data||[]});
+    } catch(error){res.status(500).json({error:'Unable to load fraud flags'});}
+});
+
+/**
  * GET /api/admin/stats
  * Get high-level platform statistics
  */
@@ -1398,8 +1501,8 @@ router.get('/economy/stats', async (req, res) => {
 
         // Aggregate all user balances
         const { data: balances } = await supabase
-            .from('user_balances')
-            .select('points, gems, promokeys, gold');
+            .from('economy_wallets')
+            .select('points, gems, promokeys, gold, usd');
 
         let total_points = 0, total_gems = 0, total_promokeys = 0, total_gold = 0;
         (balances || []).forEach(b => {
@@ -1423,7 +1526,7 @@ router.get('/economy/stats', async (req, res) => {
         // 24h transaction count
         const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count: transactions_24h } = await supabase
-            .from('transaction_history')
+            .from('economy_transactions')
             .select('*', { count: 'exact', head: true })
             .gte('created_at', since24h);
 
@@ -1452,6 +1555,50 @@ router.get('/economy/stats', async (req, res) => {
     }
 });
 
+router.get('/economy/health', async (req, res) => {
+    try {
+        if (!supabase) return res.json({ status: 'unknown', checks: {}, journey: {} });
+        const since24h = new Date(Date.now() - 86400000).toISOString();
+        const since7d = new Date(Date.now() - 7 * 86400000).toISOString();
+        const [
+            receipts, notifications, unread, transactions, journeyEvents,
+            referralFailures, pendingPioneer
+        ] = await Promise.all([
+            supabase.from('reward_receipts').select('*', { count: 'exact', head: true }).gte('created_at', since24h),
+            supabase.from('value_notifications').select('*', { count: 'exact', head: true }).gte('created_at', since24h),
+            supabase.from('value_notifications').select('*', { count: 'exact', head: true }).is('read_at', null).gte('created_at', since7d),
+            supabase.from('economy_transactions').select('*', { count: 'exact', head: true }).gte('created_at', since24h),
+            supabase.from('value_journey_events').select('journey_stage').gte('created_at', since7d),
+            supabase.from('referral_earning_events').select('*', { count: 'exact', head: true }).eq('status', 'failed').gte('created_at', since7d),
+            supabase.from('pioneer_point_events').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        ]);
+        const queryErrors = [receipts, notifications, unread, transactions, journeyEvents, referralFailures, pendingPioneer]
+            .map((result) => result.error?.message).filter(Boolean);
+        const journey = (journeyEvents.data || []).reduce((totals, event) => {
+            totals[event.journey_stage] = (totals[event.journey_stage] || 0) + 1;
+            return totals;
+        }, {});
+        const checks = {
+            transactions_24h: transactions.count || 0,
+            receipts_24h: receipts.count || 0,
+            notifications_24h: notifications.count || 0,
+            unread_notifications_7d: unread.count || 0,
+            failed_referrals_7d: referralFailures.count || 0,
+            pending_pioneer_reviews: pendingPioneer.count || 0,
+        };
+        res.json({
+            status: queryErrors.length || checks.failed_referrals_7d > 0 ? 'attention' : 'healthy',
+            checks, journey, query_errors: queryErrors,
+            receipt_coverage: checks.transactions_24h
+                ? Math.min(1, checks.receipts_24h / checks.transactions_24h)
+                : 1,
+        });
+    } catch (error) {
+        console.error('Admin Economy Health Error:', error);
+        res.status(500).json({ error: 'Failed to fetch economy health' });
+    }
+});
+
 /**
  * GET /api/admin/economy/transactions
  * Master ledger with pagination
@@ -1466,7 +1613,7 @@ router.get('/economy/transactions', async (req, res) => {
         const userId = req.query.user_id;
 
         let query = supabase
-            .from('transaction_history')
+            .from('economy_transactions')
             .select('*, profiles:user_id(full_name, email)', { count: 'exact' })
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
@@ -1496,51 +1643,28 @@ router.post('/economy/adjust-balance', async (req, res) => {
             return res.status(400).json({ error: 'user_id, currency, amount, and reason are required' });
         }
 
-        const validCurrencies = ['points', 'promokeys', 'gems', 'gold'];
+        const validCurrencies = ['points', 'promokeys', 'gems', 'gold', 'usd'];
         if (!validCurrencies.includes(currency)) {
             return res.status(400).json({ error: `Invalid currency. Must be one of: ${validCurrencies.join(', ')}` });
         }
 
         if (!supabase) return res.json({ success: true, message: 'Mock adjustment' });
 
-        // Get current balance
-        const { data: balance, error: balErr } = await supabase
-            .from('user_balances')
-            .select('*')
-            .eq('user_id', user_id)
-            .single();
-
-        if (balErr && balErr.code === 'PGRST116') {
-            // Create balance record if missing
-            await supabase.from('user_balances').insert({ user_id });
-        }
-
-        const currentAmount = balance ? Number(balance[currency]) || 0 : 0;
-        const newAmount = currentAmount + Number(amount);
-
-        if (newAmount < 0) {
-            return res.status(400).json({ error: `Resulting balance would be negative (${newAmount}). Current: ${currentAmount}` });
-        }
-
-        // Update balance
-        const { error: updateErr } = await supabase
-            .from('user_balances')
-            .update({ [currency]: newAmount, updated_at: new Date().toISOString() })
-            .eq('user_id', user_id);
-
-        if (updateErr) throw updateErr;
-
-        // Record transaction
-        await supabase.from('transaction_history').insert({
-            user_id,
-            currency,
-            amount: Number(amount),
-            transaction_type: 'admin_adjustment',
-            source: 'admin_manual',
-            description: `[Admin: ${req.user.email || req.user.id}] ${reason}`,
+        const { data: transaction, error: adjustmentError } = await supabase.rpc('post_economy_transaction', {
+            p_user_id: user_id,
+            p_currency: currency,
+            p_amount: Number(amount),
+            p_transaction_type: 'admin_adjustment',
+            p_source: 'admin_manual',
+            p_idempotency_key: `admin:${req.user.id}:${user_id}:${currency}:${Date.now()}`,
+            p_reference_id: null,
+            p_reference_table: null,
+            p_description: `[Admin: ${req.user.email || req.user.id}] ${reason}`,
+            p_metadata: { reason, admin_user_id: req.user.id }
         });
+        if (adjustmentError) throw adjustmentError;
 
-        res.json({ success: true, previous_balance: currentAmount, new_balance: newAmount });
+        res.json({ success: true, new_balance: transaction.balance_after, transaction });
     } catch (error) {
         console.error('Admin Adjust Balance Error:', error);
         res.status(500).json({ error: 'Failed to adjust balance' });

@@ -4,18 +4,17 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
+import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import {
     Store,
     Users,
     Gift,
     TrendingUp,
     ArrowRight,
-    TrendingUp as Graph,
     MapPin,
     Clock,
     ShieldCheck,
     Lock,
-    CheckCircle2
 } from "lucide-react";
 
 const merchantBenefits = [
@@ -27,7 +26,7 @@ const merchantBenefits = [
     },
     {
         icon: Users,
-        title: "Real Community Activity",
+        title: "Real Scene Activity",
         description:
             "Attract active locals who truly value your space. Turn product drops, service rituals, sampling missions, and brand-supported visits into consistent neighborhood energy.",
     },
@@ -58,7 +57,7 @@ const ForMerchants = () => {
         <div className="min-h-screen bg-background">
             <SEO
                 title="Promorang for Merchants - Your Space is the Stage"
-                description="Become a trusted destination for community moments. Attract storytellers, welcome them personally, and build real activity in your space."
+                description="Become a trusted destination for Scene moments. Attract storytellers, welcome them personally, and build real activity in your space."
                 type="website"
             />
 
@@ -72,7 +71,7 @@ const ForMerchants = () => {
                             <span className="text-[10px] font-black uppercase tracking-widest">A space for every story</span>
                         </div>
 
-                        <h1 className="mx-auto mb-6 max-w-[18rem] break-words font-serif text-[1.8rem] font-bold italic leading-tight text-white sm:max-w-4xl sm:text-4xl md:text-7xl">
+                        <h1 className="mx-auto mb-6 max-w-[20rem] break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-white sm:max-w-4xl sm:text-6xl md:text-7xl">
                             Become the Place <span className="text-primary">People Return To.</span>
                         </h1>
 
@@ -120,6 +119,11 @@ const ForMerchants = () => {
                 </div>
             </section>
 
+            <PioneerCallout
+                title="The places that give culture a home belong in the founding record."
+                copy="Venues can earn their own Pioneer record for verified onboarding, facilitating completed Moments, and hosting experiences themselves."
+            />
+
             {/* The Verification Flow */}
             <section className="py-24 bg-background">
                 <div className="container px-4 sm:px-6">
@@ -129,7 +133,7 @@ const ForMerchants = () => {
                                 <ShieldCheck className="w-4 h-4" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-primary">Trust & Welcomes</span>
                             </div>
-                            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6">
+                            <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                                 A <span className="text-emerald-600 italic">Face-to-Face Check-in.</span>
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
@@ -174,7 +178,7 @@ const ForMerchants = () => {
                                         <p className="text-xs text-white/60 font-medium">Verify guest arrival:</p>
                                         <div className="flex justify-center gap-2 sm:gap-3">
                                             {[1,2,3,4].map(i => (
-                                                <div key={i} className="flex h-14 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 font-serif text-xl font-bold text-white sm:h-16 sm:w-12 sm:text-2xl">
+                                                <div key={i} className="flex h-14 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl font-black text-white sm:h-16 sm:w-12 sm:text-2xl">
                                                     *
                                                 </div>
                                             ))}
@@ -201,7 +205,7 @@ const ForMerchants = () => {
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-12">
                         {stats.map((stat, i) => (
                             <div key={i} className="text-center group">
-                                <p className="font-serif text-4xl font-bold text-foreground mb-2 group-hover:text-emerald-600 transition-colors">{stat.value}</p>
+                                <p className="mb-2 text-4xl font-black text-foreground transition-colors group-hover:text-emerald-600">{stat.value}</p>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</p>
                             </div>
                         ))}
@@ -213,11 +217,11 @@ const ForMerchants = () => {
             <section className="py-24 bg-charcoal relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48" />
                 <div className="container relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
-                    <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-8 italic">
+                    <h2 className="mb-8 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
                         The Heart of the <span className="text-primary italic">Neighborhood.</span>
                     </h2>
                     <p className="text-lg text-white/60 mb-10 leading-relaxed">
-                        Ready to welcome the storytellers in your community? List your spot for free and start seeing
+                        Ready to welcome the storytellers in your scene? List your spot for free and start seeing
                         more local faces, verified visits, and repeat-worthy momentum flow through your doors.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

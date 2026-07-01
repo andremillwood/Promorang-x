@@ -95,10 +95,10 @@ const BrandsDirectory = () => {
             <div className="mb-8 rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="max-w-2xl">
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Discovery graph</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Connected directory</p>
                         <h2 className="mt-2 font-serif text-xl font-bold text-foreground">Move from brands into moments, venues, and locations</h2>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            Brand pages now connect into public moment archives and venue-linked discovery routes, giving search engines and users a clearer path through the ecosystem.
+                            Brand pages now connect into public moment archives and venue listings, giving search engines and visitors a clearer path through the ecosystem.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">

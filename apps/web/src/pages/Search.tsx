@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,9 +14,9 @@ import {
     ArrowRight,
     Loader2,
     Frown,
-    MapPin
+    Sparkles,
+    Zap
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 interface SearchResult {
@@ -35,8 +34,6 @@ const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     const initialCategory = searchParams.get("category") || "all";
-    const { roles } = useAuth();
-    const primaryRole = roles[0] || "participant";
 
     const [inputValue, setInputValue] = useState(query);
     const [activeTab, setActiveTab] = useState(initialCategory);
@@ -97,21 +94,28 @@ const SearchPage = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-12">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold tracking-tight mb-4">Unified Search</h1>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Find moments, brands, venues, and hosts across the entire Promorang ecosystem.
-                </p>
-            </div>
+        <div className="mx-auto max-w-6xl px-4 py-12">
+            <section className="mb-10 overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.22),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(21,21,21,0.94))] p-5 shadow-2xl sm:p-8">
+                <div className="mx-auto max-w-4xl text-center">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-primary">
+                        <Zap className="h-3.5 w-3.5" />
+                        Search the market
+                    </div>
+                    <h1 className="text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white sm:text-6xl">
+                        Find the signal, then act on it.
+                    </h1>
+                    <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
+                        Search Moments, brands, merchants, hosts, and people. The goal is not just finding a page; it is finding the next useful action.
+                    </p>
+                </div>
 
-            <form onSubmit={handleSearch} className="relative mx-auto mb-12 flex max-w-2xl flex-col gap-3 sm:block">
+                <form onSubmit={handleSearch} className="relative mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:block">
                 <SearchIcon className="absolute left-4 top-7 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Search for anything..."
-                    className="h-14 rounded-2xl pl-12 text-base shadow-soft sm:pr-32 sm:text-lg"
+                    placeholder="Search Moments, Scenes, offers, creators..."
+                    className="h-14 rounded-2xl border-white/10 bg-white/[0.08] pl-12 text-base text-white shadow-soft placeholder:text-white/42 sm:pr-32 sm:text-lg"
                 />
                 <Button
                     type="submit"
@@ -120,7 +124,24 @@ const SearchPage = () => {
                 >
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
                 </Button>
-            </form>
+                </form>
+
+                <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2">
+                    {["I Luv Hip Hop", "rewards", "creators", "Kingston", "proof", "venues"].map((term) => (
+                        <button
+                            key={term}
+                            type="button"
+                            onClick={() => {
+                                setInputValue(term);
+                                setSearchParams({ q: term, category: activeTab });
+                            }}
+                            className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-white/72 transition hover:border-primary/50 hover:text-primary"
+                        >
+                            {term}
+                        </button>
+                    ))}
+                </div>
+            </section>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b bg-transparent p-0 sm:gap-8">
@@ -136,13 +157,13 @@ const SearchPage = () => {
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                            <p className="text-muted-foreground text-sm">Searching the ecosystem...</p>
+                            <p className="text-muted-foreground text-sm">Searching the market...</p>
                         </div>
                     ) : query.length < 2 ? (
-                        <div className="text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
-                            <SearchIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium">Ready to search</h3>
-                            <p className="text-muted-foreground mt-1">Start typing to find what you're looking for.</p>
+                        <div className="rounded-[2rem] border border-dashed border-primary/25 bg-primary/5 px-6 py-16 text-center">
+                            <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 opacity-80" />
+                            <h3 className="text-xl font-black tracking-[-0.03em]">Start with intent</h3>
+                            <p className="mx-auto mt-2 max-w-md text-muted-foreground">Search a Moment, place, creator, reward, or proof path. Good discovery should get you to value fast.</p>
                         </div>
                     ) : sortedResults.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4">
@@ -195,7 +216,7 @@ const SearchPage = () => {
                             <Frown className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
                             <h3 className="text-lg font-medium">No results found for "{query}"</h3>
                             <p className="text-muted-foreground mt-1 max-w-sm mx-auto">
-                                Try searching with different keywords or check your spelling.
+                                Try a broader keyword, a place, a creator name, or a reward/action term.
                             </p>
                             <Button variant="link" className="mt-2" onClick={() => setInputValue("")}>
                                 Clear search
@@ -207,7 +228,7 @@ const SearchPage = () => {
 
             {results && results.length > 0 && (
                 <div className="mt-12 pt-12 border-t text-center">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Didn't find what you need?</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Keep moving</h3>
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         <Button asChild variant="outline" size="sm">
                             <Link to="/explore/moments">Browse Moments</Link>

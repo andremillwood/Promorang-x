@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS public.piece_asset_approvals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   piece_type public.piece_type NOT NULL,
   asset_id UUID NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending', 'approved', 'rejected', 'suspended')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'suspended')),
   review_notes TEXT,
   submitted_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   reviewed_by UUID REFERENCES public.users(id) ON DELETE SET NULL,

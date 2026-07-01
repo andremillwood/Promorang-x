@@ -5,10 +5,11 @@ import { MomentCard } from "@/components/MomentCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Users, Sparkles, Calendar, UserPlus, MapPin, Star } from "lucide-react";
+import { Users, Sparkles, Calendar, UserPlus, Star, ArrowRight, Radio } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
+import { cultureImages } from "@/data/culture-demo";
 
 interface FollowingUser {
     id: string;
@@ -261,11 +262,25 @@ const Following = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <main className="pt-20 pb-16 px-4">
-                <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-[#090909] text-white">
+            <main className="pb-16">
+                <section className="relative overflow-hidden border-b border-white/10">
+                    <img src={cultureImages.jazzNight} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
+                    <div className="relative mx-auto flex min-h-[330px] max-w-6xl items-end justify-between gap-8 px-5 pb-10 pt-20 sm:px-8">
+                        <div className="max-w-2xl">
+                            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur"><Radio className="h-3.5 w-3.5" /> Your chosen signal</div>
+                            <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">Stay close to the people shaping your scene.</h1>
+                            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">New moments, drops, and invitations from creators and hosts you decided were worth following.</p>
+                        </div>
+                        <Button className="hidden bg-orange-500 font-bold text-black hover:bg-orange-400 sm:inline-flex" asChild>
+                            <Link to="/creators">Find more people <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                        </Button>
+                    </div>
+                </section>
+                <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
                     {/* Page Header */}
-                    <div className="flex items-center justify-between mb-8">
+                    <div className="hidden items-center justify-between mb-8">
                         <div>
                             <h1 className="font-serif text-3xl font-bold">Following</h1>
                             <p className="text-muted-foreground">
@@ -273,7 +288,7 @@ const Following = () => {
                             </p>
                         </div>
                         <Button variant="outline" asChild>
-                            <Link to="/explore/moments">
+                            <Link to="/discover">
                                 <Sparkles className="h-4 w-4 mr-2" />
                                 Explore More
                             </Link>
@@ -281,14 +296,14 @@ const Following = () => {
                     </div>
 
                     {/* Following Stats */}
-                    <div className="bg-card border border-border rounded-2xl p-4 mb-8">
+                    <div className="mb-8 rounded-lg border border-white/10 bg-[#111] p-5">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-medium flex items-center gap-2">
                                 <Users className="h-4 w-4 text-primary" />
                                 People you follow ({followingUsers.length})
                             </h3>
-                            <Link to="/search?category=user" className="text-sm text-primary hover:underline">
-                                Find people
+                            <Link to="/creators" className="text-sm font-bold text-orange-400 hover:text-orange-300">
+                                Discover creators
                             </Link>
                         </div>
                         
@@ -326,7 +341,7 @@ const Following = () => {
                                     </Link>
                                 ))}
                                 <Link
-                                    to="/search?category=user"
+                                    to="/creators"
                                     className="flex flex-col items-center gap-2 min-w-[80px]"
                                 >
                                     <div className="h-14 w-14 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center text-primary hover:bg-primary/10 transition-colors">
@@ -401,7 +416,7 @@ const Following = () => {
                                             You're not following anyone yet
                                         </p>
                                         <Button size="sm" variant="outline" asChild>
-                                            <Link to="/search?category=user">
+                                            <Link to="/creators">
                                                 <UserPlus className="h-4 w-4 mr-2" />
                                                 Find people to follow
                                             </Link>
@@ -423,8 +438,8 @@ const Following = () => {
                                 key={option.value}
                                 onClick={() => setFilter(option.value)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${filter === option.value
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-secondary hover:bg-secondary/80"
+                                    ? "bg-orange-500 text-black"
+                                    : "border border-white/10 bg-white/[0.04] text-white/55 hover:bg-white/10 hover:text-white"
                                     }`}
                             >
                                 {option.icon && <option.icon className="h-4 w-4" />}
@@ -457,7 +472,7 @@ const Following = () => {
                             ))}
                         </MasonryGrid>
                     ) : (
-                        <div className="text-center py-16 bg-muted/20 rounded-2xl border-2 border-dashed">
+                        <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.03] py-16 text-center">
                             <Users className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">
                                 {followingUsers.length === 0 ? "Start following people" : "No upcoming moments"}
@@ -469,7 +484,7 @@ const Following = () => {
                                 }
                             </p>
                             <Button asChild>
-                                <Link to="/explore/moments">Explore Moments</Link>
+                                <Link to="/discover">Explore moments</Link>
                             </Button>
                         </div>
                     )}

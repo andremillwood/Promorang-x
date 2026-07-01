@@ -44,10 +44,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
-    );
+    ) || ["/growth", "/organizer"].includes(location.pathname);
 
     // Auth and Onboarding are special "clean" pages
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
+    const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
     // If we are on a marketing route, we MUST NOT wrap with DashboardLayout
     // DashboardLayout contains its own Header/Footer logic which might be conflicting
@@ -58,7 +59,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
-                {!isCleanPage && <Footer />}
+                {!isCleanPage && <Footer showCta={showFooterCta} />}
             </div>
         );
     }
@@ -86,7 +87,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <main className="flex-1 overflow-x-clip">
                 {children || <Outlet />}
             </main>
-            {!isCleanPage && <Footer />}
+            {!isCleanPage && <Footer showCta={showFooterCta} />}
 
             <RankCelebrationModal
                 isOpen={showRankCelebration}

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -15,10 +15,24 @@ import {
 const Header = () => {
   const { user, signOut, activeOrgId, agencyClients, organizations, setActiveOrgId, roles, setActiveRole } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const activeOrg = organizations?.find(o => o.id === activeOrgId);
   const isAgencyMode = roles?.includes('brand') || roles?.includes('merchant') || roles?.includes('admin');
+  const isPublicHome = location.pathname === "/";
+  const isCinematicPublicPage =
+    isPublicHome ||
+    location.pathname === "/how-it-works" ||
+    location.pathname.startsWith("/economy") ||
+    location.pathname === "/growth" ||
+    location.pathname === "/pioneers" ||
+    location.pathname === "/organizer" ||
+    location.pathname === "/live" ||
+    location.pathname.startsWith("/scenes") ||
+    location.pathname.startsWith("/communities") ||
+    location.pathname.startsWith("/creators") ||
+    location.pathname.startsWith("/events");
 
   const handleSignOut = async () => {
     await signOut();
@@ -28,7 +42,11 @@ const Header = () => {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+    <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-lg transition-colors ${
+      isCinematicPublicPage
+        ? "border-b border-white/10 bg-black/25 text-white"
+        : "border-b border-border bg-background/80"
+    }`}>
       <div className="container mx-auto px-4 sm:px-6">
         <nav className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -45,24 +63,42 @@ const Header = () => {
           {/* Navigation Links - Hidden on mobile */}
           <div className="hidden md:flex items-center gap-5">
             <Link
-              to="/explore/moments"
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+              to="/"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
             >
-              Moments
+              Home
             </Link>
             <Link
               to="/discover"
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
             >
               Discover
             </Link>
+            <Link
+              to="/live"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+            >
+              Live
+            </Link>
+            <Link
+              to="/scenes"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+            >
+              Scenes
+            </Link>
+            <Link
+              to="/creators"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+            >
+              Creators
+            </Link>
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium text-sm outline-none">
-                How it works <ChevronDown className="w-4 h-4" />
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+                More <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[34rem] p-2 rounded-2xl shadow-elevated border-border/50">
                 <DropdownMenuItem asChild>
-                  <Link to="/economy" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                  <Link to="/how-it-works" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Compass className="w-4 h-4" />
                     </div>
@@ -72,6 +108,41 @@ const Header = () => {
                     </div>
                   </Link>
                 </DropdownMenuItem>
+                <div className="grid grid-cols-2 gap-1 border-b border-border/60 pb-2">
+                  <DropdownMenuItem asChild>
+                    <Link to="/pioneers" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Genesis Season</p>
+                        <p className="text-[10px] text-muted-foreground">Build your Pioneer record</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/growth" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Growth Hub</p>
+                        <p className="text-[10px] text-muted-foreground">Create, promote, earn, and prove outcomes</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/organizer" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                        <Building className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Organizer Workspace</p>
+                        <p className="text-[10px] text-muted-foreground">Manage moments, check-ins, revenue, and proof</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
                 <div className="grid grid-cols-2 gap-1">
                   <DropdownMenuItem asChild>
                     <Link to="/economy/moments" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
@@ -153,18 +224,6 @@ const Header = () => {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link
-              to="/promoshare"
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
-            >
-              PromoShare
-            </Link>
-            <Link
-              to="/pricing"
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
-            >
-              Pricing
-            </Link>
             {user ? (
               <>
                 <Link
@@ -190,7 +249,7 @@ const Header = () => {
 
             {/* Stakeholder Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-medium text-sm outline-none">
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 For partners <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-elevated border-border/50">
@@ -244,7 +303,7 @@ const Header = () => {
             {/* Search Icon */}
             <Link
               to="/search"
-              className="p-2 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              className={`p-2 rounded-full transition-colors ${isCinematicPublicPage ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
@@ -255,7 +314,7 @@ const Header = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             {user && (
               <>
-                {/* Agency Workspace Switcher */}
+                {/* Agency Account Switcher */}
                 {isAgencyMode && (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card hover:bg-muted/50 transition-colors outline-none cursor-pointer">
@@ -263,13 +322,13 @@ const Header = () => {
                         <Building className="w-3 h-3" />
                       </div>
                       <span className="text-xs font-bold text-foreground max-w-[100px] truncate">
-                        {activeOrg?.name || "Workspace"}
+                        {activeOrg?.name || "Account"}
                       </span>
                       <ChevronDown className="w-3 h-3 text-muted-foreground" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-elevated border-border/50">
                       <div className="p-2 pb-3 mb-2 border-b border-border/50">
-                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">My Workspaces</p>
+                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">My Accounts</p>
                       </div>
                       {organizations?.map((org) => (
                         <DropdownMenuItem 
@@ -466,7 +525,7 @@ const Header = () => {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">How it works</h4>
                 <div className="flex flex-col gap-2">
-                  <Link to="/economy" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
+                  <Link to="/how-it-works" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Overview
                   </Link>
                   <Link to="/economy/moments" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>

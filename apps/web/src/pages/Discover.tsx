@@ -5,22 +5,25 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MomentValuePath } from "@/components/moments/MomentValuePath";
-import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import {
   ArrowRight,
-  Building2,
-  Compass,
+  Bookmark,
+  BriefcaseBusiness,
+  CalendarDays,
   Film,
   Gift,
-  MapPin,
-  RadioTower,
+  Heart,
+  Radio,
   Search,
-  Sparkles,
+  Share2,
+  Ticket,
+  Users,
+  MapPin,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
+import { cultureEvents, cultureScenes, cultureCreators } from "@/data/culture-demo";
+import { ContentProvenanceBadge, SampleContentNotice } from "@/components/content/ContentProvenance";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 type PublicVenue = Tables<"view_public_venue_directory">;
@@ -45,68 +48,34 @@ type PublicContentRow = {
   platform: string | null;
 };
 
-const discoverSections = [
+const intentFilters = [
   {
-    title: "Moments",
-    useFor: "Join, save, compare",
-    description: "Browse public moments, creator missions, recurring rituals, and example playbooks.",
-    href: "/discover/moments",
-    cta: "Browse moments",
-    icon: Compass,
-    accent: "bg-primary text-primary-foreground",
+    label: "Tonight",
+    description: "Moments and scenes forming soon",
+    href: "/pulse",
+    icon: Radio,
   },
   {
-    title: "Venues",
-    useFor: "Places and operators",
-    description: "See the physical places that anchor repeat participation, community memory, and rewards.",
+    label: "Near me",
+    description: "Places where attention can land",
     href: "/discover/venues",
-    cta: "Browse venues",
     icon: MapPin,
-    accent: "bg-emerald-600 text-white",
   },
   {
-    title: "Rewards",
-    useFor: "Perks and value",
-    description: "Understand offers, proof loops, funded rewards, and public value surfaces.",
+    label: "Earnable",
+    description: "Rewards, entries, and useful actions",
     href: "/discover/rewards",
-    cta: "Browse rewards",
-    icon: Gift,
-    accent: "bg-amber-500 text-white",
+    icon: Ticket,
   },
   {
-    title: "Content",
-    useFor: "Stories to action",
-    description: "Browse media that points back into moments, venues, missions, and physical unlocks.",
-    href: "/discover/content",
-    cta: "Browse content",
+    label: "Creator signals",
+    description: "Content looking for movement",
+    href: "/content-drops",
     icon: Film,
-    accent: "bg-violet-600 text-white",
   },
 ];
 
-const utilityModes = [
-  {
-    title: "Pulse",
-    description: "Use when you want live density, urgent movement, or rooms that are forming now.",
-    href: "/pulse",
-    cta: "Open Pulse",
-    icon: RadioTower,
-  },
-  {
-    title: "Global Search",
-    description: "Use when you already know a name, place, brand, moment, creator, or keyword.",
-    href: "/search",
-    cta: "Search",
-    icon: Search,
-  },
-  {
-    title: "Create",
-    description: "Use when discovery shows a gap and you want to create the next moment yourself.",
-    href: "/create/moment",
-    cta: "Create moment",
-    icon: Sparkles,
-  },
-];
+const actionLabels = ["For you", "Near you", "Tonight", "Earnable", "Creators", "Offers", "Places"];
 
 const formatRewardValue = (reward: PublicRewardRow) => {
   if (typeof reward.discount_value !== "number") return "Open reward";
@@ -186,17 +155,93 @@ const Discover = () => {
   const venues = discoveryQuery.data?.venues || [];
   const rewards = discoveryQuery.data?.rewards || [];
   const content = discoveryQuery.data?.content || [];
-  const rewardsUnavailable = discoveryQuery.data?.rewardsUnavailable || false;
-  const totalSignals = moments.length + venues.length + rewards.length + content.length;
-  const discoveryStats = [
-    { label: "Moments", value: moments.length, href: "/discover/moments" },
-    { label: "Venues", value: venues.length, href: "/discover/venues" },
-    { label: "Rewards", value: rewardsUnavailable ? "View" : rewards.length, href: "/discover/rewards" },
-    { label: "Content", value: content.length, href: "/discover/content" },
+  const featuredMoment = moments[0];
+  const secondaryMoments = moments.slice(1, 4);
+  const featuredVenue = venues[0];
+  const feedItems = [
+    ...secondaryMoments.map((moment, index) => ({
+      id: `moment-${moment.id}`,
+      kind: "Moment",
+      tone: "bg-primary/[0.09] border-primary/35",
+      eyebrow: formatMomentDate(moment.starts_at),
+      title: moment.title,
+      body: moment.venue_name || [moment.city, moment.country].filter(Boolean).join(", ") || "Location coming soon",
+      href: `/moments/${moment.id}`,
+      action: "Join path",
+      metric: `${moment.participant_count || 0} joined`,
+      secondaryMetric: "proof eligible",
+      icon: CalendarDays,
+      image: cultureEvents[index % cultureEvents.length]?.image,
+      isSample: false,
+    })),
+    ...content.map((item, index) => ({
+      id: `content-${item.id}`,
+      kind: "Creator signal",
+      tone: "bg-violet-500/[0.08] border-violet-500/25",
+      eyebrow: item.platform || "Content",
+      title: item.title || "Untitled content",
+      body: [item.city, item.country].filter(Boolean).join(", ") || item.venue_name || "Location coming soon",
+      href: "/content-drops",
+      action: "Move signal",
+      metric: "distribution open",
+      secondaryMetric: "creator upside",
+      icon: Film,
+      image: cultureCreators[index % cultureCreators.length]?.image,
+      isSample: false,
+    })),
+    ...rewards.map((reward, index) => ({
+      id: `reward-${reward.id}`,
+      kind: "Reward",
+      tone: "bg-amber-500/[0.08] border-amber-500/25",
+      eyebrow: formatRewardValue(reward),
+      title: reward.name || "Untitled reward",
+      body: [reward.brand_name, reward.venue_name].filter(Boolean).join(" · ") ||
+        [reward.city, reward.country].filter(Boolean).join(", ") ||
+        "Claimable value",
+      href: "/discover/rewards",
+      action: "Claim",
+      metric: "reward path",
+      secondaryMetric: "wallet ready",
+      icon: Gift,
+      image: cultureScenes[index % cultureScenes.length]?.image,
+      isSample: false,
+    })),
+    ...venues.slice(1, 3).map((venue, index) => ({
+      id: `venue-${venue.id}`,
+      kind: "Place",
+      tone: "bg-emerald-500/[0.08] border-emerald-500/25",
+      eyebrow: `${venue.total_moments_hosted || 0} hosted`,
+      title: venue.name || "Unnamed venue",
+      body: [venue.city, venue.country].filter(Boolean).join(", ") || venue.location || "Location coming soon",
+      href: `/venues/${venue.slug || venue.id}`,
+      action: "Visit",
+      metric: "local signal",
+      secondaryMetric: "check-in path",
+      icon: MapPin,
+      image: cultureScenes[index % cultureScenes.length]?.image,
+      isSample: false,
+    })),
   ];
+  const visibleFeedItems = feedItems.length
+    ? feedItems
+    : cultureEvents.slice(1, 4).map((event) => ({
+        id: `culture-${event.momentId}`,
+        kind: "Moment",
+        tone: "bg-white/[0.04] border-white/10",
+        eyebrow: `${event.date} · ${event.time}`,
+        title: event.shortTitle,
+        body: event.place,
+        href: `/moments/${event.momentId}`,
+        action: "View moment",
+        metric: `${event.attending} interested`,
+        secondaryMetric: event.proof,
+        icon: CalendarDays,
+        image: event.image,
+        isSample: true,
+      }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#070707] text-white">
       <SEO
         title="Discover Promorang"
         description="Browse moments, venues, rewards, and content across Promorang without relying only on live urgency or ranked feeds."
@@ -210,325 +255,208 @@ const Discover = () => {
         }}
       />
 
-      <section className="px-4 pb-12 pt-24 sm:pt-28">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-charcoal text-white shadow-elevated">
-            <div className="grid gap-0 lg:grid-cols-[0.88fr_1.12fr]">
-              <div className="relative p-6 sm:p-8 lg:p-10">
-                <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-primary/20 blur-[110px]" />
-                <div className="relative z-10">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5">
-                    <Compass className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-200">Discovery command center</span>
-                  </div>
-                  <h1 className="max-w-4xl font-serif text-4xl font-black tracking-tight text-white sm:text-5xl">
-                    Find the surface that matches your next move.
-                  </h1>
-                  <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300 sm:text-base">
-                    Browse by intent instead of scrolling a single feed: join a moment, inspect a place, find a reward, follow content into action, or open Pulse when something is forming now.
-                  </p>
-
-                  <MarketingPromiseStrip
-                    variant="dark"
-                    className="mt-6"
-                    items={[
-                      { label: "Situation", text: "You know you want something real to do, but not every opportunity belongs in one feed." },
-                      { label: "Promorang makes possible", text: "Discovery separates moments, places, rewards, and stories so comparison feels calm." },
-                      { label: "Next move", text: "Start with the object you care about, then act when the right path appears." },
-                    ]}
-                  />
-
-                  <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {discoveryStats.map((stat) => (
-                      <Link key={stat.label} to={stat.href} className="rounded-2xl border border-white/10 bg-white/[0.07] p-3 transition hover:bg-white/[0.1]">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400">{stat.label}</p>
-                        <p className="mt-1 font-serif text-2xl font-bold text-white">{stat.value}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-white/10 bg-white/[0.04] p-5 lg:border-l lg:border-t-0 sm:p-6 lg:p-8">
-                <div className="rounded-3xl border border-white/10 bg-black/20 p-4 backdrop-blur">
-                  <MomentValuePath
-                    variant="detail"
-                    className="border-white/10 bg-white/[0.06]"
-                    steps={[
-                      { label: "Mode", detail: "Moment, place, reward, story" },
-                      { label: "Live proof", detail: `${totalSignals} public items loaded` },
-                      { label: "Action", detail: "Join, visit, unlock, create" },
-                    ]}
-                  />
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    {utilityModes.map((mode) => (
-                      <Link
-                        key={mode.title}
-                        to={mode.href}
-                        className="group rounded-2xl border border-white/10 bg-white/[0.06] p-4 transition hover:border-primary/40 hover:bg-white/[0.1]"
-                      >
-                        <mode.icon className="h-5 w-5 text-primary" />
-                        <p className="mt-3 font-bold text-white">{mode.title}</p>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-400">{mode.description}</p>
-                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary">
-                          {mode.cta}
-                          <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {discoverSections.map((section) => (
-              <Link
-                key={section.title}
-                to={section.href}
-                className="group min-h-64 rounded-3xl border border-border bg-card p-5 shadow-soft transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated"
-              >
-                <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-2xl ${section.accent}`}>
-                  <section.icon className="h-5 w-5" />
-                </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">{section.useFor}</p>
-                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{section.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{section.description}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary">
-                  {section.cta}
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </span>
+      <section className="px-4 pb-16 pt-20 sm:pt-24">
+        <div className="mx-auto max-w-7xl">
+          <section className="sticky top-0 z-20 -mx-4 border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-xl sm:top-2 sm:mx-0 sm:rounded-2xl sm:border">
+            <div className="flex gap-3 overflow-x-auto">
+              <Link to="/search" className="flex min-w-[240px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.055] px-4 py-3 text-sm font-bold text-white/50">
+                <Search className="h-4 w-4 text-primary" />
+                Search moments, scenes, offers
               </Link>
-            ))}
+              {actionLabels.map((label) => (
+                <Link
+                  key={label}
+                  to={label === "Creators" ? "/content-drops" : label === "Places" ? "/discover/venues" : label === "Offers" ? "/discover/rewards" : "/discover"}
+                  className="whitespace-nowrap rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-white/60 transition hover:border-primary/60 hover:text-white"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-            <Card className="shadow-soft">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">How to choose</p>
-                    <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Discover is the map. Pulse is the motion.</h2>
-                  </div>
-                  <Sparkles className="h-5 w-5 text-primary" />
-                </div>
-                <div className="mt-5 grid gap-3">
-                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
-                    <p className="font-semibold text-foreground">Use Discover when you are comparing.</p>
-                    <p className="mt-2 text-sm text-muted-foreground">Browse by object type, category, place, value, and archive paths without needing urgency to decide for you.</p>
-                  </div>
-                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
-                    <p className="font-semibold text-foreground">Use Pulse when movement is already forming.</p>
-                    <p className="mt-2 text-sm text-muted-foreground">Pulse is more live, dense, and time-sensitive: rooms forming, signals spiking, and moments gaining heat.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <section className="grid gap-8 pb-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.72fr)] lg:items-end">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-primary">Discover Promorang</p>
+              <h1 className="mt-3 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-6xl lg:text-7xl">
+                Find what moves you next.
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
+                Moments, scenes, creators, places, and drops with enough context to choose quickly. See the proof, understand the unlock, then move.
+              </p>
+            </div>
 
-            <Card className="shadow-soft">
-              <CardContent className="p-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Useful paths</p>
-                <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Start with the object you care about</h2>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {[
-                    ["Moments", "/discover/moments"],
-                    ["Venues", "/discover/venues"],
-                    ["Rewards", "/discover/rewards"],
-                    ["Content", "/discover/content"],
-                  ].map(([label, href]) => (
-                    <Button key={href} asChild variant="outline" className="justify-between rounded-2xl">
-                      <Link to={href}>
-                        {label}
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
+            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+              {intentFilters.map((filter) => (
+                <Link
+                  key={filter.label}
+                  to={filter.href}
+                  className="group min-w-52 rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-white/[0.07]"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <filter.icon className="h-5 w-5 text-primary" />
+                    <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+                  </div>
+                  <p className="mt-8 text-xl font-black">{filter.label}</p>
+                  <p className="mt-1 text-sm leading-5 text-white/45">{filter.description}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-6">
+            <main className="space-y-6">
+              {discoveryQuery.isLoading ? (
+                <>
+                  <Skeleton className="h-[520px] rounded-[32px]" />
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <Skeleton key={index} className="h-72 rounded-[28px]" />
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          </section>
+                </>
+              ) : (
+                <>
+                  {featuredMoment ? (
+                    <article className="relative min-h-[520px] overflow-hidden rounded-3xl border border-white/10 bg-black">
+                      <img src={cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/55 to-black/20" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/25" />
+                      <div className="relative flex min-h-[520px] flex-col justify-between p-5 sm:p-7 lg:p-9">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge className="bg-primary text-primary-foreground">Featured</Badge>
+                            <Badge className="border-white/15 bg-black/45 text-white">Moment</Badge>
+                            <Badge className="border-white/15 bg-black/45 text-white">{formatMomentDate(featuredMoment.starts_at)}</Badge>
+                          </div>
+                          <div className="flex gap-2">
+                            <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white transition hover:border-primary hover:text-primary" aria-label="Save featured moment">
+                              <Bookmark className="h-4 w-4" />
+                            </button>
+                            <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white transition hover:border-primary hover:text-primary" aria-label="Share featured moment">
+                              <Share2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
 
-          <section className="grid gap-5 xl:grid-cols-2">
-            <Card className="shadow-soft">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
+                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
+                          <Link to={`/moments/${featuredMoment.id}`} className="group block">
+                            <p className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-white/70">
+                              <MapPin className="h-4 w-4 text-primary" />
+                              {featuredMoment.venue_name || [featuredMoment.city, featuredMoment.country].filter(Boolean).join(", ") || "Location coming soon"}
+                            </p>
+                            <h2 className="max-w-3xl font-sans text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em] group-hover:text-primary sm:text-6xl">
+                            {featuredMoment.title}
+                            </h2>
+                          </Link>
+                          <div className="rounded-2xl border border-white/15 bg-black/65 p-4 backdrop-blur-xl">
+                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">What your action creates</p>
+                            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                              <div className="rounded-xl bg-white/[0.07] p-3">
+                                <p className="text-xl font-black">{featuredMoment.participant_count || 0}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/45">joined</p>
+                              </div>
+                              <div className="rounded-xl bg-white/[0.07] p-3">
+                                <p className="text-xl font-black">Proof</p>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/45">eligible</p>
+                              </div>
+                              <div className="rounded-xl bg-white/[0.07] p-3">
+                                <p className="text-xl font-black">Access</p>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/45">can unlock</p>
+                              </div>
+                            </div>
+                            <Button asChild className="mt-4 w-full justify-between">
+                              <Link to={`/moments/${featuredMoment.id}`}>Join path <ArrowRight className="h-4 w-4" /></Link>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ) : null}
+
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Upcoming moments</p>
-                    <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Start with real opportunities</h2>
-                  </div>
-                  <Compass className="h-5 w-5 text-primary" />
-                </div>
-                <div className="mt-5 space-y-3">
-                  {discoveryQuery.isLoading ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                      <Skeleton key={index} className="h-24 rounded-2xl" />
-                    ))
-                  ) : moments.length > 0 ? (
-                    moments.map((moment) => (
-                      <Link
-                        key={moment.id}
-                        to={`/moments/${moment.id}`}
-                        className="group block rounded-2xl border border-border/70 bg-background/80 p-4 transition-all hover:border-primary/25 hover:shadow-soft"
+                    <div className="mb-4 flex items-end justify-between gap-4">
+                      <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Recommended</p><h2 className="mt-1 text-3xl font-black">Worth acting on</h2></div>
+                      <Link to="/discover/moments" className="text-sm font-bold text-primary">View all</Link>
+                    </div>
+                    {!feedItems.length && <SampleContentNotice noun="moments" className="mb-4" />}
+                    <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3">
+                    {visibleFeedItems.map((item) => (
+                      <article
+                        key={item.id}
+                        className={`group w-[82vw] max-w-[360px] shrink-0 overflow-hidden rounded-2xl border transition hover:-translate-y-1 hover:border-primary/60 ${item.tone}`}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h3 className="truncate font-semibold text-foreground group-hover:text-primary">{moment.title}</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {moment.venue_name || [moment.city, moment.country].filter(Boolean).join(", ") || "Location coming soon"}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="rounded-full">
-                            {moment.participant_count || 0} joined
-                          </Badge>
-                        </div>
-                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                          <span>{formatMomentDate(moment.starts_at)}</span>
-                          {moment.category ? <span className="capitalize">{moment.category}</span> : null}
-                        </div>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-border bg-background/60 p-6 text-sm text-muted-foreground">
-                      No upcoming moments available right now.
-                    </div>
-                  )}
-                </div>
-                <Button asChild variant="ghost" className="-ml-3 mt-4 px-3 text-primary">
-                  <Link to="/discover/moments">
-                    Browse all moments
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-5">
-              <Card className="shadow-soft">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Top venues</p>
-                      <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Places worth revisiting</h2>
-                    </div>
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="mt-5 space-y-3">
-                    {discoveryQuery.isLoading ? (
-                      Array.from({ length: 3 }).map((_, index) => (
-                        <Skeleton key={index} className="h-20 rounded-2xl" />
-                      ))
-                    ) : venues.length > 0 ? (
-                      venues.map((venue) => (
-                        <Link
-                          key={venue.id}
-                          to={`/venues/${venue.slug || venue.id}`}
-                          className="group flex items-start justify-between gap-3 rounded-2xl border border-border/70 bg-background/80 p-4 transition-all hover:border-primary/25 hover:shadow-soft"
-                        >
-                          <div className="min-w-0">
-                            <h3 className="truncate font-semibold text-foreground group-hover:text-primary">{venue.name || "Unnamed venue"}</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {[venue.city, venue.country].filter(Boolean).join(", ") || venue.location || "Location coming soon"}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="rounded-full">
-                            {venue.total_moments_hosted || 0} hosted
-                          </Badge>
+                        <Link to={item.href} className="relative block aspect-[4/3] overflow-hidden">
+                          <img src={item.image} alt="" className="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
+                          <Badge className="absolute left-3 top-3 bg-black/65 text-white">{item.kind}</Badge>
+                          {item.isSample && <ContentProvenanceBadge className="absolute right-3 top-3" compact />}
                         </Link>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-border bg-background/60 p-6 text-sm text-muted-foreground">
-                        No public venues available right now.
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-soft">
-                <CardContent className="p-6">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Public rewards</p>
-                      {rewardsUnavailable ? (
-                        <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-muted-foreground">
-                          Public rewards are temporarily unavailable in this environment because the reward discovery view has not been provisioned yet.
+                        <div className="p-4">
+                        <div>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.07] text-primary">
+                              <item.icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex gap-2">
+                              <button className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/75 transition hover:border-primary hover:text-primary" aria-label={`Save ${item.title}`}>
+                                <Heart className="h-4 w-4" />
+                              </button>
+                              <button className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/75 transition hover:border-primary hover:text-primary" aria-label={`Share ${item.title}`}>
+                                <Share2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex flex-wrap items-center gap-2">
+                            <span className="text-xs font-bold text-white/50">{item.eyebrow}</span>
+                          </div>
+                          <Link to={item.href} className="block">
+                            <h3 className="mt-2 text-2xl font-black leading-none tracking-tight hover:text-primary">
+                              {item.title}
+                            </h3>
+                          </Link>
+                          <p className="mt-2 text-sm leading-6 text-white/50">{item.body}</p>
                         </div>
-                      ) : null}
-                      <div className="mt-4 space-y-3">
-                        {discoveryQuery.isLoading ? (
-                          Array.from({ length: 2 }).map((_, index) => (
-                            <Skeleton key={index} className="h-16 rounded-2xl" />
-                          ))
-                        ) : rewards.length > 0 ? (
-                          rewards.map((reward) => (
-                            <div key={reward.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                              <p className="font-semibold text-foreground">{reward.name || "Untitled reward"}</p>
-                              <p className="mt-1 text-sm text-muted-foreground">{formatRewardValue(reward)}</p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                {[reward.brand_name, reward.venue_name].filter(Boolean).join(" · ") ||
-                                  [reward.city, reward.country].filter(Boolean).join(", ")}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
-                            No public rewards available right now.
-                          </div>
-                        )}
-                      </div>
-                    </div>
 
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Recent content</p>
-                      <div className="mt-4 space-y-3">
-                        {discoveryQuery.isLoading ? (
-                          Array.from({ length: 2 }).map((_, index) => (
-                            <Skeleton key={index} className="h-16 rounded-2xl" />
-                          ))
-                        ) : content.length > 0 ? (
-                          content.map((item) => (
-                            <div key={item.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                              <p className="font-semibold text-foreground">{item.title || "Untitled content"}</p>
-                              <p className="mt-1 text-sm text-muted-foreground">
-                                {item.platform || "Content"} · {[item.city, item.country].filter(Boolean).join(", ") || item.venue_name || "Location coming soon"}
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-2xl border border-dashed border-border bg-background/60 p-4 text-sm text-muted-foreground">
-                            No public content available right now.
+                        <div className="mt-8 space-y-3">
+                          <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full bg-white/[0.07] px-3 py-1.5 text-xs font-bold text-white/55">{item.metric}</span>
+                            <span className="rounded-full bg-white/[0.07] px-3 py-1.5 text-xs font-bold text-white/55">{item.secondaryMetric}</span>
                           </div>
-                        )}
-                      </div>
+                          <Link to={item.href} className="inline-flex items-center gap-2 text-sm font-black text-primary">
+                            {item.action}
+                            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                          </Link>
+                        </div>
+                        </div>
+                      </article>
+                    ))}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
 
-          <section className="rounded-[2rem] border border-border/70 bg-card p-6 shadow-soft sm:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">If you already know what you want</p>
-                <h2 className="mt-3 font-serif text-3xl font-bold text-foreground">Use the direct tools</h2>
-                <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-                  Discovery is the broad browse layer. If you already have intent, jump directly into search, pulse, or creation.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="outline">
-                  <Link to="/search">Search</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link to="/pulse">Pulse</Link>
-                </Button>
-                <Button asChild variant="hero">
-                  <Link to="/create/moment">Create</Link>
-                </Button>
-              </div>
-            </div>
+                  <section className="grid gap-4 md:grid-cols-3">
+                    {featuredVenue ? (
+                      <Link to={`/venues/${featuredVenue.slug || featuredVenue.id}`} className="group rounded-[28px] border border-emerald-500/25 bg-emerald-500/[0.08] p-5 transition hover:-translate-y-1 hover:border-primary/60">
+                        <MapPin className="h-6 w-6 text-primary" />
+                        <p className="mt-10 text-xs font-black uppercase tracking-[0.2em] text-primary">Local place</p>
+                        <h3 className="mt-2 text-3xl font-black leading-none group-hover:text-primary">{featuredVenue.name || "Unnamed venue"}</h3>
+                        <p className="mt-3 text-sm text-muted-foreground">
+                          {[featuredVenue.city, featuredVenue.country].filter(Boolean).join(", ") || featuredVenue.location || "Location coming soon"}
+                        </p>
+                      </Link>
+                    ) : null}
+                    <Link to="/pulse" className="group rounded-[28px] border border-border/70 bg-card/75 p-5 transition hover:-translate-y-1 hover:border-primary/60">
+                      <Radio className="h-6 w-6 text-primary" />
+                      <p className="mt-10 text-xs font-black uppercase tracking-[0.2em] text-primary">Live now</p>
+                      <h3 className="mt-2 text-3xl font-black leading-none group-hover:text-primary">See what is forming</h3>
+                    </Link>
+                    <Link to="/content-drops" className="group rounded-[28px] border border-border/70 bg-card/75 p-5 transition hover:-translate-y-1 hover:border-primary/60">
+                      <BriefcaseBusiness className="h-6 w-6 text-primary" />
+                      <p className="mt-10 text-xs font-black uppercase tracking-[0.2em] text-primary">Creator work</p>
+                      <h3 className="mt-2 text-3xl font-black leading-none group-hover:text-primary">Distribute and earn</h3>
+                    </Link>
+                  </section>
+                </>
+              )}
+            </main>
           </section>
         </div>
       </section>

@@ -19,6 +19,8 @@ import { MomentSentimentCapture } from '@/components/sentiment/MomentSentimentCa
 import { AnimatePresence } from 'framer-motion';
 import { demoMoments } from "@/data/demo-moments";
 import { getAccessState, type AccessQuote } from "@/lib/access";
+import { NextUnlock, RewardStack } from "@/components/value/ValueJourney";
+import { recordJourneyEvent } from "@/lib/value-journey";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -248,6 +250,13 @@ const CheckIn = () => {
       setVerificationStatus("verified");
       setRewardPending(false);
       setSuccess(true);
+      recordJourneyEvent(session?.access_token, {
+        event_name: nextRewardPending ? "proof_submitted" : "proof_verified",
+        journey_stage: "proof",
+        object_type: "moment",
+        object_id: id,
+        metadata: { reward_pending: nextRewardPending, verification_status: nextVerificationStatus },
+      });
       setLoading(false);
       return;
     }
@@ -329,7 +338,7 @@ const CheckIn = () => {
         navigator.vibrate([10, 30, 10, 30]);
       }
       toast({
-        title: nextRewardPending ? "Proof Submitted" : "Marked! 🎉",
+        title: nextRewardPending ? "Proof submitted" : "Mark captured",
         description: nextRewardPending
           ? "Your mark is captured and pending verification before rewards are issued."
           : `Your ${tierStatus?.current_tier === 'regular' ? 'Regular ' : ''}Mark has been captured!`,
@@ -368,11 +377,11 @@ const CheckIn = () => {
             <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
               <QrCode className="w-10 h-10 text-amber-500" />
             </div>
-            <h1 className="font-serif text-2xl font-bold mb-3">Join First to Leave Your Mark</h1>
+            <h1 className="mb-3 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Join first to leave your Mark</h1>
             <p className="text-muted-foreground mb-6">
               {accessState.key === "needs_keys" || accessState.key === "requires_plus" || accessState.key === "full"
                 ? accessState.description
-                : "Join this moment to make your Mark and unlock rewards."}
+                : "Join this Moment first so your proof, rewards, and status can attach to the right record."}
             </p>
             <div className="mb-6 rounded-xl border border-border bg-background p-3 text-sm">
               <span className="font-semibold text-foreground">{accessState.label}</span>
@@ -406,48 +415,60 @@ const CheckIn = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex min-h-screen flex-col bg-[#070707] text-white">
       <Header />
       <AnimatePresence>
         {success && (
           <CheckInCelebration onComplete={() => { }} />
         )}
       </AnimatePresence>
-      <main className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
+      <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
+        <div className="w-full max-w-6xl">
           {success ? (
             showSentimentCapture ? (
               <MomentSentimentCapture
                 momentId={id || ''}
                 proofSubmissionId={proofSubmissionId || undefined}
                 momentTitle={moment?.title || 'this moment'}
-                onComplete={() => navigate('/dashboard')}
-                onSkip={() => navigate('/dashboard')}
+                onComplete={() => navigate('/vault')}
+                onSkip={() => navigate('/vault')}
               />
             ) : (
-              <div className="bg-card border border-border rounded-2xl p-8 text-center shadow-card">
+              <div className="mx-auto max-w-xl rounded-3xl border border-emerald-500/25 bg-[radial-gradient(circle_at_top,rgba(16,185,129,.16),transparent_40%),rgba(255,255,255,.045)] p-8 text-center shadow-[0_28px_90px_rgba(0,0,0,.4)]">
                 <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
                   <Check className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h1 className="font-serif text-2xl font-bold mb-2">
-                  {rewardPending ? "Proof Submitted" : "Marked! 🎉"}
+                <h1 className="mb-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">
+                  {rewardPending ? "Proof submitted" : "Mark captured"}
                 </h1>
-                <p className="text-muted-foreground mb-6">
+                <p className="mb-6 text-white/55">
                   {rewardPending
-                    ? `Your mark for "${moment.title}" is now pending host or admin verification. Rewards will only issue after approval.`
-                    : `You left your Mark at "${moment.title}"`}
+                    ? `Your Mark for "${moment.title}" is now pending verification. Rewards and status unlocks issue after approval.`
+                    : `You left your Mark at "${moment.title}". This action now belongs to your Promorang record.`}
                 </p>
+                <div className="mb-4 text-left">
+                  <RewardStack
+                    dark
+                    items={[
+                      { label: "Reputation", value: rewardPending ? "Proof trail started" : "Verified Mark added", kind: "status", pending: rewardPending },
+                      { label: "Points", value: rewardPending ? "Issues after approval" : "Participation progress added", kind: "points", pending: rewardPending },
+                      { label: "PromoShare", value: rewardPending ? "Eligibility checking" : "Qualified pools checked", kind: "entry", pending: rewardPending },
+                      { label: "Moment Piece", value: rewardPending ? "Held for verification" : "Attendance eligibility recorded", kind: "piece", pending: rewardPending },
+                    ]}
+                  />
+                </div>
+                <NextUnlock current={0} dark />
                 {proofSubmissionId && (
-                  <div className="mb-6 rounded-2xl border border-primary/15 bg-primary/5 p-4 text-left">
+                  <div className="mb-6 rounded-2xl border border-white/10 bg-black/35 p-4 text-left">
                     <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">
                       {rewardPending ? "Verification Queue" : "Mark Captured"}
                     </p>
-                    <p className="mt-2 break-all text-sm text-muted-foreground">
-                      Submission ID: <span className="font-medium text-foreground">{proofSubmissionId}</span>
+                    <p className="mt-2 break-all text-sm text-white/45">
+                      Submission ID: <span className="font-medium text-white">{proofSubmissionId}</span>
                     </p>
                     {verificationStatus && (
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        Status: <span className="font-medium capitalize text-foreground">{verificationStatus}</span>
+                      <p className="mt-2 text-sm text-white/45">
+                        Status: <span className="font-medium capitalize text-white">{verificationStatus}</span>
                       </p>
                     )}
                   </div>
@@ -455,22 +476,22 @@ const CheckIn = () => {
 
                 {rewardPending && (
                   <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-left">
-                    <p className="text-sm font-semibold text-foreground">Next step</p>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="text-sm font-semibold text-white">Next step</p>
+                    <p className="mt-2 text-sm text-white/50">
                       Your attendance has been captured, but reward issuance and verified attendance pieces are paused until the proof review is approved.
                     </p>
                   </div>
                 )}
                 
                 {/* Sentiment Review CTA */}
-                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/10">
+                <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                       <MessageSquare className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-left">
                       <p className="font-medium">Share your experience</p>
-                      <p className="text-sm text-muted-foreground">Help others discover great moments</p>
+                      <p className="text-sm text-white/45">Help others discover great moments</p>
                     </div>
                   </div>
                   <Button 
@@ -483,45 +504,76 @@ const CheckIn = () => {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1" onClick={() => navigate("/dashboard")}>Dashboard</Button>
+                  <Button variant="outline" className="flex-1" onClick={() => navigate("/vault")}>Open Vault</Button>
                   <Button variant="hero" className="flex-1" onClick={() => navigate(`/moments/${id}`)}>View Moment</Button>
                 </div>
               </div>
             )
           ) : (
-            <div className="bg-card border border-border rounded-2xl p-8 shadow-card overflow-hidden">
-              <div className="text-center mb-8">
+            <div className="grid overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-[0_28px_90px_rgba(0,0,0,.42)] lg:grid-cols-[0.9fr_1.1fr]">
+              <aside className="relative min-h-[300px] overflow-hidden bg-black p-6 lg:min-h-[680px]">
+                {moment.image_url || moment.banner_image_url ? <img src={moment.banner_image_url || moment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65" /> : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/15" />
+                <div className="relative flex h-full flex-col justify-between">
+                  <Link to={`/moments/${id}`} className="w-fit rounded-full border border-white/20 bg-black/35 px-4 py-2 text-xs font-bold text-white backdrop-blur">Back to moment</Link>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">You showed up</p>
+                    <h1 className="mt-3 font-sans text-4xl font-black uppercase leading-[0.86] tracking-[-0.06em] text-white sm:text-5xl">{moment.title}</h1>
+                    <div className="mt-5 space-y-2 text-sm text-white/65">
+                      <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{moment.venue_name || moment.location || "Moment location"}</p>
+                      <p className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" />{activeMove ? `Unlock JMD ${Number(activeMove.reward_amount_jmd || 0).toLocaleString()}` : "Build verified status and memory"}</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+              <section className="p-6 sm:p-8">
+              <div className="mb-7">
+                <div className="mb-6 grid grid-cols-3 gap-2">
+                  {[
+                    { label: "Join", state: "Done" },
+                    { label: "Prove", state: "Now" },
+                    { label: "Unlock", state: "Next" },
+                  ].map((step) => (
+                    <div key={step.label} className={`rounded-xl border p-3 ${step.state === "Now" ? "border-primary/50 bg-primary/10" : "border-white/10 bg-black/25"}`}>
+                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/35">{step.state}</p>
+                      <p className="mt-1 text-sm font-bold text-white">{step.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-left">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${moment.proof_type === 'GPS' ? 'bg-blue-500/10' : moment.proof_type === 'Photo' ? 'bg-purple-500/10' : 'bg-primary/10'
                   }`}>
                   {activeProofType === 'GPS' ? <MapPin className="w-8 h-8 text-blue-500" /> :
                     activeProofType === 'Photo' ? <Camera className="w-8 h-8 text-purple-500" /> :
                       <QrCode className="w-8 h-8 text-primary" />}
                 </div>
-                <h1 className="font-serif text-2xl font-bold">Leave Your Mark</h1>
-                <p className="text-muted-foreground mt-2">
-                  Strategy: <span className="font-semibold text-foreground uppercase text-xs tracking-wider">{activeProofType} Mark</span>
+                <p className="mb-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Proof Moment</p>
+                <h1 className="text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Leave Your Mark</h1>
+                <p className="mt-2 text-white/45">
+                  Proof method: <span className="text-xs font-semibold uppercase tracking-wider text-white">{activeProofType} Mark</span>
                 </p>
                 {activeMove && (
-                  <p className="mt-2 text-sm text-foreground">
-                    {activeMove.title} · JMD {Number(activeMove.reward_amount_jmd || 0).toLocaleString()}
+                  <p className="mt-2 text-sm text-white">
+                      {activeMove.title} · unlock JMD {Number(activeMove.reward_amount_jmd || 0).toLocaleString()}
                   </p>
                 )}
+                </div>
               </div>
 
               <form onSubmit={handleCheckIn} className="space-y-6">
                 {activeRequirements.length > 0 && (
-                  <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+                  <div className="rounded-2xl border border-primary/20 bg-primary/[0.07] p-4">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary" />
                       <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">
-                        Proof Requirements
+                      Proof Requirements
                       </p>
                     </div>
                     <div className="mt-4 space-y-3">
                       {activeRequirements.map((requirement) => (
-                        <div key={requirement.id} className="rounded-2xl border border-border/70 bg-background/70 p-3">
+                        <div key={requirement.id} className="rounded-xl border border-white/10 bg-black/25 p-3">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className="text-sm font-semibold text-white">
                               {requirement.label || requirement.requirement_type}
                             </p>
                             {requirement.is_required !== false && (
@@ -531,7 +583,7 @@ const CheckIn = () => {
                             )}
                           </div>
                           {requirement.instructions && (
-                            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                            <p className="mt-2 text-xs leading-5 text-white/45">
                               {requirement.instructions}
                             </p>
                           )}
@@ -613,9 +665,10 @@ const CheckIn = () => {
                   className="w-full h-14 font-bold text-lg"
                   disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || (activeProofType === 'Photo' && !imageFile) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : "Verify & Complete"}
+                  {loading ? <Loader2 className="animate-spin" /> : "Submit proof and unlock"}
                 </Button>
               </form>
+              </section>
             </div>
           )}
         </div>

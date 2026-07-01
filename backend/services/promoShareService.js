@@ -511,10 +511,36 @@ const promoShareService = {
                     .select()
                     .single();
 
-                winners.push(winner_record);
+                if (!winner_record) {
+                    throw new Error(`Failed to record PromoShare winner ${ticket.user_id}`);
+                }
 
-                // Distribute - for now just logging, would call economyService
-                // await this.distributePrize(ticket.user_id, { reward_type: 'gem', amount: payout }); // assuming jackpot is gems equivalent
+                const { data: credited, error: creditError } = await supabase.rpc('credit_user_earning', {
+                    p_user_id: ticket.user_id,
+                    p_earning_type: 'promoshare_winning',
+                    p_amount: Number(payout.toFixed(2)),
+                    p_currency: 'usd',
+                    p_source_table: 'promoshare_winners',
+                    p_source_transaction_id: winner_record.id,
+                    p_metadata: {
+                        cycle_id: cycleId,
+                        ticket_number: winningNumber,
+                        user_tier: userTier
+                    }
+                });
+
+                if (creditError) {
+                    // Do not close the cycle with a recorded but unpaid winner.
+                    await supabase.from('promoshare_winners').delete().eq('id', winner_record.id);
+                    throw creditError;
+                }
+
+                winner_record.prize_data = {
+                    ...winner_record.prize_data,
+                    currency: 'usd',
+                    credited: Boolean(credited)
+                };
+                winners.push(winner_record);
             }
 
             await this.closeCycle(cycleId);
@@ -725,6 +751,10 @@ const promoShareService = {
 
             // 5. Select winners by bucket
             const allWinners = [];
+            const excludedWinnerUserIds = new Set();
+            const oneWinPerUser =
+                cycle.draw_policy?.one_win_per_user_per_draw !== false &&
+                cycle.selection_config?.one_win_per_user_per_draw !== false;
 
             for (const [bucketName, config] of Object.entries(distributionConfig)) {
                 const bucketWinners = await this.selectWinnersForBucket(
@@ -732,9 +762,15 @@ const promoShareService = {
                     bucketName,
                     config,
                     eligibleUsers,
-                    itemsByBucket[bucketName] || itemsByBucket['general'] || []
+                    itemsByBucket[bucketName] || itemsByBucket['general'] || [],
+                    { excludedUserIds: excludedWinnerUserIds, oneWinPerUser }
                 );
                 allWinners.push(...bucketWinners);
+                if (oneWinPerUser) {
+                    bucketWinners.forEach((winner) => {
+                        if (winner?.user_id) excludedWinnerUserIds.add(winner.user_id);
+                    });
+                }
             }
 
             // 6. Update user statuses to winner
@@ -757,11 +793,29 @@ const promoShareService = {
             }
 
             // 7. Close cycle and audit log
+            const drawAudit = await this.createDrawAudit(cycle, {
+                distributionConfig,
+                eligibleUsers,
+                winners: allWinners,
+                excludedUserIds: Array.from(excludedWinnerUserIds),
+                oneWinPerUser,
+                selectionMethod: 'random_weighted_by_entries'
+            });
+
+            if (drawAudit?.id && allWinners.length > 0) {
+                await supabase
+                    .from('promoshare_winners')
+                    .update({ draw_audit_id: drawAudit.id })
+                    .in('id', allWinners.map((winner) => winner.id).filter(Boolean));
+            }
+
             await this.closeCycle(cycleId);
             await this.auditLog(cycleId, null, 'draw_executed', 'system', null, {
                 total_eligible: eligibleUsers.length,
                 total_winners: allWinners.length,
-                buckets: Object.keys(distributionConfig)
+                buckets: Object.keys(distributionConfig),
+                one_win_per_user: oneWinPerUser,
+                draw_audit_id: drawAudit?.id || null
             });
 
             return {
@@ -781,12 +835,14 @@ const promoShareService = {
     /**
      * Select winners for a specific distribution bucket
      */
-    async selectWinnersForBucket(cycleId, bucketName, config, eligibleUsers, poolItems) {
+    async selectWinnersForBucket(cycleId, bucketName, config, eligibleUsers, poolItems, options = {}) {
         const winners = [];
         const count = config.count || 5;
+        const excludedUserIds = options.excludedUserIds || new Set();
+        const oneWinPerUser = options.oneWinPerUser !== false;
 
         // Filter users based on bucket criteria
-        let candidateUsers = [...eligibleUsers];
+        let candidateUsers = [...eligibleUsers].filter((user) => !excludedUserIds.has(user.user_id));
 
         if (bucketName === 'top_performers' && config.min_weight_percentile) {
             // Take top X% by weight
@@ -804,76 +860,121 @@ const promoShareService = {
             candidateUsers = candidateUsers.filter(u => (u.streak_days || 0) >= config.min_streak_days);
         }
 
-        // Weighted random selection
         const selectedCount = Math.min(count, candidateUsers.length);
-        const selectedIndices = new Set();
+        const selectedUserIds = new Set();
 
-        // Calculate total weight for weighted random
-        const totalWeight = candidateUsers.reduce((sum, u) => sum + (u.final_weight || 1), 0);
-
-        while (selectedIndices.size < selectedCount && selectedIndices.size < candidateUsers.length) {
+        while (winners.length < selectedCount && candidateUsers.length > 0) {
+            const totalWeight = candidateUsers.reduce((sum, user) => sum + Math.max(1, Number(user.final_weight || 1)), 0);
             let random = Math.random() * totalWeight;
             let selectedIndex = 0;
 
             for (let i = 0; i < candidateUsers.length; i++) {
-                random -= (candidateUsers[i].final_weight || 1);
+                random -= Math.max(1, Number(candidateUsers[i].final_weight || 1));
                 if (random <= 0) {
                     selectedIndex = i;
                     break;
                 }
             }
 
-            if (!selectedIndices.has(selectedIndex)) {
-                selectedIndices.add(selectedIndex);
-                const user = candidateUsers[selectedIndex];
-                const rank = selectedIndices.size;
+            const [user] = candidateUsers.splice(selectedIndex, 1);
+            if (!user || selectedUserIds.has(user.user_id) || excludedUserIds.has(user.user_id)) continue;
 
-                // Assign prize from pool
-                const prize = poolItems[winners.length % poolItems.length];
+            selectedUserIds.add(user.user_id);
+            if (oneWinPerUser) excludedUserIds.add(user.user_id);
 
-                // Record winner
-                const { data: winnerRecord } = await supabase
-                    .from('promoshare_winners')
-                    .insert({
-                        cycle_id: cycleId,
-                        user_id: user.user_id,
-                        pool_id: prize?.id,
-                        prize_description: prize?.description || `${bucketName} Prize`,
-                        prize_data: {
-                            amount: prize?.amount,
-                            reward_type: prize?.reward_type,
-                            bucket: bucketName
-                        },
-                        selection_bucket: bucketName,
-                        selection_method: 'weighted_random',
-                        selection_reason: `Selected from ${bucketName} bucket`,
-                        final_weight_at_selection: user.final_weight,
-                        rank_at_selection: rank,
-                        announced: false,
-                        claimed: false,
-                        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
-                    })
-                    .select()
-                    .single();
+            const rank = winners.length + 1;
 
-                winners.push(winnerRecord);
+            // Assign prize from pool
+            const prize = poolItems[winners.length % Math.max(1, poolItems.length)];
 
-                try {
-                    await offerService.issueForEvent({
-                        userId: user.user_id,
-                        channel: 'promoshare',
-                        event: 'winner',
-                        sourceId: cycleId,
-                        sourceEventId: winnerRecord?.id || `${cycleId}:${user.user_id}:${bucketName}`,
-                        context: { cycle_id: cycleId, bucket: bucketName, winner_id: winnerRecord?.id, rank }
-                    });
-                } catch (offerError) {
-                    console.warn('[PromoShare] unified offer issuance skipped:', offerError.message);
-                }
+            // Record winner
+            const { data: winnerRecord } = await supabase
+                .from('promoshare_winners')
+                .insert({
+                    cycle_id: cycleId,
+                    user_id: user.user_id,
+                    pool_id: prize?.id,
+                    prize_description: prize?.description || `${bucketName} Prize`,
+                    prize_data: {
+                        amount: prize?.amount,
+                        reward_type: prize?.reward_type,
+                        bucket: bucketName,
+                        one_win_per_user: oneWinPerUser
+                    },
+                    selection_bucket: bucketName,
+                    selection_method: 'weighted_random',
+                    selection_reason: `Selected from ${bucketName} bucket`,
+                    final_weight_at_selection: user.final_weight,
+                    rank_at_selection: rank,
+                    announced: false,
+                    claimed: false,
+                    expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+                })
+                .select()
+                .single();
+
+            winners.push(winnerRecord);
+
+            try {
+                await offerService.issueForEvent({
+                    userId: user.user_id,
+                    channel: 'promoshare',
+                    event: 'winner',
+                    sourceId: cycleId,
+                    sourceEventId: winnerRecord?.id || `${cycleId}:${user.user_id}:${bucketName}`,
+                    context: { cycle_id: cycleId, bucket: bucketName, winner_id: winnerRecord?.id, rank }
+                });
+            } catch (offerError) {
+                console.warn('[PromoShare] unified offer issuance skipped:', offerError.message);
             }
         }
 
         return winners;
+    },
+
+    async createDrawAudit(cycle, { distributionConfig, eligibleUsers, winners, excludedUserIds, oneWinPerUser, selectionMethod }) {
+        if (!supabase) return null;
+
+        try {
+            const selectedUserIds = (winners || []).map((winner) => winner.user_id).filter(Boolean);
+            const { count: eligibleEntriesCount } = await supabase
+                .from('promoshare_entries')
+                .select('id', { count: 'exact', head: true })
+                .eq('cycle_id', cycle.id)
+                .eq('proof_status', 'verified');
+
+            const { data, error } = await supabase
+                .from('promoshare_draw_audits')
+                .insert({
+                    cycle_id: cycle.id,
+                    draw_type: cycle.cycle_type || 'cycle',
+                    selection_method: selectionMethod,
+                    eligible_entries_count: eligibleEntriesCount || 0,
+                    eligible_users_count: eligibleUsers.length,
+                    requested_winner_count: Object.values(distributionConfig || {}).reduce((sum, config) => sum + Number(config.count || 0), 0),
+                    selected_winner_count: winners.length,
+                    one_win_per_user: oneWinPerUser,
+                    excluded_user_ids: excludedUserIds || [],
+                    selected_user_ids: selectedUserIds,
+                    selected_entry_ids: [],
+                    random_seed: null,
+                    rules_snapshot: {
+                        draw_policy: cycle.draw_policy || {},
+                        selection_config: cycle.selection_config || {},
+                        distribution_config: distributionConfig || {},
+                        pool_rule_config: cycle.pool_rule_config || {},
+                    },
+                    executed_by_type: 'system'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.warn('[PromoShare] draw audit skipped:', error.message);
+            return null;
+        }
     },
 
     // ============================================

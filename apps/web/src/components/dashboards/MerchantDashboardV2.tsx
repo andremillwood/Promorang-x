@@ -88,7 +88,7 @@ const MerchantDashboardV2 = () => {
   return (
     <div className="space-y-6 pb-20">
       <DashboardHero
-        badge="Venue Operations"
+        badge="Venue Control Room"
         title={isNewMerchant ? "Turn one venue into a trusted activation point" : "Run your venue as a verified activity hub"}
         description="Register the place, support moments or offers, validate arrivals and redemptions, then use proof to bring people back through the door."
         actions={[
@@ -110,23 +110,22 @@ const MerchantDashboardV2 = () => {
           NEW MERCHANT: First Venue Guidance
           ===================================================================== */}
       {isNewMerchant && (
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-background to-primary/5">
+        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-primary/10">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
               <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">Register Your First Venue</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Register your first proof-ready venue</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  The first merchant success is simple: register the venue, make sure a live moment 
-                  can run there, then validate the first participant proof.
+                  The first merchant success is simple: register the place, make sure a live Moment can land there, then validate the first participant proof.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
                     <Link to="/dashboard/venues/add">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add First Venue
+                      Add Venue
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
@@ -257,14 +256,14 @@ const MerchantDashboardV2 = () => {
               <div className="mb-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-600">Market Graph</p>
-                  <h3 className="mt-2 font-serif text-2xl font-bold">See moments and pieces around your venue</h3>
+                  <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">See moments and pieces around your venue</h3>
                   <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                     Merchants should be able to see what already happened nearby, what is currently active, and where venue pieces can participate through Gems.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" asChild>
-                    <Link to="/explore/moments">Explore Moments</Link>
+                    <Link to="/discover">Explore Moments</Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/marketplace">Piece Market</Link>
@@ -327,7 +326,7 @@ const MerchantDashboardV2 = () => {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="font-serif text-xl font-bold">My Venues</h2>
+                  <h2 className="text-2xl font-black tracking-[-0.04em]">My Venues</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Keep your active locations visible here; do the deeper editing inside the venue tools.
                   </p>
@@ -354,7 +353,7 @@ const MerchantDashboardV2 = () => {
                 <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
                   <Link to="/dashboard/venues/add">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add First Venue
+                    Add Venue
                   </Link>
                 </Button>
               </CardContent>
@@ -540,7 +539,7 @@ const MerchantDashboardV2 = () => {
           />
 
           <DashboardQuickRoutesCard
-            description="Keep validation and venue tooling easy to reach without overwhelming the operating story."
+            description="Keep validation and venue tooling easy to reach while the larger story stays focused on moments, proof, and return visits."
             routes={[
               { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
               { label: "Existing moments", href: "/explore/moments", icon: MapPin },

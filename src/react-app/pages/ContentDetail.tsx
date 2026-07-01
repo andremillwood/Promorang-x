@@ -204,7 +204,7 @@ export default function ContentDetail() {
         return;
       }
 
-      const response = await fetch('/api/users/social-action', {
+      const response = await fetch('/api/content/social-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

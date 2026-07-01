@@ -167,7 +167,7 @@ const demoGuides: Record<DemoRole, DemoGuide> = {
       {
         id: "opportunities",
         title: "Review matched opportunities",
-        description: "Use the brand workspace to compare relevant content, moments, and execution options together.",
+        description: "Use the brand dashboard to compare relevant content, moments, and execution options together.",
         href: "/dashboard",
         matchers: [exact("/dashboard"), exact("/dashboard/campaigns")],
       },
@@ -213,7 +213,7 @@ const demoGuides: Record<DemoRole, DemoGuide> = {
   },
   agency: {
     label: "Agency Demo",
-    headline: "Operate multiple client outcomes from one command layer.",
+    headline: "Operate multiple client outcomes from one portfolio.",
     summary: "Use this to position Promorang as an execution and proof system for managed client work.",
     primaryHref: "/create/campaign",
     primaryLabel: "Create client campaign",
@@ -221,7 +221,7 @@ const demoGuides: Record<DemoRole, DemoGuide> = {
       {
         id: "agency-launch",
         title: "Launch a client campaign",
-        description: "Frame the workspace as an agency control plane and start with campaign creation.",
+        description: "Frame the agency view as a client portfolio and start with campaign creation.",
         href: "/create/campaign",
         matchers: [exact("/create/campaign"), exact("/dashboard/campaigns/create")],
       },

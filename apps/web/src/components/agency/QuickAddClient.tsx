@@ -117,7 +117,7 @@ export function QuickAddClient({
         description:
           result.relationship.status === "pending"
             ? "The relationship was created as pending and can be approved from the connected workspace."
-            : "The workspace link is live and available in your management context.",
+            : "The account link is live and available in your management view.",
       });
 
       setOpen(false);
@@ -136,10 +136,10 @@ export function QuickAddClient({
     }
   };
 
-  const title = mode === "agency" ? "Connect client workspace" : "Connect agency partner";
+  const title = mode === "agency" ? "Connect client account" : "Connect agency partner";
   const subtitle =
     mode === "agency"
-      ? "Link an existing brand or venue, or create a managed client workspace directly from your agency cockpit."
+      ? "Link an existing brand or venue, or create a managed client account directly from your agency portfolio."
       : "See which agency is managing this brand and attach a new agency relationship when needed.";
 
   return (
@@ -184,7 +184,7 @@ export function QuickAddClient({
                 onClick={() => setWorkflow("create")}
               >
                 <Plus className="h-4 w-4" />
-                Create managed workspace
+                Create managed account
               </Button>
             )}
           </div>
@@ -192,7 +192,7 @@ export function QuickAddClient({
           {workflow === "existing" ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Search workspace</Label>
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Search account</Label>
                 <Input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
@@ -202,11 +202,11 @@ export function QuickAddClient({
 
               <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  {mode === "agency" ? "Select client workspace" : "Select agency workspace"}
+                  {mode === "agency" ? "Select client account" : "Select agency account"}
                 </Label>
                 <Select value={selectedOrganizationId} onValueChange={setSelectedOrganizationId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a workspace" />
+                    <SelectValue placeholder="Choose an account" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableOrganizations.map((organization) => (
@@ -340,7 +340,7 @@ export function QuickAddClient({
                 <span className="text-[10px] font-bold uppercase tracking-widest">No matches yet</span>
               </div>
               {mode === "agency"
-                ? "No matching brands or venues are available for this search. Create a managed workspace if this client is net new."
+                ? "No matching brands or venues are available for this search. Create a managed account if this client is net new."
                 : "No matching agencies are available for this search yet."}
             </div>
           ) : null}

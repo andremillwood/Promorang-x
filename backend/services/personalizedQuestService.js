@@ -771,7 +771,7 @@ const PersonalizedQuestService = {
             
             // Award rewards
             const rewards = quest.quest_data?.reward || {};
-            await this.awardQuestRewards(userId, rewards);
+            await this.awardQuestRewards(userId, rewards, quest.id);
             
             return { 
                 success: true, 
@@ -787,23 +787,36 @@ const PersonalizedQuestService = {
     /**
      * Award quest rewards
      */
-    async awardQuestRewards(userId, rewards) {
+    async awardQuestRewards(userId, rewards, questId) {
         try {
             if (rewards.gems) {
-                await supabase.rpc('increment_user_gems', {
-                    user_id: userId,
-                    amount: rewards.gems
+                const { error } = await supabase.rpc('credit_user_earning', {
+                    p_user_id: userId,
+                    p_earning_type: 'personalized_quest_gems',
+                    p_amount: rewards.gems,
+                    p_currency: 'gems',
+                    p_source_table: 'user_quests',
+                    p_source_transaction_id: questId,
+                    p_metadata: {}
                 });
+                if (error) throw error;
             }
             
             if (rewards.points) {
-                await supabase.rpc('increment_user_points', {
-                    user_id: userId,
-                    amount: rewards.points
+                const { error } = await supabase.rpc('credit_user_earning', {
+                    p_user_id: userId,
+                    p_earning_type: 'personalized_quest_points',
+                    p_amount: rewards.points,
+                    p_currency: 'points',
+                    p_source_table: 'user_quests',
+                    p_source_transaction_id: questId,
+                    p_metadata: {}
                 });
+                if (error) throw error;
             }
         } catch (error) {
             console.error('[PersonalizedQuest] Error awarding rewards:', error);
+            throw error;
         }
     },
     

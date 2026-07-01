@@ -4,6 +4,7 @@ import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SponsoredPoolBanner } from '@/components/featured/SponsoredBadge';
+import { PromoShareEligibilityPanel } from '@/components/promoshare/PromoShareEligibilityPanel';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/lib/api';
+import {
+  ContributionReceipt,
+  SurfaceHero,
+} from '@/components/promorang/ExperiencePrimitives';
+import { cultureEvents } from '@/data/culture-demo';
 
 interface CycleStats {
   cycle_id: string;
@@ -247,33 +253,28 @@ const PromoShare = () => {
 
   if (!data) {
     return (
-      <div className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         <SEO
           title="PromoShare - Qualified Reward Cycles"
           description="PromoShare turns verified participation, repeat movement, and referrals into recurring qualified reward relevance inside Promorang."
         />
-        <div className="mb-8 rounded-[2rem] border border-border bg-card p-6 md:p-8">
-          <Badge className="mb-4 border-primary/20 bg-primary/10 text-primary" variant="outline">
-            <Sparkles className="w-3 h-3 mr-1" />
-            What PromoShare Is
-          </Badge>
-          <h1 className="text-3xl font-bold">Qualified recurring rewards</h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground">
-            PromoShare is the layer that tracks which participants stay relevant over time. Verified actions, real joins,
-            referrals, and repeat movement can increase your weight in active cycles. It is structured, not random.
-          </p>
-        </div>
-        <Card>
-          <CardContent className="py-12 text-center">
+        <SurfaceHero
+          eyebrow="PromoShare"
+          title="Proof turns into reward chances."
+          body="PromoShare tracks verified actions, real joins, referrals, and repeat movement so useful contribution can become tickets, weight, rewards, and sponsor-funded upside."
+          meta={['reward wallet', 'proof receipt', 'sponsor pools']}
+          primary={user ? undefined : { label: 'Sign in', href: '/auth' }}
+          secondary={{ label: 'Find drops', href: '/content-drops' }}
+        />
+        <div className="pr-feed-surface mt-6 p-8 text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">
               {user ? 'Unable to Load PromoShare' : 'Sign In Required'}
             </h2>
             <p className="text-muted-foreground">
-              {user ? 'PromoShare could not load right now. Try again shortly.' : 'Sign in to view your PromoShare dashboard and cycle standing.'}
+              {user ? 'PromoShare could not load right now. Try again shortly.' : 'Sign in to view your PromoShare standing, weight, and reward cycles.'}
             </p>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -284,12 +285,17 @@ const PromoShare = () => {
   const isSponsorView = ['brand', 'agency', 'merchant'].includes(activeRole || '');
   const isHostView = activeRole === 'host';
   const activeSponsorPools = sponsorPools.filter((pool) => pool.status === 'active');
+  const recentReceiptItems = (data.recent_entries || []).slice(0, 4).map((entry) => ({
+    label: entry.source_action?.replaceAll('_', ' ') || entry.source_type,
+    detail: `${entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'} · ${new Date(entry.created_at).toLocaleDateString()}`,
+    value: `+${entry.entry_count} entries`,
+  }));
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       <SEO
         title="PromoShare - Qualified Reward Cycles"
-        description="Track your active PromoShare cycles, weight, entries, and win history based on verified participation across Promorang."
+        description="Track how verified participation becomes eligibility, weight, status, and sponsor-funded upside across Promorang."
       />
       {/* Featured Pool Banner - PromoShare Homepage Banner ($200/day) */}
       {featuredPools.length > 0 && (
@@ -313,20 +319,43 @@ const PromoShare = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="mb-2 flex min-w-0 items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
+      <section className="relative min-h-[540px] overflow-hidden rounded-3xl border border-white/10 bg-black text-white">
+        <img src={cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/88 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
+        <div className="relative grid min-h-[540px] gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:items-end">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><Sparkles className="h-3 w-3" /> PromoShare</div>
+            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Proof becomes<br /><span className="text-primary">priority.</span></h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Verified movement raises your standing. Your standing opens qualified reward cycles, stronger placement, and sponsor-funded upside.</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild><Link to="/content-drops">Find earning actions</Link></Button>
+              <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/missions">Browse missions</Link></Button>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold sm:text-3xl">PromoShare</h1>
-            <p className="text-muted-foreground">
-              Qualified reward cycles for verified participation, repeat movement, and network contribution
-            </p>
+          <div className="rounded-2xl border border-white/15 bg-black/60 p-5 backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-3">
+              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your standing</p><p className="mt-2 text-2xl font-black">{primaryCycle?.eligible ? 'Qualified' : 'Building relevance'}</p></div>
+              <Badge className={getStatusColor(primaryCycle?.status || 'not_qualified')}>{getStatusLabel(primaryCycle?.status || 'not_qualified')}</Badge>
+            </div>
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              {[
+                ['Weight', totalWeight],
+                ['Entries', totalEntries],
+                ['Cycles', data.user_stats_by_cycle?.length || 0],
+              ].map(([label, value]) => (
+                <div key={String(label)} className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{Number(value).toLocaleString()}</p><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/35">{label}</p></div>
+              ))}
+            </div>
+            {primaryCycle ? (
+              <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-xs font-bold text-white/45">Nearest unlock</p>
+                <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
+              </div>
+            ) : null}
           </div>
         </div>
-      </div>
+      </section>
 
       {(isSponsorView || isHostView) && (
         <div className="mb-8 grid gap-4 lg:grid-cols-2">
@@ -355,7 +384,7 @@ const PromoShare = () => {
                     <Link to="/sponsor-dashboard">Manage Pools</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/dashboard">Open Brand Workspace</Link>
+                    <Link to="/dashboard">Open Brand Dashboard</Link>
                   </Button>
                 </div>
                 {sponsorPools.length > 0 && (
@@ -417,31 +446,13 @@ const PromoShare = () => {
         </div>
       )}
 
-      <div className="mb-8 grid gap-4 md:grid-cols-3">
-        <Card className="border-border">
-          <CardContent className="p-6">
-            <p className="text-sm font-semibold text-foreground">1. Participate for real</p>
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              Moments joined, verified actions, and real-world movement matter more than passive browsing.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-border">
-          <CardContent className="p-6">
-            <p className="text-sm font-semibold text-foreground">2. Build weight over time</p>
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              Your cycle standing grows through quality participation, repeat activity, and referrals where relevant.
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-border">
-          <CardContent className="p-6">
-            <p className="text-sm font-semibold text-foreground">3. Enter qualified cycles</p>
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              PromoShare is designed around qualified recurring relevance, not guaranteed payouts for every action.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="my-8">
+        <ContributionReceipt
+          title="Recent earning receipts"
+          items={recentReceiptItems.length ? recentReceiptItems : [
+            { label: 'No receipts yet', detail: 'Move content, join Moments, submit proof, or refer users to start earning.', value: '0 entries' },
+          ]}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -621,6 +632,13 @@ const PromoShare = () => {
           )}
 
           {/* How It Works */}
+          <PromoShareEligibilityPanel
+            actionLabel="verified check-ins, content, referrals, or repeat visits"
+            proofLabel="the pool proof rule"
+            poolLabel="daily, weekly, grand, sponsor, and moment pools"
+            funded={Boolean(data.draws?.some((draw) => draw.jackpot_amount > 0 || draw.poolItems?.length))}
+          />
+
           <Card>
             <CardHeader>
               <CardTitle>How PromoShare Works</CardTitle>
@@ -631,29 +649,29 @@ const PromoShare = () => {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Activity className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">1. Participate</h4>
-                  <p className="text-sm text-muted-foreground">Complete verified actions across Promorang</p>
+                  <h4 className="font-semibold mb-1">1. Move</h4>
+                  <p className="text-sm text-muted-foreground">Join, share, check in, refer, return, or complete useful action</p>
                 </div>
                 <div className="text-center p-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Target className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">2. Earn Weight</h4>
-                  <p className="text-sm text-muted-foreground">Each action increases your weighted score</p>
+                  <h4 className="font-semibold mb-1">2. Gain Weight</h4>
+                  <p className="text-sm text-muted-foreground">Matching pool rules increase eligibility, odds, and standing</p>
                 </div>
                 <div className="text-center p-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Clock className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">3. Cycle Ends</h4>
-                  <p className="text-sm text-muted-foreground">Winners are selected from qualified users</p>
+                  <h4 className="font-semibold mb-1">3. Cycle Closes</h4>
+                  <p className="text-sm text-muted-foreground">Daily, weekly, grand, Moment, and sponsor cycles settle on schedule</p>
                 </div>
                 <div className="text-center p-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Gift className="w-6 h-6 text-primary" />
                   </div>
-                  <h4 className="font-semibold mb-1">4. Win Rewards</h4>
-                  <p className="text-sm text-muted-foreground">Claim gems, perks, and special access</p>
+                  <h4 className="font-semibold mb-1">4. Unlock Upside</h4>
+                  <p className="text-sm text-muted-foreground">Eligible entries, rank, and sponsor rules unlock rewards or recognition</p>
                 </div>
               </div>
             </CardContent>

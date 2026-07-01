@@ -27,7 +27,7 @@ export function EconomyPathGuide() {
     { 
         icon: Key, 
         label: "Mint Keys", 
-        desc: "1,000 Pts converts to 1 PromoKey.",
+        desc: "500 Pts converts to 1 PromoKey.",
         color: "text-purple-500",
         bg: "bg-purple-500/10"
     },

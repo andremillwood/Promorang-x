@@ -3,6 +3,7 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
+import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 
 const creatorBenefits = [
@@ -46,7 +47,7 @@ const creatorUseCases = [
   },
   {
     icon: CalendarCheck,
-    title: "Event and culture creators",
+    title: "Moment and culture creators",
     description: "Bring people from story to door for launch nights, sessions, classes, creator tables, and live gatherings.",
   },
 ];
@@ -91,7 +92,7 @@ const ForCreators = () => {
               <span className="text-[10px] font-black uppercase tracking-widest">Creator Missions</span>
             </div>
 
-            <h1 className="mx-auto mb-6 max-w-[18rem] break-words font-serif text-[1.8rem] font-bold italic leading-tight sm:max-w-4xl sm:text-5xl md:text-7xl">
+            <h1 className="mx-auto mb-6 max-w-[20rem] break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:max-w-4xl sm:text-6xl md:text-7xl">
               Turn Stories Into <span className="text-primary italic">Movement.</span>
             </h1>
 
@@ -138,10 +139,15 @@ const ForCreators = () => {
         </div>
       </section>
 
+      <PioneerCallout
+        title="The creators who move people early should have a record."
+        copy="During Genesis Season, original work and the verified movement around it can build your Pioneer record alongside your ordinary Promorang rewards."
+      />
+
       <section className="py-24 bg-background border-b border-border">
         <div className="container px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 italic">
+            <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
               The Creator <span className="text-primary">Loop.</span>
             </h2>
             <p className="text-lg text-muted-foreground">
@@ -167,7 +173,7 @@ const ForCreators = () => {
         <div className="container px-6">
           <div className="mx-auto mb-14 max-w-3xl text-center">
             <Badge className="border-primary/20 bg-primary/10 text-primary">Who This Is For</Badge>
-            <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
+            <h2 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
               Built for creators who want more than views.
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -196,7 +202,7 @@ const ForCreators = () => {
                 <Sparkles className="w-3 h-3" />
                 Creator Value
               </div>
-              <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6 italic">
+              <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                 Your Audience Becomes a <span className="text-primary italic">Real-World Movement.</span>
               </h2>
             <p className="text-lg text-white/70 mb-8 leading-relaxed">
@@ -223,7 +229,7 @@ const ForCreators = () => {
               <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full" />
               <div className="relative rounded-[3rem] border border-white/10 bg-white/5 p-8 md:p-12">
                 <Badge className="bg-primary/15 text-primary border border-primary/20">O2O Attribution</Badge>
-                <h3 className="mt-6 text-2xl font-serif font-bold italic">A Story That Sends People Somewhere</h3>
+                <h3 className="mt-6 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">A Story That Sends People Somewhere</h3>
                 <p className="mt-4 text-sm leading-relaxed text-white/70">
                   Publish a mission like “Watch the hidden skincare route, then book the Glow House service window,” or
                   “Find the founder rack at North Block Supply.” Participants enter through your story, verify in person,
@@ -246,7 +252,7 @@ const ForCreators = () => {
                 <BadgeDollarSign className="h-4 w-4" />
                 <span className="text-xs font-black uppercase tracking-[0.18em]">Creator Economics</span>
               </div>
-              <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                 Earn from measurable movement, not soft promises.
               </h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">
@@ -275,7 +281,7 @@ const ForCreators = () => {
         <div className="container px-6">
           <div className="mx-auto mb-14 max-w-3xl text-center">
             <Badge className="border-primary/20 bg-primary/10 text-primary">How It Works</Badge>
-            <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
+            <h2 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
               A creator workflow brands can actually understand.
             </h2>
           </div>
@@ -289,7 +295,7 @@ const ForCreators = () => {
               {
                 icon: Link2,
                 title: "2. Link",
-                description: "Attach it to a venue, event, retail route, or service unlock path.",
+                description: "Attach it to a venue, Moment, retail route, or service unlock path.",
               },
               {
                 icon: ShieldCheck,
@@ -319,7 +325,7 @@ const ForCreators = () => {
           <div className="mx-auto max-w-4xl">
             <div className="text-center">
               <Badge className="border-primary/20 bg-primary/10 text-primary">FAQ</Badge>
-              <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
                 Common creator objections, answered.
               </h2>
             </div>
@@ -342,7 +348,7 @@ const ForCreators = () => {
               <Sparkles className="h-4 w-4" />
               <span className="text-sm font-bold">Creator CTA</span>
             </div>
-            <h2 className="mt-6 font-serif text-3xl font-bold italic md:text-5xl">
+            <h2 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
               If your audience moves, your business model can grow with it.
             </h2>
             <p className="mt-4 text-lg leading-8 text-zinc-300">

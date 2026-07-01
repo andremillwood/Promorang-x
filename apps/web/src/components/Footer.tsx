@@ -6,10 +6,12 @@ import logo from "@/assets/promorang-logo-full.png";
 const footerLinks = {
   discover: [
     { label: "Moments", href: "/explore/moments" },
+    { label: "Scenes", href: "/scenes" },
     { label: "Discover", href: "/discover" },
     { label: "Content", href: "/explore/content" },
     { label: "Rewards", href: "/explore/rewards" },
     { label: "Venues", href: "/explore/venues" },
+    { label: "Genesis Season", href: "/pioneers" },
   ],
   how: [
     { label: "Overview", href: "/economy" },
@@ -36,11 +38,11 @@ const footerLinks = {
   ],
 };
 
-const Footer = () => {
+const Footer = ({ showCta = true }: { showCta?: boolean }) => {
   return (
     <footer className="bg-background border-t border-border">
       {/* CTA Section */}
-      <div className="container px-4 py-14 sm:px-6 md:py-24">
+      {showCta ? <div className="container px-4 py-14 sm:px-6 md:py-24">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
             Find the moment you want to be part of.
@@ -57,7 +59,7 @@ const Footer = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </div> : null}
 
       {/* Footer Links */}
       <div className="border-t border-border">

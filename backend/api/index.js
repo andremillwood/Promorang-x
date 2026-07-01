@@ -298,6 +298,7 @@ app.use('/api/advertisers', requireAuth, require('./advertiserTeam')); // Team m
 app.use('/api/campaigns', require('./campaigns'));
 // app.use('/api/leaderboard', require('./leaderboard'));
 app.use('/api/rewards', require('./rewards'));
+app.use('/api/pioneer-points', require('./pioneer-points'));
 // app.use('/api/withdrawal', require('./withdrawal')); // DISABLED
 app.use('/api/payments', (req, res) => res.status(403).json({ error: 'Service Disabled', message: 'Gem purchasing is currently disabled during platform realignment.' }));
 app.use('/api/manychat', require('./manychat'));
@@ -319,6 +320,7 @@ app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare', require('./promoshare'));
 app.use('/api/promoshare/sponsors', require('./promoshare-sponsors'));
 app.use('/api/promopush', require('./promopush'));
+app.use('/api/content-distribution', require('./content-distribution'));
 app.use('/api/relays', require('./relays'));
 // app.use('/api/streaks', require('./streaks'));
 app.use('/api/quests', require('./quests'));
@@ -343,6 +345,8 @@ app.use('/api/email', require('./email')); // Email event entrypoints
 app.use('/api/today', require('./today')); // Daily Layer Today Screen
 app.use('/api/moments', require('./moments')); // Moment Infrastructure
 app.use('/api/moment-economy', require('./moment-economy')); // Moment Economy V1
+app.use('/api/economy', require('./economy')); // Canonical wallet and conversions
+app.use('/api/growth-programs', require('./growth-programs')); // Defensible Growth Hub programs
 app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/roles', require('./roles')); // Role Management
 app.use('/api/host-applications', require('./host-applications')); // Host Applications

@@ -64,6 +64,11 @@ const AuthPage = () => {
 
   useEffect(() => {
     const requestedRole = searchParams.get("role");
+    const next = searchParams.get("next");
+    if (next?.startsWith("/") && !next.startsWith("//")) {
+      sessionStorage.setItem("promorang_post_auth_next", next);
+    }
+    if (searchParams.get("mode") === "signup") setMode("signup");
     if (!requestedRole) return;
 
     if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {

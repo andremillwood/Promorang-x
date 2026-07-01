@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '@getmocha/users-service/react';
 import { 
   Home, 
-  DollarSign, 
   Plus, 
   TrendingUp, 
   User, 
@@ -14,6 +13,7 @@ import {
   Trophy,
   Megaphone,
   Search,
+  Compass,
   Menu,
   X,
   Wallet,
@@ -115,17 +115,17 @@ export default function Layout({ children }: LayoutProps) {
 
   const getNavigation = () => {
     const baseNav = [
-      { name: 'Home', href: '/home', icon: Home },
-      { name: 'Earn', href: '/earn', icon: DollarSign },
+      { name: 'Pulse', href: '/home', icon: Home },
+      { name: 'Discover', href: '/earn', icon: Compass },
       { name: 'Create', href: '/create', icon: Plus },
-      { name: 'Invest', href: '/invest', icon: TrendingUp },
+      { name: 'Vault', href: '/invest', icon: TrendingUp },
       { name: 'Market', href: '/market', icon: BarChart3 },
-      { name: 'Growth Hub', href: '/growth-hub', icon: Rocket },
+      { name: 'Dashboard', href: '/growth-hub', icon: Rocket },
     ];
     
     // Add advertiser dashboard for advertisers
     if (userData && (userData as any).user_type === 'advertiser') {
-      baseNav.push({ name: 'Dashboard', href: '/advertiser', icon: Settings });
+      baseNav.push({ name: 'Brand Ops', href: '/advertiser', icon: Settings });
     }
     
     return baseNav;
@@ -758,7 +758,7 @@ export default function Layout({ children }: LayoutProps) {
             }`}
           >
             <Home className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Home</span>
+            <span className="text-xs mt-1 font-medium leading-tight">Pulse</span>
           </Link>
           
           <Link
@@ -767,8 +767,8 @@ export default function Layout({ children }: LayoutProps) {
               isActive('/earn') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <DollarSign className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Earn</span>
+            <Compass className="w-5 h-5" />
+            <span className="text-xs mt-1 font-medium leading-tight">Discover</span>
           </Link>
           
           <Link
@@ -788,7 +788,7 @@ export default function Layout({ children }: LayoutProps) {
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Invest</span>
+            <span className="text-xs mt-1 font-medium leading-tight">Vault</span>
           </Link>
           
           {/* Menu Button */}

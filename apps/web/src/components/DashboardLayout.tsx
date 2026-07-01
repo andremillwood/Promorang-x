@@ -30,6 +30,14 @@ import {
   Film,
   Layers,
   Megaphone,
+  RadioTower,
+  Route,
+  MessageCircle,
+  UserRound,
+  Share2,
+  Ticket,
+  TrendingUp,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +64,7 @@ type NavItem = {
   label: string;
   href: string;
   experimental?: boolean;
-  group?: "primary" | "utility";
+  group?: "primary" | "growth" | "manage" | "utility";
 };
 
 const showExperimentalEconomy =
@@ -66,9 +74,13 @@ const filterReleaseNav = <T extends NavItem>(items: T[]) =>
   items.filter((item) => !item.experimental || showExperimentalEconomy);
 
 const pageLabels: Array<{ match: string; label: string; description: string }> = [
+  { match: "/momentum", label: "Momentum", description: "See how participation, content, rewards, and reputation connect across Promorang." },
   { match: "/pulse", label: "Pulse", description: "What is forming now and where real-world energy is already visible." },
-  { match: "/discover", label: "Discover", description: "A calmer browsing layer for moments, venues, rewards, and content." },
-  { match: "/create", label: "Create", description: "Launch a moment, mission, or campaign from a single creation spine." },
+  { match: "/content-drops", label: "Content Drops", description: "Creator content wrapped in attribution, distribution incentives, and contributor rank." },
+  { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
+  { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
+  { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
+  { match: "/create", label: "Create", description: "Launch a moment, mission, or campaign with clear goals and proof." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
   { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
@@ -77,9 +89,9 @@ const pageLabels: Array<{ match: string; label: string; description: string }> =
   { match: "/missions", label: "Missions", description: "Proof-bearing actions and linked creator or sponsor prompts." },
   { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
-  { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active workspace." },
-  { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and workspace-level configuration." },
-  { match: "/dashboard", label: "Dashboard", description: "Role-specific control center for the work that matters now." },
+  { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
+  { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
+  { match: "/dashboard", label: "Home", description: "Your live moments, proof, rewards, and next moves in one place." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
@@ -120,24 +132,35 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 
 const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
-    { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
-    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
-    { icon: Archive, label: "Vault", href: "/vault", group: "primary" },
+    { icon: Activity, label: "Live Now", href: "/pulse", group: "primary" },
+    { icon: Users, label: "Scenes", href: "/scenes", group: "primary" },
+    { icon: UserRound, label: "Creators", href: "/creators", group: "primary" },
+    { icon: MessageCircle, label: "Inbox", href: "/activity", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "growth" },
+    { icon: TrendingUp, label: "Growth Hub", href: "/growth", group: "growth" },
+    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "growth" },
+    { icon: Share2, label: "Referrals", href: "/growth/referrals", group: "growth" },
+    { icon: Layers, label: "Pieces", href: "/portfolio", group: "growth" },
+    { icon: PlayCircle, label: "Missions", href: "/missions", group: "growth" },
+    { icon: Building2, label: "Organizer Dashboard", href: "/organizer", group: "manage" },
+    { icon: Calendar, label: "Events", href: "/organizer/events", group: "manage" },
+    { icon: CheckCircle, label: "Check-ins", href: "/organizer/check-ins", group: "manage" },
+    { icon: Ticket, label: "Tickets & Sales", href: "/organizer/tickets", group: "manage" },
+    { icon: BarChart3, label: "Analytics", href: "/organizer/analytics", group: "manage" },
     { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
-    { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
-    { icon: BarChart3, label: "Liquidity", href: "/liquidity", group: "utility" },
-    { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
+    { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
     { icon: Archive, label: "Saved", href: "/saved", group: "utility" },
     { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
-    { icon: ShoppingBag, label: "Marketplace", href: "/marketplace", experimental: true, group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   creator: [
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
     { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Home, label: "Studio", href: "/dashboard", group: "primary" },
     { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", group: "primary" },
     { icon: Sparkles, label: "Create Mission", href: "/dashboard?tab=missions", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush/creator", group: "primary" },
@@ -155,9 +178,11 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   host: [
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
     { icon: Activity, label: "Pulse", href: "/pulse", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: Sparkles, label: "Create", href: "/create/moment", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
     { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
@@ -173,7 +198,9 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   brand: [
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
     { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns", group: "primary" },
@@ -186,7 +213,9 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   merchant: [
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
     { icon: Sparkles, label: "Create Moment", href: "/create/moment", group: "primary" },
     { icon: MapPin, label: "Venues", href: "/dashboard/venues", group: "primary" },
@@ -198,7 +227,9 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   agency: [
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Briefcase, label: "Clients", href: "/dashboard", group: "primary" },
     { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
@@ -207,16 +238,20 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   promoter: [
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
     { icon: Bell, label: "Activity", href: "/activity", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   marketing: [
+    { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
-    { icon: Home, label: "Dashboard", href: "/dashboard", group: "primary" },
+    { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
+    { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
@@ -262,10 +297,20 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   // Safe role resolution — never crashes, always falls back to participant
   const safeRole = currentRole && roleNavItems[currentRole] ? currentRole : 'participant';
   const navItems = filterReleaseNav(roleNavItems[safeRole] || FALLBACK_NAV);
-  const primaryNavItems = navItems.filter((item) => item.group !== "utility");
+  const primaryNavItems = navItems.filter((item) => !item.group || item.group === "primary");
+  const growthNavItems = navItems.filter((item) => item.group === "growth");
+  const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const showCompactDemoBanner = location.pathname !== "/dashboard";
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators"];
+  const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/")
+  );
+  const isCinematicCultureRoute = ["/scenes", "/creators"].some((path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/")
+  );
+  const hidePageHeader = isImmersiveProductRoute || location.pathname === "/dashboard";
+  const showCompactDemoBanner = location.pathname !== "/dashboard" && !isImmersiveProductRoute;
   const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
 
   const handleSignOut = async () => {
@@ -275,41 +320,41 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   const mobileNavItems: Record<UserRole, (NavItem & { accent?: boolean })[]> = {
     participant: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Activity, label: "Pulse", href: "/pulse" },
       { icon: Search, label: "Discover", href: "/discover", accent: true },
       { icon: Archive, label: "Vault", href: "/vault" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     creator: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Studio", href: "/dashboard" },
       { icon: PlayCircle, label: "Missions", href: "/missions" },
       { icon: Plus, label: "Publish", href: "/dashboard?tab=publish", accent: true },
       { icon: Megaphone, label: "PromoPush", href: "/promopush/creator" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     host: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Activity, label: "Pulse", href: "/pulse" },
       { icon: Plus, label: "Create", href: "/create/moment", accent: true },
       { icon: Archive, label: "Vault", href: "/vault" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     brand: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Plus, label: "Create", href: "/create/campaign", accent: true },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     merchant: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Plus, label: "Add", href: "/dashboard/venues/add", accent: true },
       { icon: MapPin, label: "Venues", href: "/dashboard/venues" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     agency: [
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Briefcase, label: "Clients", href: "/dashboard", accent: true },
       { icon: Sparkles, label: "Create", href: "/create/campaign" },
       { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
@@ -318,12 +363,12 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
     promoter: [
       { icon: Megaphone, label: "PromoPush", href: "/promopush/promoter", accent: true },
       { icon: Search, label: "Discover", href: "/discover" },
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
     marketing: [
       { icon: Megaphone, label: "PromoPush", href: "/promopush", accent: true },
-      { icon: Home, label: "Dashboard", href: "/dashboard" },
+      { icon: Home, label: "Home", href: "/dashboard" },
       { icon: BarChart3, label: "Stats", href: "/dashboard/analytics" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ],
@@ -339,33 +384,32 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const currentMobileNav = filterReleaseNav(mobileNavItems[safeRole]);
 
   return (
-    <div className="app-shell-mobile relative flex min-h-screen overflow-x-clip bg-background transition-colors duration-300">
+    <div className="app-shell-mobile relative flex min-h-screen min-h-dvh overflow-x-clip bg-background transition-colors duration-300">
       {/* Ambient Background Washes */}
-      <div className="pointer-events-none absolute right-0 top-0 h-[280px] w-[280px] rounded-full bg-primary/10 blur-[90px] opacity-40 dark:opacity-20 sm:h-[500px] sm:w-[500px] sm:-mr-64 sm:-mt-64 sm:blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-[240px] w-[240px] rounded-full bg-accent/10 blur-[80px] opacity-40 dark:opacity-20 sm:h-[400px] sm:w-[400px] sm:-mb-48 sm:-ml-48 sm:blur-[100px]" />
+      <div className="pointer-events-none absolute right-0 top-0 h-[280px] w-[280px] rounded-full bg-primary/12 blur-[90px] opacity-60 sm:h-[500px] sm:w-[500px] sm:-mr-64 sm:-mt-64 sm:blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-[240px] w-[240px] rounded-full bg-amber-500/10 blur-[80px] opacity-50 sm:h-[400px] sm:w-[400px] sm:-mb-48 sm:-ml-48 sm:blur-[100px]" />
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-card/40 backdrop-blur-xl border-r border-border/50 shadow-soft transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-72 border-r border-white/10 bg-black/92 text-white shadow-[24px_0_80px_rgba(0,0,0,0.35)] backdrop-blur-xl transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0`}
       >
         <div className="flex flex-col h-full relative z-10">
           {/* Sidebar Header: Logo & Branding */}
-          <div className="h-20 flex items-center px-8 border-b border-border/40">
+          <div className="h-20 flex items-center px-8 border-b border-white/10">
             <Link to="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
               <div className="h-10 w-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <img src={logo} alt="Promorang" className="h-10 w-10 object-contain rounded-xl" />
               </div>
-              <span className="font-serif text-xl font-bold tracking-tight text-foreground">Promorang</span>
-              <span className="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-md text-[8px] font-bold bg-primary/10 text-primary border border-primary/20 animate-pulse">v1.1.0-STABILIZED</span>
+              <span className="text-xl font-black tracking-tight text-white">Promorang</span>
             </Link>
           </div>
 
           {/* Navigation Section */}
-          <div className="flex-1 px-4 space-y-8 overflow-y-auto pt-4">
+          <div className="dashboard-sidebar-scroll flex-1 space-y-7 overflow-y-auto px-4 pt-4">
             <div>
-              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
-                Product Spine
+              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38 mb-4">
+                {safeRole === "participant" ? "Start Here" : "Explore"}
               </p>
               <nav className="space-y-1.5">
                 {primaryNavItems.map((item) => (
@@ -376,17 +420,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                         key={item.href}
                         to={item.href}
                         className={cn(
-                          "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                      "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200 group",
                           active
-                            ? "bg-primary/10 text-primary shadow-sm"
-                            : "text-foreground/80 hover:text-primary hover:bg-primary/5 hover:shadow-sm",
+                            ? "border-primary/40 bg-primary/15 text-primary shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
+                            : "border-transparent text-white/72 hover:border-white/10 hover:bg-white/[0.07] hover:text-white",
                         )}
                       >
                     <div className={cn(
                       "p-2 rounded-lg transition-colors",
                       active
                         ? "bg-primary/15 text-primary"
-                        : "bg-transparent text-foreground/70 group-hover:bg-primary/10 group-hover:text-primary",
+                        : "bg-transparent text-white/60 group-hover:bg-white/10 group-hover:text-white",
                     )}>
                       <item.icon className="w-5 h-5" />
                     </div>
@@ -398,10 +442,50 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </nav>
             </div>
 
+            {safeRole === "participant" && growthNavItems.length > 0 && (
+              <div>
+                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Create & Grow</p>
+                <nav className="space-y-1">
+                  {growthNavItems.map((item) => {
+                    const active = isNavItemActive(location.pathname, item.href, location.search);
+                    return (
+                      <Link key={item.href} to={item.href} className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
+                        active ? "bg-primary/15 text-primary" : "text-white/72 hover:bg-white/[0.07] hover:text-white",
+                      )}>
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            )}
+
+            {safeRole === "participant" && manageNavItems.length > 0 && (
+              <div>
+                <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38">Manage</p>
+                <nav className="space-y-1">
+                  {manageNavItems.map((item) => {
+                    const active = isNavItemActive(location.pathname, item.href, location.search);
+                    return (
+                      <Link key={item.href} to={item.href} className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
+                        active ? "bg-primary/15 text-primary" : "text-white/72 hover:bg-white/[0.07] hover:text-white",
+                      )}>
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            )}
+
             {utilityNavItems.length > 0 && (
               <div>
-                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
-                  Utilities
+                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38 mb-4">
+                {safeRole === "participant" ? "Keep Value" : "Value"}
                 </p>
                 <nav className="space-y-1.5">
                   {utilityNavItems.map((item) => (
@@ -412,17 +496,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                           key={item.href}
                           to={item.href}
                           className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                            "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200 group",
                             active
-                              ? "bg-primary/10 text-primary shadow-sm"
-                              : "text-foreground/80 hover:text-primary hover:bg-primary/5 hover:shadow-sm",
+                              ? "border-primary/40 bg-primary/15 text-primary shadow-[inset_3px_0_0_hsl(var(--primary)),0_12px_30px_rgba(0,0,0,0.18)]"
+                              : "border-transparent text-white/72 hover:border-white/10 hover:bg-white/[0.07] hover:text-white",
                           )}
                         >
                       <div className={cn(
                         "p-2 rounded-lg transition-colors",
                         active
                           ? "bg-primary/15 text-primary"
-                          : "bg-transparent text-foreground/70 group-hover:bg-primary/10 group-hover:text-primary",
+                          : "bg-transparent text-white/60 group-hover:bg-white/10 group-hover:text-white",
                       )}>
                         <item.icon className="w-5 h-5" />
                       </div>
@@ -437,13 +521,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
             {/* Quick Actions / Divider */}
             <div className="pt-2">
-              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
-                Workspace
+              <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38 mb-4">
+                Role
               </p>
               <div className="px-4">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className={`w-full min-w-0 flex items-center gap-3 p-4 rounded-2xl ${roleInfo.color} text-white shadow-soft relative overflow-hidden group hover:scale-[1.02] transition-transform text-left`}>
+                  <button className="w-full min-w-0 flex items-center gap-3 p-4 rounded-2xl border border-primary/35 bg-primary text-white shadow-[0_18px_50px_rgba(255,106,0,0.24)] relative overflow-hidden group hover:scale-[1.02] transition-transform text-left">
                       <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-full blur-2xl -mr-8 -mt-8" />
                       <div className="relative z-10 h-10 w-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
                         <roleInfo.icon className="w-5 h-5 text-white" />
@@ -459,7 +543,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   </DropdownMenuTrigger>
                   {roles.length > 1 && (
                     <DropdownMenuContent align="start" className="w-64">
-                      <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Switch Context</p>
+                      <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Switch Role</p>
                       {roles.map((role) => {
                         const info = safeRoleInfo(role);
                         const RoleIcon = info.icon;
@@ -488,14 +572,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             {/* Organization Switcher (Only for non-participant roles) */}
             {safeRole !== "participant" && (
               <div className="pt-2">
-                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/60 mb-4">
+                <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/38 mb-4">
                   Organization
                 </p>
                 <div className="px-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="w-full flex items-center gap-3 p-3 rounded-xl bg-card/60 border border-border/40 hover:bg-muted/50 transition-colors text-left group">
-                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                      <button className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.06] text-left transition-colors hover:bg-white/[0.1] group">
+                        <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
                           {activeOrg?.avatar_url ? (
                             <img src={activeOrg.avatar_url} alt="" className="h-full w-full object-cover rounded-lg" />
                           ) : (
@@ -503,18 +587,18 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate text-foreground pr-4 relative">
-                            {activeOrg?.name || "Personal Workspace"}
+                          <p className="text-sm font-semibold truncate text-white pr-4 relative">
+                            {activeOrg?.name || "My Hub"}
                             <ChevronDown className="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 opacity-50" />
                           </p>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight">
+                          <p className="text-[10px] text-white/45 uppercase tracking-widest leading-tight">
                             {activeOrg?.type || "Personal"}
                           </p>
                         </div>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-64">
-                      <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">My Workspaces</DropdownMenuLabel>
+                      <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">My Accounts</DropdownMenuLabel>
                       {organizations.map((org) => (
                         <DropdownMenuItem
                           key={org.id}
@@ -562,7 +646,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                         <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                           <Plus className="w-4 h-4" />
                         </div>
-                        <span className="font-semibold text-sm">Create New Org</span>
+                        <span className="font-semibold text-sm">Add Account</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -572,8 +656,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
           </div>
 
           {/* User Profile Card - Premium Redesign */}
-          <div className="p-6 mt-auto">
-            <div className="bg-card/80 backdrop-blur-md rounded-3xl p-5 border border-border/40 shadow-soft-xl dark:border-white/5">
+          <div className="mt-auto p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.22)] backdrop-blur-md">
               <Link to="/profile" className="flex items-center gap-3 mb-4 group/profile">
                 <div className="relative">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-soft group-hover/profile:rotate-3 transition-transform">
@@ -582,22 +666,22 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-foreground truncate group-hover/profile:text-primary transition-colors">
+                  <p className="text-sm font-bold text-white truncate group-hover/profile:text-primary transition-colors">
                     {user?.user_metadata?.full_name || user?.email?.split("@")[0]}
                   </p>
-                  <p className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">{roleInfo.label} Workspace</p>
+                  <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">{roleInfo.label} Home</p>
                 </div>
               </Link>
 
-              <div className="mb-4 rounded-2xl border border-border/50 bg-muted/40 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Current Context</p>
-                <p className="mt-2 text-sm font-semibold text-foreground truncate">
-                  {activeOrg?.name || "Personal Workspace"}
+              <div className="mb-4 rounded-2xl border border-white/10 bg-black/35 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/42">Your Hub</p>
+                <p className="mt-2 text-sm font-semibold text-white truncate">
+                  {activeOrg?.name || "My Hub"}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/52">
                   {safeRole === "participant"
-                    ? "Use the product spine to move between live discovery, memory, and personal tools."
-                    : "Use the dashboard for role-specific operations and keep the product spine for the participant-facing experience."}
+                    ? "Live moments, proof, saved items, rewards, and tools in one place."
+                    : "Manage campaigns, reporting, account settings, and the work tied to this role."}
                 </p>
               </div>
 
@@ -606,7 +690,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex-1 rounded-xl hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
+                  className="flex-1 rounded-xl text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                   onClick={handleSignOut}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
@@ -627,13 +711,16 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       )}
 
       {/* Main Content */}
-      <main className="relative min-w-0 min-h-screen flex-1 overflow-x-clip lg:pl-72">
+      <main className={cn(
+        "relative flex min-h-screen min-h-dvh min-w-0 flex-1 flex-col overflow-x-clip lg:pl-72",
+        isCinematicCultureRoute && "bg-black"
+      )}>
         {/* Mobile Header */}
-        <div className="pt-safe lg:hidden sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/50 p-4 shadow-sm">
+        <div className="pt-safe lg:hidden sticky top-0 z-30 border-b border-white/10 bg-black/90 p-4 text-white shadow-sm backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="h-10 w-10 rounded-xl bg-muted/80 flex items-center justify-center text-foreground shadow-soft active:scale-95 transition-transform"
+              className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-white shadow-soft active:scale-95 transition-transform"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -641,18 +728,18 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <div className="h-8 w-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-soft">
                 <img src={logo} alt="" className="h-4 w-auto brightness-0 invert" />
               </div>
-              <span className="font-serif text-lg font-bold text-foreground">Promorang</span>
+              <span className="text-lg font-black text-white">Promorang</span>
             </div>
             <Link to="/profile" className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-xs shadow-soft active:scale-95 transition-transform">
               {(user?.email || "?").charAt(0).toUpperCase()}
             </Link>
           </div>
-          <div className="mt-3 rounded-2xl border border-border/60 bg-card/70 px-4 py-3 shadow-soft">
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">{roleInfo.label}</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{pageMeta.label}</p>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{pageMeta.description}</p>
+                <p className="mt-1 text-sm font-semibold text-white">{pageMeta.label}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-white/58">{pageMeta.description}</p>
               </div>
               <div className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", roleInfo.color)} />
             </div>
@@ -660,29 +747,35 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         </div>
 
         {/* Page Content */}
-        <div className="relative z-10 p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:px-10 lg:pb-14 lg:pt-8 xl:px-12">
-          <div className="mx-auto w-full max-w-7xl min-w-0">
-            <div className="mb-5 hidden lg:flex items-start justify-between gap-6 rounded-[1.75rem] border border-border/70 bg-card/80 p-5 shadow-soft">
+        <div className={cn(
+          "relative z-10 flex flex-1 flex-col p-4 pb-28 sm:p-6 sm:pb-32 md:p-8 lg:pb-14 lg:pt-8",
+          isImmersiveProductRoute ? "lg:px-6 xl:px-8" : "lg:px-10 xl:px-12",
+          isCinematicCultureRoute && "bg-black"
+        )}>
+          <div className={cn("mx-auto flex min-h-full w-full min-w-0 flex-1 flex-col", isImmersiveProductRoute ? "max-w-[1560px]" : "max-w-7xl")}>
+            {!hidePageHeader && (
+            <div className="mb-5 hidden overflow-hidden lg:flex items-start justify-between gap-6 rounded-[1.75rem] border border-border/70 bg-card/85 p-5 shadow-soft">
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
                   <roleInfo.icon className="h-3.5 w-3.5" />
                   {roleInfo.label}
                 </div>
-                <h1 className="mt-3 font-serif text-3xl font-bold text-foreground">{pageMeta.label}</h1>
+                <h1 className="mt-3 font-sans text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{pageMeta.label}</h1>
                 <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{pageMeta.description}</p>
               </div>
               <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active workspace</p>
-                <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "Personal Workspace"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
+                <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "My Hub"}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {safeRole === "participant" ? "Core product surfaces stay separate from advanced tools." : "Operations live here; product navigation stays separate in the spine."}
+                  {safeRole === "participant" ? "Your live moments, proof, and rewards stay together here." : "Your work, results, and account tools stay together here."}
                 </p>
               </div>
             </div>
+            )}
             {showCompactDemoBanner ? (
               <DemoExperienceBanner role={safeRole === "admin" ? null : safeRole} variant="compact" />
             ) : null}
-            <div className="pt-1 lg:pt-0">
+            <div className="flex min-h-0 flex-1 flex-col pt-1 lg:pt-0">
               {children}
             </div>
           </div>
@@ -691,7 +784,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
       <DemoCoachmark />
 
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/92 backdrop-blur-xl lg:hidden">
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/92 text-white backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-2 pb-2 pt-2">
           {currentMobileNav.map((item) => {
             const isActive = isNavItemActive(location.pathname, item.href, location.search);
@@ -704,8 +797,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   item.accent
                     ? "bg-gradient-primary text-primary-foreground shadow-glow"
                     : isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                      ? "bg-primary/15 text-primary"
+                      : "text-white/58 hover:bg-white/10 hover:text-white"
                 )}
               >
                 <item.icon className={cn("h-4 w-4", item.accent && "fill-current")} />

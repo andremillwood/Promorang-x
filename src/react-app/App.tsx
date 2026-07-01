@@ -86,9 +86,12 @@ export default function App() {
 
               {/* Protected routes */}
               <Route path="/home" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
+              <Route path="/pulse" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
               <Route path="/earn" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
+              <Route path="/discover" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePage /></ProtectedRoute>} />
               <Route path="/invest/*" element={<ProtectedRoute><InvestPage /></ProtectedRoute>} />
+              <Route path="/vault/*" element={<ProtectedRoute><InvestPage /></ProtectedRoute>} />
               <Route path="/market" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
               <Route path="/market/:category" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
               <Route path="/shares/:id" element={<ProtectedRoute><ShareDetail /></ProtectedRoute>} />
@@ -106,9 +109,9 @@ export default function App() {
               <Route path="/advertiser/onboarding" element={<ProtectedRoute><AdvertiserOnboarding /></ProtectedRoute>} />
 
               {/* Redirect old routes */}
-              <Route path="/dashboard" element={<Navigate to="/invest" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/growth-hub" replace />} />
               <Route path="/marketplace" element={<Navigate to="/earn" replace />} />
-              <Route path="/main" element={<Navigate to="/home" replace />} />
+              <Route path="/main" element={<Navigate to="/pulse" replace />} />
 
               {/* Catch-all route for 404 */}
               <Route path="*" element={<Navigate to="/home" replace />} />

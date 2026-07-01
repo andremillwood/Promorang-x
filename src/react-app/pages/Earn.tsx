@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@getmocha/users-service/react';
-import { 
+import {
   Plus, 
   Search, 
   Filter, 
@@ -14,10 +14,14 @@ import {
   Upload,
   X,
   Link as LinkIcon,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Target,
+  Shield,
+  Sparkles
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import { DropType, CreateDropRequestType, DropTypeSchema, DropDifficultySchema, UserType } from '@/shared/types';
+import { OpportunitySurface, ReceiptCard } from '@/react-app/components/OpportunitySurface';
 
 export default function Earn() {
   const { user: authUser } = useAuth();
@@ -79,6 +83,16 @@ export default function Earn() {
     return matchesSearch && matchesDropType && matchesDifficulty;
   });
 
+  const proofDrops = drops.filter(drop => drop.is_proof_drop).length;
+  const paidDrops = drops.filter(drop => drop.is_paid_drop).length;
+  const totalGemPool = drops.reduce((sum, drop) => sum + (drop.gem_pool_remaining || drop.gem_reward_base || 0), 0);
+  const discoverSignals = [
+    { label: 'Open drops', value: drops.length, detail: 'available' },
+    { label: 'Proof', value: proofDrops, detail: 'trust builders' },
+    { label: 'Paid', value: paidDrops, detail: 'gem rewards' },
+    { label: 'Gem pool', value: totalGemPool.toLocaleString(), detail: 'visible upside' }
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -89,10 +103,28 @@ export default function Earn() {
 
   return (
     <div className="space-y-6">
+      <OpportunitySurface
+        eyebrow="Discover"
+        title="Find campaigns you can actually complete, prove, and earn from."
+        description="Browse the opportunity market by reward, difficulty, proof requirement, deadline, and creator. The strongest campaign details stay intact; this layer makes them easier to compare and act on."
+        primaryAction={{ label: 'Show all opportunities', onClick: () => {
+          setSearchTerm('');
+          setSelectedDropType('');
+          setSelectedDifficulty('');
+        } }}
+        secondaryAction={userData && userData.user_type === 'advertiser' ? { label: 'Create campaign', onClick: () => setShowCreateForm(true) } : undefined}
+        signals={discoverSignals}
+      >
+        <div className="rounded-2xl bg-white/10 p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Filter result</p>
+          <p className="mt-2 text-sm font-bold leading-6 text-slate-200">{filteredDrops.length} matching opportunities</p>
+        </div>
+      </OpportunitySurface>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Earn</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Discover opportunities</h1>
           <p className="text-gray-600 mt-2">Turn your social influence into real-world value with our verified campaign network.</p>
         </div>
         {userData && userData.user_type === 'advertiser' && (
@@ -104,6 +136,37 @@ export default function Earn() {
             <span>Create Campaign</span>
           </button>
         )}
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <ReceiptCard
+          icon={Search}
+          label="Browse"
+          title="Search and filter"
+          description="Keep drop type and difficulty controls visible before users enter detail pages."
+          tone="blue"
+        />
+        <ReceiptCard
+          icon={Shield}
+          label="Prove"
+          title="Proof campaigns"
+          description="Free proof drops help users build trust and unlock Master Key progress."
+          tone="green"
+        />
+        <ReceiptCard
+          icon={Diamond}
+          label="Earn"
+          title="Gem rewards"
+          description="Paid drops make the value exchange explicit before a user applies."
+          tone="purple"
+        />
+        <ReceiptCard
+          icon={Target}
+          label="Sponsor"
+          title="Advertiser creation"
+          description="The existing proof, paid, and move campaign form remains available for advertisers."
+          tone="orange"
+        />
       </div>
 
       {/* Filters */}
