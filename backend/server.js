@@ -179,6 +179,7 @@ app.use('/api/events', require('./api/events'));
 
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/pioneer-points', require('./api/pioneer-points'));
+app.use('/api/missions', require('./api/missions'));
 app.use('/api/coupons', require('./api/coupons'));
 app.use('/api/offers', require('./api/offers'));
 app.use('/api/notifications', require('./api/notifications'));

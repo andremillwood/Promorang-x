@@ -29,6 +29,7 @@ import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
 import { MomentSocialArtifact } from "@/components/social/MomentSocialArtifact";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
 import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
+import { MissionRail } from "@/components/missions/MissionRail";
 import {
   ArrowLeft,
   Calendar,
@@ -820,6 +821,13 @@ const MomentDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8">
+            {!isDemo && moment?.id ? (
+              <MissionRail
+                momentId={moment.id}
+                signedIn={Boolean(user)}
+                onSignIn={() => navigate(`/auth?mode=signin&next=/moments/${moment.id}`)}
+              />
+            ) : null}
             {/* Back and Actions */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button variant="ghost" className="w-fit" onClick={() => navigate(-1)}>

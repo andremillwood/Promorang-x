@@ -6,6 +6,7 @@
 const cron = require('node-cron');
 const emailCampaignService = require('../services/emailCampaignService');
 const adminDigestService = require('../services/adminDigestService');
+const revenueLifecycleEmailService = require('../services/revenueLifecycleEmailService');
 const { supabase } = require('../lib/supabase');
 
 async function runOnboardingJob() {
@@ -94,6 +95,13 @@ async function runAdminDigestJob() {
     return result;
 }
 
+async function runRevenueLifecycleJob() {
+    console.log('[Email Scheduler] Running revenue lifecycle job...');
+    const result = await revenueLifecycleEmailService.processDueJobs();
+    console.log(`[Email Scheduler] Revenue lifecycle: ${result.sent || 0} sent, ${result.cancelled || 0} cancelled`);
+    return result;
+}
+
 async function runDailyMaintenance(options = {}) {
     const now = options.now ? new Date(options.now) : new Date();
     const shouldRunWeeklyDigest = options.forceWeeklyDigest || now.getUTCDay() === 0;
@@ -103,6 +111,7 @@ async function runDailyMaintenance(options = {}) {
         ['onboarding', runOnboardingJob],
         ['reengagement', runReEngagementJob],
         ['streakWarning', runStreakWarningJob],
+        ['revenueLifecycle', runRevenueLifecycleJob],
         ['adminDigest', runAdminDigestJob],
     ];
 
@@ -268,6 +277,7 @@ async function runManually(jobName) {
         streakwarning: runStreakWarningJob,
         weeklydigest: runWeeklyDigestJob,
         admindigest: runAdminDigestJob,
+        revenuelifecycle: runRevenueLifecycleJob,
         daily: () => runDailyMaintenance({ forceWeeklyDigest: false }),
     };
 

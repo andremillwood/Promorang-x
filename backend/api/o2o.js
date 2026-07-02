@@ -25,6 +25,8 @@ const DEMO_O2O_FEED = [
     },
     o2o_conversion_rate: 8.4,
     is_sponsored: true,
+    archetype: 'aura',
+    camera_consent: 'ask_first',
     content: {
       id: 'demo-content-1',
       title: 'Sydney Secret: The Hidden Roast Route',
@@ -55,6 +57,8 @@ const DEMO_O2O_FEED = [
     },
     o2o_conversion_rate: 11.2,
     is_sponsored: false,
+    archetype: 'signal',
+    camera_consent: null,
     content: {
       id: 'demo-content-2',
       title: 'Plaza Sessions Episode 04',
@@ -190,8 +194,6 @@ async function getActiveMomentRows() {
   return result.data || [];
 }
 
-router.use(requireAuth);
-
 router.get('/feed', async (req, res) => {
   try {
     if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
@@ -212,7 +214,7 @@ router.get('/feed', async (req, res) => {
     const contentIds = [...new Set(links.map((link) => link.content_item_id))];
     const momentIds = [...new Set(links.map((link) => link.moment_id))];
 
-    const [{ data: contentItems, error: contentError }, { data: moments, error: momentsError }] = await Promise.all([
+    const [{ data: contentItems, error: contentError }, { data: moments, error: momentsError }, missionResult] = await Promise.all([
       supabase
         .from('content_items')
         .select('id, title, description, platform, media_url')
@@ -222,10 +224,17 @@ router.get('/feed', async (req, res) => {
         .select('id, title, venue_name, location, pulse_state, reward, starts_at, gathering_threshold, is_active')
         .in('id', momentIds)
         .eq('is_active', true),
+      supabase
+        .from('content_missions')
+        .select('id,moment_id,archetype,camera_consent,action_text,proof_type,reward_value,participant_limit')
+        .in('moment_id', momentIds)
+        .eq('status', 'live')
+        .order('created_at', { ascending: false }),
     ]);
 
     if (contentError) throw contentError;
     if (momentsError) throw momentsError;
+    if (missionResult.error && !isSchemaCompatibilityError(missionResult.error)) throw missionResult.error;
 
     const normalizedContentItems = (contentItems || []).map((item) => ({
       ...item,
@@ -234,7 +243,10 @@ router.get('/feed', async (req, res) => {
       platform_url: item.media_url || 'https://promorang.co',
     }));
 
-    const feed = buildO2OFeedPayload(links, normalizedContentItems, moments || []);
+    const feed = buildO2OFeedPayload(links, normalizedContentItems, moments || []).map((item) => {
+      const mission = (missionResult.data || []).find((row) => row.moment_id === item.moment.id);
+      return mission ? { ...item, ...mission, id: item.id, content_mission_id: mission.id } : item;
+    });
     res.json({ success: true, feed });
   } catch (error) {
     console.error('[O2O API] feed error:', error);
@@ -284,18 +296,34 @@ router.get('/missions/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Mission not found' });
     }
 
-    const [mission] = buildO2OFeedPayload([link], [{
+    const [missionBase] = buildO2OFeedPayload([link], [{
       ...content,
       creator_name: 'Promorang Creator',
       creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
       platform_url: content.media_url || 'https://promorang.co',
     }], [moment]);
+    const { data: contentMission, error: contentMissionError } = await supabase
+      .from('content_missions')
+      .select('id,archetype,camera_consent,action_text,qualification_text,proof_type,reward_value,participant_limit')
+      .eq('moment_id', link.moment_id)
+      .eq('status', 'live')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (contentMissionError && !isSchemaCompatibilityError(contentMissionError)) throw contentMissionError;
+    const mission = contentMission
+      ? { ...missionBase, ...contentMission, id: missionBase.id, content_mission_id: contentMission.id }
+      : missionBase;
     res.json({ success: true, mission });
   } catch (error) {
     console.error('[O2O API] mission detail error:', error);
     res.status(500).json({ success: false, error: error.message || 'Failed to load mission' });
   }
 });
+
+// Mission discovery is public. Authentication begins when a person acts,
+// not while they are deciding whether an opportunity is worth joining.
+router.use(requireAuth);
 
 router.get('/creator-summary', async (req, res) => {
   try {

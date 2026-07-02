@@ -571,6 +571,51 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
     }
   }
 
+  // Keep the first-class mission state and its explicit reward in step with the
+  // existing proof review. Mission reward failures must not invalidate proof.
+  try {
+    const { data: participation } = await supabase
+      .from('mission_participations')
+      .select('id,mission_id,user_id,status,mission:content_missions(*)')
+      .eq('proof_submission_id', data.id)
+      .maybeSingle();
+
+    if (participation) {
+      const verified = nextState === 'verified';
+      await supabase
+        .from('mission_participations')
+        .update({
+          status: verified ? 'verified' : 'rejected',
+          verified_at: verified ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', participation.id);
+
+      const mission = participation.mission;
+      if (verified && mission?.reward_type === 'pioneer_points' && mission.reward_points) {
+        await supabase.rpc('record_pioneer_points', {
+          p_beneficiary_type: 'user',
+          p_beneficiary_id: participation.user_id,
+          p_contributor_type: 'creator',
+          p_event_type: 'content_mission',
+          p_source_type: 'mission_participations',
+          p_source_id: participation.id,
+          p_idempotency_key: `content-mission:${participation.id}`,
+          p_metadata: { mission_id: mission.id, moment_id: mission.moment_id },
+        });
+      }
+
+      if (verified) {
+        await supabase
+          .from('mission_participations')
+          .update({ status: 'rewarded', rewarded_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq('id', participation.id);
+      }
+    }
+  } catch (missionError) {
+    console.warn('[ProofService] mission completion sync skipped:', missionError.message);
+  }
+
   return {
     submission: data,
     reward,

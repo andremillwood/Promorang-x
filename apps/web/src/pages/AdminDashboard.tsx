@@ -41,9 +41,12 @@ import { AdminPromoPushTab } from "@/components/admin/AdminPromoPushTab";
 import { AdminAccessRulesTab } from "@/components/admin/AdminAccessRulesTab";
 import { AdminProofBuilderTab } from "@/components/admin/AdminProofBuilderTab";
 import { AdminPioneerReviewTab } from "@/components/admin/AdminPioneerReviewTab";
+import { AdminCommandCenter } from "@/components/admin/AdminCommandCenter";
+import { AdminAuditTab } from "@/components/admin/AdminAuditTab";
 import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
 
 const ADMIN_TABS = new Set([
+  "command",
   "overview",
   "proof-builder",
   "pioneer",
@@ -55,6 +58,7 @@ const ADMIN_TABS = new Set([
   "payouts",
   "economy",
   "access",
+  "audit",
   "moderation",
   "support",
   "config",
@@ -68,7 +72,7 @@ const AdminDashboard = () => {
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab");
-  const initialTab = requestedTab && ADMIN_TABS.has(requestedTab) ? requestedTab : "proof-builder";
+  const initialTab = requestedTab && ADMIN_TABS.has(requestedTab) ? requestedTab : "command";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   const handleTabChange = (tab: string) => {
@@ -142,7 +146,6 @@ const AdminDashboard = () => {
             ) : (
               [
                 { label: "Active This Week", value: stats?.activeUsersThisWeek || 0, icon: Users, color: "text-emerald-500" },
-                { label: "Moments This Week", value: stats?.momentsThisWeek || 0, icon: Calendar, color: "text-blue-500" },
                 { label: "Total Venues", value: stats?.totalVenues || 0, icon: MapPin, color: "text-orange-500" },
                 { label: "User Growth", value: `${stats?.userGrowth || 0}%`, icon: TrendingUp, color: "text-primary" },
               ].map((stat, index) => (
@@ -160,7 +163,11 @@ const AdminDashboard = () => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <div className="overflow-x-auto pb-2">
-            <TabsList className="grid h-auto min-w-[1320px] w-full max-w-none grid-cols-[repeat(15,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
+            <TabsList className="grid h-auto min-w-[1500px] w-full max-w-none grid-cols-[repeat(17,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
+              <TabsTrigger value="command" className="flex items-center gap-2 text-primary font-bold">
+                <Shield className="w-4 h-4" />
+                Command
+              </TabsTrigger>
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
@@ -205,6 +212,10 @@ const AdminDashboard = () => {
                 <KeyRound className="w-4 h-4" />
                 Access
               </TabsTrigger>
+              <TabsTrigger value="audit" className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Audit
+              </TabsTrigger>
               <TabsTrigger value="moderation" className="flex items-center gap-2">
                 <Scale className="w-4 h-4" />
                 Moderation
@@ -227,6 +238,10 @@ const AdminDashboard = () => {
               </TabsTrigger>
             </TabsList>
             </div>
+
+            <TabsContent value="command">
+              <AdminCommandCenter />
+            </TabsContent>
 
             <TabsContent value="overview">
               <AdminAnalyticsTab />
@@ -269,6 +284,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="access">
               <AdminAccessRulesTab />
+            </TabsContent>
+
+            <TabsContent value="audit">
+              <AdminAuditTab />
             </TabsContent>
 
             <TabsContent value="moderation">

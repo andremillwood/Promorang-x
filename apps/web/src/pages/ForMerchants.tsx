@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
+import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import {
     Store,
     Users,
@@ -118,6 +119,8 @@ const ForMerchants = () => {
                     </div>
                 </div>
             </section>
+
+            <MissionRoleValue audience="merchant" />
 
             <PioneerCallout
                 title="The places that give culture a home belong in the founding record."

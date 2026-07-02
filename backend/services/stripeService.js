@@ -644,7 +644,11 @@ async function createSponsorCheckoutSession(sponsorId, poolId, amount, poolDetai
             cancel_url: `${process.env.FRONTEND_URL || 'https://www.promorang.co'}/sponsor?payment=cancel&pool_id=${poolId}`,
             metadata: {
                 sponsor_id: sponsorId,
+                user_id: sponsorId,
                 pool_id: poolId,
+                revenue_funnel: 'sponsorship',
+                entity_type: 'promoshare_pool',
+                entity_id: poolId,
                 tier: tier || 'weekly',
                 pool_amount: pool_amount?.toString() || '',
                 platform_fee: platform_fee?.toString() || '',
@@ -669,6 +673,20 @@ async function createSponsorCheckoutSession(sponsorId, poolId, amount, poolDetai
                     type: 'promoshare_sponsor_pool',
                 },
             });
+
+        const revenueFunnels = require('./revenueFunnelService');
+        await revenueFunnels.record({
+            userId: sponsorId,
+            funnel: 'sponsorship',
+            stage: 'checkout_started',
+            entityType: 'promoshare_pool',
+            entityId: poolId,
+            provider: 'stripe',
+            providerEventId: session.id,
+            amount,
+            currency: 'USD',
+            idempotencyKey: `stripe:${session.id}:checkout_started`,
+        });
 
         return {
             sessionId: session.id,
@@ -798,6 +816,9 @@ async function createSubscriptionCheckout(userId, tier) {
                 user_id: userId,
                 tier: tier,
                 type: 'promoshare_subscription',
+                revenue_funnel: 'membership',
+                entity_type: 'membership_plan',
+                entity_id: tier,
             },
             subscription_data: {
                 metadata: {
@@ -820,6 +841,20 @@ async function createSubscriptionCheckout(userId, tier) {
                     type: 'promoshare_subscription',
                 },
             });
+
+        const revenueFunnels = require('./revenueFunnelService');
+        await revenueFunnels.record({
+            userId,
+            funnel: 'membership',
+            stage: 'checkout_started',
+            entityType: 'membership_plan',
+            entityId: tier,
+            provider: 'stripe',
+            providerEventId: session.id,
+            amount: tier === 'pro' ? 9.99 : 29.99,
+            currency: 'USD',
+            idempotencyKey: `stripe:${session.id}:checkout_started`,
+        });
 
         return {
             sessionId: session.id,

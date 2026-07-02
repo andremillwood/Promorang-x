@@ -547,6 +547,8 @@ const featuredMarketplaceService = {
                 metadata: {
                     booking_id: bookingId,
                     user_id: userId,
+                    revenue_funnel: 'featured',
+                    entity_type: 'featured_placement',
                     placement_type: booking.placement_type,
                     entity_type: booking.entity_type,
                     entity_id: booking.entity_id,
@@ -585,6 +587,20 @@ const featuredMarketplaceService = {
                     status: 'pending',
                     created_at: new Date().toISOString()
                 });
+
+            const revenueFunnels = require('./revenueFunnelService');
+            await revenueFunnels.record({
+                userId,
+                funnel: 'featured',
+                stage: 'checkout_started',
+                entityType: 'featured_placement',
+                entityId: bookingId,
+                provider: 'stripe',
+                providerEventId: session.id,
+                amount: booking.total_amount,
+                currency: 'USD',
+                idempotencyKey: `stripe:${session.id}:checkout_started`,
+            });
 
             return {
                 success: true,

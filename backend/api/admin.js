@@ -9,6 +9,21 @@ const simpleKYCService = require('../services/simpleKYCService');
 router.use(requireAuth);
 router.use(requireAdmin);
 
+router.get('/audit', requireMasterAdmin, async (req, res) => {
+    try {
+        const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
+        const { data, error } = await supabase
+            .from('admin_audit_log')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        if (error) throw error;
+        res.json({ events: data || [] });
+    } catch (error) {
+        res.status(500).json({ error: error.message || 'Failed to load admin audit history' });
+    }
+});
+
 /**
  * GET /api/admin/pioneer-events
  * Review queue and audit history for Pioneer contribution receipts.

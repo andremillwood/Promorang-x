@@ -40,6 +40,14 @@ async function grantRole(userId, role, grantedBy = null) {
 
     if (error) throw new Error(`Failed to grant role: ${error.message}`);
 
+    await supabase.from('admin_audit_log').insert({
+        actor_id: grantedBy,
+        action: 'role.granted',
+        target_type: 'user',
+        target_id: userId,
+        metadata: { role }
+    });
+
     console.log(`[RoleService] Granted ${role} to user ${userId}`);
     return { success: true };
 }
@@ -47,7 +55,7 @@ async function grantRole(userId, role, grantedBy = null) {
 /**
  * Revoke a role from a user
  */
-async function revokeRole(userId, role, reason = null) {
+async function revokeRole(userId, role, reason = null, revokedBy = null) {
     const { error } = await supabase
         .rpc('revoke_user_role', {
             p_user_id: userId,
@@ -56,6 +64,15 @@ async function revokeRole(userId, role, reason = null) {
         });
 
     if (error) throw new Error(`Failed to revoke role: ${error.message}`);
+
+    await supabase.from('admin_audit_log').insert({
+        actor_id: revokedBy,
+        action: 'role.revoked',
+        target_type: 'user',
+        target_id: userId,
+        reason,
+        metadata: { role }
+    });
 
     console.log(`[RoleService] Revoked ${role} from user ${userId}`);
     return { success: true };

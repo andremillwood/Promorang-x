@@ -299,8 +299,9 @@ app.use('/api/campaigns', require('./campaigns'));
 // app.use('/api/leaderboard', require('./leaderboard'));
 app.use('/api/rewards', require('./rewards'));
 app.use('/api/pioneer-points', require('./pioneer-points'));
+app.use('/api/missions', require('./missions'));
 // app.use('/api/withdrawal', require('./withdrawal')); // DISABLED
-app.use('/api/payments', (req, res) => res.status(403).json({ error: 'Service Disabled', message: 'Gem purchasing is currently disabled during platform realignment.' }));
+app.use('/api/payments', require('./payments').router);
 app.use('/api/manychat', require('./manychat'));
 // app.use('/api/marketplace', require('./market')); // MOVED BELOW
 app.use('/api/integrations', requireAuth, require('./integrations'));
@@ -315,6 +316,7 @@ app.post('/api/log-error', errorHandlers.handleLogError);
 app.get('/api/error-logs', errorHandlers.handleGetLogs);
 app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
 app.use('/api/telemetry', require('./telemetry'));
+app.use('/api/revenue-funnels', require('./revenue-funnels'));
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare', require('./promoshare'));

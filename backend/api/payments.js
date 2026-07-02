@@ -266,6 +266,9 @@ router.post('/checkout', requireAuth, async (req, res) => {
         user_id: req.user?.id || null,
         plan_id: normalisedPlanId,
         plan_label: plan_id,
+        revenue_funnel: 'membership',
+        entity_type: 'membership_plan',
+        entity_id: normalisedPlanId,
         ...metadata,
       },
       subscription_data: {
@@ -276,6 +279,20 @@ router.post('/checkout', requireAuth, async (req, res) => {
           ...metadata,
         },
       },
+    });
+
+    const revenueFunnels = require('../services/revenueFunnelService');
+    await revenueFunnels.record({
+      userId: req.user?.id,
+      sessionId: req.body?.session_id,
+      funnel: 'membership',
+      stage: 'checkout_started',
+      entityType: 'membership_plan',
+      entityId: normalisedPlanId,
+      provider: 'stripe',
+      providerEventId: session.id,
+      idempotencyKey: `stripe:${session.id}:checkout_started`,
+      metadata: { checkout_session_id: session.id },
     });
 
     return res.json({
@@ -336,7 +353,8 @@ async function stripeWebhook(req, res) {
   let event;
 
   try {
-    event = Stripe.webhooks.constructEvent(req.body, signature, stripeWebhookSecret);
+    const webhookBody = req.rawBody ? Buffer.from(req.rawBody) : req.body;
+    event = Stripe.webhooks.constructEvent(webhookBody, signature, stripeWebhookSecret);
   } catch (error) {
     console.error('[payments.webhook.stripe] signature verification failed', error.message);
     return res.status(400).send(`Webhook Error: ${error.message}`);
@@ -348,6 +366,24 @@ async function stripeWebhook(req, res) {
         const session = event.data.object;
         const { user_id: metadataUserId, plan_id: metadataPlanId } = session.metadata || {};
         const participantTier = normalizeParticipantTier(metadataPlanId || session.metadata?.plan);
+        const funnel = session.metadata?.revenue_funnel || (participantTier ? 'membership' : null);
+
+        if (funnel) {
+          const revenueFunnels = require('../services/revenueFunnelService');
+          await revenueFunnels.record({
+            userId: metadataUserId,
+            funnel,
+            stage: 'payment_succeeded',
+            entityType: session.metadata?.entity_type || 'checkout_session',
+            entityId: session.metadata?.entity_id || session.id,
+            provider: 'stripe',
+            providerEventId: event.id,
+            amount: Number(((session.amount_total || 0) / 100).toFixed(2)),
+            currency: session.currency || 'usd',
+            idempotencyKey: `stripe:${event.id}:payment_succeeded`,
+            metadata: { checkout_session_id: session.id, plan_id: metadataPlanId || null },
+          });
+        }
 
         console.log('[payments.webhook.stripe] checkout.session.completed', {
           id: session.id,
@@ -432,6 +468,29 @@ async function stripeWebhook(req, res) {
         break;
       }
 
+      case 'checkout.session.expired':
+      case 'payment_intent.payment_failed': {
+        const object = event.data.object;
+        const funnel = object.metadata?.revenue_funnel;
+        if (funnel) {
+          const revenueFunnels = require('../services/revenueFunnelService');
+          await revenueFunnels.record({
+            userId: object.metadata?.user_id || null,
+            funnel,
+            stage: 'payment_failed',
+            entityType: object.metadata?.entity_type || object.object,
+            entityId: object.metadata?.entity_id || object.id,
+            provider: 'stripe',
+            providerEventId: event.id,
+            amount: Number((((object.amount || object.amount_total) || 0) / 100).toFixed(2)),
+            currency: object.currency || 'usd',
+            idempotencyKey: `stripe:${event.id}:payment_failed`,
+            metadata: { reason: event.type },
+          });
+        }
+        break;
+      }
+
       case 'payment_intent.succeeded': {
         const intent = event.data.object;
         console.log('[payments.webhook.stripe] payment_intent.succeeded', {
@@ -439,6 +498,24 @@ async function stripeWebhook(req, res) {
           amount: intent.amount_received,
           customer: intent.customer,
         });
+
+        const revenueFunnel = intent.metadata?.revenue_funnel;
+        if (revenueFunnel) {
+          const revenueFunnels = require('../services/revenueFunnelService');
+          await revenueFunnels.record({
+            userId: await resolveUserIdForPaymentIntent(intent),
+            funnel: revenueFunnel,
+            stage: 'payment_succeeded',
+            entityType: intent.metadata?.entity_type || 'payment_intent',
+            entityId: intent.metadata?.entity_id || intent.id,
+            provider: 'stripe',
+            providerEventId: event.id,
+            amount: Number(((intent.amount_received || intent.amount || 0) / 100).toFixed(2)),
+            currency: intent.currency || 'usd',
+            idempotencyKey: `stripe:${event.id}:payment_succeeded`,
+            metadata: { payment_intent_id: intent.id },
+          });
+        }
 
         try {
           const momentEconomyService = require('../services/momentEconomyService');
@@ -492,6 +569,8 @@ async function stripeWebhook(req, res) {
 
   res.json({ received: true });
 }
+
+router.post('/webhook/stripe', stripeWebhook);
 
 module.exports = {
   router,

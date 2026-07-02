@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
+import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 
 const creatorBenefits = [
@@ -138,6 +139,8 @@ const ForCreators = () => {
           </div>
         </div>
       </section>
+
+      <MissionRoleValue audience="creator" />
 
       <PioneerCallout
         title="The creators who move people early should have a record."

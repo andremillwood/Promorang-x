@@ -93,6 +93,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return availableRoles[0] ?? null;
   };
 
+  const isMasterAdminAccount = (sessionUser: User, userProfile?: any) => {
+    const metadataRoles = [
+      (sessionUser.app_metadata as any)?.role,
+      (sessionUser.user_metadata as any)?.role,
+      userProfile?.role,
+      userProfile?.user_type,
+    ]
+      .map((role) => String(role || "").toLowerCase().trim());
+
+    return metadataRoles.includes("master_admin") ||
+      sessionUser.email?.trim().toLowerCase() === "andremillwood@gmail.com";
+  };
+
   // Sync activeRole with storage-backed preference whenever the available role
   // set changes.
   useEffect(() => {
@@ -312,7 +325,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (
         rawRoles.includes("master_admin") ||
         (sessionUser?.app_metadata as any)?.role === "master_admin" ||
-        (sessionUser?.user_metadata as any)?.role === "master_admin"
+        (sessionUser?.user_metadata as any)?.role === "master_admin" ||
+        sessionUser?.email?.trim().toLowerCase() === "andremillwood@gmail.com"
       ) {
         return MASTER_ADMIN_WORKSPACE_ROLES;
       }
@@ -341,15 +355,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // the current session user and explicitly reconciles role + org state.
   useEffect(() => {
     const syncSessionContext = async (sessionUser: User) => {
-      const [fetchedRoles] = await Promise.all([
+      const [fetchedRoles, fetchedProfile] = await Promise.all([
         fetchUserRoles(sessionUser.id, sessionUser),
         fetchUserProfile(sessionUser.id),
       ]);
 
       setRoles(fetchedRoles);
-      const preferredRole = resolvePreferredRole(fetchedRoles);
+      // A stale role preference must never make a platform owner land in an
+      // ordinary user workspace after signing in. They can still switch roles
+      // explicitly once the admin workspace has loaded.
+      const masterAdmin = isMasterAdminAccount(sessionUser, fetchedProfile);
+      const preferredRole = masterAdmin && fetchedRoles.includes("admin")
+        ? "admin"
+        : resolvePreferredRole(fetchedRoles);
       if (preferredRole) {
         setActiveRoleState(preferredRole);
+        localStorage.setItem("promorang_active_role", preferredRole);
       }
       await fetchUserOrganizations(sessionUser.id, preferredRole);
     };

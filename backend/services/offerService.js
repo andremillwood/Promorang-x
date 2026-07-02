@@ -186,6 +186,16 @@ async function claimIssuance(userId, issuanceId) {
   const { data, error: updateError } = await supabase.from('offer_issuances').update({ status: nextStatus, claimed_at: new Date().toISOString(), fulfillment_data: fulfillmentData }).eq('id', issuanceId).select('*, offers(*)').single();
   if (updateError) throw updateError;
   await supabase.from('offer_redemption_events').insert({ issuance_id: issuanceId, event_type: 'claimed', actor_user_id: userId });
+  const revenueFunnels = require('./revenueFunnelService');
+  await revenueFunnels.record({
+    userId,
+    funnel: 'marketplace',
+    stage: nextStatus === 'fulfillment_pending' ? 'qualified' : 'fulfilled',
+    entityType: 'offer_issuance',
+    entityId: issuanceId,
+    idempotencyKey: `offer:${issuanceId}:${nextStatus}`,
+    metadata: { offer_id: issuance.offer_id, fulfillment_type: issuance.offers.fulfillment_type },
+  });
   return data;
 }
 
@@ -210,6 +220,16 @@ async function redeemByCode(actorUserId, redemptionCode, venueId, notes) {
     supabase.from('offers').update({ quantity_reserved: Math.max(0, offer.quantity_reserved - 1), quantity_redeemed: offer.quantity_redeemed + 1 }).eq('id', offer.id),
     supabase.from('offer_redemption_events').insert({ issuance_id: issuance.id, event_type: 'redeemed', actor_user_id: actorUserId, venue_id: venueId || null, notes: notes || null }),
   ]);
+  const revenueFunnels = require('./revenueFunnelService');
+  await revenueFunnels.record({
+    userId: issuance.user_id,
+    funnel: 'marketplace',
+    stage: 'fulfilled',
+    entityType: 'offer_issuance',
+    entityId: issuance.id,
+    idempotencyKey: `offer:${issuance.id}:redeemed`,
+    metadata: { offer_id: offer.id, venue_id: venueId || null },
+  });
   return data;
 }
 

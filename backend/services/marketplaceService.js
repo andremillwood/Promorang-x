@@ -64,25 +64,9 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             );
 
         } else if (method === 'cash') {
-            if (unitPrice <= 0) {
-                throw new Error('Product does not have a cash price');
-            }
-
-            const totalAmount = unitPrice * quantity;
-            const platformFee = Number((totalAmount * PLATFORM_COMMISSION_RATE).toFixed(2));
-            const merchantPayout = Number((totalAmount - platformFee).toFixed(2));
-            
-            amount = totalAmount;
-            currency = 'USD';
-
-            // Process Stripe payment
-            console.log(`[Marketplace Payment] User ${userId} paid $${totalAmount} for ${product.name}`);
-            console.log(`[Marketplace Fee] Platform fee: $${platformFee}, Merchant payout: $${merchantPayout}`);
-            
-            // Track platform revenue from this transaction
-            if (revenueService.trackRevenue) {
-                await revenueService.trackRevenue(platformFee, `marketplace_${productId}`, 'marketplace_commission');
-            }
+            // Cash orders must only be completed by a verified Stripe webhook.
+            // The previous implementation logged a payment without charging a card.
+            throw new Error('Cash checkout must be completed through Stripe before order fulfillment');
         } else {
             throw new Error('Invalid payment method');
         }
@@ -153,6 +137,19 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             redemption_code: redemptionCode,
             message: method === 'points' ? 'Redemption successful!' : 'Purchase successful!'
         };
+
+        const revenueFunnels = require('./revenueFunnelService');
+        await revenueFunnels.record({
+            userId,
+            funnel: 'marketplace',
+            stage: 'fulfilled',
+            entityType: 'marketplace_transaction',
+            entityId: transaction?.id || productId,
+            amount,
+            currency,
+            idempotencyKey: transaction?.id ? `marketplace:${transaction.id}:fulfilled` : null,
+            metadata: { product_id: productId, quantity, payment_method: method },
+        });
         
         // Include financial breakdown for cash purchases
         if (method === 'cash') {

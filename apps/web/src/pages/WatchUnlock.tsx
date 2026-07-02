@@ -1,11 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, Sparkles, ExternalLink, MapPin, Activity, ArrowRight } from "lucide-react";
+import { PlayCircle, Sparkles, ExternalLink, MapPin, Activity, ArrowRight, KeyRound, Coins, ShieldCheck, Clock3 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
+import SEO from "@/components/SEO";
+import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -16,17 +18,19 @@ const pulseTone = {
   cooling: "bg-amber-500/10 text-amber-600 border border-amber-500/20",
 } as const;
 
+const formatMissionDate = (value: string) =>
+  new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+
 const WatchUnlock = () => {
-  const { user, session } = useAuth();
+  const { user, session, profile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedRole = searchParams.get("role") as MissionArchetype | null;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["o2o-feed", user?.id],
-    enabled: !!user && !!session,
     queryFn: async () => {
       const response = await fetch(`${API_URL}/api/o2o/feed`, {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
 
       const payload = await response.json();
@@ -38,63 +42,106 @@ const WatchUnlock = () => {
     },
   });
 
-  if (!user) {
-    return (
-      <main className="mx-auto max-w-4xl space-y-6">
-        <div className="rounded-3xl border border-border bg-card p-8 text-center">
-          <PlayCircle className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-4 font-serif text-3xl font-bold">Watch & Unlock</h1>
-          <p className="mt-2 text-muted-foreground">
-            Discover creator stories that open real-world moments, perks, and collectible memories.
-          </p>
-          <Button asChild variant="hero" className="mt-6">
-            <Link to="/auth">Sign In</Link>
-          </Button>
-        </div>
-      </main>
-    );
-  }
-
-  const feed = data || [];
+  const allFeed = data || [];
+  const feed = selectedRole ? allFeed.filter((item: any) => item.archetype === selectedRole) : allFeed;
+  const points = Number(profile?.points_balance || 0);
+  const keys = Number(profile?.keys_balance || 0);
+  const pointsPerKey = 500;
+  const keyProgress = Math.min((points / pointsPerKey) * 100, 100);
+  const openMissions = feed.filter((item: any) => !item.is_sponsored);
+  const keyMissions = feed.filter((item: any) => item.is_sponsored);
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 text-white sm:space-y-8">
+      <SEO
+        title={selectedRole ? `${MISSION_ARCHETYPES[selectedRole]?.label || "Role"} Missions` : "Browse Missions"}
+        description={selectedRole ? MISSION_ARCHETYPES[selectedRole]?.description || "Choose a role and move a real-world Moment." : "Browse open and Key Missions. Choose a role, complete the action, prove your contribution, and unlock what comes next."}
+        url={`https://promorang.co/missions${selectedRole ? `?role=${selectedRole}` : ""}`}
+      />
       <section className="relative min-h-[460px] overflow-hidden rounded-3xl border border-white/10 bg-black">
         <img src={cultureEvents[1]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/82 to-black/20" />
         <div className="relative flex min-h-[460px] items-end p-6 sm:p-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><PlayCircle className="h-3.5 w-3.5" /> Creator missions</div>
-            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Take the signal.<br /><span className="text-primary">Make it real.</span></h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Watch the story, complete the action, prove what happened, and unlock the reward, status, or memory attached to your movement.</p>
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><PlayCircle className="h-3.5 w-3.5" /> Missions · proof · access</div>
+            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Make a move.<br /><span className="text-primary">Open what’s next.</span></h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Open Missions build your Points. Points earn Keys. Keys reserve the limited opportunities worth showing up for.</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild><a href="#mission-board">Browse missions <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
-              <Button asChild variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white"><Link to="/pulse">See what is live</Link></Button>
+              <Button asChild variant="outline" className="border-white/20 bg-black/30 text-white hover:bg-white/10 hover:text-white">
+                <Link to={user ? "/pulse" : "/auth"}>{user ? "See what is live" : "Join Promorang"}</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <div id="mission-board" className="grid scroll-mt-24 gap-4 md:grid-cols-3">
+      <section id="mission-board" className="scroll-mt-24 overflow-hidden rounded-3xl border border-white/10 bg-zinc-950">
+        <div className="grid lg:grid-cols-[1.25fr_.75fr]">
+          <div className="border-b border-white/10 p-6 sm:p-8 lg:border-b-0 lg:border-r">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Your mission runway</p>
+            <div className="mt-5 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2">
+              {[
+                { icon: Activity, label: "Do", value: "Open missions" },
+                { icon: Coins, label: "Build", value: "Points" },
+                { icon: KeyRound, label: "Open", value: "Key missions" },
+              ].map((step, index) => (
+                <div className="contents" key={step.label}>
+                  <div className={`rounded-2xl border p-3 sm:p-4 ${index === 2 ? "border-primary/30 bg-primary/10" : "border-white/10 bg-white/[0.04]"}`}>
+                    <step.icon className={`h-4 w-4 ${index === 2 ? "text-primary" : "text-white/45"}`} />
+                    <p className="mt-4 text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{step.label}</p>
+                    <p className="mt-1 text-xs font-bold sm:text-sm">{step.value}</p>
+                  </div>
+                  {index < 2 && <ArrowRight className="h-4 w-4 text-white/20" />}
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 text-sm leading-6 text-white/45">You never need a Key to begin. Complete an open mission, submit proof, and your progress carries into better access.</p>
+          </div>
+          <div className="p-6 sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/35">Ready to use</p>
+                <p className="mt-2 flex items-center gap-2 text-4xl font-black"><KeyRound className="h-6 w-6 text-primary" />{user ? keys : "—"}</p>
+                <p className="mt-1 text-xs text-white/40">{user ? "Access Keys" : "Sign in to see your Keys"}</p>
+              </div>
+              <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-300">Earned access</div>
+            </div>
+            {user ? <div className="mt-6">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold">{points.toLocaleString()} Points</span>
+                <span className="text-white/35">{Math.max(pointsPerKey - points, 0).toLocaleString()} to next Key</span>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-primary" style={{ width: `${keyProgress}%` }} /></div>
+            </div> : <Button asChild className="mt-6 w-full"><Link to="/auth">Start with an open mission <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>}
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Hybrid missions</p>
-          <p className="mt-2 text-3xl font-black">{isLoading ? "..." : feed.length}</p>
-          <p className="mt-1 text-sm text-white/45">Active stories with a physical unlock path.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Open missions</p>
+          <p className="mt-2 text-3xl font-black">{isLoading ? "..." : openMissions.length}</p>
+          <p className="mt-1 text-sm text-white/45">Free ways to build proof and Points.</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-700/80">Sponsored momentum</p>
-          <p className="mt-2 text-3xl font-black">
-            {isLoading ? "..." : feed.filter((item: any) => item.is_sponsored).length}
-          </p>
-          <p className="mt-1 text-sm text-white/45">Brand-backed drops tying story to real action.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-300/80">Key opportunities</p>
+          <p className="mt-2 text-3xl font-black">{isLoading ? "..." : keyMissions.length}</p>
+          <p className="mt-1 text-sm text-white/45">Limited, backed opportunities worth saving for.</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Journey</p>
-          <p className="mt-2 text-sm font-medium text-white/65">
-            Watch → Move → Verify → Unlock.
-          </p>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">The promise</p>
+          <p className="mt-2 flex items-center gap-2 text-sm font-medium text-white/65"><ShieldCheck className="h-4 w-4 text-emerald-400" /> Keys reserve access—not a chance to apply.</p>
         </div>
       </div>
+
+      <section aria-label="Filter missions by role" className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button onClick={() => setSearchParams({})} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${!selectedRole ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/50"}`}>All roles</button>
+        {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
+          const RoleIcon = role.icon;
+          return <button key={id} onClick={() => setSearchParams({ role: id })} className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${selectedRole === id ? role.tone : "border-white/10 bg-white/[0.04] text-white/50 hover:text-white"}`}><RoleIcon className="h-3.5 w-3.5" />{role.label}</button>;
+        })}
+      </section>
 
       {error ? (
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-5 text-sm text-destructive">
@@ -113,15 +160,19 @@ const WatchUnlock = () => {
       ) : feed.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card/50 p-10 text-center">
           <Sparkles className="mx-auto h-10 w-10 text-primary" />
-          <h2 className="mt-4 font-serif text-2xl font-bold">No content missions live yet</h2>
+          <h2 className="mt-4 font-serif text-2xl font-bold">{selectedRole ? `No ${MISSION_ARCHETYPES[selectedRole]?.label} Missions live yet` : "No Missions live yet"}</h2>
           <p className="mt-2 text-muted-foreground">
-            Creator-linked moments have not been connected yet. When they are, this is where digital-to-physical drops will appear.
+            {selectedRole ? "Try another role while this one is being prepared." : "Creator-linked Moments have not been connected yet. When they are, this is where digital-to-physical drops will appear."}
           </p>
+          {selectedRole ? <Button className="mt-5" variant="outline" onClick={() => setSearchParams({})}>See all Missions</Button> : null}
         </div>
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           {feed.map((item: any) => {
             const pulseClass = pulseTone[(item.moment?.pulse_state as keyof typeof pulseTone) || "dormant"];
+            const isKeyMission = Boolean(item.is_sponsored);
+            const archetype = MISSION_ARCHETYPES[(item.archetype as MissionArchetype) || "side_quest"];
+            const ArchetypeIcon = archetype.icon;
 
             return (
               <article key={item.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-soft">
@@ -133,6 +184,10 @@ const WatchUnlock = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                    <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{archetype.label}</Badge>
+                    <Badge className={isKeyMission ? "border border-amber-300/30 bg-black/70 text-amber-200 backdrop-blur" : "border border-white/15 bg-black/70 text-white backdrop-blur"}>
+                      {isKeyMission ? <><KeyRound className="mr-1 h-3 w-3" /> Key opportunity</> : "Open mission"}
+                    </Badge>
                     <Badge className="bg-black/60 text-white backdrop-blur">
                       {item.content?.platform || "content"}
                     </Badge>
@@ -163,8 +218,9 @@ const WatchUnlock = () => {
                       </p>
                     </div>
                     <p className="mt-3 text-sm font-medium text-white">
-                      {item.physical_unlock_rules?.summary || "Complete the linked moment to unlock the creator drop."}
+                      {item.action_text || item.physical_unlock_rules?.summary || "Complete the linked Moment to unlock the creator drop."}
                     </p>
+                    {item.camera_consent ? <p className="mt-3 flex items-center gap-2 text-xs text-emerald-200/75"><ShieldCheck className="h-3.5 w-3.5" />Camera: {CAMERA_CONSENT[item.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {(item.entry_action_types || []).map((action: string) => (
                         <span key={action} className="rounded-full bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-white/50">
@@ -182,6 +238,7 @@ const WatchUnlock = () => {
                     <span className="font-medium text-white">
                       {item.moment?.reward || "Memory unlock"}
                     </span>
+                    {item.moment?.starts_at && <span className="flex items-center gap-1.5"><Clock3 className="h-4 w-4 text-primary" />{formatMissionDate(item.moment.starts_at)}</span>}
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -207,8 +264,8 @@ const WatchUnlock = () => {
                       </a>
                     </Button>
                     <Button asChild variant="hero" className="sm:flex-1">
-                      <Link to={`/watch-unlock/${item.id}`}>
-                        Open Mission
+                      <Link to={`/missions/${item.id}`}>
+                        {isKeyMission ? "View Key opportunity" : "Open Mission"}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>

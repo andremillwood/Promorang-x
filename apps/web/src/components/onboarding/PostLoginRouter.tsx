@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
+import { flushMarketingIntent } from "@/lib/marketing-attribution";
 
 /**
  * Post-Login Router
@@ -16,6 +17,7 @@ export function PostLoginRouter() {
     if (loading || !user) return;
 
     const determineLandingPage = async () => {
+      await flushMarketingIntent().catch(() => undefined);
       const requestedNext = sessionStorage.getItem("promorang_post_auth_next");
       if (requestedNext?.startsWith("/") && !requestedNext.startsWith("//")) {
         sessionStorage.removeItem("promorang_post_auth_next");
@@ -94,7 +96,7 @@ export function PostLoginRouter() {
       // Role-specific routing
       switch (activeRole) {
         case "admin":
-          navigate("/admin?tab=proof-builder", { replace: true });
+          navigate("/admin?tab=command", { replace: true });
           break;
 
         case "brand":

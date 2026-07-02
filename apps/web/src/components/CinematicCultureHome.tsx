@@ -13,6 +13,15 @@ import {
   Users,
   Utensils,
   Zap,
+  CheckCircle2,
+  Coins,
+  KeyRound,
+  Gift,
+  Building2,
+  Gem,
+  PlayCircle,
+  ShieldCheck,
+  Store,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
@@ -31,6 +40,8 @@ import openMic from "@/assets/moments/open-mic.jpg";
 import streetArt from "@/assets/moments/street-art.jpg";
 import pottery from "@/assets/moments/pottery.jpg";
 import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
+import { MISSION_ARCHETYPES } from "@/lib/mission-archetypes";
+import { rememberMarketingIntent } from "@/lib/marketing-attribution";
 
 const vibeCards = [
   { label: "Music Lover", icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
@@ -78,6 +89,56 @@ const organizerTools = [
   { icon: Heart, title: "Build Scenes", text: "Grow belonging around repeatable moments." },
   { icon: Users, title: "Manage Teams", text: "Organize staff and ambassadors." },
   { icon: Zap, title: "Track Performance", text: "Real-time insight that helps you grow." },
+];
+
+const participationTrail = [
+  { number: "01", label: "Notice", title: "Content gives you a reason to care.", text: "A creator, place, product, or moment catches your attention." },
+  { number: "02", label: "Move", title: "A Mission gives you a useful next move.", text: "Share it, make something, visit, refer, buy, host, or help it happen." },
+  { number: "03", label: "Prove", title: "Promorang records what you contributed.", text: "Check-ins, links, submissions, referrals, and verified actions create a receipt." },
+  { number: "04", label: "Keep", title: "Your contribution can unlock value.", text: "Build status, earn funded rewards, get better invitations, and qualify for future work." },
+];
+
+const roleOffers = [
+  {
+    icon: Users,
+    eyebrow: "I want in",
+    title: "Find something worth doing",
+    promise: "Start with an open Mission. See the action, proof, and possible reward before you join.",
+    value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
+    cta: "Find my first mission",
+    href: "/missions",
+    footnote: "No subscription required",
+  },
+  {
+    icon: PlayCircle,
+    eyebrow: "I make things",
+    title: "Turn attention into movement",
+    promise: "Give your audience a next move and collect proof that your work creates action.",
+    value: ["Publish creator Missions", "Reward useful supporters", "Show brands what moved"],
+    cta: "Build as a creator",
+    href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
+    footnote: "Start with one piece of content",
+  },
+  {
+    icon: Store,
+    eyebrow: "I host people",
+    title: "Make the room easier to fill",
+    promise: "Turn a slow hour, launch, event, or repeat ritual into a trackable Moment.",
+    value: ["Verify visits", "Prompt customer content", "Give people a reason to return"],
+    cta: "Create a Moment",
+    href: "/auth?mode=signup&role=merchant&next=/create/moment",
+    footnote: "A first Moment can start free",
+  },
+  {
+    icon: Building2,
+    eyebrow: "I need an outcome",
+    title: "Fund action you can verify",
+    promise: "Set the result, fund the pool, and see who created the visits, content, referrals, or sales.",
+    value: ["Choose one outcome", "Set a clear budget", "Pay around verified activity"],
+    cta: "Plan a brand activation",
+    href: "/auth?mode=signup&role=brand&next=%2Foffers%3Ftemplate%3Dpromoshare-funded-cycle",
+    footnote: "Scale after the first result",
+  },
 ];
 
 function SectionHeader({
@@ -148,24 +209,30 @@ export default function CinematicCultureHome() {
               <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,106,0,0.35)]">bigger</span>
             </h1>
             <p className="mt-7 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Discover moments, scenes, creators, and culture happening around you. Show up, prove the moment, and unlock what comes next.
+              Find content worth acting on. Complete Missions online or in real life. Build proof, earn access, and keep more of the value you help create.
+            </p>
+            <p className="mt-4 max-w-xl text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              Content → Action → Proof → Value
             </p>
             <div className="mt-9 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
               <Link
-                to="/auth"
+                to="/missions"
+                onClick={() => rememberMarketingIntent("hero_first_mission", "/missions", "participant")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-xl bg-primary px-5 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,106,0,0.25)] transition hover:bg-primary/90 sm:px-6 sm:text-sm"
               >
-                Join the movement
+                Find my first mission
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
-                to="/discover/moments"
+                to="/economy"
+                onClick={() => rememberMarketingIntent("hero_economy_explainer", "/economy")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-xl border border-white/25 bg-black/30 px-5 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white transition hover:border-primary hover:text-primary sm:px-6 sm:text-sm"
               >
-                Discover moments
+                See how value moves
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
+            <p className="mt-3 text-xs text-white/45">Open Missions cost nothing to begin. You see the proof requirement before you join.</p>
           </div>
 
           <div className="mt-12 w-full max-w-xs border-l border-white/20 pl-5 text-sm text-white/75 lg:absolute lg:bottom-28 lg:right-16">
@@ -183,6 +250,80 @@ export default function CinematicCultureHome() {
         </div>
       </section>
 
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#080808]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(255,106,0,0.14),transparent_28%),radial-gradient(circle_at_88%_65%,rgba(255,106,0,0.08),transparent_24%)]" />
+        <div className="container relative px-6 py-16 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The Participation Economy</p>
+              <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
+                You already help things grow. <span className="text-primary">Keep the receipt.</span>
+              </h2>
+            </div>
+            <div className="max-w-2xl lg:justify-self-end">
+              <p className="text-lg leading-8 text-white/72">
+                A recommendation fills a table. A share sells a ticket. A customer video moves a product. Promorang connects the person who caused the action to the outcome they helped create.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["Social discovery", "Creator content", "Commerce", "IRL proof", "Funded rewards"].map((item) => (
+                  <span key={item} className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/55">{item}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 md:grid-cols-4">
+            {participationTrail.map((step, index) => (
+              <article key={step.number} className="group relative bg-[#0c0c0c] p-6 md:min-h-[280px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-primary">{step.number}</span>
+                  {index < participationTrail.length - 1 ? <ArrowRight className="h-4 w-4 text-white/20" /> : <Gem className="h-5 w-5 text-primary" />}
+                </div>
+                <p className="mt-14 text-[10px] font-black uppercase tracking-[0.22em] text-white/35">{step.label}</p>
+                <h3 className="mt-3 text-xl font-black leading-tight text-white">{step.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-white/48">{step.text}</p>
+                <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-primary transition duration-500 group-hover:scale-x-100" />
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-12 grid gap-6 rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/12 via-white/[0.035] to-transparent p-5 md:grid-cols-[0.9fr_1.1fr] md:p-8">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">An illustrative value receipt</p>
+              <h3 className="mt-3 text-3xl font-black tracking-[-0.04em]">One share. Four arrivals. A contribution someone can see.</h3>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-white/55">
+                Imagine Tia shares a live event through PromoShare. Four friends reserve, three check in, and the host records the result. Promorang can connect her distribution to a real outcome instead of losing it inside a like count.
+              </p>
+              <p className="mt-4 text-xs text-white/35">Illustrative flow. Rewards depend on campaign funding, eligibility, and verified action.</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/50 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Contribution receipt</p>
+                  <p className="mt-1 font-black">@tia moved Joyride Friday</p>
+                </div>
+                <ShieldCheck className="h-7 w-7 text-emerald-400" />
+              </div>
+              <div className="grid grid-cols-3 gap-3 py-5 text-center">
+                {[["12", "link visits"], ["4", "reservations"], ["3", "verified arrivals"]].map(([value, label]) => (
+                  <div key={label} className="rounded-xl bg-white/[0.045] px-2 py-4">
+                    <p className="text-2xl font-black text-white">{value}</p>
+                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/35">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">What Tia keeps</p>
+                  <p className="mt-1 text-sm font-bold">Proof, contributor status, funded eligibility</p>
+                </div>
+                <ArrowRight className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-primary/20 bg-[#0b0907]">
         <Link to="/pioneers" className="container group grid gap-5 px-6 py-8 md:grid-cols-[1fr_auto] md:items-center">
           <div>
@@ -192,6 +333,148 @@ export default function CinematicCultureHome() {
           </div>
           <span className="inline-flex items-center gap-2 text-sm font-black text-primary">Enter Genesis Season<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
         </Link>
+      </section>
+
+      <section className="relative overflow-hidden border-b border-white/10 bg-zinc-950">
+        <img src={momentArt} alt="" className="absolute inset-y-0 right-0 h-full w-full object-cover opacity-20 md:w-1/2 md:opacity-45" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/50" />
+        <div className="container relative z-10 grid gap-10 px-6 py-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:py-24">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Missions · a reason to move</p>
+            <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
+              Don’t just watch culture. <span className="text-primary">Help move it.</span>
+            </h2>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-white/60 md:text-base">
+              A Mission is one clear action with proof and a promised outcome. Start free, build Points through verified contribution, and earn Keys for limited opportunities.
+            </p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link to="/missions" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90">
+                Browse open missions <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/auth" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-6 py-4 text-sm font-black uppercase text-white transition hover:border-primary">
+                Join Promorang
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
+            {[
+              { icon: CheckCircle2, eyebrow: "01 · Act", title: "Choose a Mission", text: "See the action, proof, deadline, and reward before you commit." },
+              { icon: Coins, eyebrow: "02 · Prove", title: "Build Points", text: "Verified participation turns into visible progress—not empty engagement." },
+              { icon: KeyRound, eyebrow: "03 · Unlock", title: "Use Keys", text: "Reserve access to limited drops, experiences, and backed opportunities." },
+            ].map((step, index) => (
+              <div className="contents" key={step.title}>
+                <div className={`min-w-0 rounded-2xl border p-4 backdrop-blur md:p-5 ${index === 2 ? "border-primary/35 bg-primary/10" : "border-white/10 bg-black/45"}`}>
+                  <step.icon className={`h-5 w-5 ${index === 2 ? "text-primary" : "text-white/50"}`} />
+                  <p className="mt-8 text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{step.eyebrow}</p>
+                  <h3 className="mt-2 text-sm font-black leading-tight md:text-lg">{step.title}</h3>
+                  <p className="mt-3 hidden text-xs leading-5 text-white/45 sm:block">{step.text}</p>
+                </div>
+                {index < 2 ? <ArrowRight className="self-center h-4 w-4 text-white/20" /> : null}
+              </div>
+            ))}
+          </div>
+
+          <div className="lg:col-start-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-xs text-white/55">
+              <Gift className="h-4 w-4 text-primary" />
+              Open Missions are always free to begin.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#0a0908]">
+        <div className="container px-6 py-16 md:py-24">
+          <div className="max-w-3xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose the outcome you want</p>
+            <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.06em] md:text-6xl">
+              Start with one useful win.
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/58">
+              Promorang gets easier once you choose what you want to move. Each path begins with a small action and shows you the value before asking for a larger commitment.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {roleOffers.map((offer, index) => (
+              <article
+                key={offer.title}
+                className={`flex min-h-[430px] flex-col rounded-3xl border p-5 ${
+                  index === 0
+                    ? "border-primary/45 bg-gradient-to-b from-primary/16 to-white/[0.035] shadow-[0_28px_80px_rgba(255,106,0,0.08)]"
+                    : "border-white/10 bg-white/[0.035]"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-black/35">
+                    <offer.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30">{offer.eyebrow}</span>
+                </div>
+                <h3 className="mt-8 text-2xl font-black leading-tight tracking-[-0.035em]">{offer.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-white/50">{offer.promise}</p>
+                <ul className="mt-6 space-y-3">
+                  {offer.value.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm text-white/70">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-8">
+                  <Link
+                    to={offer.href}
+                    onClick={() => rememberMarketingIntent(`role_offer_${index + 1}`, offer.href, ["participant", "creator", "merchant", "brand"][index])}
+                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-xs font-black uppercase transition ${index === 0 ? "bg-primary text-white hover:bg-primary/90" : "border border-white/18 bg-black/30 text-white hover:border-primary hover:text-primary"}`}
+                  >
+                    {offer.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <p className="mt-3 text-center text-[10px] font-bold uppercase tracking-wider text-white/28">{offer.footnote}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-black">
+        <div className="container px-6 py-12 md:py-16">
+          <SectionHeader eyebrow="Choose your role" title="How do you move a" accent="Moment?" />
+          <p className="-mt-2 mb-7 max-w-2xl text-sm leading-6 text-white/50">
+            You do not need to perform the same way as everyone else. Find what is forming, bring the people, catch the energy, remix it, or keep the story.
+          </p>
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 scrollbar-none">
+            {Object.entries(MISSION_ARCHETYPES).map(([id, role]) => {
+              const RoleIcon = role.icon;
+              const aura = id === "aura";
+              return (
+                <Link
+                  key={id}
+                  to={`/missions?role=${id}`}
+                  className={`group relative min-w-[74%] snap-start overflow-hidden rounded-2xl border p-5 transition sm:min-w-[280px] ${
+                    aura
+                      ? "border-fuchsia-400/30 bg-gradient-to-br from-fuchsia-500/15 via-white/[0.04] to-primary/15"
+                      : "border-white/10 bg-white/[0.04] hover:border-primary/35"
+                  }`}
+                >
+                  {aura ? <div className="pointer-events-none absolute inset-3 rounded-xl border border-white/10" /> : null}
+                  <div className="relative flex items-start justify-between">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${role.tone}`}>
+                      <RoleIcon className="h-5 w-5" />
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-white/25 transition group-hover:translate-x-1 group-hover:text-primary" />
+                  </div>
+                  <p className="relative mt-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/35">{role.verb}</p>
+                  <h3 className="relative mt-1 text-2xl font-black uppercase tracking-[-0.04em]">{role.label}</h3>
+                  <p className="relative mt-3 text-xs leading-5 text-white/50">{role.description}</p>
+                  {aura ? <p className="relative mt-5 text-[10px] font-bold text-fuchsia-100/70">Camera boundaries are always visible before you join.</p> : null}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       <div className="container px-6 py-12 md:py-16">
@@ -311,6 +594,43 @@ export default function CinematicCultureHome() {
         </div>
       </div>
 
+      <section className="container px-6 py-16 md:py-24">
+        <div className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="p-6 md:p-10 lg:p-14">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">The questions worth asking</p>
+            <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-6xl">
+              Know what counts before you move.
+            </h2>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-white/52">
+              Promorang shows the action, proof requirement, funding source, and possible outcome before you commit. Participation should feel legible.
+            </p>
+            <Link
+              to="/economy"
+              onClick={() => rememberMarketingIntent("objection_economy_explainer", "/economy")}
+              className="mt-8 inline-flex items-center gap-2 rounded-xl border border-white/18 px-5 py-3 text-sm font-black transition hover:border-primary hover:text-primary"
+            >
+              Read the economy guide <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="divide-y divide-white/10 border-t border-white/10 bg-white/[0.025] lg:border-l lg:border-t-0">
+            {[
+              ["Do I have to pay to participate?", "No. Open Missions are free to begin. Paid memberships can add defined allowances and access, but they do not guarantee earnings."],
+              ["Are Gems an investment?", "No. Gems provide utility inside Promorang. Holding them does not promise a return, ownership, or cash appreciation."],
+              ["Who pays for rewards?", "A reward can come from a disclosed brand, host, merchant, creator, or Promorang-funded pool. Unfunded activity cannot become a cash-equivalent promise."],
+              ["How does Promorang know I helped?", "Tracked links, joins, check-ins, submissions, referrals, and reviewable proof connect your contribution to an outcome."],
+            ].map(([question, answer]) => (
+              <details key={question} className="group p-5 open:bg-white/[0.025] md:p-7">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black">
+                  {question}
+                  <span className="text-xl font-light text-primary transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/48">{answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="relative mt-10 overflow-hidden border-y border-white/10 bg-white/[0.03]">
         <img src={momentConcert} alt="" className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-45 md:block" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
@@ -318,9 +638,9 @@ export default function CinematicCultureHome() {
           <div>
             <p className="mb-3 text-[10px] font-black uppercase tracking-[0.22em] text-white/45">For organizers</p>
             <h2 className="max-w-md text-4xl font-black leading-[0.9] tracking-[-0.06em] md:text-6xl">
-              Build it. <br />We'll help you <span className="text-primary">make it happen.</span>
+              Name the outcome. <br />Give people a reason to <span className="text-primary">make it happen.</span>
             </h2>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">Create moments. Build scenes. Grow your brand. All in one place.</p>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">Start with one Moment, one Mission, and one result you can verify. Scale the format after it works.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             {organizerTools.map((tool) => (
@@ -332,8 +652,12 @@ export default function CinematicCultureHome() {
             ))}
           </div>
           <div className="md:col-start-2">
-            <Link to="/create/moment" className="inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90">
-              Get started
+            <Link
+              to="/auth?mode=signup&role=host&next=/create/moment"
+              onClick={() => rememberMarketingIntent("organizer_create_moment", "/create/moment", "host")}
+              className="inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90"
+            >
+              Create the first Moment
               <ArrowRight className="h-5 w-5" />
             </Link>
           </div>

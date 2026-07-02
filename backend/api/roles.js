@@ -130,7 +130,11 @@ router.post('/revoke', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'user_id and role are required' });
         }
 
-        await roleService.revokeRole(user_id, role, reason);
+        if (user_id === revokerId && role === 'master_admin') {
+            return res.status(400).json({ error: 'You cannot revoke your own master admin access' });
+        }
+
+        await roleService.revokeRole(user_id, role, reason, revokerId);
 
         res.json({
             success: true,

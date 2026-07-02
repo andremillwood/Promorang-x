@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle, MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
+import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -25,12 +27,10 @@ export default function ContentMissionDetail() {
 
   const missionQuery = useQuery({
     queryKey: ["o2o-mission", id],
-    enabled: !!id && !!session,
+    enabled: !!id,
     queryFn: async () => {
       const response = await fetch(`${API_URL}/api/o2o/missions/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
       const payload = await response.json();
       if (!response.ok) {
@@ -105,21 +105,8 @@ export default function ContentMissionDetail() {
     if (!metrics) return 0;
     return Number(metrics.total_engagement || 0);
   }, [metrics]);
-
-  if (!user) {
-    return (
-      <main className="mx-auto max-w-4xl space-y-6">
-        <div className="rounded-3xl border border-border bg-card p-8 text-center">
-          <PlayCircle className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-4 font-serif text-3xl font-bold">Mission Detail</h1>
-          <p className="mt-2 text-muted-foreground">Sign in to engage with the story and unlock the linked physical moment.</p>
-          <Button asChild variant="hero" className="mt-6">
-            <Link to="/auth">Sign In</Link>
-          </Button>
-        </div>
-      </main>
-    );
-  }
+  const archetype = MISSION_ARCHETYPES[(mission?.archetype as MissionArchetype) || "side_quest"];
+  const ArchetypeIcon = archetype.icon;
 
   if (missionQuery.isLoading) {
     return (
@@ -144,6 +131,13 @@ export default function ContentMissionDetail() {
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
+      <SEO
+        title={`${mission.content?.title || "Mission"} · ${archetype.label}`}
+        description={mission.action_text || mission.content?.description || archetype.description}
+        image={heroImage}
+        url={`https://promorang.co/missions/${mission.id}`}
+        type="article"
+      />
       <section className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-soft">
         <div className="relative min-h-[560px] overflow-hidden bg-black">
           {heroImage ? (
@@ -152,6 +146,7 @@ export default function ContentMissionDetail() {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
           <div className="absolute left-5 top-5 flex flex-wrap gap-2">
+            <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{archetype.label}</Badge>
             <Badge className="bg-black/60 text-white backdrop-blur">
               {mission.content?.platform}
             </Badge>
@@ -218,6 +213,7 @@ export default function ContentMissionDetail() {
                 {mission.physical_unlock_rules.perk_hint}
               </p>
             )}
+            {mission.camera_consent ? <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-3 text-sm text-emerald-200"><Activity className="h-4 w-4" />Camera boundary: {CAMERA_CONSENT[mission.camera_consent as keyof typeof CAMERA_CONSENT]}</p> : null}
             <div className="mt-4 flex flex-wrap gap-2">
               {(mission.entry_action_types || []).map((action: string) => (
                 <span key={action} className="rounded-full bg-background px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">
@@ -235,7 +231,7 @@ export default function ContentMissionDetail() {
               </div>
               <span className="text-sm font-semibold text-primary">{actionCount} tracked actions</span>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {user ? <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <Button variant="outline" onClick={() => engage.mutate("like")} disabled={engage.isPending}>
                 <Heart className="mr-2 h-4 w-4" />
                 Like
@@ -248,7 +244,11 @@ export default function ContentMissionDetail() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Comment Intent
               </Button>
-            </div>
+            </div> : (
+              <Button asChild variant="hero" className="mt-5 w-full">
+                <Link to="/auth">Join to take this mission <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            )}
           </div>
         </div>
 

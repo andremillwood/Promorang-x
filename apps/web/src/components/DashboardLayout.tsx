@@ -256,7 +256,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
   ],
   admin: [
-    { icon: Home, label: "Admin Dashboard", href: "/admin", group: "primary" },
+    { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
     { icon: Search, label: "Search", href: "/search", group: "primary" },
     { icon: Users, label: "Users", href: "/admin?tab=users", group: "primary" },
     { icon: Calendar, label: "Moments", href: "/admin?tab=moments", group: "primary" },

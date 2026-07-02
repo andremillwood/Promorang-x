@@ -413,16 +413,22 @@ export function useUpdateUserSuspension() {
 
 // Add role to user
 export function useAddUserRole() {
+  const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: role as any });
-
-      if (error) throw error;
+      const response = await fetch(`${API_URL}/api/roles/grant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+        body: JSON.stringify({ user_id: userId, role }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Failed to grant role");
       return true;
     },
     onSuccess: () => {
@@ -444,18 +450,26 @@ export function useAddUserRole() {
 
 // Remove role from user
 export function useRemoveUserRole() {
+  const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      const { error } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId)
-        .eq("role", role as any);
-
-      if (error) throw error;
+      const response = await fetch(`${API_URL}/api/roles/revoke`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          role,
+          reason: "Role changed from the admin user-control workspace",
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Failed to revoke role");
       return true;
     },
     onSuccess: () => {

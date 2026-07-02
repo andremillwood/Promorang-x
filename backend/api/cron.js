@@ -89,6 +89,20 @@ router.get('/email-queue', async (req, res) => {
   res.json({ success: true, job: 'email-queue' });
 });
 
+router.post('/revenue-lifecycle', async (req, res) => {
+  const result = await require('../services/revenueLifecycleEmailService').processDueJobs({
+    limit: Number(req.body?.limit || 100),
+  });
+  res.json({ success: true, job: 'revenue-lifecycle', result });
+});
+
+router.get('/revenue-lifecycle', async (req, res) => {
+  const result = await require('../services/revenueLifecycleEmailService').processDueJobs({
+    limit: Number(req.query.limit || 100),
+  });
+  res.json({ success: true, job: 'revenue-lifecycle', result });
+});
+
 router.post('/admin-digest', async (req, res) => {
   const result = await adminDigestService.sendAdminDailyDigest();
   res.status(result.success ? 200 : 500).json({ success: result.success, result });

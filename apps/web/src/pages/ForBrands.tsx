@@ -4,6 +4,7 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
+import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
 import {
     Building2,
     Handshake,
@@ -147,6 +148,8 @@ const ForBrands = () => {
                     </div>
                 </div>
             </section>
+
+            <MissionRoleValue audience="brand" />
 
             {/* Participation Measurement Section */}
             <section className="py-20 md:py-32">
