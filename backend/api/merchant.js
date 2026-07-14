@@ -168,6 +168,20 @@ router.get('/inventory/low-stock', requireAuth, async (req, res) => {
 // SALES & REDEMPTIONS
 // ============================================
 
+/** POST /api/merchant/sales - Buy or reserve a merchant listing. */
+router.post('/sales', requireAuth, async (req, res) => {
+    try {
+        const { product_id, sale_type, amount_paid = 0, points_paid = 0, metadata = {} } = req.body;
+        if (!product_id) return res.status(422).json({ error: 'product_id is required' });
+        if (sale_type !== 'reservation') return res.status(422).json({ error: 'This endpoint only issues unpaid reservations; use verified marketplace or payment checkout for purchases' });
+        const sale = await merchantProductService.createSale(product_id, req.user.id, { sale_type, amount_paid, points_paid, metadata });
+        res.status(201).json({ success: true, sale, redemption_code: sale.redemption_code });
+    } catch (error) {
+        console.error('Error creating sale:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+
 /**
  * GET /api/merchant/sales
  * Get sales for the merchant
@@ -186,6 +200,103 @@ router.get('/sales', requireAuth, async (req, res) => {
         res.json(sales);
     } catch (error) {
         console.error('Error fetching sales:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * GET /api/merchant/receipts
+ * Get commerce receipts for this merchant across Stripe purchases, reservations, and redemptions.
+ */
+router.get('/receipts', requireAuth, async (req, res) => {
+    try {
+        const merchantId = req.user.id;
+        const { status, receipt_type, limit = 40 } = req.query;
+
+        let query = req.supabase || global.supabase;
+        query = query
+            .from('commerce_receipts')
+            .select('*, merchant_products:listing_id(name, image_url, category, fulfillment_mode)')
+            .eq('merchant_id', merchantId)
+            .order('occurred_at', { ascending: false })
+            .limit(Math.min(parseInt(limit, 10) || 40, 100));
+
+        if (status) query = query.eq('status', status);
+        if (receipt_type) query = query.eq('receipt_type', receipt_type);
+
+        const { data, error } = await query;
+        if (error) throw error;
+        res.json({ receipts: data || [] });
+    } catch (error) {
+        console.error('Error fetching merchant receipts:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * PATCH /api/merchant/receipts/:id/status
+ * Update a merchant-owned receipt lifecycle state.
+ */
+router.patch('/receipts/:id/status', requireAuth, async (req, res) => {
+    try {
+        const merchantId = req.user.id;
+        const { id } = req.params;
+        const { status, note } = req.body || {};
+        const allowedStatuses = ['fulfilled', 'cancelled', 'refunded'];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(422).json({ error: 'status must be fulfilled, cancelled, or refunded' });
+        }
+
+        const db = req.supabase || global.supabase;
+        const { data: existing, error: fetchError } = await db
+            .from('commerce_receipts')
+            .select('id, merchant_id, sale_id, attribution, status')
+            .eq('id', id)
+            .eq('merchant_id', merchantId)
+            .single();
+
+        if (fetchError || !existing) return res.status(404).json({ error: 'Receipt not found' });
+        if (['cancelled', 'refunded'].includes(existing.status)) {
+            return res.status(409).json({ error: `Receipt is already ${existing.status}` });
+        }
+
+        const { data: receipt, error } = await db
+            .from('commerce_receipts')
+            .update({
+                status,
+                attribution: {
+                    ...(existing.attribution || {}),
+                    merchant_status_action: status,
+                    merchant_status_note: note || null,
+                    merchant_status_at: new Date().toISOString(),
+                    merchant_status_by: merchantId,
+                },
+            })
+            .eq('id', id)
+            .eq('merchant_id', merchantId)
+            .select('*, merchant_products:listing_id(name, image_url, category, fulfillment_mode)')
+            .single();
+
+        if (error) throw error;
+
+        if (existing.sale_id && status === 'fulfilled') {
+            await db
+                .from('product_sales')
+                .update({ status: 'validated', validated_at: new Date().toISOString(), validated_by: merchantId })
+                .eq('id', existing.sale_id)
+                .eq('merchant_id', merchantId);
+        } else if (existing.sale_id && status === 'cancelled') {
+            await db
+                .from('product_sales')
+                .update({ status: 'cancelled' })
+                .eq('id', existing.sale_id)
+                .eq('merchant_id', merchantId);
+        }
+
+        res.json({ receipt });
+    } catch (error) {
+        console.error('Error updating merchant receipt status:', error);
         res.status(500).json({ error: error.message });
     }
 });

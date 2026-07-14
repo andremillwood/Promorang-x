@@ -8,7 +8,7 @@ const growthTiles = [
   { title: "Promoshare", text: "Activate value where content, moments, and referrals create outcomes.", href: "/growth/promoshare", icon: Sparkles },
   { title: "Campaigns", text: "Compile creator, brand, and scene campaigns without losing proof.", href: "/growth/campaigns", icon: Megaphone },
   { title: "Referrals", text: "Track links, ambassadors, and promoter attribution.", href: "/growth/referrals", icon: Share2 },
-  { title: "Pioneer Points", text: "See the verified record you build as a member, creator, host, venue, or connector.", href: "/growth/pioneer", icon: Trophy },
+  { title: "Pioneer Contribution", text: "See the founding record you build as a member, creator, host, venue, or connector.", href: "/growth/pioneer", icon: Trophy },
   { title: "Pieces", text: "Keep value objects contextual around culture and ownership.", href: "/growth/pieces", icon: Trophy },
   { title: "Analytics", text: "See reach, check-ins, proof quality, and conversion signals.", href: "/growth/analytics", icon: BarChart3 },
   { title: "Earnings", text: "Track payouts, value pools, withdrawals, and reward outcomes.", href: "/growth/earnings", icon: Coins },
@@ -47,7 +47,7 @@ export default function GrowthHub() {
               Turn attention<br /><span className="text-primary">into movement.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/65">
-              Publish the signal, move it through the right people, prove what happened, and keep the audience, status, and earnings your work creates.
+              Publish the signal, move it through the right people, count what happened, and keep the audience, status, and earnings your work creates.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/content-drops" className="inline-flex items-center rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground">Launch content <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -64,7 +64,7 @@ export default function GrowthHub() {
               </div>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-2">
-              {[["Reach", "Connect"], ["Proof", "Build"], ["Earn", "Activate"]].map(([label, value]) => <div key={label} className="rounded-xl bg-white/[0.06] p-3"><p className="text-sm font-black">{value}</p><p className="text-[9px] uppercase text-white/35">{label}</p></div>)}
+              {[["Reach", "Connect"], ["Signal", "Build"], ["Earn", "Activate"]].map(([label, value]) => <div key={label} className="rounded-xl bg-white/[0.06] p-3"><p className="text-sm font-black">{value}</p><p className="text-[9px] uppercase text-white/35">{label}</p></div>)}
             </div>
           </div>
         </div>

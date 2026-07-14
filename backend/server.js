@@ -154,6 +154,7 @@ global.supabase = supabaseClient || null;
 // API routes
 app.use('/api/auth', require('./api/auth'));
 app.use('/auth', require('./api/auth')); // Direct route for frontend compatibility
+app.use('/api/privacy', require('./api/privacy'));
 app.use('/api/users', require('./api/users'));
 app.use('/users', require('./api/users')); // Direct route
 app.use('/api/users/preferences', require('./api/preferences')); // User preferences for personalization
@@ -168,11 +169,15 @@ app.use('/api/maturity', require('./api/maturity'));
 
 app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
+app.use('/api/growth-ops', require('./api/growth-ops'));
 // app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/platform-drops', require('./api/platform-drops'));
 // app.use('/api/shares', shares);
 app.use('/api/placeholder', require('./api/placeholder'));
 app.use('/api/payments', payments.router);
+app.use('/api/stripe', require('./api/stripe'));
+app.use('/api/marketplace', require('./api/marketplace'));
+app.use('/api/commerce', require('./api/commerce'));
 app.use('/api/telemetry', require('./api/telemetry'));
 app.use('/api/feed', require('./api/feed'));
 app.use('/api/events', require('./api/events'));

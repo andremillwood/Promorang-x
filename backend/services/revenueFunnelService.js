@@ -40,6 +40,28 @@ async function record(event) {
     : supabase.from('revenue_funnel_events').insert(row);
   const { data, error } = await query.select('id').maybeSingle();
   if (error) throw error;
+  if (event.userId && ['checkout_started', 'payment_succeeded'].includes(event.stage)) {
+    try {
+      const growth = require('./growthOperatingService');
+      await growth.recordEvent({
+        eventName: event.stage,
+        journey: ['campaign', 'sponsorship', 'featured'].includes(event.funnel) ? 'commercial' : 'participant',
+        stage: event.stage === 'payment_succeeded' ? 'monetized' : 'captured',
+        userId: event.userId,
+        source: event.source || event.provider || 'server',
+        medium: event.provider || null,
+        campaign: event.funnel,
+        entityType: event.entityType || null,
+        entityId: event.entityId || null,
+        value: event.amount,
+        currency: event.currency,
+        properties: { funnel: event.funnel, provider_event_id: event.providerEventId || null },
+        idempotencyKey: event.idempotencyKey ? `growth:${event.idempotencyKey}` : null,
+      });
+    } catch (growthError) {
+      console.warn('[Revenue Funnel] growth mirror skipped:', growthError.message);
+    }
+  }
   return { id: data?.id || null, duplicate: !data?.id };
 }
 

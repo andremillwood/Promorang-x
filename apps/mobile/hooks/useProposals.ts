@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { Alert } from "react-native";
 import { useAuth } from "@/context/AuthContext";
 
 export interface Proposal {
@@ -12,7 +11,7 @@ export interface Proposal {
     budget: number | null;
     status: 'draft' | 'sent' | 'accepted' | 'declined';
     target_moment_id: string | null;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
     created_at: string;
     updated_at: string;
     brand?: {
@@ -76,11 +75,10 @@ export function useCreateProposal() {
             return data;
         },
         onSuccess: () => {
-            Alert.alert("Success", "Proposal created.");
             queryClient.invalidateQueries({ queryKey: ["proposals"] });
         },
-        onError: (error: any) => {
-            Alert.alert("Error", error.message);
+        onError: (error: unknown) => {
+            console.error("Activation creation failed", error);
         }
     });
 }

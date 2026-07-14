@@ -1,15 +1,22 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Theme, ThemeProvider } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Theme,
+  ThemeProvider,
+} from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { TourProvider } from '@/context/TourContext';
 import { useRouter, useSegments } from 'expo-router';
+import { commerceApi } from '@/lib/api';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,10 +33,21 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    DMSans: require('../assets/fonts/DMSans-Regular.ttf'),
-    Fraunces: require('../assets/fonts/Fraunces-Regular.ttf'),
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+  const [stripePublishableKey, setStripePublishableKey] = useState(
+    process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+  );
+
+  useEffect(() => {
+    if (stripePublishableKey) return;
+    commerceApi.getStripeConfig()
+      .then(({ publishableKey }) => setStripePublishableKey(publishableKey || ''))
+      .catch(() => {
+        // Card checkout retains its hosted fallback when Stripe is unavailable.
+      });
+  }, [stripePublishableKey]);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -47,11 +65,16 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <TourProvider>
-        <InitialLayout />
-      </TourProvider>
-    </AuthProvider>
+    <StripeProvider
+      publishableKey={stripePublishableKey}
+      urlScheme="promorang"
+    >
+      <AuthProvider>
+        <TourProvider>
+          <InitialLayout />
+        </TourProvider>
+      </AuthProvider>
+    </StripeProvider>
   );
 }
 
@@ -84,8 +107,9 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   const PromorangLightTheme: Theme = {
-    dark: false,
+    ...DefaultTheme,
     colors: {
+      ...DefaultTheme.colors,
       primary: '#ff6600',
       background: '#fbfaf6',
       card: '#fcfcf9',
@@ -96,8 +120,9 @@ function RootLayoutNav() {
   };
 
   const PromorangDarkTheme: Theme = {
-    dark: true,
+    ...DarkTheme,
     colors: {
+      ...DarkTheme.colors,
       primary: '#ff751a',
       background: '#0f0f0f',
       card: '#1a1a1a',
@@ -111,9 +136,16 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? PromorangDarkTheme : PromorangLightTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="moment/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="merchant/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="pieces/[type]/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="proposal/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', headerTitle: 'Switch Context' }} />
-        <Stack.Screen name="create-proposal" options={{ presentation: 'modal', headerTitle: 'Create Proposal' }} />
+        <Stack.Screen name="create-proposal" options={{ presentation: 'modal', headerTitle: 'Activation Plan' }} />
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="report" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

@@ -5,7 +5,7 @@
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'moment_money_source') THEN
-    CREATE TYPE public.moment_money_source AS ENUM ('entry', 'host', 'event', 'hybrid');
+    CREATE TYPE public.moment_money_source AS ENUM ('entry', 'host', 'event', 'platform', 'content', 'hybrid');
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'moment_funding_status') THEN

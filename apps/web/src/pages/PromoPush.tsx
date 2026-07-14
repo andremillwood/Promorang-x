@@ -44,7 +44,7 @@ const defaultForm = {
   end_time: "",
   budget: "",
   creator_verified_action_jmd: "250",
-  proof_verified_reward: "Reward after verified proof only",
+  proof_verified_reward: "Reward after the contribution counts",
   request_creative_support: false,
 };
 
@@ -72,7 +72,7 @@ const metricCards = [
   { label: "Clicks / Scans", key: "clicks", icon: MousePointerClick },
   { label: "Moment Joins", key: "joins", icon: Users },
   { label: "Moves Completed", key: "moves_completed", icon: CheckCircle2 },
-  { label: "Proof Verified", key: "proof_verified", icon: ShieldCheck },
+  { label: "Contributions Counted", key: "proof_verified", icon: ShieldCheck },
 ] as const;
 
 export default function PromoPush() {
@@ -127,9 +127,9 @@ export default function PromoPush() {
               <Megaphone className="h-3.5 w-3.5" />
               PromoPush
             </div>
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Geo-distribution into verified action</h1>
+            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Geo-distribution into real action</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65 sm:text-base">
-              QR, Meta, creator, direct, and street traffic all route to one Moment loop: join, execute the Move, submit Proof, then release the Reward.
+              QR, Meta, creator, direct, and street traffic all route to one Moment loop: join, complete the Move, let the contribution count, then release the value.
             </p>
           </div>
           <Button asChild className="bg-[#FF6A00] text-white hover:bg-[#e65f00]">
@@ -161,7 +161,7 @@ export default function PromoPush() {
 
         <Tabs defaultValue="create" className="mt-8">
           <TabsList className="grid w-full grid-cols-2 bg-white/10 sm:w-[420px]">
-            <TabsTrigger value="create">Create Campaign</TabsTrigger>
+            <TabsTrigger value="create">Create Activation</TabsTrigger>
             <TabsTrigger value="track">Track Channels</TabsTrigger>
           </TabsList>
 
@@ -171,12 +171,12 @@ export default function PromoPush() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="h-5 w-5 text-[#FF6A00]" />
-                    Campaign Builder
+                    Activation Builder
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <Label htmlFor="title">Campaign title</Label>
+                    <Label htmlFor="title">Activation title</Label>
                     <Input id="title" required value={form.title} onChange={(e) => updateForm("title", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div className="sm:col-span-2">
@@ -221,7 +221,7 @@ export default function PromoPush() {
                     <Input id="budget" type="number" min="0" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} className="mt-2 bg-black/40" placeholder="JMD" />
                   </div>
                   <div>
-                    <Label htmlFor="creator_reward">Creator verified action payout</Label>
+                    <Label htmlFor="creator_reward">Creator counted-action payout</Label>
                     <Input id="creator_reward" type="number" min="0" value={form.creator_verified_action_jmd} onChange={(e) => updateForm("creator_verified_action_jmd", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div className="sm:col-span-2">
@@ -247,11 +247,11 @@ export default function PromoPush() {
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-white/70">
                   {[
-                    "No campaign launches without a linked Moment.",
+                    "No activation launches without a linked Moment.",
                     "Every channel receives a unique tracking link.",
                     "All links resolve to the Moment entry endpoint.",
                     "Geo validation logs soft distance and radius status.",
-                    "Rewards are tied to verified proof events.",
+                    "Rewards are tied to contributions that count.",
                   ].map((item) => (
                     <div key={item} className="flex gap-3">
                       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#FFC300]" />
@@ -269,10 +269,10 @@ export default function PromoPush() {
 
           <TabsContent value="track" className="mt-6 space-y-5">
             {campaignsQuery.isLoading ? (
-              <p className="text-white/60">Loading PromoPush campaigns...</p>
+              <p className="text-white/60">Loading PromoPush activations...</p>
             ) : campaigns.length === 0 ? (
               <Card className="border-dashed border-white/20 bg-white/[0.03] text-white">
-                <CardContent className="p-8 text-center text-white/65">Create a campaign to generate QR, Meta, creator, direct, and street activation links.</CardContent>
+                <CardContent className="p-8 text-center text-white/65">Create an activation to generate QR, Meta, creator, direct, and street links.</CardContent>
               </Card>
             ) : (
               campaigns.map((campaign) => (
@@ -308,7 +308,7 @@ export default function PromoPush() {
                             <span>Clicks {channel.metrics?.clicks || 0}</span>
                             <span>Joins {channel.metrics?.joins || 0}</span>
                             <span>Moves {channel.metrics?.moves_completed || 0}</span>
-                            <span>Proof {channel.metrics?.proof_verified || 0}</span>
+                            <span>Counted {channel.metrics?.proof_verified || 0}</span>
                           </div>
                           <Button size="sm" variant="outline" className="mt-3 w-full border-white/15 bg-transparent text-white hover:bg-white/10" onClick={() => downloadQr(channel.label, channel.tracking_code)}>
                             <Download className="mr-2 h-4 w-4" />

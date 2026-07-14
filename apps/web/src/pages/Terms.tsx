@@ -21,8 +21,9 @@ const TermsPage = () => {
                     <h2>4. Bounties and Payments</h2>
                     <p>Bounties are paid out upon successful verification of the required activation proof. Promorang reserves the right to withhold payments if proof is found to be fraudulent or non-compliant.</p>
 
-                    <h2>5. Conduct</h2>
-                    <p>Users must behave professionally and respectfully in person and on the platform. Harassment or unsafe behavior during Moments will result in immediate termination of account access.</p>
+                    <h2 id="conduct">5. Conduct and User-Generated Content</h2>
+                    <p>Users must behave professionally and respectfully in person and on the platform. Promorang prohibits harassment, threats, hate, sexual exploitation, fraud, spam, intellectual-property violations, dangerous or illegal activity, and content that targets or humiliates another person.</p>
+                    <p>By uploading content, you confirm that you have the right to share it and grant Promorang the rights needed to host, display, review, and distribute it within the service. Users can report content and block abusive accounts from mobile content controls. Promorang may filter, restrict, remove, or preserve content for review and may suspend or terminate accounts that violate these rules.</p>
 
                     <h2>6. Pioneer Points</h2>
                     <p>Pioneer Points are a non-cash record of eligible, verified contribution during a defined Promorang season. Eligible contribution may include meaningful platform activity, original content, hosting or facilitating completed Moments, verified venue participation, qualified referrals, and community support.</p>

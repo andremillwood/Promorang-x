@@ -1,8 +1,11 @@
-import { FeedItem } from "@/services/feed";
+import { useEffect, useRef, type ReactNode } from "react";
+import { FeedItem, logFeedInteraction } from "@/services/feed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MomentFeedCard } from "@/components/feed/cards/MomentFeedCard";
 import { DropFeedCard } from "@/components/feed/cards/DropFeedCard";
 import { OfferFeedCard } from "@/components/feed/cards/OfferFeedCard";
+import { ProductFeedCard } from "@/components/feed/cards/ProductFeedCard";
+import { PieceFeedCard } from "@/components/feed/cards/PieceFeedCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -27,6 +30,51 @@ function GenericFeedCard({ item }: { item: FeedItem }) {
         </Button>
       </CardContent>
     </Card>
+  );
+}
+
+function TrackedFeedItem({ item, children }: { item: FeedItem; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const logged = useRef(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || logged.current) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting || logged.current) return;
+      logged.current = true;
+      void logFeedInteraction({
+        itemType: item.object_type,
+        itemId: item.entity_id,
+        interactionType: "impression",
+        metaData: {
+          source: "for_you_feed",
+          feed_item_id: item.id,
+          reason_labels: item.reason_labels,
+        },
+      });
+      observer.disconnect();
+    }, { threshold: 0.45 });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [item]);
+
+  return (
+    <div
+      ref={ref}
+      onClickCapture={() => {
+        void logFeedInteraction({
+          itemType: item.object_type,
+          itemId: item.entity_id,
+          interactionType: "click",
+          metaData: { source: "for_you_feed", feed_item_id: item.id },
+        });
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -71,16 +119,27 @@ export function FeedStream({
   return (
     <div className="space-y-5">
       {items.map((item) => {
+        let card: React.ReactNode;
         switch (item.object_type) {
           case "moment":
-            return <MomentFeedCard key={item.id} item={item} />;
+            card = <MomentFeedCard item={item} />;
+            break;
           case "drop":
-            return <DropFeedCard key={item.id} item={item} />;
+            card = <DropFeedCard item={item} />;
+            break;
           case "offer":
-            return <OfferFeedCard key={item.id} item={item} />;
+            card = <OfferFeedCard item={item} />;
+            break;
+          case "product":
+            card = <ProductFeedCard item={item} />;
+            break;
+          case "piece":
+            card = <PieceFeedCard item={item} />;
+            break;
           default:
-            return <GenericFeedCard key={item.id} item={item} />;
+            card = <GenericFeedCard item={item} />;
         }
+        return <TrackedFeedItem key={item.id} item={item}>{card}</TrackedFeedItem>;
       })}
     </div>
   );

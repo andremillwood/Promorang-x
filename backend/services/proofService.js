@@ -4,6 +4,8 @@ const memoryService = require('./memoryService');
 const momentEconomyService = require('./momentEconomyService');
 const pieceEarningService = require('./pieceEarningService');
 const promoPushTrackingService = require('./promoPushTrackingService');
+const experienceAutomationService = require('./experienceAutomationService');
+const growthOperatingService = require('./growthOperatingService');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -233,6 +235,7 @@ async function getProofSubmissionAudit(submissionId) {
     memoriesResult,
     piecesResult,
     payoutQueueResult,
+    automationResult,
   ] = await Promise.all([
     supabase
       .from('participation_events')
@@ -263,6 +266,12 @@ async function getProofSubmissionAudit(submissionId) {
       .select('id, amount_jmd, status, created_at, processed_at, proof_submission_id')
       .eq('proof_submission_id', submission.id)
       .order('created_at', { ascending: true }),
+    supabase
+      .from('experience_automation_runs')
+      .select('id,action,status,target_type,target_id,result,error_message,started_at,completed_at')
+      .eq('trigger_id', submission.id)
+      .order('created_at', { ascending: true })
+      .catch(() => ({ data: [], error: null })),
   ]);
 
   if (eventsResult.error) throw eventsResult.error;
@@ -270,6 +279,7 @@ async function getProofSubmissionAudit(submissionId) {
   if (memoriesResult.error) throw memoriesResult.error;
   if (piecesResult.error) throw piecesResult.error;
   if (payoutQueueResult.error) throw payoutQueueResult.error;
+  if (automationResult.error) throw automationResult.error;
 
   const timeline = [];
 
@@ -355,6 +365,17 @@ async function getProofSubmissionAudit(submissionId) {
     });
   }
 
+  for (const automation of automationResult.data || []) {
+    timeline.push({
+      kind: 'experience_automation',
+      at: automation.completed_at || automation.started_at,
+      title: automation.status === 'completed' ? 'Experience reward unlocked' : 'Experience automation needs attention',
+      detail: automation.status === 'completed'
+        ? `${automation.target_type || 'reward'} • ${automation.action}`
+        : automation.error_message || `${automation.action} • ${automation.status}`,
+    });
+  }
+
   timeline.sort((a, b) => new Date(a.at || 0).getTime() - new Date(b.at || 0).getTime());
 
   return {
@@ -390,6 +411,22 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
     .single();
 
   if (error) throw error;
+  try {
+    await growthOperatingService.recordEvent({
+      eventName: 'proof_submitted', journey: 'participant', stage: 'outcome',
+      userId, momentId, entityType: 'proof_submission', entityId: data.id,
+      source: normalizedBundle?.utm_source || (normalizedBundle?.promopush_tracking_code ? 'promopush' : 'product'),
+      medium: normalizedBundle?.utm_medium || (normalizedBundle?.promopush_tracking_code ? 'attributed_link' : 'organic'),
+      campaign: normalizedBundle?.utm_campaign || null,
+      referralCode: normalizedBundle?.referral_code || null,
+      promoPushCampaignId: normalizedBundle?.promopush_campaign_id || null,
+      promoPushChannelId: normalizedBundle?.promopush_channel_id || null,
+      idempotencyKey: `growth:proof-submitted:${data.id}`,
+      properties: { moment_move_id: momentMoveId || null },
+    });
+  } catch (growthError) {
+    console.warn('[Proof Service] growth proof submission mirror skipped:', growthError.message);
+  }
   return data;
 }
 
@@ -474,6 +511,23 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     },
   });
 
+  try {
+    await growthOperatingService.recordEvent({
+      eventName: 'verified_outcome', journey: 'participant', stage: 'outcome',
+      userId, momentId, entityType: 'proof_submission', entityId: proofSubmissionId,
+      source: proofBundle?.utm_source || (proofBundle?.promopush_tracking_code ? 'promopush' : 'product'),
+      medium: proofBundle?.utm_medium || (proofBundle?.promopush_tracking_code ? 'attributed_link' : 'organic'),
+      campaign: proofBundle?.utm_campaign || null,
+      referralCode: proofBundle?.referral_code || null,
+      promoPushCampaignId: proofBundle?.promopush_campaign_id || null,
+      promoPushChannelId: proofBundle?.promopush_channel_id || null,
+      idempotencyKey: `growth:verified-proof:${proofSubmissionId}`,
+      properties: { reviewer_id: reviewerId, reward_id: reward?.id || null },
+    });
+  } catch (growthError) {
+    console.warn('[Proof Service] growth outcome mirror skipped:', growthError.message);
+  }
+
   if (reward?.id) {
     await promoPushTrackingService.trackPromoPushEvent({
       eventType: 'reward_issued',
@@ -533,6 +587,8 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
   let pieceAward = null;
   let reward = null;
   let attendancePieceAwards = [];
+  let experienceAutomations = [];
+  let linkedMissionId = data.proof_bundle?.source_mission_id || data.proof_bundle?.mission_id || null;
   if (nextState === 'verified') {
     const finalizedAttendance = await finalizeVerifiedAttendance({
       momentId: data.moment_id,
@@ -581,6 +637,7 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
       .maybeSingle();
 
     if (participation) {
+      linkedMissionId = participation.mission_id || linkedMissionId;
       const verified = nextState === 'verified';
       await supabase
         .from('mission_participations')
@@ -616,6 +673,18 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
     console.warn('[ProofService] mission completion sync skipped:', missionError.message);
   }
 
+  if (nextState === 'verified') {
+    try {
+      experienceAutomations = await experienceAutomationService.processVerifiedProof({
+        proof: data,
+        missionId: linkedMissionId,
+        campaignId: data.proof_bundle?.campaign_id || null,
+      });
+    } catch (automationError) {
+      console.warn('[ProofService] experience automation skipped:', automationError.message);
+    }
+  }
+
   return {
     submission: data,
     reward,
@@ -623,6 +692,7 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
     payout,
     attendance_piece_awards: attendancePieceAwards,
     piece_award: pieceAward,
+    experience_automations: experienceAutomations,
   };
 }
 

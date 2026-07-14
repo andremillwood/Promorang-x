@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { operationalSupabase } from "@/integrations/supabase/operational";
 
 interface ReactionBarProps {
     entityType: "moment" | "comment";
@@ -9,6 +11,8 @@ interface ReactionBarProps {
     userReaction?: string | null;
     className?: string;
     size?: "sm" | "md" | "lg";
+    canInteract?: boolean;
+    disabledReason?: string;
 }
 
 const REACTIONS = [
@@ -17,6 +21,7 @@ const REACTIONS = [
     { emoji: "👏", label: "Applause" },
     { emoji: "✨", label: "Amazing" },
 ];
+const EMPTY_REACTIONS: Record<string, number> = {};
 
 /**
  * Emoji reaction bar for moments and comments
@@ -25,17 +30,70 @@ const REACTIONS = [
 export function ReactionBar({
     entityType,
     entityId,
-    initialReactions = {},
+    initialReactions = EMPTY_REACTIONS,
     userReaction: initialUserReaction = null,
     className,
     size = "md",
+    canInteract = true,
+    disabledReason = "Join this Moment to react.",
 }: ReactionBarProps) {
     const { toast } = useToast();
+    const { user } = useAuth();
     const [reactions, setReactions] = useState(initialReactions);
     const [userReaction, setUserReaction] = useState(initialUserReaction);
     const [isAnimating, setIsAnimating] = useState<string | null>(null);
 
+    const canPersist = /^[0-9a-f-]{36}$/i.test(entityId);
+    const loadReactions = useCallback(async () => {
+        if (!canPersist) return;
+        const { data, error } = await operationalSupabase
+            .from("reactions")
+            .select("user_id,reaction_type")
+            .eq("entity_type", entityType)
+            .eq("entity_id", entityId);
+        if (error) return;
+
+        const counts: Record<string, number> = {};
+        let mine: string | null = null;
+        (data || []).forEach((reaction) => {
+            counts[reaction.reaction_type] = (counts[reaction.reaction_type] || 0) + 1;
+            if (user?.id === reaction.user_id) mine = reaction.reaction_type;
+        });
+        setReactions(counts);
+        setUserReaction(mine);
+    }, [canPersist, entityId, entityType, user?.id]);
+
+    useEffect(() => {
+        setReactions(initialReactions);
+        setUserReaction(initialUserReaction);
+    }, [initialReactions, initialUserReaction]);
+
+    useEffect(() => {
+        loadReactions();
+        if (!canPersist) return;
+        const channel = operationalSupabase
+            .channel(`reactions-${entityType}-${entityId}`)
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "reactions", filter: `entity_id=eq.${entityId}` },
+                loadReactions,
+            )
+            .subscribe();
+        return () => {
+            operationalSupabase.removeChannel(channel);
+        };
+    }, [canPersist, entityId, entityType, loadReactions]);
+
     const handleReaction = async (emoji: string) => {
+        if (!user) {
+            toast({ title: "Sign in to react", description: "Your reaction is connected to your Promorang profile." });
+            return;
+        }
+        if (!canInteract || !canPersist) {
+            toast({ title: "Reactions unlock through participation", description: disabledReason });
+            return;
+        }
+
         // Optimistic update
         const previousReaction = userReaction;
         const previousReactions = { ...reactions };
@@ -68,8 +126,25 @@ export function ReactionBar({
             }));
         }
 
-        // TODO: Persist to Supabase once migration is applied
-        // await supabase.from('reactions')...
+        const result = previousReaction === emoji
+            ? await operationalSupabase
+                .from("reactions")
+                .delete()
+                .eq("user_id", user.id)
+                .eq("entity_type", entityType)
+                .eq("entity_id", entityId)
+            : await operationalSupabase
+                .from("reactions")
+                .upsert(
+                    { user_id: user.id, entity_type: entityType, entity_id: entityId, reaction_type: emoji },
+                    { onConflict: "user_id,entity_type,entity_id" },
+                );
+
+        if (result.error) {
+            setReactions(previousReactions);
+            setUserReaction(previousReaction);
+            toast({ title: "Reaction not saved", description: result.error.message, variant: "destructive" });
+        }
     };
 
     const totalReactions = Object.values(reactions).reduce((sum, count) => sum + count, 0);
@@ -97,6 +172,7 @@ export function ReactionBar({
                     <button
                         key={emoji}
                         onClick={() => handleReaction(emoji)}
+                        aria-pressed={isSelected}
                         className={cn(
                             "flex items-center gap-1 rounded-full transition-all duration-200",
                             buttonSizes[size],

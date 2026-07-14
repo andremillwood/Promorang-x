@@ -74,24 +74,24 @@ const filterReleaseNav = <T extends NavItem>(items: T[]) =>
   items.filter((item) => !item.experimental || showExperimentalEconomy);
 
 const pageLabels: Array<{ match: string; label: string; description: string }> = [
-  { match: "/momentum", label: "Momentum", description: "See how participation, content, rewards, and reputation connect across Promorang." },
+  { match: "/momentum", label: "Momentum", description: "See how participation, content, Gems, access, and return connect across Promorang." },
   { match: "/pulse", label: "Pulse", description: "What is forming now and where real-world energy is already visible." },
   { match: "/content-drops", label: "Content Drops", description: "Creator content wrapped in attribution, distribution incentives, and contributor rank." },
   { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
   { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
   { match: "/discover", label: "Discover", description: "Browse moments, venues, rewards, and content worth acting on." },
-  { match: "/create", label: "Create", description: "Launch a moment, mission, or campaign with clear goals and proof." },
+  { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
   { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
   { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
   { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
   { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
-  { match: "/promoshare", label: "PromoShare", description: "Qualified reward cycles, recurring relevance, and sponsor-funded upside." },
-  { match: "/missions", label: "Missions", description: "Proof-bearing actions and linked creator or sponsor prompts." },
+  { match: "/promoshare", label: "PromoShare", description: "Qualified actions, creator movement, Gems-funded value, and sponsor-backed return." },
+  { match: "/missions", label: "Missions", description: "Contribution prompts linked to creator, host, or sponsor value." },
   { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
   { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
   { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
   { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
-  { match: "/dashboard", label: "Home", description: "Your live moments, proof, rewards, and next moves in one place." },
+  { match: "/dashboard", label: "Home", description: "Your live Moments, access, Gems, saved value, and next moves in one place." },
   { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
 ];
 
@@ -201,9 +201,9 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Route, label: "Momentum", href: "/momentum", group: "primary" },
     { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
-    { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
+    { icon: Sparkles, label: "Create Activation", href: "/create/campaign", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
-    { icon: Building2, label: "Campaigns", href: "/dashboard/campaigns", group: "primary" },
+    { icon: Building2, label: "Activations", href: "/dashboard/campaigns", group: "primary" },
     { icon: Archive, label: "Vault", href: "/vault", group: "utility" },
     { icon: WalletCards, label: "Wallet", href: "/wallet", group: "utility" },
     { icon: Layers, label: "Pieces", href: "/portfolio", group: "utility" },
@@ -231,7 +231,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { icon: Home, label: "Home", href: "/dashboard", group: "primary" },
     { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "primary" },
     { icon: Briefcase, label: "Clients", href: "/dashboard", group: "primary" },
-    { icon: Sparkles, label: "Create Campaign", href: "/create/campaign", group: "primary" },
+    { icon: Sparkles, label: "Create Activation", href: "/create/campaign", group: "primary" },
     { icon: Megaphone, label: "PromoPush", href: "/promopush", group: "primary" },
     { icon: BarChart3, label: "Analytics", href: "/dashboard/analytics", group: "utility" },
     { icon: Sparkles, label: "PromoShare", href: "/promoshare", group: "utility" },
@@ -680,8 +680,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 </p>
                 <p className="mt-1 text-xs text-white/52">
                   {safeRole === "participant"
-                    ? "Live moments, proof, saved items, rewards, and tools in one place."
-                    : "Manage campaigns, reporting, account settings, and the work tied to this role."}
+                    ? "Live Moments, access, Gems, saved value, and tools in one place."
+                    : "Manage activations, return, account settings, and the work tied to this role."}
                 </p>
               </div>
 
@@ -719,6 +719,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         <div className="pt-safe lg:hidden sticky top-0 z-30 border-b border-white/10 bg-black/90 p-4 text-white shadow-sm backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <button
+              type="button"
+              aria-label="Open dashboard navigation"
               onClick={() => setSidebarOpen(true)}
               className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-white shadow-soft active:scale-95 transition-transform"
             >
@@ -767,7 +769,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
                 <p className="mt-2 text-sm font-semibold text-foreground truncate">{activeOrg?.name || "My Hub"}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {safeRole === "participant" ? "Your live moments, proof, and rewards stay together here." : "Your work, results, and account tools stay together here."}
+                  {safeRole === "participant" ? "Your live Moments, access, Gems, and saved value stay together here." : "Your work, return, and account tools stay together here."}
                 </p>
               </div>
             </div>

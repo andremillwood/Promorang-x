@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   CalendarDays,
@@ -22,6 +23,8 @@ import {
   PlayCircle,
   ShieldCheck,
   Store,
+  ShoppingBag,
+  Tag,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
@@ -42,6 +45,11 @@ import pottery from "@/assets/moments/pottery.jpg";
 import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
 import { MISSION_ARCHETYPES } from "@/lib/mission-archetypes";
 import { rememberMarketingIntent } from "@/lib/marketing-attribution";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
+type PublicMoment = Tables<"view_public_moment_directory">;
+type PublicCommerceListing = Tables<"view_public_commerce_directory">;
 
 const vibeCards = [
   { label: "Music Lover", icon: Music2, image: momentConcert, href: "/discover/moments?category=music" },
@@ -65,6 +73,68 @@ const storyCards = [
 
 const scenes = cultureScenes;
 const liveNow = cultureEvents.slice(0, 4);
+
+const commerceFallback = [
+  {
+    id: "recovery-pass",
+    kind: "Deal",
+    title: "20% off your next recovery class",
+    merchant: "Mindful Movement Studio",
+    price: "Member perk",
+    image: momentYoga,
+    href: "/discover/rewards",
+  },
+  {
+    id: "dinner-bundle",
+    kind: "Coupon",
+    title: "Dinner bundle + free dessert",
+    merchant: "Downtown Fresh Market",
+    price: "Unlock in store",
+    image: momentFoodFestival,
+    href: "/discover/rewards",
+  },
+  {
+    id: "streetwear-capsule",
+    kind: "Product",
+    title: "Founder's weekend capsule",
+    merchant: "North Block Supply",
+    price: "Shop the drop",
+    image: momentConcert,
+    href: "/shop",
+  },
+  {
+    id: "beauty-reset",
+    kind: "Service",
+    title: "Weekday beauty reset",
+    merchant: "The Glow House",
+    price: "Reserve a slot",
+    image: momentArt,
+    href: "/shop",
+  },
+];
+
+const formatCommercePrice = (listing: PublicCommerceListing) => {
+  if (listing.discount_value && listing.discount_type?.includes("percentage")) {
+    return `${listing.discount_value}% off`;
+  }
+
+  if (typeof listing.price === "number") {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: listing.currency || "USD",
+      maximumFractionDigits: 2,
+    }).format(listing.price);
+  }
+
+  if (listing.points_cost) return `${listing.points_cost.toLocaleString()} points`;
+  return listing.listing_kind === "service" ? "View service" : "View offer";
+};
+
+const commerceKind = (listing: PublicCommerceListing) => {
+  if (listing.discount_type || listing.discount_value) return "Deal";
+  if (listing.listing_kind === "service") return "Service";
+  return "Product";
+};
 
 const feedItems = [
   { user: "@thepromoqueen", time: "2m ago", image: momentArt },
@@ -92,8 +162,8 @@ const organizerTools = [
 ];
 
 const participationTrail = [
-  { number: "01", label: "Notice", title: "Content gives you a reason to care.", text: "A creator, place, product, or moment catches your attention." },
-  { number: "02", label: "Move", title: "A Mission gives you a useful next move.", text: "Share it, make something, visit, refer, buy, host, or help it happen." },
+  { number: "01", label: "Notice", title: "You see a reason to care.", text: "A creator, place, product, or moment catches your attention." },
+  { number: "02", label: "Move", title: "Promorang gives you one clear next step.", text: "Share it, make something, visit, refer, buy, host, or help it happen." },
   { number: "03", label: "Prove", title: "Promorang records what you contributed.", text: "Check-ins, links, submissions, referrals, and verified actions create a receipt." },
   { number: "04", label: "Keep", title: "Your contribution can unlock value.", text: "Build status, earn funded rewards, get better invitations, and qualify for future work." },
 ];
@@ -103,9 +173,9 @@ const roleOffers = [
     icon: Users,
     eyebrow: "I want in",
     title: "Find something worth doing",
-    promise: "Start with an open Mission. See the action, proof, and possible reward before you join.",
+    promise: "Start with an open action. See what to do, what counts as proof, and what you may unlock before you join.",
     value: ["Free to begin", "Build a visible record", "Unlock better opportunities"],
-    cta: "Find my first mission",
+    cta: "Find my first action",
     href: "/missions",
     footnote: "No subscription required",
   },
@@ -113,8 +183,8 @@ const roleOffers = [
     icon: PlayCircle,
     eyebrow: "I make things",
     title: "Turn attention into movement",
-    promise: "Give your audience a next move and collect proof that your work creates action.",
-    value: ["Publish creator Missions", "Reward useful supporters", "Show brands what moved"],
+    promise: "Give your audience a next step and collect proof that your work creates action.",
+    value: ["Publish creator prompts", "Reward useful supporters", "Show brands what moved"],
     cta: "Build as a creator",
     href: "/auth?mode=signup&role=creator&next=%2Fdashboard%3Ftab%3Dpublish",
     footnote: "Start with one piece of content",
@@ -146,11 +216,13 @@ function SectionHeader({
   title,
   accent,
   action,
+  actionHref = "/discover",
 }: {
   eyebrow?: string;
   title: string;
   accent?: string;
   action?: string;
+  actionHref?: string;
 }) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4">
@@ -161,7 +233,7 @@ function SectionHeader({
         </h2>
       </div>
       {action ? (
-        <Link to="/discover" className="hidden shrink-0 items-center gap-2 text-sm font-bold text-white/60 transition hover:text-primary sm:inline-flex">
+        <Link to={actionHref} className="hidden shrink-0 items-center gap-2 text-sm font-bold text-white/60 transition hover:text-primary sm:inline-flex">
           {action}
           <ArrowRight className="h-4 w-4" />
         </Link>
@@ -190,6 +262,71 @@ function ImageCard({
 
 export default function CinematicCultureHome() {
   const visitorLocation = useVisitorLocation();
+  const discoveryQuery = useQuery({
+    queryKey: ["homepage-public-discovery"],
+    queryFn: async () => {
+      const [momentsResult, commerceResult] = await Promise.all([
+        supabase
+          .from("view_public_moment_directory")
+          .select("*")
+          .eq("is_active", true)
+          .order("starts_at", { ascending: true, nullsFirst: false })
+          .limit(4),
+        supabase
+          .from("view_public_commerce_directory")
+          .select("*")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false, nullsFirst: false })
+          .limit(8),
+      ]);
+
+      if (momentsResult.error) throw momentsResult.error;
+      if (commerceResult.error) throw commerceResult.error;
+
+      return {
+        moments: (momentsResult.data || []) as PublicMoment[],
+        commerce: (commerceResult.data || []) as PublicCommerceListing[],
+      };
+    },
+    staleTime: 60_000,
+  });
+
+  const homepageMoments = discoveryQuery.data?.moments?.length
+    ? discoveryQuery.data.moments.map((moment, index) => ({
+        id: moment.id || `moment-${index}`,
+        title: moment.title || "Promorang Moment",
+        image: moment.image_url || trendingCards[index % trendingCards.length].image,
+        location: moment.venue_name || moment.city || moment.location || "Nearby",
+        date: moment.starts_at
+          ? new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "America/Jamaica" }).format(new Date(moment.starts_at))
+          : "Coming up",
+        reward: moment.reward || `${moment.participant_count || 0} joined`,
+        href: `/moments/${moment.id}`,
+        isSample: false,
+      }))
+    : trendingCards.slice(0, 4).map((moment) => ({
+        id: moment.momentId,
+        title: moment.shortTitle,
+        image: moment.image,
+        location: moment.place,
+        date: moment.date,
+        reward: moment.reward || moment.proof,
+        href: `/events/${moment.slug}`,
+        isSample: true,
+      }));
+
+  const homepageCommerce = discoveryQuery.data?.commerce?.length
+    ? discoveryQuery.data.commerce.slice(0, 4).map((listing, index) => ({
+        id: listing.listing_id || listing.source_id || `listing-${index}`,
+        kind: commerceKind(listing),
+        title: listing.name || "Local offer",
+        merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
+        price: formatCommercePrice(listing),
+        image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
+        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop",
+        isSample: false,
+      }))
+    : commerceFallback.map((listing) => ({ ...listing, isSample: true }));
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -209,7 +346,7 @@ export default function CinematicCultureHome() {
               <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,106,0,0.35)]">bigger</span>
             </h1>
             <p className="mt-7 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Find content worth acting on. Complete Missions online or in real life. Build proof, earn access, and keep more of the value you help create.
+              Find something worth acting on. Complete simple actions online or in real life. Build proof, earn access, and keep more of the value you help create.
             </p>
             <p className="mt-4 max-w-xl text-xs font-bold uppercase tracking-[0.16em] text-primary">
               Content → Action → Proof → Value
@@ -220,7 +357,7 @@ export default function CinematicCultureHome() {
                 onClick={() => rememberMarketingIntent("hero_first_mission", "/missions", "participant")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-xl bg-primary px-5 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,106,0,0.25)] transition hover:bg-primary/90 sm:px-6 sm:text-sm"
               >
-                Find my first mission
+                Find my first action
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
@@ -232,7 +369,7 @@ export default function CinematicCultureHome() {
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/45">Open Missions cost nothing to begin. You see the proof requirement before you join.</p>
+            <p className="mt-3 text-xs text-white/45">Open actions cost nothing to begin. You see the proof requirement before you join.</p>
           </div>
 
           <div className="mt-12 w-full max-w-xs border-l border-white/20 pl-5 text-sm text-white/75 lg:absolute lg:bottom-28 lg:right-16">
@@ -246,6 +383,94 @@ export default function CinematicCultureHome() {
                 {item.shortTitle}
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />
+        <div className="container relative px-6 py-14 md:py-20">
+          <div className="flex flex-col gap-5 border-b border-white/10 pb-8 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Explore Promorang now</p>
+              <h2 className="mt-3 max-w-3xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
+                Moments to join. <span className="text-primary">Value to unlock.</span>
+              </h2>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55 md:text-base">
+                See what is happening, what local merchants are offering, and which products, services, coupons, and deals can make your next move more valuable.
+              </p>
+            </div>
+            <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
+              {[
+                [CalendarDays, "Moments", "/discover/moments"],
+                [Tag, "Coupons & deals", "/discover/rewards"],
+                [Store, "Merchants", "/merchants"],
+                [ShoppingBag, "Products", "/shop"],
+              ].map(([Icon, label, href]) => {
+                const ShortcutIcon = Icon as typeof CalendarDays;
+                return (
+                  <Link key={label as string} to={href as string} className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.045] px-4 py-2.5 text-xs font-black text-white/72 transition hover:border-primary/60 hover:bg-primary/10 hover:text-white">
+                    <ShortcutIcon className="h-4 w-4 text-primary" />
+                    {label as string}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="pt-9">
+            <SectionHeader eyebrow="Upcoming and active" title="Moments worth" accent="showing up for" action="Explore all moments" actionHref="/discover/moments" />
+            <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+              {homepageMoments.map((moment) => (
+                <Link key={moment.id} to={moment.href} className="group">
+                  <ImageCard image={moment.image} className="h-72">
+                    <div className="mb-auto flex items-start justify-between gap-3">
+                      <span className="rounded-md bg-primary px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white">{moment.date}</span>
+                      {moment.isSample ? <span className="rounded-md border border-white/15 bg-black/55 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-white/55">Preview</span> : null}
+                    </div>
+                    <h3 className="text-2xl font-black uppercase leading-[0.9] tracking-[-0.055em] transition group-hover:text-primary">{moment.title}</h3>
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/15 pt-3 text-xs text-white/65">
+                      <span className="flex min-w-0 items-center gap-1.5 truncate"><MapPin className="h-3.5 w-3.5 shrink-0 text-primary" /> {moment.location}</span>
+                      <span className="shrink-0 font-bold text-white">{moment.reward}</span>
+                    </div>
+                  </ImageCard>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-12">
+            <SectionHeader eyebrow="Local value" title="Deals, products &" accent="merchant perks" action="Shop all" actionHref="/shop" />
+            <div className="grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 scrollbar-none sm:auto-cols-[45%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+              {homepageCommerce.map((listing) => (
+                <Link key={listing.id} to={listing.href} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition hover:-translate-y-1 hover:border-primary/45">
+                  <div className="relative h-44 overflow-hidden">
+                    <img src={listing.image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                    <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">{listing.kind}</span>
+                    {listing.isSample ? <span className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-bold uppercase text-white/55">Preview</span> : null}
+                  </div>
+                  <div className="p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{listing.merchant}</p>
+                    <h3 className="mt-2 text-lg font-black leading-tight text-white transition group-hover:text-primary">{listing.title}</h3>
+                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3">
+                      <span className="text-sm font-bold text-white/75">{listing.price}</span>
+                      <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <Link to="/merchants" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
+                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Store className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Meet local merchants</strong><span className="text-xs text-white/45">Browse shops, venues, and service providers</span></span></span>
+                <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+              </Link>
+              <Link to="/discover/rewards" className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-primary/45">
+                <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15"><Gift className="h-5 w-5 text-primary" /></span><span><strong className="block text-sm">Find coupons and rewards</strong><span className="text-xs text-white/45">See discounts, unlocks, and claimable perks</span></span></span>
+                <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -329,7 +554,7 @@ export default function CinematicCultureHome() {
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Genesis Season · Now recording</p>
             <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] md:text-3xl">Your early contribution should not disappear.</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">Create, host, welcome, participate, or bring the right people. Pioneer Points keep the verified receipt.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">Create, host, welcome, participate, or bring the right people. Pioneer Contribution keeps the founding receipt.</p>
           </div>
           <span className="inline-flex items-center gap-2 text-sm font-black text-primary">Enter Genesis Season<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
         </Link>
@@ -340,16 +565,16 @@ export default function CinematicCultureHome() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/50" />
         <div className="container relative z-10 grid gap-10 px-6 py-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:py-24">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Missions · a reason to move</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Actions · a reason to move</p>
             <h2 className="mt-4 max-w-xl text-4xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-6xl">
               Don’t just watch culture. <span className="text-primary">Help move it.</span>
             </h2>
             <p className="mt-5 max-w-lg text-sm leading-7 text-white/60 md:text-base">
-              A Mission is one clear action with proof and a promised outcome. Start free, build Points through verified contribution, and earn Keys for limited opportunities.
+              Each opportunity gives you one clear action, a proof requirement, and a possible outcome. Start free, build Points through verified contribution, and earn Keys for limited opportunities.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link to="/missions" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-sm font-black uppercase text-white transition hover:bg-primary/90">
-                Browse open missions <ArrowRight className="h-4 w-4" />
+                Browse open actions <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/auth" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-black/30 px-6 py-4 text-sm font-black uppercase text-white transition hover:border-primary">
                 Join Promorang
@@ -359,7 +584,7 @@ export default function CinematicCultureHome() {
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">
             {[
-              { icon: CheckCircle2, eyebrow: "01 · Act", title: "Choose a Mission", text: "See the action, proof, deadline, and reward before you commit." },
+              { icon: CheckCircle2, eyebrow: "01 · Act", title: "Choose an action", text: "See the task, proof, deadline, and reward before you commit." },
               { icon: Coins, eyebrow: "02 · Prove", title: "Build Points", text: "Verified participation turns into visible progress—not empty engagement." },
               { icon: KeyRound, eyebrow: "03 · Unlock", title: "Use Keys", text: "Reserve access to limited drops, experiences, and backed opportunities." },
             ].map((step, index) => (
@@ -378,7 +603,7 @@ export default function CinematicCultureHome() {
           <div className="lg:col-start-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-xs text-white/55">
               <Gift className="h-4 w-4 text-primary" />
-              Open Missions are always free to begin.
+              Open actions are always free to begin.
             </div>
           </div>
         </div>
@@ -614,7 +839,7 @@ export default function CinematicCultureHome() {
           </div>
           <div className="divide-y divide-white/10 border-t border-white/10 bg-white/[0.025] lg:border-l lg:border-t-0">
             {[
-              ["Do I have to pay to participate?", "No. Open Missions are free to begin. Paid memberships can add defined allowances and access, but they do not guarantee earnings."],
+              ["Do I have to pay to participate?", "No. Open actions are free to begin. Paid memberships can add defined allowances and access, but they do not guarantee earnings."],
               ["Are Gems an investment?", "No. Gems provide utility inside Promorang. Holding them does not promise a return, ownership, or cash appreciation."],
               ["Who pays for rewards?", "A reward can come from a disclosed brand, host, merchant, creator, or Promorang-funded pool. Unfunded activity cannot become a cash-equivalent promise."],
               ["How does Promorang know I helped?", "Tracked links, joins, check-ins, submissions, referrals, and reviewable proof connect your contribution to an outcome."],
@@ -640,7 +865,7 @@ export default function CinematicCultureHome() {
             <h2 className="max-w-md text-4xl font-black leading-[0.9] tracking-[-0.06em] md:text-6xl">
               Name the outcome. <br />Give people a reason to <span className="text-primary">make it happen.</span>
             </h2>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">Start with one Moment, one Mission, and one result you can verify. Scale the format after it works.</p>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">Start with one Moment, one action, and one result you can verify. Scale the format after it works.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             {organizerTools.map((tool) => (

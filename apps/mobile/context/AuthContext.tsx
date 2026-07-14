@@ -5,6 +5,13 @@ import * as WebBrowser from 'expo-web-browser'
 import { makeRedirectUri } from 'expo-auth-session'
 import { AppState } from 'react-native'
 import * as SecureStore from 'expo-secure-store'
+import * as AppleAuthentication from 'expo-apple-authentication'
+import * as Crypto from 'expo-crypto'
+import { Platform } from 'react-native'
+
+WebBrowser.maybeCompleteAuthSession()
+
+const ALLOW_DEMO_LOGIN = __DEV__ || process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN === 'true'
 
 // Helper to extract params from URL (hash or query)
 function extractParamsFromUrl(url: string) {
@@ -26,7 +33,7 @@ function extractParamsFromUrl(url: string) {
     return params;
 }
 
-export type UserRole = "participant" | "host" | "brand" | "merchant" | "admin";
+export type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "admin";
 
 type AuthContextType = {
     session: Session | null
@@ -35,9 +42,17 @@ type AuthContextType = {
     activeRole: UserRole | null
     setActiveRole: (role: UserRole) => void
     organizations: any[]
+    agencyClients: Array<{
+        id: string
+        name: string
+        type: string
+        relationship_type?: string
+    }>
     activeOrgId: string | null
     setActiveOrgId: (id: string | null) => void
     signInWithGoogle: () => Promise<void>
+    signInWithApple: () => Promise<{ error: Error | null }>
+    demoSignIn: (role: UserRole) => Promise<{ error: Error | null }>
     signOut: () => Promise<void>
     isLoading: boolean
 }
@@ -49,9 +64,12 @@ const AuthContext = createContext<AuthContextType>({
     activeRole: null,
     setActiveRole: () => { },
     organizations: [],
+    agencyClients: [],
     activeOrgId: null,
     setActiveOrgId: () => { },
     signInWithGoogle: async () => { },
+    signInWithApple: async () => ({ error: null }),
+    demoSignIn: async () => ({ error: null }),
     signOut: async () => { },
     isLoading: true,
 })
@@ -251,9 +269,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const signInWithGoogle = async () => {
         try {
             const redirectUrl = makeRedirectUri({
-                scheme: 'mobile',
+                scheme: 'promorang',
                 path: 'auth/callback',
+                native: 'promorang://auth/callback',
             })
+            if (__DEV__) {
+                console.info('[Auth] Add this exact URL to Supabase Redirect URLs:', redirectUrl)
+            }
 
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -270,6 +292,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (error) throw error
             if (!data?.url) throw new Error('No auth URL returned from Supabase')
 
+            const authorizationUrl = new URL(data.url)
+            if (__DEV__) {
+                console.info('[Auth] Supabase project:', authorizationUrl.host)
+                console.info(
+                    '[Auth] Callback sent to Supabase:',
+                    authorizationUrl.searchParams.get('redirect_to')
+                )
+            }
+
             const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl)
 
             if (result.type === 'success' && result.url) {
@@ -285,6 +316,92 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (e) {
             console.error('Google Sign-In Error:', e)
+        }
+    }
+
+    const signInWithApple = async () => {
+        if (Platform.OS !== 'ios') {
+            return { error: new Error('Sign in with Apple is available on iPhone and iPad.') }
+        }
+
+        try {
+            setIsLoading(true)
+            const rawNonce = Crypto.randomUUID()
+            const hashedNonce = await Crypto.digestStringAsync(
+                Crypto.CryptoDigestAlgorithm.SHA256,
+                rawNonce
+            )
+            const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+                nonce: hashedNonce,
+            })
+
+            if (!credential.identityToken) {
+                throw new Error('Apple did not return a valid identity token.')
+            }
+
+            const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
+                .filter(Boolean)
+                .join(' ')
+            const { error } = await supabase.auth.signInWithIdToken({
+                provider: 'apple',
+                token: credential.identityToken,
+                nonce: rawNonce,
+            })
+            if (error) throw error
+
+            if (fullName) {
+                await supabase.auth.updateUser({ data: { full_name: fullName, name: fullName } })
+            }
+            return { error: null }
+        } catch (error: any) {
+            if (error?.code === 'ERR_REQUEST_CANCELED') return { error: null }
+            const appleError = error instanceof Error ? error : new Error('Apple sign-in failed')
+            console.error('Apple Sign-In Error:', appleError)
+            return { error: appleError }
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const demoSignIn = async (role: UserRole) => {
+        if (!ALLOW_DEMO_LOGIN) {
+            return { error: new Error('Demo login is disabled for this build') }
+        }
+
+        try {
+            setIsLoading(true)
+            const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || 'https://api.promorang.co/api'
+            const response = await fetch(`${apiBaseUrl}/auth/demo/${role}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            })
+            const payload = await response.json().catch(() => null)
+
+            if (!response.ok) {
+                throw new Error(payload?.details || payload?.error || 'Failed to prepare demo account')
+            }
+            if (!payload?.email || !payload?.password) {
+                throw new Error('Demo account response was missing credentials')
+            }
+
+            const { error } = await supabase.auth.signInWithPassword({
+                email: payload.email,
+                password: payload.password,
+            })
+            if (error) throw error
+
+            return { error: null }
+        } catch (error) {
+            const demoError = error instanceof Error ? error : new Error('Demo login failed')
+            console.error('Demo Sign-In Error:', demoError)
+            return { error: demoError }
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -309,6 +426,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setActiveOrgId,
             agencyClients,
             signInWithGoogle,
+            signInWithApple,
+            demoSignIn,
             signOut,
             isLoading
         }}>

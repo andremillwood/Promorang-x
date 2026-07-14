@@ -1,5 +1,7 @@
 # Promorang Experience Direction
 
+> Supporting visual-direction reference. Use [`DESIGN.md`](../../DESIGN.md) as product law and the [A+ Platform Execution Plan](a-plus-platform-execution-plan.md) for implementation order and acceptance. The five canonical destinations are `Today`, `Discover`, `Create`, `Progress`, and `Vault`.
+
 ## Product Feel
 
 Promorang should feel like a social marketplace for momentum, not a dashboard suite.
@@ -66,4 +68,3 @@ This should appear as a living trail, receipt, or flow in major surfaces:
 - Color: Promorang orange as action energy, black/cream as the system, yellow only as reward light.
 - Typography: clear sans for product actions, serif only for editorial emphasis and brand moments.
 - Motion: subtle state changes, rail progress, hover lift, receipt reveal. No decorative blobs.
-

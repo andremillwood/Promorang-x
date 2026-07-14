@@ -56,16 +56,16 @@ export default function Communities() {
         <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.05] p-5 md:grid-cols-[0.8fr_1.2fr] md:items-center">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Scene signal</p>
-            <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">Proof makes belonging visible.</h2>
+            <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">Presence makes belonging visible.</h2>
             <p className="mt-3 text-sm leading-6 text-white/60">
-              People do more than follow a scene. They check in, share, attend, refer, unlock, and help prove what is actually moving.
+              People do more than follow a Scene. They check in, share, attend, refer, unlock, and help show what is actually moving.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {[
               { icon: Users, value: "6.3K", label: "people represented" },
               { icon: Flame, value: "137", label: "moments mapped" },
-              { icon: ArrowRight, value: "147K", label: "proof signals" },
+              { icon: ArrowRight, value: "147K", label: "participation signals" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/35 p-4">
                 <stat.icon className="mb-4 h-5 w-5 text-primary" />

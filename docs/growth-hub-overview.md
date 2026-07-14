@@ -1,5 +1,7 @@
 # Growth Hub Overview
 
+> Historical note: this document describes the original financial-product interpretation of Growth Hub. The canonical 2026 acquisition, activation, referral, outcome, retention, and experimentation model is defined in `docs/GROWTH_OPERATING_SYSTEM.md`.
+
 _Last updated: 2025-10-29_
 
 ## Mission & Value Proposition

@@ -114,7 +114,7 @@ export const MerchantVerificationModal = ({ momentTitle, venueName, onVerified }
                             <div className="flex items-start gap-3 bg-primary/5 p-4 rounded-xl border border-primary/10">
                                 <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
                                 <p className="text-[10px] text-white/60 leading-relaxed font-medium">
-                                    <span className="text-primary font-bold">Merchant Proof:</span> Authenticating your physical presence yields 50% more bonus points and strengthens the ROI profile for <span className="text-white font-bold">{momentTitle.split(' ')[0]}</span>.
+                                    <span className="text-primary font-bold">Merchant signal:</span> Confirming your physical presence can open more earned value and strengthen the return profile for <span className="text-white font-bold">{momentTitle.split(' ')[0]}</span>.
                                 </p>
                             </div>
                         </motion.div>

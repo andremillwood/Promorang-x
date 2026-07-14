@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearDemoSession, DemoRole, readDemoSession, writeDemoSession } from "@/lib/demo-session";
+import { getGrowthSignupMetadata } from "@/lib/marketing-attribution";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "promoter" | "marketing" | "admin";
 
@@ -420,6 +421,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
     clearDemoSession();
     const redirectUrl = `${window.location.origin}/`;
+    const growth = getGrowthSignupMetadata();
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -428,6 +430,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          referral_code: growth.referral_code,
+          anonymous_id: growth.anonymous_id,
+          acquisition: growth.first_touch,
         },
       },
     });

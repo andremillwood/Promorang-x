@@ -121,6 +121,42 @@ async function updatePaymentIntentStatus(paymentIntentId, status, error = null) 
     }
 }
 
+/**
+ * Create a Stripe refund for a payment intent.
+ * @param {object} params
+ * @param {string} params.paymentIntentId - Stripe PaymentIntent ID
+ * @param {number|null} params.amount - Optional amount in major currency units
+ * @param {string} params.reason - Stripe refund reason
+ * @param {object} params.metadata - Additional metadata
+ */
+async function createRefund({ paymentIntentId, amount = null, reason = 'requested_by_customer', metadata = {} }) {
+    if (!stripe) {
+        throw new Error('Stripe is not configured.');
+    }
+    if (!paymentIntentId) {
+        throw new Error('paymentIntentId is required');
+    }
+
+    try {
+        const refundPayload = {
+            payment_intent: paymentIntentId,
+            reason,
+            metadata,
+        };
+
+        if (amount !== null && amount !== undefined) {
+            refundPayload.amount = Math.round(Number(amount) * 100);
+        }
+
+        const refund = await stripe.refunds.create(refundPayload);
+        await updatePaymentIntentStatus(paymentIntentId, refund.status === 'succeeded' ? 'refunded' : `refund_${refund.status}`);
+        return refund;
+    } catch (error) {
+        console.error('Error creating Stripe refund:', error);
+        throw new Error(`Failed to create Stripe refund: ${error.message}`);
+    }
+}
+
 // ============================================
 // STRIPE CONNECT (Host Payouts)
 // ============================================
@@ -382,6 +418,7 @@ async function processWebhookEvent(event) {
             case 'payment_intent.succeeded':
                 await updatePaymentIntentStatus(event.data.object.id, 'succeeded');
                 await handleMomentEconomyPaymentSucceeded(event.data.object);
+                await handleCommercePaymentSucceeded(event.data.object);
                 break;
 
             case 'payment_intent.payment_failed':
@@ -454,6 +491,19 @@ async function handleMomentEconomyPaymentSucceeded(paymentIntent) {
         await momentEconomyService.confirmStripeMomentPaymentIntent(paymentIntent);
     } catch (error) {
         console.error('Error handling Moment Economy payment:', error);
+        throw error;
+    }
+}
+
+async function handleCommercePaymentSucceeded(paymentIntent) {
+    try {
+        const metadata = paymentIntent?.metadata || {};
+        if (metadata.commerce_flow !== 'merchant_product_purchase') return;
+
+        const marketplaceService = require('./marketplaceService');
+        await marketplaceService.finalizeStripePurchase(paymentIntent);
+    } catch (error) {
+        console.error('Error handling commerce payment:', error);
         throw error;
     }
 }
@@ -872,6 +922,7 @@ module.exports = {
     createPaymentIntent,
     getPaymentIntent,
     updatePaymentIntentStatus,
+    createRefund,
 
     // Stripe Connect
     createConnectAccount,

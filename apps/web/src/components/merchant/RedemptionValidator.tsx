@@ -137,7 +137,7 @@ const RedemptionValidator = () => {
                         Validate Redemption
                     </CardTitle>
                     <CardDescription>
-                        Enter the customer's redemption code to validate their purchase
+                        Enter the customer's product sale code to validate their purchase or reservation.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -151,7 +151,7 @@ const RedemptionValidator = () => {
                                     onChange={(e) => setRedemptionCode(e.target.value.toUpperCase())}
                                     placeholder="Enter code (e.g., ABC12345)"
                                     className="flex-1 font-mono text-lg"
-                                    maxLength={8}
+                                    maxLength={64}
                                 />
                                 <Button type="submit" disabled={isValidating}>
                                     {isValidating ? (
@@ -167,7 +167,7 @@ const RedemptionValidator = () => {
                         </div>
 
                         <div className="text-sm text-muted-foreground">
-                            <p>💡 Tip: Ask the customer to show you their redemption code from the app.</p>
+                            <p>💡 Tip: Ask the customer to show the code from their Vault or Wallet receipt. Offer claims and receipt status can also be managed from the Commerce Console.</p>
                         </div>
                     </form>
                 </CardContent>

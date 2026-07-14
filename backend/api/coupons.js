@@ -180,20 +180,6 @@ router.get('/store/:storeId', async (req, res) => {
 });
 
 /**
- * GET /api/coupons/:couponId
- * Get coupon details
- */
-router.get('/:couponId', async (req, res) => {
-  try {
-    const result = await couponService.getCouponAnalytics(req.params.couponId);
-    return sendSuccess(res, result);
-  } catch (error) {
-    console.error('[Coupon API] Error getting coupon:', error);
-    return sendError(res, 500, error.message || 'Failed to get coupon', 'SERVER_ERROR');
-  }
-});
-
-/**
  * GET /api/coupons/my-redemptions
  * Get user's claimed/redeemed coupons
  */
@@ -222,20 +208,6 @@ router.get('/merchant/redemptions', async (req, res) => {
 });
 
 /**
- * POST /api/coupons/:id/redeem
- * User claims a coupon
- */
-router.post('/:id/redeem', async (req, res) => {
-  try {
-    const redemption = await couponService.redeemCoupon(req.user.id, req.params.id);
-    return sendSuccess(res, { redemption }, 'Coupon claimed successfully');
-  } catch (error) {
-    console.error('[Coupon API] Error redeeming coupon:', error);
-    return sendError(res, 400, error.message || 'Failed to redeem coupon', 'REDEMPTION_ERROR');
-  }
-});
-
-/**
  * POST /api/coupons/merchant/validate
  * Merchant validates a user's coupon code
  */
@@ -251,52 +223,6 @@ router.post('/merchant/validate', async (req, res) => {
   } catch (error) {
     console.error('[Coupon API] Error validating redemption:', error);
     return sendError(res, 400, error.message || 'Failed to validate coupon', 'VALIDATION_ERROR');
-  }
-});
-
-/**
- * PATCH /api/coupons/:couponId
- * Update a coupon
- */
-router.patch('/:couponId', async (req, res) => {
-  try {
-    const coupon = await couponService.updateCoupon(
-      req.params.couponId,
-      req.user.id,
-      req.body
-    );
-    return sendSuccess(res, { coupon }, 'Coupon updated successfully');
-  } catch (error) {
-    console.error('[Coupon API] Error updating coupon:', error);
-    return sendError(res, 500, error.message || 'Failed to update coupon', 'SERVER_ERROR');
-  }
-});
-
-/**
- * DELETE /api/coupons/:couponId
- * Delete/deactivate a coupon
- */
-router.delete('/:couponId', async (req, res) => {
-  try {
-    await couponService.deleteCoupon(req.params.couponId, req.user.id);
-    return sendSuccess(res, {}, 'Coupon deleted successfully');
-  } catch (error) {
-    console.error('[Coupon API] Error deleting coupon:', error);
-    return sendError(res, 500, error.message || 'Failed to delete coupon', 'SERVER_ERROR');
-  }
-});
-
-/**
- * GET /api/coupons/:couponId/analytics
- * Get coupon usage analytics
- */
-router.get('/:couponId/analytics', async (req, res) => {
-  try {
-    const analytics = await couponService.getCouponAnalytics(req.params.couponId);
-    return sendSuccess(res, analytics);
-  } catch (error) {
-    console.error('[Coupon API] Error getting coupon analytics:', error);
-    return sendError(res, 500, 'Failed to get analytics', 'SERVER_ERROR');
   }
 });
 
@@ -375,6 +301,80 @@ router.get('/analytics/unified', async (req, res) => {
   } catch (error) {
     console.error('[Coupon API] Error getting unified analytics:', error);
     return sendError(res, 500, 'Failed to get unified analytics', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/:couponId/analytics
+ * Get coupon usage analytics
+ */
+router.get('/:couponId/analytics', async (req, res) => {
+  try {
+    const analytics = await couponService.getCouponAnalytics(req.params.couponId);
+    return sendSuccess(res, analytics);
+  } catch (error) {
+    console.error('[Coupon API] Error getting coupon analytics:', error);
+    return sendError(res, 500, 'Failed to get analytics', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * GET /api/coupons/:couponId
+ * Get coupon details
+ */
+router.get('/:couponId', async (req, res) => {
+  try {
+    const result = await couponService.getCouponAnalytics(req.params.couponId);
+    return sendSuccess(res, result);
+  } catch (error) {
+    console.error('[Coupon API] Error getting coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to get coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * POST /api/coupons/:id/redeem
+ * User claims a coupon
+ */
+router.post('/:id/redeem', async (req, res) => {
+  try {
+    const redemption = await couponService.redeemCoupon(req.user.id, req.params.id);
+    return sendSuccess(res, { redemption }, 'Coupon claimed successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error redeeming coupon:', error);
+    return sendError(res, 400, error.message || 'Failed to redeem coupon', 'REDEMPTION_ERROR');
+  }
+});
+
+/**
+ * PATCH /api/coupons/:couponId
+ * Update a coupon
+ */
+router.patch('/:couponId', async (req, res) => {
+  try {
+    const coupon = await couponService.updateCoupon(
+      req.params.couponId,
+      req.user.id,
+      req.body
+    );
+    return sendSuccess(res, { coupon }, 'Coupon updated successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error updating coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to update coupon', 'SERVER_ERROR');
+  }
+});
+
+/**
+ * DELETE /api/coupons/:couponId
+ * Delete/deactivate a coupon
+ */
+router.delete('/:couponId', async (req, res) => {
+  try {
+    await couponService.deleteCoupon(req.params.couponId, req.user.id);
+    return sendSuccess(res, {}, 'Coupon deleted successfully');
+  } catch (error) {
+    console.error('[Coupon API] Error deleting coupon:', error);
+    return sendError(res, 500, error.message || 'Failed to delete coupon', 'SERVER_ERROR');
   }
 });
 

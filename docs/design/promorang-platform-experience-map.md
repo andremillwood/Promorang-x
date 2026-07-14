@@ -1,5 +1,7 @@
 # Promorang Platform Experience Map
 
+> Supporting product-mechanics reference. The canonical navigation, human-language standard, Scenes model, Gems rules, workstreams, and release gates now live in [`DESIGN.md`](../../DESIGN.md) and the [A+ Platform Execution Plan](a-plus-platform-execution-plan.md). Older loop terminology below should be translated through those sources during implementation.
+
 This map defines which product mechanics belong where. The goal is to make Promorang feel like a social opportunity marketplace instead of a dashboard suite.
 
 ## Core Rule

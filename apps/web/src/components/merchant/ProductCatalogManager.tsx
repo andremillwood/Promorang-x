@@ -39,6 +39,12 @@ interface Product {
     name: string;
     description?: string;
     category?: string;
+    listing_kind?: string;
+    fulfillment_mode?: string;
+    booking_url?: string;
+    service_duration_minutes?: number;
+    service_capacity?: number;
+    visibility?: string;
     price?: number;
     price_usd?: number;
     points_cost?: number;
@@ -50,6 +56,10 @@ interface Product {
     revenue_generated: number;
     is_active: boolean;
     image_url?: string;
+    discount_type?: string;
+    discount_value?: number;
+    expires_at?: string;
+    terms_conditions?: string;
 }
 
 const ProductCatalogManager = () => {
@@ -71,6 +81,15 @@ const ProductCatalogManager = () => {
         low_stock_threshold: "10",
         discount_type: "",
         discount_value: "",
+        image_url: "",
+        listing_kind: "product",
+        fulfillment_mode: "pickup",
+        booking_url: "",
+        service_duration_minutes: "",
+        service_capacity: "",
+        visibility: "public",
+        expires_at: "",
+        terms_conditions: "",
     });
 
     useEffect(() => {
@@ -120,8 +139,15 @@ const ProductCatalogManager = () => {
                 low_stock_threshold: parseInt(formData.low_stock_threshold),
                 discount_type: formData.discount_type || null,
                 discount_value: formData.discount_value ? parseFloat(formData.discount_value) : null,
-                listing_kind: formData.category === "service" ? "service" : "product",
-                fulfillment_mode: formData.category === "service" ? "booking" : "pickup",
+                image_url: formData.image_url || null,
+                listing_kind: formData.listing_kind || (formData.category === "service" ? "service" : "product"),
+                fulfillment_mode: formData.fulfillment_mode || (formData.category === "service" ? "booking" : "pickup"),
+                booking_url: formData.booking_url || null,
+                service_duration_minutes: formData.service_duration_minutes ? parseInt(formData.service_duration_minutes) : null,
+                service_capacity: formData.service_capacity ? parseInt(formData.service_capacity) : null,
+                visibility: formData.visibility,
+                expires_at: formData.expires_at || null,
+                terms_conditions: formData.terms_conditions || null,
             };
 
             const url = editingProduct
@@ -170,6 +196,15 @@ const ProductCatalogManager = () => {
             low_stock_threshold: product.low_stock_threshold?.toString() || "10",
             discount_type: "",
             discount_value: "",
+            image_url: product.image_url || "",
+            listing_kind: product.listing_kind || (product.category === "service" ? "service" : "product"),
+            fulfillment_mode: product.fulfillment_mode || (product.category === "service" ? "booking" : "pickup"),
+            booking_url: product.booking_url || "",
+            service_duration_minutes: product.service_duration_minutes?.toString() || "",
+            service_capacity: product.service_capacity?.toString() || "",
+            visibility: product.visibility || "public",
+            expires_at: product.expires_at ? product.expires_at.slice(0, 10) : "",
+            terms_conditions: product.terms_conditions || "",
         });
         setIsDialogOpen(true);
     };
@@ -213,6 +248,15 @@ const ProductCatalogManager = () => {
             low_stock_threshold: "10",
             discount_type: "",
             discount_value: "",
+            image_url: "",
+            listing_kind: "product",
+            fulfillment_mode: "pickup",
+            booking_url: "",
+            service_duration_minutes: "",
+            service_capacity: "",
+            visibility: "public",
+            expires_at: "",
+            terms_conditions: "",
         });
         setEditingProduct(null);
     };
@@ -275,7 +319,12 @@ const ProductCatalogManager = () => {
                                     <Label htmlFor="category">Category</Label>
                                     <Select
                                         value={formData.category}
-                                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                                        onValueChange={(value) => setFormData({
+                                            ...formData,
+                                            category: value,
+                                            listing_kind: value === "service" ? "service" : formData.listing_kind,
+                                            fulfillment_mode: value === "service" ? "booking" : formData.fulfillment_mode,
+                                        })}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
@@ -286,6 +335,70 @@ const ProductCatalogManager = () => {
                                             <SelectItem value="service">Service</SelectItem>
                                             <SelectItem value="entertainment">Entertainment</SelectItem>
                                             <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="listing_kind">Storefront Type</Label>
+                                    <Select
+                                        value={formData.listing_kind}
+                                        onValueChange={(value) => setFormData({ ...formData, listing_kind: value })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Listing type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="product">Product</SelectItem>
+                                            <SelectItem value="service">Service</SelectItem>
+                                            <SelectItem value="experience">Experience</SelectItem>
+                                            <SelectItem value="perk">Perk</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                    <Label htmlFor="image_url">Storefront Image URL</Label>
+                                    <Input
+                                        id="image_url"
+                                        value={formData.image_url}
+                                        onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="fulfillment_mode">Fulfillment</Label>
+                                    <Select
+                                        value={formData.fulfillment_mode}
+                                        onValueChange={(value) => setFormData({ ...formData, fulfillment_mode: value })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Fulfillment mode" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="pickup">Pickup</SelectItem>
+                                            <SelectItem value="booking">Booking</SelectItem>
+                                            <SelectItem value="reservation">Reservation</SelectItem>
+                                            <SelectItem value="online">Online</SelectItem>
+                                            <SelectItem value="onsite">On-site redemption</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="visibility">Visibility</Label>
+                                    <Select
+                                        value={formData.visibility}
+                                        onValueChange={(value) => setFormData({ ...formData, visibility: value })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Visibility" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="public">Public storefront</SelectItem>
+                                            <SelectItem value="moment_participants">Moment participants</SelectItem>
+                                            <SelectItem value="hidden">Hidden</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -309,6 +422,18 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
+                                    <Label htmlFor="discount_value">Discount Value</Label>
+                                    <Input
+                                        id="discount_value"
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.discount_value}
+                                        onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
+                                        placeholder="20"
+                                    />
+                                </div>
+
+                                <div>
                                     <Label htmlFor="price_usd">Price (USD)</Label>
                                     <Input
                                         id="price_usd"
@@ -320,7 +445,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="price_points">Price (Points)</Label>
+                                    <Label htmlFor="price_points">Price (earned value)</Label>
                                     <Input
                                         id="price_points"
                                         type="number"
@@ -347,6 +472,59 @@ const ProductCatalogManager = () => {
                                         type="number"
                                         value={formData.low_stock_threshold}
                                         onChange={(e) => setFormData({ ...formData, low_stock_threshold: e.target.value })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="booking_url">Booking URL</Label>
+                                    <Input
+                                        id="booking_url"
+                                        value={formData.booking_url}
+                                        onChange={(e) => setFormData({ ...formData, booking_url: e.target.value })}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="expires_at">Offer Ends</Label>
+                                    <Input
+                                        id="expires_at"
+                                        type="date"
+                                        value={formData.expires_at}
+                                        onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="service_duration_minutes">Duration Minutes</Label>
+                                    <Input
+                                        id="service_duration_minutes"
+                                        type="number"
+                                        value={formData.service_duration_minutes}
+                                        onChange={(e) => setFormData({ ...formData, service_duration_minutes: e.target.value })}
+                                        placeholder="45"
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="service_capacity">Service Capacity</Label>
+                                    <Input
+                                        id="service_capacity"
+                                        type="number"
+                                        value={formData.service_capacity}
+                                        onChange={(e) => setFormData({ ...formData, service_capacity: e.target.value })}
+                                        placeholder="8"
+                                    />
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                    <Label htmlFor="terms_conditions">Terms / Redemption Notes</Label>
+                                    <Textarea
+                                        id="terms_conditions"
+                                        value={formData.terms_conditions}
+                                        onChange={(e) => setFormData({ ...formData, terms_conditions: e.target.value })}
+                                        rows={2}
+                                        placeholder="Valid in-store only, one per customer, show code at counter..."
                                     />
                                 </div>
                             </div>
@@ -383,7 +561,7 @@ const ProductCatalogManager = () => {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Product</TableHead>
-                                    <TableHead>Category</TableHead>
+                                    <TableHead>Storefront</TableHead>
                                     <TableHead>Price</TableHead>
                                     <TableHead>Inventory</TableHead>
                                     <TableHead>Sales</TableHead>
@@ -396,9 +574,17 @@ const ProductCatalogManager = () => {
                                     <TableRow key={product.id}>
                                         <TableCell className="font-medium">
                                             <span className="block min-w-[11rem] max-w-[18rem] truncate">{product.name}</span>
+                                            {product.discount_value ? (
+                                                <span className="mt-1 block text-xs text-primary">
+                                                    {product.discount_value}{product.discount_type === "percentage" ? "%" : ""} offer
+                                                </span>
+                                            ) : null}
                                         </TableCell>
                                         <TableCell>
-                                            <span className="block min-w-[8rem] truncate">{product.category || 'Uncategorized'}</span>
+                                            <div className="min-w-[10rem] space-y-1">
+                                                <span className="block truncate capitalize">{product.listing_kind || product.category || 'Product'}</span>
+                                                <span className="block text-xs text-muted-foreground capitalize">{product.fulfillment_mode || 'pickup'} · {product.visibility || 'public'}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             {(product.price_usd ?? product.price) && `$${Number(product.price_usd ?? product.price).toFixed(2)}`}

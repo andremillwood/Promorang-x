@@ -1,18 +1,18 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 
 interface InfoTooltipProps {
     content: string;
-    children?: React.ReactNode;
+    children?: React.ReactElement;
     placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
 }
 
-export const InfoTooltip: React.FC<InfoTooltipProps> = ({
+export function InfoTooltip({
     content,
     children,
     placement = 'top',
-}) => {
+}: InfoTooltipProps): React.JSX.Element {
     const [visible, setVisible] = React.useState(false);
 
     return (
@@ -41,7 +41,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
             </TouchableOpacity>
         </Tooltip>
     );
-};
+}
 
 const styles = StyleSheet.create({
     iconButton: {

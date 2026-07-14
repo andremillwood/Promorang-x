@@ -55,7 +55,9 @@ export default defineConfig(({ mode }) => {
           if (id.includes("@radix-ui")) return "vendor-radix";
           if (id.includes("framer-motion")) return "vendor-motion";
           if (id.includes("date-fns")) return "vendor-dates";
-          if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
+          // v2 intentionally changes the public chunk URL to escape stale
+          // immutable/negative CDN and browser cache entries from the broken deployment.
+          if (id.includes("react") || id.includes("scheduler")) return "vendor-react-v2";
         },
       },
     },

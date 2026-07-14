@@ -34,6 +34,7 @@ import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } fr
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
+import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useCampaignProofOutcome } from "@/hooks/useProofOutcome";
 import { useQuery } from "@tanstack/react-query";
@@ -226,21 +227,23 @@ const BrandDashboardV2 = () => {
     <div className="space-y-6 pb-20">
       <DashboardHero
         badge="Brand Control Room"
-        title={isNewBrand ? "Launch the first campaign you can actually prove" : "Turn campaign attention into verified movement"}
-        description="Fund a moment, drop, or reward people actually want, verify who acted, attribute what happened, then scale the scenes that moved."
+        title={isNewBrand ? "Launch the first campaign people can feel and you can trust" : "Turn campaign attention into verified movement"}
+        description="Fund a moment, drop, or reward people actually want, see who acted, understand what happened, then scale the scenes that moved."
         actions={[
           { label: "Quick launch", icon: Zap, onClick: () => setIsFlashCompilerOpen(!isFlashCompilerOpen) },
           { label: "Create offer", icon: Gift, href: "/dashboard/offers" },
           { label: isEstablishedBrand ? "Insights" : "Planner", icon: BarChart3, onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner") },
         ]}
         stats={[
-          { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live proof loops", icon: Target },
+          { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live movement loops", icon: Target },
           { label: "Participants", value: totalImpressions.toLocaleString(), helper: "Attributed actions", icon: Users },
           { label: "Redemptions", value: totalRedemptions.toLocaleString(), helper: "Outcome signals", icon: Gift },
           { label: "Points given", value: economy?.totalPointsDistributed?.toLocaleString() || "0", helper: "Distributed through campaigns", icon: Coins },
         ]}
         isLoading={statsLoading || economyLoading}
       />
+
+      <StakeholderReturnPanel role="brand" />
 
       {/* =====================================================================
           FLASH COMPILER: Collapsible quick create
@@ -273,9 +276,9 @@ const BrandDashboardV2 = () => {
                 <Target className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first proof-backed PromoPush</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first movement-backed PromoPush</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and proof-bearing outcomes.
+                  Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and counted outcomes.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>

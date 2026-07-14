@@ -23,6 +23,7 @@ export default function RedemptionCodeScreen() {
             setTimeout(() => setCopied(false), 2000);
         } catch (error) {
             console.error('Error sharing code:', error);
+            Alert.alert('Could not share code', 'Please try again.');
         }
     };
 

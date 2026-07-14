@@ -16,6 +16,7 @@ export interface Moment {
 export function useMoments(category: string = 'all') {
     const [moments, setMoments] = useState<Moment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
         const fetchMoments = async () => {
@@ -35,8 +36,10 @@ export function useMoments(category: string = 'all') {
 
                 if (error) throw error;
                 setMoments(data || []);
+                setError(null);
             } catch (error) {
                 console.error('Error fetching moments:', error);
+                setError(error as Error);
             } finally {
                 setLoading(false);
             }
@@ -45,5 +48,5 @@ export function useMoments(category: string = 'all') {
         fetchMoments();
     }, [category]);
 
-    return { moments, loading };
+    return { moments, loading, error };
 }

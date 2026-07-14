@@ -1,4 +1,9 @@
 import {
+  GEM_LANGUAGE,
+  getCurrentMove,
+  getJourneyStatuses,
+} from "@promorang/shared";
+import {
   ArrowRight,
   Calendar,
   CalendarDays,
@@ -38,6 +43,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cultureEvents } from "@/data/culture-demo";
+import { useSocialReturn } from "@/hooks/useSocialReturn";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -55,6 +61,7 @@ const ParticipantDashboardV2 = () => {
   const { data: balance, isLoading: balanceLoading } = useUserBalance();
   const { data: joinedMoments = [], isLoading: momentsLoading } = useJoinedMoments();
   const { data: stats, isLoading: statsLoading } = useParticipantStats();
+  const { data: socialReturn } = useSocialReturn(Boolean(user));
   const checkIn = useCheckIn();
 
   const typedJoinedMoments = joinedMoments as JoinedMoment[];
@@ -75,6 +82,26 @@ const ParticipantDashboardV2 = () => {
   const visibleMarks = stats?.checkedIn || pastMoments.length || 0;
   const visibleMemories = pastMoments.length;
   const heroImage = cultureEvents[0]?.image;
+  const journeyStatuses = getJourneyStatuses({
+    hasDiscovered: hasJoinedMoments || hasCheckedIn || hasPoints,
+    hasJoinedMoment: hasJoinedMoments,
+    hasArrived: hasCheckedIn,
+    hasContribution: hasCheckedIn || hasPoints,
+    hasUnlockedValue: hasPoints,
+    hasSavedMemory: visibleMemories > 0,
+    hasRecognizedPattern: uniquePlaces > 1 || (profile?.streak_count || 0) > 1,
+    hasReturned: (profile?.streak_count || 0) > 1,
+  });
+  const currentMove = getCurrentMove({
+    hasDiscovered: hasJoinedMoments || hasCheckedIn || hasPoints,
+    hasJoinedMoment: hasJoinedMoments,
+    hasArrived: hasCheckedIn,
+    hasContribution: hasCheckedIn || hasPoints,
+    hasUnlockedValue: hasPoints,
+    hasSavedMemory: visibleMemories > 0,
+    hasRecognizedPattern: uniquePlaces > 1 || (profile?.streak_count || 0) > 1,
+    hasReturned: (profile?.streak_count || 0) > 1,
+  });
 
   const pointsToNextKey = 1000;
   const currentPointsProgress = balance ? balance.points % pointsToNextKey : 0;
@@ -107,9 +134,9 @@ const ParticipantDashboardV2 = () => {
       accent: "text-primary",
     },
     {
-      label: "Check-ins",
-      value: (stats?.checkedIn || 0).toLocaleString(),
-      helper: "Verified participation",
+      label: "Times out",
+      value: (socialReturn?.moments || stats?.checkedIn || 0).toLocaleString(),
+      helper: "Moments you were part of",
       icon: CheckCircle,
       accent: "text-emerald-500",
     },
@@ -134,7 +161,7 @@ const ParticipantDashboardV2 = () => {
       <DashboardHero
         badge="For you"
         title={isNewUser ? `Start moving, ${firstName}` : `Welcome back, ${firstName}`}
-        description="Find what is live, show up, prove it, and keep the value. Your participation should feel like culture in motion, not a report."
+        description="Find what is live, show up, meet the Scene, and see what opens. Your participation should feel like a more connected life, not a report."
         actions={[
           { label: "Live now", href: "/pulse", icon: TrendingUp },
           { label: "Discover", href: "/discover", icon: Compass },
@@ -147,36 +174,16 @@ const ParticipantDashboardV2 = () => {
       />
 
       <RoleActivationPanel
-        eyebrow="Your next move"
-        title={hasJoinedMoments ? "Make your participation count" : "Choose one thing worth showing up for"}
-        description={
-          hasJoinedMoments
-            ? "Check in at the moment, leave proof, and your attendance becomes access, status, and something worth keeping."
-            : "Start with a moment. Promorang will reveal proof, rewards, and deeper tools when they become useful."
-        }
-        items={[
-          {
-            title: "Choose",
-            description: "Join a moment that feels worth your time",
-            status: hasJoinedMoments ? "done" : "current",
-            href: "/discover",
-            ctaLabel: "Discover",
-          },
-          {
-            title: "Prove",
-            description: "Check in so your presence becomes verified",
-            status: hasCheckedIn ? "done" : hasJoinedMoments ? "current" : "todo",
-            href: "/pulse",
-            ctaLabel: "Check in",
-          },
-          {
-            title: "Unlock",
-            description: "Keep the access, rewards, and status you earn",
-            status: hasPoints ? "done" : hasCheckedIn ? "current" : "todo",
-            href: "/vault",
-            ctaLabel: "Open Vault",
-          },
-        ]}
+        eyebrow="Your current move"
+        title={currentMove.title}
+        description={currentMove.body}
+        items={journeyStatuses.slice(2, 5).map((step) => ({
+          title: step.label,
+          description: step.humanMeaning,
+          status: step.status,
+          href: step.route === "discover" ? "/discover" : step.route === "progress" ? "/dashboard" : step.route === "vault" ? "/vault" : "/pulse",
+          ctaLabel: step.actionLabel,
+        }))}
       />
 
       <div className="space-y-6">
@@ -188,10 +195,10 @@ const ParticipantDashboardV2 = () => {
                     Your scene graph
                   </Badge>
                   <h2 className="mt-3 text-3xl font-black uppercase leading-[0.88] tracking-[-0.06em] text-white md:text-4xl">
-                    Your scene starts with where you show up.
+                    Your Scene grows from what you choose, feel, and return to.
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-white/62">
-                    Marks, people, places, streaks, and memories become your proof trail. Use them to unlock access, rewards, and stronger placement over time.
+                    People, places, repeat rituals, and memories become your story. Over time they can bring better invitations, more familiar faces, useful access, and Gems-backed value.
                   </p>
                 </div>
                 <Button asChild variant="outline" className="shrink-0 border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:text-white">
@@ -204,11 +211,11 @@ const ParticipantDashboardV2 = () => {
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {[
-                  { label: "My Marks", value: visibleMarks.toLocaleString(), helper: "Verified times you showed up", icon: CheckCircle },
-                  { label: "My people", value: "Crew", helper: "Follows, referrals, and repeat movement", icon: Users },
+                  { label: "Times out", value: (socialReturn?.moments || visibleMarks).toLocaleString(), helper: "Moments you were part of", icon: CheckCircle },
+                  { label: "My people", value: (socialReturn?.connections || 0).toLocaleString(), helper: "Connections that grew around Moments", icon: Users },
                   { label: "My places", value: uniquePlaces.toLocaleString(), helper: "Venues and locations in your story", icon: MapPin },
                   { label: "My streak", value: String(profile?.streak_count || 0), helper: "Consistency over time", icon: Zap },
-                  { label: "My memories", value: visibleMemories.toLocaleString(), helper: "Moments that stayed with you", icon: HeartHandshake },
+                  { label: "My memories", value: (socialReturn?.memories || visibleMemories).toLocaleString(), helper: "Moments that stayed with you", icon: HeartHandshake },
                 ].map((item) => (
                   <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                     <item.icon className="h-4 w-4 text-primary" />
@@ -217,6 +224,12 @@ const ParticipantDashboardV2 = () => {
                     <p className="mt-1 text-xs leading-5 text-white/55">{item.helper}</p>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/10 p-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Value language</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">
+                  {GEM_LANGUAGE.valueStatement}. Gems are how Promorang secures paid access, rewards, tips, creator work, and funded participation without making the experience feel like accounting.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -290,7 +303,7 @@ const ParticipantDashboardV2 = () => {
                         </div>
                         <h3 className="text-xl font-black tracking-[-0.04em]">Browse with intent</h3>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          Choose a moment, check what proof is needed, then show up. Everything else unlocks from that first action.
+                          Choose a Moment that feels worth it, understand what to do, then show up. The people and possibilities grow from there.
                         </p>
                       </div>
                       <div className="mt-6 flex flex-wrap gap-3">
@@ -388,9 +401,9 @@ const ParticipantDashboardV2 = () => {
                     <Badge variant="outline" className="mb-3 rounded-full">
                       Momentum
                     </Badge>
-                    <h2 className="text-2xl font-black tracking-[-0.04em]">Your current standing</h2>
+                    <h2 className="text-2xl font-black tracking-[-0.04em]">What showing up is opening</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Your proof is becoming status: more access, better placement, and stronger reputation.
+                      Showing up is making you known: more access, better invitations, and people who want you involved.
                     </p>
                   </div>
                   {tierStatus ? <TierBadge tier={tierStatus.current_tier} size="sm" showProgress={false} /> : null}
@@ -466,7 +479,7 @@ const ParticipantDashboardV2 = () => {
                     </Badge>
                     <h2 className="text-2xl font-black tracking-[-0.04em]">Keep what you earn</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Vault is where proof becomes memory and status. Wallet keeps the balances and mechanics close.
+                      Vault is where nights, visits, access, and things worth keeping become part of your story. Wallet keeps the balances and mechanics close.
                     </p>
                   </div>
                   <Gift className="h-5 w-5 text-primary" />
@@ -568,7 +581,7 @@ const ParticipantDashboardV2 = () => {
                     <div>
                       <div className="text-sm font-medium">Pieces</div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Pieces are earned from verified momentum and traded through Gems.
+                        Pieces can represent a deeper stake in something you helped grow. Advanced value mechanics stay here when they become relevant.
                       </div>
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
@@ -601,7 +614,7 @@ const ParticipantDashboardV2 = () => {
                     <div>
                       <div className="text-sm font-medium">PromoShare</div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        PromoShare is the recurring relevance layer. Verified actions increase your standing inside qualified reward cycles.
+                        PromoShare shows what your story or invitation set in motion and which people actually joined, visited, or returned.
                       </div>
                     </div>
                     <Button size="sm" variant="outline" asChild>
@@ -615,7 +628,7 @@ const ParticipantDashboardV2 = () => {
 
           {!isNewUser ? <DashboardQuickRoutesCard
             title="More value tools"
-            description="These deepen the experience after someone has discovered, joined, and verified a few moments."
+            description="These deepen the experience after someone has discovered, joined, and become part of a few Moments."
             routes={[
               { label: "Saved", href: "/saved", icon: Gift },
               { label: "Wallet", href: "/wallet", icon: Wallet },

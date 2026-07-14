@@ -11,17 +11,17 @@ import { cultureCreators, cultureEvents } from "@/data/culture-demo";
 import { API_BASE_URL } from "@/lib/api";
 
 const paths = [
-  { icon: Users, role: "Active members", action: "Show up with intent", detail: "Meaningful activity, participation, and qualified engagement build your record.", points: "Up to 30 / day", href: "/discover" },
-  { icon: PlayCircle, role: "Creators", action: "Make attention move", detail: "Publish original work that brings people into Moments, places, and missions.", points: "25+ / verified work", href: "/for-creators" },
-  { icon: CalendarCheck2, role: "Moment hosts", action: "Create rooms worth returning to", detail: "Completed Moments, turnout, retention, and participant quality become proof.", points: "100+ / Moment", href: "/for-communities" },
-  { icon: Building2, role: "Venues", action: "Give culture somewhere to happen", detail: "Onboard your place, facilitate Moments, or host experiences yourself.", points: "500 onboarding", href: "/for-merchants" },
-  { icon: UserRoundPlus, role: "Connectors", action: "Bring the right people", detail: "Invite friends who verify, become meaningfully active, and strengthen the network.", points: "50 / qualified person", href: "/auth?mode=signup" },
+  { icon: Users, role: "Active members", action: "Show up with intent", detail: "Meaningful activity, participation, and qualified engagement build your record.", points: "Up to 30 contribution weight / day", href: "/discover" },
+  { icon: PlayCircle, role: "Creators", action: "Make attention move", detail: "Publish original work that brings people into Moments, places, and missions.", points: "25+ / reviewed work", href: "/for-creators" },
+  { icon: CalendarCheck2, role: "Moment hosts", action: "Create rooms worth returning to", detail: "Completed Moments, turnout, retention, and participant quality become contribution signal.", points: "100+ / Moment", href: "/for-communities" },
+  { icon: Building2, role: "Venues", action: "Give culture somewhere to happen", detail: "Onboard your place, facilitate Moments, or host experiences yourself.", points: "500 contribution weight", href: "/for-merchants" },
+  { icon: UserRoundPlus, role: "Connectors", action: "Bring the right people", detail: "Invite friends who become meaningfully active and strengthen the network.", points: "50 / qualified person", href: "/auth?mode=signup" },
 ];
 
 const trail = [
-  { time: "Tonight", person: "Maya hosted", object: "Open Mic at Harbour House", proof: "47 verified arrivals", points: "+100 pending", image: cultureEvents[3].image },
-  { time: "Yesterday", person: "Nia created", object: "Kingston After Dark route", proof: "18 people moved", points: "+25 verified", image: cultureCreators[0].avatar },
-  { time: "This week", person: "The Courtyard facilitated", object: "3 community Moments", proof: "126 total check-ins", points: "+375 verified", image: cultureEvents[1].image },
+  { time: "Tonight", person: "Maya hosted", object: "Open Mic at Harbour House", proof: "47 counted arrivals", points: "+100 contribution pending", image: cultureEvents[3].image },
+  { time: "Yesterday", person: "Nia created", object: "Kingston After Dark route", proof: "18 people moved", points: "+25 contribution verified", image: cultureCreators[0].avatar },
+  { time: "This week", person: "The Courtyard facilitated", object: "3 community Moments", proof: "126 total check-ins", points: "+375 contribution verified", image: cultureEvents[1].image },
 ];
 
 export default function Pioneers() {
@@ -50,8 +50,8 @@ export default function Pioneers() {
   return (
     <main className="min-h-screen bg-[#050505] text-white">
       <SEO
-        title="Pioneer Points — Build Promorang From the Beginning"
-        description="Join Promorang's Genesis Season. Build a verified record by creating, hosting, facilitating, participating, and bringing the right people."
+        title="Pioneer Contribution — Build Promorang From the Beginning"
+        description="Join Promorang's Genesis Season. Build a founding contribution record by creating, hosting, facilitating, participating, and bringing the right people."
       />
 
       <section className="relative min-h-[760px] overflow-hidden border-b border-white/10 pt-20">
@@ -67,11 +67,11 @@ export default function Pioneers() {
               Be here<br />before it’s<br /><span className="text-primary">obvious.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/68">
-              Pioneer Points preserve the verified contribution of the people and places building Promorang from the beginning—not who arrived loudest, but who made culture move.
+              Pioneer Contribution preserves the reviewed contribution of the people and places building Promorang from the beginning—not who arrived loudest, but who made culture move. Gems remain the platform value rail.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to={primaryHref} className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-4 text-sm font-black text-primary-foreground">
-                {user ? "View my Pioneer record" : "Join Genesis Season"}<ArrowRight className="ml-2 h-4 w-4" />
+                {user ? "View my contribution record" : "Join Genesis Season"}<ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <a href="#how-it-works" className="inline-flex items-center justify-center rounded-full border border-white/20 bg-black/25 px-6 py-4 text-sm font-black backdrop-blur">
                 See how it works<ArrowDown className="ml-2 h-4 w-4" />
@@ -97,7 +97,7 @@ export default function Pioneers() {
                 </div>
               ))}
             </div>
-            <p className="mt-5 border-t border-white/10 pt-4 text-[10px] leading-5 text-white/35">Illustrative activity. Points become verified only after eligible proof passes review.</p>
+            <p className="mt-5 border-t border-white/10 pt-4 text-[10px] leading-5 text-white/35">Illustrative activity. Contribution weight becomes verified only after eligible activity passes review.</p>
           </div>
         </div>
       </section>
@@ -125,12 +125,12 @@ export default function Pioneers() {
         <div className="container grid px-6 py-20 lg:grid-cols-[1fr_1fr] lg:gap-20 lg:py-28">
           <div className="lg:sticky lg:top-32 lg:self-start">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">The journey</p>
-            <h2 className="mt-4 text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em]">Act.<br />Prove.<br /><span className="text-primary">Be remembered.</span></h2>
+            <h2 className="mt-4 text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em]">Act.<br />Count.<br /><span className="text-primary">Be remembered.</span></h2>
           </div>
           <div className="mt-12 space-y-10 lg:mt-0">
             {[
               ["01", "Find your next useful move", "Join a Moment, publish original work, host a room, activate a venue, or invite someone who will genuinely participate."],
-              ["02", "Leave credible proof", "Check-ins, completion, attribution, quality signals, and trust checks turn activity into a pending receipt."],
+              ["02", "Leave credible contribution", "Check-ins, completion, attribution, quality signals, and trust checks turn activity into a pending receipt."],
               ["03", "Watch the receipt verify", "Eligible work moves from pending to verified. Duplicate, manipulated, cancelled, or unverifiable activity does not count."],
               ["04", "Keep your season record", "At the season snapshot, your contribution record freezes for review. If a future pool is funded, its exact terms are announced separately."],
             ].map(([number, title, text]) => (
@@ -155,7 +155,7 @@ export default function Pioneers() {
             <span className="text-lg font-black text-white/25">{String(entry.rank).padStart(2,"0")}</span>
             {entry.identity.avatar_url?<img src={entry.identity.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />:<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10"><Sparkles className="h-4 w-4 text-primary" /></div>}
             <div><p className="font-black">{entry.identity.name}</p>{entry.identity.location&&<p className="text-xs text-white/35">{entry.identity.location}</p>}</div>
-            <p className="font-black text-primary">{Number(entry.verified_points).toLocaleString()} pts</p>
+            <p className="font-black text-primary">{Number(entry.verified_points).toLocaleString()} contribution</p>
           </div>)}
         </div>
       </section>
@@ -173,8 +173,8 @@ export default function Pioneers() {
             <div className="mt-7 space-y-5">
               {[
                 ["Non-purchasable", "Nobody can buy their place in the Genesis record."],
-                ["Non-transferable", "Your proof stays attached to the person or venue that earned it."],
-                ["Auditable", "Every point begins with a source, status, time, and verification trail."],
+                ["Non-transferable", "Your contribution stays attached to the person or venue that earned it."],
+                ["Auditable", "Every unit begins with a source, status, time, and verification trail."],
                 ["Separately funded", "No cash value or reward is represented until a real pool and its terms are formally announced."],
               ].map(([title, text]) => <div key={title} className="flex gap-3"><ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-primary" /><div><p className="font-black">{title}</p><p className="mt-1 text-sm leading-6 text-white/45">{text}</p></div></div>)}
             </div>
@@ -189,7 +189,7 @@ export default function Pioneers() {
         <h2 className="mx-auto mt-5 max-w-3xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.06em] md:text-7xl">Your early work should not disappear.</h2>
         <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-white/50">Start with one useful move. Promorang will keep the receipt.</p>
         <Link to={primaryHref} className="mt-8 inline-flex items-center rounded-full bg-primary px-7 py-4 text-sm font-black text-primary-foreground">
-          {user ? "Open my Pioneer record" : "Create my Pioneer profile"}<ArrowRight className="ml-2 h-4 w-4" />
+          {user ? "Open my contribution record" : "Create my Pioneer profile"}<ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </section>
     </main>

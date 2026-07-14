@@ -85,7 +85,7 @@ export default function ShopScreen() {
                 </View>
                 <View style={styles.balanceCard}>
                     <Ionicons name="wallet" size={16} color={DesignColors.primary} />
-                    <Text style={styles.balanceText}>{balance?.points || 0} pts</Text>
+                    <Text style={styles.balanceText}>{balance?.gems || 0} Gems</Text>
                 </View>
             </View>
 
@@ -195,12 +195,12 @@ export default function ShopScreen() {
                                         {product.price_points > 0 && (
                                             <View style={styles.priceTag}>
                                                 <Ionicons name="diamond" size={12} color={DesignColors.primary} />
-                                                <Text style={styles.pricePoints}>{product.price_points}</Text>
+                                                <Text style={styles.pricePoints}>{product.price_points} Gems</Text>
                                             </View>
                                         )}
-                                        {product.price_usd > 0 && (
+                                        {product.price_usd > 0 && product.price_points <= 0 && (
                                             <View style={styles.priceTag}>
-                                                <Text style={styles.priceUsd}>${product.price_usd.toFixed(2)}</Text>
+                                                <Text style={styles.priceUsd}>{Math.round(product.price_usd).toLocaleString()} Gems value</Text>
                                             </View>
                                         )}
                                     </View>

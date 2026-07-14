@@ -1,0 +1,126 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import StripeCheckout from '@/components/stripe/StripeCheckout';
+import { useCommerceActions } from '@/hooks/useCommerceActions';
+
+export default function CommerceDetail() {
+  const { listingId } = useParams();
+  const actions = useCommerceActions();
+  const queryClient = useQueryClient();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  const q = useQuery({
+    queryKey: ['commerce-detail', listingId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('view_public_commerce_directory')
+        .select('*')
+        .eq('listing_id', decodeURIComponent(listingId || ''))
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (q.isLoading) return <div className="mx-auto max-w-6xl p-8">Loading product...</div>;
+  const x = q.data;
+  if (!x) {
+    return (
+      <div className="mx-auto max-w-3xl p-10 text-center">
+        <h1 className="text-3xl font-black">This listing is unavailable</h1>
+        <Button asChild className="mt-5"><Link to="/shop">Back to shop</Link></Button>
+      </div>
+    );
+  }
+
+  const sourceId = String(x.source_id || '');
+  const amount = Number(x.price || 0);
+  const currency = x.currency || 'USD';
+  const price = amount > 0
+    ? new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(amount)
+    : 'Ask merchant';
+  const canCheckout = amount > 0 && currency.toUpperCase() === 'USD';
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+        <ArrowLeft className="h-4 w-4" />Shop
+      </Link>
+      <div className="mt-5 overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c0c0c] text-white lg:grid lg:grid-cols-2">
+        <div className="relative min-h-[420px] bg-white/5">
+          {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
+          <button
+            aria-label="Save product"
+            onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
+            className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-black/65"
+          >
+            <Bookmark className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex flex-col justify-between p-7 sm:p-10">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              {x.merchant_user_id ? (
+                <Link to={`/storefront/${x.merchant_user_id}`} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary">
+                  <Store className="h-4 w-4" />{x.merchant_name || 'Promorang merchant'}
+                </Link>
+              ) : null}
+              <Badge variant="secondary" className="capitalize">{x.fulfillment_mode || 'merchant fulfillment'}</Badge>
+              {x.service_duration_minutes ? <Badge variant="outline" className="border-white/15 text-white"><CalendarClock className="mr-1 h-3 w-3" />{x.service_duration_minutes} min</Badge> : null}
+            </div>
+            <h1 className="mt-5 text-5xl font-black tracking-[-.055em]">{x.name}</h1>
+            <p className="mt-5 text-base leading-7 text-white/60">{x.description || 'A product connected to the people, place and Moment around it.'}</p>
+            {x.venue_name ? <p className="mt-5 flex items-center gap-2 text-sm text-white/50"><MapPin className="h-4 w-4 text-primary" />{x.venue_name}{x.location ? ` · ${x.location}` : ''}</p> : null}
+          </div>
+          <div className="mt-10">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-4xl font-black">{price}</p>
+                <p className="mt-1 text-xs text-white/40">{x.booking_url ? 'Bookable service' : 'Merchant fulfillment'}</p>
+              </div>
+              {x.discount_value ? <span className="rounded-full bg-primary px-4 py-2 text-xs font-black text-black">{x.discount_value}{x.discount_type === 'percentage' ? '%' : ''} OFFER</span> : null}
+            </div>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <Button size="lg" disabled={!!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
+                {actions.busy ? 'Working...' : x.discount_value ? 'Reserve offer' : 'Reserve'}
+              </Button>
+              <Button size="lg" variant="outline" disabled={!canCheckout} onClick={() => setCheckoutOpen(true)} className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                Pay with card
+              </Button>
+            </div>
+            {x.booking_url ? <Button asChild variant="ghost" className="mt-2 w-full text-white/70 hover:text-white"><a href={x.booking_url} target="_blank" rel="noreferrer">Open booking page</a></Button> : null}
+            <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/40"><ShieldCheck className="h-4 w-4" />Card purchases issue a receipt only after Stripe confirms payment.</p>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Pay for {x.name}</DialogTitle>
+            <DialogDescription>Stripe confirms the payment before Promorang creates the purchase receipt.</DialogDescription>
+          </DialogHeader>
+          {checkoutOpen ? (
+            <StripeCheckout
+              amount={amount}
+              currency={currency.toLowerCase()}
+              paymentIntentPath="/api/stripe/commerce/payment-intent"
+              paymentIntentBody={{ product_id: sourceId, quantity: 1 }}
+              onSuccess={() => {
+                setCheckoutOpen(false);
+                void queryClient.invalidateQueries({ queryKey: ['commerce-receipts'] });
+              }}
+              onCancel={() => setCheckoutOpen(false)}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </main>
+  );
+}

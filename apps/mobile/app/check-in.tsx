@@ -13,10 +13,10 @@ const { width, height } = Dimensions.get('window');
 export default function CheckInScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-    const [status, setStatus] = useState<'idle' | 'locating' | 'success'>('idle');
+    const [status, setStatus] = useState<'idle' | 'verifying' | 'success'>('idle');
 
     const startCheckIn = () => {
-        setStatus('locating');
+        setStatus('verifying');
         setTimeout(() => {
             setStatus('success');
         }, 2000);
@@ -29,17 +29,17 @@ export default function CheckInScreen() {
                     <View style={styles.successIconCircle}>
                         <Ionicons name="checkmark-circle" size={80} color={DesignColors.success} />
                     </View>
-                    <Text style={[styles.successTitle, { color: DesignColors.white }]}>Moment Captured!</Text>
-                    <Text style={styles.successDesc}>You've earned +150 Points and a Visit Badge.</Text>
+                    <Text style={[styles.successTitle, { color: DesignColors.white }]}>Your presence was received.</Text>
+                    <Text style={styles.successDesc}>Your check-in is queued for host review. If it counts, your Vault will keep the memory and any eligible value.</Text>
 
                     <View style={styles.rewardSummary}>
                         <View style={styles.rewardPill}>
-                            <Ionicons name="flash" size={16} color={DesignColors.primary} />
-                            <Text style={styles.rewardPillText}>+150 XP</Text>
+                            <Ionicons name="archive" size={16} color={DesignColors.primary} />
+                            <Text style={styles.rewardPillText}>Vault memory</Text>
                         </View>
                         <View style={styles.rewardPill}>
                             <Ionicons name="gift" size={16} color={DesignColors.primary} />
-                            <Text style={styles.rewardPillText}>Free Latte</Text>
+                            <Text style={styles.rewardPillText}>Reward eligibility</Text>
                         </View>
                     </View>
 
@@ -57,35 +57,36 @@ export default function CheckInScreen() {
                 <Text style={styles.label}>CHECK-IN AT</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: 'transparent' }}>
                     <Text style={styles.venueName}>La Colombe Coffee</Text>
-                    <InfoTooltip content="Verify your presence at this venue to earn exclusive rewards and XP." />
+                    <InfoTooltip content="Send your check-in so the host can confirm this Moment counted." />
                 </View>
                 <View style={styles.locationTag}>
-                    <Ionicons name="location" size={14} color={DesignColors.primary} />
-                    <Text style={styles.locationText}>SoHo, New York</Text>
+                    <Ionicons name="shield-checkmark" size={14} color={DesignColors.primary} />
+                    <Text style={styles.locationText}>Count this Moment</Text>
                 </View>
             </View>
 
             <View style={styles.mapPlaceholder}>
-                {/* Simulated Map */}
                 <View style={[styles.pulse, { backgroundColor: DesignColors.primary + '30' }]} />
-                <View style={styles.mapDot} />
+                <View style={styles.mapDot}>
+                    <Ionicons name="qr-code" size={30} color={DesignColors.white} />
+                </View>
             </View>
 
             <View style={styles.footer}>
                 <BlurView intensity={isDark ? 30 : 50} style={styles.footerBlur}>
                     <Text style={styles.verifyText}>
-                        {status === 'locating' ? 'Verifying your location...' : 'Verify your location to unlock rewards.'}
+                        {status === 'verifying' ? 'Checking your presence...' : 'Send your check-in so this participation can be reviewed.'}
                     </Text>
                     <Pressable
                         style={[styles.checkInBtn, { backgroundColor: DesignColors.primary }]}
                         onPress={startCheckIn}
-                        disabled={status === 'locating'}
+                        disabled={status === 'verifying'}
                     >
-                        {status === 'locating' ? (
+                        {status === 'verifying' ? (
                             <Ionicons name="sync" size={24} color={DesignColors.white} />
                         ) : (
                             <>
-                                <Text style={styles.checkInBtnText}>Check In Now</Text>
+                                <Text style={styles.checkInBtnText}>Submit Check-In</Text>
                                 <Ionicons name="arrow-forward" size={20} color={DesignColors.white} />
                             </>
                         )}
@@ -142,12 +143,14 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     mapDot: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
+        width: 74,
+        height: 74,
+        borderRadius: 24,
         backgroundColor: DesignColors.primary,
-        borderWidth: 4,
+        borderWidth: 6,
         borderColor: DesignColors.white,
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 10,
     },
     pulse: {

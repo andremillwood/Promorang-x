@@ -14,5 +14,5 @@ export default function VerifiedPioneerBadge({ beneficiaryType, beneficiaryId }:
     enabled: Boolean(beneficiaryId),
   });
   if (!query.data?.verified_points) return null;
-  return <Link to="/pioneers" title="Verified Genesis Season contributor" className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary"><Sparkles className="h-3 w-3" />Pioneer · {Number(query.data.verified_points).toLocaleString()}</Link>;
+  return <Link to="/pioneers" title="Verified Genesis Season contributor" className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary"><Sparkles className="h-3 w-3" />Pioneer contribution · {Number(query.data.verified_points).toLocaleString()}</Link>;
 }

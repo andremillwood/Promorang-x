@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+
+const economyDb = supabase as unknown as SupabaseClient;
 
 export interface UserBalance {
     user_id: string;
@@ -25,6 +28,19 @@ export interface EconomyTransaction {
     created_at: string;
 }
 
+export interface GemWithdrawalRequest {
+    id: string;
+    user_id: string;
+    gems_amount: number;
+    usd_amount: number;
+    fee_gems: number;
+    status: string;
+    payout_reference: string | null;
+    metadata: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+}
+
 export function useUserBalance() {
     const { user } = useAuth();
 
@@ -33,7 +49,7 @@ export function useUserBalance() {
         queryFn: async () => {
             if (!user) return null;
 
-            const { data, error } = await (supabase as any)
+            const { data, error } = await economyDb
                 .from("economy_wallets")
                 .select("*")
                 .eq("user_id", user.id)
@@ -62,6 +78,62 @@ export function useUserBalance() {
     });
 }
 
+export function useGemWithdrawals() {
+    const { user } = useAuth();
+
+    return useQuery({
+        queryKey: ["gem-withdrawals", user?.id],
+        queryFn: async () => {
+            if (!user) return [];
+            const { data, error } = await economyDb
+                .from("gem_withdrawal_requests")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false })
+                .limit(20);
+
+            if (error) throw error;
+            return data as GemWithdrawalRequest[];
+        },
+        enabled: !!user,
+    });
+}
+
+export function useGemWalletActions() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
+    const refresh = async () => {
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ["user-balance", user?.id] }),
+            queryClient.invalidateQueries({ queryKey: ["economy-history", user?.id] }),
+            queryClient.invalidateQueries({ queryKey: ["gem-withdrawals", user?.id] }),
+        ]);
+    };
+
+    const requestWithdrawal = useMutation({
+        mutationFn: async ({ amount, note }: { amount: number; note?: string }) => {
+            const { error } = await economyDb.rpc("request_gem_withdrawal", {
+                p_gems_amount: amount,
+                p_payout_note: note || null,
+            });
+            if (error) throw error;
+        },
+        onSuccess: refresh,
+    });
+
+    const cancelWithdrawal = useMutation({
+        mutationFn: async (requestId: string) => {
+            const { error } = await economyDb.rpc("cancel_requested_gem_withdrawal", {
+                p_request_id: requestId,
+            });
+            if (error) throw error;
+        },
+        onSuccess: refresh,
+    });
+
+    return { requestWithdrawal, cancelWithdrawal };
+}
+
 export function useEconomyHistory() {
     const { user } = useAuth();
 
@@ -70,7 +142,7 @@ export function useEconomyHistory() {
         queryFn: async () => {
             if (!user) return [];
 
-            const { data, error } = await (supabase as any)
+            const { data, error } = await economyDb
                 .from("economy_transactions")
                 .select("*")
                 .eq("user_id", user.id)

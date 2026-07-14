@@ -309,11 +309,11 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
           />
         </div>
 
-        {/* Points Redemption */}
+        {/* Earned Value Redemption */}
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
             <Award className="w-5 h-5" />
-            Points Redemption
+            Earned Value Redemption
           </h3>
 
           <FormField
@@ -322,9 +322,9 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <FormLabel className="text-base">Enable Point Redemption</FormLabel>
+                  <FormLabel className="text-base">Enable Earned Value Redemption</FormLabel>
                   <FormDescription>
-                    Allow customers to purchase this product with PromoPoints
+                    Allow customers to purchase this product with earned Promorang value
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -340,7 +340,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="points_cost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Points Required</FormLabel>
+                  <FormLabel>Earned value required</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

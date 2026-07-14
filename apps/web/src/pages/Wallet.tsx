@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserBalance, useEconomyHistory } from "@/hooks/useEconomy";
+import { useUserBalance, useEconomyHistory, useGemWalletActions, useGemWithdrawals } from "@/hooks/useEconomy";
 import { useValueReceipts } from "@/hooks/useValueReceipts";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { API_BASE_URL } from "@/lib/api";
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,7 +21,6 @@ import {
   KeyRound,
   Gem,
   CreditCard,
-  ArrowUpRight,
   ArrowDownLeft,
   RefreshCw,
   DollarSign,
@@ -28,6 +28,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
+import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
+import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 
 type GemsTransaction = {
   id: string;
@@ -66,12 +68,15 @@ const formatCurrency = (value: number, currency = "USD") =>
   }).format(value);
 
 const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(value).toLocaleString()}`;
+const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Something went wrong";
 
 const Wallet = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
   const { data: walletBalance, isLoading: walletLoading, refetch: refetchWalletBalance } = useUserBalance();
   const { refetch: refetchEconomyHistory } = useEconomyHistory();
+  const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, refetch: refetchGemWithdrawals } = useGemWithdrawals();
+  const gemActions = useGemWalletActions();
   const { receipts, caps, resetsAt, isLoading: receiptsLoading, refresh: refreshReceipts } = useValueReceipts();
 
   const [gemsSnapshot, setGemsSnapshot] = useState<GemsBalanceSnapshot>({
@@ -89,6 +94,9 @@ const Wallet = () => {
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [convertQuantity, setConvertQuantity] = useState(1);
   const [converting, setConverting] = useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("250");
+  const [withdrawNote, setWithdrawNote] = useState("");
 
   useEffect(() => {
     if (!session?.access_token) {
@@ -130,10 +138,10 @@ const Wallet = () => {
         trade_balance: Number(data.trade_balance || 0),
         next_purchase_redemption_at: data.next_purchase_redemption_at || null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Wallet unavailable",
-        description: error.message || "Could not load Gems balance.",
+        description: errorMessage(error) || "Could not load Gems balance.",
         variant: "destructive",
       });
     } finally {
@@ -159,10 +167,10 @@ const Wallet = () => {
 
       const data = await response.json();
       setGemsTransactions(data.transactions || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Transactions unavailable",
-        description: error.message || "Could not load Gems transactions.",
+        description: errorMessage(error) || "Could not load Gems transactions.",
         variant: "destructive",
       });
     } finally {
@@ -175,6 +183,7 @@ const Wallet = () => {
       refetchWalletBalance(),
       refetchEconomyHistory(),
       refreshReceipts(),
+      refetchGemWithdrawals(),
     ]);
     setWalletRefreshTick((value) => value + 1);
   };
@@ -213,16 +222,31 @@ const Wallet = () => {
         title: `${convertQuantity} PromoKey${convertQuantity > 1 ? "s" : ""} unlocked`,
         description: `${(convertQuantity * 500).toLocaleString()} Points moved into access you can use.`,
       });
-    } catch (error: any) {
-      toast({ title: "Could not convert Points", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Could not convert Points", description: errorMessage(error), variant: "destructive" });
     } finally {
       setConverting(false);
     }
   };
 
   const points = Number(walletBalance?.points || 0);
+  const gems = Number(walletBalance?.gems || 0);
+  const pendingWithdrawalGems = gemWithdrawals
+    .filter((request) => ["requested", "reviewing", "approved"].includes(request.status))
+    .reduce((sum, request) => sum + Number(request.gems_amount || 0), 0);
   const nextKeyProgress = Math.min(100, (points % 500) / 5);
   const availableConversions = Math.min(3, Math.floor(points / 500));
+  const submitGemWithdrawal = async () => {
+    try {
+      await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
+      setWithdrawDialogOpen(false);
+      setWithdrawNote("");
+      toast({ title: "Withdrawal requested", description: `${Number(withdrawAmount).toLocaleString()} Gems are now pending review.` });
+      await refreshWallet();
+    } catch (error: unknown) {
+      toast({ title: "Could not request withdrawal", description: errorMessage(error), variant: "destructive" });
+    }
+  };
 
   if (!user) {
     return (
@@ -278,13 +302,15 @@ const Wallet = () => {
       </div>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
+        <CouponWalletRail />
+        <CommerceReceiptRail />
         <section className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="grid md:grid-cols-4">
             {[
               ["01", "Show up", "Join a Moment or useful action"],
               ["02", "Verify", "Proof turns activity into standing"],
               ["03", "Unlock", "500 Points becomes 1 PromoKey"],
-              ["04", "Earn", "Funded work settles as Gems or USD"],
+              ["04", "Earn", "Funded work settles as Gems"],
             ].map(([number, title, text], index) => (
               <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
                 <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
@@ -350,12 +376,12 @@ const Wallet = () => {
                 <Skeleton className="h-10 w-24" />
               ) : (
                 <>
-                  <div className="text-3xl font-bold">{Number(walletBalance?.gems || 0).toLocaleString()}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">Platform utility earned through funded activity.</p>
+                  <div className="text-3xl font-bold">{gems.toLocaleString()}</div>
+                  <p className="mt-2 text-sm text-muted-foreground">1 Gem = US$1 of platform value. Use Gems for access, funding, rewards, and creator/host earnings.</p>
                   <div className="mt-4 space-y-1 text-xs text-muted-foreground">
-                    <div>Withdrawable now: {Number(gemsSnapshot.withdrawable_balance || 0).toLocaleString()} Gems</div>
-                    <div>30-day purchase hold: {Number(gemsSnapshot.pending_purchase_redemption_balance || 0).toLocaleString()} Gems</div>
-                    <div>Bonus locked to objectives: {Number(gemsSnapshot.locked_bonus_balance || 0).toLocaleString()} Gems</div>
+                    <div>Available in wallet: {gems.toLocaleString()} Gems</div>
+                    <div>Pending withdrawal: {pendingWithdrawalGems.toLocaleString()} Gems</div>
+                    <div>Older hold data: {Number(gemsSnapshot.pending_purchase_redemption_balance || 0).toLocaleString()} Gems</div>
                     {gemsSnapshot.next_purchase_redemption_at ? (
                       <div>Next purchase batch unlocks: {new Date(gemsSnapshot.next_purchase_redemption_at).toLocaleString()}</div>
                     ) : null}
@@ -367,11 +393,9 @@ const Wallet = () => {
                   <CreditCard className="mr-2 h-4 w-4" />
                   Buy Gems
                 </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/marketplace">
-                    <ArrowUpRight className="mr-2 h-4 w-4" />
-                    Open Marketplace
-                  </Link>
+                <Button size="sm" variant="outline" onClick={() => setWithdrawDialogOpen(true)}>
+                  <ArrowDownLeft className="mr-2 h-4 w-4" />
+                  Withdraw
                 </Button>
               </div>
             </CardContent>
@@ -379,13 +403,13 @@ const Wallet = () => {
 
           <Card className="border-emerald-500/20 bg-emerald-500/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-4 w-4 text-emerald-500" />USD Earnings</CardTitle>
-              <CardDescription>Payable earnings and winnings</CardDescription>
+              <CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-4 w-4 text-emerald-500" />Withdrawal Queue</CardTitle>
+              <CardDescription>Earned Gems waiting to leave the platform</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{formatCurrency(Number(walletBalance?.usd || 0))}</div>
-              <p className="mt-3 text-sm text-muted-foreground">Kept separate from Gems so payable value is always clear.</p>
-              <Button asChild className="mt-4 w-full" size="sm" variant="outline"><Link to="/kyc"><ShieldCheck className="mr-2 h-4 w-4" />Review payout readiness</Link></Button>
+              <div className="text-3xl font-bold">{pendingWithdrawalGems.toLocaleString()} Gems</div>
+              <p className="mt-3 text-sm text-muted-foreground">Requests are reviewed before settlement. 1 Gem withdraws as US$1 before any external provider fees.</p>
+              <Button className="mt-4 w-full" size="sm" variant="outline" onClick={() => setWithdrawDialogOpen(true)}><ShieldCheck className="mr-2 h-4 w-4" />Request withdrawal</Button>
             </CardContent>
           </Card>
         </div>
@@ -470,34 +494,24 @@ const Wallet = () => {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Use The Value</CardTitle>
-                <CardDescription>Move from balance to action without hunting for the next step.</CardDescription>
+                <CardTitle>Gem Requests</CardTitle>
+                <CardDescription>Withdrawals and reviews connected to your wallet.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button asChild variant="outline" className="w-full justify-between">
-                  <Link to="/dashboard/rewards">
-                    View Rewards
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-between">
-                  <Link to="/vault">
-                    Open Vault
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-between">
-                  <Link to="/marketplace">
-                    Open Marketplace
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-between">
-                  <Link to="/kyc">
-                    Review KYC
-                    <ArrowDownLeft className="h-4 w-4" />
-                  </Link>
-                </Button>
+                {withdrawalsLoading ? <Skeleton className="h-20 w-full" /> : gemWithdrawals.length ? gemWithdrawals.slice(0, 5).map((request) => (
+                  <div key={request.id} className="rounded-xl border border-border p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">{Number(request.gems_amount).toLocaleString()} Gems</p>
+                        <p className="text-xs text-muted-foreground">US${Number(request.usd_amount).toLocaleString()} value · {new Date(request.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <Badge variant={request.status === "requested" ? "secondary" : "outline"} className="capitalize">{request.status}</Badge>
+                    </div>
+                    {["requested", "reviewing"].includes(request.status) && (
+                      <button className="mt-2 text-xs font-semibold text-primary" disabled={gemActions.cancelWithdrawal.isPending} onClick={async () => { try { await gemActions.cancelWithdrawal.mutateAsync(request.id); toast({ title: "Withdrawal cancelled", description: "The Gems returned to your wallet." }); await refreshWallet(); } catch (error: unknown) { toast({ title: "Could not cancel request", description: errorMessage(error), variant: "destructive" }); } }}>Cancel request</button>
+                    )}
+                  </div>
+                )) : <p className="text-sm text-muted-foreground">No Gem withdrawal requests yet.</p>}
               </CardContent>
             </Card>
 
@@ -656,14 +670,14 @@ const Wallet = () => {
                   onChange={(event) => setPurchaseAmount(Number(event.target.value || 0))}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Minimum $5. Maximum $1,000 per transaction. Current rate: 1 Gem = {formatCurrency(gemsSnapshot.exchange_rate)}. Purchased Gems can be redeemed for cash only after a 30-day hold.
+                  Minimum $5. Maximum $1,000 per transaction. Current rate: 1 Gem = US$1. Bought Gems are for use inside Promorang; earned Gems can be requested for withdrawal.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-border bg-muted/20 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm text-muted-foreground">You will receive</span>
-                  <span className="text-lg font-semibold">{Math.floor(purchaseAmount / gemsSnapshot.exchange_rate).toLocaleString()} Gems</span>
+                  <span className="text-lg font-semibold">{Number(purchaseAmount || 0).toLocaleString()} Gems</span>
                 </div>
               </div>
 
@@ -681,6 +695,35 @@ const Wallet = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request Gem withdrawal</DialogTitle>
+            <DialogDescription>
+              Earned Gems can be reviewed for payout at 1 Gem = US$1. Minimum request is 250 Gems.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <div className="flex items-center justify-between text-sm"><span className="text-muted-foreground">Wallet Gems</span><strong>{gems.toLocaleString()}</strong></div>
+              <div className="mt-2 flex items-center justify-between text-sm"><span className="text-muted-foreground">Already pending</span><strong>{pendingWithdrawalGems.toLocaleString()}</strong></div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gem-withdraw-amount">Gems to withdraw</Label>
+              <Input id="gem-withdraw-amount" type="number" min={250} value={withdrawAmount} onChange={(event) => setWithdrawAmount(event.target.value)} />
+              <p className="text-xs text-muted-foreground">This will hold the Gems immediately while the request is reviewed.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gem-withdraw-note">Payout note</Label>
+              <Textarea id="gem-withdraw-note" value={withdrawNote} onChange={(event) => setWithdrawNote(event.target.value)} placeholder="Bank, PayPal, or preferred payout details for review." />
+            </div>
+            <Button className="w-full" disabled={gemActions.requestWithdrawal.isPending || Number(withdrawAmount) < 250 || Number(withdrawAmount) > gems} onClick={submitGemWithdrawal}>
+              {gemActions.requestWithdrawal.isPending ? "Requesting..." : "Request withdrawal"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

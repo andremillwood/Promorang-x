@@ -10,6 +10,7 @@ const crewService = require('../services/crewService');
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const supabase = global.supabase || serviceSupabase || null;
+const growthOperatingService = require('../services/growthOperatingService');
 
 // Helper functions
 const sendSuccess = (res, data = {}, message) => {
@@ -35,7 +36,7 @@ router.get('/my-code', async (req, res) => {
     if (!supabase) {
       return sendSuccess(res, {
         code: 'PROMO-DEMO1234',
-        share_url: `https://promorang.com/signup?ref=PROMO-DEMO1234`,
+        share_url: `https://promorang.com/auth?mode=signup&ref=PROMO-DEMO1234`,
       });
     }
 
@@ -52,7 +53,18 @@ router.get('/my-code', async (req, res) => {
       code = await referralService.generateReferralCode(userId);
     }
 
-    const shareUrl = `${process.env.APP_URL || 'https://promorang.com'}/signup?ref=${code}`;
+    const shareUrl = `${process.env.APP_URL || 'https://promorang.com'}/auth?mode=signup&ref=${encodeURIComponent(code)}`;
+
+    try {
+      await growthOperatingService.recordEvent({
+        eventName: 'share_created', journey: 'participant', stage: 'amplified',
+        userId, referralCode: code, source: 'referral', medium: 'owned_link',
+        entityType: 'referral_code', entityId: code,
+        idempotencyKey: `growth:referral-link-created:${userId}:${code}`,
+      });
+    } catch (growthError) {
+      console.warn('[Referrals API] growth share mirror skipped:', growthError.message);
+    }
 
     return sendSuccess(res, {
       code,

@@ -80,7 +80,7 @@ export default function ContentDropDetail() {
       onSuccess: (payload: any) => {
         const action = payload?.data || {};
         const items: RewardItem[] = [
-          { label: "Points", value: `+${Number(action.points_awarded || pointsPerAction)} Points`, kind: "points" },
+          { label: "Earned value", value: `+${Number(action.points_awarded || pointsPerAction)} contribution value`, kind: "points" },
           { label: "PromoShare", value: `${Number(action.promoshare_entries_awarded || 0)} entries`, kind: "entry" },
           { label: "Attribution", value: ["share", "repost"].includes(actionType) ? "Verified movement" : "Contribution recorded", kind: "status" },
         ];
@@ -155,7 +155,7 @@ export default function ContentDropDetail() {
                   <span className="mb-5 grid h-14 w-14 place-items-center rounded-full border border-white/35 bg-black/45"><Play className="h-5 w-5 fill-white" /></span>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Creator signal</p>
                   <h1 className="mt-3 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">{drop.title}</h1>
-                  <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{drop.description || "Back this content early, redistribute it with attribution, and turn useful movement into proof, rank, tickets, and creator upside."}</p>
+                  <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">{drop.description || "Back this content early, redistribute it with attribution, and turn useful movement into visible contribution, Gems, access, and creator upside."}</p>
                 </div>
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function ContentDropDetail() {
               {[
                 { label: "Clicks", value: totals.clicks, icon: MousePointerClick },
                 { label: "Shares", value: totals.shares, icon: Share2 },
-                { label: "PromoShare entries", value: totals.entries, icon: Ticket },
+                { label: "Possible rewards", value: totals.entries, icon: Ticket },
                 { label: "Distribution score", value: totals.score, icon: Trophy },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
@@ -187,16 +187,16 @@ export default function ContentDropDetail() {
                   dark
                   className="mb-2"
                   cost="Free"
-                  reward={`${pointsPerAction} Points + ${entriesPerAction} entry${entriesPerAction === 1 ? "" : "ies"}${fundedGems > 0 ? ` + up to ${fundedGems} Gems` : ""}`}
-                  funding={drop?.linked_moment_id ? "Linked Moment pool" : "Campaign allocation"}
-                  proof="Attributed action"
-                  settlement="After verification"
+                  reward={`${pointsPerAction} contribution value + ${entriesPerAction} possible reward${entriesPerAction === 1 ? "" : "s"}${fundedGems > 0 ? ` + up to ${fundedGems} Gems` : ""}`}
+                  funding={drop?.linked_moment_id ? "Linked Moment pool" : "Activation allocation"}
+                  proof="Attributed contribution"
+                  settlement="After review"
                 />
                 <div className="mb-2 grid grid-cols-3 gap-2">
                   {[
                     ["Open", "Original"],
                     ["Move", "Attributed"],
-                    ["Earn", "Rank + entries"],
+                    ["Earn", "Value + rewards"],
                   ].map(([label, detail], index) => (
                     <div key={label} className="rounded-xl bg-black/30 p-3">
                       <p className="text-[9px] font-black text-primary">0{index + 1}</p>
@@ -220,7 +220,7 @@ export default function ContentDropDetail() {
                   </Button>
                 )) : (
                   <p className="rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-white/50">
-                    Sign in to record distribution actions and build points, PromoShare entries, and visible contributor status.
+                    Sign in to record distribution actions and build contribution value, possible rewards, and visible creator movement.
                   </p>
                 )}
               </CardContent>
@@ -231,14 +231,14 @@ export default function ContentDropDetail() {
                 title="Distribution leaderboard"
                 items={leaderboard.map((row) => ({
                   label: `#${row.rank_position} ${row.user?.display_name || row.user?.username || "Contributor"}`,
-                  detail: `${row.shares_count} shares · ${row.points_earned} points`,
-                  value: `${row.promoshare_entries_earned} tickets`,
+                  detail: `${row.shares_count} shares · ${row.points_earned} contribution value`,
+                  value: `${row.promoshare_entries_earned} possible rewards`,
                 }))}
               />
             ) : (
               <Card className="border-white/10 bg-white/[0.045] text-white">
                 <CardContent className="p-4 text-sm text-white/50">
-                  No recorded contributors yet. Early movers can shape the first rankings and own the first proof receipts.
+                  No recorded contributors yet. Early movers can shape the first movement and own the first contribution receipts.
                 </CardContent>
               </Card>
             )}

@@ -31,6 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Separator } from "@/components/ui/separator";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
+import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
 
 // ============================================================================
 // CREATOR DASHBOARD V2
@@ -162,6 +163,8 @@ const CreatorDashboardV2 = () => {
         ]}
         isLoading={statsLoading}
       />
+
+      <StakeholderReturnPanel role="creator" />
 
       {/* =====================================================================
           NEW CREATOR: First Steps Guidance

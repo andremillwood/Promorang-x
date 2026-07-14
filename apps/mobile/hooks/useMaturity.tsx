@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, createElement } from 'react';
 import { maturityApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { MaturityStateData, VisibilityRules, MaturityState } from '@/types';
@@ -18,7 +18,7 @@ interface MaturityContextType {
 
 const MaturityContext = createContext<MaturityContextType | undefined>(undefined);
 
-export function MaturityProvider({ children }: { children: React.ReactNode }) {
+export function MaturityProvider({ children }: { children: React.JSX.Element }) {
   const { user } = useAuth();
   const [data, setData] = useState<(MaturityStateData & { visibility: VisibilityRules }) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,11 +96,7 @@ export function MaturityProvider({ children }: { children: React.ReactNode }) {
     refetch: fetchState,
   };
 
-  return (
-    <MaturityContext.Provider value={value}>
-      {children}
-    </MaturityContext.Provider>
-  );
+  return createElement(MaturityContext.Provider as any, { value }, children) as React.JSX.Element;
 }
 
 export function useMaturity() {

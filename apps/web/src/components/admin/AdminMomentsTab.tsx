@@ -25,6 +25,7 @@ import {
   Calendar,
   MapPin,
   Clock,
+  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -161,6 +162,12 @@ export function AdminMomentsTab() {
                     <Link to={`/moments/${moment.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
                       View
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="shrink-0" asChild>
+                    <Link to={`/moments/${moment.id}/edit`}>
+                      <Pencil className="w-4 h-4 mr-1" />
+                      Edit
                     </Link>
                   </Button>
                   

@@ -1,8 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, getUserRoles } = require('../middleware/auth');
 const momentEconomyService = require('../services/momentEconomyService');
 const proofService = require('../services/proofService');
+
+async function hydrateAdminRole(user) {
+  if (proofService.isAdminReviewer(user)) return user;
+
+  const roles = await getUserRoles(user.id);
+  const adminRole = roles.find((role) => ['admin', 'master_admin', 'moderator', 'administrator'].includes(role));
+
+  if (!adminRole) return user;
+
+  return {
+    ...user,
+    roles: Array.from(new Set([...(user.roles || []), ...roles])),
+    role: adminRole === 'administrator' ? 'admin' : adminRole,
+  };
+}
 
 router.post('/moments', requireAuth, async (req, res) => {
   try {
@@ -16,7 +31,8 @@ router.post('/moments', requireAuth, async (req, res) => {
 
 router.patch('/moments/:id', requireAuth, async (req, res) => {
   try {
-    const moment = await momentEconomyService.updateMoment(req.user.id, req.params.id, req.body || {});
+    const user = await hydrateAdminRole(req.user);
+    const moment = await momentEconomyService.updateMoment(user, req.params.id, req.body || {});
     res.json({ success: true, moment });
   } catch (error) {
     console.error('[Moment Economy] update moment error:', error);

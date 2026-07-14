@@ -1,0 +1,310 @@
+import { useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { ArrowRight, BadgeCheck, Bookmark, Gift, PackageCheck, QrCode, Receipt, RefreshCw, ShoppingBag, XCircle } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+type Sale = {
+  id: string;
+  sale_type?: string | null;
+  status: string;
+  amount_paid?: number | string | null;
+  points_paid?: number | string | null;
+  redemption_code?: string | null;
+  created_at: string;
+  merchant_products?: {
+    name?: string | null;
+    category?: string | null;
+  } | null;
+};
+
+type ReceiptRow = {
+  id: string;
+  receipt_type: string;
+  status: string;
+  amount: number | string;
+  currency: string;
+  redemption_code?: string | null;
+  occurred_at: string;
+  attribution?: {
+    source?: string;
+    coupon_code?: string;
+    payment_method?: string;
+    [key: string]: unknown;
+  } | null;
+  merchant_products?: {
+    name?: string | null;
+    image_url?: string | null;
+    category?: string | null;
+    fulfillment_mode?: string | null;
+  } | null;
+};
+
+const money = (amount: number | string | null | undefined, currency = "USD") => {
+  const value = Number(amount || 0);
+  return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
+};
+
+const receiptLabel = (receipt: ReceiptRow) => {
+  if (receipt.merchant_products?.name) return receipt.merchant_products.name;
+  if (receipt.receipt_type === "claim") return `Offer claimed${receipt.attribution?.coupon_code ? ` · ${receipt.attribution.coupon_code}` : ""}`;
+  if (receipt.receipt_type === "redemption") return `Offer redeemed${receipt.attribution?.coupon_code ? ` · ${receipt.attribution.coupon_code}` : ""}`;
+  return receipt.receipt_type.replace("_", " ");
+};
+
+export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { onOpenProducts?: () => void; onOpenValidation?: () => void }) {
+  const { session } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const salesQuery = useQuery({
+    queryKey: ["merchant-sales-console"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/merchant/sales`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load merchant sales");
+      return data as Sale[];
+    },
+  });
+
+  const receiptsQuery = useQuery({
+    queryKey: ["merchant-commerce-receipts"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/merchant/receipts`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load commerce receipts");
+      return (data.receipts || []) as ReceiptRow[];
+    },
+  });
+
+  const updateReceiptStatus = useMutation({
+    mutationFn: async ({ id, status, note }: { id: string; status: "fulfilled" | "cancelled" | "refunded"; note?: string }) => {
+      const response = await fetch(`${API_URL}/api/merchant/receipts/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${session!.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, note }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not update receipt");
+      return data.receipt as ReceiptRow;
+    },
+    onSuccess: (_receipt, variables) => {
+      toast({
+        title: variables.status === "fulfilled" ? "Receipt fulfilled" : variables.status === "cancelled" ? "Receipt cancelled" : "Receipt refunded",
+        description: "The merchant commerce queue has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["merchant-commerce-receipts"] });
+      queryClient.invalidateQueries({ queryKey: ["merchant-sales-console"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Could not update receipt",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const changeReceiptStatus = (receipt: ReceiptRow, status: "fulfilled" | "cancelled" | "refunded") => {
+    const action = status === "fulfilled" ? "mark this receipt fulfilled" : status === "cancelled" ? "cancel this receipt" : "mark this receipt refunded";
+    if (status !== "fulfilled" && !window.confirm(`Are you sure you want to ${action}?`)) return;
+    updateReceiptStatus.mutate({ id: receipt.id, status, note: `Merchant chose to ${action} from Commerce Console.` });
+  };
+
+  const sales = salesQuery.data || [];
+  const receipts = receiptsQuery.data || [];
+  const pendingSales = sales.filter((sale) => sale.status === "pending").slice(0, 6);
+  const pendingReceipts = receipts.filter((receipt) => ["issued", "pending"].includes(receipt.status)).slice(0, 6);
+  const fulfilledReceipts = receipts.filter((receipt) => receipt.status === "fulfilled");
+  const paidRevenue = receipts
+    .filter((receipt) => receipt.receipt_type === "purchase" && receipt.status === "fulfilled")
+    .reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0);
+  const recentActivity = receipts.slice(0, 8);
+
+  const stats = useMemo(() => [
+    { label: "Open reservations", value: pendingSales.length.toLocaleString(), icon: Bookmark, helper: "Awaiting validation" },
+    { label: "Fulfilled receipts", value: fulfilledReceipts.length.toLocaleString(), icon: BadgeCheck, helper: "Purchases/redemptions completed" },
+    { label: "Paid revenue", value: money(paidRevenue), icon: ShoppingBag, helper: "Stripe and paid product receipts" },
+    { label: "Needs attention", value: pendingReceipts.length.toLocaleString(), icon: QrCode, helper: "Issued receipts and claims" },
+  ], [fulfilledReceipts.length, paidRevenue, pendingReceipts.length, pendingSales.length]);
+
+  const isLoading = salesQuery.isLoading || receiptsQuery.isLoading;
+
+  return (
+    <section className="space-y-4">
+      <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-primary/5">
+        <CardContent className="p-5 sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-600">Commerce Console</p>
+              <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Run today’s orders, offers, and redemptions</h2>
+              <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+                A working counter for reservations, paid purchases, coupon claims, and merchant validations—so the storefront has an operator view, not just a catalog.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => { salesQuery.refetch(); receiptsQuery.refetch(); }}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+              <Button onClick={onOpenValidation} className="bg-emerald-600 hover:bg-emerald-700">
+                <QrCode className="mr-2 h-4 w-4" />
+                Validate code
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-white/10 bg-background/70 p-4">
+                <div className="flex items-center justify-between">
+                  <stat.icon className="h-5 w-5 text-emerald-600" />
+                  <Badge variant="outline" className="text-[10px]">Live</Badge>
+                </div>
+                <p className="mt-4 text-2xl font-black">{stat.value}</p>
+                <p className="text-xs font-semibold">{stat.label}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{stat.helper}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <Card>
+          <CardContent className="p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-black">Action queue</h3>
+                <p className="text-sm text-muted-foreground">Pending reservations and issued receipts that may need a scan, pickup, or follow-through.</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onOpenValidation}>
+                Scanner
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="space-y-2">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-20 rounded-xl" />)}</div>
+            ) : pendingSales.length === 0 && pendingReceipts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                Nothing waiting right now. Fresh reservations, claims, and pickup-ready receipts will land here.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingSales.map((sale) => (
+                  <div key={`sale-${sale.id}`} className="flex items-center justify-between gap-3 rounded-2xl border bg-card p-4">
+                    <div className="min-w-0">
+                      <Badge variant="secondary" className="mb-2 capitalize">{sale.sale_type || "reservation"}</Badge>
+                      <p className="truncate font-bold">{sale.merchant_products?.name || "Reserved listing"}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{new Date(sale.created_at).toLocaleString()} · {sale.status}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-mono text-xs font-black">{sale.redemption_code || "No code"}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{money(sale.amount_paid || 0)}</p>
+                    </div>
+                  </div>
+                ))}
+                {pendingReceipts.map((receipt) => (
+                  <div key={`receipt-${receipt.id}`} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <Badge variant="outline" className="mb-2 capitalize">{receipt.receipt_type}</Badge>
+                      <p className="truncate font-bold">{receiptLabel(receipt)}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{new Date(receipt.occurred_at).toLocaleString()} · {receipt.status}</p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+                      <p className="max-w-[140px] truncate font-mono text-xs font-black">{receipt.redemption_code || money(receipt.amount, receipt.currency)}</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={updateReceiptStatus.isPending}
+                        onClick={() => changeReceiptStatus(receipt, "fulfilled")}
+                      >
+                        <BadgeCheck className="mr-1 h-3.5 w-3.5" />
+                        Fulfill
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={updateReceiptStatus.isPending}
+                        onClick={() => changeReceiptStatus(receipt, "cancelled")}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <XCircle className="mr-1 h-3.5 w-3.5" />
+                        Cancel
+                      </Button>
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to={`/receipts/${receipt.id}`}>View</Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-black">Recent commerce</h3>
+                <p className="text-sm text-muted-foreground">Purchases, reservations, claims, and redemptions.</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={onOpenProducts}>
+                Catalog
+                <PackageCheck className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="space-y-2">{[0, 1, 2, 3].map((item) => <Skeleton key={item} className="h-16 rounded-xl" />)}</div>
+            ) : recentActivity.length === 0 ? (
+              <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                No commerce receipts yet. Create a product, attach an offer, or claim a coupon to start the loop.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentActivity.map((receipt) => {
+                  const Icon = receipt.receipt_type === "claim" ? Gift : receipt.receipt_type === "purchase" ? ShoppingBag : Receipt;
+                  return (
+                    <Link key={receipt.id} to={`/receipts/${receipt.id}`} className="group flex items-center gap-3 rounded-2xl border bg-card p-3 transition hover:border-emerald-500/30 hover:bg-emerald-500/5">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold capitalize">{receiptLabel(receipt)}</p>
+                        <p className="text-xs text-muted-foreground">{receipt.receipt_type} · {receipt.status}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-black">{Number(receipt.amount || 0) > 0 ? money(receipt.amount, receipt.currency) : receipt.redemption_code || "—"}</p>
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 opacity-0 transition group-hover:opacity-100">View</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}

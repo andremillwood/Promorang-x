@@ -18,9 +18,9 @@ type Props = {
 };
 
 const statusCopy: Record<MissionParticipation["status"], string> = {
-  joined: "Ready for proof",
-  submitted: "Proof in review",
-  verified: "Proof verified",
+  joined: "Ready to submit",
+  submitted: "Contribution in review",
+  verified: "Contribution counted",
   rejected: "Needs another look",
   rewarded: "Reward unlocked",
 };
@@ -37,7 +37,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
     if (!signedIn) return onSignIn();
     try {
       await join.mutateAsync(mission.id);
-      toast({ title: "Mission joined", description: "Your next move is ready. Submit proof when you have completed it." });
+      toast({ title: "Mission joined", description: "Your next move is ready. Submit your contribution when you have completed it." });
     } catch (error) {
       toast({ title: "Could not join", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
     }
@@ -50,7 +50,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
       setSelected(null);
       setProofUrl("");
       setNote("");
-      toast({ title: "Proof received", description: "It is now in review. We will update the mission when it is verified." });
+      toast({ title: "Contribution received", description: "It is now in review. We will update the mission when it has counted." });
     } catch (error) {
       toast({ title: "Could not submit proof", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
     }
@@ -68,7 +68,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Worth doing now</p>
           <h2 id="content-missions-title" className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Move the moment</h2>
         </div>
-        <p className="hidden max-w-xs text-right text-xs leading-5 text-white/45 sm:block">Simple actions. Visible proof. Value you can keep.</p>
+        <p className="hidden max-w-xs text-right text-xs leading-5 text-white/45 sm:block">Simple actions. Visible contribution. Value you can keep.</p>
       </div>
 
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-6 sm:px-7">
@@ -99,10 +99,10 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
               </div>
 
               <div className="p-5">
-                <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2" aria-label="Action, proof and reward">
+                <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2" aria-label="Action, contribution and reward">
                   {[
                     { label: "Act", detail: mission.proof_type === "referral" ? "Share" : "Create", active: !participation },
-                    { label: "Prove", detail: mission.proof_type, active: participation?.status === "joined" },
+                    { label: "Count", detail: mission.proof_type, active: participation?.status === "joined" },
                     { label: "Unlock", detail: mission.reward_value, active: submitted },
                   ].map((step, stepIndex) => (
                     <div className="contents" key={step.label}>
@@ -121,7 +121,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
                     <p className="mt-1 truncate text-sm font-bold">{mission.reward_value}</p>
                   </div>
                   {participation?.status === "joined" ? (
-                    <Button onClick={() => setSelected(mission)} size="sm"><Upload className="mr-2 h-4 w-4" />Submit proof</Button>
+                    <Button onClick={() => setSelected(mission)} size="sm"><Upload className="mr-2 h-4 w-4" />Submit contribution</Button>
                   ) : submitted ? (
                     <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-300">
                       <Check className="h-3.5 w-3.5" />{statusCopy[participation.status]}
@@ -152,7 +152,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="border-white/10 bg-zinc-950 text-white sm:max-w-lg">
           <DialogHeader>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Proof, not polish</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Contribution, not polish</p>
             <DialogTitle className="text-2xl font-black">{selected?.title}</DialogTitle>
             <DialogDescription className="text-white/50">Paste the public link to what you made. The host reviews it against the mission—not follower count or production quality.</DialogDescription>
           </DialogHeader>
@@ -166,7 +166,7 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
               <Textarea id="mission-proof-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={500} placeholder="Anything the reviewer should know?" className="border-white/10 bg-white/5" />
             </div>
             <Button className="w-full" onClick={submitProof} disabled={!/^https?:\/\/\S+$/i.test(proofUrl) || submit.isPending}>
-              {submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Send proof for review
+              {submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Send contribution for review
             </Button>
           </div>
         </DialogContent>

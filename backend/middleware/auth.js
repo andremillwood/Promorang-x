@@ -580,4 +580,4 @@ const requireRole = (roles) => (req, res, next) => {
   });
 };
 
-module.exports = { requireAuth, requireAdmin, requireMasterAdmin, requireRole, optionalAuth, resolveAdvertiserContext, resolveMerchantContext };
+module.exports = { requireAuth, requireAdmin, requireMasterAdmin, requireRole, optionalAuth, resolveAdvertiserContext, resolveMerchantContext, getUserRoles };

@@ -26,7 +26,7 @@ const paths = [
     metric: "Mark",
     metricLabel: "a verified check-in",
     valueNow: "See what is worth doing near you",
-    whyItMatters: "Your first Mark starts a record that can unlock access, perks, and invitations.",
+    whyItMatters: "Your first check-in starts a record that can unlock access, perks, and invitations.",
     outcomes: ["Find better plans", "Unlock useful rewards", "Get invited back"],
   },
   {
@@ -83,15 +83,15 @@ const paths = [
     audience: "Creator",
     headline: "Turn stories into movement.",
     copy: "Connect your content to real places and experiences so your audience can watch, join, unlock rewards, and turn attention into measurable action.",
-    cta: "Create a Mission",
+    cta: "Create a Prompt",
     href: "/for-creators",
     signupHref: "/auth?role=creator",
     icon: PlayCircle,
-    metric: "O2O",
-    metricLabel: "content into action",
+    metric: "Action",
+    metricLabel: "when content moves people",
     valueNow: "Turn attention into activity",
     whyItMatters: "Your audience can move from watching to showing up, proving action, and earning with you.",
-    outcomes: ["Create audience missions", "Drive place visits", "Unlock creator earnings"],
+    outcomes: ["Create audience prompts", "Drive place visits", "Unlock creator earnings"],
   },
 ];
 
@@ -112,7 +112,7 @@ export function StakeholderPaths() {
             What brings you to Promorang?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-muted-foreground">
-            Choose the role closest to your real problem. Promorang becomes clearer when the first answer matches the decision you are trying to make.
+            Choose the role closest to your real problem. The next step becomes clearer when Promorang starts with the outcome you already want.
           </p>
         </div>
 

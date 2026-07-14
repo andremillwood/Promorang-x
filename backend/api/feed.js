@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabaseAdmin = require('../lib/supabase'); // Using admin client for broader access
+const { supabase: supabaseAdmin } = require('../lib/supabase'); // Service-role client for feed assembly
 const { requireAuth } = require('../middleware/auth');
 
 // Demo feed content for unauthenticated users or when database is unavailable
@@ -81,6 +81,7 @@ const PROFILE_WEIGHTS = {
         social: 0.9,
         value: 0.8,
         quality: 0.7,
+        behavior: 1.25,
     },
     creator: {
         recency: 0.7,
@@ -91,6 +92,7 @@ const PROFILE_WEIGHTS = {
         social: 0.8,
         value: 1.2,
         quality: 1.0,
+        behavior: 1.35,
     },
 };
 
@@ -104,6 +106,7 @@ const INTENT_MULTIPLIERS = {
         social: 1,
         value: 1,
         quality: 1,
+        behavior: 1,
     },
     nearby: {
         recency: 1,
@@ -114,6 +117,7 @@ const INTENT_MULTIPLIERS = {
         social: 1,
         value: 1,
         quality: 1,
+        behavior: 1,
     },
     tonight: {
         recency: 1.1,
@@ -124,6 +128,7 @@ const INTENT_MULTIPLIERS = {
         social: 1,
         value: 1,
         quality: 1,
+        behavior: 1,
     },
     earn: {
         recency: 1,
@@ -134,6 +139,7 @@ const INTENT_MULTIPLIERS = {
         social: 1,
         value: 1.7,
         quality: 1.1,
+        behavior: 1.15,
     },
 };
 
@@ -283,8 +289,69 @@ const scoreWeather = (item, userContext = {}) => {
 
 const scoreAffinity = (item, interactions = []) => {
     if (!item.creator_id || interactions.length === 0) return 0;
-    const creatorInteractions = interactions.filter((interaction) => interaction.creator_id === item.creator_id);
+    const creatorInteractions = interactions.filter((interaction) => interaction.meta_data?.creator_id === item.creator_id);
     return Math.min(creatorInteractions.length * 3, 12);
+};
+
+const INTERACTION_SIGNAL = {
+    view: 0.35,
+    impression: 0.35,
+    click: 3,
+    like: 5,
+    share: 7,
+    rsvp: 9,
+    save: 10,
+    purchase: 14,
+    dismiss: -18,
+};
+
+const normalizeInteractionItemType = (item = {}) => {
+    const type = item.type || item.object_type;
+    if (type === 'event' || type === 'moment') return 'event';
+    if (type === 'offer' || type === 'coupon') return 'campaign';
+    if (type === 'piece' || type === 'movement') return 'content';
+    if (type === 'drop') return 'drop';
+    return type || 'content';
+};
+
+const scoreBehavior = (item, interactions = []) => {
+    if (!interactions.length) return { score: 0, reason: null };
+
+    const itemType = normalizeInteractionItemType(item);
+    const itemId = String(item.entity_id || item.id || '');
+    let score = 0;
+    let strongestPositive = null;
+    let strongestPositiveValue = 0;
+    let directViews = 0;
+
+    for (const interaction of interactions) {
+        const ageDays = Math.max(0, (Date.now() - new Date(interaction.created_at || Date.now()).getTime()) / 86400000);
+        const decay = Math.max(0.2, 1 - (ageDays / 45));
+        const signal = INTERACTION_SIGNAL[interaction.interaction_type] ?? Number(interaction.weight || 0);
+        const sameType = interaction.item_type === itemType;
+        const sameItem = sameType && String(interaction.item_id) === itemId;
+
+        if (sameType) score += signal * decay * 0.35;
+        if (sameItem) {
+            score += signal * decay * 0.85;
+            if (['view', 'impression'].includes(interaction.interaction_type)) directViews += 1;
+        }
+
+        if (sameType && signal > strongestPositiveValue) {
+            strongestPositiveValue = signal;
+            strongestPositive = interaction.interaction_type;
+        }
+    }
+
+    if (directViews > 2) score -= Math.min((directViews - 2) * 2.5, 10);
+
+    let reason = null;
+    if (strongestPositive === 'purchase') reason = 'Based on what you buy';
+    else if (strongestPositive === 'save') reason = 'Based on what you save';
+    else if (['share', 'like', 'rsvp'].includes(strongestPositive)) reason = 'Inspired by your activity';
+    else if (strongestPositive === 'click') reason = 'More like what you explore';
+
+    return { score: Number(Math.max(-40, Math.min(score, 28)).toFixed(2)), reason };
 };
 
 const scoreNicheAlignment = (item, userContext = {}) => {
@@ -374,6 +441,7 @@ const calculateScoreBreakdown = (item, userPrefs, userContext = {}, interactions
     social: scoreAffinity(item, interactions),
     value: scoreValue(item),
     quality: scoreQuality(item),
+    behavior: scoreBehavior(item, interactions).score,
     diversity_adjustment: 0,
 });
 
@@ -390,6 +458,7 @@ const applyProfileWeights = (scoreBreakdown, profile = 'participant', intent = n
         (scoreBreakdown.social * profileWeights.social * intentWeights.social) +
         (scoreBreakdown.value * profileWeights.value * intentWeights.value) +
         (scoreBreakdown.quality * profileWeights.quality * intentWeights.quality) +
+        (scoreBreakdown.behavior * profileWeights.behavior * intentWeights.behavior) +
         scoreBreakdown.diversity_adjustment
     );
 
@@ -407,10 +476,12 @@ const normalizeObjectType = (item) => {
 const buildReasonLabels = (item, intent, scoreBreakdown = null) => {
     const labels = [];
 
+    if (item.is_sponsored) labels.push('Sponsored');
     if ((scoreBreakdown?.proximity || 0) >= 10 || (intent === 'nearby' && (item.location_city || item.location))) labels.push('Near you');
     if ((scoreBreakdown?.urgency || 0) >= 10 || (intent === 'tonight' && (item.start_date || item.starts_at || item.date))) labels.push('Tonight');
     if ((scoreBreakdown?.value || 0) >= 8 || (intent === 'earn' && (item.gem_reward_base || item.value || item.reward_type))) labels.push('Earn now');
     if ((scoreBreakdown?.relevance || 0) >= 18) labels.push('Matches your interests');
+    if ((scoreBreakdown?.behavior || 0) >= 4 && item.behavior_reason) labels.push(item.behavior_reason);
     if (item.type === 'coupon') labels.push('Brand-funded');
     if (item.type === 'drop') labels.push('Proof-based');
     if ((item.score || 0) >= 70) labels.push('High match');
@@ -482,6 +553,14 @@ const serializeFeedItem = (item, intent) => {
     };
 };
 
+const feedOwnerId = (item) => item.creator_id
+    || item.owner_user_id
+    || item.user_id
+    || item.host_id
+    || item.relayer_user_id
+    || item.content_items?.creator_id
+    || null;
+
 const resolveRankingProfile = (user) => {
     const rawRole = (user?.user_type || user?.role || '').toLowerCase();
     if (rawRole === 'creator') return 'creator';
@@ -491,6 +570,7 @@ const resolveRankingProfile = (user) => {
 const diversifyFeedItems = (items) => {
     const hostCounts = new Map();
     const typeCounts = new Map();
+    let sponsoredCount = 0;
 
     const remaining = [...items];
     const ordered = [];
@@ -505,7 +585,8 @@ const diversifyFeedItems = (items) => {
             const typeKey = item.type || 'unknown';
             const hostPenalty = (hostCounts.get(hostKey) || 0) * 6;
             const typePenalty = (typeCounts.get(typeKey) || 0) * 3;
-            const diversityAdjustment = -(hostPenalty + typePenalty);
+            const sponsoredPenalty = item.is_sponsored ? sponsoredCount * 7 : 0;
+            const diversityAdjustment = -(hostPenalty + typePenalty + sponsoredPenalty);
             const adjustedScore = (item.score || 0) + diversityAdjustment;
 
             if (adjustedScore > bestScore) {
@@ -519,7 +600,8 @@ const diversifyFeedItems = (items) => {
         const typeKey = selectedItem.type || 'unknown';
         const hostPenalty = (hostCounts.get(hostKey) || 0) * 6;
         const typePenalty = (typeCounts.get(typeKey) || 0) * 3;
-        const diversityAdjustment = -(hostPenalty + typePenalty);
+        const sponsoredPenalty = selectedItem.is_sponsored ? sponsoredCount * 7 : 0;
+        const diversityAdjustment = -(hostPenalty + typePenalty + sponsoredPenalty);
 
         selectedItem.score_breakdown = {
             ...(selectedItem.score_breakdown || {}),
@@ -529,6 +611,7 @@ const diversifyFeedItems = (items) => {
 
         hostCounts.set(hostKey, (hostCounts.get(hostKey) || 0) + 1);
         typeCounts.set(typeKey, (typeCounts.get(typeKey) || 0) + 1);
+        if (selectedItem.is_sponsored) sponsoredCount += 1;
         ordered.push(selectedItem);
     }
 
@@ -563,6 +646,7 @@ const buildUserContext = async (userId) => {
             calendarResult,
             globalEventsResult,
             interactionsResult,
+            explicitPreferencesResult,
         ] = await Promise.all([
             supabaseAdmin
                 .from('users')
@@ -590,14 +674,24 @@ const buildUserContext = async (userId) => {
                 .catch(() => ({ data: [] })),
             supabaseAdmin
                 .from('user_interactions')
-                .select('creator_id, item_type')
+                .select('item_type, item_id, interaction_type, weight, meta_data, created_at')
                 .eq('user_id', userId)
                 .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
                 .catch(() => ({ data: [] })),
+            supabaseAdmin
+                .from('user_preferences')
+                .select('interests, location_data, demographics, psychographics')
+                .eq('user_id', userId)
+                .maybeSingle()
+                .catch(() => ({ data: null })),
         ]);
 
-        userPrefs = prefsResult.data?.preferences || {};
-        userPrefs.location_data = prefsResult.data?.location_data || {};
+        userPrefs = {
+            ...(prefsResult.data?.preferences || {}),
+            ...(explicitPreferencesResult.data || {}),
+        };
+        userPrefs.interests = explicitPreferencesResult.data?.interests || userPrefs.interests || [];
+        userPrefs.location_data = explicitPreferencesResult.data?.location_data || prefsResult.data?.location_data || {};
 
         userDemographics = demographicsResult.data;
         userCalendar = calendarResult.data || [];
@@ -663,16 +757,19 @@ const buildUserContext = async (userId) => {
 
 const fetchFeedCandidates = async (userId) => {
     try {
-        const [events, drops, content, forecasts, coupons, relays] = await Promise.all([
+        const [events, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks] = await Promise.all([
             supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
             supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
             supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
             supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
             supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
             supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
+            supabaseAdmin.from('view_public_commerce_directory').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(24).catch(() => ({ data: [] })),
+            supabaseAdmin.from('content_piece_stats').select('*, content_items:content_id(id,title,description,media_url,creator_id)').gt('available_pieces', 0).order('change_24h', { ascending: false }).limit(16).catch(() => ({ data: [] })),
+            supabaseAdmin.from('experience_commerce_links').select('*').order('created_at', { ascending: false }).limit(80).catch(() => ({ data: [] })),
         ]);
 
-        return { events, drops, content, forecasts, coupons, relays };
+        return { events, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks };
     } catch (fetchError) {
         console.error('Error fetching feed candidates:', fetchError);
         return {
@@ -682,6 +779,9 @@ const fetchFeedCandidates = async (userId) => {
             forecasts: { data: [] },
             coupons: { data: [] },
             relays: { data: [] },
+            commerce: { data: [] },
+            pieces: { data: [] },
+            authoredLinks: { data: [] },
         };
     }
 };
@@ -689,9 +789,11 @@ const fetchFeedCandidates = async (userId) => {
 const scoreFeedItem = (item, rankingProfile, intent, userPrefs, userContext, userInteractions) => {
     const scoreBreakdown = calculateScoreBreakdown(item, userPrefs, userContext, userInteractions, intent);
     const score = applyProfileWeights(scoreBreakdown, rankingProfile, intent);
+    const behavior = scoreBehavior(item, userInteractions);
 
     return {
         ...item,
+        behavior_reason: behavior.reason,
         base_score: score,
         score,
         score_breakdown: scoreBreakdown,
@@ -706,9 +808,10 @@ router.get('/for-you', requireAuth, async (req, res) => {
         const userId = req.user?.id;
         const { limit = 20, offset = 0, intent = null } = req.query;
         const rankingProfile = resolveRankingProfile(req.user);
-        const [{ userPrefs, userContext, userInteractions }, candidates] = await Promise.all([
+        const [{ userPrefs, userContext, userInteractions }, candidates, blocksResult] = await Promise.all([
             buildUserContext(userId),
             fetchFeedCandidates(userId),
+            supabaseAdmin.from('user_blocks').select('blocked_user_id').eq('blocker_user_id', userId).catch(() => ({ data: [] })),
         ]);
 
         let feedItems = [];
@@ -747,8 +850,47 @@ router.get('/for-you', requireAuth, async (req, res) => {
         if (candidates.relays.data) {
             feedItems.push(...candidates.relays.data.map((item) => scoreFeedItem({ ...item, type: 'movement' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
+        if (candidates.commerce.data) {
+            const linksByTarget = new Map((candidates.authoredLinks.data || []).map(link => [String(link.target_id), link]));
+            feedItems.push(...candidates.commerce.data.map((item) => { const authored = linksByTarget.get(String(item.source_id)); const sponsored = authored?.relationship === 'sponsors' || authored?.attribution?.sponsored === true; const placementWeight = Math.min(Math.max(Number(authored?.attribution?.placement_weight || 0), 0), 8); return scoreFeedItem({
+                ...item,
+                type: item.discount_value ? 'offer' : 'product',
+                title: item.name,
+                image_url: item.image_url,
+                reward_label: item.discount_value ? `${item.discount_value}${item.discount_type === 'percentage' ? '%' : ''} off` : undefined,
+                merchant_name: item.merchant_name,
+                entity_id: item.listing_id,
+                quality_boost: sponsored ? 4 + placementWeight : authored ? 5 : item.moment_exclusive ? 3 : 1,
+                connected_context: authored || null,
+                reason_label: authored ? 'Connected to a Moment' : undefined,
+                is_sponsored: sponsored,
+                sponsor_source_type: sponsored ? authored.source_type : null,
+                sponsor_source_id: sponsored ? authored.source_id : null,
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions) }));
+        }
+        if (candidates.pieces.data) {
+            feedItems.push(...candidates.pieces.data.map((item) => scoreFeedItem({
+                ...item,
+                id: item.content_id,
+                entity_id: item.content_id,
+                type: 'piece',
+                title: item.content_items?.title || 'Content Piece',
+                description: item.content_items?.description || 'Own a piece of the momentum and follow its return.',
+                image_url: item.content_items?.media_url,
+                current_price: item.current_price,
+                change_24h: item.change_24h,
+                available_pieces: item.available_pieces,
+                holder_count: item.holder_count,
+                quality_boost: 2,
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+        }
 
-        const diversifiedItems = diversifyFeedItems(feedItems);
+        const blockedUserIds = new Set((blocksResult.data || []).map((row) => String(row.blocked_user_id)));
+        const visibleItems = feedItems.filter((item) => {
+            const ownerId = feedOwnerId(item);
+            return !ownerId || !blockedUserIds.has(String(ownerId));
+        });
+        const diversifiedItems = diversifyFeedItems(visibleItems);
         const numericOffset = parseInt(offset, 10);
         const numericLimit = parseInt(limit, 10);
         const pagedItems = diversifiedItems
@@ -789,6 +931,49 @@ router.get('/for-you', requireAuth, async (req, res) => {
     }
 });
 
+router.post('/report', requireAuth, async (req, res) => {
+    try {
+        const { target_type, target_id, reported_user_id = null, reason, details = null } = req.body || {};
+        const allowedTypes = new Set(['moment', 'content', 'product', 'offer', 'piece', 'user']);
+        const allowedReasons = new Set(['spam', 'harassment', 'hate', 'nudity', 'violence', 'dangerous', 'fraud', 'intellectual_property', 'other']);
+        if (!allowedTypes.has(target_type) || !target_id || !allowedReasons.has(reason)) {
+            return res.status(422).json({ error: 'Choose a valid report reason' });
+        }
+        const { error } = await supabaseAdmin.from('content_reports').insert({
+            reporter_user_id: req.user.id,
+            target_type,
+            target_id: String(target_id),
+            reported_user_id,
+            reason,
+            details: details ? String(details).slice(0, 1000) : null,
+            source: 'mobile_feed',
+        });
+        if (error) throw error;
+        return res.status(201).json({ success: true });
+    } catch (error) {
+        console.error('Content report failed:', error);
+        return res.status(500).json({ error: 'Could not submit this report' });
+    }
+});
+
+router.post('/block', requireAuth, async (req, res) => {
+    try {
+        const blockedUserId = String(req.body?.blocked_user_id || '');
+        if (!blockedUserId || blockedUserId === req.user.id) {
+            return res.status(422).json({ error: 'Choose another user to block' });
+        }
+        const { error } = await supabaseAdmin.from('user_blocks').upsert({
+            blocker_user_id: req.user.id,
+            blocked_user_id: blockedUserId,
+        }, { onConflict: 'blocker_user_id,blocked_user_id' });
+        if (error) throw error;
+        return res.status(201).json({ success: true });
+    } catch (error) {
+        console.error('User block failed:', error);
+        return res.status(500).json({ error: 'Could not block this user' });
+    }
+});
+
 // ============================================
 // LOG INTERACTION
 // ============================================
@@ -801,15 +986,30 @@ router.post('/interaction', requireAuth, async (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
+        const normalizedType = item_type === 'moment'
+            ? 'event'
+            : item_type === 'offer' || item_type === 'coupon'
+                ? 'campaign'
+                : item_type === 'piece'
+                    ? 'content'
+                    : item_type;
+        const normalizedInteraction = interaction_type === 'impression' ? 'view' : interaction_type;
+        const allowedTypes = new Set(['content', 'drop', 'event', 'product', 'campaign']);
+        const weights = { view: 1, click: 4, like: 6, share: 8, rsvp: 10, purchase: 14, save: 10, dismiss: -18 };
+
+        if (!allowedTypes.has(normalizedType) || weights[normalizedInteraction] === undefined) {
+            return res.status(422).json({ success: false, error: 'Unsupported feed interaction' });
+        }
+
         const { error } = await supabaseAdmin
             .from('user_interactions')
             .insert({
                 user_id: userId,
-                item_type,
+                item_type: normalizedType,
                 item_id,
-                interaction_type,
-                meta_data: meta_data || {},
-                weight: interaction_type === 'click' ? 5 : 1 // Simple weighting
+                interaction_type: normalizedInteraction,
+                meta_data: { ...(meta_data || {}), original_interaction: interaction_type },
+                weight: weights[normalizedInteraction]
             });
 
         if (error) {

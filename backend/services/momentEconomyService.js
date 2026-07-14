@@ -1,12 +1,30 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
-
 const supabase = global.supabase || serviceSupabase || null;
 
-const MONEY_SOURCES = new Set(['entry', 'host', 'event', 'hybrid']);
+const MONEY_SOURCES = new Set(['entry', 'host', 'event', 'platform', 'content', 'hybrid']);
+const ALLOCATION_MONEY_SOURCES = new Set(['platform', 'content']);
 const PROOF_TYPES = new Set(['code', 'photo', 'video', 'referral', 'link']);
+const MOMENT_PROOF_TYPE_ALIASES = new Map([
+  ['qr', 'QR'],
+  ['gps', 'GPS'],
+  ['photo', 'Photo'],
+  ['image', 'Photo'],
+  ['video', 'Video'],
+  ['api', 'API'],
+  ['code', 'Code'],
+  ['referral', 'Code'],
+  ['link', 'API'],
+]);
 const RULE_TYPES = new Set(['first_n', 'per_action', 'leaderboard', 'milestone', 'judged']);
 const RECURRENCE_FREQUENCIES = new Set(['daily', 'weekly', 'monthly']);
 const CONTENT_ORIGINS = new Set(['stakeholder_created', 'platform_seed', 'demo', 'scraped', 'imported']);
+const ADMIN_ROLES = new Set(['admin', 'master_admin', 'moderator', 'administrator']);
+
+function canAdministerMoments(user = {}) {
+  const roles = [user.role, user.user_type, ...(Array.isArray(user.roles) ? user.roles : [])].filter(Boolean);
+  const adminEmails = ['andremillwood@gmail.com', 'admin@promorang.com', 'demo@promorang.com'];
+  return roles.some((role) => ADMIN_ROLES.has(role)) || adminEmails.includes(user.email);
+}
 
 function toMoney(value) {
   const number = Number(value || 0);
@@ -28,6 +46,15 @@ function normalizeMove(move = {}, index = 0) {
     requires_unique: move.requires_unique !== false,
     sort_order: Number.isFinite(Number(move.sort_order)) ? Number(move.sort_order) : index,
   };
+}
+
+function normalizeMomentProofType(value, fallbackMoveProofType = 'code') {
+  const rawValue = value || fallbackMoveProofType || 'code';
+  const proofType = MOMENT_PROOF_TYPE_ALIASES.get(String(rawValue).trim().toLowerCase());
+  if (!proofType) {
+    throw new Error('proof_type must be QR, GPS, Photo, Video, API, or Code');
+  }
+  return proofType;
 }
 
 function normalizeRule(rule = {}, index = 0) {
@@ -149,7 +176,9 @@ function normalizeRecurrencePayload(payload = {}) {
 
 function validateEconomyPayload(payload = {}) {
   const moneySource = String(payload.money_source || '').toLowerCase();
-  if (!MONEY_SOURCES.has(moneySource)) throw new Error('money_source must be entry, host, event, or hybrid');
+  if (!MONEY_SOURCES.has(moneySource)) {
+    throw new Error('money_source must be entry, host, event, platform, content, or hybrid');
+  }
 
   const moves = (payload.moves || []).map(normalizeMove);
   const payoutRules = (payload.payout_rules || []).map(normalizeRule);
@@ -184,8 +213,8 @@ function validateEconomyPayload(payload = {}) {
     throw new Error(`Reward pool must cover max liability. Pool: ${rewardPool} JMD, liability: ${maxLiability} JMD`);
   }
 
-  if (rewardPool > 0 && moneySource !== 'entry' && totalFunded < rewardPool) {
-    throw new Error('Host/event-funded reward Moments require initial funding that covers the reward pool');
+  if (rewardPool > 0 && moneySource !== 'entry' && !ALLOCATION_MONEY_SOURCES.has(moneySource) && totalFunded < rewardPool) {
+    throw new Error('Self-funded or sponsor-funded reward Moments require initial funding that covers the reward pool');
   }
 
   return {
@@ -300,8 +329,11 @@ async function createMomentWithEconomy(userId, payload = {}) {
     }
   }
 
-  const status = economy.rewardPool > 0 && economy.moneySource === 'entry' ? 'funding' : 'joinable';
+  const status = economy.rewardPool > 0 && (economy.moneySource === 'entry' || ALLOCATION_MONEY_SOURCES.has(economy.moneySource))
+    ? 'funding'
+    : 'joinable';
   const isActive = true;
+  const momentProofType = normalizeMomentProofType(payload.proof_type, economy.moves[0]?.proof_type);
 
   const coreMomentInsert = {
       host_id: payload.host_id || userId,
@@ -329,7 +361,7 @@ async function createMomentWithEconomy(userId, payload = {}) {
       is_active: isActive,
       status,
       visibility: payload.visibility || 'open',
-      proof_type: economy.moves[0]?.proof_type || 'code',
+      proof_type: momentProofType,
       evidence_requirements: payload.evidence_requirements || [],
       expected_action_unit: economy.moves[0]?.title || 'Action',
       check_in_code: payload.check_in_code || Math.random().toString(36).substring(2, 8).toUpperCase(),
@@ -374,7 +406,7 @@ async function createMomentWithEconomy(userId, payload = {}) {
 
   if (momentError) throw momentError;
 
-  const fundingStatus = economy.moneySource === 'entry'
+  const fundingStatus = economy.moneySource === 'entry' || ALLOCATION_MONEY_SOURCES.has(economy.moneySource)
     ? 'pending'
     : economy.totalFunded >= economy.rewardPool ? 'funded' : 'pending';
 
@@ -434,8 +466,11 @@ async function createMomentWithEconomy(userId, payload = {}) {
   };
 }
 
-async function updateMoment(userId, momentId, payload = {}) {
+async function updateMoment(userOrId, momentId, payload = {}) {
   if (!supabase) throw new Error('Database not available');
+
+  const user = typeof userOrId === 'string' ? { id: userOrId } : (userOrId || {});
+  const userId = user.id;
 
   const { data: existingMoment, error: existingError } = await supabase
     .from('moments')
@@ -445,7 +480,7 @@ async function updateMoment(userId, momentId, payload = {}) {
 
   if (existingError) throw existingError;
   if (!existingMoment) throw new Error('Moment not found');
-  if (existingMoment.host_id !== userId && existingMoment.organizer_id !== userId) {
+  if (!canAdministerMoments(user) && existingMoment.host_id !== userId && existingMoment.organizer_id !== userId) {
     throw new Error('You can only edit your own moments');
   }
 

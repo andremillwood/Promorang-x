@@ -4,14 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { useAuth, UserRole } from '@/context/AuthContext';
-import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
+import { Colors as DesignColors } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
+import type { ComponentProps } from 'react';
 
-const roleLabels: Record<UserRole, { label: string; icon: any; color: string; desc: string }> = {
+const roleLabels: Record<UserRole, { label: string; icon: ComponentProps<typeof Ionicons>['name']; color: string; desc: string }> = {
   participant: { label: "Participant", icon: "people", color: "#3B82F6", desc: "Discover and join moments" },
+  creator: { label: "Creator", icon: "videocam", color: "#EC4899", desc: "Create influence tied to action" },
   host: { label: "Host", icon: "calendar", color: "#8B5CF6", desc: "Organize and lead moments" },
   brand: { label: "Brand", icon: "business", color: DesignColors.primary, desc: "Fund activations & track ROI" },
   merchant: { label: "Merchant", icon: "storefront", color: "#10B981", desc: "Drive foot traffic to venues" },
+  agency: { label: "Agency", icon: "layers", color: "#F59E0B", desc: "Coordinate outcomes across clients" },
   admin: { label: "Admin", icon: "settings", color: "#6B7280", desc: "Manage platform systems" },
 };
 
@@ -20,8 +23,6 @@ export default function ModalScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
-
-  const activeOrg = organizations.find(o => o.id === activeOrgId);
 
   return (
     <View style={styles.container}>

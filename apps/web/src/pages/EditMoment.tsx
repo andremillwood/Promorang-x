@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -57,6 +58,7 @@ type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 const EditMoment = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -120,8 +122,8 @@ const EditMoment = () => {
 
       if (error) throw error;
 
-      // Check ownership
-      if (data.host_id !== user?.id) {
+      // Check ownership. Platform admins can edit any moment.
+      if (!isAdmin && data.host_id !== user?.id && data.organizer_id !== user?.id) {
         toast({
           title: "Unauthorized",
           description: "You can only edit your own moments.",

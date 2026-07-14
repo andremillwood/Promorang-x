@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL } from "@/lib/api";
 
 export interface ReferralCode {
   id: string;
@@ -76,14 +77,17 @@ export function useReferralCodes() {
     queryFn: async () => {
       if (!user) return [];
 
-      const { data, error } = await supabase
-        .from("referral_codes")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as ReferralCode[];
+      const { data: sessionData } = await supabase.auth.getSession();
+      const response = await fetch(`${API_BASE_URL}/referrals/my-code`, {
+        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || payload.error || "Failed to load referral code");
+      const code = payload.data?.code;
+      return code ? [{
+        id: code, user_id: user.id, code, is_active: true,
+        total_clicks: 0, total_signups: 0, total_conversions: 0, created_at: new Date().toISOString(),
+      }] as ReferralCode[] : [];
     },
     enabled: !!user,
   });
@@ -99,7 +103,7 @@ export function useReferrals() {
       if (!user) return [];
 
       const { data, error } = await supabase
-        .from("referrals")
+        .from("user_referrals")
         .select("*")
         .eq("referrer_id", user.id)
         .order("created_at", { ascending: false });
@@ -121,19 +125,13 @@ export function useCreateReferralCode() {
     mutationFn: async () => {
       if (!user) throw new Error("Not authenticated");
 
-      const code = generateCode();
-
-      const { data, error } = await supabase
-        .from("referral_codes")
-        .insert({
-          user_id: user.id,
-          code,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const response = await fetch(`${API_BASE_URL}/referrals/my-code`, {
+        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || payload.error || "Failed to create referral code");
+      return payload.data;
     },
     onSuccess: () => {
       toast({
@@ -266,15 +264,16 @@ export function useReferralStats() {
     queryFn: async () => {
       if (!user) return null;
 
-      // Get referral codes stats
-      const { data: codes } = await supabase
-        .from("referral_codes")
-        .select("total_clicks, total_signups, total_conversions")
-        .eq("user_id", user.id);
-
-      const totalClicks = codes?.reduce((sum, c) => sum + (c.total_clicks || 0), 0) || 0;
-      const totalSignups = codes?.reduce((sum, c) => sum + (c.total_signups || 0), 0) || 0;
-      const totalConversions = codes?.reduce((sum, c) => sum + (c.total_conversions || 0), 0) || 0;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const response = await fetch(`${API_BASE_URL}/referrals/stats`, {
+        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || payload.error || "Failed to load referral stats");
+      const summary = payload.data?.summary || {};
+      const totalClicks = 0;
+      const totalSignups = Number(summary.total_referrals || 0);
+      const totalConversions = Number(summary.active_referrals || 0);
 
       // Get affiliate earnings
       const { data: links } = await supabase
@@ -284,7 +283,8 @@ export function useReferralStats() {
 
       const affiliateClicks = links?.reduce((sum, l) => sum + (l.click_count || 0), 0) || 0;
       const affiliateConversions = links?.reduce((sum, l) => sum + (l.conversion_count || 0), 0) || 0;
-      const totalEarnings = links?.reduce((sum, l) => sum + (l.total_earnings || 0), 0) || 0;
+      const affiliateEarnings = links?.reduce((sum, l) => sum + (l.total_earnings || 0), 0) || 0;
+      const totalEarnings = Number(summary.total_earnings?.usd || 0) + affiliateEarnings;
 
       // Get pending earnings
       const { data: pendingConversions } = await supabase

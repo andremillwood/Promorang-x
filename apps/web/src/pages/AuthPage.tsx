@@ -9,6 +9,7 @@ import { Users, Sparkles, Building2, Store, ArrowLeft, Eye, EyeOff, PlayCircle, 
 import logo from "@/assets/promorang-logo-full.png";
 import { z } from "zod";
 import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
+import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -63,6 +64,7 @@ const AuthPage = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    captureGrowthAttribution();
     const requestedRole = searchParams.get("role");
     const next = searchParams.get("next");
     if (next?.startsWith("/") && !next.startsWith("//")) {
@@ -130,6 +132,7 @@ const AuthPage = () => {
           navigate("/post-login", { replace: true });
         }
       } else {
+        void trackGrowthEvent({ eventName: "signup_started", journey: "participant", stage: "captured", properties: { role: selectedRole } });
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) {
           toast({
@@ -140,6 +143,7 @@ const AuthPage = () => {
             variant: "destructive",
           });
         } else {
+          markPendingSignup();
           toast({
             title: "Welcome to Promorang!",
             description: "Your account has been created successfully.",
@@ -314,6 +318,8 @@ const AuthPage = () => {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >

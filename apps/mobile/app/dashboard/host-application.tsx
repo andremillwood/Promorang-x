@@ -6,12 +6,7 @@ import { Text, View } from '@/components/Themed';
 import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/context/AuthContext';
-
-// Helper to get API URL (duplicated for now, should be a util)
-const getApiUrl = () => {
-    const localhost = Platform.OS === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
-    return process.env.EXPO_PUBLIC_API_URL || localhost;
-};
+import { API_BASE } from '@/lib/api';
 
 export default function HostApplicationScreen() {
     const colorScheme = useColorScheme();
@@ -31,8 +26,7 @@ export default function HostApplicationScreen() {
 
         setSubmitting(true);
         try {
-            const API_URL = getApiUrl();
-            const response = await fetch(`${API_URL}/api/host-applications`, {
+            const response = await fetch(`${API_BASE}/api/host-applications`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,7 +71,7 @@ export default function HostApplicationScreen() {
                     </Text>
                     <View style={{ flexDirection: 'row', gap: 4, marginTop: 8 }}>
                         <View style={styles.badge}><Text style={styles.badgeText}>Priority Access</Text></View>
-                        <View style={styles.badge}><Text style={styles.badgeText}>Earn Money</Text></View>
+                        <View style={styles.badge}><Text style={styles.badgeText}>Earn Gems</Text></View>
                     </View>
                 </View>
 

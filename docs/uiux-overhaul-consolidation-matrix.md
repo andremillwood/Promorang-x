@@ -1,5 +1,7 @@
 # Promorang UI/UX Overhaul Consolidation Matrix
 
+> Historical planning reference. Where this matrix promotes `Pulse`, `Discover`, `Vault`, and `Dashboard` as the primary spine, it is superseded by the canonical `Today`, `Discover`, `Create`, `Progress`, and `Vault` model in [`DESIGN.md`](../DESIGN.md) and the [A+ Platform Execution Plan](design/a-plus-platform-execution-plan.md). Route-level observations remain useful until the canonical route registry replaces them.
+
 This document turns the platform overhaul into a page and route decision matrix.
 
 It is intended to answer:

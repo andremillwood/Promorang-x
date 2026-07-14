@@ -1,5 +1,7 @@
 import { StyleSheet, ScrollView, Pressable, Image, ActivityIndicator, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
+import * as WebBrowser from 'expo-web-browser';
+import { useStripe } from '@stripe/stripe-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Text, View } from '@/components/Themed';
@@ -8,6 +10,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useUserBalance } from '@/hooks/useEconomy';
+import { API_BASE, commerceApi } from '@/lib/api';
 
 interface Product {
     id: string;
@@ -34,10 +37,12 @@ export default function ProductDetailScreen() {
     const isDark = colorScheme === 'dark';
     const { user } = useAuth();
     const { balance, refetch: refetchBalance } = useUserBalance();
+    const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [purchasing, setPurchasing] = useState(false);
+    const [openingCheckout, setOpeningCheckout] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -70,12 +75,13 @@ export default function ProductDetailScreen() {
         }
     };
 
-    const handlePurchase = async (method: 'points' | 'cash') => {
+    const handlePurchase = async (method: 'gems' | 'reservation') => {
         if (!user || !product) return;
 
-        // Check if user has enough points
-        if (method === 'points' && (balance?.points || 0) < product.price_points) {
-            Alert.alert('Insufficient Points', `You need ${product.price_points} points but only have ${balance?.points || 0}.`);
+        const availableGems = balance?.gems || 0;
+
+        if (method === 'gems' && availableGems < product.price_points) {
+            Alert.alert('Insufficient Gems', `You need ${product.price_points} Gems but only have ${availableGems}.`);
             return;
         }
 
@@ -87,19 +93,18 @@ export default function ProductDetailScreen() {
 
         setPurchasing(true);
         try {
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
-
-            const response = await fetch(`${API_URL}/api/merchant/sales`, {
+            const isReservation = method === 'reservation';
+            const response = await fetch(`${API_BASE}${isReservation ? '/api/merchant/sales' : '/api/marketplace/purchase'}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.id}`,
+                    'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ''}`,
                 },
                 body: JSON.stringify({
                     product_id: product.id,
-                    sale_type: method,
-                    amount_paid: method === 'cash' ? product.price_usd : 0,
-                    points_paid: method === 'points' ? product.price_points : 0,
+                    ...(isReservation
+                        ? { sale_type: 'reservation', amount_paid: 0, points_paid: 0, metadata: { source: 'mobile_product' } }
+                        : { method: 'points', quantity: 1 }),
                 }),
             });
 
@@ -120,7 +125,7 @@ export default function ProductDetailScreen() {
             });
 
             Alert.alert(
-                'Purchase Successful!',
+                isReservation ? 'Reservation Ready!' : 'Purchase Successful!',
                 `Your redemption code is: ${result.redemption_code}`,
                 [{ text: 'OK' }]
             );
@@ -129,6 +134,101 @@ export default function ProductDetailScreen() {
             Alert.alert('Purchase Failed', error.message || 'Something went wrong');
         } finally {
             setPurchasing(false);
+        }
+    };
+
+    const openHostedCheckout = async () => {
+        if (!product) return;
+        const checkoutUrl = commerceApi.getCheckoutUrl(product.id);
+        await WebBrowser.openBrowserAsync(checkoutUrl, {
+            presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
+            controlsColor: DesignColors.primary,
+        });
+    };
+
+    const findCompletedReceipt = async (paymentIntentId: string) => {
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+            try {
+                const result = await commerceApi.getReceiptByPaymentIntent(paymentIntentId);
+                if (result.receipt?.id) return result.receipt.id;
+            } catch {
+                // Stripe webhooks can take a moment to create the receipt.
+            }
+            await new Promise(resolve => setTimeout(resolve, 900));
+        }
+        return null;
+    };
+
+    const handleCardCheckout = async () => {
+        if (!product) return;
+
+        if (product.inventory_count !== null && product.inventory_count === 0) {
+            Alert.alert('Out of Stock', 'This product is currently out of stock.');
+            return;
+        }
+
+        setOpeningCheckout(true);
+        try {
+            const intent = await commerceApi.createStripeIntent(product.id, 1);
+            const { error: initError } = await initPaymentSheet({
+                merchantDisplayName: 'Promorang',
+                paymentIntentClientSecret: intent.clientSecret,
+                returnURL: 'promorang://stripe-redirect',
+                allowsDelayedPaymentMethods: false,
+                appearance: {
+                    colors: {
+                        primary: DesignColors.primary,
+                        background: isDark ? DesignColors.gray[900] : DesignColors.white,
+                        componentBackground: isDark ? DesignColors.gray[800] : DesignColors.gray[50],
+                        primaryText: isDark ? DesignColors.white : DesignColors.black,
+                        secondaryText: DesignColors.gray[400],
+                        componentBorder: DesignColors.gray[600],
+                    },
+                    shapes: { borderRadius: BorderRadius.lg },
+                },
+            });
+
+            if (initError) throw new Error(initError.message);
+
+            const { error: paymentError } = await presentPaymentSheet();
+            if (paymentError) {
+                if (paymentError.code === 'Canceled') return;
+                throw new Error(paymentError.message);
+            }
+
+            const receiptId = await findCompletedReceipt(intent.paymentIntentId);
+            Alert.alert(
+                'Payment complete',
+                receiptId
+                    ? 'Your purchase is confirmed and its receipt is ready.'
+                    : 'Your purchase is confirmed. Its receipt will appear in Vault shortly.',
+                [
+                    { text: 'Keep browsing', style: 'cancel' },
+                    {
+                        text: receiptId ? 'View receipt' : 'Open Vault',
+                        onPress: () => receiptId
+                            ? router.push(`/receipts/${receiptId}` as any)
+                            : router.push('/(tabs)/vault' as any),
+                    },
+                ]
+            );
+        } catch (error: any) {
+            console.error('Card checkout error:', error);
+            Alert.alert(
+                'In-app checkout unavailable',
+                error.message || 'Card checkout could not start in the app.',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                        text: 'Continue on web',
+                        onPress: () => openHostedCheckout().catch(() => {
+                            Alert.alert('Checkout unavailable', 'Could not open the secure web checkout.');
+                        }),
+                    },
+                ]
+            );
+        } finally {
+            setOpeningCheckout(false);
         }
     };
 
@@ -157,7 +257,8 @@ export default function ProductDetailScreen() {
     }
 
     const isOutOfStock = product.inventory_count !== null && product.inventory_count === 0;
-    const canAffordPoints = (balance?.points || 0) >= product.price_points;
+    const availableGems = balance?.gems || 0;
+    const canAffordGems = availableGems >= product.price_points;
 
     return (
         <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
@@ -182,6 +283,12 @@ export default function ProductDetailScreen() {
 
                     {/* Product Name */}
                     <Text style={styles.productName}>{product.name}</Text>
+
+                    <Pressable onPress={() => router.push(`/merchant/${product.merchant_id}` as any)} style={styles.venueRow}>
+                        <Ionicons name="storefront" size={16} color={DesignColors.primary} />
+                        <Text style={styles.venueName}>Visit merchant storefront</Text>
+                        <Ionicons name="chevron-forward" size={15} color={DesignColors.gray[400]} />
+                    </Pressable>
 
                     {/* Venue Info */}
                     {product.venues && (
@@ -225,7 +332,7 @@ export default function ProductDetailScreen() {
                             <Ionicons name="pricetag" size={20} color={DesignColors.white} />
                             <Text style={styles.discountText}>
                                 {product.discount_type === 'percentage' && `${product.discount_value}% OFF`}
-                                {product.discount_type === 'fixed_amount' && `$${product.discount_value} OFF`}
+                                {product.discount_type === 'fixed_amount' && `${product.discount_value} Gems OFF`}
                                 {product.discount_type === 'bogo' && 'Buy One Get One'}
                                 {product.discount_type === 'free_item' && 'Free Item Included'}
                             </Text>
@@ -241,18 +348,18 @@ export default function ProductDetailScreen() {
                         <Pressable
                             style={[
                                 styles.purchaseButton,
-                                styles.pointsButton,
-                                (!canAffordPoints || isOutOfStock) && styles.purchaseButtonDisabled
+                                styles.gemsButton,
+                                (!canAffordGems || isOutOfStock) && styles.purchaseButtonDisabled
                             ]}
-                            onPress={() => handlePurchase('points')}
-                            disabled={!canAffordPoints || isOutOfStock || purchasing}
+                            onPress={() => handlePurchase('gems')}
+                            disabled={!canAffordGems || isOutOfStock || purchasing}
                         >
                             {purchasing ? (
                                 <ActivityIndicator color={DesignColors.white} />
                             ) : (
                                 <>
                                     <Ionicons name="diamond" size={20} color={DesignColors.white} />
-                                    <Text style={styles.purchaseButtonText}>{product.price_points} Points</Text>
+                                    <Text style={styles.purchaseButtonText}>{product.price_points} Gems</Text>
                                 </>
                             )}
                         </Pressable>
@@ -262,27 +369,57 @@ export default function ProductDetailScreen() {
                         <Pressable
                             style={[
                                 styles.purchaseButton,
-                                styles.cashButton,
+                                styles.cardButton,
                                 isOutOfStock && styles.purchaseButtonDisabled
                             ]}
-                            onPress={() => handlePurchase('cash')}
+                            onPress={handleCardCheckout}
+                            disabled={isOutOfStock || openingCheckout}
+                        >
+                            {openingCheckout ? (
+                                <ActivityIndicator color={DesignColors.black} />
+                            ) : (
+                                <>
+                                    <Ionicons name="card" size={20} color={DesignColors.black} />
+                                    <Text style={[styles.purchaseButtonText, styles.cardButtonText]}>
+                                        Pay ${Number(product.price_usd).toFixed(2)}
+                                    </Text>
+                                </>
+                            )}
+                        </Pressable>
+                    )}
+
+                    {product.price_usd > 0 && (
+                        <View style={styles.secureCheckoutNote}>
+                            <Ionicons name="lock-closed" size={13} color={DesignColors.gray[400]} />
+                            <Text style={styles.secureCheckoutText}>Secure in-app checkout · receipt saved to Vault</Text>
+                        </View>
+                    )}
+
+                    {product.price_usd > 0 && product.price_points <= 0 && (
+                        <Pressable
+                            style={[
+                                styles.purchaseButton,
+                                styles.reservationButton,
+                                isOutOfStock && styles.purchaseButtonDisabled
+                            ]}
+                            onPress={() => handlePurchase('reservation')}
                             disabled={isOutOfStock || purchasing}
                         >
                             {purchasing ? (
                                 <ActivityIndicator color={DesignColors.white} />
                             ) : (
                                 <>
-                                    <Ionicons name="card" size={20} color={DesignColors.white} />
-                                    <Text style={styles.purchaseButtonText}>${product.price_usd.toFixed(2)}</Text>
+                                    <Ionicons name="bookmark" size={20} color={DesignColors.white} />
+                                    <Text style={styles.purchaseButtonText}>Reserve · {Math.round(product.price_usd).toLocaleString()} Gems</Text>
                                 </>
                             )}
                         </Pressable>
                     )}
                 </View>
 
-                {!canAffordPoints && product.price_points > 0 && (
+                {!canAffordGems && product.price_points > 0 && (
                     <Text style={styles.insufficientText}>
-                        Need {product.price_points - (balance?.points || 0)} more points
+                        Need {product.price_points - availableGems} more Gems
                     </Text>
                 )}
             </View>
@@ -434,8 +571,22 @@ const styles = StyleSheet.create({
     },
     pricingContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: Spacing.md,
         backgroundColor: 'transparent',
+    },
+    secureCheckoutNote: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5,
+        backgroundColor: 'transparent',
+        marginTop: -2,
+    },
+    secureCheckoutText: {
+        color: DesignColors.gray[400],
+        fontSize: Typography.sizes.xs,
     },
     purchaseButton: {
         flex: 1,
@@ -446,11 +597,16 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.md,
         borderRadius: BorderRadius.lg,
     },
-    pointsButton: {
+    gemsButton: {
         backgroundColor: DesignColors.primary,
     },
-    cashButton: {
+    reservationButton: {
         backgroundColor: DesignColors.green[600],
+    },
+    cardButton: {
+        backgroundColor: DesignColors.white,
+        borderWidth: 1,
+        borderColor: DesignColors.primary,
     },
     purchaseButtonDisabled: {
         opacity: 0.5,
@@ -459,6 +615,9 @@ const styles = StyleSheet.create({
         fontSize: Typography.sizes.base,
         fontWeight: Typography.weights.bold,
         color: DesignColors.white,
+    },
+    cardButtonText: {
+        color: DesignColors.black,
     },
     insufficientText: {
         fontSize: Typography.sizes.sm,

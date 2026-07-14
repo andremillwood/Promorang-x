@@ -574,7 +574,7 @@ describe('Growth Hub API', () => {
       it('claims staking rewards successfully', async () => {
         mockSupabaseResponse({ ...mockStakingPosition, status: 'withdrawable' });
         mockSupabaseResponse({ ...mockStakingPosition, earned_so_far: mockStakingPosition.earned_so_far + 7.5 });
-        mockSupabaseResponse({ data: null, error: null });
+        mockSupabaseResponse({ id: 'growth-ledger-entry-1' });
         mockSupabaseResponse({ data: null, error: null });
 
         const res = await request(app)

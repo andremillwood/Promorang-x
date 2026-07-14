@@ -11,7 +11,7 @@ export function ReferralsSection() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const copyToClipboard = (code: string) => {
-    const referralUrl = `${window.location.origin}?ref=${code}`;
+    const referralUrl = `${window.location.origin}/auth?mode=signup&ref=${encodeURIComponent(code)}`;
     navigator.clipboard.writeText(referralUrl);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);

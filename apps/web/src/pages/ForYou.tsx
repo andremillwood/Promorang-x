@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Compass, MapPin, MoonStar, Coins } from "lucide-react";
+import { Compass, MapPin, MoonStar, Coins, Layers3, ShoppingBag, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForYouFeed } from "@/hooks/useFeed";
 import { FeedIntent, logFeedInteraction } from "@/services/feed";
@@ -28,25 +28,25 @@ const ForYou = () => {
   const rankingProfile = feedQuery.data?.meta.ranking_profile || "participant";
 
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/5 via-background to-accent/10 p-6 shadow-soft">
+    <main className="mx-auto max-w-6xl space-y-7 px-4 py-6 sm:px-6">
+      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_85%_10%,rgba(255,106,26,.25),transparent_30%),linear-gradient(135deg,#080808,#18130f)] p-6 text-white shadow-2xl sm:p-9">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <Badge variant="secondary" className="mb-3 rounded-full px-3 py-1">
-              Personalized Discovery
+            <Badge className="mb-4 rounded-full bg-primary px-3 py-1 text-black">
+              Your living market
             </Badge>
-            <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              For You
+            <h1 className="max-w-3xl text-5xl font-black uppercase leading-[.86] tracking-[-.06em] sm:text-7xl">
+              Everything moving <span className="text-primary">toward you.</span>
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Scroll a ranked stream of moments, proof loops, and reward opportunities instead of forcing discovery through a listing every time.
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
+              Moments, proof, products, offers and Pieces—ranked by what you can do now and what can return to you later.
             </p>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-card/80 p-4 text-sm text-muted-foreground shadow-soft">
-            <p className="font-semibold text-foreground">
+          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 text-white">
+            {[{icon:Sparkles,label:"Experience"},{icon:ShoppingBag,label:"Commerce"},{icon:Layers3,label:"Pieces"}].map(({icon:Icon,label})=><div key={label} className="bg-black/55 p-4"><Icon className="h-4 w-4 text-primary"/><p className="mt-5 text-xs font-black uppercase tracking-wider">{label}</p></div>)}
+            <p className="col-span-3 bg-black/55 p-4 text-xs text-white/50">
               {user?.user_metadata?.full_name?.split(" ")[0] || "You"} are viewing the <span className="capitalize">{rankingProfile}</span> profile.
             </p>
-            <p className="mt-1">Change intent to reweight what rises to the top.</p>
           </div>
         </div>
       </section>
@@ -120,7 +120,7 @@ const ForYou = () => {
           </Button>
         </div>
       ) : null}
-    </div>
+    </main>
   );
 };
 

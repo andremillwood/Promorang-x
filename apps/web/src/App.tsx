@@ -13,6 +13,7 @@ import RouteScrollManager from "./components/RouteScrollManager";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import GrowthTracker from "@/components/GrowthTracker";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
@@ -44,11 +45,13 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Help = lazy(() => import("./pages/Help"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const AccountDeletion = lazy(() => import("./pages/AccountDeletion"));
 const Contact = lazy(() => import("./pages/Contact"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 const SupportTicketDetail = lazy(() => import("./pages/SupportTicketDetail"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
+const Explore = lazy(() => import("./pages/Explore"));
 const Discover = lazy(() => import("./pages/Discover"));
 const ExploreMoments = lazy(() => import("./pages/ExploreMoments"));
 const ExploreVenues = lazy(() => import("./pages/ExploreVenues"));
@@ -56,6 +59,7 @@ const ExploreRewards = lazy(() => import("./pages/ExploreRewards"));
 const ExploreContent = lazy(() => import("./pages/ExploreContent"));
 const Momentum = lazy(() => import("./pages/Momentum"));
 const Pulse = lazy(() => import("./pages/Pulse"));
+const ForYou = lazy(() => import("./pages/ForYou"));
 const WatchUnlock = lazy(() => import("./pages/WatchUnlock"));
 const ContentMissionDetail = lazy(() => import("./pages/ContentMissionDetail"));
 const Search = lazy(() => import("./pages/Search"));
@@ -67,6 +71,10 @@ const VenueProfile = lazy(() => import("./pages/VenueProfile"));
 const CategoryArchive = lazy(() => import("./pages/CategoryArchive"));
 const LocationArchive = lazy(() => import("./pages/LocationArchive"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
+const CommerceDetail = lazy(() => import("./pages/CommerceDetail"));
+const CommerceReceiptDetail = lazy(() => import("./pages/CommerceReceiptDetail"));
+const MerchantStorefront = lazy(() => import("./pages/MerchantStorefront"));
+const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const ActivatePage = lazy(() => import("./pages/Activate"));
 const MomentDetail = lazy(() => import("./pages/MomentDetail"));
 const MomentRecord = lazy(() => import("./pages/MomentRecord"));
@@ -91,6 +99,7 @@ const CreateProposal = lazy(() => import("./pages/CreateProposal"));
 const AddVenue = lazy(() => import("./pages/AddVenue"));
 const AddProduct = lazy(() => import("./pages/AddProduct"));
 const ProposalWorkspace = lazy(() => import("./pages/ProposalWorkspace"));
+const ActivationDetail = lazy(() => import("./pages/ActivationDetail"));
 const ServiceCatalog = lazy(() => import("./pages/ServiceCatalog"));
 const HostDiscovery = lazy(() => import("@/components/brand/HostDiscovery"));
 const Gallery = lazy(() => import("./pages/Gallery"));
@@ -132,6 +141,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <DemoExperienceProvider>
+                <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
@@ -165,6 +175,7 @@ const App = () => (
                     <Route path="/support" element={<Help />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/account-deletion" element={<AccountDeletion />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/support/tickets" element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
                     <Route path="/support/tickets/:id" element={<ProtectedRoute><SupportTicketDetail /></ProtectedRoute>} />
@@ -176,9 +187,9 @@ const App = () => (
                     <Route path="/create/campaign" element={<CreateCampaign />} />
                     <Route path="/create/bounty" element={<CreateBounty />} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
-                    <Route path="/for-you" element={<Navigate to="/pulse" replace />} />
+                    <Route path="/for-you" element={<ProtectedRoute><ForYou /></ProtectedRoute>} />
                     <Route path="/live" element={<Pulse />} />
-                    <Route path="/explore" element={<Navigate to="/discover" replace />} />
+                    <Route path="/explore" element={<Explore />} />
                     <Route path="/discover" element={<Discover />} />
                     <Route path="/discover/moments" element={<ExploreMoments />} />
                     <Route path="/discover/venues" element={<ExploreVenues />} />
@@ -203,6 +214,10 @@ const App = () => (
                     <Route path="/merchants" element={<Merchants />} />
                     <Route path="/hosts" element={<Hosts />} />
                     <Route path="/shop" element={<Marketplace />} />
+                    <Route path="/shop/:listingId" element={<CommerceDetail />} />
+                    <Route path="/receipts/:id" element={<ProtectedRoute><CommerceReceiptDetail /></ProtectedRoute>} />
+                    <Route path="/storefront/:merchantId" element={<MerchantStorefront />} />
+                    <Route path="/offers/:id" element={<ProtectedRoute><OfferDetail /></ProtectedRoute>} />
                     <Route path="/activate" element={<ActivatePage />} />
 
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />
@@ -283,6 +298,7 @@ const App = () => (
                     <Route path="/dashboard/moments/create" element={<Navigate to="/create/moment" replace />} />
                     <Route path="/dashboard/venues/add" element={<AddVenue />} />
                     <Route path="/dashboard/proposals" element={<ProtectedRoute><ProposalWorkspace /></ProtectedRoute>} />
+                    <Route path="/dashboard/proposals/:id" element={<ProtectedRoute><ActivationDetail /></ProtectedRoute>} />
                     <Route path="/dashboard/products/add" element={<AddProduct />} />
                     <Route path="/dashboard/catalog" element={<ProtectedRoute><ServiceCatalog /></ProtectedRoute>} />
                     <Route path="/dashboard/brand/campaigns/create" element={<Navigate to="/create/campaign" replace />} />

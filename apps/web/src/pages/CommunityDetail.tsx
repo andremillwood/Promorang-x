@@ -9,9 +9,9 @@ export default function CommunityDetail() {
   const { slug } = useParams();
   const scene = cultureScenes.find((item) => item.slug === slug) || cultureScenes[0];
   const proofRail = [
-    { label: "Show up", body: "Join Moments and be part of what the Scene is building.", icon: CalendarDays },
-    { label: "Prove it", body: "Check in, post, refer, or submit proof when the Moment asks for it.", icon: CheckCircle2 },
-    { label: "Rise", body: "Build status, eligibility, Vault memories, rewards, and future access.", icon: Trophy },
+    { label: "Show up", body: "Join Moments and meet the people shaping this Scene.", icon: CalendarDays },
+    { label: "Take part", body: "Check in, create, invite someone, or contribute when the Moment asks.", icon: CheckCircle2 },
+    { label: "Open doors", body: "Become known, get invited back, keep the memory, and find what comes next.", icon: Trophy },
   ];
 
   return (
@@ -41,9 +41,9 @@ export default function CommunityDetail() {
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Status layer</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Your place in the Scene</p>
             <p className="mt-3 text-sm leading-6 text-white/65">
-              {scene.tagline} The deeper you move inside this Scene, the more proof, memories, eligibility, and status can follow you across Promorang.
+              {scene.tagline} The more you show up and take part, the more familiar faces, memories, invitations, and opportunities can follow.
             </p>
             <div className="mt-5 grid grid-cols-2 gap-2">
               <Link to="/auth" className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
@@ -56,9 +56,9 @@ export default function CommunityDetail() {
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2">
               {[
-                ["Proof", "+6"],
-                ["Vault", "live"],
-                ["Rewards", "open"],
+                ["Moments", "+6"],
+                ["Memories", "live"],
+                ["Doors", "open"],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl border border-white/10 bg-white/[0.06] p-2 text-center">
                   <p className="text-sm font-black text-white">{value}</p>
@@ -116,7 +116,7 @@ export default function CommunityDetail() {
           </div>
 
           <div className="mt-10">
-            <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.03em]">Scene proof feed</h2>
+            <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.03em]">What this Scene set in motion</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {["Last night was legendary! Big up everyone who showed up.", "The energy is unmatched when hip hop unites us."].map((post, index) => (
                 <article key={post} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
@@ -130,8 +130,8 @@ export default function CommunityDetail() {
                   <img src={index === 0 ? cultureEvents[0].image : cultureEvents[3].image} alt="" className="mt-4 h-52 w-full rounded-xl object-cover" />
                   <p className="mt-4 text-sm leading-6 text-white/72">{post}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary">proof-ready</span>
-                    <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/55">Vault memory</span>
+                    <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary">people showed up</span>
+                    <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/55">memory kept</span>
                   </div>
                 </article>
               ))}
@@ -155,15 +155,15 @@ export default function CommunityDetail() {
             ))}
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Unlock path</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">What opens next</p>
             <p className="mt-3 text-sm leading-6 text-white/65">
-              PromoShare, Pieces, rewards, and Vault stay contextual here: activated through posts, Moments, referrals, and verified Scene movement.
+              Stories, Moments, invitations, useful rewards, and what you keep should all lead back to people and opportunities inside the Scene.
             </p>
             <div className="mt-4 space-y-2">
               {[
-                ["Attend", Award],
-                ["Prove", CheckCircle2],
-                ["Earn", Gem],
+                ["Show up", Award],
+                ["Connect", CheckCircle2],
+                ["Come back", Gem],
               ].map(([label, Icon]) => (
                 <div key={label as string} className="flex items-center justify-between rounded-xl border border-white/10 bg-black/25 px-3 py-2">
                   <span className="text-sm font-bold">{label as string}</span>

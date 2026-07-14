@@ -8,6 +8,7 @@ const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 const promoShareService = require('./promoShareService');
 const { sendReferralSignupEmail, sendReferralActivationEmail, sendReferralCommissionEmail } = require('./resendService');
+const growthOperatingService = require('./growthOperatingService');
 
 // Commission rates by earning type (Level 1)
 const COMMISSION_RATES = {
@@ -269,6 +270,18 @@ async function activateReferral(referredUserId) {
         });
       } catch (promoShareError) {
         console.warn('[Referral Service] PromoShare referral activation recording skipped:', promoShareError.message);
+      }
+      try {
+        await growthOperatingService.recordEvent({
+          eventName: 'referral_activated', journey: 'participant', stage: 'amplified',
+          userId: referredUserId, referralCode: data.referral_code,
+          entityType: 'user_referral', entityId: data.id,
+          source: 'referral', medium: 'referral',
+          idempotencyKey: `growth:referral-activated:${data.id}`,
+          properties: { referrer_id: data.referrer_id },
+        });
+      } catch (growthError) {
+        console.warn('[Referral Service] growth activation mirror skipped:', growthError.message);
       }
     }
 

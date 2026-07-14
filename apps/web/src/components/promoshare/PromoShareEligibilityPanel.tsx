@@ -16,8 +16,8 @@ type PromoShareEligibilityPanelProps = {
 export function PromoShareEligibilityPanel({
   variant = "detail",
   className,
-  actionLabel = "verified check-in",
-  proofLabel = "proof",
+  actionLabel = "counted check-in",
+  proofLabel = "review requirement",
   poolLabel = "matching pools",
   funded = false,
 }: PromoShareEligibilityPanelProps) {
@@ -29,9 +29,9 @@ export function PromoShareEligibilityPanel({
             <Ticket className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-foreground">PromoShare eligible</p>
+            <p className="text-xs font-bold text-foreground">PromoShare value eligible</p>
             <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-              Verified actions can earn tickets into daily, weekly, and grand draws when this moment matches an active pool.
+              Counted actions can open funded value, Gems-backed rewards, or possible reward chances when this Moment matches an active pool.
             </p>
           </div>
         </div>
@@ -47,25 +47,25 @@ export function PromoShareEligibilityPanel({
             <Badge className="w-fit">PromoShare</Badge>
             <Badge variant={funded ? "default" : "outline"}>{funded ? "Funded reward mode" : "Progress mode"}</Badge>
           </div>
-          <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Tickets follow the pool rules. Draws stay random.</h2>
+          <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Funded value follows the pool rules.</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Complete the {actionLabel}, satisfy {proofLabel}, and Promorang checks which active pools this moment matches. If a pool accepts the action, your ticket can count for the daily draw, the weekly draw, and the grand draw inside that pool.
+            Complete the {actionLabel}, satisfy the {proofLabel}, and Promorang checks which active pools this Moment matches. If a pool accepts the action, value can open through Gems, perks, access, or possible reward chances.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
               <CalendarDays className="h-5 w-5 text-primary" />
-              <p className="mt-3 text-sm font-bold text-foreground">Daily</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">Tickets earned today count today.</p>
+              <p className="mt-3 text-sm font-bold text-foreground">Today</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Actions counted today can open today's value.</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
               <Trophy className="h-5 w-5 text-primary" />
               <p className="mt-3 text-sm font-bold text-foreground">Weekly</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">All eligible weekly tickets stack odds.</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Eligible weekly actions can build reward chances.</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
               <Crown className="h-5 w-5 text-primary" />
-              <p className="mt-3 text-sm font-bold text-foreground">Grand</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">Campaign-period tickets stay eligible until close.</p>
+              <p className="mt-3 text-sm font-bold text-foreground">Activation</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Activation-period actions stay eligible until close.</p>
             </div>
           </div>
         </div>
@@ -75,22 +75,22 @@ export function PromoShareEligibilityPanel({
             <div className="flex items-start gap-3 rounded-2xl border border-border bg-card/80 p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-600" />
               <div>
-                <p className="font-bold text-foreground">One win per draw</p>
-                <p className="mt-1 text-sm text-muted-foreground">More tickets improve odds, but once a user wins a draw, their other tickets stop competing in that same draw.</p>
+                <p className="font-bold text-foreground">Fair reward chances</p>
+                <p className="mt-1 text-sm text-muted-foreground">More eligible actions can improve reward chances, but pool rules protect fairness once someone wins.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-2xl border border-border bg-card/80 p-4">
               <Ticket className="mt-0.5 h-5 w-5 text-primary" />
               <div>
                 <p className="font-bold text-foreground">Matched to {poolLabel}</p>
-                <p className="mt-1 text-sm text-muted-foreground">Pool assignment is rule-based. Winner selection is random among eligible tickets.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Pool assignment is rule-based. Any random selection only happens among eligible counted actions.</p>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-2xl border border-border bg-card/80 p-4">
               <Gift className="mt-0.5 h-5 w-5 text-amber-600" />
               <div>
                 <p className="font-bold text-foreground">Rewards need backing</p>
-                <p className="mt-1 text-sm text-muted-foreground">Gems, perks, and prizes only come from funded or committed value. Points, Keys, Marks, and rank can run continuously.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Gems, perks, and prizes only come from funded or committed value. Marks, Keys, access, and contribution records can run continuously.</p>
               </div>
             </div>
           </div>

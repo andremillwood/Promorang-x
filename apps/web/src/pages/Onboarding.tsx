@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHasCompletedOnboarding } from "@/hooks/useUserPreferences";
 import OnboardingSurvey from "@/components/onboarding/OnboardingSurvey";
+import { getAnonymousId, trackGrowthEvent } from "@/lib/marketing-attribution";
 
 const Onboarding = () => {
   const { user, loading: authLoading } = useAuth();
@@ -23,6 +24,11 @@ const Onboarding = () => {
   }, [hasCompleted, prefsLoading, navigate]);
 
   const handleComplete = () => {
+    void trackGrowthEvent({
+      eventName: "onboarding_completed", journey: "participant", stage: "activated",
+      entityType: "onboarding", entityId: "preferences",
+      idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
+    });
     navigate("/dashboard");
   };
 

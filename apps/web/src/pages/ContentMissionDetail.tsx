@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
+import { MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
 import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
@@ -133,7 +133,7 @@ export default function ContentMissionDetail() {
     <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
       <SEO
         title={`${mission.content?.title || "Mission"} · ${archetype.label}`}
-        description={mission.action_text || mission.content?.description || archetype.description}
+        description={mission.action_text || mission.content?.description || "See what this creator story is inviting people into."}
         image={heroImage}
         url={`https://promorang.co/missions/${mission.id}`}
         type="article"
@@ -191,9 +191,9 @@ export default function ContentMissionDetail() {
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
-                { step: "Watch", detail: "Consume the creator story and pick up the unlock signal." },
-                { step: "Move", detail: "Travel to the linked venue or moment location." },
-                { step: "Verify", detail: "Check in and mint the memory when the task is complete." },
+                { step: "Feel drawn in", detail: "Take in the creator's perspective and understand why this matters." },
+                { step: "Show up", detail: "Follow the invitation into the linked place, people, or Moment." },
+                { step: "See what opens", detail: "Check in, take part, keep the memory, and discover what comes next." },
               ].map((item) => (
                 <div key={item.step} className="rounded-2xl border border-border/60 bg-background/70 p-4">
                   <p className="text-sm font-semibold text-foreground">{item.step}</p>
@@ -204,7 +204,7 @@ export default function ContentMissionDetail() {
           </div>
 
           <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5 sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Physical Unlock Rules</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">What to do when you get there</p>
             <p className="mt-3 text-sm font-medium text-foreground">
               {mission.physical_unlock_rules?.summary || "Complete the linked moment to unlock the hybrid mission reward."}
             </p>
@@ -226,8 +226,8 @@ export default function ContentMissionDetail() {
           <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Promorang Engagement</p>
-                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Strengthen the mission signal</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Help the story travel</p>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">Bring the right people into what happens next</h2>
               </div>
               <span className="text-sm font-semibold text-primary">{actionCount} tracked actions</span>
             </div>
@@ -287,7 +287,7 @@ export default function ContentMissionDetail() {
           <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Why this matters</p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              This mission is part of the attribution loop. Promorang can measure story engagement, linked moment participation, proof verification, and memory creation inside one system.
+              This story is connected to a real Moment. Promorang can show the creator, host, venue, and partners what the story helped set in motion—from attention to arrival, connection, return, and memory.
             </p>
           </div>
         </div>

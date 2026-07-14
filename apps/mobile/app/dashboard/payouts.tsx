@@ -3,17 +3,19 @@ import { StyleSheet, ScrollView, TextInput, Alert, Platform, ActivityIndicator, 
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { Text, View } from '@/components/Themed';
-import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
+import { Colors as DesignColors, Typography, BorderRadius } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
 import { usePayouts } from '@/hooks/usePayouts';
-import { useUserBalance } from '@/hooks/useEconomy';
+import { useGemWalletActions, useGemWithdrawals, useUserBalance } from '@/hooks/useEconomy';
 
 export default function PayoutsScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
-    const { methods, history, loading: payoutsLoading, addPayoutMethod, requestWithdrawal } = usePayouts();
-    const { balance } = useUserBalance();
+    const { methods, addPayoutMethod } = usePayouts();
+    const { balance, refetch: refetchBalance } = useUserBalance();
+    const { withdrawals, refetch: refetchWithdrawals } = useGemWithdrawals();
+    const gemActions = useGemWalletActions();
 
     // Withdrawal State
     const [amount, setAmount] = useState('');
@@ -26,7 +28,7 @@ export default function PayoutsScreen() {
     const [newMethodDetails, setNewMethodDetails] = useState('');
 
     const gems = balance?.gems || 0;
-    const maxWithdraw = (gems * 0.01).toFixed(2);
+    const pendingGems = withdrawals.filter((item) => ['requested', 'reviewing', 'approved'].includes(item.status)).reduce((sum, item) => sum + Number(item.gems_amount || 0), 0);
 
     const handleWithdraw = async () => {
         if (!amount || isNaN(parseFloat(amount))) {
@@ -34,29 +36,23 @@ export default function PayoutsScreen() {
             return;
         }
         if (parseFloat(amount) < 250) {
-            Alert.alert('Minimum Threshold', 'Minimum withdrawal is $250.');
+            Alert.alert('Minimum Threshold', 'Minimum withdrawal is 250 Gems.');
             return;
         }
-        if (parseFloat(amount) > parseFloat(maxWithdraw)) {
+        if (parseFloat(amount) > gems) {
             Alert.alert('Insufficient Balance', 'You cannot withdraw more than your available balance.');
-            return;
-        }
-        if (!selectedMethod && methods.length > 0) {
-            // Default to first if not selected
-            // handled below
-        }
-        const methodId = selectedMethod || methods[0]?.id;
-        if (!methodId) {
-            Alert.alert('No Method', 'Please add a payout method first.');
             return;
         }
 
         setProcessing(true);
-        const result = await requestWithdrawal(parseFloat(amount), methodId);
+        const method = methods.find((item) => item.id === selectedMethod) || methods[0];
+        const note = method ? `${method.method_type}: ${JSON.stringify(method.details)}` : newMethodDetails;
+        const result = await gemActions.requestWithdrawal(parseFloat(amount), note);
         setProcessing(false);
 
-        if (result?.success) {
-            Alert.alert('Success', 'Withdrawal request submitted for approval.');
+        if (result.success) {
+            await Promise.all([refetchBalance(), refetchWithdrawals()]);
+            Alert.alert('Success', 'Gem withdrawal request submitted for review.');
             setAmount('');
             router.back();
         } else {
@@ -73,7 +69,11 @@ export default function PayoutsScreen() {
         // Simple detail parsing for MVP
         const details = { account: newMethodDetails };
 
-        await addPayoutMethod(newMethodType, details);
+        const result = await addPayoutMethod(newMethodType, details);
+        if (!result?.success) {
+            Alert.alert('Could not save payout method', result?.error || 'Please try again.');
+            return;
+        }
         setIsAddingMethod(false);
         setNewMethodDetails('');
     };
@@ -89,20 +89,20 @@ export default function PayoutsScreen() {
 
                 {/* Balance Card */}
                 <View style={[styles.card, { backgroundColor: cardColor, alignItems: 'center', padding: 24 }]}>
-                    <Text style={{ color: DesignColors.gray[500], fontSize: 14 }}>Available for Payout</Text>
-                    <Text style={{ color: textColor, fontSize: 36, fontWeight: 'bold', marginVertical: 8 }}>${maxWithdraw}</Text>
+                    <Text style={{ color: DesignColors.gray[500], fontSize: 14 }}>Available Gems</Text>
+                    <Text style={{ color: textColor, fontSize: 36, fontWeight: 'bold', marginVertical: 8 }}>{gems.toLocaleString()}</Text>
                     <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <Ionicons name="lock-closed" size={12} color={DesignColors.gray[400]} />
-                        <Text style={{ color: DesignColors.gray[500], fontSize: 12 }}>Min. withdrawal $250.00</Text>
+                        <Text style={{ color: DesignColors.gray[500], fontSize: 12 }}>1 Gem = US$1 · pending {pendingGems.toLocaleString()} Gems</Text>
                     </View>
                 </View>
 
                 {/* Withdrawal Form */}
                 <View>
-                    <Text style={[styles.sectionTitle, { color: textColor }]}>Request Withdrawal</Text>
+                    <Text style={[styles.sectionTitle, { color: textColor }]}>Request Gem Withdrawal</Text>
                     <View style={[styles.card, { backgroundColor: cardColor, padding: 16, gap: 16 }]}>
                         <View>
-                            <Text style={[styles.label, { color: textColor }]}>Amount ($)</Text>
+                            <Text style={[styles.label, { color: textColor }]}>Amount in Gems</Text>
                             <TextInput
                                 style={[styles.input, { color: textColor, borderColor: DesignColors.gray[300] }]}
                                 placeholder="0.00"
@@ -144,12 +144,12 @@ export default function PayoutsScreen() {
                         <Pressable
                             style={[
                                 styles.primaryButton,
-                                { opacity: (parseFloat(amount || '0') < 250 || processing) ? 0.5 : 1 }
+                                { opacity: (parseFloat(amount || '0') < 250 || parseFloat(amount || '0') > gems || processing) ? 0.5 : 1 }
                             ]}
-                            disabled={parseFloat(amount || '0') < 250 || processing}
+                            disabled={parseFloat(amount || '0') < 250 || parseFloat(amount || '0') > gems || processing}
                             onPress={handleWithdraw}
                         >
-                            {processing ? <ActivityIndicator color="white" /> : <Text style={styles.primaryButtonText}>Withdraw Funds</Text>}
+                            {processing ? <ActivityIndicator color="white" /> : <Text style={styles.primaryButtonText}>Request Withdrawal</Text>}
                         </Pressable>
                     </View>
                 </View>
@@ -201,21 +201,21 @@ export default function PayoutsScreen() {
 
                 {/* History */}
                 <View>
-                    <Text style={[styles.sectionTitle, { color: textColor }]}>History</Text>
-                    {history.length === 0 ? (
-                        <Text style={{ color: DesignColors.gray[500], fontStyle: 'italic' }}>No withdrawals yet.</Text>
+                    <Text style={[styles.sectionTitle, { color: textColor }]}>Gem Requests</Text>
+                    {withdrawals.length === 0 ? (
+                        <Text style={{ color: DesignColors.gray[500], fontStyle: 'italic' }}>No Gem withdrawal requests yet.</Text>
                     ) : (
                         <View style={{ gap: 12 }}>
-                            {history.map(tx => (
+                            {withdrawals.map(tx => (
                                 <View key={tx.id} style={[styles.card, { backgroundColor: cardColor, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                                     <View>
-                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Withdrawal</Text>
+                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Gem withdrawal</Text>
                                         <Text style={{ color: DesignColors.gray[500], fontSize: 12 }}>{new Date(tx.created_at).toLocaleDateString()}</Text>
                                     </View>
                                     <View style={{ alignItems: 'flex-end' }}>
-                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>${tx.amount.toFixed(2)}</Text>
+                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{Number(tx.gems_amount).toLocaleString()} Gems</Text>
                                         <Text style={{
-                                            color: tx.status === 'pending' ? '#F59E0B' : tx.status === 'approved' ? DesignColors.success : DesignColors.error,
+                                            color: ['requested', 'reviewing'].includes(tx.status) ? '#F59E0B' : tx.status === 'approved' || tx.status === 'paid' ? DesignColors.success : DesignColors.error,
                                             fontSize: 12, fontWeight: '600'
                                         }}>
                                             {tx.status.toUpperCase()}

@@ -11,11 +11,11 @@ import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 const heroMarks = [
   { icon: MapPin, label: "Find a Moment", detail: "Pop-ups, rituals, drops, gatherings" },
   { icon: Star, label: "Leave your Mark", detail: "Check in when you show up" },
-  { icon: Gift, label: "Unlock more", detail: "Perks, access, pieces, PromoShare" },
+  { icon: Gift, label: "Unlock more", detail: "Perks, access, rewards, invitations" },
 ];
 
 const valueSignals = [
-  { icon: Ticket, label: "PromoShare reward cycles" },
+  { icon: Ticket, label: "Qualified reward cycles" },
   { icon: KeyRound, label: "Keys and pieces unlock better access" },
   { icon: Users, label: "Grow your network and local standing" },
 ];
@@ -38,8 +38,8 @@ const fallbackMomentSlides: HeroSlide[] = [
     category: "Tonight",
     title: "Sunset Table at Golden Hour",
     place: "Harbor House",
-    reward: "+50 pts, cafe perk, early piece eligibility",
-    marks: "18 Marks left",
+    reward: "+50 pts, cafe perk, early access eligibility",
+    marks: "18 spots left",
     href: "/explore/moments",
     icon: CalendarDays,
   },
@@ -48,7 +48,7 @@ const fallbackMomentSlides: HeroSlide[] = [
     category: "Drop",
     title: "Founder's Rack Preview",
     place: "North Block Supply",
-    reward: "Early access, sample credit, PromoShare progress",
+    reward: "Early access, sample credit, reward-cycle progress",
     marks: "12 invites",
     href: "/explore/moments",
     icon: Ticket,
@@ -72,17 +72,17 @@ const fallbackContentSlides: HeroSlide[] = [
     title: "Hidden Roast Route",
     place: "Creator story to Central Cafe",
     reward: "Watch, visit, check in, unlock Founder Roast",
-    marks: "Story-led mission",
+    marks: "Story-led action",
     href: "/watch-unlock",
     icon: PlayCircle,
   },
   {
     id: "fallback-content-2",
-    category: "Creator Mission",
+    category: "Creator Action",
     title: "Plaza Sessions Episode 04",
     place: "Maya Stone x Fountain Plaza",
     reward: "Unlock the codeword, verify on site, mint the memory",
-    marks: "O2O unlock",
+    marks: "Visit unlock",
     href: "/watch-unlock",
     icon: PlayCircle,
   },
@@ -99,10 +99,10 @@ const fallbackContentSlides: HeroSlide[] = [
 ];
 
 function formatTimeLabel(startsAt?: string | null) {
-  if (!startsAt) return "Mark-ready";
+  if (!startsAt) return "Ready to join";
 
   const start = new Date(startsAt);
-  if (Number.isNaN(start.getTime())) return "Mark-ready";
+  if (Number.isNaN(start.getTime())) return "Ready to join";
 
   const today = new Date();
   const isToday = start.toDateString() === today.toDateString();
@@ -152,7 +152,7 @@ const Hero = () => {
           category: moment.moment_archetype || moment.category || "Moment",
           title: moment.title,
           place: moment.venue_name || moment.location || "Promorang Moment",
-    reward: moment.reward || "+50 pts, Mark progress, early piece eligibility",
+    reward: moment.reward || "+50 pts, check-in progress, early access eligibility",
           marks: spotsLeft !== null ? `${spotsLeft} spots left` : formatTimeLabel(moment.starts_at),
           href: `/moments/${moment.id}`,
           icon: CalendarDays,
@@ -198,14 +198,14 @@ const Hero = () => {
 
           return {
             id: link.id,
-            category: link.is_sponsored ? "Sponsored Story" : content.platform || "Content Mission",
-            title: content.title || moment?.title || "Creator Mission",
+            category: link.is_sponsored ? "Sponsored Story" : content.platform || "Creator Action",
+            title: content.title || moment?.title || "Creator Action",
             place: moment?.venue_name || moment?.location || content.creator_name || "Creator-led unlock",
             reward:
               link.physical_unlock_rules?.summary ||
               moment?.reward ||
               "Watch the story, move into the moment, unlock the reward loop",
-            marks: link.o2o_conversion_rate ? `${Number(link.o2o_conversion_rate).toFixed(1)}% O2O` : "Watch & unlock",
+            marks: link.o2o_conversion_rate ? `${Number(link.o2o_conversion_rate).toFixed(1)}% visit rate` : "Watch & unlock",
             href: `/watch-unlock/${link.id}`,
             icon: PlayCircle,
             imageUrl: content.banner_image_url || content.thumbnail_url || content.media_url || moment?.banner_image_url || moment?.image_url,
@@ -223,8 +223,8 @@ const Hero = () => {
       category: moment.moment_archetype || moment.category || "Moment",
       title: moment.title,
       place: moment.venue_name || moment.location,
-      reward: moment.reward || "+50 pts, Mark progress, early piece eligibility",
-      marks: moment.max_participants ? `${Math.max(moment.max_participants - (moment.participant_count || 0), 0)} spots left` : "Mark-ready",
+      reward: moment.reward || "+50 pts, check-in progress, early access eligibility",
+      marks: moment.max_participants ? `${Math.max(moment.max_participants - (moment.participant_count || 0), 0)} spots left` : "Ready to join",
       href: `/moments/${moment.id}`,
       icon: CalendarDays,
       imageUrl: (moment as any).banner_image_url || moment.image_url,
@@ -317,7 +317,7 @@ const Hero = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="border-white/25 bg-white/5 text-white hover:bg-white/[0.12] hover:text-white" asChild>
-                <Link to="/why-join">Why Join?</Link>
+                <Link to="/how-it-works">How It Works</Link>
               </Button>
             </div>
 
@@ -336,7 +336,7 @@ const Hero = () => {
             <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-black/45 p-4 shadow-2xl backdrop-blur-xl sm:p-5">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Power Moment</p>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Worth doing next</p>
                   <p className="mt-1 text-sm text-zinc-300">{slideMode === "moments" ? "Live moments opening next" : "Stories that unlock places"}</p>
                 </div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -352,7 +352,7 @@ const Hero = () => {
                     onClick={() => setSlideMode(mode)}
                     className={`rounded-lg px-3 py-2 text-sm font-bold transition-colors ${slideMode === mode ? "bg-primary text-primary-foreground" : "text-zinc-300 hover:bg-white/10 hover:text-white"}`}
                   >
-                    {mode === "moments" ? "Moments" : "Content"}
+                    {mode === "moments" ? "Places" : "Stories"}
                   </button>
                 ))}
               </div>
@@ -386,10 +386,10 @@ const Hero = () => {
                     <div className="flex items-start gap-3">
                       <Zap className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                       <div>
-                        <p className="text-xs font-black uppercase tracking-[0.18em] text-zinc-300">Unlock path</p>
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-zinc-300">What you can unlock</p>
                         <p className="mt-1 text-sm font-semibold text-white">{activeMoment.reward}</p>
                         <Link to={activeMoment.href} className="mt-3 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-primary hover:text-primary/80">
-                          Open {slideMode === "moments" ? "Moment" : "Mission"}
+                          Open {slideMode === "moments" ? "Moment" : "Action"}
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -412,7 +412,7 @@ const Hero = () => {
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-zinc-200">
                   <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                  Mark-ready
+                  Ready to join
                 </div>
               </div>
             </div>

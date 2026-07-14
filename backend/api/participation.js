@@ -13,6 +13,7 @@ const promoShareService = require('../services/promoShareService');
 const accessRulesService = require('../services/accessRulesService');
 const memoryService = require('../services/memoryService');
 const offerService = require('../services/offerService');
+const growthOperatingService = require('../services/growthOperatingService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -176,6 +177,22 @@ async function performCheckIn({
       rewardId: reward?.id || null,
       metadata,
     });
+    try {
+      const proofSourceId = metadata?.proof_submission_id || `${momentId}:${userId}`;
+      await growthOperatingService.recordEvent({
+        eventName: 'verified_outcome', journey: 'participant', stage: 'outcome',
+        userId, momentId, entityType: 'participation', entityId: proofSourceId,
+        source: metadata?.utm_source || (metadata?.promopush_tracking_code ? 'promopush' : 'product'),
+        medium: metadata?.utm_medium || (metadata?.promopush_tracking_code ? 'attributed_link' : 'organic'),
+        campaign: metadata?.utm_campaign || null,
+        referralCode: metadata?.referral_code || null,
+        promoPushCampaignId: metadata?.promopush_campaign_id || null,
+        promoPushChannelId: metadata?.promopush_channel_id || null,
+        idempotencyKey: `growth:verified-proof:${proofSourceId}`,
+      });
+    } catch (growthError) {
+      console.warn('[Participation API] growth outcome mirror skipped:', growthError.message);
+    }
     if (reward?.id) {
       await promoPushTrackingService.trackPromoPushEvent({
         eventType: 'reward_issued',
@@ -462,6 +479,20 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
       metadata: promoMetadata,
       request: req,
     });
+    try {
+      await growthOperatingService.recordEvent({
+        eventName: 'moment_joined', journey: 'participant', stage: 'activated',
+        userId, momentId, entityType: 'moment_participation', entityId: data.id,
+        source: promopush_tracking_code ? 'promopush' : (source_content_id ? 'content' : 'product'),
+        medium: promopush_tracking_code ? 'attributed_link' : (source_content_id ? 'o2o_content' : 'organic'),
+        promoPushCampaignId: promopush_campaign_id,
+        promoPushChannelId: promopush_channel_id,
+        idempotencyKey: `growth:moment-joined:${data.id}`,
+        properties: { source_content_id, source_mission_id, invited_by_user_id: invited_by_user_id || referrer_id || null },
+      });
+    } catch (growthError) {
+      console.warn('[Participation API] growth join mirror skipped:', growthError.message);
+    }
     await impactService.processJoinImpact({ momentId, userId });
     await impactService.processGatheringActivationImpact({ momentId });
     let pieceAwards = [];

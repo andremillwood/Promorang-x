@@ -33,6 +33,7 @@ import { DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurfac
 import { format, isPast, isFuture, differenceInDays } from "date-fns";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useHostProofOutcome } from "@/hooks/useProofOutcome";
+import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
 
 const HostSponsorshipRequests = lazy(() =>
   import("@/components/host/SponsorshipRequests").then((module) => ({ default: module.HostSponsorshipRequests })),
@@ -84,8 +85,8 @@ const HostDashboardV2 = () => {
     <div className="space-y-6 pb-20">
       <DashboardHero
         badge="Host Control Room"
-        title={isNewHost ? "Create the first moment worth showing up for" : "Run live moments with clear proof"}
-        description="Hosts create the real-world loop: launch the moment, watch it form, review the proof, then repeat what worked."
+        title={isNewHost ? "Create the first moment worth showing up for" : "Run live moments people can trust"}
+        description="Hosts create the real-world loop: launch the moment, watch it form, review what happened, then repeat what worked."
         actions={[
           { label: "Create", href: "/create/moment", icon: Plus },
           { label: "Pulse", onClick: () => setActiveTab("pulse"), icon: Activity },
@@ -100,6 +101,8 @@ const HostDashboardV2 = () => {
         isLoading={statsLoading || economyLoading}
       />
 
+      <StakeholderReturnPanel role="host" />
+
       {/* =====================================================================
           NEW HOST: First Steps
           ===================================================================== */}
@@ -111,10 +114,10 @@ const HostDashboardV2 = () => {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Create your first proof-ready moment</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Create your first moment people can trust</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Your first win: create a live moment with clear venue, timing, 
-                  proof requirements, and rewards.
+                  what counts, and rewards.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>

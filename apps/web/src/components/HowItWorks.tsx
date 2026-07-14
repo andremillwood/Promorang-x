@@ -6,23 +6,23 @@ import { motion } from "framer-motion";
 const features = [
   {
     icon: Users,
-    title: "1. Find your kind of moment",
-    description: "Browse drops, tastings, service rituals, creator missions, and neighborhood gatherings that match how you like to spend real time.",
+    title: "1. Find something worth doing",
+    description: "Browse drops, tastings, service rituals, creator prompts, and neighborhood gatherings that match how you like to spend real time.",
   },
   {
     icon: MapPin,
-    title: "2. Show up and leave a Mark",
-    description: "Arrive, check in, and let the moment count. Your Mark starts the reward loop without making the experience feel like paperwork.",
+    title: "2. Show up and check in",
+    description: "Arrive, check in, and let the Moment count. Your Mark is the simple confirmation that your presence became part of the story.",
   },
   {
     icon: Sparkles,
-    title: "3. Earn pieces and standing",
-    description: "Early participants and power performers can unlock complementary pieces tied to verified participation, referral movement, and repeat momentum.",
+    title: "3. Become known through real participation",
+    description: "Useful participation can open Gems, access, invitations, creator opportunities, and repeat momentum tied to what you actually helped make happen.",
   },
   {
     icon: Gift,
-    title: "4. Unlock PromoShare and Gems",
-    description: "Use points, Keys, pieces, and PromoShare entries to reach better access, recurring reward cycles, and Gems that power the marketplace.",
+    title: "4. Keep what opened",
+    description: "Use Gems, Keys, pieces, receipts, and saved memories to keep the value, access, and story that came from showing up.",
   },
 ];
 
@@ -43,7 +43,7 @@ const HowItWorks = () => {
               How Promorang Works
             </h2>
             <p className="text-lg text-muted-foreground">
-              Simple enough for a night out. Structured enough to power a whole local economy around verified participation, pieces, and network growth.
+              Simple enough for a night out. Structured enough to power a local economy around presence, content, access, Gems, and repeat return.
             </p>
           </motion.div>
         </div>
@@ -85,17 +85,17 @@ const HowItWorks = () => {
           <div className="absolute left-1/2 top-0 h-60 w-60 -translate-x-1/2 rounded-full bg-primary/30 blur-[90px]" />
           <div className="relative z-10">
             <h3 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4 italic">
-              Ready to find your first Mark?
+              Ready to make your first moment count?
             </h3>
             <p className="text-zinc-200 max-w-xl mx-auto mb-10 text-lg">
-              Start with one moment. Then let Marks, pieces, PromoShare, and your growing network turn that consistency into something that compounds.
+              Start with one Moment. Then let check-ins, contribution, Gems, access, and your growing network turn useful consistency into something that compounds.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Button variant="hero" size="xl" className="font-bold uppercase tracking-widest px-10 h-14 shadow-glow rounded-2xl" asChild>
                 <Link to="/explore/moments">Find Moments</Link>
               </Button>
               <Button variant="ghost" size="lg" className="text-white hover:bg-white/10 hover:text-white font-bold uppercase tracking-wider" asChild>
-                <Link to="/why-join">See Why Join</Link>
+                <Link to="/how-it-works">See How It Works</Link>
               </Button>
             </div>
           </div>

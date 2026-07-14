@@ -12,7 +12,8 @@ import {
   BarChart3,
   CheckCircle2,
   QrCode,
-  Package
+  Package,
+  Plus
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,11 @@ import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 import RedemptionValidator from "@/components/merchant/RedemptionValidator";
 import SalesAnalyticsDashboard from "@/components/merchant/SalesAnalyticsDashboard";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
+import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import ExperienceAttachmentManager from "@/components/merchant/ExperienceAttachmentManager";
+import { MerchantCommerceConsole } from "@/components/merchant/MerchantCommerceConsole";
 
 type PublicMomentRow = Tables<"view_public_moment_directory">;
 
@@ -47,7 +51,7 @@ const MerchantDashboardV2 = () => {
   const { data: stats, isLoading: statsLoading } = useMerchantEconomy();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
   const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "venues";
+  const defaultTab = searchParams.get("tab") || "commerce";
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Calculate merchant maturity
@@ -89,12 +93,12 @@ const MerchantDashboardV2 = () => {
     <div className="space-y-6 pb-20">
       <DashboardHero
         badge="Venue Control Room"
-        title={isNewMerchant ? "Turn one venue into a trusted activation point" : "Run your venue as a verified activity hub"}
-        description="Register the place, support moments or offers, validate arrivals and redemptions, then use proof to bring people back through the door."
+        title={isNewMerchant ? "Make your venue a place people want to return to" : "Keep your venue connected to the Scenes around it"}
+        description="Welcome Moments, creators, and offers; recognize arrivals and redemptions; then give people a reason to come back through the door."
         actions={[
           { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
           { label: "Offers", href: "/dashboard/offers", icon: Package },
-          { label: isEstablishedMerchant ? "Analytics" : "Products", onClick: () => setActiveTab(isEstablishedMerchant ? "analytics" : "products"), icon: BarChart3 },
+          { label: "Commerce console", onClick: () => setActiveTab("commerce"), icon: BarChart3 },
         ]}
         stats={[
           { label: "Venues", value: (venues?.length || 0).toLocaleString(), helper: "Registered locations", icon: Store, accentClass: "text-emerald-300" },
@@ -105,6 +109,8 @@ const MerchantDashboardV2 = () => {
         isLoading={statsLoading || economyLoading}
         glowClassName="bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(255,167,38,0.14),_transparent_34%)]"
       />
+
+      <StakeholderReturnPanel role="merchant" />
 
       {/* =====================================================================
           NEW MERCHANT: First Venue Guidance
@@ -117,9 +123,9 @@ const MerchantDashboardV2 = () => {
                 <Zap className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Register your first proof-ready venue</h3>
+                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Put your first venue on the Scene</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  The first merchant success is simple: register the place, make sure a live Moment can land there, then validate the first participant proof.
+                  The first merchant success is simple: register the place, welcome a live Moment, then recognize the first person who arrives through Promorang.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
@@ -173,7 +179,7 @@ const MerchantDashboardV2 = () => {
                   icon: Users
                 },
                 { 
-                  label: "Validate proofs", 
+                  label: "Recognize arrivals",
                   done: isEstablishedMerchant,
                   icon: ShieldCheck
                 },
@@ -214,8 +220,8 @@ const MerchantDashboardV2 = () => {
               {
                 title: "Validate activity",
                 description: "Confirm check-ins, scans, and redemptions while the guest is present.",
-                cta: "Open validation",
-                onClick: () => setActiveTab("redemptions"),
+                cta: "Open console",
+                onClick: () => setActiveTab("commerce"),
               },
               {
                 title: "Tune the offer",
@@ -228,26 +234,26 @@ const MerchantDashboardV2 = () => {
 
           <CommercialProofLoop
         eyebrow="Venue Proof Loop"
-        title="Show the venue story as verified local movement"
+        title="See how the venue is becoming part of people's lives"
         action={
           weeklyTraffic > 0
-            ? `${weeklyTraffic} participant visits or proof-linked actions moved through your venues this week.`
+            ? `${weeklyTraffic} visits or Promorang-connected actions moved through your venues this week.`
             : "Turn one venue into the anchor for a moment, offer, or proof-linked visit."
         }
         verification={
           venues && venues.length > 0
-            ? "Use venue registration, QR / check-in validation, and redemption confirmation as proof."
+            ? "Use venue registration, QR check-in, and redemption confirmation to understand who arrived and what brought them."
             : "Verification starts once the venue is registered and check-ins or redemptions can be validated."
         }
         outcome={
           totalPoints > 0
-            ? `${totalPoints.toLocaleString()} points and repeat proof signals show measurable activity happened on-site.`
-            : "Report visits, validated redemptions, repeat traffic, and proof completion as the operating outcome."
+            ? `${totalPoints.toLocaleString()} points and repeat visits show that people acted on-site and found a reason to return.`
+            : "Report visits, redemptions, return traffic, and what people chose to do as the operating outcome."
         }
         repeatability={
           isEstablishedMerchant
             ? "Use the same venue setup, validation, and redemption playbook across multiple locations."
-            : "Once one venue loop works, repeat it with the same proof and redemption mechanics each week."
+            : "Once one venue loop works, repeat the Moment, invitation, and return offer each week."
         }
           />
 
@@ -413,7 +419,11 @@ const MerchantDashboardV2 = () => {
           MAIN TABS: Progressive disclosure
           ===================================================================== */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 flex-wrap">
+          <TabsTrigger value="commerce" className="gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Commerce
+          </TabsTrigger>
           <TabsTrigger value="venues" className="gap-2">
             <Store className="w-4 h-4" />
             Venues
@@ -437,6 +447,13 @@ const MerchantDashboardV2 = () => {
             </TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="commerce" className="mt-0">
+          <MerchantCommerceConsole
+            onOpenProducts={() => setActiveTab("products")}
+            onOpenValidation={() => setActiveTab("redemptions")}
+          />
+        </TabsContent>
 
         <TabsContent value="venues" className="mt-0">
           {venuesLoading ? (
@@ -492,6 +509,8 @@ const MerchantDashboardV2 = () => {
 
         {!isNewMerchant && (
           <TabsContent value="products" className="mt-0">
+            <ExperienceAttachmentManager />
+            <div className="h-5" />
             <ProductCatalogManager />
           </TabsContent>
         )}
@@ -507,11 +526,11 @@ const MerchantDashboardV2 = () => {
         <div className="space-y-6">
           <RoleActivationPanel
             eyebrow="Merchant Today"
-            title={isNewMerchant ? "Make one place ready for real visits" : "Keep the door connected to verified demand"}
+            title={isNewMerchant ? "Make one place ready for real visits" : "Keep the door connected to people who want to return"}
             description={
               isNewMerchant 
                 ? "Register the place first. From there, moments, offers, creator missions, and rewards have somewhere real to land."
-                : "Keep the loop simple: host or receive the moment, validate the arrival or redemption, then use proof to bring people back."
+                : "Keep the loop simple: host or receive the Moment, recognize the arrival or redemption, then give people a reason to come back."
             }
             items={[
               {
@@ -529,7 +548,7 @@ const MerchantDashboardV2 = () => {
                 ctaLabel: "Create",
               },
               {
-                title: "Validate proofs",
+                title: "Recognize arrivals",
                 description: "Confirm check-ins and redemptions so the visit counts for everyone involved.",
                 status: weeklyTraffic > 0 ? "current" : "todo",
                 ctaLabel: "Validate",
@@ -539,7 +558,7 @@ const MerchantDashboardV2 = () => {
           />
 
           <DashboardQuickRoutesCard
-            description="Keep validation and venue tooling easy to reach while the larger story stays focused on moments, proof, and return visits."
+            description="Keep scanning and venue tools easy to reach while the larger story stays focused on Moments, people, and return visits."
             routes={[
               { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
               { label: "Existing moments", href: "/explore/moments", icon: MapPin },

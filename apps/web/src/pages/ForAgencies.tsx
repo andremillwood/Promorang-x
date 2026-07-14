@@ -29,12 +29,12 @@ const features = [
     },
     {
         icon: ShieldCheck,
-        title: "Proof of Work",
-        description: "Differentiate your marketing agency. Show your clients exactly how many people you drove through their door."
+        title: "Return of Work",
+        description: "Differentiate your marketing agency. Show your clients how many people came, acted, returned, created, redeemed, and moved value."
     },
     {
         icon: Settings,
-        title: "No-Code Campaign Engine",
+        title: "No-Code Activation Engine",
         description: "Launch referral, purchase, try-on, booking, and visit objectives without writing a single line of code or integrating POS APIs."
     },
     {
@@ -58,12 +58,12 @@ const ForAgencies = () => {
 
                         <h1 className="font-serif text-4xl md:text-6xl font-black text-white mb-6 animate-slide-up leading-tight">
                             The Ultimate <br className="hidden md:block"/>
-                            <span className="text-primary-foreground/90">Proof of Work Toolbar.</span>
+                            <span className="text-primary-foreground/90">Return of Work Studio.</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
                             Stop promising your clients "good vibes and exposure." Use Promorang to guarantee retail visits, service bookings,
-                            creator-driven missions, and verified local foot traffic, then hand them a clean proof-of-performance story on Monday morning.
+                            creator-driven missions, and counted local foot traffic, then hand them a clean return story on Monday morning.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
@@ -83,10 +83,10 @@ const ForAgencies = () => {
                 <div className="container px-6">
                     <div className="max-w-2xl mx-auto text-center mb-16">
                         <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                            Charge a premium. Prove your worth.
+                            Charge a premium. Show what changed.
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            The infrastructure you need to operate creator, venue, retail, grocery, and service campaigns from one proof-driven workspace.
+                            The infrastructure you need to operate creator, venue, retail, grocery, and service activations from one return-driven workspace.
                         </p>
                     </div>
 

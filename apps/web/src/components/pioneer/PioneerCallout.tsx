@@ -13,7 +13,7 @@ export default function PioneerCallout({
   eyebrow = "Genesis Season",
   title,
   copy,
-  action = "Explore Pioneer Points",
+  action = "Explore Pioneer Contribution",
   className = "",
 }: PioneerCalloutProps) {
   return (

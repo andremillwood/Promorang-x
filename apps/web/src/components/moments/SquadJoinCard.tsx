@@ -1,27 +1,32 @@
-import { useState } from "react";
-import { Users, Share2, Sparkles, Copy, Check, MessageSquare } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Users, Share2, Copy, Check, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface SquadJoinCardProps {
   momentId: string;
   momentTitle: string;
+  inviterId?: string;
+  participantCount?: number;
 }
 
-export function SquadJoinCard({ momentId, momentTitle }: SquadJoinCardProps) {
+export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCount = 0 }: SquadJoinCardProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  const squadLink = `${window.location.origin}/moments/${momentId}?squad=${Math.random().toString(36).substring(7)}`;
+  const squadLink = useMemo(() => {
+    const url = new URL(`/moments/${momentId}`, window.location.origin);
+    if (inviterId) url.searchParams.set("invitedBy", inviterId);
+    return url.toString();
+  }, [inviterId, momentId]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(squadLink);
     setCopied(true);
     toast({
-      title: "Squad Link Copied!",
-      description: "Paste this in your group chat to assemble your squad.",
+      title: "Moment invitation copied",
+      description: inviterId ? "When a friend joins from this link, Promorang can credit your invitation." : "Share it with someone you want there.",
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -30,8 +35,8 @@ export function SquadJoinCard({ momentId, momentTitle }: SquadJoinCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Join my squad for ${momentTitle}!`,
-          text: `I'm going to ${momentTitle} on Promorang. Join my squad and we both get bonus points!`,
+          title: `Join me at ${momentTitle}`,
+          text: `I'm interested in ${momentTitle} on Promorang. Come experience it with me.`,
           url: squadLink,
         });
       } catch (err) {
@@ -49,17 +54,17 @@ export function SquadJoinCard({ momentId, momentTitle }: SquadJoinCardProps) {
           <div className="w-12 h-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Users className="w-6 h-6" />
           </div>
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-wider animate-pulse">
-              <Sparkles className="w-3 h-3" />
-              Squad Bonus: +20% Pts
-            </div>
+          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600">
+            <Link2 className="w-3 h-3" />
+            {inviterId ? "Invitation tracked" : "Shareable Moment"}
           </div>
         </div>
 
-        <h3 className="text-xl font-bold mb-2">Assemble a Squad</h3>
+        <h3 className="text-xl font-bold mb-2">Bring someone with you</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Everything is better with friends. Invite others to this moment and unlock group-only multipliers.
+          {inviterId
+            ? "Invite friends into this specific Moment. If they join from your link, your contribution to the crowd is recorded."
+            : "Share this Moment with someone you want there. Sign in before sharing if you want Promorang to record your invitation."}
         </p>
 
         <div className="flex gap-2">
@@ -69,7 +74,7 @@ export function SquadJoinCard({ momentId, momentTitle }: SquadJoinCardProps) {
             onClick={handleShare}
           >
             <Share2 className="w-4 h-4 mr-2" />
-            Invite Friends
+            Invite someone
           </Button>
           <Button 
             variant="outline" 
@@ -81,26 +86,10 @@ export function SquadJoinCard({ momentId, momentTitle }: SquadJoinCardProps) {
           </Button>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-primary/10">
-          <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
-            <MessageSquare className="w-3 h-3" />
-            Active Squad Members
-          </h4>
-          <div className="flex -space-x-3">
-             {[1, 2, 3].map((i) => (
-               <div key={i} className={cn(
-                 "w-8 h-8 rounded-full border-2 border-card bg-muted flex items-center justify-center text-[10px] font-bold",
-                 i === 1 ? "bg-amber-100 text-amber-600" : i === 2 ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"
-               )}>
-                 {String.fromCharCode(64 + i)}
-               </div>
-             ))}
-             <div className="w-8 h-8 rounded-full border-2 border-card bg-charcoal text-white flex items-center justify-center text-[8px] font-black">
-               +9
-             </div>
-          </div>
-          <p className="text-[9px] text-muted-foreground mt-3 font-medium">
-             <span className="text-emerald-600 font-bold">12 explorers</span> are currently coordinating for this moment.
+        <div className="mt-6 border-t border-primary/10 pt-6">
+          <p className="text-xs font-medium text-muted-foreground">
+            <span className="font-bold text-foreground">{participantCount} {participantCount === 1 ? "person is" : "people are"} joined.</span>{" "}
+            Promorang only counts people who actually join the Moment.
           </p>
         </div>
       </CardContent>

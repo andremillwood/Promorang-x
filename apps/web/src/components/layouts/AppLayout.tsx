@@ -39,7 +39,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const marketingRoutes = [
         "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
-        "/help", "/terms", "/privacy", "/contact", "/activate",
+        "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>

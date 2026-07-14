@@ -1,6 +1,5 @@
-import { StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator, Modal } from 'react-native';
+import { Alert, StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -13,6 +12,7 @@ export default function SponsorDashboard() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [expandedPoolId, setExpandedPoolId] = useState<string | null>(null);
   
   const { pools, loading: poolsLoading, refetch: refetchPools } = useSponsorPools();
   const { config, loading: configLoading } = useSponsorConfig();
@@ -22,11 +22,9 @@ export default function SponsorDashboard() {
   const handlePayment = useCallback(async (poolId: string) => {
     try {
       const { checkout_url } = await createCheckout(poolId);
-      // Open Stripe checkout in webview or external browser
-      // For now, we'll show a message
-      alert(`Redirecting to payment: ${checkout_url}`);
+      Alert.alert('Secure funding', `Open the checkout to secure this pool's Gems.\n\n${checkout_url}`);
     } catch (e) {
-      alert('Failed to initiate payment. Please try again.');
+      Alert.alert('Could not start checkout', 'Please try again.');
     }
   }, [createCheckout]);
 
@@ -43,7 +41,7 @@ export default function SponsorDashboard() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'active': return 'Active';
-      case 'pending_payment': return 'Payment Required';
+      case 'pending_payment': return 'Funding Required';
       case 'draft': return 'Draft';
       case 'completed': return 'Completed';
       default: return status;
@@ -70,7 +68,7 @@ export default function SponsorDashboard() {
           <Text style={[styles.headerTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
             Sponsor Dashboard
           </Text>
-          <Text style={styles.headerSubtitle}>Create and manage prize pools</Text>
+          <Text style={styles.headerSubtitle}>Fund real actions with Gems</Text>
         </View>
         <Pressable 
           style={styles.createButton}
@@ -95,13 +93,13 @@ export default function SponsorDashboard() {
         <View style={styles.statsGrid}>
           <View style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
             <Text style={styles.statValue}>{activePools.length}</Text>
-            <Text style={styles.statLabel}>Active Pools</Text>
+            <Text style={styles.statLabel}>Active pools</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
             <Text style={styles.statValue}>
               {activePools.reduce((sum, p) => sum + p.total_pool_amount, 0).toLocaleString()}
             </Text>
-            <Text style={styles.statLabel}>Total Value</Text>
+            <Text style={styles.statLabel}>Gems secured</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
             <Text style={styles.statValue}>{completedPools.length}</Text>
@@ -138,15 +136,18 @@ export default function SponsorDashboard() {
                       </View>
                     </View>
                   </View>
-                  <Pressable onPress={() => router.push(`/sponsor/pool/${pool.id}`)}>
-                    <Ionicons name="chevron-forward" size={24} color={DesignColors.gray[400]} />
+                  <Pressable
+                    accessibilityLabel={expandedPoolId === pool.id ? 'Hide pool details' : 'Show pool details'}
+                    onPress={() => setExpandedPoolId(expandedPoolId === pool.id ? null : pool.id)}
+                  >
+                    <Ionicons name={expandedPoolId === pool.id ? 'chevron-up' : 'chevron-down'} size={24} color={DesignColors.gray[400]} />
                   </Pressable>
                 </View>
 
                 <View style={styles.poolStats}>
                   <View style={styles.poolStat}>
                     <Text style={styles.poolStatValue}>{pool.total_pool_amount.toLocaleString()}</Text>
-                    <Text style={styles.poolStatLabel}>Pool Size</Text>
+                    <Text style={styles.poolStatLabel}>Gems</Text>
                   </View>
                   <View style={styles.poolStat}>
                     <Text style={styles.poolStatValue}>{pool.winner_count}</Text>
@@ -154,9 +155,19 @@ export default function SponsorDashboard() {
                   </View>
                   <View style={styles.poolStat}>
                     <Text style={styles.poolStatValue}>{pool.min_win_value}</Text>
-                    <Text style={styles.poolStatLabel}>Min Win</Text>
+                    <Text style={styles.poolStatLabel}>Min Gems</Text>
                   </View>
                 </View>
+
+                {expandedPoolId === pool.id && (
+                  <View style={styles.poolDetail}>
+                    <Text style={styles.poolDetailText}>This pool is funding verified actions from {new Date(pool.starts_at).toLocaleDateString()} to {new Date(pool.ends_at).toLocaleDateString()}.</Text>
+                    <View style={styles.poolDetailGrid}>
+                      <View style={styles.poolDetailItem}><Text style={styles.poolDetailValue}>{pool.promoshare_contribution?.toLocaleString?.() || 0}</Text><Text style={styles.poolDetailLabel}>PromoShare Gems</Text></View>
+                      <View style={styles.poolDetailItem}><Text style={styles.poolDetailValue}>{pool.payment_status}</Text><Text style={styles.poolDetailLabel}>Funding status</Text></View>
+                    </View>
+                  </View>
+                )}
 
                 {pool.brand_message && (
                   <View style={styles.brandMessage}>
@@ -182,7 +193,7 @@ export default function SponsorDashboard() {
         {pendingPools.length > 0 && (
           <>
             <Text style={[styles.sectionTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Pending Payment
+              Funding to secure
             </Text>
             {pendingPools.map((pool) => (
               <View
@@ -197,7 +208,7 @@ export default function SponsorDashboard() {
                     <View style={styles.poolMeta}>
                       <View style={[styles.statusBadge, { backgroundColor: DesignColors.warning + '15' }]}>
                         <Text style={[styles.statusText, { color: DesignColors.warning }]}>
-                          Payment Required
+                          Funding Required
                         </Text>
                       </View>
                     </View>
@@ -206,8 +217,8 @@ export default function SponsorDashboard() {
 
                 <View style={styles.pendingActions}>
                   <View style={styles.pendingAmount}>
-                    <Text style={styles.pendingLabel}>Amount Due</Text>
-                    <Text style={styles.pendingValue}>${pool.total_pool_amount.toLocaleString()}</Text>
+                    <Text style={styles.pendingLabel}>Gems to secure</Text>
+                    <Text style={styles.pendingValue}>{pool.total_pool_amount.toLocaleString()}</Text>
                   </View>
                   <Pressable 
                     style={styles.payButton}
@@ -223,7 +234,7 @@ export default function SponsorDashboard() {
                       ) : (
                         <>
                           <Ionicons name="card" size={16} color={DesignColors.white} />
-                          <Text style={styles.payButtonText}>Pay Now</Text>
+                          <Text style={styles.payButtonText}>Secure Gems</Text>
                         </>
                       )}
                     </LinearGradient>
@@ -239,10 +250,10 @@ export default function SponsorDashboard() {
           <View style={[styles.emptyState, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
             <Ionicons name="gift-outline" size={64} color={DesignColors.primary} />
             <Text style={[styles.emptyTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Create Your First Pool
+              Create your first pool
             </Text>
             <Text style={styles.emptyText}>
-              Sponsor prize pools to engage users and promote your brand. Set your budget, choose winners, and track results.
+              Fund a PromoShare pool so verified attendance, content, and referrals can unlock clear value.
             </Text>
             <Pressable style={styles.emptyButton} onPress={() => setShowCreateModal(true)}>
               <LinearGradient
@@ -259,7 +270,7 @@ export default function SponsorDashboard() {
         {config?.tiers && (
           <View style={[styles.tierInfo, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
             <Text style={[styles.tierInfoTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Pool Tiers
+              Funding tiers
             </Text>
             {config.tiers.map((tier) => (
               <View key={tier.id} style={styles.tierRow}>
@@ -270,7 +281,7 @@ export default function SponsorDashboard() {
                   <Text style={styles.tierDuration}>{tier.duration_days} days</Text>
                 </View>
                 <Text style={styles.tierPrice}>
-                  ${tier.min_amount.toLocaleString()} - ${tier.max_amount.toLocaleString()}
+                  {tier.min_amount.toLocaleString()} - {tier.max_amount.toLocaleString()} Gems
                 </Text>
               </View>
             ))}
@@ -296,7 +307,7 @@ export default function SponsorDashboard() {
               setShowCreateModal(false);
               refetchPools();
             } catch (e) {
-              alert('Failed to create pool. Please try again.');
+              Alert.alert('Could not create pool', 'Please try again.');
             }
           }}
           creating={creating}
@@ -332,7 +343,10 @@ function CreatePoolModal({
 
   const canProceed = () => {
     if (step === 1) return selectedTier !== null;
-    if (step === 2) return poolName.length > 0 && poolAmount.length > 0;
+    if (step === 2 && selectedTier) {
+      const amount = Number(poolAmount);
+      return poolName.trim().length > 0 && amount >= selectedTier.min_amount && amount <= selectedTier.max_amount;
+    }
     return true;
   };
 
@@ -380,7 +394,7 @@ function CreatePoolModal({
             <Text style={[styles.stepTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
               Select a Tier
             </Text>
-            <Text style={styles.stepSubtitle}>Choose the pool size and duration that fits your budget</Text>
+            <Text style={styles.stepSubtitle}>Choose the Gem range and duration that fits the outcome you want to fund.</Text>
 
             {tiers.map((tier) => (
               <Pressable
@@ -397,7 +411,7 @@ function CreatePoolModal({
                     {tier.name}
                   </Text>
                   <Text style={styles.tierCardPrice}>
-                    ${tier.min_amount.toLocaleString()}+
+                    {tier.min_amount.toLocaleString()}+ Gems
                   </Text>
                 </View>
                 <View style={styles.tierDetails}>
@@ -413,36 +427,56 @@ function CreatePoolModal({
         {step === 2 && selectedTier && (
           <>
             <Text style={[styles.stepTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Pool Details
+              Pool details
             </Text>
-            <Text style={styles.stepSubtitle}>Set your pool name and budget</Text>
+            <Text style={styles.stepSubtitle}>Name the funded outcome and choose how many Gems to secure.</Text>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Pool Name</Text>
+              <Text style={styles.inputLabel}>Pool name</Text>
               <View style={[styles.input, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
                 <Ionicons name="text-outline" size={20} color={DesignColors.gray[400]} />
-                {/* TextInput would go here - simplified for demo */}
-                <Text style={styles.inputPlaceholder}>Enter pool name...</Text>
+                <TextInput
+                  value={poolName}
+                  onChangeText={setPoolName}
+                  placeholder="e.g. Kingston food crawl rewards"
+                  placeholderTextColor={DesignColors.gray[400]}
+                  style={[styles.textInput, { color: isDark ? DesignColors.white : DesignColors.black }]}
+                />
               </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Pool Amount</Text>
+              <Text style={styles.inputLabel}>Gems to secure</Text>
               <View style={styles.amountRange}>
                 <Text style={styles.amountRangeText}>
-                  ${selectedTier.min_amount.toLocaleString()} - ${selectedTier.max_amount.toLocaleString()}
+                  {selectedTier.min_amount.toLocaleString()} - {selectedTier.max_amount.toLocaleString()} Gems
                 </Text>
               </View>
               <View style={[styles.input, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
-                <Text style={styles.inputPrefix}>$</Text>
-                <Text style={styles.inputPlaceholder}>Enter amount...</Text>
+                <Text style={styles.inputPrefix}>G</Text>
+                <TextInput
+                  value={poolAmount}
+                  onChangeText={(value) => setPoolAmount(value.replace(/[^0-9]/g, ''))}
+                  keyboardType="number-pad"
+                  placeholder="Enter Gem amount"
+                  placeholderTextColor={DesignColors.gray[400]}
+                  style={[styles.textInput, { color: isDark ? DesignColors.white : DesignColors.black }]}
+                />
               </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Brand Message (Optional)</Text>
+              <Text style={styles.inputLabel}>Participant message</Text>
               <View style={[styles.textArea, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
-                <Text style={styles.inputPlaceholder}>Enter a message for participants...</Text>
+                <TextInput
+                  value={brandMessage}
+                  onChangeText={setBrandMessage}
+                  multiline
+                  textAlignVertical="top"
+                  placeholder="Tell people what this pool is helping make happen."
+                  placeholderTextColor={DesignColors.gray[400]}
+                  style={[styles.textInput, styles.textAreaInput, { color: isDark ? DesignColors.white : DesignColors.black }]}
+                />
               </View>
             </View>
           </>
@@ -451,14 +485,14 @@ function CreatePoolModal({
         {step === 3 && (
           <>
             <Text style={[styles.stepTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Premium Placements
+              Optional boosts
             </Text>
-            <Text style={styles.stepSubtitle}>Boost your pool visibility (optional)</Text>
+            <Text style={styles.stepSubtitle}>Add extra distribution if this funded action needs more reach.</Text>
 
             {[
-              { key: 'homepage_banner', name: 'Homepage Banner', price: '$500/week', icon: 'image' },
-              { key: 'push_notification', name: 'Push Notification', price: '$200/send', icon: 'notifications' },
-              { key: 'sponsored_badge', name: 'Sponsored Badge', price: '$100/pool', icon: 'star' },
+              { key: 'homepage_banner', name: 'Today placement', price: '500 Gems/week', icon: 'image' },
+              { key: 'push_notification', name: 'Return reminder', price: '200 Gems/send', icon: 'notifications' },
+              { key: 'sponsored_badge', name: 'Funded badge', price: '100 Gems/pool', icon: 'star' },
             ].map((placement) => (
               <Pressable
                 key={placement.key}
@@ -520,7 +554,7 @@ function CreatePoolModal({
               <ActivityIndicator size="small" color={DesignColors.white} />
             ) : (
               <Text style={styles.nextButtonText}>
-                {step === 3 ? 'Create Pool' : 'Continue'}
+                {step === 3 ? 'Create pool' : 'Continue'}
               </Text>
             )}
           </LinearGradient>
@@ -681,6 +715,38 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.sm,
     color: DesignColors.gray[600],
     fontStyle: 'italic',
+  },
+  poolDetail: {
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: DesignColors.primary + '10',
+    marginBottom: Spacing.md,
+  },
+  poolDetailText: {
+    fontSize: Typography.sizes.sm,
+    color: DesignColors.gray[600],
+    lineHeight: 19,
+  },
+  poolDetailGrid: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+    backgroundColor: 'transparent',
+  },
+  poolDetailItem: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  poolDetailValue: {
+    color: DesignColors.primary,
+    fontWeight: 'bold',
+    fontSize: Typography.sizes.base,
+    textTransform: 'capitalize',
+  },
+  poolDetailLabel: {
+    color: DesignColors.gray[500],
+    fontSize: Typography.sizes.xs,
+    marginTop: 2,
   },
   poolDates: {
     flexDirection: 'row',
@@ -892,6 +958,14 @@ const styles = StyleSheet.create({
   inputPlaceholder: {
     color: DesignColors.gray[400],
     fontSize: Typography.sizes.base,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: Typography.sizes.base,
+    padding: 0,
+  },
+  textAreaInput: {
+    minHeight: 70,
   },
   inputPrefix: {
     fontSize: Typography.sizes.base,

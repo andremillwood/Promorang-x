@@ -255,14 +255,14 @@ const PromoShare = () => {
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
         <SEO
-          title="PromoShare - Qualified Reward Cycles"
-          description="PromoShare turns verified participation, repeat movement, and referrals into recurring qualified reward relevance inside Promorang."
+          title="PromoShare - Verified Distribution"
+          description="PromoShare attributes the visits, joins, referrals, and actions that content and sharing help generate."
         />
         <SurfaceHero
           eyebrow="PromoShare"
-          title="Proof turns into reward chances."
-          body="PromoShare tracks verified actions, real joins, referrals, and repeat movement so useful contribution can become tickets, weight, rewards, and sponsor-funded upside."
-          meta={['reward wallet', 'proof receipt', 'sponsor pools']}
+          title="See what your influence actually moved."
+          body="PromoShare connects useful content and sharing to verified visits, joins, referrals, and purchases. Funded rewards and draws can sit on top of that proof; they are not the purpose of the system."
+          meta={['verified attribution', 'creator impact', 'funded outcomes']}
           primary={user ? undefined : { label: 'Sign in', href: '/auth' }}
           secondary={{ label: 'Find drops', href: '/content-drops' }}
         />
@@ -294,8 +294,8 @@ const PromoShare = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <SEO
-        title="PromoShare - Qualified Reward Cycles"
-        description="Track how verified participation becomes eligibility, weight, status, and sponsor-funded upside across Promorang."
+        title="PromoShare - Verified Distribution"
+        description="Track how content and sharing generate verified participation and attributable outcomes across Promorang."
       />
       {/* Featured Pool Banner - PromoShare Homepage Banner ($200/day) */}
       {featuredPools.length > 0 && (
@@ -326,8 +326,8 @@ const PromoShare = () => {
         <div className="relative grid min-h-[540px] gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:items-end">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><Sparkles className="h-3 w-3" /> PromoShare</div>
-            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Proof becomes<br /><span className="text-primary">priority.</span></h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Verified movement raises your standing. Your standing opens qualified reward cycles, stronger placement, and sponsor-funded upside.</p>
+            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Content creates<br /><span className="text-primary">movement.</span></h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Share a creator story, Moment, or offer with useful context. PromoShare records the verified visits, joins, referrals, and actions your contribution helps generate.</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild><Link to="/content-drops">Find earning actions</Link></Button>
               <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/missions">Browse missions</Link></Button>
@@ -362,8 +362,8 @@ const PromoShare = () => {
           {isSponsorView && (
             <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle>Sponsor Layer</CardTitle>
-                <CardDescription>PromoShare as a brand-facing operating surface, not just a participant reward page.</CardDescription>
+                <CardTitle>Fund a verified outcome</CardTitle>
+                <CardDescription>Brands and merchants power content and Moments by defining the action, funding delivery or rewards, and measuring what actually happened.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -377,7 +377,7 @@ const PromoShare = () => {
                   </div>
                 </div>
                 <p className="text-sm leading-7 text-muted-foreground">
-                  Sponsor-funded pools now sit inside the same verified-action system as participant qualification. That means brands can track whether real movement is producing qualified users, not just impressions.
+                  Connect funding to a Moment, creator prompt, merchant offer, or campaign. PromoShare then attributes qualified visits, check-ins, content, referrals, and sales instead of reporting vague exposure.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm">

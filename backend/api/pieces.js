@@ -1385,7 +1385,11 @@ router.delete('/listings/:id', requireAuth, async (req, res) => {
       });
     }
     
-    await pieceTradingService.cancelListing(listingId, userId);
+    const { error } = await supabase.rpc('cancel_piece_listing', {
+      p_listing: listingId,
+      p_owner: userId,
+    });
+    if (error) throw error;
     
     res.json({
       success: true,

@@ -63,7 +63,7 @@ export default function ProposeScreen() {
                 {[
                     { icon: 'bulb', title: '1. Pitch', desc: 'Describe your event idea & budget.', color: '#F59E0B' },
                     { icon: 'checkmark-circle', title: '2. Verify', desc: 'We review for safety & viability.', color: '#10B981' },
-                    { icon: 'cash', title: '3. Fund', desc: 'Brands escrow budget instantly.', color: '#3B82F6' },
+                    { icon: 'diamond', title: '3. Fund', desc: 'Partners secure Gems for the work.', color: '#3B82F6' },
                 ].map((step, i) => (
                     <View key={i} style={[styles.stepCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
                         <View style={[styles.iconBox, { backgroundColor: step.color + '20' }]}>
@@ -83,10 +83,10 @@ export default function ProposeScreen() {
                 style={styles.guaranteeCard}
             >
                 <Ionicons name="rocket" size={32} color={DesignColors.primary} style={{ marginBottom: 12 }} />
-                <Text style={[styles.guaranteeTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Zero Financial Risk</Text>
+                <Text style={[styles.guaranteeTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>No up-front spend</Text>
                 <Text style={styles.guaranteeDesc}>
                     Unlike traditional event hosting, you don't front the costs.
-                    If a brand funds your proposal, the budget is escrowed instantly.
+                    If a partner funds your proposal, Gems are secured before the Moment goes live.
                 </Text>
             </LinearGradient>
 

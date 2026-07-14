@@ -439,6 +439,9 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <button
+              type="button"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
               className="rounded-xl p-2 transition-colors hover:bg-muted md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >

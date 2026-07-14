@@ -6,6 +6,63 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const supabase = global.supabase || serviceSupabase || null;
 
+async function upsertCouponReceipt({ redemption, coupon, status = 'issued', receiptType = 'claim', source = 'coupon_claim', merchantUserId = null }) {
+  if (!supabase || !redemption || !coupon) return;
+
+  try {
+    const { data: existing } = await supabase
+      .from('commerce_receipts')
+      .select('id, attribution')
+      .eq('user_id', redemption.user_id)
+      .eq('coupon_id', coupon.id)
+      .eq('receipt_type', receiptType)
+      .eq('redemption_code', redemption.claim_code)
+      .maybeSingle();
+
+    if (existing?.id) {
+      await supabase
+        .from('commerce_receipts')
+        .update({
+          status,
+          merchant_id: merchantUserId || coupon?.merchant_stores?.user_id || existing.attribution?.merchant_user_id || null,
+          updated_at: new Date().toISOString(),
+          attribution: {
+            ...(existing.attribution || {}),
+            source,
+            coupon_redemption_id: redemption.id,
+            coupon_code: coupon.code,
+            coupon_status: redemption.status,
+            merchant_user_id: merchantUserId || coupon?.merchant_stores?.user_id || existing.attribution?.merchant_user_id || null,
+          },
+        })
+        .eq('id', existing.id);
+      return;
+    }
+
+    await supabase.from('commerce_receipts').insert({
+      user_id: redemption.user_id,
+      merchant_id: merchantUserId || coupon?.merchant_stores?.user_id || null,
+      coupon_id: coupon.id,
+      receipt_type: receiptType,
+      status,
+      amount: 0,
+      currency: 'USD',
+      redemption_code: redemption.claim_code,
+      attribution: {
+        source,
+        coupon_redemption_id: redemption.id,
+        coupon_code: coupon.code,
+        coupon_status: redemption.status,
+        discount_type: coupon.discount_type,
+        discount_value: coupon.discount_value,
+        merchant_user_id: merchantUserId || coupon?.merchant_stores?.user_id || null,
+      },
+    });
+  } catch (error) {
+    console.warn('[Coupon Service] Commerce receipt sync skipped:', error.message);
+  }
+}
+
 /**
  * Validate a coupon code
  */
@@ -769,7 +826,7 @@ async function redeemCoupon(userId, couponId) {
     // 1. Get coupon and check validity
     const { data: coupon, error: couponError } = await supabase
       .from('coupons')
-      .select('*')
+      .select('*, merchant_stores(id, user_id, store_name)')
       .eq('id', couponId)
       .single();
 
@@ -824,6 +881,13 @@ async function redeemCoupon(userId, couponId) {
 
     // 4. Increment coupon usage if it's auto-redeem or just tracking claims
     // For standalone, we usually increment on actual validation, but we can track claims too
+    await upsertCouponReceipt({
+      redemption,
+      coupon,
+      status: 'issued',
+      receiptType: 'claim',
+      source: 'coupon_claim',
+    });
 
     return redemption;
   } catch (error) {
@@ -887,6 +951,22 @@ async function validateRedemption(merchantUserId, claimCodeOrId) {
 
     // 4. Increment parent coupon usage count
     await supabase.rpc('increment_coupon_usage', { coupon_id: redemption.coupon_id });
+    await upsertCouponReceipt({
+      redemption: updated,
+      coupon: redemption.coupons,
+      status: 'fulfilled',
+      receiptType: 'redemption',
+      source: 'coupon_validation',
+      merchantUserId,
+    });
+    await upsertCouponReceipt({
+      redemption: updated,
+      coupon: redemption.coupons,
+      status: 'fulfilled',
+      receiptType: 'claim',
+      source: 'coupon_validation',
+      merchantUserId,
+    });
 
     return updated;
   } catch (error) {

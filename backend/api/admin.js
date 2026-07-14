@@ -5,6 +5,7 @@ const { requireAuth, requireAdmin, requireMasterAdmin } = require('../middleware
 const { getUserProfile } = require('./mockStore');
 const { sendSupportTicketResponseEmail } = require('../services/resendService');
 const simpleKYCService = require('../services/simpleKYCService');
+const experienceAutomationService = require('../services/experienceAutomationService');
 
 router.use(requireAuth);
 router.use(requireAdmin);
@@ -1158,6 +1159,448 @@ router.get('/moderation/overview', async (req, res) => {
     } catch (error) {
         console.error('Admin Moderation Overview Error:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch moderation overview' });
+    }
+});
+
+/**
+ * PATCH /api/admin/moderation/content/:type/:id
+ * Moderate user-generated moment media and reviews.
+ */
+router.patch('/moderation/content/:type/:id', async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        const { status, reason = null } = req.body || {};
+
+        if (!['media', 'review'].includes(type)) {
+            return res.status(400).json({ success: false, error: 'type must be media or review' });
+        }
+
+        if (!['pending', 'approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ success: false, error: 'status must be pending, approved, or rejected' });
+        }
+
+        if (status === 'rejected' && !String(reason || '').trim()) {
+            return res.status(400).json({ success: false, error: 'A reason is required when rejecting content' });
+        }
+
+        if (!supabase) {
+            return res.json({ success: true, item: { id, type, moderation_status: status } });
+        }
+
+        const table = type === 'media' ? 'moment_media' : 'moment_reviews';
+        const patch = {
+            moderation_status: status,
+        };
+
+        if (type === 'media') {
+            patch.is_approved = status === 'approved';
+            patch.moderation_notes = reason || null;
+        }
+
+        const { data, error } = await supabase
+            .from(table)
+            .update(patch)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            item: {
+                ...data,
+                type,
+            },
+        });
+    } catch (error) {
+        console.error('Admin Content Moderation Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to moderate content' });
+    }
+});
+
+const CATALOG_CONFIG = {
+    venues: {
+        table: 'venues',
+        allowedUpdates: ['name', 'description', 'address', 'category', 'phone', 'website', 'image_url', 'is_active', 'owner_id'],
+        orderBy: 'created_at',
+        searchColumns: ['name', 'address', 'category'],
+    },
+    products: {
+        table: 'merchant_products',
+        allowedUpdates: ['name', 'description', 'category', 'price', 'currency', 'inventory_quantity', 'inventory_count', 'is_active', 'is_redeemable_with_points', 'points_cost', 'venue_id', 'merchant_id'],
+        orderBy: 'created_at',
+        searchColumns: ['name', 'category', 'sku'],
+    },
+    offers: {
+        table: 'offers',
+        allowedUpdates: ['title', 'description', 'terms', 'image_url', 'reward_type', 'fulfillment_type', 'value_amount', 'value_currency', 'venue_id', 'quantity_total', 'per_user_limit', 'starts_at', 'ends_at', 'status'],
+        orderBy: 'created_at',
+        searchColumns: ['title', 'description', 'reward_type', 'status'],
+    },
+    campaigns: {
+        table: 'campaigns',
+        allowedUpdates: ['title', 'description', 'brand_id', 'budget', 'reward_type', 'reward_value', 'start_date', 'end_date', 'is_active', 'featured', 'featured_until'],
+        orderBy: 'created_at',
+        searchColumns: ['title', 'description', 'reward_type'],
+    },
+};
+
+function normalizeCatalogUpdates(type, body = {}) {
+    const config = CATALOG_CONFIG[type];
+    const patch = {};
+
+    for (const field of config.allowedUpdates) {
+        if (body[field] !== undefined) patch[field] = body[field];
+    }
+
+    if (type === 'products') {
+        if (patch.inventory_quantity !== undefined && patch.inventory_count === undefined) {
+            patch.inventory_count = patch.inventory_quantity;
+        }
+        if (patch.inventory_count !== undefined && patch.inventory_quantity === undefined) {
+            patch.inventory_quantity = patch.inventory_count;
+        }
+    }
+
+    patch.updated_at = new Date().toISOString();
+    return patch;
+}
+
+async function recordAdminAudit({ actorId, action, targetType, targetId, reason, metadata = {} }) {
+    if (!supabase) return;
+
+    try {
+        const { error } = await supabase.from('admin_audit_log').insert({
+            actor_id: actorId,
+            action,
+            target_type: targetType,
+            target_id: targetId,
+            reason: reason || null,
+            metadata,
+        });
+
+        if (error) throw error;
+    } catch (error) {
+        console.warn('Admin audit log skipped:', error.message);
+    }
+}
+
+/**
+ * GET /api/admin/catalog/:type
+ * Admin list view for public/business catalog objects.
+ */
+router.get('/catalog/:type', async (req, res) => {
+    try {
+        const { type } = req.params;
+        const config = CATALOG_CONFIG[type];
+        if (!config) return res.status(400).json({ success: false, error: 'Unknown catalog type' });
+
+        if (!supabase) return res.json({ success: true, items: [] });
+
+        const limit = Math.min(Math.max(Number(req.query.limit) || 80, 1), 200);
+        let query = supabase
+            .from(config.table)
+            .select('*')
+            .order(config.orderBy, { ascending: false })
+            .limit(limit);
+
+        if (req.query.active === 'true') query = query.eq('is_active', true);
+        if (req.query.active === 'false') query = query.eq('is_active', false);
+        if (req.query.status && type === 'offers') query = query.eq('status', req.query.status);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        const search = String(req.query.search || '').trim().toLowerCase();
+        const rows = search
+            ? (data || []).filter((item) => config.searchColumns.some((column) => String(item[column] || '').toLowerCase().includes(search)))
+            : (data || []);
+
+        res.json({ success: true, items: rows });
+    } catch (error) {
+        console.error('Admin Catalog List Error:', error);
+        res.status(500).json({ success: false, error: error.message || 'Failed to load catalog' });
+    }
+});
+
+/**
+ * PATCH /api/admin/catalog/:type/:id
+ * Admin update for venues, merchant products, and offers.
+ */
+router.patch('/catalog/:type/:id', async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        const config = CATALOG_CONFIG[type];
+        if (!config) return res.status(400).json({ success: false, error: 'Unknown catalog type' });
+
+        const { reason = null, ...body } = req.body || {};
+        const patch = normalizeCatalogUpdates(type, body);
+        if (Object.keys(patch).length <= 1) {
+            return res.status(400).json({ success: false, error: 'No editable fields provided' });
+        }
+
+        if (!supabase) return res.json({ success: true, item: { id, ...patch } });
+
+        const { data, error } = await supabase
+            .from(config.table)
+            .update(patch)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'catalog.update',
+            targetType: type,
+            targetId: id,
+            reason,
+            metadata: { patch },
+        });
+
+        res.json({ success: true, item: data });
+    } catch (error) {
+        console.error('Admin Catalog Update Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to update catalog item' });
+    }
+});
+
+/**
+ * GET /api/admin/commerce/overview
+ * Admin commerce operations overview across receipts and merchant listings.
+ */
+router.get('/commerce/overview', async (req, res) => {
+    try {
+        if (!supabase) return res.json({ success: true, receipts: [], products: [], summary: {} });
+
+        const limit = Math.min(Math.max(Number(req.query.limit) || 80, 1), 200);
+        const [
+            { data: receipts = [], error: receiptsError },
+            { data: products = [], error: productsError },
+            automationResult,
+        ] = await Promise.all([
+            supabase
+                .from('commerce_receipts')
+                .select('*, merchant_products:listing_id(name, image_url, category, fulfillment_mode, merchant_id)')
+                .order('occurred_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('merchant_products')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit),
+            supabase
+                .from('experience_automation_runs')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit)
+                .then(({ data, error }) => ({ data: data || [], error }))
+                .catch(() => ({ data: [], error: null })),
+        ]);
+
+        if (receiptsError) throw receiptsError;
+        if (productsError) throw productsError;
+        const automations = automationResult.data || [];
+
+        const summary = {
+            total_receipts: receipts.length,
+            issued_or_pending: receipts.filter((receipt) => ['issued', 'pending'].includes(receipt.status)).length,
+            fulfilled: receipts.filter((receipt) => receipt.status === 'fulfilled').length,
+            cancelled_or_refunded: receipts.filter((receipt) => ['cancelled', 'refunded'].includes(receipt.status)).length,
+            paid_revenue: receipts
+                .filter((receipt) => receipt.receipt_type === 'purchase' && receipt.status === 'fulfilled')
+                .reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0),
+            active_products: products.filter((product) => product.is_active !== false).length,
+            hidden_products: products.filter((product) => product.is_active === false || product.visibility === 'hidden').length,
+            public_products: products.filter((product) => product.visibility !== 'hidden' && product.is_active !== false).length,
+            automation_failures: automations.filter((run) => run.status === 'failed').length,
+            automated_unlocks: automations.filter((run) => run.status === 'completed').length,
+        };
+
+        res.json({ success: true, receipts, products, automations, summary });
+    } catch (error) {
+        console.error('Admin Commerce Overview Error:', error);
+        res.status(500).json({ success: false, error: error.message || 'Failed to load commerce overview' });
+    }
+});
+
+/**
+ * POST /api/admin/commerce/automations/:id/retry
+ * Safely retry a failed proof-triggered unlock using its idempotency key.
+ */
+router.post('/commerce/automations/:id/retry', async (req, res) => {
+    try {
+        const outcomes = await experienceAutomationService.retryAutomationRun(req.params.id);
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'commerce.automation_retry',
+            targetType: 'experience_automation_run',
+            targetId: req.params.id,
+            reason: req.body?.reason || 'Admin retry',
+            metadata: { outcome_count: outcomes.length },
+        });
+        res.json({ success: true, outcomes });
+    } catch (error) {
+        console.error('Admin Commerce Automation Retry Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to retry automation' });
+    }
+});
+
+/**
+ * POST /api/admin/commerce/automations/reconcile
+ * Backfill linked rewards for proofs verified before automation was enabled.
+ */
+router.post('/commerce/automations/reconcile', async (req, res) => {
+    try {
+        const summary = await experienceAutomationService.reconcileVerifiedProofs({ limit: req.body?.limit || 100 });
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'commerce.automation_reconcile',
+            targetType: 'verified_proofs',
+            targetId: req.user.id,
+            reason: req.body?.reason || 'Admin reconciliation',
+            metadata: summary,
+        });
+        res.json({ success: true, summary });
+    } catch (error) {
+        console.error('Admin Commerce Automation Reconcile Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to reconcile verified proofs' });
+    }
+});
+
+/**
+ * PATCH /api/admin/commerce/receipts/:id/status
+ * Admin receipt intervention for commerce support and trust operations.
+ */
+router.patch('/commerce/receipts/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, reason = null } = req.body || {};
+        if (!['issued', 'pending', 'fulfilled', 'cancelled', 'refunded'].includes(status)) {
+            return res.status(422).json({ success: false, error: 'Invalid receipt status' });
+        }
+        if (['cancelled', 'refunded'].includes(status) && !String(reason || '').trim()) {
+            return res.status(400).json({ success: false, error: 'Reason is required for cancelled/refunded receipts' });
+        }
+
+        if (!supabase) return res.json({ success: true, receipt: { id, status } });
+
+        const { data: existing, error: fetchError } = await supabase
+            .from('commerce_receipts')
+            .select('id, sale_id, attribution, status, amount, currency')
+            .eq('id', id)
+            .single();
+        if (fetchError || !existing) return res.status(404).json({ success: false, error: 'Receipt not found' });
+
+        let data = null;
+        let stripeRefund = null;
+        if (status === 'refunded') {
+            const marketplaceService = require('../services/marketplaceService');
+            const refundResult = await marketplaceService.refundCommerceReceipt({
+                receiptId: id,
+                actorId: req.user.id,
+                reason,
+            });
+            stripeRefund = refundResult.stripe_refund || null;
+            const refreshed = await supabase
+                .from('commerce_receipts')
+                .select('*, merchant_products:listing_id(name, image_url, category, fulfillment_mode, merchant_id)')
+                .eq('id', id)
+                .single();
+            if (refreshed.error) throw refreshed.error;
+            data = refreshed.data;
+        } else {
+            const updateResult = await supabase
+                .from('commerce_receipts')
+                .update({
+                    status,
+                    attribution: {
+                        ...(existing.attribution || {}),
+                        admin_status_action: status,
+                        admin_status_reason: reason,
+                        admin_status_at: new Date().toISOString(),
+                        admin_status_by: req.user.id,
+                        previous_status: existing.status,
+                    },
+                })
+                .eq('id', id)
+                .select('*, merchant_products:listing_id(name, image_url, category, fulfillment_mode, merchant_id)')
+                .single();
+            if (updateResult.error) throw updateResult.error;
+            data = updateResult.data;
+        }
+
+        if (existing.sale_id) {
+            const saleStatus = status === 'fulfilled' ? 'validated' : status === 'cancelled' ? 'cancelled' : null;
+            if (saleStatus) {
+                await supabase.from('product_sales').update({ status: saleStatus }).eq('id', existing.sale_id);
+            }
+        }
+
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'commerce.receipt.status',
+            targetType: 'commerce_receipt',
+            targetId: id,
+            reason,
+            metadata: { status, previous_status: existing.status, stripe_refund_id: stripeRefund?.id || null },
+        });
+
+        res.json({ success: true, receipt: data, stripe_refund: stripeRefund });
+    } catch (error) {
+        console.error('Admin Commerce Receipt Status Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to update commerce receipt' });
+    }
+});
+
+/**
+ * PATCH /api/admin/commerce/products/:id/moderate
+ * Admin visibility/activation action for merchant commerce listings.
+ */
+router.patch('/commerce/products/:id/moderate', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action, reason = null } = req.body || {};
+        if (!['approve', 'pause', 'hide', 'archive'].includes(action)) {
+            return res.status(422).json({ success: false, error: 'Invalid product moderation action' });
+        }
+        if (['hide', 'archive', 'pause'].includes(action) && !String(reason || '').trim()) {
+            return res.status(400).json({ success: false, error: 'Reason is required for this moderation action' });
+        }
+
+        const patch = action === 'approve'
+            ? { is_active: true, visibility: 'public' }
+            : action === 'pause'
+                ? { is_active: false }
+                : action === 'hide'
+                    ? { visibility: 'hidden', is_active: false }
+                    : { visibility: 'hidden', is_active: false };
+
+        if (!supabase) return res.json({ success: true, product: { id, ...patch } });
+
+        const { data, error } = await supabase
+            .from('merchant_products')
+            .update(patch)
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: `commerce.product.${action}`,
+            targetType: 'merchant_product',
+            targetId: id,
+            reason,
+            metadata: { patch },
+        });
+
+        res.json({ success: true, product: data });
+    } catch (error) {
+        console.error('Admin Commerce Product Moderate Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to moderate product' });
     }
 });
 

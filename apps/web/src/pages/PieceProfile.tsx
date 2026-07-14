@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
+import { PieceOrderBook } from '@/components/trading/PieceOrderBook';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -215,6 +216,7 @@ export function PieceProfile() {
           </div>
 
           <aside className="space-y-6">
+            <Card><CardHeader><CardTitle>Available now</CardTitle></CardHeader><CardContent><PieceOrderBook pieceType={profile.piece_type} assetId={profile.asset_id}/></CardContent></Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" />Pool</CardTitle>

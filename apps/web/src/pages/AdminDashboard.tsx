@@ -25,6 +25,8 @@ import {
   Megaphone,
   KeyRound,
   Target,
+  Store,
+  ShoppingBag,
 } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
@@ -43,15 +45,21 @@ import { AdminProofBuilderTab } from "@/components/admin/AdminProofBuilderTab";
 import { AdminPioneerReviewTab } from "@/components/admin/AdminPioneerReviewTab";
 import { AdminCommandCenter } from "@/components/admin/AdminCommandCenter";
 import { AdminAuditTab } from "@/components/admin/AdminAuditTab";
+import { AdminCatalogTab } from "@/components/admin/AdminCatalogTab";
+import { AdminCommerceTab } from "@/components/admin/AdminCommerceTab";
+import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
 import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
 
 const ADMIN_TABS = new Set([
   "command",
   "overview",
+  "growth",
   "proof-builder",
   "pioneer",
   "operations",
   "promopush",
+  "catalog",
+  "commerce",
   "users",
   "moments",
   "applications",
@@ -126,7 +134,7 @@ const AdminDashboard = () => {
                 { label: "Total Moments", value: stats?.totalMoments || 0, icon: Calendar, color: "text-blue-500" },
                 { label: "Participations", value: stats?.totalParticipations || 0, icon: CheckCircle, color: "text-emerald-500" },
                 { label: "Rewards Issued", value: stats?.totalRewards || 0, icon: Gift, color: "text-accent" },
-                { label: "Campaigns", value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500" },
+                { label: "Activations", value: stats?.totalCampaigns || 0, icon: Building2, color: "text-purple-500" },
               ].map((stat, index) => (
                 <div key={index} className="rounded-xl border border-border bg-card p-4 sm:p-5">
                   <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
@@ -163,7 +171,7 @@ const AdminDashboard = () => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <div className="overflow-x-auto pb-2">
-            <TabsList className="grid h-auto min-w-[1500px] w-full max-w-none grid-cols-[repeat(17,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
+            <TabsList className="grid h-auto min-w-[1760px] w-full max-w-none grid-cols-[repeat(21,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
               <TabsTrigger value="command" className="flex items-center gap-2 text-primary font-bold">
                 <Shield className="w-4 h-4" />
                 Command
@@ -172,9 +180,13 @@ const AdminDashboard = () => {
                 <BarChart3 className="w-4 h-4" />
                 Analytics
               </TabsTrigger>
+              <TabsTrigger value="growth" className="flex items-center gap-2 text-primary font-bold">
+                <TrendingUp className="w-4 h-4" />
+                Growth
+              </TabsTrigger>
               <TabsTrigger value="proof-builder" className="flex items-center gap-2 text-primary font-bold">
                 <Target className="w-4 h-4" />
-                Proof
+                Contribution Rules
               </TabsTrigger>
               <TabsTrigger value="pioneer" className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
@@ -187,6 +199,14 @@ const AdminDashboard = () => {
               <TabsTrigger value="promopush" className="flex items-center gap-2">
                 <Megaphone className="w-4 h-4" />
                 PromoPush
+              </TabsTrigger>
+              <TabsTrigger value="catalog" className="flex items-center gap-2">
+                <Store className="w-4 h-4" />
+                Catalog
+              </TabsTrigger>
+              <TabsTrigger value="commerce" className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4" />
+                Commerce
               </TabsTrigger>
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -247,6 +267,10 @@ const AdminDashboard = () => {
               <AdminAnalyticsTab />
             </TabsContent>
 
+            <TabsContent value="growth">
+              <AdminGrowthTab />
+            </TabsContent>
+
             <TabsContent value="proof-builder">
               <AdminProofBuilderTab />
             </TabsContent>
@@ -260,6 +284,14 @@ const AdminDashboard = () => {
 
             <TabsContent value="promopush">
               <AdminPromoPushTab />
+            </TabsContent>
+
+            <TabsContent value="catalog">
+              <AdminCatalogTab />
+            </TabsContent>
+
+            <TabsContent value="commerce">
+              <AdminCommerceTab />
             </TabsContent>
 
             <TabsContent value="users">

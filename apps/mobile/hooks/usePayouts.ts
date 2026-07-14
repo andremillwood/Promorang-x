@@ -1,17 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
-import { Platform } from "react-native";
-import Constants from "expo-constants";
-
-// Helper to get API URL
-const getApiUrl = () => {
-    // Replace with your actual production API URL or local IP for dev
-    // For iOS Simulator, localhost works. For Android, 10.0.2.2.
-    // For physical device, use your machine's LAN IP.
-    const localhost = Platform.OS === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
-    return process.env.EXPO_PUBLIC_API_URL || localhost;
-};
+import { API_BASE } from "@/lib/api";
 
 export interface PayoutMethod {
     id: string;
@@ -103,8 +93,7 @@ export function usePayouts() {
         if (!user || !session) return;
         setLoading(true);
         try {
-            const API_URL = getApiUrl();
-            const response = await fetch(`${API_URL}/api/payouts/withdraw`, {
+            const response = await fetch(`${API_BASE}/api/payouts/withdraw`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

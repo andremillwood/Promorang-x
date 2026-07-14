@@ -16,6 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
+import ForYou from "@/pages/ForYou";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -273,6 +274,9 @@ const Pulse = () => {
     (sum, moment) => sum + Math.max(moment.threshold_progress || 0, 0),
     0,
   );
+
+  // Pulse remains a public window; once signed in, the ranked living feed is home.
+  if (user) return <ForYou />;
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-5 text-white sm:space-y-10 sm:px-6 sm:py-8">

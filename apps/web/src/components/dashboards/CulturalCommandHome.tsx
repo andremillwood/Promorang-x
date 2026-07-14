@@ -8,7 +8,6 @@ import {
   Calendar,
   CheckCircle,
   Coins,
-  Compass,
   Heart,
   Key,
   MessageCircle,
@@ -25,11 +24,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useForYouFeed } from "@/hooks/useFeed";
 import { useJoinedMoments, useParticipantStats } from "@/hooks/useMoments";
 import { useUserBalance } from "@/hooks/useEconomy";
+import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
 import { cultureCreators, cultureEvents, cultureImages, cultureScenes } from "@/data/culture-demo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const tabs = ["For You", "Following", "Scenes", "Drops", "Updates"];
+type UpcomingCard = { id?: string; momentId?: string; title: string; date?: string; venue_name?: string | null; place?: string; location?: string | null };
 
 const CulturalCommandHome = () => {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ const CulturalCommandHome = () => {
 
   const metrics = [
     { label: "Upcoming", value: upcoming.length, helper: upcoming.length ? "Moments" : "Find your next moment", icon: Calendar, color: "text-orange-500" },
-    { label: "Check-ins", value: stats?.checkedIn || 0, helper: (stats?.checkedIn || 0) ? "Verified" : "Build your proof", icon: CheckCircle, color: "text-emerald-400" },
+    { label: "Check-ins", value: stats?.checkedIn || 0, helper: (stats?.checkedIn || 0) ? "You were there" : "Make your next move count", icon: CheckCircle, color: "text-emerald-400" },
     { label: "Points", value: balance?.points || 0, helper: "Status progress", icon: Sparkles, color: "text-amber-400" },
     { label: "Keys", value: balance?.promokeys || 0, helper: "Access", icon: Key, color: "text-fuchsia-400" },
     { label: "Wallet", value: balance?.gems || 0, helper: "Gems available", icon: Wallet, color: "text-orange-500" },
@@ -59,7 +60,7 @@ const CulturalCommandHome = () => {
     { label: "Your Story", sub: "Add a moment", image: cultureCreators[0]?.avatar, href: "/profile", icon: UserRound },
     { label: cultureScenes[0]?.title, sub: "Scene", image: cultureScenes[0]?.image, href: `/scenes/${cultureScenes[0]?.slug}`, icon: Users },
     { label: cultureEvents[0]?.shortTitle, sub: "Live now", image: cultureEvents[0]?.image, href: "/pulse", icon: Activity },
-    { label: "Content Drops", sub: "New proof", image: cultureImages.streetArt, href: "/content-drops", icon: Play },
+    { label: "Content Drops", sub: "New story", image: cultureImages.streetArt, href: "/content-drops", icon: Play },
     { label: cultureCreators[0]?.name, sub: "Creator", image: cultureCreators[0]?.avatar, href: `/creators/${cultureCreators[0]?.handle}`, icon: UserRound },
     { label: cultureScenes[1]?.title, sub: "Tonight", image: cultureScenes[1]?.image, href: `/scenes/${cultureScenes[1]?.slug}`, icon: Users },
   ];
@@ -95,6 +96,8 @@ const CulturalCommandHome = () => {
               </Link>
             ))}
           </section>
+
+          <StakeholderReturnPanel role="participant" />
 
           <section className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.035]">
             <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
@@ -147,7 +150,7 @@ const CulturalCommandHome = () => {
 
               <div className="space-y-4">
                 <article className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04]">
-                  <div className="p-4"><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">New content drop</p><h3 className="mt-1 text-xl font-bold">Turn attention into proof.</h3></div>
+                  <div className="p-4"><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">New content drop</p><h3 className="mt-1 text-xl font-bold">Turn attention into action.</h3></div>
                   <Link to="/content-drops" className="relative block aspect-[2/1] overflow-hidden">
                     <img src={cultureImages.jazzNight} alt="" className="h-full w-full object-cover opacity-75" />
                     <span className="absolute inset-0 grid place-items-center"><span className="grid h-14 w-14 place-items-center rounded-full border border-white/40 bg-black/45"><Play className="h-5 w-5 fill-white" /></span></span>
@@ -190,7 +193,7 @@ const CulturalCommandHome = () => {
           <section className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4">
             <div className="flex items-center justify-between"><h2 className="font-bold">Upcoming for you</h2><Link to="/discover" className="text-xs font-bold text-primary">View all</Link></div>
             <div className="mt-3 divide-y divide-white/[0.07]">
-              {(upcoming.length ? upcoming : cultureEvents.slice(0, 3)).map((item: any) => (
+              {((upcoming.length ? upcoming : cultureEvents.slice(0, 3)) as UpcomingCard[]).map((item) => (
                 <Link key={item.id || item.momentId} to={`/moments/${item.id || item.momentId}`} className="flex gap-3 py-3">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-xs font-black">{item.date?.slice(0, 6) || "NEXT"}</div>
                   <div className="min-w-0"><p className="truncate text-sm font-bold">{item.title}</p><p className="mt-1 truncate text-xs text-white/40">{item.venue_name || item.place || item.location}</p></div>

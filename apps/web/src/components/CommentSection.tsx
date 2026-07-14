@@ -7,7 +7,7 @@ import { PioneerBadge } from "@/components/badges/PioneerBadge";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-interface Comment {
+export interface Comment {
     id: string;
     user_id: string;
     content: string;
@@ -19,14 +19,19 @@ interface Comment {
     };
     replies?: Comment[];
     reactions?: Record<string, number>;
+    userReaction?: string | null;
 }
 
 interface CommentSectionProps {
     momentId: string;
     comments: Comment[];
     currentUserId?: string;
-    onAddComment?: (content: string, parentId?: string) => void;
-    onDeleteComment?: (commentId: string) => void;
+    onAddComment?: (content: string, parentId?: string) => Promise<void>;
+    onDeleteComment?: (commentId: string) => Promise<void>;
+    isLoading?: boolean;
+    errorMessage?: string;
+    canInteract?: boolean;
+    disabledReason?: string;
     className?: string;
 }
 
@@ -40,27 +45,14 @@ export function CommentSection({
     currentUserId,
     onAddComment,
     onDeleteComment,
+    isLoading = false,
+    errorMessage,
+    canInteract = true,
+    disabledReason = "Join this Moment to post on its Wall.",
     className,
 }: CommentSectionProps) {
     const { toast } = useToast();
-    const [comments, setComments] = useState<Comment[]>(initialComments.length > 0 ? initialComments : [
-        {
-            id: "pioneer-1",
-            user_id: "system",
-            content: "Who's ready for this? The vibes are going to be immaculate. 🥂",
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-            user: { full_name: "Marcus D.", avatar_url: "https://i.pravatar.cc/150?u=m1", pioneer: true },
-            reactions: { "🔥": 12, "❤️": 8 }
-        },
-        {
-            id: "pioneer-2",
-            user_id: "system",
-            content: "Just finalized the venue setup. It's looking incredible.",
-            created_at: new Date(Date.now() - 7200000).toISOString(),
-            user: { full_name: "Sarah J.", avatar_url: "https://i.pravatar.cc/150?u=s2", pioneer: true },
-            reactions: { "🙌": 5 }
-        }
-    ]);
+    const comments = initialComments;
     const [newComment, setNewComment] = useState("");
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState("");
@@ -71,26 +63,19 @@ export function CommentSection({
 
         setIsSubmitting(true);
 
-        // Optimistic add
-        const tempComment: Comment = {
-            id: `temp-${Date.now()}`,
-            user_id: currentUserId || "",
-            content: newComment,
-            created_at: new Date().toISOString(),
-            user: { full_name: "You", avatar_url: null },
-            reactions: {},
-        };
-
-        setComments(prev => [tempComment, ...prev]);
-        setNewComment("");
-        onAddComment?.(newComment);
-
-        toast({
-            title: "Comment added",
-            description: "Your comment has been posted",
-        });
-
-        setIsSubmitting(false);
+        try {
+            await onAddComment?.(newComment);
+            setNewComment("");
+            toast({ title: "Posted to the Moment Wall", description: "People in this Moment can now respond." });
+        } catch (error) {
+            toast({
+                title: "Post not saved",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleSubmitReply = async (parentId: string) => {
@@ -98,36 +83,33 @@ export function CommentSection({
 
         setIsSubmitting(true);
 
-        // Optimistic add reply
-        const tempReply: Comment = {
-            id: `temp-${Date.now()}`,
-            user_id: currentUserId || "",
-            content: replyContent,
-            created_at: new Date().toISOString(),
-            user: { full_name: "You", avatar_url: null },
-            reactions: {},
-        };
+        try {
+            await onAddComment?.(replyContent, parentId);
+            setReplyContent("");
+            setReplyingTo(null);
+            toast({ title: "Reply posted", description: "The conversation is up to date." });
+        } catch (error) {
+            toast({
+                title: "Reply not saved",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-        setComments(prev => prev.map(comment => {
-            if (comment.id === parentId) {
-                return {
-                    ...comment,
-                    replies: [...(comment.replies || []), tempReply]
-                };
-            }
-            return comment;
-        }));
-
-        setReplyContent("");
-        setReplyingTo(null);
-        onAddComment?.(replyContent, parentId);
-
-        toast({
-            title: "Reply added",
-            description: "Your reply has been posted",
-        });
-
-        setIsSubmitting(false);
+    const handleDelete = async (commentId: string) => {
+        try {
+            await onDeleteComment?.(commentId);
+            toast({ title: "Post removed" });
+        } catch (error) {
+            toast({
+                title: "Post not removed",
+                description: error instanceof Error ? error.message : "Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     const formatTimeAgo = (dateString: string) => {
@@ -186,7 +168,7 @@ export function CommentSection({
                             </button>
                             {comment.user_id === currentUserId && (
                                 <button
-                                    onClick={() => onDeleteComment?.(comment.id)}
+                                    onClick={() => handleDelete(comment.id)}
                                     className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                                     title="Delete"
                                 >
@@ -205,6 +187,9 @@ export function CommentSection({
                         entityType="comment"
                         entityId={comment.id}
                         initialReactions={comment.reactions}
+                        userReaction={comment.userReaction}
+                        canInteract={canInteract}
+                        disabledReason={disabledReason}
                         size="sm"
                     />
 
@@ -221,7 +206,7 @@ export function CommentSection({
                             <Button
                                 size="sm"
                                 onClick={() => handleSubmitReply(comment.id)}
-                                disabled={!replyContent.trim() || isSubmitting}
+                                disabled={!replyContent.trim() || isSubmitting || !canInteract}
                             >
                                 <Send className="h-4 w-4" />
                             </Button>
@@ -248,13 +233,14 @@ export function CommentSection({
                     <Input
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Add a comment..."
+                        placeholder={canInteract ? "Add to the Moment Wall..." : disabledReason}
                         className="flex-1"
+                        disabled={!canInteract || !currentUserId}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmitComment()}
                     />
                     <Button
                         onClick={handleSubmitComment}
-                        disabled={!newComment.trim() || isSubmitting}
+                        disabled={!newComment.trim() || isSubmitting || !canInteract || !currentUserId}
                     >
                         <Send className="h-4 w-4 mr-2" />
                         Post
@@ -264,7 +250,11 @@ export function CommentSection({
 
             {/* Comments List */}
             <div className="space-y-6 pt-4">
-                {comments.length === 0 ? (
+                {isLoading ? (
+                    <p className="text-center text-muted-foreground py-8">Loading the Moment Wall…</p>
+                ) : errorMessage ? (
+                    <p className="py-8 text-center text-sm text-destructive">{errorMessage}</p>
+                ) : comments.length === 0 ? (
                     <p className="text-center text-muted-foreground py-8">
                         No messages yet. Start the Moment Wall!
                     </p>

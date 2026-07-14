@@ -531,6 +531,21 @@ async function stripeWebhook(req, res) {
           throw err;
         }
 
+        try {
+          const marketplaceService = require('../services/marketplaceService');
+          const commerceResult = await marketplaceService.finalizeStripePurchase(intent);
+          if (commerceResult.handled) {
+            console.log('[payments.webhook.stripe] Commerce payment fulfilled', {
+              payment_intent: intent.id,
+              receipt_id: commerceResult.receipt_id,
+              idempotent: Boolean(commerceResult.idempotent),
+            });
+          }
+        } catch (err) {
+          console.error('[payments.webhook.stripe] Failed to fulfill commerce payment', err);
+          throw err;
+        }
+
         let transactionId = null;
         try {
           transactionId = await ensureSubscriptionPaymentTransaction(intent);

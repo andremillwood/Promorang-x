@@ -18,12 +18,12 @@ const ladder = [
   {
     icon: Compass,
     title: "Orientation",
-    text: "Understand how real participation turns into proof, rewards, status, and retained value.",
+    text: "Understand what to do, what counts as proof, and what the possible upside is.",
   },
   {
     icon: Zap,
     title: "First Value",
-    text: "Find one moment, mission, offer, creator drop, or place worth acting on.",
+    text: "Find one moment, offer, creator prompt, or place worth acting on.",
   },
   {
     icon: CheckCircle2,
@@ -70,7 +70,7 @@ export default function HowItWorks() {
               <span className="block">Unlock more.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/75">
-              The homepage lets people feel the culture first. This page teaches the system behind it: how a moment becomes proof, how proof becomes status, and how status opens rewards, access, memory, and repeatable value.
+              The homepage lets people feel the culture first. This page makes the system legible: what to do, how proof works, and how useful participation can lead to rewards, access, memory, and repeatable value.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link

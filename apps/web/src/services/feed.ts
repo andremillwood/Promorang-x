@@ -34,12 +34,13 @@ export interface FeedScoreBreakdown {
   social: number;
   value: number;
   quality: number;
+  behavior?: number;
   diversity_adjustment: number;
 }
 
 export interface FeedItem {
   id: string;
-  object_type: "moment" | "drop" | "offer" | "content";
+  object_type: "moment" | "drop" | "offer" | "product" | "piece" | "content";
   entity_id: string;
   title: string;
   subtitle?: string;
@@ -87,15 +88,19 @@ const inferReasonLabels = (item: RawFeedItem, intent: FeedIntent | null): string
 };
 
 const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedItem => {
-  const objectType =
-    item.object_type ||
-    (item.type === "event"
+  const rawType = item.object_type || item.type;
+  const objectType: FeedItem["object_type"] =
+    rawType === "event" || rawType === "moment"
       ? "moment"
-      : item.type === "drop"
+      : rawType === "drop"
         ? "drop"
-        : item.type === "coupon"
+        : rawType === "coupon" || rawType === "offer"
           ? "offer"
-          : "content");
+          : rawType === "product"
+            ? "product"
+            : rawType === "piece"
+              ? "piece"
+              : "content";
 
   const entityId = item.entity_id || item.id;
   const title =
@@ -130,7 +135,11 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       : objectType === "drop"
         ? "/watch-unlock"
         : objectType === "offer"
-          ? "/dashboard/rewards"
+          ? item.type === "coupon" ? `/offers/${entityId}` : `/shop/${encodeURIComponent(String(entityId))}`
+        : objectType === "product"
+          ? `/shop/${encodeURIComponent(String(entityId))}`
+          : objectType === "piece"
+            ? `/pieces/content/${entityId}`
           : item.cta_url || "/explore/moments";
 
   const primaryLabel =
@@ -139,7 +148,11 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       : objectType === "drop"
         ? "Start Proof"
         : objectType === "offer"
-          ? "Claim Reward"
+          ? "See offer"
+          : objectType === "product"
+            ? "View product"
+            : objectType === "piece"
+              ? "View Piece"
           : "Open";
 
   return {
@@ -176,8 +189,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       participants_count: item.attendees || item.current_participants || item.participant_count,
       host_name: item.host_name,
       venue_name: item.venue_name,
-      brand_name: item.sponsor_name,
-      sponsored: item.type === "coupon" || Boolean(item.is_sponsored),
+      brand_name: item.sponsor_name || item.brand_name || item.merchant_name,
+      sponsored: item.type === "coupon" || item.type === "offer" || Boolean(item.is_sponsored),
       expires_soon: Boolean(item.expires_at),
     },
     raw: item,
@@ -237,6 +250,8 @@ export const logFeedInteraction = async ({
       ? "event"
       : itemType === "offer"
         ? "campaign"
+        : itemType === "piece"
+          ? "content"
         : itemType;
 
   await fetch(`${API_BASE_URL}/feed/interaction`, {

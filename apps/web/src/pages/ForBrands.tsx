@@ -45,9 +45,9 @@ const sponsorshipBenefits = [
     },
     {
         icon: ShieldCheck,
-        title: "Proof You Can Trust",
+        title: "Return You Can Trust",
         description:
-            "Track the journey from visibility to action with verified Moments, proof submissions, and clear participation receipts.",
+            "Track the journey from visibility to action with verified Moments, counted contributions, and clear participation receipts.",
     },
 ];
 
@@ -55,7 +55,7 @@ const stats = [
     { value: "Moments", label: "Campaign building blocks" },
     { value: "Marks", label: "Verified participation" },
     { value: "QR", label: "On-site engagement" },
-    { value: "UGC", label: "Creator and Scene proof" },
+    { value: "UGC", label: "Creator and Scene signal" },
 ];
 
 const ForBrands = () => {
@@ -255,10 +255,10 @@ const ForBrands = () => {
                             <span className="text-sm font-medium">Moments Are The Atomic Unit</span>
                         </div>
                         <h2 className="mb-4 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground md:text-5xl">
-                            Build Campaigns From Human Moments
+                            Build Activations From Human Moments
                         </h2>
                         <p className="text-lg text-muted-foreground">
-                            A Moment is a small, understandable activation: a place, a reason to participate, a simple action path, and proof that people took part.
+                            A Moment is a small, understandable activation: a place, a reason to participate, a simple action path, and a clear record of what people did.
                         </p>
                     </div>
 
@@ -483,13 +483,13 @@ const ForBrands = () => {
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8">
                                 A strong Moment gives creators and scene members something real to talk about.
-                                Promorang helps connect campaign participation to the content, check-ins, referrals, and QR paths that show how the message traveled.
+                                Promorang helps connect activation participation to the content, check-ins, referrals, and QR paths that show how the Moment traveled.
                             </p>
                             <div className="space-y-4">
                                 {[
                                     { title: "Creator Fit", desc: "Invite creators whose audience matches the Moment and location." },
-                                    { title: "Scene Proof", desc: "Collect posts, check-ins, scans, and redemption activity in one campaign record." },
-                                    { title: "Campaign Reports", desc: "See how far your Moment traveled across people, places, and social media." },
+                                    { title: "Scene Signal", desc: "Collect posts, check-ins, scans, and redemption activity in one activation record." },
+                                    { title: "Activation Reports", desc: "See how far your Moment traveled across people, places, and social media." },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />

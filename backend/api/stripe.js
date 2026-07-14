@@ -46,6 +46,29 @@ router.post('/payment-intent', requireAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/stripe/commerce/payment-intent
+ * Create a payment intent for a merchant product. Fulfillment happens only via Stripe webhook.
+ */
+router.post('/commerce/payment-intent', requireAuth, async (req, res) => {
+    try {
+        const { product_id, quantity = 1 } = req.body || {};
+        if (!product_id) return res.status(422).json({ error: 'product_id is required' });
+
+        const marketplaceService = require('../services/marketplaceService');
+        const intent = await marketplaceService.createStripeCommerceIntent({
+            userId: req.user.id,
+            productId: product_id,
+            quantity,
+        });
+
+        res.json(intent);
+    } catch (error) {
+        console.error('Error creating commerce payment intent:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+/**
  * GET /api/stripe/payment-intent/:id
  * Get payment intent details
  */

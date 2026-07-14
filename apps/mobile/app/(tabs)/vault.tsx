@@ -1,495 +1,209 @@
-import { StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
-import { Colors as DesignColors, Typography, Spacing, BorderRadius } from '@/constants/DesignTokens';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useVaultAssets, useVaultTransactions, useVaultSummary } from '@/hooks/useVault';
-import { LinearGradient } from 'expo-linear-gradient';
+import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
+import { useVaultAssets, useVaultMemories, useVaultSummary, useVaultTransactions } from '@/hooks/useVault';
 import { useState } from 'react';
+import { CommerceReceipt, useCommerceReceipts } from '@/hooks/useCommerceReceipts';
+
+const assetMeta = {
+  token: { label: 'Value', icon: 'sparkles', color: Colors.primary },
+  nft: { label: 'Memories', icon: 'images', color: Colors.purple },
+  coupon: { label: 'Rewards', icon: 'gift', color: Colors.success },
+  ticket: { label: 'Access', icon: 'ticket', color: Colors.warning },
+  key: { label: 'Access signals', icon: 'shield-checkmark', color: Colors.info },
+} as const;
+
+function receiptPresentation(receipt: CommerceReceipt) {
+  const type = receipt.receipt_type || 'receipt';
+  const status = receipt.status || 'issued';
+  const productName = receipt.merchant_products?.name;
+  const couponCode = receipt.attribution?.coupon_code;
+  const title = productName
+    || (type === 'claim' ? `Offer claimed${couponCode ? ` · ${couponCode}` : ''}` : null)
+    || (type === 'redemption' ? `Offer redeemed${couponCode ? ` · ${couponCode}` : ''}` : null)
+    || type.replace('_', ' ');
+  const icon = type === 'purchase' ? 'bag-check' : type === 'reservation' ? 'bookmark' : type === 'redemption' ? 'checkmark-done' : type === 'claim' ? 'gift' : 'receipt';
+  const color = type === 'purchase' ? Colors.success : type === 'reservation' ? Colors.info : type === 'redemption' ? Colors.primary : type === 'claim' ? Colors.warning : Colors.primary;
+  const amount = Number(receipt.amount || 0);
+  const value = receipt.redemption_code
+    || (amount > 0 ? `${amount.toLocaleString()} ${receipt.currency || 'USD'}` : status);
+
+  return { title, icon, color, value, status };
+}
 
 export default function VaultScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const [activeTab, setActiveTab] = useState<'assets' | 'history'>('assets');
-  
+  const [activeTab, setActiveTab] = useState<'kept' | 'activity'>('kept');
   const { assets, loading: assetsLoading } = useVaultAssets();
-  const { transactions, loading: transactionsLoading } = useVaultTransactions();
+  const { memories, loading: memoriesLoading } = useVaultMemories();
   const { summary, loading: summaryLoading } = useVaultSummary();
-
-  if (assetsLoading || summaryLoading) {
-    return (
-      <View style={[styles.container, styles.centered, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
-        <ActivityIndicator size="large" color={DesignColors.primary} />
-      </View>
-    );
-  }
-
-  const assetTypes = ['token', 'nft', 'coupon', 'ticket', 'key'] as const;
-  const assetTypeIcons: Record<string, string> = {
-    token: 'cube',
-    nft: 'image',
-    coupon: 'ticket',
-    ticket: 'qr-code',
-    key: 'key',
-  };
-
-  const assetTypeColors: Record<string, string> = {
-    token: DesignColors.primary,
-    nft: DesignColors.purple,
-    coupon: DesignColors.success,
-    ticket: DesignColors.warning,
-    key: DesignColors.secondary,
-  };
+  const { transactions, loading: transactionsLoading } = useVaultTransactions();
+  const { receipts, loading: receiptsLoading } = useCommerceReceipts();
+  const loading = assetsLoading || summaryLoading || memoriesLoading;
+  const assetCount = memories.length + Object.values(summary?.asset_counts || {}).reduce((sum, count) => sum + Number(count || 0), 0);
+  const retainedGemValue = summary?.total_value_usd || 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
-      {/* Header */}
+    <View style={styles.screen}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-          Vault
-        </Text>
-        <Pressable style={styles.settingsButton}>
-          <Ionicons name="settings-outline" size={24} color={DesignColors.primary} />
-        </Pressable>
+        <View><Text style={styles.eyebrow}>WHAT YOU KEEP</Text><Text style={styles.title}>Vault</Text></View>
+        <Pressable accessibilityLabel="Vault settings" style={styles.settings} onPress={() => router.push('/modal')}><Ionicons name="settings-outline" size={20} color={Colors.white} /></Pressable>
       </View>
 
-      {/* Total Value Card */}
-      <LinearGradient
-        colors={[DesignColors.primary, DesignColors.secondary]}
-        style={styles.valueCard}
-      >
-        <Text style={styles.valueLabel}>Total Portfolio Value</Text>
-        <Text style={styles.valueAmount}>
-          ${summary?.total_value_usd?.toLocaleString() || '0.00'}
-        </Text>
-        <View style={styles.valueStats}>
-              {assetTypes.filter(type => (summary?.asset_counts?.[type] ?? 0) > 0).map((type) => (
-            <View key={type} style={styles.valueStat}>
-              <Ionicons 
-                name={assetTypeIcons[type] as any} 
-                size={16} 
-                color={DesignColors.white} 
-              />
-              <Text style={styles.valueStatText}>
-                {summary?.asset_counts?.[type] || 0} {type.charAt(0).toUpperCase() + type.slice(1)}s
-              </Text>
-            </View>
-          ))}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.hero}>
+          <View style={styles.heroGlow} />
+          <View style={styles.heroTop}><View style={styles.lock}><Ionicons name="lock-closed" size={18} color={Colors.primary} /></View><Text style={styles.heroMeta}>PRIVATE BY DEFAULT</Text></View>
+          <Text style={styles.heroLabel}>RETAINED VALUE & MEMORY</Text>
+          <Text style={styles.heroValue}>{assetCount}</Text>
+          <Text style={styles.heroUnit}>memories, access, and value kept from taking part</Text>
+          <View style={styles.heroDivider} />
+          <View style={styles.heroFoot}>
+            <View><Text style={styles.footValue}>{retainedGemValue.toLocaleString()} Gems</Text><Text style={styles.footLabel}>retained platform value</Text></View>
+            <Pressable style={styles.scanButton} onPress={() => router.push('/check-in')}><Ionicons name="qr-code" size={17} color={Colors.black} /><Text style={styles.scanText}>Use access</Text></Pressable>
+          </View>
         </View>
-      </LinearGradient>
 
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <Pressable
-          style={[styles.tab, activeTab === 'assets' && styles.tabActive]}
-          onPress={() => setActiveTab('assets')}
-        >
-          <Text style={[styles.tabText, activeTab === 'assets' && styles.tabTextActive]}>
-            Assets
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[styles.tab, activeTab === 'history' && styles.tabActive]}
-          onPress={() => setActiveTab('history')}
-        >
-          <Text style={[styles.tabText, activeTab === 'history' && styles.tabTextActive]}>
-            History
-          </Text>
-        </Pressable>
-      </View>
+        <View style={styles.tabs}>
+          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>What you keep</Text></Pressable>
+          <Pressable onPress={() => setActiveTab('activity')} style={[styles.tab, activeTab === 'activity' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Activity</Text></Pressable>
+        </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {activeTab === 'assets' && (
+        {loading ? (
+          <View style={styles.state}><ActivityIndicator color={Colors.primary} /><Text style={styles.stateText}>Opening your Vault…</Text></View>
+        ) : activeTab === 'kept' ? (
           <>
-            {/* Asset Type Grid */}
-            <View style={styles.assetTypeGrid}>
-              {assetTypes.map((type) => {
-                const count = summary?.asset_counts?.[type] || 0;
+            <Text style={styles.sectionEyebrow}>COLLECTIONS</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collections}>
+              {(Object.keys(assetMeta) as Array<keyof typeof assetMeta>).map((type) => {
+                const meta = assetMeta[type];
+                const count = type === 'nft' ? memories.length + (summary?.asset_counts?.[type] || 0) : summary?.asset_counts?.[type] || 0;
                 return (
-                  <Pressable
-                    key={type}
-                    style={[styles.assetTypeCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}
-                    onPress={() => router.push(`/vault/${type}`)}
-                  >
-                    <View style={[styles.assetTypeIcon, { backgroundColor: assetTypeColors[type] + '15' }]}>
-                      <Ionicons 
-                        name={assetTypeIcons[type] as any} 
-                        size={24} 
-                        color={assetTypeColors[type]} 
-                      />
-                    </View>
-                    <Text style={[styles.assetTypeName, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}s
-                    </Text>
-                    <Text style={styles.assetTypeCount}>{count}</Text>
-                  </Pressable>
+                  <View key={type} style={styles.collection}>
+                    <View style={[styles.collectionIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon} size={21} color={meta.color} /></View>
+                    <Text style={styles.collectionCount}>{count}</Text><Text style={styles.collectionLabel}>{meta.label}</Text>
+                  </View>
                 );
               })}
-            </View>
+            </ScrollView>
 
-            {/* Asset List */}
-            <Text style={[styles.sectionTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Your Assets
-            </Text>
-            
-            {assets.length === 0 ? (
-              <View style={[styles.emptyState, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
-                <Ionicons name="cube-outline" size={64} color={DesignColors.gray[400]} />
-                <Text style={styles.emptyText}>No assets yet</Text>
-                <Text style={styles.emptySubtext}>
-                  Start earning tokens, coupons, and more by participating in drops and moments!
-                </Text>
+            <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Recently kept</Text><Text style={styles.sectionCount}>{memories.length + assets.length} objects</Text></View>
+            {memories.length === 0 && assets.length === 0 ? (
+              <View style={styles.empty}>
+                <View style={styles.emptyIcon}><Ionicons name="archive-outline" size={29} color={Colors.primary} /></View>
+                <Text style={styles.emptyTitle}>Your first object starts outside.</Text>
+                <Text style={styles.emptyDetail}>Show up, take part, or open something new. The memories, access, and useful value will live here.</Text>
+                <Pressable style={styles.emptyAction} onPress={() => router.push('/discover')}><Text style={styles.emptyActionText}>Find something to do</Text><Ionicons name="arrow-forward" size={16} color={Colors.black} /></Pressable>
               </View>
-            ) : (
-              assets.map((asset) => (
-                <Pressable
-                  key={asset.id}
-                  style={[styles.assetCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}
-                  onPress={() => router.push(`/vault/asset/${asset.id}`)}
-                >
-                  <View style={[styles.assetIcon, { backgroundColor: assetTypeColors[asset.asset_type] + '15' }]}>
-                    <Ionicons 
-                      name={assetTypeIcons[asset.asset_type] as any} 
-                      size={24} 
-                      color={assetTypeColors[asset.asset_type]} 
-                    />
-                  </View>
-                  <View style={styles.assetInfo}>
-                    <Text style={[styles.assetName, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-                      {asset.asset_name}
-                    </Text>
-                    <Text style={styles.assetSymbol}>{asset.asset_symbol}</Text>
-                    {asset.expires_at && (
-                      <Text style={styles.assetExpiry}>
-                        Expires {new Date(asset.expires_at).toLocaleDateString()}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={styles.assetBalance}>
-                    <Text style={styles.assetBalanceValue}>
-                      {asset.balance.toLocaleString()}
-                    </Text>
-                    <Text style={styles.assetBalanceLabel}>{asset.asset_symbol}</Text>
-                  </View>
-                </Pressable>
-              ))
-            )}
-          </>
-        )}
-
-        {activeTab === 'history' && (
-          <>
-            <Text style={[styles.sectionTitle, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-              Transaction History
-            </Text>
-            
-            {transactionsLoading ? (
-              <ActivityIndicator size="large" color={DesignColors.primary} />
-            ) : transactions.length === 0 ? (
-              <View style={[styles.emptyState, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
-                <Ionicons name="time-outline" size={64} color={DesignColors.gray[400]} />
-                <Text style={styles.emptyText}>No transactions yet</Text>
-              </View>
-            ) : (
-              transactions.map((tx) => (
-                <View
-                  key={tx.id}
-                  style={[styles.txCard, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}
-                >
-                  <View style={[styles.txIcon, { 
-                    backgroundColor: tx.amount > 0 ? DesignColors.success + '15' : DesignColors.error + '15' 
-                  }]}>
-                    <Ionicons 
-                      name={tx.amount > 0 ? 'arrow-down' : 'arrow-up'} 
-                      size={20} 
-                      color={tx.amount > 0 ? DesignColors.success : DesignColors.error} 
-                    />
-                  </View>
-                  <View style={styles.txInfo}>
-                    <Text style={[styles.txType, { color: isDark ? DesignColors.white : DesignColors.black }]}>
-                      {tx.transaction_type.charAt(0).toUpperCase() + tx.transaction_type.slice(1)}
-                    </Text>
-                    <Text style={styles.txAsset}>{tx.asset_type}</Text>
-                    <Text style={styles.txDate}>
-                      {new Date(tx.created_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <View style={styles.txAmount}>
-                    <Text style={[
-                      styles.txValue,
-                      { color: tx.amount > 0 ? DesignColors.success : DesignColors.error }
-                    ]}>
-                      {tx.amount > 0 ? '+' : ''}{tx.amount}
-                    </Text>
-                    <Text style={[
-                      styles.txStatus,
-                      { color: tx.status === 'completed' ? DesignColors.success : DesignColors.warning }
-                    ]}>
-                      {tx.status}
-                    </Text>
-                  </View>
+            ) : <>
+              {memories.map((memory) => (
+                <View key={memory.id} style={styles.asset}>
+                  <View style={[styles.assetIcon, { backgroundColor: `${Colors.purple}18` }]}><Ionicons name="images" size={20} color={Colors.purple} /></View>
+                  <View style={styles.assetCopy}><Text style={styles.assetType}>{memory.rarity.toUpperCase()} MEMORY</Text><Text style={styles.assetName}>{memory.title}</Text><Text style={styles.assetDetail}>{memory.moments?.location ? `${memory.moments.location} · ` : ''}Kept from being part of it</Text></View>
+                  <View style={styles.assetValue}><Text style={styles.assetAmount}>{memory.legacy_score || 1}</Text><Text style={styles.assetSymbol}>PROOF</Text></View>
                 </View>
-              ))
-            )}
+              ))}
+              {assets.map((asset) => {
+              const meta = assetMeta[asset.asset_type];
+              return (
+                <View key={asset.id} style={styles.asset}>
+                  <View style={[styles.assetIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon} size={20} color={meta.color} /></View>
+                  <View style={styles.assetCopy}><Text style={styles.assetType}>{meta.label.toUpperCase()}</Text><Text style={styles.assetName}>{asset.asset_name}</Text><Text style={styles.assetDetail}>{asset.expires_at ? `Available until ${new Date(asset.expires_at).toLocaleDateString()}` : 'Opened by taking part'}</Text></View>
+                  <View style={styles.assetValue}><Text style={styles.assetAmount}>{asset.balance.toLocaleString()}</Text><Text style={styles.assetSymbol}>{asset.asset_symbol}</Text></View>
+                </View>
+              );
+            })}
+            </>}
+          </>
+        ) : (
+          <>
+            <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Vault activity</Text><Ionicons name="pulse" size={18} color={Colors.primary} /></View>
+            {(transactionsLoading || receiptsLoading) ? <View style={styles.state}><ActivityIndicator color={Colors.primary} /></View> : transactions.length === 0 && receipts.length === 0 ? (
+              <View style={styles.empty}><Text style={styles.emptyTitle}>No activity yet.</Text><Text style={styles.emptyDetail}>Unlocks, redemptions, and transfers will leave a clear receipt here.</Text></View>
+            ) : <>{receipts.map((receipt) => {
+              const meta = receiptPresentation(receipt);
+              return (
+                <Pressable key={receipt.id} style={styles.activity} onPress={() => router.push(`/receipts/${receipt.id}` as any)}>
+                  <View style={[styles.activityIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon as any} size={18} color={meta.color} /></View>
+                  <View style={styles.activityCopy}><Text style={styles.activityTitle}>{meta.title}</Text><Text style={styles.activityDate}>{new Date(receipt.occurred_at).toLocaleDateString()} · {meta.status}</Text></View>
+                  <Text style={styles.activityAmount} numberOfLines={1}>{meta.value}</Text>
+                </Pressable>
+              );
+            })}{transactions.map((transaction) => {
+              const incoming = transaction.amount > 0;
+              return (
+                <View key={transaction.id} style={styles.activity}>
+                  <View style={[styles.activityIcon, { backgroundColor: incoming ? 'rgba(103,197,135,.12)' : Colors.ambientWash }]}><Ionicons name={incoming ? 'arrow-down' : 'arrow-up'} size={18} color={incoming ? Colors.success : Colors.primary} /></View>
+                  <View style={styles.activityCopy}><Text style={styles.activityTitle}>{transaction.transaction_type.replace('_', ' ')}</Text><Text style={styles.activityDate}>{new Date(transaction.created_at).toLocaleDateString()} · {transaction.status}</Text></View>
+                  <Text style={[styles.activityAmount, { color: incoming ? Colors.success : Colors.white }]}>{incoming ? '+' : ''}{transaction.amount}</Text>
+                </View>
+              );
+            })}</>}
           </>
         )}
-
-        <View style={{ height: 100 }} />
+        <View style={{ height: 110 }} />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.container,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: Spacing.md,
-    backgroundColor: 'transparent',
-  },
-  headerTitle: {
-    fontSize: Typography.sizes['2xl'],
-    fontWeight: 'bold',
-  },
-  settingsButton: {
-    padding: Spacing.sm,
-  },
-  valueCard: {
-    marginHorizontal: Spacing.container,
-    borderRadius: BorderRadius['2xl'],
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-  },
-  valueLabel: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: 1,
-  },
-  valueAmount: {
-    fontSize: Typography.sizes['3xl'],
-    fontWeight: 'bold',
-    color: DesignColors.white,
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.md,
-  },
-  valueStats: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-    backgroundColor: 'transparent',
-  },
-  valueStat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'transparent',
-  },
-  valueStatText: {
-    fontSize: Typography.sizes.xs,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.container,
-    gap: Spacing.md,
-    marginBottom: Spacing.md,
-    backgroundColor: 'transparent',
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    alignItems: 'center',
-  },
-  tabActive: {
-    backgroundColor: DesignColors.primary,
-  },
-  tabText: {
-    fontSize: Typography.sizes.sm,
-    fontWeight: '600',
-    color: DesignColors.gray[600],
-  },
-  tabTextActive: {
-    color: DesignColors.white,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: Spacing.container,
-  },
-  assetTypeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
-    backgroundColor: 'transparent',
-  },
-  assetTypeCard: {
-    width: '30%',
-    aspectRatio: 1,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  assetTypeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.sm,
-  },
-  assetTypeName: {
-    fontSize: Typography.sizes.xs,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  assetTypeCount: {
-    fontSize: Typography.sizes.sm,
-    color: DesignColors.gray[500],
-  },
-  sectionTitle: {
-    fontSize: Typography.sizes.xl,
-    fontWeight: 'bold',
-    marginBottom: Spacing.md,
-  },
-  emptyState: {
-    padding: Spacing.xl,
-    borderRadius: BorderRadius.xl,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: Typography.sizes.base,
-    fontWeight: '600',
-    color: DesignColors.gray[500],
-    marginTop: Spacing.md,
-  },
-  emptySubtext: {
-    fontSize: Typography.sizes.sm,
-    color: DesignColors.gray[400],
-    marginTop: Spacing.xs,
-    textAlign: 'center',
-  },
-  assetCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.xl,
-    marginBottom: Spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  assetIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  assetInfo: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  assetName: {
-    fontSize: Typography.sizes.base,
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
-  assetSymbol: {
-    fontSize: Typography.sizes.xs,
-    color: DesignColors.gray[500],
-  },
-  assetExpiry: {
-    fontSize: Typography.sizes.xs,
-    color: DesignColors.warning,
-    marginTop: 2,
-  },
-  assetBalance: {
-    alignItems: 'flex-end',
-    backgroundColor: 'transparent',
-  },
-  assetBalanceValue: {
-    fontSize: Typography.sizes.lg,
-    fontWeight: 'bold',
-    color: DesignColors.primary,
-  },
-  assetBalanceLabel: {
-    fontSize: Typography.sizes.xs,
-    color: DesignColors.gray[500],
-  },
-  txCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.xl,
-    marginBottom: Spacing.sm,
-  },
-  txIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  txInfo: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  txType: {
-    fontSize: Typography.sizes.base,
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
-  txAsset: {
-    fontSize: Typography.sizes.xs,
-    color: DesignColors.gray[500],
-    textTransform: 'capitalize',
-  },
-  txDate: {
-    fontSize: Typography.sizes.xs,
-    color: DesignColors.gray[400],
-    marginTop: 2,
-  },
-  txAmount: {
-    alignItems: 'flex-end',
-    backgroundColor: 'transparent',
-  },
-  txValue: {
-    fontSize: Typography.sizes.base,
-    fontWeight: 'bold',
-  },
-  txStatus: {
-    fontSize: Typography.sizes.xs,
-    textTransform: 'capitalize',
-    marginTop: 2,
-  },
+  screen: { flex: 1, backgroundColor: Colors.black },
+  header: { paddingTop: 18, paddingHorizontal: Spacing.container, paddingBottom: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.black },
+  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.1 },
+  title: { color: Colors.white, fontSize: Typography.sizes['3xl'], fontWeight: '800', letterSpacing: -1, marginTop: 3 },
+  settings: { width: 41, height: 41, borderRadius: 21, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  content: { paddingHorizontal: Spacing.container },
+  hero: { overflow: 'hidden', padding: 20, borderRadius: BorderRadius['2xl'], backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  heroGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, right: -70, top: -90, backgroundColor: 'rgba(255,106,26,.13)' },
+  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
+  lock: { width: 36, height: 36, borderRadius: 13, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center' },
+  heroMeta: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .7 },
+  heroLabel: { color: Colors.gray[400], fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .8, marginTop: 25 },
+  heroValue: { color: Colors.white, fontSize: 43, lineHeight: 48, fontWeight: '800', letterSpacing: -1.5, marginTop: 3 },
+  heroUnit: { color: Colors.gray[400], fontSize: 12 },
+  heroDivider: { height: StyleSheet.hairlineWidth, backgroundColor: Colors.border, marginVertical: 17 },
+  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
+  footValue: { color: Colors.white, fontSize: 17, fontWeight: '800' },
+  footLabel: { color: Colors.gray[500], fontSize: 10, marginTop: 2 },
+  scanButton: { flexDirection: 'row', gap: 7, alignItems: 'center', paddingHorizontal: 13, paddingVertical: 10, borderRadius: 18, backgroundColor: Colors.primary },
+  scanText: { color: Colors.black, fontSize: 11, fontWeight: '800' },
+  tabs: { flexDirection: 'row', marginVertical: 18, padding: 4, borderRadius: 16, backgroundColor: Colors.gray[900] },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 13, backgroundColor: 'transparent' },
+  tabActive: { backgroundColor: Colors.gray[700] },
+  tabText: { color: Colors.gray[500], fontSize: 12, fontWeight: '700' },
+  tabTextActive: { color: Colors.white },
+  sectionEyebrow: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1, marginBottom: 10 },
+  collections: { gap: 9, paddingBottom: 24 },
+  collection: { width: 104, padding: 13, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  collectionIcon: { width: 37, height: 37, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  collectionCount: { color: Colors.white, fontSize: 19, fontWeight: '800', marginTop: 14 },
+  collectionLabel: { color: Colors.gray[500], fontSize: 10, marginTop: 2 },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11, backgroundColor: 'transparent' },
+  sectionTitle: { color: Colors.white, fontSize: 17, fontWeight: '800' },
+  sectionCount: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 9 },
+  empty: { padding: 25, borderRadius: BorderRadius.xl, alignItems: 'center', backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  emptyIcon: { width: 56, height: 56, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.ambientWash },
+  emptyTitle: { color: Colors.white, fontSize: 17, fontWeight: '800', textAlign: 'center', marginTop: 14 },
+  emptyDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 18, textAlign: 'center', marginTop: 6, maxWidth: 285 },
+  emptyAction: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 18, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 20, backgroundColor: Colors.primary },
+  emptyActionText: { color: Colors.black, fontSize: 11, fontWeight: '800' },
+  asset: { flexDirection: 'row', alignItems: 'center', padding: 14, marginBottom: 9, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  assetIcon: { width: 43, height: 43, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 11 },
+  assetCopy: { flex: 1, backgroundColor: 'transparent' },
+  assetType: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 8, letterSpacing: .6 },
+  assetName: { color: Colors.white, fontSize: 13, fontWeight: '700', marginTop: 3 },
+  assetDetail: { color: Colors.gray[500], fontSize: 9, marginTop: 3 },
+  assetValue: { alignItems: 'flex-end', backgroundColor: 'transparent' },
+  assetAmount: { color: Colors.white, fontSize: 15, fontWeight: '800' },
+  assetSymbol: { color: Colors.gray[500], fontSize: 9, marginTop: 2 },
+  activity: { flexDirection: 'row', alignItems: 'center', padding: 14, marginBottom: 9, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  activityIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 11 },
+  activityCopy: { flex: 1, backgroundColor: 'transparent' },
+  activityTitle: { color: Colors.white, fontSize: 13, fontWeight: '700', textTransform: 'capitalize' },
+  activityDate: { color: Colors.gray[500], fontSize: 9, marginTop: 3, textTransform: 'capitalize' },
+  activityAmount: { fontSize: 14, fontWeight: '800' },
+  state: { minHeight: 260, alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'transparent' },
+  stateText: { color: Colors.gray[500], fontSize: 12 },
 });

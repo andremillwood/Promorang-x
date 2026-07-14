@@ -75,9 +75,9 @@ const concepts: Record<ConceptKey, {
     eyebrow: "How it works",
     title: "Promorang turns real moments into useful value.",
     description:
-      "Start with something real: a moment people can join, host, sponsor, or document. Promorang then helps that activity become easier to prove, remember, reward, and repeat.",
+      "Start with something real: a Moment people can join, host, sponsor, or document. Promorang then helps that activity become easier to recognize, remember, reward, and repeat.",
     stake:
-      "Different people need different answers. Participants want to know what they can join or earn. Hosts want better attendance and follow-up. Brands want proof their spend created real activity. Creators want their content connected to something people can act on.",
+      "Different people need different answers. Participants want to know what they can join or earn. Hosts want better attendance and follow-up. Brands want return from real activity. Creators want their content connected to something people can act on.",
     icon: Compass,
     primaryCta: "Find moments",
     primaryHref: "/explore/moments",
@@ -85,7 +85,7 @@ const concepts: Record<ConceptKey, {
     secondaryHref: "/create/moment",
     proof: [
       { label: "What starts it", value: "A moment", helper: "Something real to attend, host, sponsor, create, or document." },
-      { label: "What proves it", value: "A Mark", helper: "A record that someone showed up or contributed." },
+      { label: "What counts it", value: "A Mark", helper: "A record that someone showed up or contributed." },
       { label: "What follows", value: "Value", helper: "Access, rewards, content, memory, and stronger reasons to return." },
     ],
     roles: [
@@ -108,7 +108,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Brands",
         why: "You need sponsorship to produce real activity, not just impressions.",
-        outcome: "Promorang connects spend to attendance, content, rewards, and proof people acted.",
+        outcome: "Promorang connects spend to attendance, content, Gems, rewards, and counted action.",
         action: "Explore brand use",
         href: "/for-brands",
         icon: Building2,
@@ -190,12 +190,12 @@ const concepts: Record<ConceptKey, {
     closing: "Moments matter because they keep value tied to something that actually happened.",
   },
   points: {
-    eyebrow: "Marks and Points",
-    title: "Marks and Points show that participation happened.",
+    eyebrow: "Marks, Gems, and earned value",
+    title: "Marks show what happened. Gems move platform value.",
     description:
-      "Marks record that someone showed up or contributed. Points help show useful activity before it becomes access, rewards, or a better record.",
+      "Marks record that someone showed up or contributed. Gems carry paid platform value where funding, access, rewards, or payouts are involved.",
     stake:
-      "Participants need proof their effort counts. Hosts and brands need a way to distinguish real movement from empty attention. Marks and Points create the first readable layer.",
+      "Participants need their effort to count. Hosts and brands need a way to distinguish real movement from empty attention. Marks and Gems create the first readable value layer.",
     icon: Coins,
     primaryCta: "Find ways to earn",
     primaryHref: "/explore/moments",
@@ -203,14 +203,14 @@ const concepts: Record<ConceptKey, {
     secondaryHref: "/activity",
     proof: [
       { label: "For participants", value: "Progress", helper: "Your activity becomes visible and easier to build on." },
-      { label: "For hosts", value: "Proof", helper: "Attendance and contribution become more useful than a headcount." },
+      { label: "For hosts", value: "Signal", helper: "Attendance and contribution become more useful than a headcount." },
       { label: "For brands", value: "Signal", helper: "Rewards can follow verified behavior instead of broad guessing." },
     ],
     roles: [
       {
         role: "Participants",
         why: "You need your real activity to count somewhere.",
-        outcome: "Marks and Points help your attendance, reviews, content, and contribution become part of your record.",
+        outcome: "Marks, Gems, and receipts help your attendance, reviews, content, and contribution become part of your record.",
         action: "Join a moment",
         href: "/explore/moments",
         icon: Users,
@@ -218,7 +218,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Hosts and venues",
         why: "You need to know who actually showed up and helped the room.",
-        outcome: "Marks and Points help separate actual participation from passive interest.",
+        outcome: "Marks and Gems help separate actual participation from passive interest and funded value.",
         action: "Track participation",
         href: "/create/moment",
         icon: MapPin,
@@ -226,15 +226,15 @@ const concepts: Record<ConceptKey, {
       {
         role: "Brands",
         why: "You need a better basis for offers, perks, and sponsored rewards.",
-        outcome: "Points give campaigns a way to reward verified participation instead of guessing who cared.",
-        action: "Design a campaign",
+        outcome: "Gems give activations a way to fund counted participation instead of guessing who cared.",
+        action: "Design an activation",
         href: "/for-brands",
         icon: Building2,
       },
       {
         role: "Creators",
         why: "You need your audience actions to connect to something measurable.",
-        outcome: "Marks and Points help creator-led participation turn into proof, reward access, and future invitations.",
+        outcome: "Marks and Gems help creator-led participation turn into value, reward access, and future invitations.",
         action: "Create a mission",
         href: "/for-creators",
         icon: PlayCircle,
@@ -243,10 +243,10 @@ const concepts: Record<ConceptKey, {
     steps: [
       { label: "01", title: "Attend", text: "A participant joins a moment, place, mission, or offer." },
       { label: "02", title: "Mark", text: "Promorang records a verified action tied to that real context." },
-      { label: "03", title: "Progress", text: "Points help activity become access, rewards, future invitations, or a stronger record." },
+      { label: "03", title: "Progress", text: "Gems and receipts help activity become access, rewards, future invitations, or a stronger record." },
     ],
     receipts: ["Marks", "Check-ins", "Reviews", "Photos", "Referrals", "Progression"],
-    closing: "Marks and Points matter because nobody should have to guess what participation happened.",
+    closing: "Marks and Gems matter because nobody should have to guess what participation happened or what value moved.",
   },
   keys: {
     eyebrow: "Access",
@@ -368,18 +368,18 @@ const concepts: Record<ConceptKey, {
   },
   content: {
     eyebrow: "Content",
-    title: "Content should prove and extend the moment, not float away from it.",
+    title: "Content should remember and extend the Moment, not float away from it.",
     description:
       "Photos, recaps, creator missions, reviews, and media can help people understand what happened, who showed up, and why a moment is worth joining next time.",
     stake:
-      "Content gives the platform social proof, memory, and distribution. The difference is that it should point back into real moments instead of becoming disconnected media.",
+      "Content gives the platform memory, desire, social signal, and distribution. The difference is that it should point back into real Moments instead of becoming disconnected media.",
     icon: FileText,
     primaryCta: "Browse content",
     primaryHref: "/explore/content",
     secondaryCta: "Create a moment",
     secondaryHref: "/create/moment",
     proof: [
-      { label: "For participants", value: "Proof", helper: "Content helps your contribution become visible." },
+      { label: "For participants", value: "Visibility", helper: "Content helps your contribution become visible." },
       { label: "For hosts", value: "Memory", helper: "A moment can keep working after the room clears." },
       { label: "For brands", value: "Evidence", helper: "Campaign value is easier to understand when content points to participation." },
     ],
@@ -394,7 +394,7 @@ const concepts: Record<ConceptKey, {
       },
       {
         role: "Hosts and venues",
-        why: "Your best moments need proof people can revisit.",
+        why: "Your best Moments need memory people can revisit.",
         outcome: "Content helps future guests, sponsors, and communities understand why the room mattered.",
         action: "Create a content-ready moment",
         href: "/create/moment",
@@ -402,7 +402,7 @@ const concepts: Record<ConceptKey, {
       },
       {
         role: "Brands",
-        why: "You need proof that a campaign became lived behavior.",
+        why: "You need to know whether an activation became lived behavior.",
         outcome: "Content creates evidence that funded value reached people in a real context.",
         action: "Fund content loops",
         href: "/for-brands",
@@ -411,7 +411,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Creators",
         why: "Your media can do more when it connects to action.",
-        outcome: "Creator content can become the bridge between discovery, attendance, proof, and repeat movement.",
+        outcome: "Creator content can become the bridge between discovery, attendance, contribution, and repeat movement.",
         action: "Build creator missions",
         href: "/for-creators",
         icon: PlayCircle,
@@ -422,7 +422,7 @@ const concepts: Record<ConceptKey, {
       { label: "02", title: "Connect", text: "The media points back to moments, places, creators, brands, or communities." },
       { label: "03", title: "Convert", text: "Content helps others decide to join, trust, fund, or return." },
     ],
-    receipts: ["Photos", "Recaps", "Reviews", "Creator missions", "Public proof", "Discovery archives"],
+    receipts: ["Photos", "Recaps", "Reviews", "Creator missions", "Public memory", "Discovery archives"],
     closing: "Content matters when it helps people understand what actually happened and what to do next.",
   },
   "promoshare-gems": {

@@ -6,6 +6,9 @@ import { StyleSheet, Platform } from 'react-native';
 
 import { Colors as DesignColors } from '@/constants/DesignTokens';
 import { useColorScheme } from '@/components/useColorScheme';
+import { AppHeader } from '@/components/AppHeader';
+import { STAKEHOLDER_EXPERIENCES, isStakeholderRole } from '@/constants/StakeholderExperience';
+import { useAuth } from '@/context/AuthContext';
 
 /**
  * Premium Tab Bar Icon using Ionicons
@@ -20,13 +23,17 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { activeRole } = useAuth();
+  const role = isStakeholderRole(activeRole) ? activeRole : 'participant';
+  const experience = STAKEHOLDER_EXPERIENCES[role];
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: DesignColors.primary,
-        tabBarInactiveTintColor: isDark ? DesignColors.gray[600] : DesignColors.gray[400],
+        tabBarInactiveTintColor: DesignColors.gray[500],
         headerShown: true,
+        header: () => <AppHeader />,
         headerStyle: {
           backgroundColor: isDark ? DesignColors.black : DesignColors.white,
           borderBottomWidth: 0,
@@ -40,17 +47,19 @@ export default function TabLayout() {
           color: isDark ? DesignColors.white : DesignColors.black,
         },
         tabBarStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: DesignColors.darkGlass,
           position: 'absolute',
-          borderTopWidth: 0,
           elevation: 0,
-          height: 85,
-          paddingBottom: 25,
+          height: 78,
+          paddingBottom: 18,
+          paddingTop: 8,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: DesignColors.border,
         },
         tabBarBackground: () => (
           <BlurView
-            intensity={isDark ? 80 : 100}
-            tint={isDark ? 'dark' : 'light'}
+            intensity={90}
+            tint="dark"
             style={StyleSheet.absoluteFill}
           />
         ),
@@ -60,86 +69,70 @@ export default function TabLayout() {
         options={{
           title: 'Today',
           headerTitle: 'Today',
-          tabBarIcon: ({ color }) => <TabBarIcon name="calendar-clear" color={color} />,
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="today" color={color} />,
         }}
       />
       <Tabs.Screen
         name="discover"
         options={{
           title: 'Discover',
-          headerTitle: 'Explore Moments',
+          headerTitle: 'Discover',
+          tabBarAccessibilityLabel: `${experience.tabs.discover}: discover what is worth joining, watching, supporting, or creating`,
           tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
-          title: 'Shop',
-          headerTitle: 'Marketplace',
-          tabBarIcon: ({ color }) => <TabBarIcon name="storefront" color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="propose"
         options={{
-          title: 'Propose',
-          headerTitle: 'Get Funded',
-          tabBarIcon: ({ color }) => <TabBarIcon name="sparkles" color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="post"
         options={{
-          title: 'Post',
-          headerTitle: 'Share Moment',
-          tabBarIcon: ({ color }) => (
-            <Ionicons
-              name="add-circle"
-              size={48}
-              color={DesignColors.primary}
-              style={{ marginTop: -10 }}
-            />
+          title: 'Create',
+          headerTitle: 'Create',
+          tabBarAccessibilityLabel: `${experience.tabs.create}: create or capture the next useful move`,
+          tabBarIcon: () => (
+            <Ionicons name="add-circle" size={34} color={DesignColors.primary} />
           ),
-          tabBarLabel: () => null,
         }}
       />
       <Tabs.Screen
         name="rewards"
         options={{
-          title: 'Rewards',
-          headerTitle: 'My Perks',
-          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Dashboard',
-          headerTitle: 'My Canon',
-          tabBarIcon: ({ color }) => <TabBarIcon name="stats-chart" color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="promoshare"
         options={{
-          title: 'Win',
-          headerTitle: 'PromoShare',
-          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} />,
+          title: 'Progress',
+          headerTitle: 'Progress',
+          tabBarAccessibilityLabel: `${experience.tabs.grow}: see what happened because of you`,
+          tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
         }}
       />
       <Tabs.Screen
         name="vault"
         options={{
           title: 'Vault',
-          headerTitle: 'My Vault',
-          tabBarIcon: ({ color }) => <TabBarIcon name="cube" color={color} />,
-        }}
-      />
-      {/* Hiding legacy tabs */}
-      <Tabs.Screen
-        name="two"
-        options={{
-          href: null,
+          headerTitle: 'Vault',
+          tabBarAccessibilityLabel: `${experience.tabs.vault}: proof, rewards, earnings, access, memories, and assets kept`,
+          tabBarIcon: ({ color }) => <TabBarIcon name="archive" color={color} />,
         }}
       />
     </Tabs>

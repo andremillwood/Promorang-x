@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { MediaUploadDialog } from "@/components/participant/MediaUploadDialog";
 import { ReviewDialog } from '@/components/participant/ReviewDialog';
 import { useMomentMedia, useMomentReviews } from '@/hooks/useUGC';
+import { useMomentConversation } from "@/hooks/useMomentConversation";
 import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { demoMoments } from "@/data/demo-moments";
@@ -28,6 +29,9 @@ import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
 import { MomentSocialArtifact } from "@/components/social/MomentSocialArtifact";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
+import { PoweredParticipation } from "@/components/moments/PoweredParticipation";
+import { SceneReturn } from "@/components/moments/SceneReturn";
+import { MomentAccess } from "@/components/moments/MomentAccess";
 import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
 import { MissionRail } from "@/components/missions/MissionRail";
 import {
@@ -107,7 +111,7 @@ type ProofRequirement = {
 
 type MomentEconomy = {
   economics: {
-    money_source: "entry" | "host" | "event" | "hybrid";
+    money_source: "entry" | "host" | "event" | "platform" | "content" | "hybrid";
     entry_fee_jmd: number | null;
     total_funded_jmd: number;
     reward_pool_jmd: number;
@@ -132,11 +136,11 @@ type MomentEconomy = {
   }>;
 };
 
+type MomentMoneySource = NonNullable<MomentEconomy["economics"]>["money_source"];
+
 type PaymentIntentLike = {
   id?: string;
 };
-
-type CommentThread = Parameters<typeof CommentSection>[0]["comments"];
 
 const MomentDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -169,6 +173,7 @@ const MomentDetail = () => {
   const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment?.venue_category);
   const conversionLabel = getTaxonomyLabel(conversionTypes, moment?.conversion_type);
   const resolvedMomentId = !isDemo ? moment?.id || null : null;
+  const momentConversation = useMomentConversation(resolvedMomentId, user?.id);
   const promoPushCampaignId = searchParams.get("campaign");
   const promoPushChannelCode = searchParams.get("channel");
   const promoPushChannelId = searchParams.get("channelId");
@@ -437,6 +442,7 @@ const MomentDetail = () => {
         promopush_campaign_id: promoPushCampaignId,
         promopush_channel_id: promoPushChannelId,
         promopush_tracking_code: promoPushChannelCode,
+        invited_by_user_id: searchParams.get("invitedBy"),
       }),
     });
     const payload = await response.json();
@@ -641,9 +647,36 @@ const MomentDetail = () => {
     0,
     Number(economy?.economics?.reward_pool_jmd || 0) - Number(economy?.economics?.total_funded_jmd || 0)
   );
-  const moneySourceLabel = economy?.economics?.money_source
-    ? `${economy.economics.money_source.charAt(0).toUpperCase()}${economy.economics.money_source.slice(1)} funded`
-    : "Economy pending";
+  const moneySourceCopy: Record<MomentMoneySource, { label: string; description: string }> = {
+    entry: {
+      label: "Entry funded",
+      description: "Participant entry payments build the reward pool.",
+    },
+    host: {
+      label: "Host funded",
+      description: "The host funds the rewards before payouts unlock.",
+    },
+    event: {
+      label: "Event funded",
+      description: "An event, sponsor, or venue budget funds this reward pool.",
+    },
+    platform: {
+      label: "Promorang-backed",
+      description: "Promorang can allocate rewards from subscriptions, sponsorships, fees, and other platform revenue when this Moment performs or qualifies.",
+    },
+    content: {
+      label: "Content-backed",
+      description: "Rewards are tied to creator/content performance, story engagement, missions, or content-to-attendance results.",
+    },
+    hybrid: {
+      label: "Mixed funding",
+      description: "This pool can combine host, entry, sponsor, platform, or content-backed funding.",
+    },
+  };
+  const moneySource = economy?.economics?.money_source || null;
+  const moneySourceLabel = moneySource ? moneySourceCopy[moneySource]?.label || "Economy pending" : "Economy pending";
+  const moneySourceDescription = moneySource ? moneySourceCopy[moneySource]?.description : null;
+  const isPlatformAllocatedSource = moneySource === "platform" || moneySource === "content";
 
   const isPast = moment ? new Date(moment.starts_at) < new Date() : false;
   const cooldownActive = Boolean(
@@ -675,9 +708,6 @@ const MomentDetail = () => {
     ...(Array.isArray(moment?.gallery_images) ? moment.gallery_images : []),
     ...(momentMedia?.map(m => ({ url: m.media_url, alt: m.caption || "", caption: m.caption })) || []),
   ];
-
-  // Mock comments for now
-  const mockComments: CommentThread = [];
 
   if (loading) {
     return (
@@ -821,6 +851,21 @@ const MomentDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-8">
+            <PoweredParticipation
+              momentId={moment.id}
+              momentTitle={moment.title}
+              venueName={moment.venue_name}
+              reward={moment.reward}
+              moneySource={economy?.economics?.money_source}
+              hasLinkedContent={Boolean(searchParams.get("contentId") || searchParams.get("missionId"))}
+              missionId={searchParams.get("missionId")}
+              isHost={Boolean(isHost)}
+            />
+            <SceneReturn
+              sceneName={moment.category ? `${moment.category.charAt(0).toUpperCase()}${moment.category.slice(1)} Scene` : null}
+              venueName={moment.venue_name}
+            />
+            <MomentAccess momentId={moment.id} />
             {!isDemo && moment?.id ? (
               <MissionRail
                 momentId={moment.id}
@@ -1329,8 +1374,20 @@ const MomentDetail = () => {
                   <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Source</p>
                     <p className="mt-2 font-semibold text-foreground">{moneySourceLabel}</p>
+                    {moneySourceDescription && (
+                      <p className="mt-1 text-xs text-muted-foreground">{moneySourceDescription}</p>
+                    )}
                   </div>
                 </div>
+
+                {isPlatformAllocatedSource && economy.economics.funding_status !== "locked" && (
+                  <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                    <p className="font-semibold text-foreground">Reward allocation pending</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      This Moment is eligible for Promorang-backed reward allocation, but cash payouts only run after the pool is approved, funded, and locked.
+                    </p>
+                  </div>
+                )}
 
                 {economy.moves.length > 0 && (
                   <div className="mt-6">
@@ -1370,7 +1427,7 @@ const MomentDetail = () => {
                   </div>
                 )}
 
-                {isHost && fundingGapJmd > 0 && (
+                {isHost && fundingGapJmd > 0 && !isPlatformAllocatedSource && (
                   <div className="mt-6 rounded-2xl border border-border bg-background/80 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
@@ -1618,35 +1675,37 @@ const MomentDetail = () => {
               </div>
             )}
 
-            {/* Reactions & Progress Integrity */}
-            {(!isJoined || isCheckedIn || isPast) ? (
-              <>
-                <div className="border-t border-b border-border py-4">
-                  <ReactionBar entityType="moment" entityId={moment.id} size="md" />
-                </div>
+            {/* Reactions and conversation stay attached to this Moment before, during, and after it. */}
+            <div className="border-t border-b border-border py-4">
+              <ReactionBar
+                entityType="moment"
+                entityId={moment.id}
+                size="md"
+                canInteract={Boolean(isJoined || isHost)}
+                disabledReason="Join this Moment before reacting so the signal comes from the room."
+              />
+            </div>
 
-                <div>
-                  <h3 className="mb-4 flex items-center justify-between text-2xl font-black tracking-[-0.04em]">
-                    <div className="flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5 text-primary" />
-                        The Moment Wall
-                    </div>
-                    <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 text-primary border-primary/20">Live Feed</Badge>
-                  </h3>
-                  <CommentSection
-                    momentId={moment.id}
-                    comments={mockComments}
-                    currentUserId={user?.id}
-                  />
+            <div>
+              <h3 className="mb-4 flex items-center justify-between text-2xl font-black tracking-[-0.04em]">
+                <div className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    The Moment Wall
                 </div>
-              </>
-            ) : (
-              <div className="py-4 text-center border-t border-b border-border/50 bg-secondary/10 rounded-xl">
-                <p className="text-sm text-muted-foreground italic">
-                  Complete your check-in to unlock Scene activity.
-                </p>
-              </div>
-            )}
+                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 text-primary border-primary/20">Live Feed</Badge>
+              </h3>
+              <CommentSection
+                momentId={moment.id}
+                comments={momentConversation.comments}
+                currentUserId={user?.id}
+                onAddComment={momentConversation.addComment}
+                onDeleteComment={momentConversation.deleteComment}
+                isLoading={momentConversation.isLoading}
+                errorMessage={momentConversation.error ? "The Moment Wall is temporarily unavailable." : undefined}
+                canInteract={Boolean(isJoined || isHost)}
+                disabledReason="Join this Moment to post or reply."
+              />
+            </div>
 
             {/* Reviews Section - New Comprehensive Sentiment */}
             <MomentReviewsList 
@@ -1696,7 +1755,12 @@ const MomentDetail = () => {
           <div className="hidden lg:block">
             <div className="sticky top-24 space-y-6">
               {/* Squad Engine */}
-              <SquadJoinCard momentId={moment.id} momentTitle={moment.title} />
+              <SquadJoinCard
+                momentId={moment.id}
+                momentTitle={moment.title}
+                inviterId={user?.id}
+                participantCount={participantCount}
+              />
 
               {/* Join Card */}
               <div className="bg-card border border-border rounded-2xl p-6 shadow-card">

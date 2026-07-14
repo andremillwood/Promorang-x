@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import {
   Calendar,
   CheckCircle2,
@@ -9,6 +10,7 @@ import {
   Landmark,
   Loader2,
   MessageSquare,
+  Pencil,
   Scale,
   ShieldCheck,
   Sparkles,
@@ -132,7 +134,7 @@ function statusTone(status?: string | null) {
 export function AdminModerationTab() {
   const { session } = useAuth();
   const { toast } = useToast();
-  const { data: moderationOverview, isLoading: isModerationLoading } = useModerationOverview();
+  const { data: moderationOverview, isLoading: isModerationLoading, refetch: refetchModerationOverview } = useModerationOverview();
 
   const [kycRequests, setKycRequests] = useState<KYCRequest[]>([]);
   const [proofs, setProofs] = useState<ProofSubmission[]>([]);
@@ -260,6 +262,41 @@ export function AdminModerationTab() {
       toast({
         title: "Review failed",
         description: error.message || "Could not review proof submission",
+        variant: "destructive",
+      });
+    } finally {
+      setIsActioning(null);
+    }
+  }
+
+  async function handleContentAction(item: { id: string; type: "media" | "review" }, status: "approved" | "rejected" | "pending") {
+    const actionKey = `${item.type}-${item.id}`;
+    setIsActioning(actionKey);
+    try {
+      const reason = status === "rejected" ? prompt("Reason for rejection:") : null;
+      if (status === "rejected" && !reason) return;
+
+      const response = await fetch(`${API_URL}/api/admin/moderation/content/${item.type}/${item.id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ status, reason }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.success === false) {
+        throw new Error(payload?.error || "Failed to moderate content");
+      }
+
+      toast({
+        title: status === "approved" ? "Content approved" : status === "rejected" ? "Content rejected" : "Content returned to pending",
+        description: status === "approved" ? "This item can appear publicly where approved content is shown." : reason || undefined,
+      });
+      await refetchModerationOverview();
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        title: "Content moderation failed",
+        description: error.message || "Could not update this content item",
         variant: "destructive",
       });
     } finally {
@@ -413,6 +450,20 @@ export function AdminModerationTab() {
                         ? `${moment.metrics.content_rejected} rejected content items need follow-through for this moment.`
                         : "No rejected content on record for this moment."}
                     </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild variant="outline" size="sm">
+                        <Link to={`/moments/${moment.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Moment
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm">
+                        <Link to={`/moments/${moment.id}/edit`}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit Moment
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -458,8 +509,49 @@ export function AdminModerationTab() {
                         <span className="text-sm text-muted-foreground">{item.user.name}</span>
                       </div>
                     </div>
-                    <div className="shrink-0 text-sm text-muted-foreground">
-                      {format(new Date(item.created_at), "MMM d, h:mm a")}
+                    <div className="shrink-0 space-y-3 text-sm text-muted-foreground">
+                      <p>{format(new Date(item.created_at), "MMM d, h:mm a")}</p>
+                      <div className="flex flex-wrap gap-2 lg:justify-end">
+                        {item.media_url && (
+                          <Button asChild variant="outline" size="sm">
+                            <a href={item.media_url} target="_blank" rel="noreferrer">
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </a>
+                          </Button>
+                        )}
+                        {item.moderation_status !== "approved" && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleContentAction(item, "approved")}
+                            disabled={isActioning === `${item.type}-${item.id}`}
+                          >
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            Approve
+                          </Button>
+                        )}
+                        {item.moderation_status !== "rejected" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleContentAction(item, "rejected")}
+                            disabled={isActioning === `${item.type}-${item.id}`}
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Reject
+                          </Button>
+                        )}
+                        {item.moderation_status !== "pending" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleContentAction(item, "pending")}
+                            disabled={isActioning === `${item.type}-${item.id}`}
+                          >
+                            Reopen
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

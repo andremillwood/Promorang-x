@@ -35,6 +35,7 @@ async function createProduct(merchantId, productData) {
             booking_url,
             service_duration_minutes,
             service_capacity,
+            visibility,
             inventory_count,
             inventory_quantity,
             low_stock_threshold,
@@ -78,6 +79,7 @@ async function createProduct(merchantId, productData) {
                 booking_url,
                 service_duration_minutes,
                 service_capacity,
+                visibility: visibility || 'public',
                 is_active: true,
             })
             .select()
@@ -417,7 +419,7 @@ async function createSale(productId, userId, saleData) {
                 sale_type,
                 amount_paid,
                 points_paid,
-                redemption_code,
+                redemption_code: redemptionCode,
                 status: 'pending',
                 metadata,
             })
@@ -427,6 +429,18 @@ async function createSale(productId, userId, saleData) {
         if (error) throw error;
 
         // Inventory is auto-decremented by trigger
+        await supabase.from('commerce_receipts').insert({
+            user_id: userId,
+            merchant_id: product.merchant_id,
+            listing_id: productId,
+            sale_id: data.id,
+            receipt_type: sale_type === 'reservation' ? 'reservation' : 'purchase',
+            status: 'issued',
+            amount: Number(amount_paid || 0),
+            currency: product.currency || 'USD',
+            redemption_code: redemptionCode,
+            attribution: metadata,
+        }).catch(() => undefined);
 
         return data;
     } catch (error) {
@@ -480,6 +494,22 @@ async function validateRedemption(redemptionCode, merchantId) {
             .single();
 
         if (error) throw error;
+
+        await supabase
+            .from('commerce_receipts')
+            .update({
+                status: 'fulfilled',
+                attribution: {
+                    ...(sale.metadata || {}),
+                    source: 'merchant_sale_validation',
+                    product_sale_id: sale.id,
+                    validated_by: merchantId,
+                },
+            })
+            .eq('sale_id', sale.id)
+            .eq('merchant_id', merchantId)
+            .catch(() => undefined);
+
         return data;
     } catch (error) {
         console.error('Error validating redemption:', error);

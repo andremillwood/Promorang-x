@@ -33,7 +33,7 @@ export default function CatalogScreen() {
             name: newProduct.name,
             description: newProduct.description,
             price: parseFloat(newProduct.price) || 0,
-            currency: 'USD',
+            currency: 'GEMS',
             image_url: null,
             type: newProduct.type,
             status: 'active',
@@ -84,7 +84,7 @@ export default function CatalogScreen() {
                                 </Pressable>
                             </View>
                             <Text style={styles.productName}>{item.name}</Text>
-                            <Text style={styles.productPrice}>${item.price?.toFixed(2)}</Text>
+                            <Text style={styles.productPrice}>{Math.round(item.price || 0)} Gems value</Text>
                             <Text style={styles.productDesc} numberOfLines={2}>{item.description}</Text>
                         </View>
                     )}
@@ -122,13 +122,13 @@ export default function CatalogScreen() {
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                             <TextInput
                                 style={[styles.input, { backgroundColor: inputBg, color: txtColor, flex: 1, marginBottom: 0 }]}
-                                placeholder="Price"
+                                placeholder="Gem value"
                                 placeholderTextColor={DesignColors.gray[500]}
                                 keyboardType="numeric"
                                 value={newProduct.price}
                                 onChangeText={(t) => setNewProduct({ ...newProduct, price: t })}
                             />
-                            <InfoTooltip content="Set a competitive price for your service or product." />
+                            <InfoTooltip content="Set the Gem value for this service or product." />
                         </View>
                         <TextInput
                             style={[styles.input, { backgroundColor: inputBg, color: txtColor, height: 80 }]}

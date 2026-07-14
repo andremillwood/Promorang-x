@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -w -p tsconfig.build.json",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {},
   "devDependencies": {

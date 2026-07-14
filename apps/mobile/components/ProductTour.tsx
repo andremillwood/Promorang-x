@@ -18,7 +18,7 @@ interface ProductTourProps {
 
 const { width, height } = Dimensions.get('window');
 
-export const ProductTour: React.FC<ProductTourProps> = ({ tourId, autoStart = false }) => {
+export function ProductTour({ tourId, autoStart = false }: ProductTourProps): React.JSX.Element | null {
     const { activeTour, startTour, stopTour, completeTour, skipTour, isTourCompleted } = useTour();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
@@ -116,7 +116,7 @@ export const ProductTour: React.FC<ProductTourProps> = ({ tourId, autoStart = fa
             </View>
         </Modal>
     );
-};
+}
 
 const styles = StyleSheet.create({
     overlay: {

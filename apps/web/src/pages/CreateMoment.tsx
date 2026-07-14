@@ -72,7 +72,7 @@ const momentSchema = z.object({
   proofType: z.string().optional(),
   evidenceRequirements: z.unknown().optional(),
   expectedActionUnit: z.string().optional(),
-  moneySource: z.enum(["entry", "host", "event", "hybrid"]),
+  moneySource: z.enum(["entry", "host", "event", "platform", "content", "hybrid"]),
   entryFeeJmd: z.number().optional(),
   totalFundedJmd: z.number().optional(),
   rewardPoolJmd: z.number().min(0),
@@ -107,6 +107,73 @@ const visibilityOptions = [
   { value: "invite", label: "Invite Only", description: "Only people you invite can join", icon: UserPlus },
   { value: "private", label: "Private", description: "Hidden from discovery", icon: Lock },
 ];
+
+const moneySourceOptions = [
+  {
+    value: "platform",
+    label: "Promorang may fund this from platform rewards",
+    shortLabel: "Promorang-backed",
+    description: "Use this to request rewards funded from Promorang subscriptions, sponsorships, fees, and other platform revenue. Payouts activate after allocation approval.",
+  },
+  {
+    value: "content",
+    label: "Creator/content performance may fund this",
+    shortLabel: "Content-backed",
+    description: "Use this when the reward request is tied to content performance, creator missions, story engagement, or content-to-attendance results.",
+  },
+  {
+    value: "host",
+    label: "I am funding the rewards",
+    shortLabel: "Host funded",
+    description: "Use this when you or your organization are putting money into the reward pool.",
+  },
+  {
+    value: "event",
+    label: "The event budget is funding rewards",
+    shortLabel: "Event budget",
+    description: "Use this when the reward money comes from a sponsor, venue, or event budget.",
+  },
+  {
+    value: "entry",
+    label: "People pay to enter",
+    shortLabel: "Entry funded",
+    description: "Use this when participant entry fees create the pool.",
+  },
+  {
+    value: "hybrid",
+    label: "Mix of host money and entry fees",
+    shortLabel: "Mixed funding",
+    description: "Use this when there is more than one source of money.",
+  },
+] as const;
+
+const payoutRuleOptions = [
+  {
+    value: "per_action",
+    label: "Pay every approved person",
+    description: "Best for check-ins, samples, visits, or any action where everyone who proves it earns the same amount.",
+  },
+  {
+    value: "first_n",
+    label: "Pay the first people who qualify",
+    description: "Best for limited drops, early arrivals, or first-come rewards.",
+  },
+  {
+    value: "milestone",
+    label: "Pay when a target is reached",
+    description: "Best when participants need to hit a count, streak, or completion target.",
+  },
+  {
+    value: "leaderboard",
+    label: "Pay based on rank",
+    description: "Best for competitions where top performers earn more.",
+  },
+  {
+    value: "judged",
+    label: "Pay after manual selection",
+    description: "Best when a host, sponsor, or reviewer chooses winners after looking at proof.",
+  },
+] as const;
 
 const steps = [
   { id: 1, title: "Promise", icon: Calendar },
@@ -369,6 +436,12 @@ const CreateMoment = () => {
   };
 
   const selectedCreationType = creationTypes.find((type) => type.id === creationType) || creationTypes[0];
+  const selectedMoneySource = moneySourceOptions.find((option) => option.value === formData.moneySource);
+  const selectedPayoutRule = payoutRuleOptions.find((option) => option.value === formData.payoutRuleType);
+  const totalRewardExposure = (formData.moveRewardAmountJmd || 0) * (formData.moveMaxCompletions || 0);
+  const remainingRewardPool = (formData.rewardPoolJmd || 0) - totalRewardExposure;
+  const fundingOnHand = formData.moneySource === "entry" ? 0 : formData.totalFundedJmd || 0;
+  const isPlatformAllocatedSource = ["platform", "content"].includes(formData.moneySource);
 
   const handleCreationTypeSelect = (typeId: CreationTypeId) => {
     const nextType = creationTypes.find((type) => type.id === typeId) || creationTypes[0];
@@ -378,9 +451,9 @@ const CreateMoment = () => {
       momentArchetype: nextType.archetype || prev.momentArchetype,
       conversionType: nextType.conversionType || prev.conversionType,
       moveTitle: nextType.moveTitle,
-      moneySource: typeId === "campaign" ? "host" : prev.moneySource,
+      moneySource: typeId === "creator" ? "content" : typeId === "campaign" ? "platform" : prev.moneySource,
       rewardPoolJmd: typeId === "campaign" && prev.rewardPoolJmd === 0 ? 5000 : prev.rewardPoolJmd,
-      totalFundedJmd: typeId === "campaign" && (prev.totalFundedJmd || 0) === 0 ? 5000 : prev.totalFundedJmd,
+      totalFundedJmd: typeId === "campaign" ? 0 : prev.totalFundedJmd,
     }));
     setRecurrence((prev) => ({
       ...prev,
@@ -416,7 +489,8 @@ const CreateMoment = () => {
       if (formData.moneySource === "entry" && !formData.entryFeeJmd) {
         newErrors.entryFeeJmd = "Entry fee is required for Sprint Moments";
       }
-      if (formData.rewardPoolJmd > 0 && formData.moneySource !== "entry" && (formData.totalFundedJmd || 0) < formData.rewardPoolJmd) {
+      const requiresUpfrontFunding = !["entry", "platform", "content"].includes(formData.moneySource);
+      if (formData.rewardPoolJmd > 0 && requiresUpfrontFunding && (formData.totalFundedJmd || 0) < formData.rewardPoolJmd) {
         newErrors.totalFundedJmd = "Funding must cover the reward pool";
       }
       if (!formData.moveTitle) {
@@ -472,6 +546,22 @@ const CreateMoment = () => {
         return next;
       });
     }
+  };
+
+  const handleMoneySourceChange = (value: MomentFormData["moneySource"]) => {
+    setFormData((prev) => ({
+      ...prev,
+      moneySource: value,
+      entryFeeJmd: value === "entry" ? prev.entryFeeJmd : undefined,
+      totalFundedJmd: ["entry", "platform", "content"].includes(value) ? 0 : prev.totalFundedJmd,
+    }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.moneySource;
+      delete next.entryFeeJmd;
+      delete next.totalFundedJmd;
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
@@ -573,7 +663,7 @@ const CreateMoment = () => {
         check_in_code: checkInCode,
         money_source: formData.moneySource,
         entry_fee_jmd: formData.moneySource === "entry" ? formData.entryFeeJmd || 0 : null,
-        total_funded_jmd: formData.moneySource === "entry" ? 0 : formData.totalFundedJmd || 0,
+        total_funded_jmd: ["entry", "platform", "content"].includes(formData.moneySource) ? 0 : formData.totalFundedJmd || 0,
         reward_pool_jmd: formData.rewardPoolJmd || 0,
         host_margin_jmd: formData.hostMarginJmd || 0,
         platform_fee_jmd: formData.platformFeeJmd || 0,
@@ -1078,116 +1168,172 @@ const CreateMoment = () => {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-4 space-y-4">
-              <div>
-                <h3 className="font-semibold text-foreground">Moment Economy</h3>
-                <p className="text-sm text-muted-foreground">Required for reward-bearing Moments. Money in, rules, money out.</p>
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-5 sm:p-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Rewards</p>
+                  <h3 className="mt-1 text-xl font-semibold text-foreground">Set the reward budget</h3>
+                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                    Add this only if people can earn money from the moment. You are choosing whether rewards are self-funded, entry-funded, sponsor-funded, Promorang-backed, or tied to creator/content performance.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/30 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">Max payout:</span>{" "}
+                  <span className="font-semibold text-foreground">JMD {totalRewardExposure.toLocaleString()}</span>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Money Source *</Label>
-                  <Select value={formData.moneySource} onValueChange={(value) => updateField("moneySource", value as MomentFormData["moneySource"])}>
+                  <Label>Who is paying for the rewards? *</Label>
+                  <Select value={formData.moneySource} onValueChange={(value) => handleMoneySourceChange(value as MomentFormData["moneySource"])}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="host">Host-funded</SelectItem>
-                      <SelectItem value="event">Event-funded</SelectItem>
-                      <SelectItem value="entry">Entry-based Sprint</SelectItem>
-                      <SelectItem value="hybrid">Hybrid</SelectItem>
+                      {moneySourceOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {selectedMoneySource?.description}
+                  </p>
                 </div>
 
                 {formData.moneySource === "entry" && (
                   <div>
-                    <Label>Entry Fee (JMD) *</Label>
+                    <Label>What should each person pay to enter? *</Label>
                     <Input
                       type="number"
                       min={1}
                       value={formData.entryFeeJmd || ""}
                       onChange={(e) => updateField("entryFeeJmd", e.target.value ? Number(e.target.value) : undefined)}
                       className={errors.entryFeeJmd ? "border-destructive" : ""}
+                      placeholder="e.g., 500"
                     />
+                    <p className="mt-1 text-sm text-muted-foreground">This is charged before someone joins the paid sprint.</p>
                     {errors.entryFeeJmd && <p className="text-destructive text-sm mt-1">{errors.entryFeeJmd}</p>}
                   </div>
                 )}
 
                 <div>
-                  <Label>Reward Pool (JMD) *</Label>
+                  <Label>Total money available for participant rewards *</Label>
                   <Input
                     type="number"
                     min={0}
                     value={formData.rewardPoolJmd}
                     onChange={(e) => updateField("rewardPoolJmd", Number(e.target.value) || 0)}
+                    placeholder="e.g., 10000"
                   />
+                  <p className="mt-1 text-sm text-muted-foreground">The ceiling for all participant payouts from this moment.</p>
                 </div>
 
-                {formData.moneySource !== "entry" && (
+                {formData.moneySource !== "entry" && !isPlatformAllocatedSource && (
                   <div>
-                    <Label>Initial Funding (JMD) *</Label>
+                    <Label>Money already collected for this moment *</Label>
                     <Input
                       type="number"
                       min={0}
                       value={formData.totalFundedJmd || ""}
                       onChange={(e) => updateField("totalFundedJmd", Number(e.target.value) || 0)}
                       className={errors.totalFundedJmd ? "border-destructive" : ""}
+                      placeholder="e.g., 10000"
                     />
+                    <p className="mt-1 text-sm text-muted-foreground">This should cover the reward pool before launch.</p>
                     {errors.totalFundedJmd && <p className="text-destructive text-sm mt-1">{errors.totalFundedJmd}</p>}
                   </div>
                 )}
 
                 <div>
-                  <Label>Funding Reference</Label>
+                  <Label>Payment note or receipt reference</Label>
                   <Input
                     value={formData.fundingReference || ""}
                     onChange={(e) => updateField("fundingReference", e.target.value)}
-                    placeholder="Bank transfer, receipt, Stripe reference"
+                    placeholder={isPlatformAllocatedSource ? "e.g., creator cohort, sponsor pool, campaign note" : "e.g., Stripe receipt, bank transfer ID"}
                   />
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {isPlatformAllocatedSource
+                      ? "Optional context for why this should receive Promorang-backed allocation."
+                      : "Optional, but useful for finance review later."}
+                  </p>
                 </div>
 
                 <div>
-                  <Label>Platform Fee (JMD)</Label>
+                  <Label>Promorang fee, if already known</Label>
                   <Input type="number" min={0} value={formData.platformFeeJmd || ""} onChange={(e) => updateField("platformFeeJmd", Number(e.target.value) || 0)} />
+                  <p className="mt-1 text-sm text-muted-foreground">Leave blank if the platform will calculate this later.</p>
                 </div>
 
                 <div>
-                  <Label>Host Margin (JMD)</Label>
+                  <Label>Amount kept by the host, if any</Label>
                   <Input type="number" min={0} value={formData.hostMarginJmd || ""} onChange={(e) => updateField("hostMarginJmd", Number(e.target.value) || 0)} />
+                  <p className="mt-1 text-sm text-muted-foreground">Use only when the budget includes a host share separate from rewards.</p>
                 </div>
+              </div>
+
+              <div className={`rounded-xl border p-4 text-sm ${
+                remainingRewardPool < 0
+                  ? "border-destructive/40 bg-destructive/10"
+                  : "border-primary/20 bg-primary/5"
+              }`}>
+                <p className="font-semibold text-foreground">Reward check</p>
+                <p className="mt-1 text-muted-foreground">
+                  At the current settings, up to {formData.moveMaxCompletions} approved completions can pay JMD {formData.moveRewardAmountJmd.toLocaleString()} each, for a maximum of JMD {totalRewardExposure.toLocaleString()}.
+                  {" "}
+                  {remainingRewardPool < 0
+                    ? "Increase the reward pool or lower the per-person reward before launch."
+                    : `That leaves JMD ${remainingRewardPool.toLocaleString()} unassigned in the reward pool.`}
+                </p>
+                {formData.moneySource !== "entry" && !isPlatformAllocatedSource && (
+                  <p className="mt-1 text-muted-foreground">
+                    Funding on hand: JMD {fundingOnHand.toLocaleString()}.
+                  </p>
+                )}
+                {isPlatformAllocatedSource && (
+                  <p className="mt-1 text-muted-foreground">
+                    This starts as an allocation request. Promorang must approve and lock funding before cash payouts can run.
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-4 space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-4 sm:p-5">
               <div>
-                <h3 className="font-semibold text-foreground">Move 1</h3>
-                <p className="text-sm text-muted-foreground">V1 requires at least one paid/verified action.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Participant action</p>
+                <h3 className="mt-1 text-xl font-semibold text-foreground">What does someone need to do?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Write this like an instruction a participant will understand. This is the action Promorang will verify before a reward is paid.
+                </p>
               </div>
 
               <div>
-                <Label>Move Title *</Label>
+                <Label>Action name *</Label>
                 <Input
                   value={formData.moveTitle}
                   onChange={(e) => updateField("moveTitle", e.target.value)}
                   className={errors.moveTitle ? "border-destructive" : ""}
+                  placeholder="e.g., Check in at the front desk"
                 />
                 {errors.moveTitle && <p className="text-destructive text-sm mt-1">{errors.moveTitle}</p>}
               </div>
 
               <div>
-                <Label>Move Description</Label>
+                <Label>Proof instructions</Label>
                 <Textarea
                   rows={2}
                   value={formData.moveDescription || ""}
                   onChange={(e) => updateField("moveDescription", e.target.value)}
-                  placeholder="Tell participants exactly what proof is required."
+                  placeholder="e.g., Scan the QR code at the counter and upload a photo of your receipt."
                 />
+                <p className="mt-1 text-sm text-muted-foreground">Be specific about QR codes, photos, receipts, staff approval, or any other proof needed.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Reward Per Verified Move (JMD)</Label>
+                  <Label>Reward for each approved person</Label>
                   <Input
                     type="number"
                     min={0}
@@ -1195,50 +1341,58 @@ const CreateMoment = () => {
                     onChange={(e) => updateField("moveRewardAmountJmd", Number(e.target.value) || 0)}
                     className={errors.moveRewardAmountJmd ? "border-destructive" : ""}
                   />
+                  <p className="mt-1 text-sm text-muted-foreground">Set to 0 if the reward is not cash.</p>
                   {errors.moveRewardAmountJmd && <p className="text-destructive text-sm mt-1">{errors.moveRewardAmountJmd}</p>}
                 </div>
 
                 <div>
-                  <Label>Max Completions *</Label>
+                  <Label>Maximum people who can earn this *</Label>
                   <Input
                     type="number"
                     min={1}
                     value={formData.moveMaxCompletions}
                     onChange={(e) => updateField("moveMaxCompletions", Number(e.target.value) || 1)}
                   />
+                  <p className="mt-1 text-sm text-muted-foreground">This protects the budget from paying more people than planned.</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-4 space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-4 sm:p-5">
               <div>
-                <h3 className="font-semibold text-foreground">Payout Rule</h3>
-                <p className="text-sm text-muted-foreground">Manual payout fallback is queued after proof approval.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Payouts</p>
+                <h3 className="mt-1 text-xl font-semibold text-foreground">How should approved rewards be paid?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Choose the simplest rule that matches the moment. Payments are queued only after proof is approved.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label>Rule Type *</Label>
+                <div className="md:col-span-3">
+                  <Label>Payout style *</Label>
                   <Select value={formData.payoutRuleType} onValueChange={(value) => updateField("payoutRuleType", value as MomentFormData["payoutRuleType"])}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="per_action">Per Action</SelectItem>
-                      <SelectItem value="first_n">First N</SelectItem>
-                      <SelectItem value="milestone">Milestone</SelectItem>
-                      <SelectItem value="leaderboard">Leaderboard</SelectItem>
-                      <SelectItem value="judged">Judged</SelectItem>
+                      {payoutRuleOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <p className="mt-1 text-sm text-muted-foreground">{selectedPayoutRule?.description}</p>
                 </div>
                 <div>
-                  <Label>Payout Amount (JMD)</Label>
+                  <Label>Amount this rule pays</Label>
                   <Input type="number" min={0} value={formData.payoutAmountJmd} onChange={(e) => updateField("payoutAmountJmd", Number(e.target.value) || 0)} />
+                  <p className="mt-1 text-sm text-muted-foreground">Usually the same as the per-person reward above.</p>
                 </div>
                 <div>
-                  <Label>Rule Cap (JMD)</Label>
+                  <Label>Maximum this rule can pay</Label>
                   <Input type="number" min={0} value={formData.payoutCapJmd || ""} onChange={(e) => updateField("payoutCapJmd", Number(e.target.value) || undefined)} />
+                  <p className="mt-1 text-sm text-muted-foreground">Leave blank to use the full reward pool as the cap.</p>
                 </div>
               </div>
             </div>
