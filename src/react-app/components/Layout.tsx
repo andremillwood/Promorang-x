@@ -23,6 +23,9 @@ import {
   Bell,
   Rocket,
   BarChart3
+  ,Gift
+  ,Layers3
+  ,Gauge
 } from 'lucide-react';
 import UserLink from '@/react-app/components/UserLink';
 import Tooltip from '@/react-app/components/Tooltip';
@@ -115,17 +118,16 @@ export default function Layout({ children }: LayoutProps) {
 
   const getNavigation = () => {
     const baseNav = [
-      { name: 'Pulse', href: '/home', icon: Home },
-      { name: 'Discover', href: '/earn', icon: Compass },
-      { name: 'Create', href: '/create', icon: Plus },
-      { name: 'Vault', href: '/invest', icon: TrendingUp },
-      { name: 'Market', href: '/market', icon: BarChart3 },
-      { name: 'Dashboard', href: '/growth-hub', icon: Rocket },
+      { name: 'Today', href: '/home', icon: Home, badge: "What's Hot" },
+      { name: 'Discover', href: '/earn', icon: Compass, badge: 'Free Perks' },
+      { name: 'Create', href: '/create', icon: Plus, badge: 'Post a Perk' },
+      { name: 'Progress', href: '/success', icon: Gauge, badge: 'Your Wins' },
+      { name: 'Vault', href: '/invest', icon: TrendingUp, badge: 'Saved Perks' },
     ];
     
     // Add advertiser dashboard for advertisers
     if (userData && (userData as any).user_type === 'advertiser') {
-      baseNav.push({ name: 'Brand Ops', href: '/advertiser', icon: Settings });
+      baseNav.push({ name: 'Brand Hub', href: '/advertiser', icon: Settings, badge: 'My Drops' });
     }
     
     return baseNav;
@@ -725,14 +727,14 @@ export default function Layout({ children }: LayoutProps) {
       {/* Desktop Navigation */}
       <nav className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex gap-1 overflow-x-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-2 px-3 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  className={`flex shrink-0 items-center space-x-2 px-3 py-4 text-sm font-medium border-b-2 transition-colors ${
                     isActive(item.href)
                       ? 'border-orange-500 text-orange-600'
                       : 'border-transparent text-gray-700 hover:text-gray-900 hover:border-gray-300'
@@ -750,56 +752,68 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
         <div className="flex">
-          {/* Core Navigation - Main sections */}
+          {/* Core Navigation - 5 Intent Destinations */}
           <Link
             to="/home"
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              isActive('/home') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              isActive('/home') || isActive('/radar') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <Home className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Pulse</span>
+            <span className="text-[10px] mt-1 font-medium leading-tight">Today</span>
           </Link>
           
           <Link
             to="/earn"
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              isActive('/earn') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              isActive('/earn') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <Compass className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Discover</span>
+            <span className="text-[10px] mt-1 font-medium leading-tight">Discover</span>
+          </Link>
+
+          <Link
+            to="/create"
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              isActive('/create') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <div className="bg-gradient-to-r from-[#FF5500] to-[#FF7F00] text-white p-1.5 rounded-full shadow-lg shadow-orange-500/30">
+              <Plus className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] mt-0.5 font-medium leading-tight text-white">Create</span>
           </Link>
           
           <Link
-            to="/create"
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              isActive('/create') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+            to="/success"
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              isActive('/success') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            <Plus className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Create</span>
+            <Gauge className="w-5 h-5" />
+            <span className="text-[10px] mt-1 font-medium leading-tight">Progress</span>
           </Link>
           
           <Link
             to="/invest"
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              isActive('/invest') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              isActive('/invest') || isActive('/pieces') ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <TrendingUp className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">Vault</span>
+            <span className="text-[10px] mt-1 font-medium leading-tight">Vault</span>
           </Link>
           
           {/* Menu Button */}
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-1 transition-colors ${
-              showMobileMenu ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'
+            className={`flex-1 flex flex-col items-center justify-center py-2.5 px-1 transition-colors ${
+              showMobileMenu ? 'text-[#FF5500] font-bold' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
             <Menu className="w-5 h-5" />
-            <span className="text-xs mt-1 font-medium leading-tight">More</span>
+            <span className="text-[10px] mt-1 font-medium leading-tight">More</span>
           </button>
         </div>
       </div>

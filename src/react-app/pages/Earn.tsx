@@ -93,6 +93,8 @@ export default function Earn() {
     { label: 'Gem pool', value: totalGemPool.toLocaleString(), detail: 'visible upside' }
   ];
 
+  const [showOverview, setShowOverview] = useState(false);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -102,72 +104,216 @@ export default function Earn() {
   }
 
   return (
-    <div className="space-y-6">
-      <OpportunitySurface
-        eyebrow="Discover"
-        title="Find campaigns you can actually complete, prove, and earn from."
-        description="Browse the opportunity market by reward, difficulty, proof requirement, deadline, and creator. The strongest campaign details stay intact; this layer makes them easier to compare and act on."
-        primaryAction={{ label: 'Show all opportunities', onClick: () => {
-          setSearchTerm('');
-          setSelectedDropType('');
-          setSelectedDifficulty('');
-        } }}
-        secondaryAction={userData && userData.user_type === 'advertiser' ? { label: 'Create campaign', onClick: () => setShowCreateForm(true) } : undefined}
-        signals={discoverSignals}
-      >
-        <div className="rounded-2xl bg-white/10 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Filter result</p>
-          <p className="mt-2 text-sm font-bold leading-6 text-slate-200">{filteredDrops.length} matching opportunities</p>
-        </div>
-      </OpportunitySurface>
+    <div className="space-y-6 pb-12">
+      {/* Pioneer Status & Season 1 Unlock Threshold Bar */}
+      <div className="bg-[#121214] border border-orange-500/30 rounded-2xl p-4 sm:p-6 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center space-x-3">
+            <div className="bg-gradient-to-br from-[#FF5500] to-[#FF7F00] text-white px-3 py-1.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center space-x-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Early Bird 3x Boost Locked! ⚡</span>
+            </div>
+            <span className="text-xs text-gray-400 font-medium hidden sm:inline">Exclusive Perk for Early Friends</span>
+          </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 text-xs text-gray-300">
+            <span className="font-semibold text-orange-400">Season 1 Perks Vault: 72% Unlocked</span>
+            <span className="text-gray-500">|</span>
+            <span className="text-gray-400">320 more friends needed to unlock the $10k Community Treat Vault 🎉</span>
+          </div>
+        </div>
+
+        {/* Threshold Progress Track */}
+        <div className="mt-3 w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden p-0.5 border border-white/10">
+          <div 
+            className="bg-gradient-to-r from-[#FF5500] via-[#FFAA00] to-[#FF5500] h-full rounded-full transition-all duration-500 shadow-glow-orange" 
+            style={{ width: '72%' }}
+          />
+        </div>
+      </div>
+
+      {/* Live Social Proof Ticker */}
+      <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-orange-200">
+        <div className="flex items-center space-x-2">
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          </span>
+          <span className="font-semibold uppercase tracking-wider text-orange-400">Community Wins:</span>
+          <span className="font-medium text-white truncate max-w-xs sm:max-w-md">
+            Sarah M. just snagged <strong className="text-orange-400">$45 Instant Cash & Treats</strong> via Venmo (14s ago)
+          </span>
+        </div>
+        <span className="text-orange-400/80 font-mono hidden sm:inline">Real Community Win 🎉</span>
+      </div>
+
+      {/* Hero Hook-Story-Offer Conversion Card */}
+      <div className="bg-gradient-to-br from-[#18181B] via-[#121214] to-[#0D0D0E] border border-orange-500/30 rounded-2xl p-6 text-white shadow-2xl relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <div className="lg:col-span-2 space-y-3">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold border border-orange-500/30">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Limited Treat • 04:32 remaining</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              Get <span className="text-promorang-gradient">$12 Cash in 30 Seconds</span> + Free Iced Coffee Voucher ☕
+            </h1>
+            <p className="text-gray-300 text-sm leading-relaxed max-w-xl">
+              Post Nike's Kingston Drop on your Instagram Story. Get 500 Gems ($5.00) + your 3x Early Bird Boost instantly added to your wallet!
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row lg:col-span-1 gap-3 justify-center">
+            <button
+              onClick={() => {
+                if (filteredDrops.length > 0) {
+                  window.location.href = `/drops/${filteredDrops[0].id}`;
+                }
+              }}
+              className="bg-promorang-gradient hover:opacity-90 text-white font-extrabold px-6 py-3.5 rounded-xl shadow-lg shadow-orange-500/30 transition-all flex items-center justify-center space-x-2 text-sm"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Tap to Share & Grab Perks 🚀</span>
+            </button>
+            <span className="text-center text-xs text-gray-400">100% Free • Takes 30 seconds</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Discover opportunities</h1>
-          <p className="text-gray-600 mt-2">Turn your social influence into real-world value with our verified campaign network.</p>
+          <h2 className="text-2xl font-bold text-gray-900">Drops, Freebies & Local Perks</h2>
+          <p className="text-gray-600 mt-1 text-sm">Discover fun brand drops, free coffee/food vouchers, and easy tasks to build your saved perks.</p>
         </div>
-        {userData && userData.user_type === 'advertiser' && (
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200 shadow-lg"
+            onClick={() => setShowOverview(!showOverview)}
+            className="text-sm font-semibold text-orange-700 hover:text-orange-900 border border-orange-200 bg-orange-50 px-4 py-2 rounded-xl transition"
           >
-            <Plus className="w-5 h-5" />
-            <span>Create Campaign</span>
+            {showOverview ? 'Hide Guide' : 'How It Works'}
           </button>
-        )}
+          {userData && userData.user_type === 'advertiser' && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-promorang-gradient hover:opacity-90 text-white px-5 py-2.5 rounded-xl font-medium flex items-center space-x-2 transition-all duration-200 shadow-md"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Post a Perk</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <ReceiptCard
-          icon={Search}
-          label="Browse"
-          title="Search and filter"
-          description="Keep drop type and difficulty controls visible before users enter detail pages."
-          tone="blue"
-        />
-        <ReceiptCard
-          icon={Shield}
-          label="Prove"
-          title="Proof campaigns"
-          description="Free proof drops help users build trust and unlock Master Key progress."
-          tone="green"
-        />
-        <ReceiptCard
-          icon={Diamond}
-          label="Earn"
-          title="Gem rewards"
-          description="Paid drops make the value exchange explicit before a user applies."
-          tone="purple"
-        />
-        <ReceiptCard
-          icon={Target}
-          label="Sponsor"
-          title="Advertiser creation"
-          description="The existing proof, paid, and move campaign form remains available for advertisers."
-          tone="orange"
-        />
+      {/* Interactive Activation Engines Banner */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button
+          onClick={() => setSelectedDropType('challenges_events')}
+          className={`p-4 rounded-2xl border text-left transition-all ${
+            selectedDropType === 'challenges_events'
+              ? 'bg-orange-500 text-white border-orange-600 shadow-lg'
+              : 'bg-white text-slate-800 border-gray-200 hover:border-orange-300'
+          }`}
+        >
+          <Sparkles className="w-6 h-6 mb-2" />
+          <h4 className="font-extrabold text-sm">QR Hunt</h4>
+          <p className="text-xs opacity-90">Scan venue QR codes</p>
+        </button>
+
+        <button
+          onClick={() => setSelectedDropType('engagement')}
+          className={`p-4 rounded-2xl border text-left transition-all ${
+            selectedDropType === 'engagement'
+              ? 'bg-purple-600 text-white border-purple-700 shadow-lg'
+              : 'bg-white text-slate-800 border-gray-200 hover:border-purple-300'
+          }`}
+        >
+          <Target className="w-6 h-6 mb-2" />
+          <h4 className="font-extrabold text-sm">Store Check-in</h4>
+          <p className="text-xs opacity-90">GPS foot-traffic proof</p>
+        </button>
+
+        <button
+          onClick={() => setSelectedDropType('reviews')}
+          className={`p-4 rounded-2xl border text-left transition-all ${
+            selectedDropType === 'reviews'
+              ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg'
+              : 'bg-white text-slate-800 border-gray-200 hover:border-emerald-300'
+          }`}
+        >
+          <Shield className="w-6 h-6 mb-2" />
+          <h4 className="font-extrabold text-sm">Receipt Scanner</h4>
+          <p className="text-xs opacity-90">Buy & win rebates</p>
+        </button>
+
+        <button
+          onClick={() => setSelectedDropType('ugc_creation')}
+          className={`p-4 rounded-2xl border text-left transition-all ${
+            selectedDropType === 'ugc_creation'
+              ? 'bg-blue-600 text-white border-blue-700 shadow-lg'
+              : 'bg-white text-slate-800 border-gray-200 hover:border-blue-300'
+          }`}
+        >
+          <ImageIcon className="w-6 h-6 mb-2" />
+          <h4 className="font-extrabold text-sm">Photo Contest</h4>
+          <p className="text-xs opacity-90">Submit & battle UGC</p>
+        </button>
       </div>
+
+      {/* Collapsible Guidance & Surface */}
+      {showOverview && (
+        <div className="space-y-4 animate-fadeIn">
+          <OpportunitySurface
+            eyebrow="Market Guide"
+            title="Find tasks you can easily complete, prove, and earn from."
+            description="Browse open tasks by payout, difficulty level, and time commitment. Proof tasks help you build trust, while paid tasks reward you with cash and gems."
+            primaryAction={{ label: 'Show all tasks', onClick: () => {
+              setSearchTerm('');
+              setSelectedDropType('');
+              setSelectedDifficulty('');
+            } }}
+            secondaryAction={userData && userData.user_type === 'advertiser' ? { label: 'Create campaign', onClick: () => setShowCreateForm(true) } : undefined}
+            signals={discoverSignals}
+          >
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Current Tasks</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-slate-200">{filteredDrops.length} matching tasks open right now</p>
+            </div>
+          </OpportunitySurface>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            <ReceiptCard
+              icon={Search}
+              label="Browse"
+              title="Filter by Interest"
+              description="Filter tasks by video clips, reviews, UGC, or venue check-ins."
+              tone="blue"
+            />
+            <ReceiptCard
+              icon={Shield}
+              label="Trust"
+              title="Proof Drops"
+              description="Free proof tasks help you unlock higher-paying campaigns."
+              tone="green"
+            />
+            <ReceiptCard
+              icon={Diamond}
+              label="Payouts"
+              title="Gem Rewards"
+              description="Paid tasks deposit gems and cash straight into your wallet."
+              tone="purple"
+            />
+            <ReceiptCard
+              icon={Target}
+              label="Create"
+              title="For Businesses"
+              description="Businesses can sponsor custom tasks and customer rewards."
+              tone="orange"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">

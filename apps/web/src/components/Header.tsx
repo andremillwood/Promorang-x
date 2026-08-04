@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
-import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket } from "lucide-react";
+import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket, ShieldCheck, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -61,39 +61,45 @@ const Header = () => {
           </Link>
 
           {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex items-center gap-5">
+          <div className="hidden lg:flex items-center gap-3 xl:gap-5 shrink-0 whitespace-nowrap">
             <Link
               to="/"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Home
             </Link>
             <Link
               to="/discover"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Discover
             </Link>
             <Link
               to="/live"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Live
             </Link>
             <Link
               to="/scenes"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Scenes
             </Link>
             <Link
               to="/creators"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm`}
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Creators
             </Link>
+            <Link
+              to="/promoshare"
+              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+            >
+              PromoShare
+            </Link>
             <DropdownMenu>
-              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 More <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[34rem] p-2 rounded-2xl shadow-elevated border-border/50">
@@ -161,8 +167,8 @@ const Header = () => {
                         <Coins className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm">Marks & Points</p>
-                        <p className="text-[10px] text-muted-foreground">How proof becomes progress</p>
+                        <p className="font-bold text-sm">Points</p>
+                        <p className="text-[10px] text-muted-foreground">Organic progress and conversion</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -172,19 +178,25 @@ const Header = () => {
                         <KeyRound className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm">Keys</p>
-                        <p className="text-[10px] text-muted-foreground">How limited access opens</p>
+                        <p className="font-bold text-sm">PromoKeys</p>
+                        <p className="text-[10px] text-muted-foreground">Per-opportunity access</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/economy/pieces" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <Link to="/economy/master-key" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600"><ShieldCheck className="w-4 h-4" /></div>
+                      <div><p className="font-bold text-sm">Master Key</p><p className="text-[10px] text-muted-foreground">Daily contribution gate</p></div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/portfolio" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm">Pieces</p>
-                        <p className="text-[10px] text-muted-foreground">When participation lives on</p>
+                        <p className="font-bold text-sm">Co-Ownership Pieces</p>
+                        <p className="text-[10px] text-muted-foreground">Own a stake in viral moments & creator drops</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -200,13 +212,13 @@ const Header = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/economy/promoshare-gems" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <Link to="/promoshare" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
                         <Gem className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm">PromoShare & Gems</p>
-                        <p className="text-[10px] text-muted-foreground">How qualified reward value works</p>
+                        <p className="font-bold text-sm">PromoShare Draws</p>
+                        <p className="text-[10px] text-muted-foreground">Win prizes & jackpots with action tickets ($1 Gem = $1 USD)</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -228,19 +240,19 @@ const Header = () => {
               <>
                 <Link
                   to="/vault"
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm whitespace-nowrap shrink-0"
                 >
                   Vault
                 </Link>
                 <Link
                   to="/saved"
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm whitespace-nowrap shrink-0"
                 >
                   Saved
                 </Link>
                 <Link
                   to="/activity"
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium text-sm whitespace-nowrap shrink-0"
                 >
                   Activity
                 </Link>
@@ -249,7 +261,7 @@ const Header = () => {
 
             {/* Stakeholder Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 For partners <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-elevated border-border/50">
@@ -303,7 +315,7 @@ const Header = () => {
             {/* Search Icon */}
             <Link
               to="/search"
-              className={`p-2 rounded-full transition-colors ${isCinematicPublicPage ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
+              className={`p-2 rounded-full transition-colors shrink-0 ${isCinematicPublicPage ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
@@ -417,6 +429,15 @@ const Header = () => {
                 </DropdownMenu>
 
                 <div className="hidden sm:flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate("/growth/referrals")}
+                    className="gap-2 font-bold text-primary hover:bg-primary/10 hover:text-primary"
+                  >
+                    <UserRoundPlus className="h-4 w-4" />
+                    Invite friends
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
                     Dashboard
                   </Button>
@@ -442,7 +463,7 @@ const Header = () => {
               type="button"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
-              className="rounded-xl p-2 transition-colors hover:bg-muted md:hidden"
+              className="rounded-xl p-2 transition-colors hover:bg-muted lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -452,7 +473,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-border py-4 md:hidden px-4">
+          <div className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-border py-4 lg:hidden px-4">
             <div className="flex flex-col gap-6 pb-2">
               
               <div className="space-y-3">
@@ -535,11 +556,12 @@ const Header = () => {
                     Moments
                   </Link>
                   <Link to="/economy/points" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
-                    Marks & Points
+                    Points
                   </Link>
                   <Link to="/economy/keys" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
-                    Keys
+                    PromoKeys
                   </Link>
+                  <Link to="/economy/master-key" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>Master Key</Link>
                   <Link to="/economy/pieces" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Pieces
                   </Link>
@@ -547,7 +569,7 @@ const Header = () => {
                     Content
                   </Link>
                   <Link to="/economy/promoshare-gems" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
-                    PromoShare & Gems
+                    Tickets & Gems
                   </Link>
                   <Link to="/economy/network" className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>
                     Network value
@@ -594,6 +616,19 @@ const Header = () => {
               <div className="pt-4 border-t border-border flex flex-col gap-2">
                 {user ? (
                   <>
+                    <Link
+                      to="/growth/referrals"
+                      onClick={closeMobileMenu}
+                      className="group mb-2 flex items-center gap-4 rounded-2xl border border-primary/30 bg-primary/10 p-4"
+                    >
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                        <UserRoundPlus className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-black text-foreground">Invite friends</span>
+                        <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">Share your link and track who joins through you.</span>
+                      </span>
+                    </Link>
                     <Button variant="ghost" size="sm" onClick={() => { navigate("/dashboard"); setMobileMenuOpen(false); }}>
                       My Moments
                     </Button>

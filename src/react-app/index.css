@@ -4,4 +4,60 @@
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --promorang-orange: #FF5500;
+  --promorang-orange-glow: rgba(255, 85, 0, 0.35);
+  --bg-obsidian: #0D0D0E;
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.04);
 }
+
+body {
+  background-color: #0D0D0E;
+  color: #E5E2E1;
+}
+
+/* Custom Promorang Glass Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-orange {
+  background: rgba(255, 85, 0, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+}
+
+.bg-promorang-gradient {
+  background: linear-gradient(135deg, #FF5500 0%, #FF7F00 100%);
+}
+
+.text-promorang-gradient {
+  background: linear-gradient(135deg, #FF5500 0%, #FFAA00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-orange {
+  box-shadow: 0 0 25px rgba(255, 85, 0, 0.35);
+}
+
+.glow-orange-sm {
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.25);
+}
+
+/* Social proof ticker scroll */
+@keyframes ticker-slide {
+  0% { transform: translateY(100%); opacity: 0; }
+  15% { transform: translateY(0); opacity: 1; }
+  85% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+.animate-ticker {
+  animation: ticker-slide 4s ease-in-out infinite;
+}
+
