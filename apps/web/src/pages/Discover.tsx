@@ -309,92 +309,91 @@ const Discover = () => {
             </div>
           </section>
 
-          <section className="grid gap-8 pb-10 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.55fr)] lg:items-end xl:gap-16 xl:pb-14">
-            <div className="space-y-6">
-              {/* Early Bird Perks Vault & 3x Boost Banner */}
-              <div className="rounded-2xl border border-primary/40 bg-gradient-to-r from-[#18120E] via-[#0D0D0E] to-[#140E0A] p-5 shadow-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="rounded-xl bg-primary/20 px-3 py-1 text-xs font-black uppercase text-primary border border-primary/30">
-                      ⚡ Early Bird 3x Boost Active
-                    </span>
-                    <span className="text-xs text-white/50 hidden sm:inline">Exclusive for Early Friends</span>
-                  </div>
-                  <p className="text-xs font-bold text-primary">
-                    Season 1 Treat Vault: 72% Unlocked • 320 more friends needed for $10k Treat Pool 🎉
-                  </p>
-                </div>
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10 p-0.5">
-                  <div className="h-full rounded-full bg-gradient-to-r from-primary via-amber-400 to-primary transition-all duration-500" style={{ width: '72%' }} />
-                </div>
-              </div>
+          {/* Unified Cinematic Hero Experience */}
+          <section className="pb-10 pt-6">
+            <div className="relative overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 sm:p-10 shadow-2xl text-white">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Live Community Wins Ticker */}
-              <div className="flex items-center justify-between rounded-xl border border-primary/25 bg-primary/10 px-4 py-2.5 text-xs text-orange-200">
-                <div className="flex items-center space-x-2">
+              {/* Integrated Top Live Wins Pill */}
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6 border-b border-white/10 pb-4">
+                <div className="flex items-center space-x-2 bg-primary/10 border border-primary/25 px-3 py-1.5 rounded-full text-xs text-orange-200">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  <span className="font-bold uppercase tracking-wider text-primary">Community Wins:</span>
+                  <span className="font-bold text-primary">Live Win:</span>
                   <span className="font-medium text-white truncate max-w-xs sm:max-w-md">
                     Sarah M. just snagged <strong className="text-primary">$45 Instant Cash & Treats</strong> via Venmo (14s ago)
                   </span>
                 </div>
-                <span className="font-mono text-primary/80 hidden sm:inline">Real Win 🎉</span>
+
+                <div className="flex items-center space-x-2 text-xs text-white/60">
+                  <span className="rounded-full bg-primary/20 px-3 py-1 text-primary font-bold border border-primary/30">
+                    ⚡ 3x Early Bird Boost Active
+                  </span>
+                </div>
               </div>
 
-              {/* Hook-Story-Offer Conversion Hero */}
-              <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 text-white shadow-2xl">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                  <div className="lg:col-span-2 space-y-2">
-                    <span className="inline-flex items-center space-x-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-semibold text-primary border border-primary/30">
-                      ⏰ Limited Treat • 04:32 remaining
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                      Get <span className="bg-gradient-to-r from-primary to-amber-400 bg-clip-text text-transparent">$12 Cash in 30 Seconds</span> + Free Iced Coffee Voucher ☕
-                    </h2>
-                    <p className="text-xs sm:text-sm text-white/70">
-                      Post Nike's Kingston Drop to your Instagram Story. Get 500 Gems ($5.00) + your 3x Early Bird Boost instantly added to your wallet!
-                    </p>
+              {/* Main Hero Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                {/* Left Hero Message & Actions (7 cols) */}
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Free Community Perks & Local Drops</span>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <Button asChild size="lg" className="bg-primary text-primary-foreground font-extrabold hover:bg-primary/90 shadow-lg shadow-primary/25">
-                      <Link to="/content-drops">
-                        Tap to Share & Grab Perks 🚀
+
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[0.95]">
+                    Turn Social Posts into <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">Free Coffee, Cash & Perks.</span>
+                  </h1>
+
+                  <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-xl">
+                    Discover local brand drops, free food & drink vouchers, and easy tasks. Share on Instagram or TikTok, get instant cash, and unlock community perks in 30 seconds.
+                  </p>
+
+                  <div className="pt-2 flex flex-wrap items-center gap-4">
+                    <Button asChild size="lg" className="bg-primary text-primary-foreground font-extrabold hover:bg-primary/90 shadow-xl shadow-primary/30 text-sm px-7 py-6 rounded-2xl">
+                      <Link to="/content-drops" className="flex items-center space-x-2">
+                        <span>Tap to Grab $12 Instant Perk 🚀</span>
+                        <ArrowRight className="w-4 h-4 ml-1" />
                       </Link>
                     </Button>
-                    <span className="text-center text-[11px] text-white/50">100% Free • Takes 30 seconds</span>
+
+                    <SubmitDiscoveryModal />
+                  </div>
+                </div>
+
+                {/* Right Hero Perks Vault Card (5 cols) */}
+                <div className="lg:col-span-5">
+                  <div className="rounded-2xl border border-white/10 bg-black/60 p-6 backdrop-blur-xl space-y-5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Season 1 Treat Vault</span>
+                      <span className="text-xs font-extrabold text-primary bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">72% Unlocked</span>
+                    </div>
+
+                    <div>
+                      <div className="flex items-baseline justify-between mb-2">
+                        <span className="text-2xl font-black text-white">$10,000</span>
+                        <span className="text-xs text-white/50">320 more friends needed</span>
+                      </div>
+                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/10 p-0.5 border border-white/10">
+                        <div className="h-full rounded-full bg-gradient-to-r from-primary via-amber-400 to-primary transition-all duration-500" style={{ width: '72%' }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10 text-xs">
+                      <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5">
+                        <p className="text-white/40 font-medium">Your Boost</p>
+                        <p className="text-sm font-bold text-primary mt-0.5">3.0x Multiplier</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5">
+                        <p className="text-white/40 font-medium">Active Treats</p>
+                        <p className="text-sm font-bold text-white mt-0.5">14 Drops Near You</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-primary">Discover Promorang</p>
-                <h1 className="mt-3 max-w-5xl font-sans text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-6xl lg:text-7xl xl:text-8xl">
-                  Find what moves you next.
-                </h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
-                  Moments, Scenes, creators, and free local treats with enough life around them to choose confidently. See who is involved, what it feels like, and what freebies open up when you join.
-                </p>
-                <div className="mt-6 flex items-center gap-3">
-                  <SubmitDiscoveryModal />
-                </div>
-              </div>
-            </div>
-
-            <div className="pr-scroll-rail -mx-4 flex snap-x gap-0 overflow-x-auto border-y border-white/12 px-4 lg:mx-0 lg:block lg:border-y lg:px-0">
-              {intentFilters.map((filter) => (
-                <Link
-                  key={filter.label}
-                  to={filter.href}
-                  className="group grid min-w-64 snap-start grid-cols-[32px_1fr_24px] items-center gap-3 border-r border-white/10 py-4 pr-5 transition hover:bg-white/[0.035] lg:min-w-0 lg:border-r-0 lg:border-b lg:px-1 lg:last:border-b-0"
-                >
-                  <filter.icon className="h-5 w-5 text-primary" />
-                  <div><p className="font-serif text-xl font-semibold text-white">{filter.label}</p><p className="mt-0.5 text-xs leading-5 text-white/42">{filter.description}</p></div>
-                  <ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1" />
-                </Link>
-              ))}
             </div>
           </section>
 
