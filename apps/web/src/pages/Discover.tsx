@@ -18,6 +18,7 @@ import {
   Radio,
   Search,
   Share2,
+  Sparkles,
   Ticket,
   MapPin,
 } from "lucide-react";
