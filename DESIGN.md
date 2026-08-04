@@ -72,11 +72,13 @@ Existing capabilities remain available as contextual or operational tools:
 
 The sidebar or account menu can provide reliable access to these tools. They must not compete equally with the five primary destinations. PromoShare, Pieces, proof, rewards, and distribution systems should appear beside the moments, content, creators, offers, and campaigns that give them meaning.
 
-## 0.2 In-App Visual System
+## 0.2 In-App Visual System & Layout Architecture
 
-- Use a black and near-black cinematic base with charcoal glass surfaces.
-- Promorang orange identifies the primary action, active state, and important movement. It is not general decoration.
-- Use subtle white borders, controlled amber/orange glows, and restrained status colors.
+- Use a black and near-black obsidian (`#0D0D0E`) cinematic base with translucent charcoal glass surfaces (`backdrop-filter: blur(20px)`).
+- **Promorang Orange (`#FF5500` / `#F97316`)** is the canonical primary color identifying primary actions, active state glows, and persuasion triggers. It anchors visual hierarchy across all screens.
+- **Unified Hero Architecture**: Never stack separate disconnected banner boxes above a page heading. Always integrate headlines, subheadlines, live proof tickers, primary CTAs, and progress rings into a single, cohesive, high-impact hero container.
+- **Accessible Everyman Language**: User-facing copy must avoid Wall-Street/crypto jargon ("Capital Pool", "Yield Multiplier", "Staking Ledger"). Use warm, everyday words ("Community Treat Vault", "Early Bird 3x Boost", "Post a Perk", "Saved Perks", "Your Wins").
+- Use subtle white borders, controlled amber/orange glows (`box-shadow: 0 0 30px rgba(255, 85, 0, 0.3)`), and restrained status colors.
 - Put editorial culture imagery in the product, not only on marketing pages.
 - Prefer rails, feeds, media cards, compact lists, and active objects over explanatory panel stacks.
 - Data should feel alive: connect numbers to people, moments, changes, proof, and next actions.
@@ -87,6 +89,7 @@ The signature visual differentiator is a **living scene feed**: cinematic conten
 
 ## 0.3 Component System
 
+- **Unified Hero Card:** single-container hero merging headline, live ticker pill, 1-tap CTA, and community vault progress ring.
 - **Cultural feed card:** media-first post with identity, scene context, social actions, proof, and a relevant CTA.
 - **Story/scene rail:** compact horizontal previews of people, scenes, moments, drops, and live activity.
 - **Live Now rail:** active moments with visible attendance or check-in energy.
@@ -104,15 +107,17 @@ The signature visual differentiator is a **living scene feed**: cinematic conten
 ## 0.4 In-App UX Principles
 
 1. Lead with movement and show what is happening now.
-2. Make content central; statistics support the content rather than replace it.
-3. Make earning visible, credible, and contextual.
-4. Hide complexity until the user has a reason to need it.
-5. PromoShare is a distribution engine, not merely a page.
-6. Pieces are contextual value objects, not first-run financial clutter.
-7. Growth Hub is the command center for creators, promoters, and ambassadors.
-8. Organizer surfaces prioritize operations and performance.
-9. Preserve working systems and improve their hierarchy before inventing replacements.
-10. Every zero state should offer a first useful move.
+2. Unify hero elements into clean, non-cluttered single containers.
+3. Make content central; statistics support the content rather than replace it.
+4. Evolve language to be accessible, everyman, and warm.
+5. Make earning visible, credible, and contextual.
+6. Hide complexity until the user has a reason to need it.
+7. PromoShare is a distribution engine, not merely a page.
+8. Pieces are contextual value objects, not first-run financial clutter.
+9. Growth Hub is the command center for creators, promoters, and ambassadors.
+10. Organizer surfaces prioritize operations and performance.
+11. Preserve working systems and improve their hierarchy before inventing replacements.
+12. Every zero state should offer a first useful move.
 
 ## 0.5 Product Success Contract
 
