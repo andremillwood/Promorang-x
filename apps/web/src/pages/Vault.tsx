@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +14,8 @@ import {
   Star,
 } from "lucide-react";
 import { cultureEvents } from "@/data/culture-demo";
+import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -69,6 +72,15 @@ type VaultPayload = {
   summary?: VaultSummary;
 };
 
+type AttendanceReceipt = {
+  id: string;
+  status: string;
+  verification_method?: string | null;
+  verified_at: string;
+  outcomes?: { pieces_awarded?: boolean; piece_quantity?: number; promoshare_ticket_awarded?: boolean } | null;
+  moments?: { id: string; title?: string | null; location?: string | null } | null;
+};
+
 const rarityTone = {
   common: "border-border/70 bg-card text-muted-foreground",
   rare: "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
@@ -116,6 +128,16 @@ const Vault = () => {
       return payload?.vault || {};
     },
   });
+  const { data: attendanceData } = useQuery<{ receipts: AttendanceReceipt[] }>({
+    queryKey: ["guest-attendance-receipts", user?.id],
+    enabled: !!user && !!session,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/guest-rsvp/me/attendance-receipts`, { headers: { Authorization: `Bearer ${session?.access_token}` } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "Failed to load attendance receipts");
+      return payload;
+    },
+  });
 
   if (!user) {
     return (
@@ -151,67 +173,104 @@ const Vault = () => {
   const rareMemoryCount = memories.filter((memory) => ["rare", "epic", "legendary"].includes(memory.rarity || "")).length;
 
   return (
-    <main className="mx-auto max-w-7xl space-y-8 sm:space-y-10">
+    <main className="mx-auto max-w-[1600px] space-y-8 sm:space-y-10 xl:space-y-14">
+      <PersonalValueNav />
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-black p-6 shadow-card sm:p-8 lg:p-10">
         <img src={cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
-        <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-8">
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/35 p-6 backdrop-blur-sm sm:p-8">
-            <div className="relative">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-white/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-white/85">
-                <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-                What you keep
-              </div>
-              <h1 className="font-sans text-6xl font-black uppercase leading-[0.84] tracking-[-0.07em] text-white sm:text-8xl">Your proof.<br /><span className="text-primary">Your legacy.</span></h1>
-              <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">
-                Rewards can expire or be spent. Memories, status, and the best perks are what make participation compound into identity.
-              </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Button asChild variant="hero" size="lg">
-                  <Link to="/discover/moments">Collect More Memories</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="border-white/20 bg-white/5 text-white hover:bg-white hover:text-foreground">
-                  <Link to="/wallet">Open Wallet</Link>
-                </Button>
-              </div>
+        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:gap-8 xl:gap-12">
+          <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 sm:p-8 backdrop-blur-sm shadow-2xl text-white">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-3.5 py-1.5 text-xs font-bold text-primary">
+              <Gift className="h-4 w-4" />
+              <span>⚡ Your Saved Perks & Wins Vault</span>
+            </div>
+            <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[0.95] text-white">
+              Your Free Perks, <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">Treats & Cash Wins.</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-white/75">
+              Every free coffee voucher, $12 instant cash perk, and community reward you unlock stays safe right here in your private vault.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild variant="hero" size="lg" className="bg-primary text-primary-foreground font-black hover:bg-primary/90 rounded-2xl">
+                <Link to="/discover">Claim More Perks 🚀</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="border-white/20 bg-white/5 text-white hover:bg-white hover:text-foreground rounded-2xl">
+                <Link to="/wallet">Open Cash Wallet</Link>
+              </Button>
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-accent/20 bg-accent/10 p-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-foreground">Memories</p>
-              <p className="mt-3 text-4xl font-black text-white lg:text-5xl">
-                {isLoading ? "..." : summary.total_memories || 0}
-              </p>
-              <p className="mt-2 text-sm text-white/65">Verified moments you can point back to, not just feed activity that fades.</p>
-            </div>
-            <div className="rounded-[1.5rem] border border-primary/20 bg-primary/10 p-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary-light">Legacy score</p>
-              <p className="mt-3 text-4xl font-black text-white lg:text-5xl">
-                {isLoading ? "..." : summary.total_legacy_score || 0}
-              </p>
-              <p className="mt-2 text-sm text-white/65">The cumulative weight of what you have shown up for, verified, and kept.</p>
-            </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/55">Rare and above</p>
-              <p className="mt-3 text-4xl font-black text-white lg:text-5xl">
-                {isLoading ? "..." : rareMemoryCount}
-              </p>
-              <p className="mt-2 text-sm text-white/65">The strongest signals of founder status, rarity, and return value.</p>
+          <div className="self-stretch rounded-[1.75rem] border border-white/12 bg-black/52 p-5 backdrop-blur-xl sm:p-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-accent">Your story so far</p>
+            <div className="mt-5 divide-y divide-white/10">
+              {[
+                [isLoading ? "…" : String(summary.total_memories || 0), "Moments worth remembering", "Places and experiences that did not disappear into the feed."],
+                [isLoading ? "…" : String(rareMemoryCount), "Rare invitations and keepsakes", "The uncommon things that opened because you were part of it."],
+                [isLoading ? "…" : String(summary.total_legacy_score || 0), "Your place taking shape", "A quiet record of returning, contributing, and becoming known."],
+              ].map(([value, label, detail]) => (
+                <div key={label} className="grid grid-cols-[64px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
+                  <p className="font-serif text-4xl font-semibold leading-none text-white">{value}</p>
+                  <div><p className="text-sm font-black text-white">{label}</p><p className="mt-1 text-xs leading-5 text-white/48">{detail}</p></div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
+      <CommerceReceiptRail />
+
+      {(attendanceData?.receipts?.length || 0) > 0 ? (
+        <section className="rounded-3xl border border-primary/20 bg-primary/[0.04] p-5 shadow-soft sm:p-6">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">It counted</p>
+          <div className="mt-2 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-[-0.04em]">Attendance receipts</h2>
+              <GuidanceDisclosure
+                id="vault:attendance-receipts"
+                eyebrow="Receipt guide"
+                title="Why attendance receipts matter"
+                summary="Verified arrivals show what counted and what unlocked after you showed up."
+                className="mt-3"
+                tone="light"
+              >
+                <p className="text-sm text-muted-foreground">Verified arrivals and everything they opened for you.</p>
+              </GuidanceDisclosure>
+            </div>
+            <Badge variant="outline">{attendanceData?.receipts.length}</Badge>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {attendanceData?.receipts.map((receipt) => {
+              const results = [receipt.outcomes?.pieces_awarded ? `${receipt.outcomes.piece_quantity || 4} Pieces` : null, receipt.outcomes?.promoshare_ticket_awarded ? "1 PromoShare ticket" : null].filter(Boolean);
+              return <article key={receipt.id} className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center justify-between gap-3"><ShieldCheck className="h-5 w-5 text-primary" /><Badge variant="secondary">{receipt.status}</Badge></div>
+                <h3 className="mt-4 font-black">{receipt.moments?.title || "Moment attended"}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{new Date(receipt.verified_at).toLocaleDateString()} · {receipt.verification_method || "verified"}{receipt.moments?.location ? ` · ${receipt.moments.location}` : ""}</p>
+                <p className="mt-3 text-sm font-semibold text-primary">{results.join(" · ") || "Attendance verified"}</p>
+              </article>;
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(310px,0.65fr)] xl:gap-10">
         <div className="rounded-3xl border border-border bg-card p-5 shadow-soft sm:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Memory collection</p>
               <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">What your history looks like when it stays</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Verified moments become collectible proof of where you showed up and what those actions unlocked.
-              </p>
+              <GuidanceDisclosure
+                id="vault:memory-collection"
+                eyebrow="Collection guide"
+                title="How verified moments become memories"
+                summary="Memories are collectible proof of where you showed up and what those actions unlocked."
+                className="mt-3"
+                tone="light"
+              >
+                <p className="text-sm text-muted-foreground">
+                  Verified moments become collectible proof of where you showed up and what those actions unlocked.
+                </p>
+              </GuidanceDisclosure>
             </div>
             {!isLoading ? (
               <Badge variant="outline" className="rounded-full">
@@ -253,7 +312,7 @@ const Vault = () => {
                   <Link
                     key={memory.id}
                     to={`/memories/${memory.id}`}
-                    className="group overflow-hidden rounded-[1.75rem] border border-border bg-background/50 transition-all duration-200 hover:-translate-y-1 hover:border-primary/20 hover:shadow-card"
+                    className="group overflow-hidden rounded-[1.75rem] border border-border bg-background/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 hover:-translate-y-1 hover:border-primary/20 hover:shadow-card"
                   >
                     <div className="relative h-40 overflow-hidden">
                       <img src={cultureEvents[index % cultureEvents.length]?.image} alt="" className="h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105" />

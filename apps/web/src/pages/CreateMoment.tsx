@@ -7,6 +7,7 @@ import { amiService } from "@/services/ami";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,39 +112,39 @@ const visibilityOptions = [
 const moneySourceOptions = [
   {
     value: "platform",
-    label: "Promorang may fund this from platform rewards",
+    label: "Promorang may allocate Gems from a platform program",
     shortLabel: "Promorang-backed",
-    description: "Use this to request rewards funded from Promorang subscriptions, sponsorships, fees, and other platform revenue. Payouts activate after allocation approval.",
+    description: "Request a Promorang Gem allocation. Nothing is funded until that allocation is approved and secured.",
   },
   {
     value: "content",
-    label: "Creator/content performance may fund this",
+    label: "A creator or content program may allocate the Gems",
     shortLabel: "Content-backed",
-    description: "Use this when the reward request is tied to content performance, creator missions, story engagement, or content-to-attendance results.",
+    description: "Use this when a creator or content program will secure the participant reserve after approval.",
   },
   {
     value: "host",
-    label: "I am funding the rewards",
+    label: "I will secure the Gems",
     shortLabel: "Host funded",
-    description: "Use this when you or your organization are putting money into the reward pool.",
+    description: "Use this when you or your organization will fund the activation reserve with Gems.",
   },
   {
     value: "event",
-    label: "The event budget is funding rewards",
+    label: "A partner will secure the Gems",
     shortLabel: "Event budget",
-    description: "Use this when the reward money comes from a sponsor, venue, or event budget.",
+    description: "Use this when a sponsor, venue, or event partner will fund the activation reserve.",
   },
   {
     value: "entry",
     label: "People pay to enter",
     shortLabel: "Entry funded",
-    description: "Use this when participant entry fees create the pool.",
+    description: "Use this when secured entry Gems contribute to the participant reserve.",
   },
   {
     value: "hybrid",
-    label: "Mix of host money and entry fees",
+    label: "A mix of host and entry Gems",
     shortLabel: "Mixed funding",
-    description: "Use this when there is more than one source of money.",
+    description: "Use this when more than one Gem source will fund the reserve.",
   },
 ] as const;
 
@@ -176,10 +177,10 @@ const payoutRuleOptions = [
 ] as const;
 
 const steps = [
-  { id: 1, title: "Promise", icon: Calendar },
-  { id: 2, title: "Place", icon: MapPin },
-  { id: 3, title: "Proof", icon: Users },
-  { id: 4, title: "Launch", icon: Check },
+  { id: 1, title: "Story & outcome", icon: Sparkles },
+  { id: 2, title: "Room & people", icon: MapPin },
+  { id: 3, title: "Proof & shared value", icon: Users },
+  { id: 4, title: "Review", icon: Check },
 ];
 
 const DEFAULT_MOMENT_TYPE = "community";
@@ -271,6 +272,9 @@ const CreateMoment = () => {
   const sourceContentId = searchParams.get('sourceContentId');
   const sourceContentTitle = searchParams.get('sourceContentTitle');
   const parentMomentId = searchParams.get('parentMomentId');
+  const returnTo = searchParams.get('returnTo');
+  const activationId = searchParams.get('activationId');
+  const safeReturnTo = returnTo?.startsWith("/") && !returnTo.startsWith("//") ? returnTo : null;
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
   const [currentStep, setCurrentStep] = useState(1);
@@ -341,6 +345,38 @@ const CreateMoment = () => {
     payoutAmountJmd: 0,
     payoutCapJmd: undefined,
   });
+  useEffect(() => {
+    if (!activationId) return;
+    let cancelled = false;
+    const loadActivationContext = async () => {
+      const { data, error } = await supabase
+        .from("proposals")
+        .select("title,description,funding_goal_gems,metadata,scene_id")
+        .eq("id", activationId)
+        .single();
+      if (error || !data || cancelled) return;
+      const metadata = (data.metadata || {}) as Record<string, unknown>;
+      const participantValue = Array.isArray(metadata.participant_value)
+        ? metadata.participant_value.join(", ")
+        : "";
+      setCreationType("campaign");
+      setFormData((current) => ({
+        ...current,
+        title: current.title || data.title || "",
+        description: current.description || String(metadata.outcome_detail || data.description || ""),
+        location: current.location || String(metadata.location || ""),
+        momentArchetype: current.momentArchetype || "activation",
+        moveTitle: String(metadata.what_counts || current.moveTitle),
+        moveDescription: current.moveDescription || (participantValue
+          ? `Complete the agreed action. Participant value: ${participantValue}.`
+          : ""),
+        moneySource: "platform",
+        rewardPoolJmd: Number(data.funding_goal_gems || current.rewardPoolJmd || 0),
+      }));
+    };
+    void loadActivationContext();
+    return () => { cancelled = true; };
+  }, [activationId]);
   // Pre-fill from Mechanic
   useEffect(() => {
     const nextExpectedAction =
@@ -487,20 +523,20 @@ const CreateMoment = () => {
         newErrors.startsAt = "Please select a start date and time";
       }
       if (formData.moneySource === "entry" && !formData.entryFeeJmd) {
-        newErrors.entryFeeJmd = "Entry fee is required for Sprint Moments";
+        newErrors.entryFeeJmd = "Set the Gems required for paid entry";
       }
       const requiresUpfrontFunding = !["entry", "platform", "content"].includes(formData.moneySource);
       if (formData.rewardPoolJmd > 0 && requiresUpfrontFunding && (formData.totalFundedJmd || 0) < formData.rewardPoolJmd) {
-        newErrors.totalFundedJmd = "Funding must cover the reward pool";
+        newErrors.totalFundedJmd = "The secured Gems must cover the participant reserve";
       }
       if (!formData.moveTitle) {
-        newErrors.moveTitle = "At least one Move is required";
+        newErrors.moveTitle = "Tell people the action they need to take";
       }
       if (recurrence.recurrenceEnabled && recurrence.recurrenceFrequency === "weekly" && recurrence.recurrenceByWeekday.length === 0) {
         newErrors.recurrenceByWeekday = "Pick at least one weekday for recurring moments";
       }
       if ((formData.moveRewardAmountJmd || 0) * (formData.moveMaxCompletions || 0) > (formData.rewardPoolJmd || 0)) {
-        newErrors.moveRewardAmountJmd = "Reward pool must cover max Move liability";
+        newErrors.moveRewardAmountJmd = "The participant reserve must cover every promised Gem return";
       }
     }
 
@@ -662,6 +698,13 @@ const CreateMoment = () => {
         expected_action_unit: formData.expectedActionUnit || 'Action',
         check_in_code: checkInCode,
         money_source: formData.moneySource,
+        value_unit: "GEM",
+        entry_fee_gems: formData.moneySource === "entry" ? formData.entryFeeJmd || 0 : null,
+        total_funded_gems: ["entry", "platform", "content"].includes(formData.moneySource) ? 0 : formData.totalFundedJmd || 0,
+        reward_pool_gems: formData.rewardPoolJmd || 0,
+        host_margin_gems: formData.hostMarginJmd || 0,
+        platform_fee_gems: formData.platformFeeJmd || 0,
+        ops_buffer_gems: formData.opsBufferJmd || 0,
         entry_fee_jmd: formData.moneySource === "entry" ? formData.entryFeeJmd || 0 : null,
         total_funded_jmd: ["entry", "platform", "content"].includes(formData.moneySource) ? 0 : formData.totalFundedJmd || 0,
         reward_pool_jmd: formData.rewardPoolJmd || 0,
@@ -690,6 +733,7 @@ const CreateMoment = () => {
           description: formData.moveDescription || null,
           proof_type: proofTypeMap[formData.proofType || "QR"] || "code",
           reward_amount_jmd: formData.moveRewardAmountJmd || formData.payoutAmountJmd || 0,
+          reward_amount_gems: formData.moveRewardAmountJmd || formData.payoutAmountJmd || 0,
           max_completions: formData.moveMaxCompletions,
           requires_unique: true,
           sort_order: 0,
@@ -698,6 +742,8 @@ const CreateMoment = () => {
           rule_type: formData.payoutRuleType,
           amount_jmd: formData.payoutAmountJmd || formData.moveRewardAmountJmd || 0,
           cap_jmd: formData.payoutCapJmd || formData.rewardPoolJmd || 0,
+          amount_gems: formData.payoutAmountJmd || formData.moveRewardAmountJmd || 0,
+          cap_gems: formData.payoutCapJmd || formData.rewardPoolJmd || 0,
           rank_start: formData.payoutRuleType === "first_n" ? 1 : null,
           rank_end: formData.payoutRuleType === "first_n" ? formData.moveMaxCompletions : null,
           criteria_json: {},
@@ -732,15 +778,19 @@ const CreateMoment = () => {
       }
 
       toast({
-        title: "Moment Created",
+        title: "Your Moment is ready",
         description: sourceContentId
           ? "Your story now has a launch moment and a mission link."
           : formData.moneySource === "entry"
-            ? "Entry payments can now fund this Sprint."
-            : "Funded pool locked. Completing this Moment with verified participation may also build your Genesis Season record.",
+            ? "Paid access will open when the required entry Gems are secured."
+            : formData.rewardPoolJmd > 0
+              ? "The Moment is created. Paid returns open after the activation Gems are secured."
+              : "The invitation is ready. You can now welcome people into the Moment.",
       });
 
-      navigate("/dashboard");
+      navigate(safeReturnTo && createdMomentId
+        ? `${safeReturnTo}${safeReturnTo.includes("?") ? "&" : "?"}attachMoment=${encodeURIComponent(createdMomentId)}`
+        : "/dashboard");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast({
@@ -758,11 +808,11 @@ const CreateMoment = () => {
       case 1:
         return (
           <div className="space-y-6">
-            <p className="mb-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Orientation</p>
-            <h2 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Promise of the moment</h2>
+            <p className="mb-2 text-[10px] font-black uppercase tracking-[0.24em] text-primary">Story and desired outcome</p>
+            <h2 className="mb-4 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em] text-foreground">What should people feel—and what should change?</h2>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <Label htmlFor="title">Moment Title *</Label>
+                <Label htmlFor="title">What will people call this Moment? *</Label>
                 <InfoTooltip content="Give your moment a catchy, descriptive name that reflects the experience." />
               </div>
               <Input
@@ -779,7 +829,7 @@ const CreateMoment = () => {
             </div>
 
             <div>
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Why will it be worth showing up? *</Label>
               <Textarea
                 id="description"
                 data-tour="create-moment-description"
@@ -900,9 +950,10 @@ const CreateMoment = () => {
       case 2:
         return (
           <div className="space-y-6">
+            <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Room and people</p><h2 className="mt-2 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em]">Where will people gather?</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">Make arrival feel certain: name the place and give people an address they can trust.</p></div>
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <Label htmlFor="venueName">Venue Name (Optional)</Label>
+                <Label htmlFor="venueName">What is the place called? (Optional)</Label>
                 <InfoTooltip content="If your moment is hosted at a specific venue, business, or landmark, specify it here." />
               </div>
               <Input
@@ -915,7 +966,7 @@ const CreateMoment = () => {
 
             <div>
               <div className="flex items-center gap-1.5 mb-2">
-                <Label htmlFor="location">Address *</Label>
+                <Label htmlFor="location">Where should people arrive? *</Label>
                 <InfoTooltip content="The exact address or meeting point where participants should gather for your moment." />
               </div>
               <Input
@@ -931,20 +982,26 @@ const CreateMoment = () => {
               )}
             </div>
 
-            <div className="bg-secondary/50 rounded-xl p-4">
+            <GuidanceDisclosure
+              id="create-moment:arrival-point"
+              title="Why the arrival point matters"
+              summary="An accurate arrival point protects the experience before the Moment begins."
+              className="mt-0"
+            >
               <p className="text-sm text-muted-foreground">
-                📍 Make sure the address is accurate so participants can find your moment easily.
+                People decide whether to trust a Moment before they arrive. A clear place name, address, or meeting point reduces confusion, late arrivals, support issues, and failed proof.
               </p>
-            </div>
+            </GuidanceDisclosure>
           </div>
         );
 
       case 3:
         return (
           <div className="space-y-6">
+            <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Story, proof, and shared value</p><h2 className="mt-2 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em]">What will people see, do, and leave with?</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">Shape the invitation, make what counts clear, and define the value that follows trusted participation.</p></div>
             {/* Cover Image */}
             <div>
-              <Label className="mb-3 block">Display Picture (Optional)</Label>
+              <Label className="mb-3 block">The image people meet first (Optional)</Label>
               <ImageUpload
                 value={formData.imageUrl}
                 onChange={(url) => updateField("imageUrl", url || "")}
@@ -958,7 +1015,7 @@ const CreateMoment = () => {
             </div>
 
             <div>
-              <Label className="mb-3 block">Banner Image (Optional)</Label>
+              <Label className="mb-3 block">A wider image for the Moment (Optional)</Label>
               <ImageUpload
                 value={formData.bannerImageUrl}
                 onChange={(url) => updateField("bannerImageUrl", url || "")}
@@ -1164,28 +1221,32 @@ const CreateMoment = () => {
               />
               <p className="text-muted-foreground text-sm mt-1">
                 <Gift className="w-3 h-3 inline mr-1" />
-                Rewards attract more participants!
+                A reward should deepen the experience, not replace the reason to take part.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-5 sm:p-5">
+            <div className="space-y-6 rounded-[2rem] border border-border/60 bg-background/45 p-5 sm:p-7">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Rewards</p>
-                  <h3 className="mt-1 text-xl font-semibold text-foreground">Set the reward budget</h3>
-                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    Add this only if people can earn money from the moment. You are choosing whether rewards are self-funded, entry-funded, sponsor-funded, Promorang-backed, or tied to creator/content performance.
+                <GuidanceDisclosure
+                  id="create-moment:shared-value"
+                  eyebrow="Shared value"
+                  title="What value follows participation?"
+                  summary="Use Gems only when verified participation earns platform value, and keep commitments inside the secured reserve."
+                  className="mt-0 flex-1"
+                >
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Add Gems only when verified participation earns platform value. Name who makes that value possible and keep every commitment within the secured reserve.
                   </p>
-                </div>
+                </GuidanceDisclosure>
                 <div className="rounded-xl border border-border/70 bg-muted/30 px-3 py-2 text-sm">
-                  <span className="text-muted-foreground">Max payout:</span>{" "}
-                  <span className="font-semibold text-foreground">JMD {totalRewardExposure.toLocaleString()}</span>
+                  <span className="text-muted-foreground">Maximum return:</span>{" "}
+                  <span className="font-semibold text-foreground">{totalRewardExposure.toLocaleString()} Gems</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Who is paying for the rewards? *</Label>
+                  <Label>Who makes the participant value possible? *</Label>
                   <Select value={formData.moneySource} onValueChange={(value) => handleMoneySourceChange(value as MomentFormData["moneySource"])}>
                     <SelectTrigger>
                       <SelectValue />
@@ -1205,7 +1266,7 @@ const CreateMoment = () => {
 
                 {formData.moneySource === "entry" && (
                   <div>
-                    <Label>What should each person pay to enter? *</Label>
+                    <Label>How many Gems are needed for entry? *</Label>
                     <Input
                       type="number"
                       min={1}
@@ -1214,13 +1275,13 @@ const CreateMoment = () => {
                       className={errors.entryFeeJmd ? "border-destructive" : ""}
                       placeholder="e.g., 500"
                     />
-                    <p className="mt-1 text-sm text-muted-foreground">This is charged before someone joins the paid sprint.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Paid access is issued only after these Gems are secured.</p>
                     {errors.entryFeeJmd && <p className="text-destructive text-sm mt-1">{errors.entryFeeJmd}</p>}
                   </div>
                 )}
 
                 <div>
-                  <Label>Total money available for participant rewards *</Label>
+                  <Label>Total Gems reserved for participant value *</Label>
                   <Input
                     type="number"
                     min={0}
@@ -1228,12 +1289,12 @@ const CreateMoment = () => {
                     onChange={(e) => updateField("rewardPoolJmd", Number(e.target.value) || 0)}
                     placeholder="e.g., 10000"
                   />
-                  <p className="mt-1 text-sm text-muted-foreground">The ceiling for all participant payouts from this moment.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">The maximum platform value this Moment can return to participants.</p>
                 </div>
 
                 {formData.moneySource !== "entry" && !isPlatformAllocatedSource && (
                   <div>
-                    <Label>Money already collected for this moment *</Label>
+                    <Label>Gems ready to secure for this Moment *</Label>
                     <Input
                       type="number"
                       min={0}
@@ -1242,13 +1303,13 @@ const CreateMoment = () => {
                       className={errors.totalFundedJmd ? "border-destructive" : ""}
                       placeholder="e.g., 10000"
                     />
-                    <p className="mt-1 text-sm text-muted-foreground">This should cover the reward pool before launch.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">This must cover the participant reserve before paid rewards can open.</p>
                     {errors.totalFundedJmd && <p className="text-destructive text-sm mt-1">{errors.totalFundedJmd}</p>}
                   </div>
                 )}
 
                 <div>
-                  <Label>Payment note or receipt reference</Label>
+                  <Label>Funding note or reserve reference</Label>
                   <Input
                     value={formData.fundingReference || ""}
                     onChange={(e) => updateField("fundingReference", e.target.value)}
@@ -1262,13 +1323,13 @@ const CreateMoment = () => {
                 </div>
 
                 <div>
-                  <Label>Promorang fee, if already known</Label>
+                  <Label>Promorang fee in Gems, if already known</Label>
                   <Input type="number" min={0} value={formData.platformFeeJmd || ""} onChange={(e) => updateField("platformFeeJmd", Number(e.target.value) || 0)} />
                   <p className="mt-1 text-sm text-muted-foreground">Leave blank if the platform will calculate this later.</p>
                 </div>
 
                 <div>
-                  <Label>Amount kept by the host, if any</Label>
+                  <Label>Host return in Gems, if any</Label>
                   <Input type="number" min={0} value={formData.hostMarginJmd || ""} onChange={(e) => updateField("hostMarginJmd", Number(e.target.value) || 0)} />
                   <p className="mt-1 text-sm text-muted-foreground">Use only when the budget includes a host share separate from rewards.</p>
                 </div>
@@ -1279,35 +1340,39 @@ const CreateMoment = () => {
                   ? "border-destructive/40 bg-destructive/10"
                   : "border-primary/20 bg-primary/5"
               }`}>
-                <p className="font-semibold text-foreground">Reward check</p>
+                <p className="font-semibold text-foreground">Shared-value check</p>
                 <p className="mt-1 text-muted-foreground">
-                  At the current settings, up to {formData.moveMaxCompletions} approved completions can pay JMD {formData.moveRewardAmountJmd.toLocaleString()} each, for a maximum of JMD {totalRewardExposure.toLocaleString()}.
+                  At the current settings, up to {formData.moveMaxCompletions} approved completions can return {formData.moveRewardAmountJmd.toLocaleString()} Gems each, for a maximum of {totalRewardExposure.toLocaleString()} Gems.
                   {" "}
                   {remainingRewardPool < 0
                     ? "Increase the reward pool or lower the per-person reward before launch."
-                    : `That leaves JMD ${remainingRewardPool.toLocaleString()} unassigned in the reward pool.`}
+                    : `That leaves ${remainingRewardPool.toLocaleString()} Gems unassigned in the reserve.`}
                 </p>
                 {formData.moneySource !== "entry" && !isPlatformAllocatedSource && (
                   <p className="mt-1 text-muted-foreground">
-                    Funding on hand: JMD {fundingOnHand.toLocaleString()}.
+                    Gems ready to secure: {fundingOnHand.toLocaleString()}.
                   </p>
                 )}
                 {isPlatformAllocatedSource && (
                   <p className="mt-1 text-muted-foreground">
-                    This starts as an allocation request. Promorang must approve and lock funding before cash payouts can run.
+                    This starts as an allocation request. Promorang must approve and secure Gems before paid returns can run.
                   </p>
                 )}
               </div>
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-4 space-y-4 sm:p-5">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Participant action</p>
-                <h3 className="mt-1 text-xl font-semibold text-foreground">What does someone need to do?</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+              <GuidanceDisclosure
+                id="create-moment:participant-action"
+                eyebrow="Participant action"
+                title="What does someone need to do?"
+                summary="Write the action like an instruction Promorang can verify before value is released."
+                className="mt-0"
+              >
+                <p className="text-sm text-muted-foreground">
                   Write this like an instruction a participant will understand. This is the action Promorang will verify before a reward is paid.
                 </p>
-              </div>
+              </GuidanceDisclosure>
 
               <div>
                 <Label>Action name *</Label>
@@ -1333,7 +1398,7 @@ const CreateMoment = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Reward for each approved person</Label>
+                  <Label>Gems returned to each approved person</Label>
                   <Input
                     type="number"
                     min={0}
@@ -1341,7 +1406,7 @@ const CreateMoment = () => {
                     onChange={(e) => updateField("moveRewardAmountJmd", Number(e.target.value) || 0)}
                     className={errors.moveRewardAmountJmd ? "border-destructive" : ""}
                   />
-                  <p className="mt-1 text-sm text-muted-foreground">Set to 0 if the reward is not cash.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Set to 0 when the return is access, recognition, a memory, or another non-Gem benefit.</p>
                   {errors.moveRewardAmountJmd && <p className="text-destructive text-sm mt-1">{errors.moveRewardAmountJmd}</p>}
                 </div>
 
@@ -1359,17 +1424,21 @@ const CreateMoment = () => {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-4 space-y-4 sm:p-5">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80">Payouts</p>
-                <h3 className="mt-1 text-xl font-semibold text-foreground">How should approved rewards be paid?</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Choose the simplest rule that matches the moment. Payments are queued only after proof is approved.
+              <GuidanceDisclosure
+                id="create-moment:release-rule"
+                eyebrow="Release rule"
+                title="When should secured Gems be released?"
+                summary="Choose the simplest rule that matches the Moment; Gems release after stated proof is approved."
+                className="mt-0"
+              >
+                <p className="text-sm text-muted-foreground">
+                  Choose the simplest rule that matches the Moment. Gems release only after the stated proof is approved.
                 </p>
-              </div>
+              </GuidanceDisclosure>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-3">
-                  <Label>Payout style *</Label>
+                  <Label>How the value is released *</Label>
                   <Select value={formData.payoutRuleType} onValueChange={(value) => updateField("payoutRuleType", value as MomentFormData["payoutRuleType"])}>
                     <SelectTrigger>
                       <SelectValue />
@@ -1385,12 +1454,12 @@ const CreateMoment = () => {
                   <p className="mt-1 text-sm text-muted-foreground">{selectedPayoutRule?.description}</p>
                 </div>
                 <div>
-                  <Label>Amount this rule pays</Label>
+                  <Label>Gems this rule releases</Label>
                   <Input type="number" min={0} value={formData.payoutAmountJmd} onChange={(e) => updateField("payoutAmountJmd", Number(e.target.value) || 0)} />
                   <p className="mt-1 text-sm text-muted-foreground">Usually the same as the per-person reward above.</p>
                 </div>
                 <div>
-                  <Label>Maximum this rule can pay</Label>
+                  <Label>Maximum Gems this rule can release</Label>
                   <Input type="number" min={0} value={formData.payoutCapJmd || ""} onChange={(e) => updateField("payoutCapJmd", Number(e.target.value) || undefined)} />
                   <p className="mt-1 text-sm text-muted-foreground">Leave blank to use the full reward pool as the cap.</p>
                 </div>
@@ -1409,7 +1478,7 @@ const CreateMoment = () => {
                     key={option.value}
                     type="button"
                     onClick={() => updateField("visibility", option.value as "open" | "invite" | "private")}
-                    className={`p-4 rounded-xl border-2 text-left transition-all ${formData.visibility === option.value
+                    className={`p-4 rounded-xl border-2 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${formData.visibility === option.value
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50"
                       }`}
@@ -1429,8 +1498,8 @@ const CreateMoment = () => {
         return (
           <div className="space-y-6">
             <div className="rounded-[2rem] border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-6">
-              <p className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Launch Review</p>
-              <h3 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{formData.title}</h3>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.24em] text-primary">The whole Moment</p>
+              <h3 className="mb-4 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em] text-foreground">{formData.title}</h3>
 
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1483,6 +1552,39 @@ const CreateMoment = () => {
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="text-sm text-muted-foreground">{formData.description}</p>
               </div>
+
+              <div className="mt-7 grid border-y border-border/60 sm:grid-cols-3">
+                {[
+                  {
+                    eyebrow: "People will",
+                    title: formData.moveTitle || getTaxonomyLabel(conversionTypes, formData.conversionType) || "Take part",
+                    detail: formData.moveDescription || "The participation instruction will appear here.",
+                  },
+                  {
+                    eyebrow: "What counts",
+                    title: formData.proofType ? `${formData.proofType} proof` : "Proof to be confirmed",
+                    detail: "This is reviewed before any promised value is released.",
+                  },
+                  {
+                    eyebrow: "What follows",
+                    title: formData.moveRewardAmountJmd > 0 ? `${formData.moveRewardAmountJmd.toLocaleString()} Gems` : formData.reward || "A verified Mark",
+                    detail: formData.moveRewardAmountJmd > 0 ? `Up to ${formData.moveMaxCompletions} people can receive this from the secured reserve.` : "The result stays connected to the participant and the Moment.",
+                  },
+                ].map((item) => (
+                  <div key={item.eyebrow} className="border-b border-border/60 py-5 last:border-b-0 sm:border-b-0 sm:border-r sm:px-5 sm:first:pl-0 sm:last:border-r-0 sm:last:pr-0">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">{item.eyebrow}</p>
+                    <p className="mt-3 font-serif text-xl font-semibold leading-tight">{item.title}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+
+              {formData.rewardPoolJmd > 0 && (
+                <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-orange-500/20 bg-orange-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-600">Activation reserve</p><p className="mt-1 text-sm text-muted-foreground">Paid returns open only after the required Gems are secured.</p></div>
+                  <p className="font-serif text-2xl font-semibold">{formData.rewardPoolJmd.toLocaleString()} Gems</p>
+                </div>
+              )}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
@@ -1537,35 +1639,53 @@ const CreateMoment = () => {
   const SelectedCreationIcon = selectedCreationType.icon;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-[100rem] pb-20">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 px-4 sm:px-0">
         <Button
           variant="ghost"
-          onClick={() => navigate("/dashboard")}
-          className="mb-4"
+          onClick={() => navigate(safeReturnTo || "/dashboard")}
+          className="mb-4 text-white/70 hover:text-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          Back to your studio
         </Button>
-        <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-foreground sm:text-6xl">
-          Build a moment people can prove.
-        </h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-          Choose the operating pattern, define the promise, set the proof, and make the unlock clear before it goes live.
-        </p>
+
+        {/* Unified Hero Container */}
+        <div className="relative overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 sm:p-10 shadow-2xl text-white">
+          <div className="flex items-center space-x-2 bg-primary/20 border border-primary/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary w-fit mb-4">
+            <Sparkles className="w-4 h-4" />
+            <span>Merchant & Host Studio • Post a Perk or Treat</span>
+          </div>
+
+          <h1 className="max-w-4xl font-sans text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[0.95]">
+            Post a Perk, <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">Free Coffee Voucher, or Treat.</span>
+          </h1>
+
+          <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-white/75">
+            Give people a real reason to show up. Offer a 30-second free perk or voucher drop, collect verified check-in proof, and turn quiet hours into loyal repeat customer visits.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-primary/90">
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">☕ Coffee & Food Drops</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">🎟️ VIP Passes & Vouchers</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">🚀 Zero Upfront Cash Needed</span>
+          </div>
+        </div>
       </div>
 
-      <section className="mb-8 rounded-[2rem] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-4 shadow-soft sm:p-6">
-        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creation type</p>
-            <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">What are you creating?</h2>
-          </div>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            This choice shapes recurrence, ownership, proof, rewards, and how Promorang explains the value path to participants.
+      <section className="mb-8 overflow-hidden rounded-[2rem] border border-border/60 bg-card/55 p-5 sm:p-8">
+        <GuidanceDisclosure
+          id="create-moment:invitation-shape"
+          eyebrow="Shape of the invitation"
+          title="What kind of gathering is this?"
+          summary="Choose the closest shape. You can refine timing, participation, proof, and shared value as the story develops."
+          className="mb-5 mt-0"
+        >
+          <p className="text-sm text-muted-foreground">
+            Choose the closest shape. You can refine timing, participation, proof, and shared value as the story develops.
           </p>
-        </div>
+        </GuidanceDisclosure>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {creationTypes.map((type) => {
             const Icon = type.icon;
@@ -1577,24 +1697,24 @@ const CreateMoment = () => {
                 type="button"
                 onClick={() => !disabled && handleCreationTypeSelect(type.id)}
                 disabled={disabled}
-                className={`group rounded-2xl border p-4 text-left transition ${
+                className={`group border-l-2 px-4 py-5 text-left transition ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground shadow-elevated"
+                    ? "border-primary bg-primary/5 text-foreground"
                     : disabled
-                      ? "border-border/60 bg-muted/30 text-muted-foreground opacity-75"
-                      : "border-border bg-background/80 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                      ? "border-border bg-muted/20 text-muted-foreground opacity-75"
+                      : "border-border text-foreground hover:border-primary/40 hover:bg-muted/25"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                    active ? "bg-primary-foreground/15" : "bg-primary/10 text-primary"
+                    active ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
                   }`}>
                     <Icon className="h-5 w-5" />
                   </span>
                   <span>
                     <span className="block text-[10px] font-black uppercase tracking-[0.18em] opacity-75">{type.eyebrow}</span>
                     <span className="mt-1 block text-base font-bold">{type.label}</span>
-                    <span className={`mt-1 block text-sm ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                    <span className="mt-1 block text-sm text-muted-foreground">
                       {disabled ? "Open this from a parent moment to assign sub-moment ownership." : type.description}
                     </span>
                   </span>
@@ -1606,50 +1726,26 @@ const CreateMoment = () => {
       </section>
 
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2 touch-pan-x">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex shrink-0 items-center">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${currentStep >= step.id
-                  ? "bg-primary border-primary text-primary-foreground"
-                  : "border-border text-muted-foreground"
-                  }`}
-              >
-                <step.icon className="w-5 h-5" />
-              </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`mx-2 h-0.5 ${currentStep > step.id ? "bg-primary" : "bg-border"
-                    }`}
-                  style={{ width: "clamp(28px, 10vw, 60px)" }}
-                />
-              )}
+      <nav aria-label="Moment creation progress" className="mb-8 overflow-x-auto border-y border-border/60 touch-pan-x">
+        <div className="flex min-w-max items-stretch">
+          {steps.map((step) => (
+            <div key={step.id} className={`flex min-w-48 items-center gap-3 border-r border-border/60 px-5 py-4 last:border-r-0 ${currentStep === step.id ? "bg-primary/5" : ""}`}>
+              <span className={`font-serif text-lg ${currentStep >= step.id ? "text-primary" : "text-muted-foreground/40"}`}>0{step.id}</span>
+              <span className={`text-xs font-bold ${currentStep >= step.id ? "text-foreground" : "text-muted-foreground"}`}>{step.title}</span>
             </div>
           ))}
         </div>
-        <div className="mt-2 grid grid-cols-4 gap-2">
-          {steps.map((step) => (
-            <span
-              key={step.id}
-              className={`min-w-0 text-center text-[10px] sm:text-xs ${currentStep >= step.id ? "text-foreground" : "text-muted-foreground"
-                }`}
-            >
-              {step.title}
-            </span>
-          ))}
-        </div>
-      </div>
+      </nav>
 
       {/* Step Content */}
-      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-        <div className="lg:col-span-2">
-          <div className="h-full rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="mb-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_25rem]">
+        <div>
+          <div className="h-full rounded-[2rem] border border-border/60 bg-card/55 p-5 sm:p-8 lg:p-10">
             {renderStepContent()}
           </div>
         </div>
 
-        <div className="lg:col-span-1 space-y-6">
+        <div className="space-y-6">
           {currentStep === 4 && (
             <>
               <div className="animate-in rounded-2xl border border-primary/20 bg-primary/5 p-4 slide-in-from-right-4 sm:p-6">
@@ -1684,52 +1780,52 @@ const CreateMoment = () => {
           )}
 
           {currentStep < 4 && (
-            <div className="h-full min-h-[300px] rounded-2xl border border-border bg-card p-5 shadow-soft">
+            <aside className="h-full min-h-[300px] rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white shadow-[0_28px_80px_rgba(0,0,0,.24)] xl:sticky xl:top-28">
               <div className="flex items-start gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
                   <SelectedCreationIcon className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Moment blueprint</p>
-                  <h4 className="mt-1 text-2xl font-black tracking-[-0.04em] text-foreground">{selectedCreationType.label}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{selectedCreationType.description}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-400">The Moment taking shape</p>
+                  <h4 className="mt-2 font-serif text-2xl font-semibold tracking-[-0.04em] text-white">{selectedCreationType.label}</h4>
+                  <p className="mt-2 text-sm leading-6 text-white/45">{selectedCreationType.description}</p>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-border/70 bg-muted/30 p-4">
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 text-center">
                   <div className="min-w-0">
                     <Route className="mx-auto mb-1 h-4 w-4 text-primary" />
-                    <p className="truncate text-xs font-bold text-foreground">{getTaxonomyLabel(conversionTypes, formData.conversionType) || "Action"}</p>
+                    <p className="truncate text-xs font-bold text-white">{getTaxonomyLabel(conversionTypes, formData.conversionType) || "Action"}</p>
                     <p className="text-[10px] text-muted-foreground">participant does</p>
                   </div>
                   <span className="h-px w-5 bg-border" />
                   <div className="min-w-0">
                     <Target className="mx-auto mb-1 h-4 w-4 text-primary" />
-                    <p className="truncate text-xs font-bold text-foreground">{formData.proofType || "Proof"}</p>
+                    <p className="truncate text-xs font-bold text-white">{formData.proofType || "Proof"}</p>
                     <p className="text-[10px] text-muted-foreground">system verifies</p>
                   </div>
                   <span className="h-px w-5 bg-border" />
                   <div className="min-w-0">
                     <Sparkles className="mx-auto mb-1 h-4 w-4 text-primary" />
-                    <p className="truncate text-xs font-bold text-foreground">{formData.reward ? "Reward" : "Mark"}</p>
+                    <p className="truncate text-xs font-bold text-white">{formData.reward ? "Reward" : "Mark"}</p>
                     <p className="text-[10px] text-muted-foreground">value unlocks</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-5 space-y-3 text-sm">
-                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
-                  <span className="text-muted-foreground">Recurrence</span>
-                  <span className="font-semibold text-foreground">{recurrence.recurrenceEnabled ? "Enabled" : "Off"}</span>
+                <div className="flex items-center justify-between border-b border-white/10 py-3">
+                  <span className="text-white/40">Returns</span>
+                  <span className="font-semibold text-white">{recurrence.recurrenceEnabled ? "Repeats" : "One time"}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
-                  <span className="text-muted-foreground">Ownership</span>
-                  <span className="font-semibold text-foreground">{parentMomentId ? "Sub-moment owner" : "Primary owner"}</span>
+                <div className="flex items-center justify-between border-b border-white/10 py-3">
+                  <span className="text-white/40">Care</span>
+                  <span className="font-semibold text-white">{parentMomentId ? "Shared inside a Moment" : "You are hosting"}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
-                  <span className="text-muted-foreground">Supply type</span>
-                  <span className="font-semibold text-foreground">Stakeholder-created</span>
+                <div className="flex items-center justify-between py-3">
+                  <span className="text-white/40">Status</span>
+                  <span className="font-semibold text-white">Taking shape</span>
                 </div>
               </div>
 
@@ -1741,7 +1837,7 @@ const CreateMoment = () => {
                   </p>
                 </div>
               )}
-            </div>
+            </aside>
           )}
         </div>
       </div>

@@ -168,9 +168,10 @@ const CreateCampaign = () => {
       await createCampaign.mutateAsync({
         title: formData.title,
         description: formData.description,
-        budget: formData.budgetUsd,
-        reward_type: "points",
-        reward_value: `${formData.payoutPerVerifiedPostJmd} JMD per verified post`,
+        budget: null,
+        reward_type: "gems",
+        reward_value: `${formData.payoutPerVerifiedPostJmd} Gems proposed per verified post`,
+        is_active: false,
         target_categories: formData.categories,
         start_date: formData.distributionStart,
         end_date: formData.distributionEnd,
@@ -193,6 +194,11 @@ const CreateCampaign = () => {
           participantFlow: ["click_or_scan", "join_moment", "execute_action", "submit_proof", "receive_reward"],
           categories: formData.categories,
           duration_days: formData.durationDays,
+          planned_budget_gems: formData.budgetUsd,
+          planned_reward_per_verified_post_gems: formData.payoutPerVerifiedPostJmd,
+          value_unit: "GEM",
+          funding_status: "unfunded",
+          activation_status: "draft",
         },
       });
 
@@ -260,7 +266,7 @@ const CreateCampaign = () => {
                     key={goal.value}
                     type="button"
                     onClick={() => toggleArrayValue("goals", goal.value)}
-                    className={`rounded-xl border-2 p-4 text-left transition-all ${
+                    className={`rounded-xl border-2 p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                       formData.goals.includes(goal.value)
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
@@ -442,7 +448,7 @@ const CreateCampaign = () => {
                     key={category.value}
                     type="button"
                     onClick={() => toggleArrayValue("categories", category.value)}
-                    className={`rounded-xl border-2 p-4 text-left transition-all ${
+                    className={`rounded-xl border-2 p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                       formData.categories.includes(category.value)
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
@@ -523,16 +529,34 @@ const CreateCampaign = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4 text-white/70 hover:text-white">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Button>
-        <h1 className="font-serif text-3xl font-bold text-foreground">Create PromoPush</h1>
-        <p className="mt-2 text-muted-foreground">
-          Build the geo-triggered input pipe that feeds a single Moment.
-        </p>
+
+        {/* Unified Hero Container */}
+        <div className="relative overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] p-6 sm:p-10 shadow-2xl text-white">
+          <div className="flex items-center space-x-2 bg-primary/20 border border-primary/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary w-fit mb-4">
+            <Target className="w-4 h-4" />
+            <span>Brand & Advertiser Studio • Launch a Perk Drop</span>
+          </div>
+
+          <h1 className="max-w-4xl font-sans text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight leading-[0.95]">
+            Fund a Brand Perk Drop & <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">Verified Social Shares.</span>
+          </h1>
+
+          <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-white/75">
+            Set your perk reward budget, require 30-second Instagram or TikTok Story proof, and get 100% verified customer actions with transparent ROI tracking.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-primary/90">
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📸 Verified Story Shares</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">📊 Guaranteed Customer Actions</span>
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1">🎯 Zero-Waste Ad Budget</span>
+          </div>
+        </div>
       </div>
 
       <div className="mb-8">
