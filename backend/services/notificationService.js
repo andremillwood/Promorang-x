@@ -26,11 +26,11 @@ async function sendToUser(userId, notification) {
         // Get user's push token
         const { data: user, error } = await supabase
             .from('users')
-            .select('push_token, display_name')
+            .select('push_token, display_name, notifications_enabled')
             .eq('id', userId)
             .single();
 
-        if (error || !user?.push_token) {
+        if (error || !user?.push_token || user.notifications_enabled === false) {
             console.log(`[Notifications] No push token for user ${userId}`);
             return { sent: false, reason: 'no_token' };
         }

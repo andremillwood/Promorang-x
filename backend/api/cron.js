@@ -6,6 +6,8 @@ const { processEmailQueue } = require('../workers/emailProcessor');
 const adminDigestService = require('../services/adminDigestService');
 const dailyLayerJob = require('../jobs/dailyLayerJob');
 const promoShareScheduler = require('../jobs/promoShareScheduler');
+const journeyNotificationScheduler = require('../services/journeyNotificationScheduler');
+const guestRsvpMessagingService = require('../services/guestRsvpMessagingService');
 
 function requireCronAuth(req, res, next) {
   const configuredSecret = process.env.CRON_SECRET;
@@ -66,6 +68,39 @@ async function runDailyEmailMaintenance() {
     results.promoShare = { success: false, error: error.message };
   }
 
+  try {
+    results.journeyNotifications = await journeyNotificationScheduler.runDueJourneyNotifications();
+  } catch (error) {
+    results.journeyNotifications = { success: false, error: error.message };
+  }
+
+  try {
+    results.guestRsvpUpdates = await guestRsvpMessagingService.processMomentChanges();
+  } catch (error) {
+    results.guestRsvpUpdates = { success: false, error: error.message };
+  }
+
+  try {
+    results.guestRsvpRetries = await guestRsvpMessagingService.retryFailedDeliveries();
+  } catch (error) {
+    results.guestRsvpRetries = { success: false, error: error.message };
+  }
+
+  try {
+    results.guestRsvpReminders = await guestRsvpMessagingService.processUpcomingReminders();
+  } catch (error) {
+    results.guestRsvpReminders = { success: false, error: error.message };
+  }
+
+  try {
+    const marketplaceService = require('../services/marketplaceService');
+    const settlementService = require('../services/merchantSettlementService');
+    results.expiredCommerceReservations = await marketplaceService.releaseExpiredReservations();
+    results.merchantSettlements = await settlementService.processDueSettlements();
+  } catch (error) {
+    results.merchantSettlements = { success: false, error: error.message };
+  }
+
   return results;
 }
 
@@ -87,6 +122,16 @@ router.post('/email-queue', async (req, res) => {
 router.get('/email-queue', async (req, res) => {
   await processEmailQueue();
   res.json({ success: true, job: 'email-queue' });
+});
+
+router.all('/journey-notifications', async (req, res) => {
+  const results = await journeyNotificationScheduler.runDueJourneyNotifications();
+  res.json({ success: true, job: 'journey-notifications', results });
+});
+
+router.all('/guest-rsvp-updates', async (req, res) => {
+  const [changes, retries, reminders] = await Promise.all([guestRsvpMessagingService.processMomentChanges(), guestRsvpMessagingService.retryFailedDeliveries(), guestRsvpMessagingService.processUpcomingReminders()]);
+  res.json({ success: true, job: 'guest-rsvp-updates', results: { changes, retries, reminders } });
 });
 
 router.post('/revenue-lifecycle', async (req, res) => {

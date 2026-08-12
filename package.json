@@ -17,7 +17,7 @@
     "test:shared": "npm test --workspace packages/shared",
     "qa:commerce": "node scripts/audit-experience-commerce.cjs",
     "qa:commerce:activate": "node scripts/activate-experience-commerce-qa.cjs",
-    "deploy:web": "cd apps/web && npx vercel --prod",
+    "deploy:web": "npx vercel --prod",
     "deploy:backend": "cd backend && npx vercel --prod",
     "deploy": "npm run deploy:web && npm run deploy:backend"
   },
@@ -39,8 +39,9 @@
     "husky": "^9.1.7"
   },
   "dependencies": {
-    "react-native-worklets": "0.5.1",
-    "react-native-qrcode-svg": "^6.3.21"
+    "react-native-maps": "1.20.1",
+    "react-native-qrcode-svg": "^6.3.21",
+    "react-native-worklets": "0.5.1"
   },
   "overrides": {
     "@types/react": "18.3.12",

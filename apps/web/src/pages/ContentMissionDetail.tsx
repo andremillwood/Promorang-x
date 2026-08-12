@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, ExternalLink, Heart, Share2, MessageSquare, ArrowRight, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -184,7 +185,14 @@ export default function ContentMissionDetail() {
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-6">
-          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+          <GuidanceDisclosure
+            id="content-mission:mission-flow"
+            eyebrow="Mission guide"
+            title="How the mission moves from story to action"
+            summary="Feel drawn in, show up, and see what opens after the linked Moment."
+            className="mt-0"
+            tone="light"
+          >
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Mission Flow</p>
@@ -201,7 +209,7 @@ export default function ContentMissionDetail() {
                 </div>
               ))}
             </div>
-          </div>
+          </GuidanceDisclosure>
 
           <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5 sm:p-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">What to do when you get there</p>
@@ -284,12 +292,19 @@ export default function ContentMissionDetail() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+          <GuidanceDisclosure
+            id="content-mission:why-it-matters"
+            eyebrow="Mission context"
+            title="Why this story matters"
+            summary="The story connects attention to a real Moment, arrival, return, and memory."
+            className="mt-0"
+            tone="light"
+          >
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">Why this matters</p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               This story is connected to a real Moment. Promorang can show the creator, host, venue, and partners what the story helped set in motion—from attention to arrival, connection, return, and memory.
             </p>
-          </div>
+          </GuidanceDisclosure>
         </div>
       </section>
     </main>

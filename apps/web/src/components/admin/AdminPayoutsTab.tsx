@@ -283,7 +283,7 @@ export const AdminPayoutsTab = () => {
                     </div>
                 ) : (
                     filteredRequests.map((req) => (
-                        <Card key={req.id} className="overflow-hidden border-border/50 hover:border-primary/50 transition-all group shadow-sm">
+                        <Card key={req.id} className="overflow-hidden border-border/50 hover:border-primary/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group shadow-sm">
                             <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border">
                                 {/* Vendor & Amount Info */}
                                 <div className="p-6 lg:w-[350px] shrink-0 bg-secondary/10">

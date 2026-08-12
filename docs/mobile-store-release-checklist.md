@@ -27,9 +27,11 @@ This checks TypeScript and produces independent iOS and Android production bundl
 - Explicit notification opt-in and Expo push-token registration.
 - Production Promorang icon, adaptive icon, splash mark, and favicon derived from the established brand mark.
 - EAS preview and production build profiles with automatic version increments.
+- Expo SDK 54 packages aligned to Expo's recommended patch versions.
 
 ## Required before the first store build
 
+- [ ] Follow `docs/mobile-account-configuration.md` and commit the generated Expo owner and EAS project ID.
 - [ ] Apply `202607140003_mobile_release_readiness.sql` to the production Supabase project.
 - [ ] Deploy the backend and web app so the privacy endpoints and `/account-deletion` page are public.
 - [ ] Run `eas init` from `apps/mobile` and commit the generated Expo `projectId` and owner association.
@@ -40,7 +42,16 @@ This checks TypeScript and produces independent iOS and Android production bundl
 - [ ] Configure APNs and FCM credentials through EAS before testing push notifications.
 - [ ] Decide whether version 1 supports iPad. If not, set `supportsTablet` to `false`; if yes, complete iPad QA and screenshots.
 
+## Dependency security review
+
+The mobile production-tree audit currently reports 30 inherited advisories: 1 low, 20 moderate, 8 high, and 1 critical. None of the high or critical findings is a direct application dependency; the critical `shell-quote` finding arrives through React Native's developer-tools chain. Expo's supported patch versions are installed and `expo install --check` passes. npm's proposed complete remediation requires a major jump from Expo SDK 54 to SDK 57, so do not use `npm audit fix --force` on the release branch.
+
+- [ ] Decide whether to complete and regression-test an Expo SDK 57 upgrade before submission, or formally accept the SDK 54 transitive tooling risk for this release.
+- [ ] Re-run the production-tree audit immediately before the release build and retain the result with the release evidence.
+
 ## Payments decision — launch blocker
+
+The version 1 decision is recorded in `docs/mobile-payments-policy.md`: native Stripe is limited to clearly classified physical goods and real-world services/access. Digital products, purchased Gems, paid digital functionality, and sponsor funding remain non-purchasable in native builds until compliant native billing or a reviewed exception is implemented.
 
 Document each thing purchasable in the mobile app as one of:
 
@@ -48,7 +59,7 @@ Document each thing purchasable in the mobile app as one of:
 2. Digital content, digital functionality, or in-app virtual currency: implement StoreKit and Google Play Billing unless a documented regional/program exception applies.
 3. Earned or previously acquired value: make the mobile app consumption-only and do not link users to an external purchase flow for prohibited digital purchases.
 
-Do not submit until Gems, Pieces, funded participation, and paid access have a written classification and the mobile UI exposes only compliant checkout paths for each platform.
+Do not submit until server-side purchase enforcement and QA confirm that the documented classification matches every native purchase surface.
 
 ## Device QA matrix
 
@@ -66,6 +77,8 @@ Do not submit until Gems, Pieces, funded participation, and paid access have a w
 - [ ] Accessibility labels, dynamic text, screen reader traversal, color contrast, and tap targets.
 
 ## Store-console work
+
+Use `docs/mobile-store-listing.md` for listing copy, screenshot planning, reviewer notes, and release evidence.
 
 ### Apple App Store Connect
 

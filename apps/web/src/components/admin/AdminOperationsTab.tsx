@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock3,
   Gem,
   Gift,
   LifeBuoy,
@@ -17,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -244,113 +242,72 @@ export function AdminOperationsTab() {
         )}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <Card className="xl:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Gems Holds And Unlocks</CardTitle>
-            <CardDescription>Purchased holds, locked bonuses, and unlock-ready grants.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading || !data ? (
-              Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-lg" />)
-            ) : data.gems.recent_activity.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                No recent Gems hold activity.
+      <Card className="overflow-hidden">
+        <Tabs defaultValue="gems">
+          <CardHeader className="border-b border-border/70 bg-muted/20">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <CardTitle className="text-xl">Live operations queue</CardTitle>
+                <CardDescription className="mt-1">Switch queues without losing the operating context.</CardDescription>
               </div>
+              <TabsList className="h-auto justify-start overflow-x-auto bg-background/70 p-1">
+                <TabsTrigger value="gems">Gems holds</TabsTrigger>
+                <TabsTrigger value="redemptions">Redemptions</TabsTrigger>
+                <TabsTrigger value="support">Support</TabsTrigger>
+              </TabsList>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading || !data ? (
+              <div className="space-y-2 p-5">{Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-14 rounded-lg" />)}</div>
             ) : (
-              data.gems.recent_activity.map((row) => (
-                <div key={row.id} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{row.email || row.id.slice(0, 8)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {row.transaction_type} · {row.redemption_status.replace(/_/g, " ")}
-                      </p>
+              <>
+                <TabsContent value="gems" className="m-0">
+                  <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                    <span>Account</span><span>State</span><span>Amount</span><span>Source</span>
+                  </div>
+                  {data.gems.recent_activity.length ? data.gems.recent_activity.map((row) => (
+                    <div key={row.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">
+                      <span className="truncate font-semibold">{row.email || row.id.slice(0, 8)}</span>
+                      <span className="truncate text-muted-foreground">{row.transaction_type} · {row.redemption_status.replace(/_/g, " ")}</span>
+                      <span className="font-black">{row.amount.toLocaleString()} Gems</span>
+                      <MiniPill demo={row.is_demo} />
                     </div>
-                    <MiniPill demo={row.is_demo} />
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="font-semibold">{row.amount.toLocaleString()} Gems</span>
-                    {row.objective_code ? (
-                      <Badge variant="outline">{row.objective_code}</Badge>
-                    ) : null}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                  )) : <div className="p-8 text-center text-sm text-muted-foreground">No recent Gems hold activity.</div>}
+                </TabsContent>
 
-        <Card className="xl:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Redemption Attempts</CardTitle>
-            <CardDescription>Recent Gems cash-out attempts and their current status.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading || !data ? (
-              Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-lg" />)
-            ) : data.redemptions.recent_attempts.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                No recent redemption attempts.
-              </div>
-            ) : (
-              data.redemptions.recent_attempts.map((row) => (
-                <div key={row.id} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{row.email || row.id.slice(0, 8)}</p>
-                      <p className="text-xs text-muted-foreground">{row.withdrawal_method || "withdrawal"} · {row.status}</p>
+                <TabsContent value="redemptions" className="m-0">
+                  <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                    <span>Account</span><span>Method</span><span>Amount</span><span>Status</span>
+                  </div>
+                  {data.redemptions.recent_attempts.length ? data.redemptions.recent_attempts.map((row) => (
+                    <div key={row.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">
+                      <span className="truncate font-semibold">{row.email || row.id.slice(0, 8)}</span>
+                      <span className="truncate text-muted-foreground">{row.withdrawal_method || "withdrawal"}</span>
+                      <span className="font-black">${row.amount.toLocaleString()}</span>
+                      <Badge variant="outline" className="w-fit capitalize">{row.status}</Badge>
                     </div>
-                    <MiniPill demo={row.is_demo} />
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="font-semibold">${row.amount.toLocaleString()}</span>
-                    {row.status === "completed" ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    ) : row.status === "rejected" ? (
-                      <AlertTriangle className="h-4 w-4 text-rose-500" />
-                    ) : (
-                      <Clock3 className="h-4 w-4 text-amber-500" />
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                  )) : <div className="p-8 text-center text-sm text-muted-foreground">No recent redemption attempts.</div>}
+                </TabsContent>
 
-        <Card className="xl:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Support Escalations</CardTitle>
-            <CardDescription>Open tickets that still need attention or carry higher urgency.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading || !data ? (
-              Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-lg" />)
-            ) : data.support.recent_escalations.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                No open escalations.
-              </div>
-            ) : (
-              data.support.recent_escalations.map((ticket) => (
-                <div key={ticket.id} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{ticket.subject}</p>
-                      <p className="text-xs text-muted-foreground">{ticket.category.replace(/_/g, " ")} · {ticket.status.replace(/_/g, " ")}</p>
+                <TabsContent value="support" className="m-0">
+                  <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                    <span>Issue</span><span>Category</span><span>Priority</span><span>Source</span>
+                  </div>
+                  {data.support.recent_escalations.length ? data.support.recent_escalations.map((ticket) => (
+                    <div key={ticket.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">
+                      <span className="truncate font-semibold">{ticket.subject}</span>
+                      <span className="truncate text-muted-foreground">{ticket.category.replace(/_/g, " ")}</span>
+                      <Badge variant="outline" className="w-fit capitalize">{ticket.priority}</Badge>
+                      <MiniPill demo={ticket.is_demo} />
                     </div>
-                    <MiniPill demo={ticket.is_demo} />
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-sm">
-                    <Badge variant="outline">{ticket.priority}</Badge>
-                    <span className="text-xs text-muted-foreground">{new Date(ticket.created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))
+                  )) : <div className="p-8 text-center text-sm text-muted-foreground">No open escalations.</div>}
+                </TabsContent>
+              </>
             )}
           </CardContent>
-        </Card>
-      </div>
+        </Tabs>
+      </Card>
     </div>
   );
 }

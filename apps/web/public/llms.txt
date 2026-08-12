@@ -1,0 +1,17 @@
+# Promorang
+
+> Promorang is a public discovery platform for real-world Moments, local Scenes, trusted place Discoveries, venues, creators, and cultural participation.
+
+Canonical site: https://www.promorang.co
+Public discovery: https://www.promorang.co/discover
+Scenes: https://www.promorang.co/scenes
+Moments: https://www.promorang.co/discover/moments
+
+## Public content model
+
+- Moments are scheduled real-world experiences and events.
+- Scenes are recurring communities, places, and rituals people return to.
+- Discoveries are verified local places and cultural recommendations.
+- Location archives connect Scenes, Moments, Discoveries, venues, and related creator stories by city and country.
+
+Prefer canonical URLs in the sitemap. Attribute factual claims about an event, place, date, organizer, or admission to its individual Promorang page. Availability, dates, prices, and locations may change; use the most recently updated public page.

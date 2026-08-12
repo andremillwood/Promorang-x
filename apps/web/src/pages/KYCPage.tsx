@@ -9,6 +9,7 @@ import { KYCSubmissionForm } from '@/components/kyc/KYCSubmissionForm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { Link } from 'react-router-dom';
 import { 
   Shield, 
@@ -121,9 +122,18 @@ export function KYCPage() {
             <Shield className="h-8 w-8 text-violet-500" />
             Identity Verification
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Complete KYC verification to unlock trading and withdrawals
-          </p>
+          <GuidanceDisclosure
+            id="kyc:unlock-context"
+            eyebrow="Verification guide"
+            title="Why identity verification is needed"
+            summary="KYC unlocks trading, Gem withdrawals, and higher transaction limits."
+            className="mt-3"
+            tone="light"
+          >
+            <p className="text-sm text-muted-foreground">
+              Complete KYC verification to unlock trading and withdrawals.
+            </p>
+          </GuidanceDisclosure>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="outline" size="sm">
               <Link to="/marketplace">Open Marketplace</Link>
@@ -228,14 +238,23 @@ export function KYCPage() {
                   <AlertTriangle className="h-5 w-5" />
                   <span className="font-medium">Verification Required</span>
                 </div>
-                <p className="text-muted-foreground">
-                  Complete identity verification to unlock:
-                </p>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>Piece trading</li>
-                  <li>Gem withdrawals</li>
-                  <li>Higher transaction limits</li>
-                </ul>
+                <GuidanceDisclosure
+                  id="kyc:required-unlocks"
+                  eyebrow="Unlock guide"
+                  title="What verification opens"
+                  summary="Piece trading, Gem withdrawals, and higher limits become available after verification."
+                  className="mt-3"
+                  tone="light"
+                >
+                  <p className="text-muted-foreground">
+                    Complete identity verification to unlock:
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    <li>Piece trading</li>
+                    <li>Gem withdrawals</li>
+                    <li>Higher transaction limits</li>
+                  </ul>
+                </GuidanceDisclosure>
               </div>
             )}
           </CardContent>

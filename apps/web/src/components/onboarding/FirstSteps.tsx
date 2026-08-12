@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Progress } from "@/components/ui/progress";
-import { 
-  UserCircle, 
-  Search, 
-  Calendar, 
-  MapPin, 
-  Users, 
+import {
+  UserCircle,
+  Search,
+  Calendar,
+  MapPin,
+  Users,
   Gift,
   CheckCircle2,
   ChevronRight,
@@ -39,9 +40,9 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
   const [steps, setSteps] = useState<Step[]>([]);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState(false);
-  const [celebration, setCelebration] = useState<{ isOpen: boolean; stepName: string }>({ 
-    isOpen: false, 
-    stepName: "" 
+  const [celebration, setCelebration] = useState<{ isOpen: boolean; stepName: string }>({
+    isOpen: false,
+    stepName: ""
   });
   const [previousCompleted, setPreviousCompleted] = useState<string[]>([]);
 
@@ -50,7 +51,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
 
     const checkProgress = async () => {
       setLoading(true);
-      
+
       // Check profile completion
       const { data: profile } = await supabase
         .from('users')
@@ -149,7 +150,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
       // Check for newly completed steps
       const currentlyCompleted = stepsData.filter(s => s.isComplete).map(s => s.id);
       const newlyCompleted = currentlyCompleted.filter(id => !previousCompleted.includes(id));
-      
+
       if (newlyCompleted.length > 0 && previousCompleted.length > 0) {
         // Trigger celebration for the most recently completed step
         const completedStep = stepsData.find(s => s.id === newlyCompleted[0]);
@@ -157,7 +158,7 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
           setCelebration({ isOpen: true, stepName: completedStep.title });
         }
       }
-      
+
       setPreviousCompleted(currentlyCompleted);
 
       // If all complete, call onComplete
@@ -190,14 +191,23 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
               </span>
             </div>
             <h2 className="text-xl font-bold font-serif">Complete Your Setup</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {completedCount === 0 
-                ? "Let's get you started with 5 quick steps"
-                : `Great progress! ${steps.length - completedCount} steps remaining`
-              }
-            </p>
+            <GuidanceDisclosure
+              id="onboarding:first-steps"
+              eyebrow="Setup guide"
+              title="How to use your setup checklist"
+              summary={completedCount === 0 ? "Start with five quick steps." : `${steps.length - completedCount} setup steps remain.`}
+              className="mt-2"
+              tone="light"
+            >
+              <p className="text-sm text-muted-foreground">
+                {completedCount === 0
+                  ? "Let's get you started with 5 quick steps"
+                  : `Great progress! ${steps.length - completedCount} steps remaining`
+                }
+              </p>
+            </GuidanceDisclosure>
           </div>
-          <button 
+          <button
             onClick={() => { setDismissed(true); onDismiss?.(); }}
             className="p-1 rounded-full hover:bg-muted transition-colors"
           >
@@ -218,23 +228,23 @@ export function FirstSteps({ onComplete, onDismiss }: FirstStepsProps) {
         <div className="space-y-3">
           {steps.map((step, index) => {
             const isLocked = index > 0 && !steps[index - 1].isComplete;
-            
+
             return (
-              <div 
+              <div
                 key={step.id}
-                className={`flex items-center gap-4 p-3 rounded-xl transition-all ${
-                  step.isComplete 
-                    ? "bg-muted/50" 
-                    : isLocked 
-                      ? "opacity-50" 
+                className={`flex items-center gap-4 p-3 rounded-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
+                  step.isComplete
+                    ? "bg-muted/50"
+                    : isLocked
+                      ? "opacity-50"
                       : "bg-card border border-border hover:border-primary/50 cursor-pointer"
                 }`}
               >
                 {/* Icon / Check */}
                 <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  step.isComplete 
-                    ? "bg-emerald-500/10 text-emerald-500" 
-                    : isLocked 
+                  step.isComplete
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : isLocked
                       ? "bg-muted text-muted-foreground"
                       : "bg-primary/10 text-primary"
                 }`}>

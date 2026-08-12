@@ -42,8 +42,8 @@ export function HostProfileCard({
         <div className={cn("bg-card border border-border rounded-2xl p-6", className)}>
             <div className="flex items-start gap-4 mb-4">
                 {/* Avatar */}
-                <div className="relative">
-                    <div className="h-16 w-16 rounded-full bg-gradient-primary flex items-center justify-center text-2xl text-white font-medium overflow-hidden">
+                <Link to={`/profile/${hostId}`} className="relative group/avatar cursor-pointer">
+                    <div className="h-16 w-16 rounded-full bg-gradient-primary flex items-center justify-center text-2xl text-white font-medium overflow-hidden group-hover/avatar:opacity-90 transition-opacity">
                         {avatarUrl ? (
                             <img
                                 src={avatarUrl}
@@ -59,11 +59,13 @@ export function HostProfileCard({
                             <Star className="h-3 w-3 text-primary-foreground fill-primary-foreground" />
                         </div>
                     )}
-                </div>
+                </Link>
 
                 {/* Info */}
                 <div className="flex-1">
-                    <h3 className="font-serif text-xl font-semibold text-foreground">{name}</h3>
+                    <Link to={`/profile/${hostId}`} className="hover:underline">
+                        <h3 className="font-serif text-xl font-semibold text-foreground">{name}</h3>
+                    </Link>
                     <p className="text-sm text-muted-foreground">
                         Hosting since {joinYear}
                     </p>

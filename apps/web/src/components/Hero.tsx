@@ -121,7 +121,6 @@ const Hero = () => {
         .from("moments")
         .select("id, title, location, venue_name, starts_at, max_participants, reward, category, moment_archetype, image_url, banner_image_url, is_active")
         .eq("is_active", true)
-        .gte("starts_at", new Date().toISOString())
         .order("starts_at", { ascending: true })
         .limit(5);
 
@@ -406,7 +405,7 @@ const Hero = () => {
                       type="button"
                       aria-label={`Show ${slide.title}`}
                       onClick={() => setActiveSlide(index)}
-                      className={`h-2.5 rounded-full transition-all ${activeSlide === index ? "w-8 bg-primary" : "w-2.5 bg-white/25 hover:bg-white/40"}`}
+                      className={`h-2.5 rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${activeSlide === index ? "w-8 bg-primary" : "w-2.5 bg-white/25 hover:bg-white/40"}`}
                     />
                   ))}
                 </div>

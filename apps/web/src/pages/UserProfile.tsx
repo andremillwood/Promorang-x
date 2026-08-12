@@ -16,13 +16,10 @@ import {
     Settings,
     Grid,
     Bookmark,
-    Users,
-    Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { demoMoments } from "@/data/demo-moments";
-import { cultureImages } from "@/data/culture-demo";
+import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 
 interface UserProfile {
@@ -45,36 +42,23 @@ interface ProfileStats {
     reviewCount: number;
 }
 
-// Mock data
-const mockProfile: UserProfile = {
-    id: "user-123",
-    full_name: "Andre Millwood",
-    avatar_url: null,
-    bio: "Building and backing moments where culture, proof, and participation create value people can keep.",
-    location: "Kingston, Jamaica",
-    created_at: "2024-03-15",
-    is_verified: true,
-    is_superhost: true,
+const emptyStats: ProfileStats = {
+    momentsHosted: 0,
+    momentsAttended: 0,
+    followers: 0,
+    following: 0,
+    rating: 0,
+    reviewCount: 0,
 };
-
-const mockStats: ProfileStats = {
-    momentsHosted: 24,
-    momentsAttended: 47,
-    followers: 1234,
-    following: 89,
-    rating: 4.9,
-    reviewCount: 156,
-};
-
-const mockMoments = demoMoments.slice(0, 4);
 
 const UserProfilePage = () => {
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState<ProfileStats | null>(null);
-    const [moments, setMoments] = useState(mockMoments);
+    const [moments, setMoments] = useState<Tables<"moments">[]>([]);
     const [loading, setLoading] = useState(true);
+    const [tabLoading, setTabLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<"hosted" | "attended" | "saved">("hosted");
     const [isFollowing, setIsFollowing] = useState(false);
 
@@ -84,24 +68,40 @@ const UserProfilePage = () => {
     // Check if viewing own profile
     const isOwnProfile = effectiveUserId === user?.id || userId === "me";
 
+    // 1. Fetch main user profile and aggregate stats
     useEffect(() => {
         const fetchProfileData = async () => {
             if (!effectiveUserId) return;
 
             setLoading(true);
             try {
-                // 1. Fetch profile from Supabase
+                // Fetch profile from Supabase
                 const { data, error } = await supabase
                     .from("profiles")
                     .select("*")
                     .eq("user_id", effectiveUserId)
-                    .single();
+                    .maybeSingle();
+
+                if (error) throw error;
 
                 if (data) {
                     setProfile({
-                        ...data,
-                        full_name: (data as any).display_name || (data as any).full_name || "User"
-                    } as any);
+                        id: data.user_id,
+                        full_name:
+                            data.full_name ||
+                            (isOwnProfile ? user?.user_metadata?.full_name : null) ||
+                            (isOwnProfile ? user?.email?.split("@")[0] : null) ||
+                            "User",
+                        avatar_url:
+                            data.avatar_url ||
+                            (isOwnProfile ? user?.user_metadata?.avatar_url : null) ||
+                            null,
+                        bio: data.bio,
+                        location: data.location,
+                        created_at: data.created_at,
+                        is_verified: false,
+                        is_superhost: false,
+                    });
                 } else if (isOwnProfile && user) {
                     // Fallback for current user if no profile record exists yet
                     setProfile({
@@ -113,18 +113,25 @@ const UserProfilePage = () => {
                         is_verified: false,
                         is_superhost: false,
                         created_at: user.created_at
-                    } as any);
-                } else {
-                    // Generic fallback for other users not found
-                    setProfile({
-                        ...mockProfile,
-                        id: effectiveUserId,
-                        full_name: `User ${effectiveUserId.slice(0, 5)}...`,
                     });
+                } else {
+                    setProfile(null);
                 }
 
-                // 2. Fetch or set mock stats (placeholder for real stats API)
-                setStats(mockStats);
+                // Fetch real stats
+                const [{ count: hostedCount }, { count: attendedCount }] = await Promise.all([
+                    supabase.from("moments").select("*", { count: "exact", head: true }).eq("host_id", effectiveUserId),
+                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+                ]);
+
+                setStats({
+                    momentsHosted: hostedCount || 0,
+                    momentsAttended: attendedCount || 0,
+                    followers: 0,
+                    following: 0,
+                    rating: 5.0,
+                    reviewCount: 0,
+                });
             } catch (err) {
                 console.error("Error fetching profile:", err);
             } finally {
@@ -134,6 +141,53 @@ const UserProfilePage = () => {
 
         fetchProfileData();
     }, [effectiveUserId, isOwnProfile, user]);
+
+    // 2. Fetch moments tab content (Hosted / Attended / Saved)
+    useEffect(() => {
+        const fetchTabMoments = async () => {
+            if (!effectiveUserId) return;
+            setTabLoading(true);
+            try {
+                if (activeTab === "hosted") {
+                    const { data, error } = await supabase
+                        .from("moments")
+                        .select("*")
+                        .eq("host_id", effectiveUserId)
+                        .order("starts_at", { ascending: false });
+
+                    if (!error && data) {
+                        setMoments(data);
+                    } else {
+                        setMoments([]);
+                    }
+                } else if (activeTab === "attended") {
+                    const { data, error } = await supabase
+                        .from("moment_participants")
+                        .select("moment_id, moments(*)")
+                        .eq("user_id", effectiveUserId);
+
+                    if (!error && data) {
+                        const attendedMoments = data
+                            .map((item: any) => item.moments)
+                            .filter((m): m is Tables<"moments"> => Boolean(m));
+                        setMoments(attendedMoments);
+                    } else {
+                        setMoments([]);
+                    }
+                } else {
+                    // Saved tab
+                    setMoments([]);
+                }
+            } catch (err) {
+                console.error("Error fetching moments for tab:", err);
+                setMoments([]);
+            } finally {
+                setTabLoading(false);
+            }
+        };
+
+        fetchTabMoments();
+    }, [effectiveUserId, activeTab]);
 
     if (loading) {
         return (
@@ -171,10 +225,10 @@ const UserProfilePage = () => {
         <div className="min-h-screen bg-[#090909] text-white">
             <main className="pb-16">
                 <section className="relative overflow-hidden border-b border-white/10">
-                    <img src={cultureImages.momentConcert} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(249,115,22,0.3),transparent_34%),linear-gradient(135deg,#20150f,#090909_62%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
-                <div className="relative mx-auto max-w-6xl px-5 pb-10 pt-28 sm:px-8">
+                <div className="relative mx-auto max-w-[1600px] px-5 pb-10 pt-28 sm:px-8 xl:px-12 2xl:px-16">
                     {/* Profile Header */}
                     <div className="flex flex-col items-start gap-6 md:flex-row md:items-end">
                         {/* Avatar */}
@@ -255,26 +309,26 @@ const UserProfilePage = () => {
                     </div>
                 </div>
                 </section>
-                <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+                <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8 xl:px-12 2xl:px-16">
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                    <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
+                        <div className="border-b border-r border-white/10 px-3 py-6 md:border-b-0 md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.momentsHosted}</p>
                             <p className="text-sm text-white/40">Moments hosted</p>
                         </div>
-                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                        <div className="border-b border-white/10 px-3 py-6 md:border-b-0 md:border-r md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.momentsAttended}</p>
                             <p className="text-sm text-white/40">Verified marks</p>
                         </div>
-                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                        <div className="border-r border-white/10 px-3 py-6 md:px-6">
                             <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
                                 {stats?.rating}
                                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                             </p>
                             <p className="text-sm text-white/40">{stats?.reviewCount} trust signals</p>
                         </div>
-                        <div className="rounded-lg border border-white/10 bg-[#111] p-4 text-center">
+                        <div className="px-3 py-6 md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
                             <p className="text-sm text-white/40">People connected</p>
                         </div>
@@ -307,7 +361,7 @@ const UserProfilePage = () => {
                     {moments.length > 0 ? (
                         <MasonryGrid>
                             {moments.map(moment => (
-                                <MomentCard key={moment.id} moment={moment as any} />
+                                <MomentCard key={moment.id} moment={moment} />
                             ))}
                         </MasonryGrid>
                     ) : (

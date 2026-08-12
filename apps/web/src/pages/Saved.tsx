@@ -1,26 +1,22 @@
 import { useState } from "react";
 import { SavedCollections } from "@/components/SavedCollections";
 import { useToast } from "@/hooks/use-toast";
-import { demoMoments } from "@/data/demo-moments";
 import { Bookmark, ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import type { Tables } from "@/integrations/supabase/types";
 
-// Initial collections for demonstration
-const initialCollections = [
+type SavedCollection = {
+    id: string;
+    name: string;
+    isDefault?: boolean;
+    moments: Tables<"moments">[];
+};
+
+const initialCollections: SavedCollection[] = [
     {
         id: "default",
         name: "All Saved",
         isDefault: true,
-        moments: demoMoments.slice(0, 3),
-    },
-    {
-        id: "weekend",
-        name: "Weekend Plans",
-        moments: demoMoments.slice(3, 5),
-    },
-    {
-        id: "foodie",
-        name: "Foodie Finds",
         moments: [],
     },
 ];
@@ -50,20 +46,16 @@ const Saved = () => {
         <div className="min-h-screen bg-[#090909] text-white">
             <main className="pb-16">
                 <section className="relative min-h-[390px] overflow-hidden border-b border-white/10">
-                    <img
-                        src={demoMoments[3].image_url}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover opacity-55"
-                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,rgba(249,115,22,0.34),transparent_32%),linear-gradient(135deg,#20150f_0%,#090909_58%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-black/20" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/40" />
-                    <div className="relative mx-auto flex min-h-[390px] max-w-6xl items-end px-5 pb-12 pt-20 sm:px-8">
+                    <div className="relative mx-auto flex min-h-[390px] max-w-[1600px] items-end px-5 pb-12 pt-20 sm:px-8 lg:min-h-[470px] xl:px-12 xl:pb-16 2xl:px-16">
                         <div className="max-w-2xl">
                             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-black/45 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-400 backdrop-blur">
                                 <Bookmark className="h-3.5 w-3.5" />
                                 Your shortlist
                             </div>
-                            <h1 className="max-w-xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
+                            <h1 className="max-w-4xl font-serif text-4xl font-bold leading-[0.92] tracking-[-.045em] sm:text-6xl xl:text-8xl">
                                 Keep the moments that keep calling you back.
                             </h1>
                             <p className="mt-5 max-w-xl text-base leading-7 text-white/65">
@@ -87,9 +79,9 @@ const Saved = () => {
                     </div>
                 </section>
 
-                <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+                <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8 xl:px-12 xl:py-16 2xl:px-16">
                     <SavedCollections
-                        collections={collections as any}
+                        collections={collections}
                         onCreateCollection={handleCreateCollection}
                         onDeleteCollection={handleDeleteCollection}
                     />

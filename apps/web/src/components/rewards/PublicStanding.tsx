@@ -29,7 +29,7 @@ export function PublicStanding() {
 
         <div className="space-y-4">
           {mayors.map((mayor, i) => (
-            <div key={i} className="bg-card border border-border/60 p-4 rounded-2xl flex items-center justify-between group hover:border-primary/40 transition-all">
+            <div key={i} className="bg-card border border-border/60 p-4 rounded-2xl flex items-center justify-between group hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
               <div className="flex items-center gap-4">
                  <div className="relative">
                     <Avatar className="h-12 w-12 border-2 border-primary/20">
@@ -68,7 +68,7 @@ export function PublicStanding() {
 
         <div className="space-y-4">
           {explorers.map((explorer, i) => (
-            <div key={i} className="bg-card border border-border/60 p-4 rounded-2xl flex items-center justify-between group hover:border-amber-500/40 transition-all">
+            <div key={i} className="bg-card border border-border/60 p-4 rounded-2xl flex items-center justify-between group hover:border-amber-500/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
               <div className="flex items-center gap-4">
                  <div className="relative">
                     <Avatar className="h-12 w-12 border-2 border-amber-500/20">

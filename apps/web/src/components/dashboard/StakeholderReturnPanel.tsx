@@ -63,16 +63,16 @@ export function StakeholderReturnPanel({ role, className }: StakeholderReturnPan
 
   return (
     <section className={cn("overflow-hidden rounded-2xl border border-white/10 bg-[#111110] text-white", className)}>
-      <div className="grid gap-5 p-5 lg:grid-cols-[1.2fr_1fr] lg:p-6">
-        <div>
+      <div className="grid gap-5 p-5 sm:p-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
+        <div className="min-w-0">
           <p className={cn("text-[10px] font-black uppercase tracking-[0.22em]", tone)}>{data?.title || copy.title}</p>
           <h2 className="mt-2 font-serif text-2xl font-bold leading-tight sm:text-3xl">{copy.headline}</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">{copy.body}</p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
             <ReturnStatement label="Social return" value={copy.socialReturn} />
             <ReturnStatement label="Commercial return" value={copy.commercialReturn} />
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-5 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))]">
             {metrics.map((metric) => (
               <div key={metric.id} className="rounded-xl border border-white/10 bg-black/30 p-3">
                 <metric.icon className={cn("h-4 w-4", tone)} />

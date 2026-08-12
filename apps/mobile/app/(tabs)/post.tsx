@@ -16,6 +16,7 @@ export default function PostScreen() {
   const { momentId } = useLocalSearchParams<{ momentId?: string }>();
   const { moments, loading: momentsLoading } = useMoments();
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [contentUrl, setContentUrl] = useState('');
   const [caption, setCaption] = useState('');
   const [proofType, setProofType] = useState<ProofType>('moment');
   const [selectedMomentId, setSelectedMomentId] = useState<string | null>(momentId || null);
@@ -44,31 +45,53 @@ export default function PostScreen() {
   };
 
   const publish = async () => {
-    if (!imageUri) {
-      Alert.alert('Add your capture', 'Capture or choose a photo before publishing.');
+    if (!imageUri && !contentUrl.trim() && !caption.trim()) {
+      Alert.alert('Add content or story', 'Provide a photo, social content link, or story description before publishing.');
       return;
     }
     if (!user) return Alert.alert('Sign in required', 'Sign in before publishing your contribution.');
     setPublishing(true);
     setPublishError(null);
     try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const extension = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-      const path = `${user.id}/mobile/${Date.now()}.${extension}`;
-      const { error: uploadError } = await supabase.storage.from('moment-images').upload(path, blob, {
-        contentType: blob.type || 'image/jpeg', cacheControl: '3600', upsert: false,
-      });
-      if (uploadError) throw uploadError;
-      const { data: url } = supabase.storage.from('moment-images').getPublicUrl(path);
+      let mediaUrl: string | null = null;
+
+      // Upload local image if provided
+      if (imageUri) {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const extension = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+        const path = `${user.id}/mobile/${Date.now()}.${extension}`;
+        const { error: uploadError } = await supabase.storage.from('moment-images').upload(path, blob, {
+          contentType: blob.type || 'image/jpeg', cacheControl: '3600', upsert: false,
+        });
+        if (uploadError) throw uploadError;
+        const { data: url } = supabase.storage.from('moment-images').getPublicUrl(path);
+        mediaUrl = url.publicUrl;
+      } else if (contentUrl.trim()) {
+        mediaUrl = contentUrl.trim();
+      }
+
+      // Detect platform from content URL
+      const detectedPlatform = contentUrl.toLowerCase().includes('instagram') ? 'instagram'
+        : contentUrl.toLowerCase().includes('tiktok') ? 'tiktok'
+        : contentUrl.toLowerCase().includes('youtube') || contentUrl.toLowerCase().includes('youtu.be') ? 'youtube'
+        : contentUrl.toLowerCase().includes('x.com') || contentUrl.toLowerCase().includes('twitter') ? 'x'
+        : 'promorang-mobile';
+
       const { data: content, error: insertError } = await supabase.from('content_items').insert({
         creator_id: user.id,
         title: selectedMoment?.title || caption.trim().split(/[.!?]/)[0].slice(0, 80) || 'A moment worth keeping',
         description: caption.trim() || null,
-        media_url: url.publicUrl,
-        platform: 'promorang-mobile',
+        media_url: mediaUrl,
+        platform: contentUrl.trim() ? detectedPlatform : 'promorang-mobile',
         status: selectedMoment ? 'pending_review' : proofType === 'mission' ? 'pending_review' : 'published',
         posted_at: new Date().toISOString(),
+        metadata: {
+          content_url: contentUrl.trim() || null,
+          moment_id: selectedMomentId,
+          source: 'mobile_post',
+          has_local_image: Boolean(imageUri),
+        },
       }).select('id').single();
       if (insertError) throw insertError;
 
@@ -86,10 +109,12 @@ export default function PostScreen() {
           submission_state: 'pending',
           proof_bundle: {
             content_item_id: content.id,
-            media_url: url.publicUrl,
+            media_url: mediaUrl,
+            content_url: contentUrl.trim() || null,
             caption: caption.trim() || null,
             proof_type: proofType,
             location_added: locationAdded,
+            platform: contentUrl.trim() ? detectedPlatform : 'promorang-mobile',
             source: 'mobile-post',
           },
         });
@@ -114,6 +139,7 @@ export default function PostScreen() {
           <ReceiptLine icon="images" label="Content" value="Published" />
           <ReceiptLine icon="shield-checkmark" label="Contribution" value={selectedMoment || proofType === 'mission' ? 'Under review' : 'Recorded'} />
           <ReceiptLine icon="flash" label="Moment" value={selectedMoment?.title || 'Not linked'} />
+          <ReceiptLine icon="diamond" label="Estimated Reward" value={selectedMoment ? '50–250 Gems (pending host review)' : 'Gem eligibility tracked'} />
           <ReceiptLine icon="archive" label="Vault" value="Eligible after verification" />
         </View>
         <Pressable style={styles.successPrimary} onPress={() => router.replace(selectedMoment ? `/moment/${selectedMoment.id}` as any : '/discover')}><Text style={styles.successPrimaryText}>{selectedMoment ? 'Back to moment' : 'Return to discovery'}</Text><Ionicons name="arrow-forward" size={17} color={Colors.black} /></Pressable>
@@ -193,7 +219,19 @@ export default function PostScreen() {
       </View>
 
       <View style={styles.composer}>
-        <Text style={styles.label}>THE STORY</Text>
+        <Text style={styles.label}>CONTENT LINK (INSTAGRAM, TIKTOK, YOUTUBE, X)</Text>
+        <TextInput
+          value={contentUrl}
+          onChangeText={setContentUrl}
+          placeholder="https://instagram.com/p/... or https://tiktok.com/@..."
+          placeholderTextColor={Colors.gray[500]}
+          style={styles.linkInput}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+        />
+
+        <Text style={styles.label}>THE STORY & PERSPECTIVE</Text>
         <TextInput
           value={caption}
           onChangeText={setCaption}
@@ -223,7 +261,7 @@ export default function PostScreen() {
       </View>
 
       {publishError && <View style={styles.errorBanner}><Ionicons name="alert-circle" size={18} color={Colors.error} /><Text style={styles.errorText}>{publishError}</Text></View>}
-      <Pressable style={[styles.publish, (!imageUri || publishing) && styles.publishMuted]} onPress={publish} disabled={publishing}>
+      <Pressable style={[styles.publish, ((!imageUri && !contentUrl.trim() && !caption.trim()) || publishing) && styles.publishMuted]} onPress={publish} disabled={publishing}>
         {publishing ? <><ActivityIndicator size="small" color={Colors.black} /><Text style={styles.publishText}>Publishing contribution…</Text></> : <><Text style={styles.publishText}>Publish contribution</Text><Ionicons name="arrow-forward" size={18} color={Colors.black} /></>}
       </Pressable>
       <View style={{ height: 105 }} />
@@ -267,27 +305,27 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.black },
   content: { paddingTop: 18, paddingHorizontal: Spacing.container },
   header: { backgroundColor: 'transparent' },
-  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.1 },
+  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1.1 },
   title: { color: Colors.white, fontSize: Typography.sizes['3xl'], lineHeight: 38, fontWeight: '800', letterSpacing: -1, marginTop: 5 },
   subtitle: { color: Colors.gray[400], fontSize: 13, lineHeight: 19, marginTop: 6, maxWidth: 330 },
   createPaths: { marginTop: 20, backgroundColor: 'transparent' },
   createPathPrimary: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderRadius: BorderRadius.xl, backgroundColor: Colors.primary },
   createPathIcon: { width: 42, height: 42, borderRadius: 15, backgroundColor: 'rgba(0,0,0,.16)', alignItems: 'center', justifyContent: 'center' },
   createPathCopy: { flex: 1, backgroundColor: 'transparent' },
-  createPathEyebrow: { color: 'rgba(0,0,0,.58)', fontFamily: 'SpaceMono', fontSize: 8, letterSpacing: .7 },
+  createPathEyebrow: { color: 'rgba(0,0,0,.58)', fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
   createPathTitle: { color: Colors.black, fontSize: 14, fontWeight: '900', marginTop: 3 },
-  createPathDetail: { color: 'rgba(0,0,0,.68)', fontSize: 10, lineHeight: 15, marginTop: 3 },
+  createPathDetail: { color: 'rgba(0,0,0,.68)', fontSize: 12, lineHeight: 15, marginTop: 3 },
   secondaryPaths: { flexDirection: 'row', gap: 9, marginTop: 10, backgroundColor: 'transparent' },
   secondaryPath: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: BorderRadius.lg, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
-  secondaryPathText: { color: Colors.white, fontSize: 11, fontWeight: '800' },
+  secondaryPathText: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   captureIntro: { marginTop: 18, paddingTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
-  captureIntroEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .9 },
+  captureIntroEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .9 },
   captureIntroTitle: { color: Colors.white, fontSize: 18, fontWeight: '800', marginTop: 5 },
   captureIntroDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 18, marginTop: 4 },
   typeRow: { flexDirection: 'row', gap: 8, marginTop: 22, backgroundColor: 'transparent' },
   type: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
   typeActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  typeText: { color: Colors.gray[300], fontSize: 11, fontWeight: '700' },
+  typeText: { color: Colors.gray[300], fontSize: 13, fontWeight: '700' },
   typeTextActive: { color: Colors.black },
   capture: { height: 330, marginTop: 15, borderRadius: BorderRadius['2xl'], overflow: 'hidden', borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
   captureEmpty: { flex: 1, padding: 25, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
@@ -303,53 +341,54 @@ const styles = StyleSheet.create({
   previewShade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,.12)' },
   remove: { position: 'absolute', right: 13, top: 13, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(8,8,8,.72)' },
   proofBadge: { position: 'absolute', left: 13, bottom: 13, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(8,8,8,.78)', paddingHorizontal: 10, paddingVertical: 7, borderRadius: 18 },
-  proofBadgeText: { color: Colors.white, fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .7 },
+  proofBadgeText: { color: Colors.white, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
   composer: { marginTop: 15, padding: 16, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
-  label: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1 },
+  label: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1 },
   caption: { color: Colors.white, minHeight: 80, fontSize: 15, lineHeight: 21, textAlignVertical: 'top', marginTop: 9 },
-  count: { color: Colors.gray[600], fontSize: 10, textAlign: 'right', marginBottom: 10 },
+  count: { color: Colors.gray[600], fontSize: 12, textAlign: 'right', marginBottom: 10 },
   contextRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
   contextIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   contextCopy: { flex: 1, backgroundColor: 'transparent' },
   contextTitle: { color: Colors.white, fontSize: 13, fontWeight: '700' },
-  contextDetail: { color: Colors.gray[500], fontSize: 10, marginTop: 2 },
+  contextDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
   momentRail: { paddingTop: 13, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, backgroundColor: 'transparent' },
   momentRailHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
-  momentRailLabel: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 8, letterSpacing: .7 },
-  clearMoment: { color: Colors.gray[400], fontSize: 10, fontWeight: '700' },
+  momentRailLabel: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
+  clearMoment: { color: Colors.gray[400], fontSize: 12, fontWeight: '700' },
   momentOptions: { gap: 8, paddingTop: 10, paddingRight: 8 },
   momentChip: { width: 190, flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 15, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[800] },
   momentChipActive: { borderColor: Colors.primary, backgroundColor: '#2A180F' },
   momentChipIcon: { width: 31, height: 31, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.ambientWash, marginRight: 9 },
   momentChipIconActive: { backgroundColor: Colors.primary },
   momentChipCopy: { flex: 1, backgroundColor: 'transparent' },
-  momentChipTitle: { color: Colors.white, fontSize: 11, fontWeight: '800' },
+  momentChipTitle: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   momentChipTitleActive: { color: Colors.white },
-  momentChipDetail: { color: Colors.gray[500], fontSize: 9, marginTop: 2 },
+  momentChipDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
   momentChipDetailActive: { color: Colors.gray[300] },
   momentLoading: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, backgroundColor: 'transparent' },
-  momentLoadingText: { color: Colors.gray[500], fontSize: 10 },
+  momentLoadingText: { color: Colors.gray[500], fontSize: 12 },
   momentEmpty: { paddingVertical: 12, backgroundColor: 'transparent' },
-  momentEmptyTitle: { color: Colors.white, fontSize: 11, fontWeight: '800' },
-  momentEmptyDetail: { color: Colors.gray[500], fontSize: 9, marginTop: 3 },
+  momentEmptyTitle: { color: Colors.white, fontSize: 13, fontWeight: '800' },
+  momentEmptyDetail: { color: Colors.gray[500], fontSize: 12, marginTop: 3 },
   receipt: { flexDirection: 'row', alignItems: 'center', gap: 11, padding: 14, marginTop: 13, borderRadius: BorderRadius.lg, backgroundColor: '#25170F', borderWidth: 1, borderColor: 'rgba(255,106,26,.22)' },
   receiptCopy: { flex: 1, backgroundColor: 'transparent' },
   receiptTitle: { color: Colors.white, fontSize: 12, fontWeight: '700' },
-  receiptDetail: { color: Colors.gray[400], fontSize: 10, marginTop: 3 },
+  receiptDetail: { color: Colors.gray[400], fontSize: 12, marginTop: 3 },
   publish: { marginTop: 15, height: 52, borderRadius: 17, backgroundColor: Colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   publishMuted: { opacity: .55 },
   publishText: { color: Colors.black, fontSize: 14, fontWeight: '900' },
   errorBanner: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 13, borderRadius: BorderRadius.lg, marginTop: 13, backgroundColor: 'rgba(239,98,91,.10)', borderWidth: 1, borderColor: 'rgba(239,98,91,.28)' },
-  errorText: { color: Colors.gray[200], fontSize: 11, lineHeight: 16, flex: 1 },
+  errorText: { color: Colors.gray[200], fontSize: 13, lineHeight: 16, flex: 1 },
   successScreen: { flex: 1, paddingHorizontal: 25, paddingTop: Platform.OS === 'ios' ? 110 : 80, backgroundColor: Colors.black, alignItems: 'center' },
   successMark: { width: 72, height: 72, borderRadius: 25, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-5deg' }] },
-  successEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1.1, marginTop: 28 },
+  successEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1.1, marginTop: 28 },
   successTitle: { color: Colors.white, fontSize: 29, lineHeight: 35, fontWeight: '800', letterSpacing: -.8, textAlign: 'center', marginTop: 8, maxWidth: 330 },
   successDetail: { color: Colors.gray[400], fontSize: 13, lineHeight: 19, textAlign: 'center', marginTop: 9, maxWidth: 320 },
   successReceipt: { alignSelf: 'stretch', padding: 16, borderRadius: BorderRadius.xl, marginTop: 28, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   receiptLine: { flexDirection: 'row', alignItems: 'center', minHeight: 42, gap: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border, backgroundColor: 'transparent' },
-  receiptLineLabel: { color: Colors.gray[400], fontSize: 11, flex: 1 },
-  receiptLineValue: { color: Colors.white, fontSize: 11, fontWeight: '700' },
+  receiptLineLabel: { color: Colors.gray[400], fontSize: 13, flex: 1 },
+  receiptLineValue: { color: Colors.white, fontSize: 13, fontWeight: '700' },
   successPrimary: { alignSelf: 'stretch', height: 52, borderRadius: 17, marginTop: 18, backgroundColor: Colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   successPrimaryText: { color: Colors.black, fontSize: 13, fontWeight: '900' },
+  linkInput: { height: 48, borderRadius: 14, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 14, color: Colors.white, fontSize: 13, marginBottom: 14 },
 });

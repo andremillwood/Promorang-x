@@ -234,7 +234,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("explorer");
                             setActiveRole("participant");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "explorer"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -254,7 +254,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("creator");
                             setActiveRole("creator");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "creator"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -274,7 +274,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("mayor");
                             setActiveRole("host");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "mayor"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -294,7 +294,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("merchant");
                             setActiveRole("merchant");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "merchant"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -314,7 +314,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("brand");
                             setActiveRole("brand");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "brand"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -334,7 +334,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                             setPersona("agency");
                             setActiveRole("brand");
                         }}
-                        className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-6 text-left ${
+                        className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "agency"
                             ? "border-primary bg-primary/10"
                             : "border-border hover:border-primary/50 hover:bg-muted"
@@ -391,7 +391,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                     <button
                       key={category.value}
                       onClick={() => toggleArrayItem("preferred_categories", category.value)}
-                      className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      className={`p-4 rounded-xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] text-center ${
                         preferences.preferred_categories?.includes(category.value)
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border hover:border-primary/50 hover:bg-muted"
@@ -416,7 +416,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                         <button
                           key={tag.value}
                           onClick={() => toggleArrayItem("lifestyle_tags", tag.value)}
-                          className={`p-3 rounded-xl border-2 transition-all text-center ${
+                          className={`p-3 rounded-xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] text-center ${
                             preferences.lifestyle_tags?.includes(tag.value)
                               ? "border-primary bg-primary/10 text-primary"
                               : "border-border hover:border-primary/50 hover:bg-muted"
@@ -444,7 +444,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                               age_range: prev.age_range === age.value ? null : age.value,
                             }))
                           }
-                          className={`px-4 py-2 rounded-full border-2 transition-all ${
+                          className={`px-4 py-2 rounded-full border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                             preferences.age_range === age.value
                               ? "border-primary bg-primary/10 text-primary"
                               : "border-border hover:border-primary/50"
@@ -464,7 +464,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                     <button
                       key={time.value}
                       onClick={() => toggleArrayItem("preferred_times", time.value)}
-                      className={`p-6 rounded-xl border-2 transition-all text-center ${
+                      className={`p-6 rounded-xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] text-center ${
                         preferences.preferred_times?.includes(time.value)
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border hover:border-primary/50 hover:bg-muted"

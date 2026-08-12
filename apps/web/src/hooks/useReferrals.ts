@@ -26,46 +26,39 @@ export interface Referral {
   created_at: string;
 }
 
-export interface AffiliateLink {
+export interface ReferralPerson {
   id: string;
-  user_id: string;
-  link_code: string;
-  destination_url: string;
-  brand_id: string | null;
-  campaign_id: string | null;
-  moment_id: string | null;
-  commission_type: string;
-  commission_percent: number;
-  fixed_commission: number | null;
-  is_active: boolean;
-  click_count: number;
-  conversion_count: number;
-  total_earnings: number;
+  referred_id: string;
+  status: string;
+  activated_at: string | null;
+  total_commission_paid: number;
+  total_gems_earned: number;
+  total_points_earned: number;
   created_at: string;
-  updated_at: string;
+  users?: {
+    username?: string | null;
+    display_name?: string | null;
+    profile_image?: string | null;
+  } | null;
 }
 
-export interface AffiliateConversion {
+export interface ReferralCommission {
   id: string;
-  affiliate_link_id: string;
-  affiliate_user_id: string;
-  converted_user_id: string | null;
-  conversion_type: string;
-  order_value: number | null;
-  commission_earned: number;
-  is_paid: boolean;
+  referred_user_id: string;
+  earning_type: string;
+  earning_amount: number;
+  earning_currency: string;
+  commission_rate: number;
+  commission_amount: number;
+  commission_currency: string;
+  status: string;
   paid_at: string | null;
   created_at: string;
-}
-
-// Generate unique code
-function generateCode(length: number = 8): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  users?: {
+    username?: string | null;
+    display_name?: string | null;
+    profile_image?: string | null;
+  } | null;
 }
 
 // Fetch user's referral codes
@@ -150,111 +143,6 @@ export function useCreateReferralCode() {
   });
 }
 
-// Fetch user's affiliate links
-export function useAffiliateLinks() {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: ["affiliate-links", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from("affiliate_links")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as AffiliateLink[];
-    },
-    enabled: !!user,
-  });
-}
-
-// Create affiliate link
-export function useCreateAffiliateLink() {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      destinationUrl,
-      brandId,
-      campaignId,
-      momentId,
-      commissionType = "percentage",
-      commissionPercent = 10,
-    }: {
-      destinationUrl: string;
-      brandId?: string;
-      campaignId?: string;
-      momentId?: string;
-      commissionType?: string;
-      commissionPercent?: number;
-    }) => {
-      if (!user) throw new Error("Not authenticated");
-
-      const linkCode = generateCode(10);
-
-      const { data, error } = await supabase
-        .from("affiliate_links")
-        .insert({
-          user_id: user.id,
-          link_code: linkCode,
-          destination_url: destinationUrl,
-          brand_id: brandId || null,
-          campaign_id: campaignId || null,
-          moment_id: momentId || null,
-          commission_type: commissionType,
-          commission_percent: commissionPercent,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Affiliate link created! 💰",
-        description: "Start sharing to earn commissions.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["affiliate-links"] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Failed to create link",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-}
-
-// Fetch affiliate conversions
-export function useAffiliateConversions() {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: ["affiliate-conversions", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from("affiliate_conversions")
-        .select("*")
-        .eq("affiliate_user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as AffiliateConversion[];
-    },
-    enabled: !!user,
-  });
-}
-
 // Get referral stats
 export function useReferralStats() {
   const { user } = useAuth();
@@ -271,29 +159,13 @@ export function useReferralStats() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || payload.error || "Failed to load referral stats");
       const summary = payload.data?.summary || {};
-      const totalClicks = 0;
+      const totalClicks = Number(summary.total_clicks || 0);
       const totalSignups = Number(summary.total_referrals || 0);
       const totalConversions = Number(summary.active_referrals || 0);
-
-      // Get affiliate earnings
-      const { data: links } = await supabase
-        .from("affiliate_links")
-        .select("click_count, conversion_count, total_earnings")
-        .eq("user_id", user.id);
-
-      const affiliateClicks = links?.reduce((sum, l) => sum + (l.click_count || 0), 0) || 0;
-      const affiliateConversions = links?.reduce((sum, l) => sum + (l.conversion_count || 0), 0) || 0;
-      const affiliateEarnings = links?.reduce((sum, l) => sum + (l.total_earnings || 0), 0) || 0;
-      const totalEarnings = Number(summary.total_earnings?.usd || 0) + affiliateEarnings;
-
-      // Get pending earnings
-      const { data: pendingConversions } = await supabase
-        .from("affiliate_conversions")
-        .select("commission_earned")
-        .eq("affiliate_user_id", user.id)
-        .eq("is_paid", false);
-
-      const pendingEarnings = pendingConversions?.reduce((sum, c) => sum + c.commission_earned, 0) || 0;
+      const commissions = (payload.data?.recent_commissions || []) as ReferralCommission[];
+      const pendingEarnings = commissions
+        .filter((commission) => commission.status === "pending")
+        .reduce((sum, commission) => sum + Number(commission.commission_amount || 0), 0);
 
       return {
         referrals: {
@@ -302,11 +174,18 @@ export function useReferralStats() {
           totalConversions,
         },
         affiliate: {
-          totalClicks: affiliateClicks,
-          totalConversions: affiliateConversions,
-          totalEarnings,
+          totalClicks,
+          totalConversions,
+          totalEarnings: Number(summary.total_earnings?.usd || 0),
           pendingEarnings,
         },
+        earnings: {
+          usd: Number(summary.total_earnings?.usd || 0),
+          gems: Number(summary.total_earnings?.gems || 0),
+          points: Number(summary.total_earnings?.points || 0),
+        },
+        referralsList: (payload.data?.referrals || []) as ReferralPerson[],
+        commissions,
       };
     },
     enabled: !!user,

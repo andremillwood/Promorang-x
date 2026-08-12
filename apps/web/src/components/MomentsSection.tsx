@@ -110,7 +110,7 @@ const MomentsSection = () => {
             <button
               key={filter.value}
               onClick={() => setActiveCategory(filter.value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === filter.value
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${activeCategory === filter.value
                 ? "bg-primary text-primary-foreground shadow-soft"
                 : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground border border-border shadow-sm"
                 }`}
@@ -154,14 +154,14 @@ const MomentsSection = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/create/moment"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all shadow-soft hover:shadow-elevated"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] shadow-soft hover:shadow-elevated"
               >
                 Host a Moment
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/for-brands"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-foreground rounded-full font-medium hover:bg-secondary/80 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-foreground rounded-full font-medium hover:bg-secondary/80 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
               >
                 For Businesses
                 <ArrowRight className="w-4 h-4" />

@@ -186,7 +186,7 @@ export default function ActivatePage() {
             </div>
 
             {/* Core Offer */}
-            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-all hover:shadow-card md:p-8">
+            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:shadow-card md:p-8">
               <h3 className="text-2xl font-bold mb-2">Customer Activation</h3>
               <div className="text-4xl font-black mb-4">JMD $120,000</div>
               <p className="text-muted-foreground mb-8 font-semibold">Repeatable Growth Engine</p>
@@ -210,7 +210,7 @@ export default function ActivatePage() {
             </div>
 
             {/* High Ticket */}
-            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-all hover:shadow-card md:p-8">
+            <div className="rounded-3xl border border-border bg-secondary/30 p-6 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:shadow-card md:p-8">
               <h3 className="text-2xl font-bold mb-2">Always-On Attention</h3>
               <div className="text-4xl font-black mb-4">JMD $350K+</div>
               <p className="text-muted-foreground mb-8 font-semibold">Strategic Scaling</p>

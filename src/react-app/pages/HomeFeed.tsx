@@ -416,41 +416,25 @@ export default function HomeFeed() {
     { label: 'Saved', value: 'Vault', detail: 'retained value' }
   ];
 
+  const [showOverview, setShowOverview] = useState(false);
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <OpportunitySurface
-        eyebrow="Pulse"
-        title={`What is moving now${user?.google_user_data?.given_name ? `, ${user.google_user_data.given_name}` : ''}`}
-        description="Your live surface for content momentum, funded drops, social actions, and saved value. Scan what is fresh, choose the next useful action, then keep the receipt in your wallet or Vault."
-        primaryAction={{ label: 'Browse opportunities', onClick: () => setActiveTab('drops') }}
-        secondaryAction={{ label: 'Open social feed', onClick: () => setActiveTab('social') }}
-        signals={pulseSignals}
-      >
-        <div className="rounded-2xl bg-white/10 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Product loop</p>
-          <p className="mt-2 text-sm font-bold leading-6 text-slate-200">Discover -> Act -> Prove -> Earn -> Save</p>
-        </div>
-      </OpportunitySurface>
-
-      {/* Primary CTA - One Action Path */}
-      <PrimaryCTA className="mb-2" />
-
-      {/* Personalized Dashboard Header */}
-      <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden">
-        {/* Background Pattern */}
+      {/* Personalized Welcome & Stats Bar */}
+      <div className="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl p-6 text-white relative overflow-hidden shadow-md">
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.05'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20z'/%3E%3C/g%3E%3C/svg%3E")`,
           opacity: 0.3
         }}></div>
 
         <div className="relative">
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-                Welcome back, {user?.google_user_data?.given_name}! 👋
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1">
+                Welcome back{user?.google_user_data?.given_name ? `, ${user.google_user_data.given_name}` : ''}! 👋
               </h1>
               <p className="text-orange-100 text-sm sm:text-base">
-                Ready to turn your influence into income?
+                Discover tasks, support your favorite creators, and collect your rewards.
               </p>
             </div>
             {userData && (
@@ -458,17 +442,17 @@ export default function HomeFeed() {
                 <div className="flex items-center space-x-2 justify-end mb-1">
                   {getTierIcon(userData.user_tier)}
                   <span className="text-sm font-semibold capitalize">
-                    {userData.user_tier}
+                    {userData.user_tier} Member
                   </span>
                 </div>
                 <div className="text-xs text-orange-200">
-                  {getTierMultiplier(userData.user_tier)}x multiplier
+                  {getTierMultiplier(userData.user_tier)}x reward multiplier
                 </div>
                 {userData.points_streak_days > 0 && (
                   <div className="flex items-center justify-end space-x-1 mt-1">
-                    <Flame className="w-3 h-3 text-orange-300" />
-                    <span className="text-xs text-orange-200">
-                      {userData.points_streak_days} day streak
+                    <Flame className="w-3.5 h-3.5 text-orange-300" />
+                    <span className="text-xs font-bold text-orange-100">
+                      {userData.points_streak_days} day streak! 🔥
                     </span>
                   </div>
                 )}
@@ -476,14 +460,14 @@ export default function HomeFeed() {
             )}
           </div>
 
-          {/* Quick Stats Grid */}
+          {/* Quick Wallet & Points Stats Grid */}
           {userData && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
               {[
-                { value: (userData.points_balance || 0).toLocaleString(), label: 'Points', icon: <Coins className="w-4 h-4" />, color: 'text-blue-200' },
-                { value: userData.keys_balance || 0, label: 'Keys', icon: <Target className="w-4 h-4" />, color: 'text-orange-200' },
-                { value: (userData.gems_balance || 0).toFixed(1), label: 'Gems', icon: <Diamond className="w-4 h-4" />, color: 'text-purple-200' },
-                { value: 'View', label: 'Saved', icon: <Bookmark className="w-4 h-4" />, color: 'text-green-200', action: openSavedContentModal }
+                { value: (userData.points_balance || 0).toLocaleString(), label: 'Points Earned', icon: <Coins className="w-4 h-4" />, color: 'text-blue-200' },
+                { value: userData.keys_balance || 0, label: 'Access Keys', icon: <Target className="w-4 h-4" />, color: 'text-orange-200' },
+                { value: (userData.gems_balance || 0).toFixed(1), label: 'Gems Balance', icon: <Diamond className="w-4 h-4" />, color: 'text-purple-200' },
+                { value: 'View Vault', label: 'Saved Perks', icon: <Bookmark className="w-4 h-4" />, color: 'text-green-200', action: openSavedContentModal }
               ].map((stat, index) => (
                 <div
                   key={index}
@@ -492,7 +476,7 @@ export default function HomeFeed() {
                 >
                   <div className="flex items-center justify-center space-x-1 mb-1">
                     <span className={stat.color}>{stat.icon}</span>
-                    <span className="text-xs text-white/80">{stat.label}</span>
+                    <span className="text-xs font-semibold text-white/80">{stat.label}</span>
                   </div>
                   <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
                 </div>
@@ -500,79 +484,96 @@ export default function HomeFeed() {
             </div>
           )}
 
-          {/* Smart CTA */}
-          {smartCTA && (
+          {/* Toggle for deeper guide & surface */}
+          <div className="flex items-center justify-between pt-2 border-t border-white/15 text-xs">
             <button
-              onClick={smartCTA.action}
-              className={`w-full bg-gradient-to-r ${smartCTA.color} hover:shadow-lg text-white rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5`}
+              onClick={() => setShowOverview(!showOverview)}
+              className="inline-flex items-center gap-1.5 text-orange-100 hover:text-white font-semibold transition"
             >
-              <div className="flex items-center justify-between">
-                <div className="text-left">
-                  <div className="flex items-center space-x-2 mb-1">
-                    {smartCTA.icon}
-                    <span className="font-semibold">{smartCTA.text}</span>
-                  </div>
-                  <p className="text-white/90 text-sm">{smartCTA.subtext}</p>
-                </div>
-                <ArrowRight className="w-5 h-5 opacity-75" />
-              </div>
+              <span>{showOverview ? 'Hide platform guide & overview' : 'Curious how tasks & rewards work? Tap overview'}</span>
+              <ArrowRight className={`w-3.5 h-3.5 transition-transform ${showOverview ? 'rotate-90' : ''}`} />
             </button>
-          )}
+            <span className="text-orange-200 text-[11px]">Live community feed</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <ReceiptCard
-          icon={Flame}
-          label="Signal"
-          title="Fresh movement"
-          description="Pulse prioritizes sponsored content, high-value drops, and active share opportunities."
-          tone="orange"
-        />
-        <ReceiptCard
-          icon={Target}
-          label="Action"
-          title="Clear next step"
-          description="Each item keeps the existing buy, share, fund, comment, save, and external move actions."
-          tone="blue"
-        />
-        <ReceiptCard
-          icon={Diamond}
-          label="Reward"
-          title="Visible upside"
-          description="Gems, keys, points, shares, and funding potential stay visible before commitment."
-          tone="purple"
-        />
-        <ReceiptCard
-          icon={Bookmark}
-          label="Retain"
-          title="Saved value"
-          description="Saved content, wallet balances, and streaks connect the feed back to return behavior."
-          tone="green"
-        />
-      </div>
+      {/* Collapsible Deep Overview Section */}
+      {showOverview && (
+        <div className="space-y-4 animate-fadeIn">
+          <OpportunitySurface
+            eyebrow="Live Overview"
+            title="What is happening right now"
+            description="Your live feed for trending creator drops, open tasks, brand missions, and saved rewards. Complete tasks, upload proof, and keep the earnings in your wallet."
+            primaryAction={{ label: 'Browse opportunities', onClick: () => setActiveTab('drops') }}
+            secondaryAction={{ label: 'Open social feed', onClick: () => setActiveTab('social') }}
+            signals={pulseSignals}
+          >
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Simple process</p>
+              <p className="mt-2 text-sm font-bold leading-6 text-slate-200">Discover -> Pick a Task -> Show Proof -> Get Paid -> Save Perks</p>
+            </div>
+          </OpportunitySurface>
 
-      {/* Enhanced Feed Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="border-b border-gray-200">
-          <nav className="flex">
+          <div className="grid gap-3 md:grid-cols-4">
+            <ReceiptCard
+              icon={Flame}
+              label="Trending"
+              title="Fresh Opportunities"
+              description="High-payout creator drops and funded local brand tasks ready for you."
+              tone="orange"
+            />
+            <ReceiptCard
+              icon={Target}
+              label="Action"
+              title="Clear Next Step"
+              description="Every task shows exact steps: complete action, share proof, collect rewards."
+              tone="blue"
+            />
+            <ReceiptCard
+              icon={Diamond}
+              label="Rewards"
+              title="Visible Earnings"
+              description="See cash values, gems, and perk points upfront before you begin."
+              tone="purple"
+            />
+            <ReceiptCard
+              icon={Bookmark}
+              label="Vault"
+              title="Keep Your Perks"
+              description="All completed rewards and saved content stay securely in your profile."
+              tone="green"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Primary CTA - One Action Path */}
+      <PrimaryCTA className="mb-2" />
+      <div className="rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden shadow-2xl">
+        <div className="border-b border-white/10 bg-black/40">
+          <nav className="flex p-1.5 gap-2">
             {[
               { key: 'for-you', label: 'For You', icon: <Star className="w-4 h-4" /> },
               { key: 'social', label: 'Social Feed', icon: <Activity className="w-4 h-4" /> },
               { key: 'drops', label: 'Opportunities', icon: <DollarSign className="w-4 h-4" /> }
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 font-medium text-sm transition-colors ${activeTab === tab.key
-                  ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            ].map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-6 rounded-xl font-bold text-xs transition-all duration-300 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black shadow-[0_0_20px_rgba(255,215,0,0.3)]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-              </button>
-            ))}
+                >
+                  <span className={isActive ? 'text-black' : 'text-yellow-400'}>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
 

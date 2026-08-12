@@ -14,6 +14,8 @@ const accessRulesService = require('../services/accessRulesService');
 const memoryService = require('../services/memoryService');
 const offerService = require('../services/offerService');
 const growthOperatingService = require('../services/growthOperatingService');
+const masterKeyService = require('../services/masterKeyService');
+const demandEventService = require('../services/demandEventService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -145,6 +147,22 @@ async function performCheckIn({
   if (updateError) throw updateError;
 
   try {
+    await demandEventService.recordEvent({
+      campaignId: metadata?.campaign_id || null,
+      momentId,
+      actorUserId: userId,
+      eventType: 'checked_in',
+      sourceSystem: 'moment_participants',
+      sourceReference: updatedParticipation.id || `${momentId}:${userId}`,
+      channel: metadata?.utm_medium || (metadata?.promopush_tracking_code ? 'promopush' : 'promorang'),
+      verified: true,
+      properties: { verification_status: verificationStatus },
+    });
+  } catch (demandError) {
+    console.warn('[Participation API] demand check-in mirror skipped:', demandError.message);
+  }
+
+  try {
     await supabase.from('participation_events').insert({
       moment_id: momentId,
       user_id: userId,
@@ -168,6 +186,35 @@ async function performCheckIn({
   let memory = null;
 
   if (finalizeRewards) {
+    try {
+      const proofSourceId = metadata?.proof_submission_id || `${momentId}:${userId}:verified`;
+      await demandEventService.recordEvent({
+        idempotencyKey: `demand:proof-verified:${proofSourceId}`,
+        campaignId: metadata?.campaign_id || null,
+        momentId,
+        actorUserId: userId,
+        eventType: 'proof_verified',
+        sourceSystem: 'proof_submissions',
+        sourceReference: String(proofSourceId),
+        channel: metadata?.utm_medium || (metadata?.promopush_tracking_code ? 'promopush' : 'promorang'),
+        verified: true,
+        properties: { verification_status: verificationStatus },
+      });
+    } catch (demandError) {
+      console.warn('[Participation API] demand proof mirror skipped:', demandError.message);
+    }
+    try {
+      const proofSourceId = metadata?.proof_submission_id || `${momentId}:${userId}:verified`;
+      await masterKeyService.recordVerifiedFreeProof({
+        userId,
+        sourceType: metadata?.proof_submission_id ? 'proof_submission' : 'participation_verification',
+        sourceId: proofSourceId,
+        metadata: { ...metadata, moment_id: momentId },
+      });
+    } catch (masterKeyError) {
+      console.warn('[Participation API] daily Master Key credit skipped:', masterKeyError.message);
+    }
+
     reward = await ensureReward(moment, userId);
     await promoPushTrackingService.trackPromoPushEvent({
       eventType: 'proof_verified',
@@ -336,6 +383,46 @@ router.get('/moments/:id/status', requireAuth, async (req, res) => {
   }
 });
 
+// One source-backed set of journey facts for web, mobile, notifications, and support.
+// Human copy and presentation are resolved by the shared package so every client
+// gives these facts the same meaning.
+router.get('/moments/:id/journey', requireAuth, async (req, res) => {
+  try {
+    const moment = await getMoment(req.params.id);
+    const participation = await getParticipation(req.params.id, req.user.id);
+    const [requirementsResult, proofResult, memoryResult, openingResult] = await Promise.all([
+      supabase.from('proof_requirements').select('id', { count: 'exact', head: true }).eq('moment_id', req.params.id).eq('is_required', true),
+      supabase.from('proof_submissions').select('id,submission_state,created_at').eq('moment_id', req.params.id).eq('user_id', req.user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('memories').select('id,issued_at').eq('moment_id', req.params.id).eq('user_id', req.user.id).maybeSingle(),
+      supabase.from('opportunity_openings').select('id,destination_url,status,opened_at').eq('moment_id', req.params.id).eq('beneficiary_user_id', req.user.id).eq('status', 'open').order('opened_at', { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    const sourceError = requirementsResult.error || proofResult.error || memoryResult.error || openingResult.error;
+    if (sourceError) throw sourceError;
+    const proofState = proofResult.data?.submission_state || ((requirementsResult.count || 0) > 0 ? 'needed' : 'not_required');
+    res.json({
+      success: true,
+      facts: {
+        moment_id: moment.id,
+        joined_at: participation?.joined_at || null,
+        checked_in_at: participation?.checked_in_at || null,
+        participation_status: participation?.status || null,
+        proof_required: (requirementsResult.count || 0) > 0,
+        proof_submission_id: proofResult.data?.id || null,
+        proof_state: proofState,
+        memory_id: memoryResult.data?.id || null,
+        return_opening_id: openingResult.data?.id || null,
+        return_destination: openingResult.data?.destination_url || null,
+        starts_at: moment.starts_at || null,
+        ends_at: moment.ends_at || null,
+        blocker: null,
+      },
+    });
+  } catch (error) {
+    console.error('[Participation API] journey error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/moments/:id/join', requireAuth, async (req, res) => {
   try {
     const momentId = req.params.id;
@@ -418,6 +505,22 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
       .single();
 
     if (error) throw error;
+    try {
+      await demandEventService.recordEvent({
+        idempotencyKey: `demand:joined:${momentId}:${userId}`,
+        momentId,
+        promoPushCampaignId: promopush_campaign_id,
+        actorUserId: userId,
+        eventType: 'joined',
+        sourceSystem: 'moment_participants',
+        sourceReference: data.id,
+        channel: promopush_tracking_code ? 'promopush' : (source_content_id ? 'creator_content' : 'promorang'),
+        verified: true,
+        properties: { source_content_id, source_mission_id, invited_by_user_id: invited_by_user_id || referrer_id || null },
+      });
+    } catch (demandError) {
+      console.warn('[Participation API] demand join mirror skipped:', demandError.message);
+    }
     if (source_content_id || source_mission_id) {
       try {
         await supabase.from('participation_events').insert({

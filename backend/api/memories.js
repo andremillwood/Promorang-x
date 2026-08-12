@@ -3,7 +3,7 @@ const router = express.Router();
 const memoryService = require('../services/memoryService');
 const { requireAuth } = require('../middleware/auth');
 
-router.get('/vault', requireAuth, async (req, res) => {
+router.get(['/', '/vault'], requireAuth, async (req, res) => {
   try {
     const vault = await memoryService.getVaultSummary(req.user.id);
     res.json({ success: true, vault });

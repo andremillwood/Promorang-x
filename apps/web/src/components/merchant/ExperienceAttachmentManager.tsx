@@ -4,7 +4,6 @@ import { Link2, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
@@ -76,18 +75,28 @@ export default function ExperienceAttachmentManager() {
   const surfaces = useQuery({
     queryKey: ['linkable-experience-surfaces'],
     queryFn: async () => {
-      const [moments, content, missions, campaigns] = await Promise.all([
-        supabase.from('moments').select('id,title,location').eq('status', 'active').limit(80),
-        (supabase as any).from('content_pieces').select('id,title,creator_name,platform').order('created_at', { ascending: false }).limit(60),
-        (supabase as any).from('content_missions').select('id,title,status').in('status', ['live', 'draft', 'paused']).limit(60),
-        supabase.from('campaigns').select('id,title,is_active').eq('is_active', true).limit(60),
+      const fetchMoments = supabase.from('moments').select('id,title,location').limit(80);
+      const fetchContent = (supabase as any).from('discoveries').select('id,title,creator_name,platform').limit(60);
+      const fetchMissions = (supabase as any).from('content_missions').select('id,title,status').limit(60);
+      const fetchCampaigns = supabase.from('campaigns').select('id,title,is_active').limit(60);
+
+      const [momentsRes, contentRes, missionsRes, campaignsRes] = await Promise.allSettled([
+        fetchMoments,
+        fetchContent,
+        fetchMissions,
+        fetchCampaigns,
       ]);
 
+      const momentsData = momentsRes.status === 'fulfilled' ? momentsRes.value.data || [] : [];
+      const contentData = contentRes.status === 'fulfilled' ? contentRes.value.data || [] : [];
+      const missionsData = missionsRes.status === 'fulfilled' ? missionsRes.value.data || [] : [];
+      const campaignsData = campaignsRes.status === 'fulfilled' ? campaignsRes.value.data || [] : [];
+
       const out: ExperienceSurface[] = [];
-      (moments.data || []).forEach((x: any) => out.push({ id: x.id, label: x.title || 'Untitled Moment', type: 'moment', meta: x.location }));
-      (content.data || []).forEach((x: any) => out.push({ id: x.id, label: x.title || `${x.platform || 'Content'} piece`, type: 'content', meta: x.creator_name }));
-      (missions.data || []).forEach((x: any) => out.push({ id: x.id, label: x.title || 'Mission', type: 'mission', meta: x.status }));
-      (campaigns.data || []).forEach((x: any) => out.push({ id: x.id, label: x.title || 'Campaign', type: 'campaign', meta: 'active' }));
+      momentsData.forEach((x: any) => out.push({ id: x.id, label: x.title || 'Untitled Moment', type: 'moment', meta: x.location }));
+      contentData.forEach((x: any) => out.push({ id: x.id, label: x.title || `${x.platform || 'Content'} piece`, type: 'content', meta: x.creator_name }));
+      missionsData.forEach((x: any) => out.push({ id: x.id, label: x.title || 'Mission', type: 'mission', meta: x.status }));
+      campaignsData.forEach((x: any) => out.push({ id: x.id, label: x.title || 'Campaign', type: 'campaign', meta: 'active' }));
       return out;
     },
   });
@@ -159,26 +168,22 @@ export default function ExperienceAttachmentManager() {
   };
 
   return (
-    <Card className="border-emerald-500/20">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Link2 className="h-5 w-5 text-emerald-500" />
-          Experience connections
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Place products, offers, and coupons inside Moments, content, missions, or campaigns.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+    <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+      <div className="border-b border-border/60 p-6 sm:p-8">
+        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Put the offer in context</p>
+        <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Where should people discover it?</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Connect a product or offer to the Moment, story, mission, or activation that gives it meaning.</p>
+      </div>
+      <div className="p-6 sm:p-8">
+        <div className="grid gap-3 xl:grid-cols-[1fr_1fr_auto]">
           <Select value={targetId} onValueChange={setTargetId}>
-            <SelectTrigger><SelectValue placeholder="Product, offer, or coupon" /></SelectTrigger>
+            <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="What are people receiving?" /></SelectTrigger>
             <SelectContent>
               {targets.map((x) => <SelectItem key={`${x.kind}-${x.id}`} value={x.id}>{x.label}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={surfaceId} onValueChange={setSurfaceId}>
-            <SelectTrigger><SelectValue placeholder="Moment, mission, content, campaign" /></SelectTrigger>
+            <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Where should it appear?" /></SelectTrigger>
             <SelectContent>
               {(surfaces.data || []).map((x) => (
                 <SelectItem key={`${x.type}-${x.id}`} value={`${x.type}:${x.id}`}>
@@ -187,27 +192,27 @@ export default function ExperienceAttachmentManager() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={attach} disabled={!targetId || !surfaceId}>
+          <Button className="h-12 rounded-full px-6" onClick={attach} disabled={!targetId || !surfaceId}>
             <Plus className="mr-2 h-4 w-4" />
             Connect
           </Button>
         </div>
-        <div className="mt-5 space-y-2">
+        <div className="mt-7 border-t border-border/60">
           {(links.data || []).map((x: any) => (
-            <div key={x.id} className="flex items-center justify-between rounded-xl border p-3">
+            <div key={x.id} className="flex items-center justify-between gap-4 border-b border-border/60 py-5 last:border-b-0">
               <div>
-                <p className="font-medium capitalize">{humanize(x.target_type)} {humanize(x.relationship)}</p>
+                <p className="font-serif text-xl font-semibold capitalize">{humanize(x.target_type)} {humanize(x.relationship)}</p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {humanize(x.source_type)} · {x.attribution?.surface_label || x.source_id}
                 </p>
               </div>
-              <Button size="icon" variant="ghost" onClick={() => remove(x.id)}>
+              <Button size="icon" variant="ghost" aria-label="Remove connection" onClick={() => remove(x.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

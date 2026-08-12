@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, Spacing } from '@/constants/DesignTokens';
 import { STAKEHOLDER_EXPERIENCES, isStakeholderRole } from '@/constants/StakeholderExperience';
 import { useAuth } from '@/context/AuthContext';
 import promorangLogo from '../assets/images/icon.png';
+import { ResponsivePressable as Pressable } from '@/components/ResponsivePressable';
 
 type AppHeaderProps = {
   title?: string;
@@ -66,15 +67,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: Colors.black,
   },
-  context: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  context: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 9 },
   roleIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   contextLabel: { color: Colors.white, fontSize: 13, fontWeight: '800' },
-  contextAction: { color: Colors.gray[500], fontSize: 9, marginTop: 1 },
+  contextAction: { color: Colors.gray[500], fontSize: 12, marginTop: 1 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: Colors.border,
     backgroundColor: Colors.gray[900],

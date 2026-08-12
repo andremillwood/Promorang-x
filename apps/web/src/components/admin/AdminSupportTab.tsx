@@ -22,6 +22,9 @@ type SupportTicket = {
   first_response_at?: string | null;
   resolved_at?: string | null;
   sla_due_at?: string | null;
+  receipt_id?: string | null;
+  commerce_reason?: string | null;
+  resolution?: Record<string, any> | null;
   assignee?: {
     display_name?: string | null;
     email?: string | null;
@@ -60,6 +63,9 @@ export function AdminSupportTab() {
   const [nextStatus, setNextStatus] = useState<SupportTicket["status"]>("in_progress");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [remedy, setRemedy] = useState("refund");
+  const [gems, setGems] = useState("300");
+  const [couponAssignmentId, setCouponAssignmentId] = useState("");
   const [error, setError] = useState("");
 
   const headers = useMemo(() => ({
@@ -142,6 +148,19 @@ export function AdminSupportTab() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function resolveCommerceCase() {
+    if (!selectedTicket?.receipt_id || !replyText.trim()) return;
+    setSaving(true); setError("");
+    try {
+      const response = await fetch(`${API_URL}/api/admin/support/${selectedTicket.id}/resolve-commerce`, { method: "POST", headers, body: JSON.stringify({ remedy, gems: Number(gems), coupon_assignment_id: couponAssignmentId || undefined, notes: replyText.trim() }) });
+      const payload = await response.json().catch(()=>({}));
+      if (!response.ok) throw new Error(payload.error || "Failed to execute resolution");
+      toast({ title: "Resolution executed", description: remedy === "refund" ? "The refund and customer notification were recorded." : "The customer value and notification were recorded." });
+      await fetchTickets();
+    } catch (resolutionError) { setError(resolutionError instanceof Error ? resolutionError.message : "Failed to execute resolution"); }
+    finally { setSaving(false); }
   }
 
   const openCount = tickets.filter((ticket) => ticket.status === "open" || ticket.status === "in_progress").length;
@@ -266,6 +285,8 @@ export function AdminSupportTab() {
                   {selectedTicket.message}
                 </div>
               </div>
+
+              {selectedTicket.receipt_id ? <div className="rounded-2xl border border-primary/25 bg-primary/[.04] p-4"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Execute commerce resolution</p><p className="mt-2 text-sm text-muted-foreground">Receipt #{selectedTicket.receipt_id.slice(0,8)} · {selectedTicket.commerce_reason?.replaceAll("_"," ")}</p><div className="mt-4 grid gap-3 sm:grid-cols-3"><select value={remedy} onChange={(event)=>setRemedy(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="refund">Refund purchase</option><option value="restore_reward">Restore reward</option><option value="gems_credit">Credit Gems</option><option value="no_adjustment">No adjustment</option></select>{remedy === "gems_credit" ? <input type="number" min="1" max="100000" value={gems} onChange={(event)=>setGems(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Gems"/> : null}{remedy === "restore_reward" ? <input value={couponAssignmentId} onChange={(event)=>setCouponAssignmentId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Coupon assignment ID"/> : null}<Button onClick={resolveCommerceCase} disabled={saving || !replyText.trim()}><CheckCircle2 className="mr-2 h-4 w-4"/>Execute resolution</Button></div><p className="mt-3 text-xs text-muted-foreground">The response above becomes the decision note. Financial and wallet actions are idempotent.</p></div> : null}
 
               <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
                 <div className="space-y-2">

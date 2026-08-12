@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { resolveCommerceReceiptPresentation } from '@promorang/shared';
 
 type CommerceReceipt = {
   id: string;
@@ -98,8 +99,9 @@ export function CommerceReceiptRail() {
         <div className="flex gap-3 overflow-x-auto pb-2">
           {q.data.map((receipt) => {
             const Icon = receiptIcon[receipt.receipt_type as keyof typeof receiptIcon] || Receipt;
+            const presentation = resolveCommerceReceiptPresentation({ receiptType: receipt.receipt_type, status: receipt.status, productName: receipt.merchant_products?.name, attribution: receipt.attribution as any });
             return (
-              <Link key={receipt.id} to={`/receipts/${receipt.id}`} className="group min-w-[280px] overflow-hidden rounded-2xl border bg-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-card">
+              <Link key={receipt.id} to={`/receipts/${receipt.id}`} className="group min-w-[280px] overflow-hidden rounded-2xl border bg-card transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-card">
                 {receipt.merchant_products?.image_url ? (
                   <div className="h-20 bg-muted">
                     <img src={receipt.merchant_products.image_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
@@ -114,10 +116,9 @@ export function CommerceReceiptRail() {
                       {receipt.status}
                     </Badge>
                   </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                    {receipt.receipt_type}
-                  </p>
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary">{presentation.headline}</p>
                   <h3 className="mt-1 line-clamp-2 font-black capitalize">{receiptTitle(receipt)}</h3>
+                  {presentation.outcomes.length > 1 ? <p className="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-300">+ {presentation.outcomes.slice(1).map((outcome) => outcome.value).join(' · ')}</p> : null}
                   <div className="mt-4 rounded-xl border border-dashed bg-muted/35 p-3">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
                       {receipt.redemption_code ? 'Redemption code' : 'Receipt value'}

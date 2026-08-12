@@ -118,12 +118,47 @@ export function useMerchantStats() {
 
       if (error) throw error;
 
-      // For now, we'll return placeholder stats since we don't track venue traffic yet
+      const venueIds = venues.map((venue) => venue.id);
+      let momentIds: string[] = [];
+      if (venueIds.length) {
+        const { data: moments } = await supabase.from("moments").select("id").in("venue_id", venueIds);
+        momentIds = (moments || []).map((moment) => moment.id);
+      }
+
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - 7);
+      let weeklyTraffic = 0;
+      let repeatVisitors = 0;
+      if (momentIds.length) {
+        const { data: arrivals } = await supabase
+          .from("check_ins")
+          .select("user_id, checked_in_at")
+          .in("moment_id", momentIds)
+          .eq("location_verified", true);
+        const verifiedArrivals = arrivals || [];
+        weeklyTraffic = verifiedArrivals.filter((arrival) => new Date(arrival.checked_in_at) >= startOfWeek).length;
+        const visitsByUser = verifiedArrivals.reduce<Record<string, number>>((counts, arrival) => {
+          counts[arrival.user_id] = (counts[arrival.user_id] || 0) + 1;
+          return counts;
+        }, {});
+        repeatVisitors = Object.values(visitsByUser).filter((count) => count > 1).length;
+      }
+
+      const { data: orders } = await (supabase as any)
+        .from("commerce_orders")
+        .select("payment_status, fulfillment_status, merchant_net")
+        .eq("merchant_id", user.id);
+      const orderRows = orders || [];
+      const paidOrders = orderRows.filter((order: any) => order.payment_status === "paid");
+
       return {
         totalVenues: venues.length,
         activeVenues: venues.filter((v) => v.is_active).length,
-        weeklyTraffic: 0, // Would need traffic tracking implementation
-        growth: 0,
+        weeklyTraffic,
+        repeatVisitors,
+        openOrders: orderRows.filter((order: any) => !["delivered", "redeemed", "cancelled"].includes(order.fulfillment_status)).length,
+        paidOrders: paidOrders.length,
+        revenue: paidOrders.reduce((sum: number, order: any) => sum + Number(order.merchant_net || 0), 0),
       };
     },
     enabled: !!user,

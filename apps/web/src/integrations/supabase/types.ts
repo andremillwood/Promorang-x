@@ -115,6 +115,7 @@ export type Database = {
           budget: number | null
           created_at: string
           description: string | null
+          funding_goal_gems: number | null
           id: string
           metadata: Json | null
           planner_id: string | null
@@ -128,6 +129,7 @@ export type Database = {
           budget?: number | null
           created_at?: string
           description?: string | null
+          funding_goal_gems?: number | null
           id?: string
           metadata?: Json | null
           planner_id?: string | null
@@ -141,6 +143,7 @@ export type Database = {
           budget?: number | null
           created_at?: string
           description?: string | null
+          funding_goal_gems?: number | null
           id?: string
           metadata?: Json | null
           planner_id?: string | null
@@ -416,6 +419,7 @@ export type Database = {
       campaigns: {
         Row: {
           bid_amount: number | null
+          activation_proposal_id: string | null
           brand_id: string
           budget: number | null
           created_at: string
@@ -440,6 +444,7 @@ export type Database = {
         }
         Insert: {
           bid_amount?: number | null
+          activation_proposal_id?: string | null
           brand_id: string
           budget?: number | null
           created_at?: string
@@ -464,6 +469,7 @@ export type Database = {
         }
         Update: {
           bid_amount?: number | null
+          activation_proposal_id?: string | null
           brand_id?: string
           budget?: number | null
           created_at?: string
@@ -1710,11 +1716,13 @@ export type Database = {
         Row: {
           active_campaigns_count: number | null
           associated_moments_count: number | null
+          claim_status: string | null
           created_at: string | null
           id: string | null
           logo_url: string | null
           name: string | null
           slug: string | null
+          verification_status: string | null
           website_url: string | null
         }
         Relationships: []
@@ -1804,6 +1812,10 @@ export type Database = {
       }
     }
     Functions: {
+      open_campaign_activation: {
+        Args: { p_campaign_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -1863,6 +1875,7 @@ export type Database = {
       | "voucher"
       | "experience"
       | "access"
+      | "gems"
       sponsorship_status:
       | "pending"
       | "viewed"
@@ -2059,6 +2072,7 @@ export const Constants = {
         "voucher",
         "experience",
         "access",
+        "gems",
       ],
       sponsorship_status: [
         "pending",

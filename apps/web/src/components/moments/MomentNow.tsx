@@ -1,0 +1,42 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { ArrowRight, Check, CheckCircle2, Package, Ticket, TrendingUp } from "lucide-react";
+import { resolveMomentCommerceAvailability, resolveMomentExperience, type MomentLiveContext } from "@promorang/shared";
+import { API_BASE_URL } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
+
+async function loadMomentContext(momentId: string): Promise<MomentLiveContext> {
+  const { data } = await supabase.auth.getSession();
+  const response = await fetch(`${API_BASE_URL}/commerce/moments/${momentId}/context`, { headers: data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {} });
+  if (!response.ok) throw new Error("Moment context unavailable");
+  return (await response.json()).data;
+}
+
+export function MomentNow({ momentId, momentTitle, onJoin }: { momentId: string; momentTitle?: string | null; onJoin?: () => void }) {
+  const { data, isLoading } = useQuery({ queryKey: ["moment-live-context", momentId], queryFn: () => loadMomentContext(momentId) });
+  if (isLoading) return <div className="rounded-3xl border border-border bg-card p-6 text-sm text-muted-foreground">Opening what is available at this Moment…</div>;
+  if (!data) return null;
+  const experience = resolveMomentExperience({
+    momentTitle,
+    participationState: data.participation.state,
+    commerceCount: data.commerce.length,
+    moveCount: data.moves.length,
+    ticketCount: data.promoshare.ticket_count,
+    pieceQuantity: data.piece?.user_quantity || 0,
+  });
+  const actionHref = experience.phase === "before" ? `/moments/${momentId}/checkin` : experience.phase === "after" ? "/vault" : "#available-now";
+
+  return <section id="available-now" className="overflow-hidden rounded-[2rem] border border-primary/25 bg-[#11100e] text-white shadow-2xl shadow-black/20">
+    <div className="p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{experience.eyebrow}</p><h3 className="mt-2 max-w-2xl font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{experience.title}</h3><p className="mt-2 max-w-xl text-sm leading-6 text-white/55">{experience.body}</p></div>{data.participation.state === "not_joined" && onJoin ? <button type="button" onClick={onJoin} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground transition hover:brightness-110">{experience.actionLabel}<ArrowRight className="h-3.5 w-3.5" /></button> : <Link to={actionHref} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground transition hover:brightness-110">{experience.actionLabel}<ArrowRight className="h-3.5 w-3.5" /></Link>}</div>
+      <div className="relative mt-7 grid grid-cols-3 before:absolute before:left-[16%] before:right-[16%] before:top-4 before:h-px before:bg-white/15">{experience.steps.map((step)=><div key={step.phase} className="relative flex flex-col items-center px-1 text-center"><span className={`z-10 flex h-8 w-8 items-center justify-center rounded-full border ${step.status === "complete" ? "border-primary bg-primary text-primary-foreground" : step.status === "current" ? "border-primary bg-[#11100e] text-primary ring-4 ring-primary/10" : "border-white/20 bg-[#11100e] text-white/30"}`}>{step.status === "complete" ? <Check className="h-4 w-4" /> : <span className="h-2 w-2 rounded-full bg-current" />}</span><p className={`mt-2 text-[9px] font-black uppercase tracking-[.2em] ${step.status === "current" ? "text-primary" : "text-white/45"}`}>{step.label}</p><p className="mt-1 hidden max-w-[13rem] text-[11px] leading-4 text-white/45 sm:block">{step.instruction}</p></div>)}</div>
+    </div>
+    {experience.receipt ? <div className="mx-5 mb-5 border-y border-dashed border-black/20 bg-[#f4ead8] p-5 text-[#1b1712] shadow-inner sm:mx-7 sm:mb-7 sm:p-6"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-[10px] font-black uppercase tracking-[.3em] text-primary">Promorang action receipt</p><h4 className="mt-2 font-serif text-4xl font-black uppercase tracking-tight">It counted</h4><p className="mt-1 text-sm font-bold">{experience.receipt.title}</p></div><div className="grid min-w-[260px] gap-2">{experience.receipt.lines.map(line=><div key={line.label} className="flex items-center justify-between gap-8 border-b border-black/10 pb-2 text-xs"><span className="text-black/55">{line.label}</span><span className="font-black">{line.value}</span></div>)}</div></div><div className="mt-5 flex items-center justify-between border-t border-dashed border-black/20 pt-4"><span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em]"><CheckCircle2 className="h-4 w-4 text-primary" />Saved to Vault</span><Link to="/vault" className="text-xs font-black text-primary">See what opened →</Link></div></div> : null}
+    <div className="border-t border-white/10 p-5 sm:p-7">
+    <div className="mt-5 grid grid-cols-3 gap-2">{[[Package,data.commerce.length,"Things to buy"],[CheckCircle2,data.moves.length,"Actions"],[Ticket,data.promoshare.ticket_count,"Tickets"]].map(([Icon,value,label]: any)=><div key={label} className="rounded-2xl border border-border bg-background/55 p-3"><Icon className="h-4 w-4 text-primary"/><p className="mt-2 text-xl font-black">{value}</p><p className="text-[10px] text-muted-foreground">{label}</p></div>)}</div>
+    {data.commerce.length ? <div className="mt-5 grid gap-3 md:grid-cols-2">{data.commerce.slice(0,6).map(item=>{const availability=resolveMomentCommerceAvailability(item); return <Link key={item.listing_id} to={`/shop/${item.source_id}`} aria-label={`${availability.actionLabel}: ${item.name}`} className={`group rounded-2xl border bg-background/55 p-4 transition ${availability.canAct ? "hover:border-primary/45" : "opacity-60"}`}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">{item.kind}</p><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-wider ${availability.state === "sold_out" ? "bg-white/10 text-white/50" : availability.state === "limited" ? "bg-amber-400/15 text-amber-300" : "bg-emerald-400/15 text-emerald-300"}`}>{availability.label}</span></div><p className="mt-2 font-bold">{item.name}</p><p className="mt-1 text-xs text-muted-foreground">{item.merchant_name || item.venue_name}</p></div><ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary"/></div><div className="mt-3 flex items-end justify-between gap-3"><p className="text-sm font-black text-primary">{item.discount_label || (item.price != null ? `${item.currency || "USD"} ${item.price}` : "Open")}</p><span className="text-[10px] font-black uppercase tracking-wider text-white/65">{availability.actionLabel}</span></div></Link>})}</div> : <p className="mt-5 text-sm text-muted-foreground">Products and offers connected to this Moment will appear here.</p>}
+    {data.moves.length ? <div className="mt-5 divide-y divide-border rounded-2xl border border-border bg-background/45 px-4">{data.moves.slice(0,4).map(move=><div key={move.id} className="flex items-center gap-3 py-4"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary"/><div className="min-w-0 flex-1"><p className="text-sm font-bold">{move.title}</p><p className="text-xs text-muted-foreground">{move.proof_type ? `${move.proof_type} verification` : "Follow the Moment instructions"}</p></div>{move.reward_label ? <span className="text-xs font-black text-primary">{move.reward_label}</span>:null}</div>)}</div>:null}
+    {data.piece ? <Link to={`/pieces/moment/${momentId}`} className="mt-5 flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/[.07] p-4"><div><p className="text-[9px] font-black uppercase tracking-[.2em] text-primary">Moment Piece</p><p className="mt-1 text-sm font-bold">{data.piece.user_quantity || 0} owned · Track its movement</p></div><div className="flex items-center gap-2 font-black text-primary"><TrendingUp className="h-4 w-4"/>{data.piece.current_price == null ? "Open" : `$${Number(data.piece.current_price).toFixed(2)}`}</div></Link>:null}
+    </div>
+  </section>;
+}

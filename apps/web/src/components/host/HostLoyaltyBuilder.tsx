@@ -127,7 +127,7 @@ export function HostLoyaltyBuilder() {
         {/* Rules List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rules.map((rule) => (
-                <Card key={rule.id} className="bg-background border-border hover:border-primary/40 transition-all group">
+                <Card key={rule.id} className="bg-background border-border hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group">
                     <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -145,7 +145,7 @@ export function HostLoyaltyBuilder() {
                             variant="ghost" 
                             size="icon" 
                             onClick={() => handleDeleteRule(rule.id)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
                         >
                             <Trash2 className="w-4 h-4" />
                         </Button>

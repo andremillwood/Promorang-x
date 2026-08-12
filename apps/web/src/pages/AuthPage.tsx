@@ -62,6 +62,9 @@ const AuthPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const commercialIntent = searchParams.get("intent");
+  const selectedPlan = searchParams.get("plan");
+  const selectedSku = searchParams.get("sku");
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -243,6 +246,12 @@ const AuthPage = () => {
               ? "Sign in to your real account or enter a guided demo workspace."
               : "Create your account to start discovering moments"}
           </p>
+          {commercialIntent && (
+            <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Your selection is saved</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in or create an account to continue {selectedPlan ? `with the ${selectedPlan} plan` : selectedSku ? `with Moment package ${selectedSku}` : "with your selected Promorang route"}. You will not need to start over.</p>
+            </div>
+          )}
 
           {/* Role Selection (Signup only) */}
           {mode === "signup" && (
@@ -255,7 +264,7 @@ const AuthPage = () => {
                       key={role}
                       type="button"
                       onClick={() => setSelectedRole(role)}
-                      className={`p-4 rounded-xl border-2 text-left transition-all ${selectedRole === role
+                      className={`p-4 rounded-xl border-2 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${selectedRole === role
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                         }`}

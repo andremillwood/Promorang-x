@@ -5,11 +5,13 @@ import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { useInboxActivity } from '@/hooks/useInboxActivity';
+import { resolveNotificationJourney, type NotificationJourneyKind } from '@promorang/shared';
 
 type Filter = 'all' | 'proof' | 'social';
 type ActivityItem = {
   id: string;
-  kind: 'proof' | 'unlock' | 'social' | 'growth';
+  kind: NotificationJourneyKind;
+  eyebrow: string;
   title: string;
   detail: string;
   time: string;
@@ -18,9 +20,7 @@ type ActivityItem = {
 };
 
 const kindMeta = {
-  proof: { icon: 'shield-checkmark', color: Colors.success, label: 'IT COUNTED' },
-  unlock: { icon: 'key', color: Colors.warning, label: 'UNLOCK' },
-  social: { icon: 'people', color: Colors.info, label: 'SCENE' },
+  recognition: { icon: 'shield-checkmark', color: Colors.success }, memory: { icon: 'images', color: Colors.purple }, scene: { icon: 'people', color: Colors.info }, return: { icon: 'calendar', color: Colors.primary }, value: { icon: 'key', color: Colors.warning }, moment: { icon: 'sparkles', color: Colors.primary }, general: { icon: 'notifications', color: Colors.gray[400] },
   growth: { icon: 'trending-up', color: Colors.primary, label: 'GROWTH' },
 } as const;
 
@@ -28,16 +28,18 @@ export default function InboxScreen() {
   const [filter, setFilter] = useState<Filter>('all');
   const [readIds, setReadIds] = useState<string[]>([]);
   const { notifications, loading, error, refresh, markRead, markAllRead } = useInboxActivity();
-  const source: ActivityItem[] = notifications.map((item) => ({
+  const source: ActivityItem[] = notifications.map((item) => {
+    const journey = resolveNotificationJourney({ type: item.type, relatedId: item.related_id });
+    return ({
     id: item.id,
     kind: notificationKind(item.type),
     title: item.title,
     detail: item.message || 'Open to see what changed.',
     time: relativeTime(item.created_at),
     unread: !item.is_read,
-    route: notificationRoute(item.type, item.related_id),
-  }));
-  const visible = source.filter((item) => filter === 'all' || filter === 'proof' && ['proof', 'unlock'].includes(item.kind) || filter === 'social' && item.kind === 'social');
+    route: journey.destination, eyebrow: journey.eyebrow,
+  }); });
+  const visible = source.filter((item) => filter === 'all' || filter === 'proof' && ['recognition', 'memory', 'value'].includes(item.kind) || filter === 'social' && ['scene', 'return'].includes(item.kind));
   const unread = source.filter((item) => item.unread && !readIds.includes(item.id)).length;
 
   const openItem = (item: ActivityItem) => {
@@ -76,7 +78,7 @@ export default function InboxScreen() {
             <Pressable key={item.id} style={[styles.item, isUnread && styles.itemUnread]} onPress={() => openItem(item)}>
               <View style={[styles.itemIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon} size={21} color={meta.color} /></View>
               <View style={styles.itemCopy}>
-                <View style={styles.itemMeta}><Text style={[styles.kind, { color: meta.color }]}>{meta.label}</Text><Text style={styles.time}>{item.time}</Text></View>
+                <View style={styles.itemMeta}><Text style={[styles.kind, { color: meta.color }]}>{item.eyebrow}</Text><Text style={styles.time}>{item.time}</Text></View>
                 <Text style={styles.itemTitle}>{item.title}</Text>
                 <Text style={styles.itemDetail}>{item.detail}</Text>
               </View>
@@ -96,18 +98,7 @@ export default function InboxScreen() {
   );
 }
 
-function notificationKind(type: string): ActivityItem['kind'] {
-  if (/proof|verification|check.?in/i.test(type)) return 'proof';
-  if (/reward|unlock|payout|ticket/i.test(type)) return 'unlock';
-  if (/follow|comment|like|scene/i.test(type)) return 'social';
-  return 'growth';
-}
-function notificationRoute(type: string, relatedId: string | null) {
-  if (/moment|check.?in|proof/i.test(type) && relatedId) return `/moment/${relatedId}`;
-  if (/reward|unlock|payout/i.test(type)) return '/vault';
-  if (/share|growth|distribution/i.test(type)) return '/promoshare';
-  return undefined;
-}
+function notificationKind(type: string): ActivityItem['kind'] { return resolveNotificationJourney({ type }).kind; }
 function relativeTime(value: string) {
   const minutes = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 60000));
   if (minutes < 1) return 'Now';
@@ -121,36 +112,36 @@ const styles = StyleSheet.create({
   header: { paddingTop: Platform.OS === 'ios' ? 56 : 36, paddingHorizontal: Spacing.container, paddingBottom: 15, flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border, backgroundColor: Colors.black },
   back: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   heading: { flex: 1, marginLeft: 13, backgroundColor: 'transparent' },
-  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: 1 },
+  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1 },
   title: { color: Colors.white, fontSize: Typography.sizes['2xl'], fontWeight: '800', letterSpacing: -.7, marginTop: 2 },
   markRead: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   content: { paddingHorizontal: Spacing.container, paddingTop: 18 },
   summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderRadius: BorderRadius.xl, backgroundColor: '#24160F', borderWidth: 1, borderColor: 'rgba(255,106,26,.24)' },
   summaryValue: { color: Colors.white, fontSize: 31, fontWeight: '800' },
-  summaryLabel: { color: Colors.gray[400], fontSize: 11, marginTop: 2 },
+  summaryLabel: { color: Colors.gray[400], fontSize: 13, marginTop: 2 },
   summaryIcon: { width: 44, height: 44, borderRadius: 15, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center' },
   filters: { flexDirection: 'row', gap: 7, marginTop: 17, backgroundColor: 'transparent' },
   filter: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 17, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   filterActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  filterText: { color: Colors.gray[400], fontSize: 10, fontWeight: '700' },
+  filterText: { color: Colors.gray[400], fontSize: 12, fontWeight: '700' },
   filterTextActive: { color: Colors.black },
-  sectionEyebrow: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1, marginTop: 25, marginBottom: 10 },
+  sectionEyebrow: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1, marginTop: 25, marginBottom: 10 },
   item: { flexDirection: 'row', alignItems: 'center', padding: 14, marginBottom: 9, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   itemUnread: { borderColor: 'rgba(255,106,26,.3)', backgroundColor: '#1D1713' },
   itemIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginRight: 11 },
   itemCopy: { flex: 1, backgroundColor: 'transparent' },
   itemMeta: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'transparent' },
-  kind: { fontFamily: 'SpaceMono', fontSize: 8, letterSpacing: .6, flex: 1 },
-  time: { color: Colors.gray[600], fontSize: 9 },
+  kind: { fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .6, flex: 1 },
+  time: { color: Colors.gray[600], fontSize: 12 },
   itemTitle: { color: Colors.white, fontSize: 13, fontWeight: '800', marginTop: 4 },
-  itemDetail: { color: Colors.gray[400], fontSize: 10, lineHeight: 15, marginTop: 3, paddingRight: 9 },
+  itemDetail: { color: Colors.gray[400], fontSize: 12, lineHeight: 15, marginTop: 3, paddingRight: 9 },
   unreadDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.primary, marginLeft: 8 },
   permissionCard: { flexDirection: 'row', alignItems: 'center', padding: 15, marginTop: 16, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   permissionIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center', marginRight: 11 },
   permissionCopy: { flex: 1, backgroundColor: 'transparent' },
   permissionTitle: { color: Colors.white, fontSize: 12, fontWeight: '800' },
-  permissionDetail: { color: Colors.gray[500], fontSize: 9, lineHeight: 14, marginTop: 3, paddingRight: 8 },
+  permissionDetail: { color: Colors.gray[500], fontSize: 12, lineHeight: 14, marginTop: 3, paddingRight: 8 },
   loading: { minHeight: 190, alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: 'transparent' },
   loadingTitle: { color: Colors.white, fontSize: 13, fontWeight: '700' },
-  loadingText: { color: Colors.gray[500], fontSize: 10 },
+  loadingText: { color: Colors.gray[500], fontSize: 12 },
 });

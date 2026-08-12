@@ -108,7 +108,7 @@ export function PointsOverview() {
       )}
 
       {/* Sharing Power / Social Bonus CTA */}
-      <div className="bg-charcoal rounded-2xl p-6 border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all cursor-pointer">
+      <div className="bg-charcoal rounded-2xl p-6 border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] cursor-pointer">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors" />
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">

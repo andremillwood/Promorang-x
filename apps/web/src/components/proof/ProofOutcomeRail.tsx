@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, Repeat2, ScanSearch, Target } from "lucide-re
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import type { ProofOutcomeData } from "@/hooks/useProofOutcome";
 
 interface ProofOutcomeRailProps {
@@ -13,6 +14,7 @@ interface ProofOutcomeRailProps {
   isLoading?: boolean;
   ctaHref?: string;
   ctaLabel?: string;
+  guidanceId?: string;
 }
 
 function formatDate(value?: string | null) {
@@ -31,6 +33,7 @@ export function ProofOutcomeRail({
   isLoading = false,
   ctaHref,
   ctaLabel,
+  guidanceId,
 }: ProofOutcomeRailProps) {
   if (isLoading) {
     return (
@@ -80,7 +83,7 @@ export function ProofOutcomeRail({
     metrics.push({ label: "Spend / verified proof", value: `$${data.spend_per_verified_proof.toLocaleString()}` });
   }
 
-  return (
+  const rail = (
     <Card className="border-primary/15 bg-gradient-to-br from-primary/5 via-background to-amber-500/5">
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -160,6 +163,20 @@ export function ProofOutcomeRail({
         ) : null}
       </CardContent>
     </Card>
+  );
+
+  if (!guidanceId) return rail;
+
+  return (
+    <GuidanceDisclosure
+      id={guidanceId}
+      eyebrow={eyebrow}
+      title={title}
+      summary={data.label}
+      className="mt-0"
+    >
+      {rail}
+    </GuidanceDisclosure>
   );
 }
 

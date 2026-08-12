@@ -192,7 +192,7 @@ export function CreatorEarningsTab() {
                         <span className="w-12 text-sm text-muted-foreground">{monthLabel}</span>
                         <div className="flex-1 h-8 bg-muted rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -348,7 +348,7 @@ export function CreatorEarningsTab() {
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div 
-                            className={`h-full ${colors[index % colors.length]} rounded-full transition-all duration-500`}
+                            className={`h-full ${colors[index % colors.length]} rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500`}
                             style={{ width: `${percentage}%` }}
                           />
                         </div>

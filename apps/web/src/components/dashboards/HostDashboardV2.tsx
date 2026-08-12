@@ -15,14 +15,12 @@ import {
   BarChart3,
   MapPin,
   Clock,
-  CheckCircle2
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHero } from "@/components/dashboard/DashboardSurface";
 import { useHostedMoments, useHostStats } from "@/hooks/useMoments";
@@ -33,7 +31,8 @@ import { DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurfac
 import { format, isPast, isFuture, differenceInDays } from "date-fns";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useHostProofOutcome } from "@/hooks/useProofOutcome";
-import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
+import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
 
 const HostSponsorshipRequests = lazy(() =>
   import("@/components/host/SponsorshipRequests").then((module) => ({ default: module.HostSponsorshipRequests })),
@@ -75,20 +74,24 @@ const HostDashboardV2 = () => {
   ) || [];
 
   const isNewHost = hostedMoments?.length === 0;
-  const isActiveHost = hostedMoments && hostedMoments.length > 0 && hostedMoments.length < 5;
   const isEstablishedHost = hostedMoments && hostedMoments.length >= 5;
 
   // Calculate total participants
   const totalParticipants = stats?.totalParticipants || 0;
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-8 pb-20 xl:space-y-10">
       <DashboardHero
-        badge="Host Control Room"
+        badge="Hosting studio"
         title={isNewHost ? "Create the first moment worth showing up for" : "Run live moments people can trust"}
         description="Hosts create the real-world loop: launch the moment, watch it form, review what happened, then repeat what worked."
         actions={[
-          { label: "Create", href: "/create/moment", icon: Plus },
+          isNewHost
+            ? { label: "Create your first Moment", href: "/create/moment", icon: Plus }
+            : upcomingMoments.length > 0
+              ? { label: "Open live operations", onClick: () => setActiveTab("pulse"), icon: Activity }
+              : { label: "Create the next Moment", href: "/create/moment", icon: Plus },
+          { label: "Create a Moment", href: "/create/moment", icon: Plus },
           { label: "Pulse", onClick: () => setActiveTab("pulse"), icon: Activity },
           { label: "Review", onClick: () => setActiveTab("review"), icon: ShieldCheck },
         ]}
@@ -101,7 +104,19 @@ const HostDashboardV2 = () => {
         isLoading={statsLoading || economyLoading}
       />
 
-      <StakeholderReturnPanel role="host" />
+      <DashboardWorkspaceNav
+        eyebrow="Inside your hosting studio"
+        title="Shape the room, then see what changed"
+        activeValue={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "moments", label: "Moments", icon: Calendar },
+          { value: "pulse", label: "Live pulse", icon: Activity },
+          { value: "review", label: "Proof review", icon: ShieldCheck },
+          { value: "sponsorships", label: "Sponsors", icon: Handshake, hidden: !isEstablishedHost },
+          { value: "impact", label: "Impact", icon: BarChart3, hidden: !isEstablishedHost },
+        ]}
+      />
 
       {/* =====================================================================
           NEW HOST: First Steps
@@ -139,65 +154,25 @@ const HostDashboardV2 = () => {
         </Card>
       )}
 
-      {/* =====================================================================
-          ACTIVE HOST: Host Journey Progress
-          ===================================================================== */}
       {!isNewHost && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <span className="font-medium text-sm">Host Journey</span>
-              </div>
-              <Badge variant="outline" className="text-[10px]">
-                {isEstablishedHost ? "Complete" : isActiveHost ? "In Progress" : "Just Started"}
-              </Badge>
-            </div>
-            <Progress 
-              value={isEstablishedHost ? 100 : isActiveHost ? 50 : 25} 
-              className="h-2 mb-3" 
-            />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {[
-                { 
-                  label: "Create moment", 
-                  done: hostedMoments && hostedMoments.length > 0,
-                  icon: Calendar
-                },
-                { 
-                  label: "Get participants", 
-                  done: totalParticipants > 0,
-                  icon: Users
-                },
-                { 
-                  label: "5+ moments", 
-                  done: isEstablishedHost,
-                  icon: Sparkles
-                },
-              ].map((step, i) => (
-                <div 
-                  key={i} 
-                  className={`flex flex-col items-center p-3 rounded-xl text-center ${
-                    step.done ? "bg-emerald-500/5" : "bg-muted/30"
-                  }`}
-                >
-                  <step.icon className={`w-4 h-4 mb-1 ${step.done ? "text-emerald-500" : "text-muted-foreground"}`} />
-                  <span className={`text-xs ${step.done ? "text-emerald-600 font-medium" : "text-muted-foreground"}`}>
-                    {step.label}
-                  </span>
-                  {step.done && (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-1" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <StudioJourneyStory
+          guidanceId="host-dashboard:room-so-far"
+          eyebrow="The room so far"
+          title="Understand what gathered—and what will bring people back"
+          introduction="A hosted Moment matters when the room forms, participation can be trusted, and the learning shapes what happens next."
+          signalLabel="People welcomed"
+          signalValue={totalParticipants.toLocaleString()}
+          beats={[
+            { label: `${hostedMoments?.length || 0} ${(hostedMoments?.length || 0) === 1 ? "Moment has" : "Moments have"} taken place`, detail: `${pastMoments.length} completed and ${upcomingMoments.length} currently ahead.`, icon: Calendar, tone: "complete" },
+            { label: totalParticipants > 0 ? "The room has begun to form" : "Invite the first people into the room", detail: totalParticipants > 0 ? `${totalParticipants.toLocaleString()} people are connected to your hosted Moments.` : "A Moment becomes meaningful when people choose to show up.", icon: Users, tone: totalParticipants > 0 ? "complete" : "current" },
+            { label: isEstablishedHost ? "Repeat what made the room work" : "Prepare the next trusted Moment", detail: isEstablishedHost ? "Use proof and participant response to shape the next gathering." : "Clarify the invitation, arrival, and what people leave with.", icon: ArrowRight, tone: "current" },
+          ]}
+        />
       )}
 
       {!isNewHost && (
         <ProofOutcomeRail
+          guidanceId="host-dashboard:proof-outcome"
           eyebrow="Shared Proof Layer"
           title="Run the same verified loop across every hosted moment"
           data={proofOutcomeQuery.data}
@@ -316,8 +291,8 @@ const HostDashboardV2 = () => {
           MAIN TABS: Progressive disclosure
           ===================================================================== */}
       {!isNewHost && (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
+        <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28">
+          <TabsList className="sr-only">
             <TabsTrigger value="moments" className="gap-2">
               <Calendar className="w-4 h-4" />
               All Moments
@@ -346,49 +321,51 @@ const HostDashboardV2 = () => {
 
           <TabsContent value="moments" className="mt-0">
             {momentsLoading ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <Skeleton key={i} className="h-48 rounded-xl" />
+                  <Skeleton key={i} className="h-32 rounded-[1.5rem]" />
                 ))}
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {[...upcomingMoments, ...pastMoments].map((moment) => (
-                  <Card key={moment.id} className="hover:shadow-soft transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex min-w-0 flex-col gap-4 sm:flex-row">
-                        <div className="w-20 h-20 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
+              <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+                <div className="flex flex-col gap-4 border-b border-border/60 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Your rooms</p>
+                    <h2 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em]">Moments you are shaping</h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Open a Moment to manage its invitation, arrival, proof, and what happens after the room clears.</p>
+                  </div>
+                  <Button asChild className="rounded-full"><Link to="/create/moment"><Plus className="mr-2 h-4 w-4" />Create Moment</Link></Button>
+                </div>
+                <div>
+                {[...upcomingMoments, ...pastMoments].map((moment) => {
+                  const upcoming = isFuture(new Date(moment.starts_at));
+                  return (
+                  <Link key={moment.id} to={`/host/moments/${moment.id}/guests`} className="group grid gap-5 border-b border-border/60 p-5 last:border-b-0 hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:items-center sm:p-6">
+                        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
                           {moment.image_url ? (
-                            <img src={moment.image_url} alt="" className="w-full h-full object-cover" />
+                            <img src={moment.image_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                           ) : (
-                            <div className="w-full h-full bg-gradient-primary flex items-center justify-center">
-                              <Calendar className="w-6 h-6 text-white/60" />
+                            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,106,0,.55),transparent_55%),#151515]">
+                              <Calendar className="h-7 w-7 text-white/60" />
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <Link to={`/moments/${moment.id}`}>
-                            <h3 className="font-medium truncate hover:text-primary transition-colors">
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className={`rounded-full text-[10px] ${upcoming ? "border-orange-500/30 text-orange-600" : "text-muted-foreground"}`}>{upcoming ? "Ahead" : "Completed"}</Badge>
+                              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{format(new Date(moment.starts_at), "MMM d · h:mm a")}</span>
+                            </div>
+                            <h3 className="mt-3 truncate font-serif text-2xl font-semibold leading-tight transition-colors group-hover:text-primary">
                               {moment.title}
                             </h3>
-                          </Link>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(moment.starts_at), "MMM d, yyyy • h:mm a")}
-                          </p>
-                          <div className="flex items-center gap-3 mt-2">
-                            <Badge variant="outline" className="text-[10px]">
-                              {isFuture(new Date(moment.starts_at)) ? "Upcoming" : "Past"}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {moment.location}
-                            </span>
-                          </div>
+                            <p className="mt-2 truncate text-sm text-muted-foreground"><MapPin className="mr-1.5 inline h-3.5 w-3.5" />{moment.location || "Location to be announced"}</p>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border transition group-hover:border-primary/40 group-hover:bg-primary group-hover:text-primary-foreground"><ArrowRight className="h-4 w-4" /></span>
+                  </Link>
+                )})}
+                {hostedMoments?.length === 0 ? <div className="p-8 text-sm text-muted-foreground">No Moments yet. Create the first room you want people to enter.</div> : null}
+                </div>
+              </section>
             )}
           </TabsContent>
 

@@ -128,7 +128,7 @@ export const StandingLeaderboard = () => {
                     </div>
 
                     <div className="mt-12 text-center">
-                        <Badge variant="outline" className="px-6 py-2 border-primary/20 hover:bg-primary/5 transition-all cursor-default">
+                        <Badge variant="outline" className="px-6 py-2 border-primary/20 hover:bg-primary/5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] cursor-default">
                             <Sparkles className="w-3 h-3 text-primary mr-2" />
                             <span className="text-[10px] font-black uppercase tracking-widest">
                                 {showingExamples ? "No live leaders yet. Become a founding mayor and set the first standard." : "Only the most active members reach the top"}

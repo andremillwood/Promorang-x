@@ -6,6 +6,7 @@ const pieceEarningService = require('./pieceEarningService');
 const promoPushTrackingService = require('./promoPushTrackingService');
 const experienceAutomationService = require('./experienceAutomationService');
 const growthOperatingService = require('./growthOperatingService');
+const masterKeyService = require('./masterKeyService');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -412,6 +413,24 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
 
   if (error) throw error;
   try {
+    const demandEventService = require('./demandEventService');
+    await demandEventService.recordEvent({
+      idempotencyKey: `demand:proof-submitted:${data.id}`,
+      campaignId: normalizedBundle?.campaign_id || null,
+      promoPushCampaignId: normalizedBundle?.promopush_campaign_id || null,
+      momentId,
+      actorUserId: userId,
+      eventType: 'proof_submitted',
+      sourceSystem: 'proof_submissions',
+      sourceReference: data.id,
+      channel: normalizedBundle?.utm_medium || (normalizedBundle?.promopush_tracking_code ? 'promopush' : 'promorang'),
+      verified: false,
+      properties: { moment_move_id: momentMoveId || null },
+    });
+  } catch (demandError) {
+    console.warn('[Proof Service] demand proof submission mirror skipped:', demandError.message);
+  }
+  try {
     await growthOperatingService.recordEvent({
       eventName: 'proof_submitted', journey: 'participant', stage: 'outcome',
       userId, momentId, entityType: 'proof_submission', entityId: data.id,
@@ -483,6 +502,24 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     .eq('user_id', userId);
 
   try {
+    const demandEventService = require('./demandEventService');
+    await demandEventService.recordEvent({
+      idempotencyKey: `demand:proof-verified:${proofSubmissionId}`,
+      campaignId: proofBundle?.campaign_id || null,
+      momentId,
+      actorUserId: userId,
+      eventType: 'proof_verified',
+      sourceSystem: 'proof_submissions',
+      sourceReference: proofSubmissionId,
+      channel: proofBundle?.utm_medium || (proofBundle?.promopush_tracking_code ? 'promopush' : 'promorang'),
+      verified: true,
+      properties: { reviewer_id: reviewerId },
+    });
+  } catch (demandError) {
+    console.warn('[Proof Service] demand proof mirror skipped:', demandError.message);
+  }
+
+  try {
     await supabase.from('participation_events').insert({
       moment_id: momentId,
       user_id: userId,
@@ -496,6 +533,21 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     });
   } catch (eventError) {
     console.warn('[Proof Service] approval participation event skipped:', eventError.message);
+  }
+
+  try {
+    await masterKeyService.recordVerifiedFreeProof({
+      userId,
+      sourceType: 'proof_submission',
+      sourceId: proofSubmissionId,
+      metadata: {
+        ...proofBundle,
+        moment_id: momentId,
+        reviewer_id: reviewerId,
+      },
+    });
+  } catch (masterKeyError) {
+    console.warn('[Proof Service] daily Master Key credit skipped:', masterKeyError.message);
   }
 
   const reward = await ensureMomentReward(momentId, userId);

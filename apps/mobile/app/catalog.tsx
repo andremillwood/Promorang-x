@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         backgroundColor: DesignColors.primary + '10',
     },
     typeText: {
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
         color: DesignColors.primary,
         textTransform: 'uppercase',

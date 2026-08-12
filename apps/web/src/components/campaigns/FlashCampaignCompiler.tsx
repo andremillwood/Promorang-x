@@ -129,18 +129,18 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                 body: JSON.stringify(input)
             });
 
-            if (!res.ok) throw new Error("Launch failed");
+            if (!res.ok) throw new Error("Plan could not be saved");
 
             toast({ 
-                title: "Flash Launch Success! 🚀", 
-                description: adminMode ? "Global campaign is now live." : "Your stakeholder campaign is now active."
+                title: "Activation plan saved",
+                description: "Nothing is live or funded yet. Secure the Gem reserve before inviting people."
             });
             
             setPreview(null);
             setInput({ goal: "CONTENT", businessName: "", context: "" });
             if (onSuccess) onSuccess();
         } catch (error: any) {
-            toast({ title: "Launch Error", description: error.message, variant: "destructive" });
+            toast({ title: "Could not save plan", description: error.message, variant: "destructive" });
         } finally {
             setIsLaunching(false);
         }
@@ -154,7 +154,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                     <CardHeader className="pb-4">
                         <CardTitle className="text-xs uppercase tracking-widest font-black flex items-center gap-2">
                             <Target className="w-4 h-4 text-primary" />
-                            {adminMode ? "Admin Compiler" : "Flash Launch"}
+                            {adminMode ? "PromoPilot admin builder" : "PromoPilot plan"}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -236,7 +236,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                             </CardContent>
                             <CardFooter className="pt-2">
                                 <Button className="w-full h-10 bg-primary hover:bg-primary/90 text-white font-black text-sm italic tracking-tighter" onClick={handleLaunch} disabled={isLaunching}>
-                                    {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <>LAUNCH <Rocket className="ml-2 w-4 h-4" /></>}
+                                    {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <>SAVE PLAN <Rocket className="ml-2 w-4 h-4" /></>}
                                 </Button>
                             </CardFooter>
                         </Card>

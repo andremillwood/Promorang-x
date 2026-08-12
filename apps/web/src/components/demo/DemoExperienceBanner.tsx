@@ -96,7 +96,7 @@ export function DemoExperienceBanner({ role, variant = "full" }: DemoExperienceB
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-primary/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-primary via-amber-400 to-primary transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-primary via-amber-400 to-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>

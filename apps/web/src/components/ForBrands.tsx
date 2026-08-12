@@ -95,7 +95,7 @@ const ForBrands = () => {
                       {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
                         <div
                           key={i}
-                          className="flex-1 bg-gradient-to-t from-primary to-accent rounded-t-md transition-all"
+                          className="flex-1 bg-gradient-to-t from-primary to-accent rounded-t-md transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
                           style={{ height: `${height}%` }}
                         />
                       ))}

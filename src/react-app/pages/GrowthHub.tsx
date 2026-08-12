@@ -610,69 +610,72 @@ export default function GrowthHub() {
             {growthChannels.map((channel) => {
               const Icon = channel.icon;
               return (
-                <div key={channel.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
-                  <div className={`bg-gradient-to-r ${getChannelColor(channel.color)} p-6 text-white`}>
-                    <div className="flex items-center justify-between mb-4">
+                <div key={channel.id} className="rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl overflow-hidden hover:border-yellow-500/40 transition-all duration-300 shadow-xl group">
+                  <div className={`bg-gradient-to-r ${getChannelColor(channel.color)} p-6 text-white relative overflow-hidden`}>
+                    <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="flex items-center justify-between mb-4 relative z-10">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                          <Icon className="w-6 h-6" />
+                        <div className="w-12 h-12 bg-black/40 border border-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
+                          <Icon className="w-6 h-6 text-yellow-300" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold">{channel.name}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(channel.riskLevel)} text-gray-800`}>
-                            {channel.riskLevel.toUpperCase()} RISK
+                          <h3 className="text-xl font-extrabold tracking-tight">{channel.name}</h3>
+                          <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-black/40 border border-white/20 text-yellow-300 mt-1">
+                            {channel.riskLevel} RISK
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold">{channel.expectedApr.toFixed(1)}%</div>
-                        <div className="text-sm opacity-75">Expected APR</div>
+                        <div className="text-3xl font-black font-mono tracking-tight text-yellow-300 drop-shadow-[0_0_12px_rgba(255,215,0,0.5)]">
+                          {channel.expectedApr.toFixed(1)}%
+                        </div>
+                        <div className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">Expected APR</div>
                       </div>
                     </div>
-                    <p className="text-white/90">{channel.description}</p>
+                    <p className="text-white/90 text-xs leading-relaxed relative z-10">{channel.description}</p>
                   </div>
 
-                  <div className="p-6">
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div>
-                        <div className="text-sm text-gray-500">Lock Period</div>
-                        <div className="font-semibold">{channel.lockPeriod} days</div>
+                  <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                        <div className="text-gray-400 text-[10px] uppercase font-mono">Lock Period</div>
+                        <div className="font-extrabold text-white text-sm mt-0.5">{channel.lockPeriod} Days</div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Multiplier</div>
-                        <div className="font-semibold">{channel.baseMultiplier}x</div>
+                      <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                        <div className="text-gray-400 text-[10px] uppercase font-mono">Multiplier</div>
+                        <div className="font-extrabold text-yellow-400 text-sm mt-0.5">{channel.baseMultiplier}x Yield</div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Min Deposit</div>
-                        <div className="font-semibold">{channel.minDeposit} Gems</div>
+                      <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                        <div className="text-gray-400 text-[10px] uppercase font-mono">Min Deposit</div>
+                        <div className="font-extrabold text-white text-sm mt-0.5">{channel.minDeposit} Gems</div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Participants</div>
-                        <div className="font-semibold">{channel.participantCount}</div>
+                      <div className="p-3 rounded-xl bg-black/30 border border-white/5">
+                        <div className="text-gray-400 text-[10px] uppercase font-mono">Participants</div>
+                        <div className="font-extrabold text-purple-300 text-sm mt-0.5">{channel.participantCount} Stakers</div>
                       </div>
                     </div>
 
-                    <div className="mb-6">
-                      <div className="text-sm text-gray-500 mb-2">Features</div>
-                      <div className="space-y-1">
+                    <div>
+                      <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">Channel Yield Features</div>
+                      <div className="space-y-2">
                         {channel.features.map((feature, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-gray-700">{feature}</span>
+                          <div key={index} className="flex items-center space-x-2 text-xs text-gray-300">
+                            <CheckCircle className="w-4 h-4 text-emerald-400" />
+                            <span>{feature}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Total Deposited</span>
-                          <span className="font-semibold">{channel.totalDeposited.toLocaleString()} Gems</span>
+                    <div className="space-y-3 pt-2 border-t border-white/10">
+                      <div className="rounded-xl bg-black/40 p-3.5 border border-white/5">
+                        <div className="flex items-center justify-between text-xs mb-1.5">
+                          <span className="text-gray-400">Total Pool Capacity</span>
+                          <span className="font-bold text-yellow-300 font-mono">{channel.totalDeposited.toLocaleString()} Gems</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div className="w-full bg-white/10 rounded-full h-2">
                           <div 
-                            className={`bg-gradient-to-r ${getChannelColor(channel.color)} h-2 rounded-full transition-all duration-300`}
+                            className={`bg-gradient-to-r ${getChannelColor(channel.color)} h-2 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(255,215,0,0.4)]`}
                             style={{ width: `${Math.min(100, (channel.totalDeposited / channel.maxDeposit) * 100)}%` }}
                           ></div>
                         </div>
@@ -683,9 +686,9 @@ export default function GrowthHub() {
                           setSelectedChannel(channel);
                           setShowStakingModal(true);
                         }}
-                        className={`w-full bg-gradient-to-r ${getChannelColor(channel.color)} hover:opacity-90 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2`}
+                        className={`w-full bg-gradient-to-r ${getChannelColor(channel.color)} hover:brightness-110 text-white font-bold text-xs py-3.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg`}
                       >
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-4 h-4 text-white" />
                         <span>Stake in {channel.name}</span>
                       </button>
                     </div>
@@ -696,37 +699,37 @@ export default function GrowthHub() {
           </div>
 
           {/* Calculator */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl p-6 shadow-2xl">
             <div className="flex items-center space-x-3 mb-6">
-              <Calculator className="w-6 h-6 text-blue-600" />
-              <h3 className="text-xl font-semibold text-gray-900">Staking Calculator</h3>
+              <Calculator className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]" />
+              <h3 className="text-xl font-extrabold text-white tracking-tight">Interactive Staking Yield Calculator</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (Gems)</label>
+                <label className="block font-semibold text-gray-400 uppercase tracking-wider mb-2">Amount (Gems)</label>
                 <input 
                   type="number" 
                   placeholder="1000"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white font-mono placeholder:text-gray-600 focus:outline-none focus:border-yellow-400"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Channel</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <label className="block font-semibold text-gray-400 uppercase tracking-wider mb-2">Growth Channel</label>
+                <select className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white font-mono focus:outline-none focus:border-yellow-400">
                   {growthChannels.map(channel => (
-                    <option key={channel.id} value={channel.id}>{channel.name}</option>
+                    <option key={channel.id} value={channel.id} className="bg-neutral-900 text-white">{channel.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Rewards</label>
-                <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-green-800 font-medium">
+                <label className="block font-semibold text-gray-400 uppercase tracking-wider mb-2">Estimated Yield</label>
+                <div className="px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 font-mono font-bold text-sm">
                   +250 Gems
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Total Return</label>
-                <div className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 font-medium">
+                <label className="block font-semibold text-gray-400 uppercase tracking-wider mb-2">Total Estimated Return</label>
+                <div className="px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-300 font-mono font-bold text-sm">
                   1,250 Gems
                 </div>
               </div>

@@ -233,6 +233,57 @@ router.get('/receipts', requireAuth, async (req, res) => {
     }
 });
 
+/** GET /api/merchant/live-ops — one Moment-aware counter payload for web and mobile. */
+router.get('/live-ops', requireAuth, async (req, res) => {
+    try {
+        const merchantId = req.user.id;
+        const db = req.supabase || global.supabase;
+        const [productsResult, receiptsResult] = await Promise.all([
+            db.from('merchant_products')
+                .select('id,name,image_url,linked_moment_id,inventory_quantity,inventory_count,is_active,price,currency,fulfillment_mode,updated_at')
+                .eq('merchant_id', merchantId)
+                .eq('is_active', true)
+                .order('updated_at', { ascending: false })
+                .limit(100),
+            db.from('commerce_receipts')
+                .select('*, merchant_products:listing_id(name,image_url,category,fulfillment_mode,linked_moment_id)')
+                .eq('merchant_id', merchantId)
+                .order('occurred_at', { ascending: false })
+                .limit(100),
+        ]);
+        if (productsResult.error) throw productsResult.error;
+        if (receiptsResult.error) throw receiptsResult.error;
+
+        const listings = (productsResult.data || []).map((item) => ({
+            ...item,
+            inventory_quantity: item.inventory_count ?? item.inventory_quantity,
+        }));
+        const momentIds = [...new Set(listings.map((item) => item.linked_moment_id).filter(Boolean))];
+        let moments = [];
+        if (momentIds.length) {
+            const { data } = await db.from('moments').select('id,title,starts_at,ends_at,status,venue_id').in('id', momentIds);
+            moments = data || [];
+        }
+        const now = Date.now();
+        const liveMomentIds = new Set(moments.filter((moment) => {
+            const starts = moment.starts_at ? new Date(moment.starts_at).getTime() : 0;
+            const ends = moment.ends_at ? new Date(moment.ends_at).getTime() : starts + 12 * 60 * 60 * 1000;
+            return moment.status === 'live' || (starts <= now && ends >= now);
+        }).map((moment) => moment.id));
+
+        res.json({
+            generated_at: new Date().toISOString(),
+            moments,
+            listings,
+            receipts: receiptsResult.data || [],
+            live_moment_ids: [...liveMomentIds],
+        });
+    } catch (error) {
+        console.error('Error loading merchant live ops:', error);
+        res.status(500).json({ error: error.message || 'Failed to load live operations' });
+    }
+});
+
 /**
  * PATCH /api/merchant/receipts/:id/status
  * Update a merchant-owned receipt lifecycle state.
@@ -281,6 +332,14 @@ router.patch('/receipts/:id/status', requireAuth, async (req, res) => {
         if (error) throw error;
 
         if (existing.sale_id && status === 'fulfilled') {
+            if (existing.attribution?.commerce_order_id) {
+                await db.from('commerce_orders').update({
+                    fulfillment_status: 'delivered',
+                    updated_at: new Date().toISOString(),
+                }).eq('id', existing.attribution.commerce_order_id);
+                const settlementService = require('../services/merchantSettlementService');
+                await settlementService.releaseOrderSettlement(existing.attribution.commerce_order_id);
+            }
             await db
                 .from('product_sales')
                 .update({ status: 'validated', validated_at: new Date().toISOString(), validated_by: merchantId })
@@ -433,6 +492,176 @@ router.get('/analytics/redemptions', requireAuth, async (req, res) => {
         console.error('Error fetching redemption analytics:', error);
         res.status(500).json({ error: error.message });
     }
+});
+
+router.get('/commerce/profile', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const merchantId = req.user.id;
+        const [{ data: profile, error: profileError }, { data: shippingRates, error: ratesError }] = await Promise.all([
+            db.from('merchant_commerce_profiles').select('*').eq('merchant_id', merchantId).maybeSingle(),
+            db.from('merchant_shipping_rates').select('*').eq('merchant_id', merchantId).order('sort_order'),
+        ]);
+        if (profileError) throw profileError;
+        if (ratesError) throw ratesError;
+        res.json({ success: true, profile, shipping_rates: shippingRates || [] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/commerce/profile', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const allowed = [
+            'legal_business_name', 'support_email', 'shipping_origin', 'return_policy',
+            'fulfillment_terms', 'tax_enabled', 'allowed_countries', 'default_currency',
+            'processing_days',
+        ];
+        const updates = Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => allowed.includes(key)));
+        updates.merchant_id = req.user.id;
+        updates.updated_at = new Date().toISOString();
+        const { data, error } = await db.from('merchant_commerce_profiles')
+            .upsert(updates, { onConflict: 'merchant_id' }).select().single();
+        if (error) throw error;
+        res.json({ success: true, profile: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.post('/commerce/shipping-rates', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const { display_name, fulfillment_type, amount = 0, currency = 'USD', min_delivery_days, max_delivery_days, countries = ['US'], active = true } = req.body || {};
+        if (!display_name || !['shipping', 'local_delivery', 'pickup'].includes(fulfillment_type)) {
+            return res.status(422).json({ error: 'A valid name and fulfillment type are required' });
+        }
+        const { data, error } = await db.from('merchant_shipping_rates').insert({
+            merchant_id: req.user.id, display_name, fulfillment_type, amount,
+            currency: String(currency).toUpperCase(), min_delivery_days, max_delivery_days,
+            countries, active,
+        }).select().single();
+        if (error) throw error;
+        res.status(201).json({ success: true, shipping_rate: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.get('/commerce/direct-payment-methods', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const { data, error } = await db.from('merchant_direct_payment_methods')
+            .select('*').eq('merchant_id', req.user.id).order('display_name');
+        if (error) {
+            console.warn('[Merchant API] merchant_direct_payment_methods fetch warning:', error.message);
+            return res.json({ success: true, methods: [] });
+        }
+        res.json({ success: true, methods: data || [] });
+    } catch (error) {
+        console.warn('[Merchant API] direct payment methods error:', error.message);
+        res.json({ success: true, methods: [] });
+    }
+});
+
+router.put('/commerce/direct-payment-methods/:methodType', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const valid = ['cash_on_pickup','card_terminal_pickup','lynk_at_venue','bank_transfer','merchant_payment_link','cash_on_delivery'];
+        if (!valid.includes(req.params.methodType)) return res.status(422).json({ error: 'Invalid payment method' });
+        const { display_name, instructions, payment_link, active = true } = req.body || {};
+        const { data, error } = await db.from('merchant_direct_payment_methods').upsert({
+            merchant_id: req.user.id,
+            method_type: req.params.methodType,
+            display_name: display_name || req.params.methodType.replaceAll('_', ' '),
+            instructions: instructions || null,
+            payment_link: payment_link || null,
+            active: Boolean(active),
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'merchant_id,method_type' }).select().single();
+        if (error) throw error;
+        res.json({ success: true, method: data });
+    } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
+router.get('/commerce/merchant-payment-orders', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const { data, error } = await db.from('commerce_orders')
+            .select('*,commerce_order_items(*)')
+            .eq('merchant_id', req.user.id).eq('payment_collection', 'merchant')
+            .order('created_at', { ascending: false }).limit(100);
+        if (error) {
+            console.warn('[Merchant API] commerce_orders fetch warning:', error.message);
+            return res.json({ success: true, orders: [] });
+        }
+        res.json({ success: true, orders: data || [] });
+    } catch (error) {
+        console.warn('[Merchant API] merchant payment orders error:', error.message);
+        res.json({ success: true, orders: [] });
+    }
+});
+
+router.post('/commerce/merchant-payment-orders/:orderId/confirm', requireAuth, async (req, res) => {
+    try {
+        const reference = String(req.body?.reference || '').trim();
+        if (!reference) return res.status(422).json({ error: 'Payment reference is required' });
+        const marketplaceService = require('../services/marketplaceService');
+        const result = await marketplaceService.confirmMerchantPayment({
+            orderId: req.params.orderId, merchantId: req.user.id, reference,
+        });
+        res.json({ success: true, ...result });
+    } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
+router.patch('/commerce/orders/:orderId/fulfillment', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const allowedStatuses = ['unfulfilled', 'preparing', 'ready', 'shipped', 'delivered', 'redeemed', 'cancelled'];
+        const { status, tracking_number, tracking_url, carrier } = req.body || {};
+        if (!allowedStatuses.includes(status)) return res.status(422).json({ error: 'Invalid fulfillment status' });
+        const { data: order, error: findError } = await db.from('commerce_orders')
+            .select('id,merchant_id,payment_status,fulfillment_status')
+            .eq('id', req.params.orderId).eq('merchant_id', req.user.id).single();
+        if (findError || !order) return res.status(404).json({ error: 'Order not found' });
+        if (order.payment_status !== 'paid' && status !== 'cancelled') {
+            return res.status(409).json({ error: 'Only paid orders can enter fulfillment' });
+        }
+        const { data, error } = await db.from('commerce_orders').update({
+            fulfillment_status: status,
+            tracking_number: tracking_number || null,
+            tracking_url: tracking_url || null,
+            carrier: carrier || null,
+            fulfilled_at: ['delivered', 'redeemed'].includes(status) ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString(),
+        }).eq('id', order.id).select().single();
+        if (error) throw error;
+        await db.from('commerce_receipts').update({
+            status: ['delivered', 'redeemed'].includes(status) ? 'fulfilled' : 'issued',
+        }).eq('sale_id', order.id);
+        if (['delivered', 'redeemed'].includes(status)) {
+            const { error: releaseError } = await db.rpc('release_gem_settlement_after_fulfillment', {
+                p_order_id: order.id,
+                p_merchant_id: req.user.id,
+            });
+            if (releaseError && !String(releaseError.message || '').includes('Completed merchant fulfillment')) throw releaseError;
+        }
+        res.json({ success: true, order: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.get('/commerce/gem-settlements', requireAuth, async (req, res) => {
+    try {
+        const db = req.supabase || global.supabase;
+        const { data, error } = await db.from('merchant_gem_settlement_ledger')
+            .select('*,commerce_orders(id,payment_status,fulfillment_status,paid_at)')
+            .eq('merchant_id', req.user.id).order('created_at', { ascending: false }).limit(100);
+        if (error) throw error;
+        res.json({ success: true, settlements: data || [] });
+    } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
 module.exports = router;

@@ -108,7 +108,7 @@ app.use((req, res, next) => {
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     return res.status(200).end();
@@ -144,7 +144,9 @@ app.use(express.urlencoded({
 
 // Log request body for debugging
 app.use((req, res, next) => {
-  console.log('Request body:', req.body);
+  const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
+  for (const key of ['manage_token', 'password', 'token', 'secret']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
+  console.log('Request body:', safeBody);
   next();
 });
 
@@ -181,6 +183,7 @@ app.use('/api/commerce', require('./api/commerce'));
 app.use('/api/telemetry', require('./api/telemetry'));
 app.use('/api/feed', require('./api/feed'));
 app.use('/api/events', require('./api/events'));
+app.use('/api/guest-rsvp', require('./api/guest-rsvp'));
 
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/pioneer-points', require('./api/pioneer-points'));
@@ -197,10 +200,16 @@ app.use('/api/search', require('./api/search'));
 app.use('/api/matchmaking', require('./api/matchmaking'));
 app.use('/api/operator', require('./api/operator'));
 app.use('/api/campaigns', require('./api/campaigns'));
+app.use('/api/demand-plans', require('./api/demand-plans'));
 app.use('/api/manychat', require('./api/manychat'));
+app.use('/api/merchant', require('./api/merchant'));
 
 app.use('/api/kyc', require('./api/kyc'));
 app.use('/api/admin', require('./api/admin'));
+app.use('/api/roles', require('./api/roles'));
+app.use('/api/host-applications', require('./api/host-applications'));
+app.use('/api/promopush', require('./api/promopush'));
+app.use('/api/payouts', require('./api/payouts'));
 app.use('/api/support', require('./api/support'));
 app.use('/api/moments', require('./api/moments'));
 app.use('/api/moments', require('./api/moment-pricing')); // Moment SKU pricing endpoints
@@ -211,6 +220,7 @@ app.use('/api/participation', require('./api/participation'));
 app.use('/api/pulse', require('./api/pulse'));
 app.use('/api/proof', require('./api/proof'));
 app.use('/api/memories', require('./api/memories'));
+app.use('/api/vault', require('./api/memories'));
 app.use('/api/impact', require('./api/impact'));
 app.use('/api/creator-economics', require('./api/creator-economics'));
 app.use('/api/analytics', require('./api/analytics'));

@@ -96,7 +96,7 @@ export default function ServiceCatalog() {
                     </Card>
                 ) : (
                     filteredProducts?.map((product) => (
-                        <Card key={product.id} className="group overflow-hidden border-border/40 hover:border-primary/50 transition-all duration-300 shadow-soft hover:shadow-soft-xl bg-card/60 backdrop-blur-sm">
+                        <Card key={product.id} className="group overflow-hidden border-border/40 hover:border-primary/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 shadow-soft hover:shadow-soft-xl bg-card/60 backdrop-blur-sm">
                             <div className="aspect-video w-full bg-muted relative overflow-hidden">
                                 {product.image_url ? (
                                     <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />

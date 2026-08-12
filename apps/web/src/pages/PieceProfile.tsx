@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Activity, ArrowLeft, Gem, Loader2, PlusCircle, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
+import { Activity, ArrowLeft, BadgeCheck, Gem, Info, Loader2, PlusCircle, ShieldCheck, Sparkles, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { useToast } from '@/components/ui/use-toast';
 import { PieceOrderBook } from '@/components/trading/PieceOrderBook';
 
@@ -174,6 +175,34 @@ export function PieceProfile() {
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
+            <GuidanceDisclosure
+              id={`piece-profile:${profile.piece_type}`}
+              title="Understand this Piece before acting"
+              summary="Pieces stay attached to their source asset, benefit disclosure, and current liquidity conditions."
+              className="mt-0"
+            >
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <Gem className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Connected asset</p>
+                  <p className="mt-2 text-sm font-semibold capitalize">{profile.piece_type}: {title}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A Piece stays attached to this source; it is not a general Promorang share.</p>
+                </div>
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <BadgeCheck className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Disclosed source</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.journey?.summary || "No benefit source has been disclosed."}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">Holding alone does not promise a financial return.</p>
+                </div>
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <Users className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Liquidity now</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
+                </div>
+              </div>
+            </GuidanceDisclosure>
+
             <Alert>
               <ShieldCheck className="h-4 w-4" />
               <AlertTitle>Where this fits</AlertTitle>

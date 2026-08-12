@@ -249,6 +249,47 @@ router.get('/public/:username', async (req, res) => {
       user: profile,
       content: [],
       drops: [],
+      pieces: [
+        {
+          id: 1,
+          piece_id: 101,
+          title: 'Decentralized Creator Economy Breakdown',
+          creator_name: profile.display_name || profile.username,
+          platform: 'YouTube',
+          shares_owned: 25,
+          purchase_price: 10,
+          current_value: 14.50,
+          dividends_earned: 42.80,
+          dividend_yield_percent: 14.2,
+          acquired_at: '2026-05-10'
+        }
+      ],
+      coupons: [
+        {
+          id: 1,
+          merchant_id: profile.id,
+          title: 'Summer Store Launch Discount',
+          code: 'PROMO-SUMMER25',
+          discount_description: '25% off all physical merchandise & digital passes',
+          discount_value: '25%',
+          redemptions_count: 142,
+          is_active: true
+        }
+      ],
+      moments: [
+        {
+          id: 1,
+          host_id: profile.id,
+          host_name: profile.display_name || profile.username,
+          title: 'Creator Economy Summit 2026',
+          description: 'Live interactive keynote, piece minting ceremony, and networking drop.',
+          location: 'Austin Convention Center & Virtual Stream',
+          event_date: 'August 15, 2026',
+          attendees_count: 340,
+          is_hosted: true,
+          is_attended: false
+        }
+      ],
       leaderboard_position: null
     });
   };
@@ -426,65 +467,33 @@ router.get('/master-key-status', async (req, res) => {
       return res.status(400).json({ success: false, error: 'User context missing' });
     }
 
-    if (!supabase || process.env.USE_DEMO_MASTER_KEYS === 'true') {
-      return res.json({
-        success: true,
-        status: {
-          has_master_key: true,
-          last_issued_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          expires_at: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
-          remaining_daily_uses: 3,
-          total_daily_uses: 5
-        }
-      });
-    }
-
-    const queryStart = Date.now();
-    const { data, error } = await supabase
-      .from('master_keys')
-      .select('*')
-      .eq('user_id', userId)
-      .order('issued_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const durationMs = Date.now() - queryStart;
-    if (durationMs > 250) {
-      console.log(`[users:master-key-status:${userId}] Supabase query took ${durationMs}ms`);
-    }
-
-    if (error) {
-      console.error('Database error fetching master key status:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch master key status' });
-    }
-
-    if (!data) {
-      return res.json({
-        success: true,
-        status: {
-          has_master_key: false,
-          last_issued_at: null,
-          expires_at: null,
-          remaining_daily_uses: 0,
-          total_daily_uses: 0
-        }
-      });
-    }
-
-    const remainingDailyUses = Math.max((data.daily_limit || 5) - (data.uses_today || 0), 0);
-
-    res.json({
-      success: true,
-      status: {
-        has_master_key: true,
-        last_issued_at: data.issued_at,
-        expires_at: data.expires_at,
-        remaining_daily_uses: remainingDailyUses,
-        total_daily_uses: data.daily_limit || 5
-      }
-    });
+    const masterKeyService = require('../services/masterKeyService');
+    const status = await masterKeyService.getStatus(userId, { userTier: req.user?.user_tier });
+    res.json({ success: true, status, ...status });
   } catch (error) {
     console.error('Error fetching master key status:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch master key status' });
+  }
+});
+
+// Compatibility endpoint for older clients. Activation is automatic after the
+// required verified free Proof credit; this endpoint never spends Points.
+router.post('/activate-master-key', async (req, res) => {
+  try {
+    const masterKeyService = require('../services/masterKeyService');
+    const status = await masterKeyService.getStatus(req.user.id, { userTier: req.user?.user_tier });
+    if (!status.is_activated) {
+      return res.status(422).json({
+        success: false,
+        error: `Complete ${status.remaining_proofs} more verified free Proof${status.remaining_proofs === 1 ? '' : 's'} today`,
+        code: 'MASTER_KEY_PROOF_REQUIRED',
+        status,
+      });
+    }
+    res.json({ success: true, status });
+  } catch (error) {
+    console.error('Error confirming Master Key activation:', error);
+    res.status(500).json({ success: false, error: 'Failed to confirm Master Key activation' });
   }
 });
 
@@ -887,53 +896,6 @@ router.post('/guide-progress/step', async (req, res) => {
   } catch (error) {
     console.error('Error updating guide step:', error);
     res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// Get user's master key status
-router.get('/master-key-status', async (req, res) => {
-  try {
-    if (!supabase) {
-      // Mock master key status
-      return res.json({
-        is_activated: true,
-        proof_drops_completed: 3,
-        proof_drops_required: 3,
-        last_activated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      });
-    }
-
-    // TODO: Implement actual master key status logic
-    const { data: status, error } = await supabase
-      .from('master_key_status')
-      .select('*')
-      .eq('user_id', 1) // TODO: Get from authenticated user
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
-      console.error('Database error fetching master key status:', error);
-      return res.json({
-        is_activated: false,
-        proof_drops_completed: 0,
-        proof_drops_required: 3,
-        last_activated_at: null,
-      });
-    }
-
-    res.json(status || {
-      is_activated: false,
-      proof_drops_completed: 0,
-      proof_drops_required: 3,
-      last_activated_at: null
-    });
-  } catch (error) {
-    console.error('Error fetching master key status:', error);
-    res.json({
-      is_activated: false,
-      proof_drops_completed: 0,
-      proof_drops_required: 3,
-      last_activated_at: null,
-    });
   }
 });
 

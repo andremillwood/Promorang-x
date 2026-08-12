@@ -51,19 +51,45 @@ router.post('/payment-intent', requireAuth, async (req, res) => {
  */
 router.post('/commerce/payment-intent', requireAuth, async (req, res) => {
     try {
-        const { product_id, quantity = 1 } = req.body || {};
-        if (!product_id) return res.status(422).json({ error: 'product_id is required' });
+        const { product_id, quantity = 1, items, currency = 'USD' } = req.body || {};
+        if (!product_id && (!Array.isArray(items) || !items.length)) {
+            return res.status(422).json({ error: 'product_id or items is required' });
+        }
 
         const marketplaceService = require('../services/marketplaceService');
         const intent = await marketplaceService.createStripeCommerceIntent({
             userId: req.user.id,
             productId: product_id,
             quantity,
+            items,
+            currency,
         });
 
         res.json(intent);
     } catch (error) {
         console.error('Error creating commerce payment intent:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.post('/commerce/checkout', requireAuth, async (req, res) => {
+    try {
+        const { product_id, quantity = 1, items, success_url, cancel_url } = req.body || {};
+        if (!product_id && (!Array.isArray(items) || !items.length)) {
+            return res.status(422).json({ error: 'product_id or items is required' });
+        }
+        const marketplaceService = require('../services/marketplaceService');
+        const checkout = await marketplaceService.createStripeCommerceCheckout({
+            userId: req.user.id,
+            productId: product_id,
+            quantity,
+            items,
+            successUrl: success_url,
+            cancelUrl: cancel_url,
+        });
+        res.json(checkout);
+    } catch (error) {
+        console.error('Error creating merchant direct checkout:', error);
         res.status(400).json({ error: error.message });
     }
 });

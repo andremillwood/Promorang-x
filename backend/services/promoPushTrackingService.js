@@ -1,5 +1,7 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
+const crypto = require('crypto');
 const supabase = global.supabase || serviceSupabase || null;
+const demandEventService = require('./demandEventService');
 
 const VALID_EVENTS = new Set([
   'impression',
@@ -170,6 +172,7 @@ async function trackPromoPushEvent({
       distance_meters: distance,
       user_agent: request?.headers?.['user-agent'] || null,
       referrer: request?.headers?.referer || null,
+      ip_hash: request ? crypto.createHmac('sha256', process.env.PROMOPILOT_SIGNING_SECRET || process.env.JWT_SECRET || 'promopush-aggregate').update(`${request.ip || ''}:${request.headers?.['user-agent'] || ''}:${new Date().toISOString().slice(0, 10)}`).digest('hex').slice(0, 32) : null,
       metadata: {
         ...metadata,
         promopush_tracking_code: channel?.tracking_code || resolvedAttribution.trackingCode || null,
@@ -196,6 +199,28 @@ async function trackPromoPushEvent({
     if (error && !data) throw error;
 
     await createCreatorEarning({ campaignId, channel, event: data });
+
+    const demandType = {
+      impression: 'impression', click: 'campaign_opened', scan: 'qr_scanned', join: 'joined',
+      proof_submitted: 'proof_submitted', proof_verified: 'proof_verified',
+    }[eventType];
+    if (demandType && data) {
+      try {
+        await demandEventService.recordEvent({
+          idempotencyKey: eventType === 'join' && userId ? `demand:joined:${eventPayload.moment_id}:${userId}` : eventType === 'proof_submitted' && proofSubmissionId ? `demand:proof-submitted:${proofSubmissionId}` : eventType === 'proof_verified' && proofSubmissionId ? `demand:proof-verified:${proofSubmissionId}` : undefined,
+          promoPushCampaignId: campaignId,
+          momentId: eventPayload.moment_id,
+          actorUserId: userId,
+          anonymousId: userId ? null : (data.ip_hash ? `promopush:${data.ip_hash}` : null),
+          eventType: demandType,
+          sourceSystem: 'promopush_events',
+          sourceReference: data.id,
+          channel: channel?.channel_type || 'promopush',
+          verified: eventType === 'proof_verified',
+          properties: { channel_id: eventPayload.channel_id, within_radius: withinRadius },
+        });
+      } catch (demandError) { console.warn('[PromoPushTracking] demand mirror skipped:', demandError.message); }
+    }
 
     return data;
   } catch (error) {

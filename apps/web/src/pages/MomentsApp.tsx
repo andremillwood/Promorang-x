@@ -21,6 +21,7 @@ import { format, isPast, isFuture } from "date-fns";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PioneerBadge } from "@/components/badges/PioneerBadge";
+import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 
 const MomentsApp = () => {
     const { user, profile } = useAuth();
@@ -30,11 +31,11 @@ const MomentsApp = () => {
     const checkIn = useCheckIn();
 
     const upcomingMoments = joinedMoments?.filter(
-        (m) => isFuture(new Date(m.starts_at))
+        (m) => resolveMomentOccurrence(m).hasFutureOccurrence
     ) || [];
 
     const pastMoments = joinedMoments?.filter(
-        (m) => isPast(new Date(m.starts_at))
+        (m) => !resolveMomentOccurrence(m).hasFutureOccurrence && isPast(new Date(m.starts_at))
     ) || [];
 
     const handleCheckIn = (momentId: string) => {
@@ -96,10 +97,12 @@ const MomentsApp = () => {
                             </div>
                         ) : (
                             <div className="grid gap-4">
-                                {upcomingMoments.map((moment) => (
+                                {upcomingMoments.map((moment) => {
+                                    const occurrence = resolveMomentOccurrence(moment);
+                                    return (
                                     <div
                                         key={moment.id}
-                                        className="group flex flex-col gap-5 rounded-3xl border border-border/40 bg-card p-5 transition-all duration-300 hover:shadow-soft-xl sm:flex-row sm:items-center sm:gap-6"
+                                        className="group flex flex-col gap-5 rounded-3xl border border-border/40 bg-card p-5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 hover:shadow-soft-xl sm:flex-row sm:items-center sm:gap-6"
                                     >
                                         <div className="w-full sm:w-24 aspect-square rounded-2xl overflow-hidden shadow-soft flex-shrink-0">
                                             {moment.image_url ? (
@@ -113,7 +116,7 @@ const MomentsApp = () => {
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                                                    {format(new Date(moment.starts_at), "EEEE, MMM d")}
+                                                    {format(new Date(occurrence.startsAt), "EEEE, MMM d")}
                                                 </span>
                                             </div>
                                             <Link to={`/moments/${moment.id}`}>
@@ -123,7 +126,7 @@ const MomentsApp = () => {
                                             </Link>
                                             <div className="mt-2 flex flex-col gap-2 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
                                                 <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {moment.venue_name || moment.location}</span>
-                                                <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> {format(new Date(moment.starts_at), "h:mm a")}</span>
+                                                <span className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> {format(new Date(occurrence.startsAt), "h:mm a")}</span>
                                             </div>
                                         </div>
                                         <div className="w-full shrink-0 sm:w-auto">
@@ -136,7 +139,8 @@ const MomentsApp = () => {
                                             </Button>
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </section>
@@ -250,7 +254,7 @@ const MomentsApp = () => {
                                     <div 
                                         key={i} 
                                         className={cn(
-                                            "flex items-center justify-between p-3 rounded-2xl transition-all duration-300 border border-transparent",
+                                            "flex items-center justify-between p-3 rounded-2xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 border border-transparent",
                                             player.isUser ? "bg-primary/10 border-primary/20 scale-[1.05] shadow-soft" : "hover:bg-muted/50"
                                         )}
                                     >

@@ -131,7 +131,7 @@ export default function FeaturedHeroBanner() {
       <div className="relative w-full h-[400px] rounded-xl overflow-hidden group">
         {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+          className="absolute inset-0 bg-cover bg-center transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-700"
           style={{ 
             backgroundImage: `url(${entity?.image_url || '/default-banner.jpg'})`,
           }}
@@ -223,7 +223,7 @@ export default function FeaturedHeroBanner() {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`w-2 h-2 rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                 index === currentIndex 
                   ? 'bg-primary w-6' 
                   : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'

@@ -101,16 +101,42 @@ async function getPulseForMoment(momentId) {
 async function listLivePulseMoments({ limit = 20 }) {
   if (!supabase) throw new Error('Database not available');
 
-  const { data: moments, error } = await supabase
-    .from('moments')
-    .select('id, title, pulse_state, gathering_threshold, starts_at, location, venue_name')
-    .in('pulse_state', ['forming', 'live'])
-    .eq('is_active', true)
-    .order('starts_at', { ascending: true })
-    .limit(limit);
+  const [{ data: moments, error }, { data: publications, error: publicationError }] = await Promise.all([
+    supabase
+      .from('moments')
+      .select('id, title, pulse_state, gathering_threshold, starts_at, location, venue_name, image_url, content_origin')
+      .in('pulse_state', ['forming', 'live'])
+      .eq('is_active', true)
+      .eq('content_origin', 'stakeholder_created')
+      .order('starts_at', { ascending: true })
+      .limit(limit),
+    supabase
+      .from('promopilot_publications')
+      .select('id,campaign_id,title,promise,public_type,location,starts_at,participant_limit,public_path,metadata')
+      .eq('surface', 'pulse')
+      .eq('status', 'active')
+      .order('starts_at', { ascending: true, nullsFirst: false })
+      .limit(limit),
+  ]);
 
   if (error) throw error;
-  return moments || [];
+  if (publicationError && publicationError.code !== '42P01') throw publicationError;
+  const campaignItems = (publications || []).map((item) => ({
+    id: `campaign:${item.campaign_id}`,
+    campaign_id: item.campaign_id,
+    title: item.title,
+    description: item.promise,
+    pulse_state: 'forming',
+    gathering_threshold: item.participant_limit || 0,
+    starts_at: item.starts_at,
+    location: item.location,
+    venue_name: item.metadata?.organization || null,
+    image_url: null,
+    content_origin: 'promopilot',
+    public_path: item.public_path,
+    public_type: item.public_type,
+  }));
+  return [...(moments || []), ...campaignItems].slice(0, limit);
 }
 
 async function recordPulseSnapshot(momentId, input = {}) {

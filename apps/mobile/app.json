@@ -19,12 +19,20 @@
       "buildNumber": "1",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "Allow Promorang to display nearby Moments, geofenced perk drops, and verified venue check-ins.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Promorang to notify you when you enter a live perk zone or verified merchant drop area."
       }
     },
     "android": {
       "package": "com.promorang.mobile",
       "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "$(EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0f0f0f"
@@ -39,6 +47,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Promorang to discover nearby Scenes, Moments, check-in locations, and verified venues."
+        }
+      ],
       [
         "expo-camera",
         {

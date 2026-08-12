@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TourProvider } from "@/contexts/TourContext";
@@ -15,6 +15,8 @@ import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GrowthTracker from "@/components/GrowthTracker";
 
+import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
+
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
 const AMI_Index = lazy(() => import("./pages/AMI_Index"));
@@ -22,12 +24,15 @@ const MechanicDetail = lazy(() => import("./pages/MechanicDetail"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const PostLoginRouter = lazy(() => import("@/components/onboarding/PostLoginRouter"));
 const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"));
 const ForCommunities = lazy(() => import("./pages/ForCommunities"));
 const ForBrands = lazy(() => import("./pages/ForBrands"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
+const ForEnterprise = lazy(() => import("./pages/ForEnterprise"));
+const ForCauses = lazy(() => import("./pages/ForCauses"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
@@ -35,6 +40,7 @@ const Creators = lazy(() => import("./pages/Creators"));
 const CreatorDetail = lazy(() => import("./pages/CreatorDetail"));
 const EventExperienceDetail = lazy(() => import("./pages/EventExperienceDetail"));
 const GrowthHub = lazy(() => import("./pages/GrowthHub"));
+const Referrals = lazy(() => import("./pages/Referrals"));
 const PioneerPoints = lazy(() => import("./pages/PioneerPoints"));
 const Pioneers = lazy(() => import("./pages/Pioneers"));
 const OrganizerWorkspace = lazy(() => import("./pages/OrganizerWorkspace"));
@@ -42,6 +48,8 @@ const OrganizerLanding = lazy(() => import("./pages/OrganizerLanding"));
 const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
+const BillingResult = lazy(() => import("./pages/BillingResult"));
 const Help = lazy(() => import("./pages/Help"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -49,16 +57,20 @@ const AccountDeletion = lazy(() => import("./pages/AccountDeletion"));
 const Contact = lazy(() => import("./pages/Contact"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 const SupportTicketDetail = lazy(() => import("./pages/SupportTicketDetail"));
+const GuestRsvp = lazy(() => import("./pages/GuestRsvp"));
+const GuestPass = lazy(() => import("./pages/GuestPass"));
+const HostGuestOperations = lazy(() => import("./pages/HostGuestOperations"));
 const ProposeLanding = lazy(() => import("@/pages/ProposeLanding"));
 const CreateMoment = lazy(() => import("./pages/CreateMoment"));
-const Explore = lazy(() => import("./pages/Explore"));
 const Discover = lazy(() => import("./pages/Discover"));
+const DiscoveryDetail = lazy(() => import("./pages/DiscoveryDetail"));
 const ExploreMoments = lazy(() => import("./pages/ExploreMoments"));
 const ExploreVenues = lazy(() => import("./pages/ExploreVenues"));
 const ExploreRewards = lazy(() => import("./pages/ExploreRewards"));
 const ExploreContent = lazy(() => import("./pages/ExploreContent"));
 const Momentum = lazy(() => import("./pages/Momentum"));
 const Pulse = lazy(() => import("./pages/Pulse"));
+const PulseFeed = lazy(() => import("./pages/PulseFeed"));
 const ForYou = lazy(() => import("./pages/ForYou"));
 const WatchUnlock = lazy(() => import("./pages/WatchUnlock"));
 const ContentMissionDetail = lazy(() => import("./pages/ContentMissionDetail"));
@@ -91,6 +103,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const Vault = lazy(() => import("./pages/Vault"));
 const MemoryDetail = lazy(() => import("./pages/MemoryDetail"));
+const CampaignIntelligence = lazy(() => import("./pages/CampaignIntelligence"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const CreateCampaign = lazy(() => import("./pages/CreateCampaign"));
 const CampaignDetail = lazy(() => import("./pages/CampaignDetail"));
@@ -123,13 +136,25 @@ const PiecePortfolio = lazy(() => import("./pages/PiecePortfolio"));
 const PieceProfile = lazy(() => import("./pages/PieceProfile"));
 const KYCPage = lazy(() => import("./pages/KYCPage"));
 const KYCAdminDashboard = lazy(() => import("./pages/admin/KYCAdminDashboard"));
+const ClaimPages = lazy(() => import("./pages/ClaimPages"));
 const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
 const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
-const PostLoginRouter = lazy(() => import("./components/onboarding/PostLoginRouter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Campaign Expansion Pages
+const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
+const SeasonShowdownPage = lazy(() => import("./pages/SeasonShowdownPage"));
+const MerchantCouponHub = lazy(() => import("./pages/MerchantCouponHub"));
+const GemRushPage = lazy(() => import("./pages/GemRushPage"));
+const ActionDetail = lazy(() => import("./pages/ActionDetail"));
+const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
+const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
+const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
 
 
 const queryClient = new QueryClient();
+const CanonicalSceneRedirect = () => { const { slug } = useParams(); return <Navigate to={`/scenes/${slug || ""}`} replace />; };
+const CanonicalDiscoveryRedirect = () => { const { slug } = useParams(); return <Navigate to={`/discoveries/${slug || ""}`} replace />; };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -144,8 +169,9 @@ const App = () => (
                 <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
-                <Routes>
+                <ChunkErrorBoundary>
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                  <Routes>
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Index />} />
                     <Route path="/strategies" element={<AMI_Index />} />
@@ -160,17 +186,27 @@ const App = () => (
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
                     <Route path="/for-agencies" element={<ForAgencies />} />
+                    <Route path="/for-enterprise" element={<ForEnterprise />} />
+                    <Route path="/for-causes" element={<ForCauses />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
                     <Route path="/scenes" element={<Communities />} />
+                    <Route path="/scene/:slug" element={<CanonicalSceneRedirect />} />
+                    <Route path="/action/:slug" element={<ActionDetail />} />
+                    <Route path="/steward/dashboard" element={<ProtectedRoute><StewardDashboard /></ProtectedRoute>} />
+                    <Route path="/merchant/actions" element={<ProtectedRoute><MerchantActionStudio /></ProtectedRoute>} />
+                    <Route path="/referrals/activated" element={<ProtectedRoute><ActivatedReferralsDashboard /></ProtectedRoute>} />
                     <Route path="/scenes/:slug" element={<CommunityDetail />} />
                     <Route path="/communities" element={<Navigate to="/scenes" replace />} />
-                    <Route path="/communities/:slug" element={<CommunityDetail />} />
+                    <Route path="/communities/:slug" element={<CanonicalSceneRedirect />} />
                     <Route path="/creators" element={<Creators />} />
                     <Route path="/creators/:handle" element={<CreatorDetail />} />
                     <Route path="/economy" element={<EconomyConcept />} />
                     <Route path="/economy/:concept" element={<EconomyConcept />} />
                     <Route path="/venue-report/:id" element={<VenueReportTeaser />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/membership/checkout" element={<ProtectedRoute><MembershipCheckout /></ProtectedRoute>} />
+                    <Route path="/claim-pages" element={<ProtectedRoute><ClaimPages /></ProtectedRoute>} />
+                    <Route path="/billing/result" element={<ProtectedRoute><BillingResult /></ProtectedRoute>} />
                     <Route path="/help" element={<Help />} />
                     <Route path="/support" element={<Help />} />
                     <Route path="/terms" element={<Terms />} />
@@ -179,18 +215,23 @@ const App = () => (
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/support/tickets" element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
                     <Route path="/support/tickets/:id" element={<ProtectedRoute><SupportTicketDetail /></ProtectedRoute>} />
+                    <Route path="/rsvp/:momentId" element={<GuestRsvp />} />
+                    <Route path="/guest-pass/:token" element={<GuestPass />} />
+                    <Route path="/host/moments/:momentId/guests" element={<ProtectedRoute><HostGuestOperations /></ProtectedRoute>} />
                     <Route path="/host" element={<Navigate to="/for-communities" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<Navigate to="/create/moment" replace />} />
-                    <Route path="/create/moment" element={<CreateMoment />} />
-                    <Route path="/create/campaign" element={<CreateCampaign />} />
-                    <Route path="/create/bounty" element={<CreateBounty />} />
+                    <Route path="/create/moment" element={<ProtectedRoute><CreateMoment /></ProtectedRoute>} />
+                    <Route path="/create/campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
+                    <Route path="/create/bounty" element={<ProtectedRoute><CreateBounty /></ProtectedRoute>} />
                     <Route path="/create-moment" element={<Navigate to="/create/moment" replace />} />
                     <Route path="/for-you" element={<ProtectedRoute><ForYou /></ProtectedRoute>} />
                     <Route path="/live" element={<Pulse />} />
-                    <Route path="/explore" element={<Explore />} />
+                    <Route path="/explore" element={<Navigate to="/discover" replace />} />
                     <Route path="/discover" element={<Discover />} />
+                    <Route path="/discoveries/:slug" element={<DiscoveryDetail />} />
+                    <Route path="/discovery/:slug" element={<CanonicalDiscoveryRedirect />} />
                     <Route path="/discover/moments" element={<ExploreMoments />} />
                     <Route path="/discover/venues" element={<ExploreVenues />} />
                     <Route path="/discover/rewards" element={<ExploreRewards />} />
@@ -198,11 +239,13 @@ const App = () => (
                     <Route path="/explore/moments" element={<Navigate to="/discover/moments" replace />} />
                     <Route path="/explore/venues" element={<Navigate to="/discover/venues" replace />} />
                     <Route path="/explore/rewards" element={<Navigate to="/discover/rewards" replace />} />
+                    <Route path="/rewards" element={<Navigate to="/discover/rewards" replace />} />
                     <Route path="/explore/content" element={<Navigate to="/discover/content" replace />} />
                     <Route path="/events" element={<Navigate to="/discover/moments" replace />} />
                     <Route path="/events/:slug" element={<EventExperienceDetail />} />
                     <Route path="/momentum" element={<Momentum />} />
                     <Route path="/pulse" element={<Pulse />} />
+                    <Route path="/pulse-feed" element={<PulseFeed />} />
                     <Route path="/missions" element={<WatchUnlock />} />
                     <Route path="/missions/:id" element={<ContentMissionDetail />} />
                     <Route path="/watch-unlock" element={<Navigate to="/missions" replace />} />
@@ -214,11 +257,17 @@ const App = () => (
                     <Route path="/merchants" element={<Merchants />} />
                     <Route path="/hosts" element={<Hosts />} />
                     <Route path="/shop" element={<Marketplace />} />
+                    <Route path="/shop/category/:category" element={<Marketplace />} />
                     <Route path="/shop/:listingId" element={<CommerceDetail />} />
                     <Route path="/receipts/:id" element={<ProtectedRoute><CommerceReceiptDetail /></ProtectedRoute>} />
                     <Route path="/storefront/:merchantId" element={<MerchantStorefront />} />
-                    <Route path="/offers/:id" element={<ProtectedRoute><OfferDetail /></ProtectedRoute>} />
                     <Route path="/activate" element={<ActivatePage />} />
+
+                    {/* Campaign Expansion Routes */}
+                    <Route path="/sprint" element={<ReferralSprintPage />} />
+                    <Route path="/seasons/showdown" element={<SeasonShowdownPage />} />
+                    <Route path="/merchant/coupons" element={<MerchantCouponHub />} />
+                    <Route path="/flash-sales" element={<GemRushPage />} />
 
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />
                     <Route path="/locations/:countrySlug" element={<LocationArchive />} />
@@ -226,17 +275,18 @@ const App = () => (
                     <Route path="/venues/:slug" element={<VenueProfile />} />
                     <Route path="/moments/:id" element={<MomentDetail />} />
                     <Route path="/moments/:id/record" element={<MomentRecord />} />
-                    <Route path="/moments/:id/edit" element={<EditMoment />} />
-                    <Route path="/moments/:id/checkin" element={<CheckIn />} />
+                    <Route path="/moments/:id/edit" element={<ProtectedRoute><EditMoment /></ProtectedRoute>} />
+                    <Route path="/moments/:id/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
                     <Route path="/bounties" element={<BountyBoard />} />
                     <Route path="/momentsapp" element={<MomentsApp />} />
                     <Route path="/growth" element={<GrowthHub />} />
+                    <Route path="/campaign-intelligence" element={<ProtectedRoute><CampaignIntelligence /></ProtectedRoute>} />
                     <Route path="/pioneers" element={<Pioneers />} />
                     <Route path="/growth/pioneer" element={<ProtectedRoute><PioneerPoints /></ProtectedRoute>} />
                     <Route path="/growth/content" element={<Navigate to="/content-drops" replace />} />
                     <Route path="/growth/promoshare" element={<Navigate to="/promoshare" replace />} />
                     <Route path="/growth/campaigns" element={<Navigate to="/promopush" replace />} />
-                    <Route path="/growth/referrals" element={<Navigate to="/promopush/promoter" replace />} />
+                    <Route path="/growth/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
                     <Route path="/growth/pieces" element={<Navigate to="/portfolio" replace />} />
                     <Route path="/growth/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
                     <Route path="/growth/earnings" element={<Navigate to="/wallet" replace />} />
@@ -330,6 +380,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 </Suspense>
+                </ChunkErrorBoundary>
                 <PWAInstallPrompt />
               </DemoExperienceProvider>
             </BrowserRouter>

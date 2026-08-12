@@ -25,6 +25,8 @@ interface Product {
     terms_conditions: string | null;
     discount_type: string | null;
     discount_value: number | null;
+    mobile_store_classification?: 'physical' | 'service' | 'digital' | 'not_classified' | null;
+    mobile_purchase_enabled?: boolean | null;
     venues?: {
         name: string;
         address: string;
@@ -259,6 +261,8 @@ export default function ProductDetailScreen() {
     const isOutOfStock = product.inventory_count !== null && product.inventory_count === 0;
     const availableGems = balance?.gems || 0;
     const canAffordGems = availableGems >= product.price_points;
+    const isNativePurchaseEligible = product.mobile_purchase_enabled === true
+        && ['physical', 'service'].includes(product.mobile_store_classification || 'not_classified');
 
     return (
         <View style={[styles.container, { backgroundColor: isDark ? DesignColors.black : DesignColors.gray[50] }]}>
@@ -344,7 +348,16 @@ export default function ProductDetailScreen() {
             {/* Purchase Footer */}
             <View style={[styles.footer, { backgroundColor: isDark ? DesignColors.gray[900] : DesignColors.white }]}>
                 <View style={styles.pricingContainer}>
-                    {product.price_points > 0 && (
+                    {!isNativePurchaseEligible && (
+                        <View style={styles.mobileUnavailableNotice}>
+                            <Ionicons name="information-circle" size={18} color={DesignColors.warning} />
+                            <Text style={styles.mobileUnavailableText}>
+                                Purchase is unavailable in the mobile app until this listing is verified as a physical good or real-world service.
+                            </Text>
+                        </View>
+                    )}
+
+                    {isNativePurchaseEligible && product.price_points > 0 && (
                         <Pressable
                             style={[
                                 styles.purchaseButton,
@@ -365,7 +378,7 @@ export default function ProductDetailScreen() {
                         </Pressable>
                     )}
 
-                    {product.price_usd > 0 && (
+                    {isNativePurchaseEligible && product.price_usd > 0 && (
                         <Pressable
                             style={[
                                 styles.purchaseButton,
@@ -388,14 +401,14 @@ export default function ProductDetailScreen() {
                         </Pressable>
                     )}
 
-                    {product.price_usd > 0 && (
+                    {isNativePurchaseEligible && product.price_usd > 0 && (
                         <View style={styles.secureCheckoutNote}>
                             <Ionicons name="lock-closed" size={13} color={DesignColors.gray[400]} />
                             <Text style={styles.secureCheckoutText}>Secure in-app checkout · receipt saved to Vault</Text>
                         </View>
                     )}
 
-                    {product.price_usd > 0 && product.price_points <= 0 && (
+                    {isNativePurchaseEligible && product.price_usd > 0 && product.price_points <= 0 && (
                         <Pressable
                             style={[
                                 styles.purchaseButton,
@@ -417,7 +430,7 @@ export default function ProductDetailScreen() {
                     )}
                 </View>
 
-                {!canAffordGems && product.price_points > 0 && (
+                {isNativePurchaseEligible && !canAffordGems && product.price_points > 0 && (
                     <Text style={styles.insufficientText}>
                         Need {product.price_points - availableGems} more Gems
                     </Text>
@@ -428,6 +441,20 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+    mobileUnavailableNotice: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: Spacing.sm,
+        padding: Spacing.md,
+        borderRadius: BorderRadius.md,
+        backgroundColor: DesignColors.warning + '14',
+    },
+    mobileUnavailableText: {
+        flex: 1,
+        color: DesignColors.gray[400],
+        fontSize: Typography.sizes.sm,
+        lineHeight: 20,
+    },
     container: {
         flex: 1,
     },

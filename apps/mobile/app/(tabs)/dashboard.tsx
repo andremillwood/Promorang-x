@@ -19,12 +19,14 @@ import { useAuth } from '@/context/AuthContext';
 
 import { useRouter } from 'expo-router';
 import { ProductTour } from '@/components/ProductTour';
-import { InfoTooltip } from '@/components/InfoTooltip';
-
-type IconName = keyof typeof Ionicons.glyphMap;
+import { StreakStatusHeader } from '@/components/gamification/StreakStatusHeader';
+import { DealStoryPlayer, StoryItem } from '@/components/stories/DealStoryPlayer';
+import { CameraMomentScanner } from '@/components/camera/CameraMomentScanner';
+import { PromoHeatmapView } from '@/components/map/PromoHeatmapView';
+import { useState } from 'react';
 type BalanceLike = { points?: number; promokeys?: number; gems?: number } | null;
 type RoleViewProps = { isDark: boolean };
-type ParticipantViewProps = RoleViewProps & { balance: BalanceLike; gemProgressPercent: number };
+type ParticipantViewProps = RoleViewProps & { balance: BalanceLike };
 
 export default function DashboardScreen() {
     const colorScheme = useColorScheme();
@@ -33,27 +35,48 @@ export default function DashboardScreen() {
     const { balance } = useUserBalance();
     const router = useRouter();
 
-    const gemsToNextValueMarker = 250;
-    const currentGemProgress = balance ? ((balance.gems || 0) % gemsToNextValueMarker) : 0;
-    const gemProgressPercent = (currentGemProgress / gemsToNextValueMarker) * 100;
+    const [storyVisible, setStoryVisible] = useState(false);
+    const [cameraVisible, setCameraVisible] = useState(false);
+
+    const sampleStories: StoryItem[] = [
+        {
+            id: 's1',
+            merchantName: 'Downtown Coffee Co.',
+            merchantLogo: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=100',
+            mediaUrl: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800',
+            dealTitle: 'Free Artisan Pastry w/ Cold Brew',
+            dealDiscount: '20% OFF',
+            expiresIn: '3h 15m',
+        },
+        {
+            id: 's2',
+            merchantName: 'Pulse Fitness Studio',
+            merchantLogo: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=100',
+            mediaUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800',
+            dealTitle: 'VIP Pass Drop - First HIIT Session',
+            dealDiscount: '50% OFF',
+            expiresIn: '5h 40m',
+        },
+    ];
 
     const renderRoleDashboard = () => {
         switch (activeRole) {
             case 'brand':
                 return <BrandDashboardView isDark={isDark} />;
             case 'agency':
-                return <BrandDashboardView isDark={isDark} />;
+                return <AgencyDashboardView isDark={isDark} />;
             case 'merchant':
                 return <MerchantDashboardView isDark={isDark} />;
             case 'host':
                 return <HostDashboardView isDark={isDark} />;
             case 'creator':
-                return <ParticipantDashboardView balance={balance} gemProgressPercent={gemProgressPercent} isDark={isDark} />;
+                return <CreatorDashboardView balance={balance} isDark={isDark} />;
+            case 'admin':
+                return <AdminDashboardView isDark={isDark} />;
             default:
                 return (
                     <ParticipantDashboardView
                         balance={balance}
-                        gemProgressPercent={gemProgressPercent}
                         isDark={isDark}
                     />
                 );
@@ -88,10 +111,34 @@ export default function DashboardScreen() {
                     </Pressable>
                 </View>
 
+                {/* Snapchat Loss-Aversion Streak Header */}
+                <StreakStatusHeader
+                    currentStreak={5}
+                    hoursRemaining={4}
+                    onPressStreak={() => setStoryVisible(true)}
+                />
+
                 {renderRoleDashboard()}
             </View>
 
             <View style={{ height: 100 }} />
+
+            {/* Snapchat Deal Stories Modal */}
+            <DealStoryPlayer
+                visible={storyVisible}
+                stories={sampleStories}
+                onClose={() => setStoryVisible(false)}
+                onClaimDeal={() => {
+                    setStoryVisible(false);
+                    setCameraVisible(true);
+                }}
+            />
+
+            {/* Camera Proof-of-Moment Scanner Modal */}
+            <CameraMomentScanner
+                visible={cameraVisible}
+                onClose={() => setCameraVisible(false)}
+            />
 
             {/* Product Tour */}
             <ProductTour tourId="dashboard" autoStart={true} />
@@ -102,65 +149,17 @@ export default function DashboardScreen() {
 /**
  * PARTICIPANT VIEW
  */
-function ParticipantDashboardView({ balance, gemProgressPercent, isDark }: ParticipantViewProps) {
+function ParticipantDashboardView({ balance, isDark }: ParticipantViewProps) {
     const router = useRouter();
     const availableGems = balance?.gems || 0;
     const accessSignals = balance?.promokeys || 0;
     return (
         <View style={{ gap: 24 }}>
-            {/* Economic Tracks */}
-            <View style={{ gap: 12 }}>
-                <LinearGradient
-                    colors={[isDark ? DesignColors.gray[900] : 'white', isDark ? DesignColors.black : DesignColors.gray[50]]}
-                    style={styles.rankCard}
-                >
-                    <View style={styles.rankHeader}>
-                        <View style={styles.rankIcon}>
-                            <Ionicons name="trending-up" size={16} color={DesignColors.primary} />
-                        </View>
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'transparent' }}>
-                            <Text style={styles.rankTitle}>Consistency Rank</Text>
-                            <InfoTooltip content="Your rank grows when your check-ins, proof, and participation are verified. Higher ranks can unlock better access." />
-                        </View>
-                        <View style={{ alignItems: 'flex-end', backgroundColor: 'transparent' }}>
-                            <Text style={styles.rankPercent}>25%</Text>
-                        </View>
-                    </View>
-                    <View style={styles.progressBarBg}>
-                        <LinearGradient
-                            colors={[DesignColors.primary, DesignColors.accent]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={{ width: '25%', height: '100%', borderRadius: 4 }}
-                        />
-                    </View>
-                </LinearGradient>
-
-                <LinearGradient
-                    colors={[isDark ? DesignColors.gray[900] : 'white', isDark ? DesignColors.black : DesignColors.gray[50]]}
-                    style={styles.rankCard}
-                >
-                    <View style={styles.rankHeader}>
-                        <View style={[styles.rankIcon, { backgroundColor: '#F59E0B20' }]}>
-                            <Ionicons name="diamond" size={16} color="#F59E0B" />
-                        </View>
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'transparent' }}>
-                            <Text style={styles.rankTitle}>Gem Progress</Text>
-                            <InfoTooltip content="Gems are your platform value. They can secure access, rewards, creator work, and eligible payouts." />
-                        </View>
-                        <View style={{ alignItems: 'flex-end', backgroundColor: 'transparent' }}>
-                            <Text style={[styles.rankPercent, { color: '#F59E0B' }]}>{Math.round(gemProgressPercent)}%</Text>
-                        </View>
-                    </View>
-                    <View style={styles.progressBarBg}>
-                        <LinearGradient
-                            colors={['#FCD34D', '#F59E0B']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={{ width: `${gemProgressPercent}%`, height: '100%', borderRadius: 4 }}
-                        />
-                    </View>
-                </LinearGradient>
+            <View style={[styles.valueReceipt, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
+                <Text style={styles.valueReceiptEyebrow}>WHAT IS AVAILABLE NOW</Text>
+                <Text style={[styles.valueReceiptTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{availableGems.toLocaleString()} Gems</Text>
+                <Text style={styles.valueReceiptCopy}>US${availableGems.toLocaleString()} platform value · {accessSignals ? `${accessSignals} access ${accessSignals === 1 ? 'signal' : 'signals'} ready` : 'no active access yet'}</Text>
+                <Pressable onPress={() => router.push('/vault')} style={styles.valueReceiptAction}><Text style={styles.valueReceiptActionText}>Open your Vault</Text><Ionicons name="arrow-forward" size={16} color={DesignColors.black} /></Pressable>
             </View>
 
             {/* Unlock Hosting (Promotional Card) */}
@@ -185,24 +184,6 @@ function ParticipantDashboardView({ balance, gemProgressPercent, isDark }: Parti
                     </View>
                 </LinearGradient>
             </Pressable>
-
-            {/* Stats Grid */}
-            <View style={styles.statsGrid}>
-                {[
-                    { label: 'Gems', value: availableGems.toLocaleString(), icon: 'diamond', color: '#F59E0B' },
-                    { label: 'Access', value: accessSignals.toString(), icon: 'shield-checkmark', color: DesignColors.primary },
-                    { label: 'Check-ins', value: '8', icon: 'location', color: '#10B981' },
-                    { label: 'This month', value: '3', icon: 'time', color: '#8B5CF6' },
-                ].map((stat, i) => (
-                    <View key={i} style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                        <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
-                            <Ionicons name={stat.icon as IconName} size={16} color={stat.color} />
-                        </View>
-                        <Text style={[styles.statValue, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{stat.value}</Text>
-                        <Text style={styles.statLabel}>{stat.label}</Text>
-                    </View>
-                ))}
-            </View>
 
             <MobileReturnCard role="participant" isDark={isDark} />
 
@@ -253,25 +234,7 @@ function BrandDashboardView({ isDark }: RoleViewProps) {
 
             <MobileReturnCard role="brand" isDark={isDark} />
 
-            <View style={styles.statsGrid}>
-                {[
-                    { label: 'Gems funded', value: '0', icon: 'diamond', color: DesignColors.primary },
-                    { label: 'Access impact', value: '0', icon: 'shield-checkmark', color: '#F59E0B' },
-                ].map((stat, i) => (
-                    <View key={i} style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                        <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
-                            <Ionicons name={stat.icon as IconName} size={16} color={stat.color} />
-                        </View>
-                        <Text style={[styles.statValue, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{stat.value}</Text>
-                        <Text style={styles.statLabel}>{stat.label}</Text>
-                    </View>
-                ))}
-            </View>
-            <View style={[styles.emptyState, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                <Ionicons name="analytics" size={48} color={DesignColors.primary} style={{ marginBottom: 16 }} />
-                <Text style={[styles.emptyTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Campaign movement</Text>
-                <Text style={styles.emptyDesc}>Activate your first sponsorship to see visits, content, and rewards in one place.</Text>
-            </View>
+            <Pressable onPress={() => router.push('/create-proposal')} style={styles.roleNextMove}><View style={styles.roleNextIcon}><Ionicons name="sparkles" size={20} color={DesignColors.black} /></View><View style={styles.roleNextCopy}><Text style={styles.roleNextLabel}>NEXT ACTIVATION</Text><Text style={styles.roleNextTitle}>Start with the change you want to make possible.</Text><Text style={styles.roleNextText}>Shape the Scene, people, participant value, proof, and Gem reserve before anything goes live.</Text></View><Ionicons name="arrow-forward" size={18} color={DesignColors.primary} /></Pressable>
         </View>
     );
 }
@@ -280,29 +243,171 @@ function BrandDashboardView({ isDark }: RoleViewProps) {
  * MERCHANT VIEW
  */
 function MerchantDashboardView({ isDark }: RoleViewProps) {
+    const router = useRouter();
     return (
-        <View style={{ gap: 24 }}>
+        <View style={{ gap: 20 }}>
+            {/* Primary Action: QR Code Scanner */}
+            <Pressable
+                onPress={() => router.push('/merchant/scan')}
+                style={{
+                    backgroundColor: '#10B981',
+                    paddingVertical: 18,
+                    paddingHorizontal: 20,
+                    borderRadius: 18,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, flex: 1 }}>
+                    <View style={{ width: 46, height: 46, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.18)', alignItems: 'center', justifyContent: 'center' }}>
+                        <Ionicons name="qr-code" size={26} color="white" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ color: 'white', fontWeight: '900', fontSize: 16 }}>SCAN CUSTOMER QR PASS</Text>
+                        <Text style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12, marginTop: 2 }}>Verify check-ins, redeem passes & track foot traffic</Text>
+                    </View>
+                </View>
+                <Ionicons name="arrow-forward" size={20} color="white" />
+            </Pressable>
+
+            {/* Quick Actions */}
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable
+                    onPress={() => router.push('/merchant/scan')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="scan-outline" size={24} color="#10B981" />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Scanner</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => router.push('/merchant/create-offer')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="add-circle-outline" size={24} color={DesignColors.primary} />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>New Offer</Text>
+                </Pressable>
+            </View>
+
             <MobileReturnCard role="merchant" isDark={isDark} />
 
-            <View style={styles.statsGrid}>
-                {[
-                    { label: 'Venue Yield', value: '4.2x', icon: 'trending-up', color: '#10B981' },
-                    { label: 'Check-ins', value: '890', icon: 'location', color: DesignColors.primary },
-                ].map((stat, i) => (
-                    <View key={i} style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                        <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
-                            <Ionicons name={stat.icon as IconName} size={16} color={stat.color} />
-                        </View>
-                        <Text style={[styles.statValue, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{stat.value}</Text>
-                        <Text style={styles.statLabel}>{stat.label}</Text>
+            <Pressable onPress={() => router.push('/create-proposal')} style={styles.roleNextMove}>
+                <View style={[styles.roleNextIcon, { backgroundColor: '#10B981' }]}><Ionicons name="storefront" size={20} color={DesignColors.black} /></View>
+                <View style={styles.roleNextCopy}>
+                    <Text style={styles.roleNextLabel}>YOUR PLACE IN THE SCENE</Text>
+                    <Text style={styles.roleNextTitle}>Shape a venue activation and a reason to return.</Text>
+                    <Text style={styles.roleNextText}>Verified visits and redemptions will appear only after people actually act.</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={18} color={DesignColors.primary} />
+            </Pressable>
+        </View>
+    );
+}
+
+/**
+ * CREATOR VIEW
+ */
+function CreatorDashboardView({ balance, isDark }: ParticipantViewProps) {
+    const router = useRouter();
+    const availableGems = balance?.gems || 0;
+    return (
+        <View style={{ gap: 24 }}>
+            <View style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white', flexDirection: 'column', alignItems: 'flex-start', padding: 20 }]}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 10 }}>
+                    <View>
+                        <Text style={styles.statLabel}>CREATOR EARNINGS</Text>
+                        <Text style={[styles.statValue, { fontSize: 32, color: isDark ? 'white' : DesignColors.gray[900] }]}>{availableGems.toLocaleString()} Gems</Text>
+                        <Text style={{ color: DesignColors.gray[500], fontSize: 12 }}>US${availableGems.toFixed(2)} earned from verified action bounties</Text>
                     </View>
-                ))}
+                    <View style={[styles.statIcon, { backgroundColor: '#EC489920', width: 48, height: 48 }]}>
+                        <Ionicons name="videocam" size={24} color="#EC4899" />
+                    </View>
+                </View>
             </View>
-            <View style={[styles.emptyState, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                <Ionicons name="storefront" size={48} color="#10B981" style={{ marginBottom: 16 }} />
-                <Text style={[styles.emptyTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Venue Insights</Text>
-                <Text style={styles.emptyDesc}>Connect your venues to track foot traffic and yield.</Text>
+            <MobileReturnCard role="creator" isDark={isDark} />
+            <Pressable onPress={() => router.push('/discover')} style={styles.roleNextMove}>
+                <View style={[styles.roleNextIcon, { backgroundColor: '#EC4899' }]}><Ionicons name="sparkles" size={20} color={DesignColors.black} /></View>
+                <View style={styles.roleNextCopy}>
+                    <Text style={styles.roleNextLabel}>CREATOR PROMPTS</Text>
+                    <Text style={styles.roleNextTitle}>Find an active prompt worth publishing.</Text>
+                    <Text style={styles.roleNextText}>Earn verified payouts when your story sets real attendance in motion.</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={18} color={DesignColors.primary} />
+            </Pressable>
+        </View>
+    );
+}
+
+/**
+ * AGENCY VIEW
+ */
+function AgencyDashboardView({ isDark }: RoleViewProps) {
+    const router = useRouter();
+    return (
+        <View style={{ gap: 24 }}>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable
+                    onPress={() => router.push('/modal')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="people-outline" size={24} color="#F59E0B" />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Client Roster</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => router.push('/proposals')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="layers-outline" size={24} color={DesignColors.primary} />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Portfolio</Text>
+                </Pressable>
             </View>
+            <MobileReturnCard role="agency" isDark={isDark} />
+            <Pressable onPress={() => router.push('/create-proposal')} style={styles.roleNextMove}>
+                <View style={[styles.roleNextIcon, { backgroundColor: '#F59E0B' }]}><Ionicons name="git-branch" size={20} color={DesignColors.black} /></View>
+                <View style={styles.roleNextCopy}>
+                    <Text style={styles.roleNextLabel}>CLIENT ACTIVATION</Text>
+                    <Text style={styles.roleNextTitle}>Run multi-partner client briefs from one hub.</Text>
+                    <Text style={styles.roleNextText}>Coordinate brands, hosts, venues, and creators with attributable returns.</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={18} color={DesignColors.primary} />
+            </Pressable>
+        </View>
+    );
+}
+
+/**
+ * ADMIN VIEW
+ */
+function AdminDashboardView({ isDark }: RoleViewProps) {
+    const router = useRouter();
+    return (
+        <View style={{ gap: 24 }}>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable
+                    onPress={() => router.push('/studio')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="flash-outline" size={24} color="#6B7280" />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Studio Admin</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => router.push('/catalog')}
+                    style={[styles.actionButton, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}
+                >
+                    <Ionicons name="grid-outline" size={24} color={DesignColors.primary} />
+                    <Text style={[styles.actionButtonText, { color: isDark ? 'white' : DesignColors.gray[900] }]}>Asset Catalog</Text>
+                </Pressable>
+            </View>
+            <MobileReturnCard role="admin" isDark={isDark} />
+            <Pressable onPress={() => router.push('/studio')} style={styles.roleNextMove}>
+                <View style={[styles.roleNextIcon, { backgroundColor: '#6B7280' }]}><Ionicons name="analytics" size={20} color={DesignColors.black} /></View>
+                <View style={styles.roleNextCopy}>
+                    <Text style={styles.roleNextLabel}>SYSTEM OPERATING CONSOLE</Text>
+                    <Text style={styles.roleNextTitle}>Oversee live activations & system health.</Text>
+                    <Text style={styles.roleNextText}>Manage platform nodes, verify escrow pools, and audit ecosystem activities.</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={18} color={DesignColors.primary} />
+            </Pressable>
         </View>
     );
 }
@@ -366,20 +471,6 @@ function HostDashboardView({ isDark }: RoleViewProps) {
 
             <MobileReturnCard role="host" isDark={isDark} />
 
-            <View style={styles.statsGrid}>
-                {[
-                    { label: 'Host Rank', value: '—', icon: 'ribbon', color: '#F59E0B' },
-                    { label: 'Gems earned', value: gems.toLocaleString(), icon: 'diamond', color: DesignColors.primary },
-                ].map((stat, i) => (
-                    <View key={i} style={[styles.statCard, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
-                        <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
-                            <Ionicons name={stat.icon as IconName} size={16} color={stat.color} />
-                        </View>
-                        <Text style={[styles.statValue, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{stat.value}</Text>
-                        <Text style={styles.statLabel}>{stat.label}</Text>
-                    </View>
-                ))}
-            </View>
         </View>
     );
 }
@@ -534,7 +625,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     rankTitle: {
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
         textTransform: 'uppercase',
         letterSpacing: 1,
@@ -585,7 +676,7 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     statLabel: {
-        fontSize: 10,
+        fontSize: 12,
         color: DesignColors.gray[500],
         textTransform: 'uppercase',
         fontWeight: 'bold',
@@ -652,6 +743,88 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textTransform: 'uppercase',
     },
+    valueReceipt: {
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: DesignColors.border,
+    },
+    valueReceiptEyebrow: {
+        color: DesignColors.primary,
+        fontFamily: 'SpaceMono',
+        fontSize: 12,
+        letterSpacing: .7,
+    },
+    valueReceiptTitle: {
+        fontSize: 34,
+        lineHeight: 38,
+        fontWeight: '900',
+        letterSpacing: -1,
+        marginTop: 9,
+    },
+    valueReceiptCopy: {
+        color: DesignColors.gray[500],
+        fontSize: 12,
+        lineHeight: 16,
+        marginTop: 5,
+    },
+    valueReceiptAction: {
+        minHeight: 45,
+        marginTop: 17,
+        paddingHorizontal: 15,
+        borderRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: DesignColors.primary,
+    },
+    valueReceiptActionText: {
+        color: DesignColors.black,
+        fontSize: 12,
+        fontWeight: '900',
+    },
+    roleNextMove: {
+        padding: 17,
+        borderRadius: 23,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: DesignColors.gray[900],
+        borderWidth: 1,
+        borderColor: 'rgba(255,106,26,.24)',
+    },
+    roleNextIcon: {
+        width: 42,
+        height: 42,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: DesignColors.primary,
+        marginRight: 12,
+    },
+    roleNextCopy: {
+        flex: 1,
+        paddingRight: 10,
+        backgroundColor: 'transparent',
+    },
+    roleNextLabel: {
+        color: DesignColors.primary,
+        fontFamily: 'SpaceMono',
+        fontSize: 12,
+        letterSpacing: .6,
+    },
+    roleNextTitle: {
+        color: 'white',
+        fontSize: 14,
+        lineHeight: 18,
+        fontWeight: '900',
+        marginTop: 4,
+    },
+    roleNextText: {
+        color: DesignColors.gray[500],
+        fontSize: 12,
+        lineHeight: 15,
+        marginTop: 4,
+    },
     returnCard: {
         padding: 16,
         borderRadius: 22,
@@ -680,7 +853,7 @@ const styles = StyleSheet.create({
     returnEyebrow: {
         color: DesignColors.primary,
         fontFamily: 'SpaceMono',
-        fontSize: 7,
+        fontSize: 12,
         letterSpacing: .6,
     },
     returnTitle: {
@@ -690,7 +863,7 @@ const styles = StyleSheet.create({
     },
     returnBody: {
         color: DesignColors.gray[500],
-        fontSize: 9,
+        fontSize: 12,
         lineHeight: 15,
         marginTop: 12,
     },
@@ -705,12 +878,12 @@ const styles = StyleSheet.create({
     returnStatementLabel: {
         color: DesignColors.primary,
         fontFamily: 'SpaceMono',
-        fontSize: 6.5,
+        fontSize: 12,
         letterSpacing: .5,
     },
     returnStatementText: {
         color: DesignColors.gray[400],
-        fontSize: 8.5,
+        fontSize: 12.5,
         lineHeight: 14,
         marginTop: 5,
     },
@@ -752,7 +925,7 @@ const styles = StyleSheet.create({
     nextDecisionText: {
         color: DesignColors.primary,
         fontFamily: 'SpaceMono',
-        fontSize: 6.5,
+        fontSize: 12,
         letterSpacing: .4,
         textTransform: 'uppercase',
     },
@@ -776,7 +949,7 @@ const styles = StyleSheet.create({
     },
     returnMetricLabel: {
         color: DesignColors.gray[500],
-        fontSize: 7,
+        fontSize: 12,
         fontWeight: '800',
         textTransform: 'uppercase',
         marginTop: 3,

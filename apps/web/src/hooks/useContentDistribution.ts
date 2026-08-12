@@ -3,6 +3,7 @@ import { API_BASE_URL } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getSeededContentDrop, seededContentDropLeaderboards } from "@/data/seeded-content-drops";
+import type { ContentContext } from "@promorang/shared";
 
 export type ContentDistributionAsset = {
   id: string;
@@ -133,6 +134,18 @@ export function useContentDrop(campaignId?: string) {
       return payload.data;
     },
     enabled: !!campaignId,
+  });
+}
+
+export function useContentDropContext(campaignId?: string) {
+  const { session } = useAuth();
+  return useQuery({
+    queryKey: ["content-drop-context", campaignId, session?.user?.id],
+    queryFn: async () => {
+      const payload = await apiFetch<{ success: boolean; data: ContentContext }>(`/content-distribution/campaigns/${campaignId}/context`, { token: session?.access_token });
+      return payload.data;
+    },
+    enabled: !!campaignId && !getSeededContentDrop(campaignId),
   });
 }
 

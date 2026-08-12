@@ -174,7 +174,7 @@ export function ReactionBar({
                         onClick={() => handleReaction(emoji)}
                         aria-pressed={isSelected}
                         className={cn(
-                            "flex items-center gap-1 rounded-full transition-all duration-200",
+                            "flex items-center gap-1 rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200",
                             buttonSizes[size],
                             isSelected
                                 ? "bg-primary/10 ring-1 ring-primary"

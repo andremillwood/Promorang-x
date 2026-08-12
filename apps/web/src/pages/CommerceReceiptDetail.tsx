@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, BadgeCheck, Bookmark, CalendarClock, Copy, Gift, Receipt, ShieldCheck, ShoppingBag, Sparkles, TicketCheck } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Bookmark, CalendarClock, Copy, Gift, Receipt, ShieldCheck, ShoppingBag, Sparkles, TicketCheck } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { resolveCommerceReceiptPresentation } from "@promorang/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -103,6 +104,7 @@ export default function CommerceReceiptDetail() {
   const receipt = query.data?.receipt;
   const Icon = receiptIcon[receipt?.receipt_type as keyof typeof receiptIcon] || Receipt;
   const safeCode = receipt?.redemption_code || receipt?.attribution?.coupon_code || receipt?.id;
+  const presentation = receipt ? resolveCommerceReceiptPresentation({ receiptType: receipt.receipt_type, status: receipt.status, productName: receipt.merchant_products?.name, attribution: receipt.attribution }) : null;
 
   const copyValue = async (value: string, label: string) => {
     await navigator.clipboard.writeText(value);
@@ -159,11 +161,14 @@ export default function CommerceReceiptDetail() {
                 {query.data?.permissions?.is_merchant ? <Badge className="rounded-full bg-white text-black">Merchant view</Badge> : null}
               </div>
 
-              <p className="mt-8 text-[11px] font-black uppercase tracking-[0.24em] text-primary-light">Commerce proof</p>
-              <h1 className="mt-3 max-w-3xl text-5xl font-black uppercase leading-[0.86] tracking-[-0.07em] sm:text-7xl">{titleFor(receipt)}</h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/68">
-                This is the durable record for the transaction, claim, reservation, redemption, or refund. It is the point where commerce stops being a loose event and becomes accountable proof.
-              </p>
+              <div className="mt-7 border-y border-dashed border-black/25 bg-[#f4ead8] p-5 text-[#19140f] shadow-2xl sm:p-7">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{presentation?.eyebrow}</p>
+                <h1 className="mt-2 font-serif text-5xl font-black uppercase leading-none tracking-[-0.055em] sm:text-7xl">{presentation?.headline}</h1>
+                <p className="mt-2 text-lg font-black capitalize">{presentation?.title || titleFor(receipt)}</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-black/55">{presentation?.explanation}</p>
+                <div className="mt-6 grid gap-2 sm:grid-cols-2">{presentation?.outcomes.map((outcome) => <div key={outcome.id} className="flex items-center justify-between gap-5 border-b border-black/10 py-2 text-xs"><span className="text-black/50">{outcome.label}</span><span className="font-black capitalize">{outcome.value}</span></div>)}</div>
+                <div className="mt-5 flex items-center gap-2 border-t border-dashed border-black/20 pt-4 text-[10px] font-black uppercase tracking-[.2em]"><BadgeCheck className="h-4 w-4 text-primary" />Saved to Vault</div>
+              </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
@@ -234,6 +239,7 @@ export default function CommerceReceiptDetail() {
                       <Link to={`/shop/${receipt.merchant_products.id}`}>View product</Link>
                     </Button>
                   ) : null}
+                  {query.data?.permissions?.is_customer && !["cancelled", "refunded"].includes(receipt.status) ? <Button asChild size="sm" variant="ghost" className="text-destructive"><Link to={`/support/tickets?receipt=${encodeURIComponent(receipt.id)}&product=${encodeURIComponent(titleFor(receipt))}`}><AlertTriangle className="mr-2 h-4 w-4" />Report a problem</Link></Button> : null}
                 </div>
               </CardContent>
             </Card>

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/lib/api';
 import {
@@ -290,7 +291,16 @@ const PromoShareAdmin = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold">PromoShare Admin</h1>
-            <p className="text-muted-foreground">Manage cycles, run draws, and configure rewards</p>
+            <GuidanceDisclosure
+              id="promoshare-admin:overview"
+              eyebrow="Admin guide"
+              title="What this control room manages"
+              summary="Cycles, simulations, qualified users, audit history, and reward configuration live here."
+              className="mt-2"
+              tone="light"
+            >
+              <p className="text-sm text-muted-foreground">Manage cycles, run draws, and configure rewards.</p>
+            </GuidanceDisclosure>
           </div>
         </div>
         <Button onClick={() => setActiveTab('create')}>
@@ -406,9 +416,18 @@ const PromoShareAdmin = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Draw Simulation</CardTitle>
-                  <CardDescription>
-                    Preview the draw results before executing
-                  </CardDescription>
+                  <GuidanceDisclosure
+                    id="promoshare-admin:draw-simulation"
+                    eyebrow="Simulation guide"
+                    title="Preview outcomes before execution"
+                    summary="Run simulation and recalculate stats before committing a live draw."
+                    className="mt-3"
+                    tone="light"
+                  >
+                    <CardDescription>
+                      Preview the draw results before executing.
+                    </CardDescription>
+                  </GuidanceDisclosure>
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2 mb-6">
@@ -618,7 +637,16 @@ const PromoShareAdmin = () => {
           <Card>
             <CardHeader>
               <CardTitle>Create New Cycle</CardTitle>
-              <CardDescription>Configure a new PromoShare cycle</CardDescription>
+              <GuidanceDisclosure
+                id="promoshare-admin:create-cycle"
+                eyebrow="Cycle guide"
+                title="How cycle settings shape eligibility"
+                summary="Set the window, minimum activity, and weighting before opening a new PromoShare cycle."
+                className="mt-3"
+                tone="light"
+              >
+                <CardDescription>Configure a new PromoShare cycle.</CardDescription>
+              </GuidanceDisclosure>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

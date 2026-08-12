@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '@getmocha/users-service/react';
 import HomePage from "@/react-app/pages/Home";
 import AuthCallbackPage from "@/react-app/pages/AuthCallback";
 import HomeFeedPage from "@/react-app/pages/HomeFeed";
+import OpportunityRadarPage from "@/react-app/pages/OpportunityRadar";
 import EarnPage from "@/react-app/pages/Earn";
 import CreatePage from "@/react-app/pages/Create";
 import InvestPage from "@/react-app/pages/Invest";
@@ -10,6 +11,8 @@ import ContentSharesMarket from "@/react-app/pages/ContentSharesMarket";
 import ShareDetail from "@/react-app/pages/ShareDetail";
 import WalletPage from "@/react-app/pages/Wallet";
 import GrowthHubPage from "@/react-app/pages/GrowthHub";
+import DashboardPage from "@/react-app/pages/Dashboard";
+import PromoSharePage from "@/react-app/pages/PromoShare";
 import ProfilePage from "@/react-app/pages/Profile";
 import ContentDetailPage from "@/react-app/pages/ContentDetail";
 import TaskDetailPage from "@/react-app/pages/TaskDetail";
@@ -22,8 +25,6 @@ import ErrorPage from "@/react-app/pages/ErrorPage";
 import Layout from "@/react-app/components/Layout";
 import ErrorBoundary from "@/react-app/components/ErrorBoundary";
 import { VisibleFeaturesProvider } from "@/react-app/hooks/useVisibleFeatures";
-
-
 
 // Protected route wrapper that requires authentication
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -85,8 +86,10 @@ export default function App() {
               <Route path="/error" element={<ErrorPage />} />
 
               {/* Protected routes */}
-              <Route path="/home" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
-              <Route path="/pulse" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
+              <Route path="/home" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
+              <Route path="/radar" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
+              <Route path="/pulse" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
+              <Route path="/social-feed" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
               <Route path="/earn" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
               <Route path="/discover" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePage /></ProtectedRoute>} />
@@ -94,9 +97,13 @@ export default function App() {
               <Route path="/vault/*" element={<ProtectedRoute><InvestPage /></ProtectedRoute>} />
               <Route path="/market" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
               <Route path="/market/:category" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
+              <Route path="/pieces" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
+              <Route path="/pieces/:category" element={<ProtectedRoute><ContentSharesMarket /></ProtectedRoute>} />
               <Route path="/shares/:id" element={<ProtectedRoute><ShareDetail /></ProtectedRoute>} />
               <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
               <Route path="/growth-hub" element={<ProtectedRoute><GrowthHubPage /></ProtectedRoute>} />
+              <Route path="/promoshare" element={<ProtectedRoute><PromoSharePage /></ProtectedRoute>} />
+              <Route path="/success" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/users/:username" element={<ProtectedRoute><ProfilePage isPublicProfile={true} /></ProtectedRoute>} />
               <Route path="/users/id/:id" element={<ProtectedRoute><ProfilePage isPublicProfile={true} useUserId={true} /></ProtectedRoute>} />
@@ -109,7 +116,7 @@ export default function App() {
               <Route path="/advertiser/onboarding" element={<ProtectedRoute><AdvertiserOnboarding /></ProtectedRoute>} />
 
               {/* Redirect old routes */}
-              <Route path="/dashboard" element={<Navigate to="/growth-hub" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/success" replace />} />
               <Route path="/marketplace" element={<Navigate to="/earn" replace />} />
               <Route path="/main" element={<Navigate to="/pulse" replace />} />
 

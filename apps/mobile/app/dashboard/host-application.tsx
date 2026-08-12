@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         color: DesignColors.primary,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
     }
 });

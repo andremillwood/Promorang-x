@@ -5,6 +5,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo.png";
 import {
   Home,
+  Compass,
   Calendar,
   Users,
   Settings,
@@ -138,7 +139,9 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
     { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
+    { icon: Compass, label: "For You", href: "/for-you", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
+    { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
     { icon: Gift, label: "PromoShare Draws", href: "/promoshare", group: "primary" },
     { icon: Users, label: "Scenes", href: "/scenes", group: "primary" },
     { icon: Plus, label: "Create", href: "/create/moment", group: "primary" },
@@ -308,11 +311,11 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
   const roleInfo = safeRoleInfo(safeRole);
-  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault"];
+  const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
-  const isCinematicCultureRoute = ["/scenes", "/creators", "/for-you", "/saved", "/profile"].some((path) =>
+  const isCinematicCultureRoute = ["/scenes", "/creators", "/for-you", "/saved", "/profile", "/moments", "/events", "/checkin", "/create", "/shop", "/wallet"].some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
   const isDashboardHome = location.pathname === "/dashboard";

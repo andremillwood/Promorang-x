@@ -1,229 +1,518 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Activity,
   ArrowRight,
   Bell,
-  Bookmark,
-  Calendar,
-  CheckCircle,
-  Coins,
-  Heart,
-  Key,
-  MessageCircle,
-  Play,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  Compass,
+  Gem,
+  KeyRound,
+  Layers,
+  MapPin,
   Search,
-  Share2,
   Sparkles,
-  TrendingUp,
-  UserRound,
-  Users,
-  Wallet,
+  Trophy,
+  UserRoundPlus,
+  Zap,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForYouFeed } from "@/hooks/useFeed";
-import { useJoinedMoments, useParticipantStats } from "@/hooks/useMoments";
+import { useHostedMoments, useJoinedMoments, useParticipantStats } from "@/hooks/useMoments";
 import { useUserBalance } from "@/hooks/useEconomy";
-import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
-import { cultureCreators, cultureEvents, cultureImages, cultureScenes } from "@/data/culture-demo";
-import { Button } from "@/components/ui/button";
+import { FeedStream } from "@/components/feed/FeedStream";
+import type { FeedIntent } from "@/services/feed";
 import { cn } from "@/lib/utils";
+import { useMomentJourney } from "@/hooks/useMomentJourney";
+import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
+import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 
-const tabs = ["For You", "Following", "Scenes", "Drops", "Updates"];
-type UpcomingCard = { id?: string; momentId?: string; title: string; date?: string; venue_name?: string | null; place?: string; location?: string | null };
+const feedLenses: Array<{ label: string; value: FeedIntent | null; description: string }> = [
+  { label: "For You", value: null, description: "The strongest mix across your world" },
+  { label: "Near You", value: "nearby", description: "People, places, and Moments within reach" },
+  { label: "Tonight", value: "tonight", description: "What is live or starting soon" },
+  { label: "Earn", value: "earn", description: "Drops, proof, offers, and value to unlock" },
+];
 
 const CulturalCommandHome = () => {
   const { user } = useAuth();
   const { data: balance } = useUserBalance();
   const { data: stats } = useParticipantStats();
   const { data: joinedMoments = [] } = useJoinedMoments();
-  const feedQuery = useForYouFeed(null);
-  const [activeTab, setActiveTab] = useState("For You");
+  const { data: hostedMoments = [] } = useHostedMoments();
+  const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
+  const feedQuery = useForYouFeed(activeIntent);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
 
   const upcoming = useMemo(
     () => joinedMoments.filter((moment) => new Date(moment.starts_at) > new Date()).slice(0, 3),
     [joinedMoments],
   );
-  const feedItem = feedQuery.data?.feed?.[0];
-  const hasPromoShare = (balance?.gems || 0) > 0 || (stats?.rewardsClaimed || 0) > 0;
+  const ownedMoments = useMemo(() => {
+    const seen = new Set<string>();
+    return [...hostedMoments, ...joinedMoments].filter((moment) => {
+      if (seen.has(moment.id)) return false;
+      seen.add(moment.id);
+      return true;
+    });
+  }, [hostedMoments, joinedMoments]);
+  const heroMoment = ownedMoments[0] || null;
+  const heroJourney = useMomentJourney(heroMoment?.id || null).data;
+  const featuredMoments = ownedMoments.slice(0, 6);
+  const feedItems = feedQuery.data?.feed || [];
 
-  const metrics = [
-    { label: "Upcoming", value: upcoming.length, helper: upcoming.length ? "Moments" : "Find your next moment", icon: Calendar, color: "text-orange-500" },
-    { label: "Check-ins", value: stats?.checkedIn || 0, helper: (stats?.checkedIn || 0) ? "You were there" : "Make your next move count", icon: CheckCircle, color: "text-emerald-400" },
-    { label: "Points", value: balance?.points || 0, helper: "Status progress", icon: Sparkles, color: "text-amber-400" },
-    { label: "Keys", value: balance?.promokeys || 0, helper: "Access", icon: Key, color: "text-fuchsia-400" },
-    { label: "Wallet", value: balance?.gems || 0, helper: "Gems available", icon: Wallet, color: "text-orange-500" },
-  ];
-
-  const sceneRail = [
-    { label: "Your Story", sub: "Add a moment", image: cultureCreators[0]?.avatar, href: "/profile", icon: UserRound },
-    { label: cultureScenes[0]?.title, sub: "Scene", image: cultureScenes[0]?.image, href: `/scenes/${cultureScenes[0]?.slug}`, icon: Users },
-    { label: cultureEvents[0]?.shortTitle, sub: "Live now", image: cultureEvents[0]?.image, href: "/pulse", icon: Activity },
-    { label: "Content Drops", sub: "New story", image: cultureImages.streetArt, href: "/content-drops", icon: Play },
-    { label: cultureCreators[0]?.name, sub: "Creator", image: cultureCreators[0]?.avatar, href: `/creators/${cultureCreators[0]?.handle}`, icon: UserRound },
-    { label: cultureScenes[1]?.title, sub: "Tonight", image: cultureScenes[1]?.image, href: `/scenes/${cultureScenes[1]?.slug}`, icon: Users },
+  const trail = [
+    { label: "Showed Up", value: stats?.checkedIn || 0, detail: "Moments attended", icon: Check, href: "/profile" },
+    { label: "Gems Kept", value: balance?.gems || 0, detail: "Available balance", icon: Gem, href: "/vault" },
+    { label: "Access Keys", value: balance?.promokeys || 0, detail: "Invitations & passes", icon: KeyRound, href: "/vault" },
+    { label: "Proof Points", value: balance?.points || 0, detail: "Signals created", icon: Sparkles, href: "/growth" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white">
-      <header className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Your Promorang</p>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Welcome back, {firstName}.</h1>
-          <p className="mt-2 text-sm text-white/52">Your scene is moving. Find the signal, show up, and keep what your action creates.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link to="/search" className="flex h-11 min-w-64 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-4 text-sm text-white/45">
-            <Search className="h-4 w-4" /> Search Promorang
-          </Link>
-          <Link to="/activity" className="relative grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.045]">
-            <Bell className="h-4 w-4" /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />
-          </Link>
+    <div className="min-h-screen bg-[#0A0A0C] pb-16 text-white selection:bg-amber-400 selection:text-black">
+      <HomeFeedToggle />
+      {/* Sticky Glass Navigation Bar */}
+      <header className="sticky top-0 z-40 mb-6 border-b border-white/10 bg-black/60 backdrop-blur-xl transition-all">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/20">
+              <Zap className="h-5 w-5 text-black" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Cultural Command</p>
+              <p className="text-xs font-semibold text-white/70">Welcome back, <span className="text-white">{firstName}</span></p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Quick Balance Pill Badges */}
+            <div className="hidden items-center gap-2 sm:flex">
+              <Link to="/vault" className="flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-300 transition hover:bg-amber-400/20">
+                <Gem className="h-3.5 w-3.5 text-amber-400" />
+                <span>{balance?.gems || 0}</span>
+              </Link>
+              <Link to="/vault" className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-white/80 transition hover:border-white/30">
+                <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+                <span>{balance?.promokeys || 0}</span>
+              </Link>
+            </div>
+
+            <Link
+              to="/growth/referrals"
+              className="hidden h-9 items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-4 text-xs font-extrabold text-black shadow-md shadow-amber-500/20 transition hover:scale-[1.02] sm:inline-flex"
+            >
+              <UserRoundPlus className="h-3.5 w-3.5" />
+              Invite Friends
+            </Link>
+
+            <Link
+              to="/search"
+              aria-label="Search Promorang"
+              className="group flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:border-amber-400 hover:text-white sm:h-9 sm:w-48 sm:justify-start sm:px-3"
+            >
+              <Search className="h-4 w-4 transition group-hover:text-amber-400" />
+              <span className="ml-2 hidden text-xs text-white/40 sm:inline">Search platform...</span>
+            </Link>
+
+            <Link
+              to="/activity"
+              aria-label="View activity"
+              className="relative grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:border-amber-400 hover:text-white"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-amber-400" />
+            </Link>
+          </div>
         </div>
       </header>
 
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
-        <main className="min-w-0 space-y-5">
-          <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            {metrics.map((metric) => (
-              <Link key={metric.label} to={metric.label === "Wallet" ? "/wallet" : metric.label === "Upcoming" ? "/discover" : "/profile"} className="rounded-2xl border border-white/[0.07] bg-white/[0.045] p-4 transition hover:border-primary/35 hover:bg-white/[0.07]">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-black/45 p-2"><metric.icon className={cn("h-5 w-5", metric.color)} /></div>
-                  <div><p className="text-xs text-white/55">{metric.label}</p><p className="text-2xl font-semibold">{metric.value.toLocaleString()}</p></div>
-                </div>
-                <p className="mt-2 truncate text-[11px] text-white/38">{metric.helper}</p>
-              </Link>
-            ))}
-          </section>
+      <main className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:space-y-10">
+        {/* Hero & Command Suite Section (12-Column Grid Layout) */}
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch">
+          {/* Main Hero Card (8 Columns) */}
+          <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-2xl border border-white/12 bg-[#121317] shadow-2xl lg:col-span-8 min-h-[420px] sm:min-h-[460px]">
+            {heroMoment?.image_url ? (
+              <img src={heroMoment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 hover:scale-105" />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(245,158,11,0.25),transparent_50%),linear-gradient(135deg,#1f140e,#0b0b0e_70%)]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20" />
+            <div className="absolute left-0 top-0 h-1 w-32 bg-gradient-to-r from-amber-400 to-orange-500" />
 
-          <StakeholderReturnPanel role="participant" />
+            <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  {heroMoment && hostedMoments.some((item) => item.id === heroMoment.id) ? "Hosted by You" : "Featured Moment"}
+                </span>
+                <span className="text-xs font-semibold text-white/50">
+                  {heroMoment?.venue_name || heroMoment?.location || "Live Access"}
+                </span>
+              </div>
 
-          <section className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.035]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
-              <h2 className="font-bold">What’s happening in your scene</h2>
-              <Link to="/discover" className="text-xs font-bold text-primary">Customize feed</Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto p-4">
-              {sceneRail.map((item) => (
-                <Link key={item.label} to={item.href} className="w-28 shrink-0 rounded-2xl border border-white/[0.07] bg-black/35 p-2 text-center transition hover:border-primary/45">
-                  <div className="relative mx-auto h-20 overflow-hidden rounded-xl">
-                    <img src={item.image} alt="" className="h-full w-full object-cover opacity-80" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
-                    <item.icon className="absolute bottom-2 left-2 h-4 w-4 text-primary" />
-                  </div>
-                  <p className="mt-2 truncate text-xs font-bold">{item.label}</p>
-                  <p className="truncate text-[10px] text-white/40">{item.sub}</p>
-                </Link>
-              ))}
-            </div>
-          </section>
+              <div className="my-6">
+                <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400">
+                  <MapPin className="h-3.5 w-3.5" /> {heroMoment?.venue_name || heroMoment?.location || "Global Signal"}
+                </p>
+                <h1 className="max-w-2xl font-sans text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+                  {heroMoment?.title || "Your next story starts with something real."}
+                </h1>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70">
+                  {heroJourney?.body || heroMoment?.description || "Joined and hosted Moments are synced here in real-time. Connect, participate, and build your digital trail."}
+                </p>
 
-          <section>
-            <div className="mb-3 flex items-center gap-1 overflow-x-auto rounded-xl border border-white/[0.07] bg-white/[0.035] p-1">
-              <span className="mr-auto px-3 text-sm font-bold">Feed</span>
-              {tabs.map((tab) => (
-                <button key={tab} type="button" onClick={() => setActiveTab(tab)} className={cn("rounded-lg px-3 py-2 text-xs transition", activeTab === tab ? "bg-primary/15 font-bold text-primary" : "text-white/45 hover:text-white")}>{tab}</button>
-              ))}
-            </div>
-            <div className="grid gap-4 xl:grid-cols-2">
-              <article className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04]">
-                <div className="flex items-center gap-3 p-4">
-                  <img src={cultureCreators[0]?.avatar} alt="" className="h-10 w-10 rounded-full object-cover" />
-                  <div><p className="text-sm font-bold">{feedItem?.subtitle || cultureCreators[0]?.name}</p><p className="text-xs text-white/40">Culture moving now</p></div>
-                  <span className="ml-auto text-xs font-bold text-primary">PromoShare eligible</span>
-                </div>
-                <div className="px-4 pb-4">
-                  <h3 className="text-lg font-bold">{feedItem?.title || "The city showed up. Keep the moment moving."}</h3>
-                  <p className="mt-1 text-sm text-white/55">{feedItem?.description || "Share the signal, join the scene, or save it for when you are ready to move."}</p>
-                </div>
-                <Link to={feedItem?.primary_cta.href || `/moments/${cultureEvents[0]?.momentId}`} className="block aspect-[16/9] overflow-hidden">
-                  <img src={feedItem?.image_url || cultureEvents[0]?.image} alt="" className="h-full w-full object-cover" />
-                </Link>
-                <div className="flex items-center gap-6 p-4 text-sm text-white/55">
-                  <button className="flex items-center gap-2 hover:text-white"><Heart className="h-4 w-4" /> Like</button>
-                  <button className="flex items-center gap-2 hover:text-white"><MessageCircle className="h-4 w-4" /> Discuss</button>
-                  <Link to="/promoshare" className="flex items-center gap-2 hover:text-primary"><Share2 className="h-4 w-4" /> Earn from shares</Link>
-                  <button className="ml-auto"><Bookmark className="h-4 w-4" /></button>
-                </div>
-              </article>
-
-              <div className="space-y-4">
-                <article className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04]">
-                  <div className="p-4"><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">New content drop</p><h3 className="mt-1 text-xl font-bold">Turn attention into action.</h3></div>
-                  <Link to="/content-drops" className="relative block aspect-[2/1] overflow-hidden">
-                    <img src={cultureImages.jazzNight} alt="" className="h-full w-full object-cover opacity-75" />
-                    <span className="absolute inset-0 grid place-items-center"><span className="grid h-14 w-14 place-items-center rounded-full border border-white/40 bg-black/45"><Play className="h-5 w-5 fill-white" /></span></span>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <Link
+                    to={heroJourney?.action.href || (heroMoment ? `/moments/${heroMoment.id}` : "/discover")}
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-6 text-xs font-extrabold text-black shadow-lg shadow-amber-500/20 transition hover:scale-[1.02] hover:brightness-110"
+                  >
+                    {heroJourney?.action.label || (heroMoment ? "Open Moment" : "Discover Moments")} <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <div className="flex items-center gap-4 p-4 text-sm text-white/55"><Play className="h-4 w-4" /> 5.2K <MessageCircle className="h-4 w-4" /> 56 <Share2 className="h-4 w-4" /> 132</div>
-                </article>
-                <Link to="/pulse" className="flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 text-sm font-bold hover:border-primary/40">
-                  <CheckCircle className="h-5 w-5 text-primary" /> Check what is live and verify your presence <ArrowRight className="ml-auto h-4 w-4" />
+                  <Link
+                    to="/discover"
+                    className="inline-flex h-11 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-xs font-bold text-white backdrop-blur-md transition hover:border-white/40 hover:bg-white/10"
+                  >
+                    Explore Platform
+                  </Link>
+                </div>
+              </div>
+
+              {heroMoment && (
+                <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-white/15 pt-4 text-xs text-white/60">
+                  <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-amber-400" /> {new Date(heroMoment.starts_at).toLocaleString()}</span>
+                  <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-amber-400" /> {heroMoment.venue_name || heroMoment.location}</span>
+                  {heroMoment.reward && <span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-amber-400" /> {heroMoment.reward}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Command Side Suite Widget (4 Columns) */}
+          <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl shadow-xl lg:col-span-4 min-h-[420px]">
+            <div>
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Command Suite</p>
+                  <h3 className="text-base font-extrabold text-white">Access & Assets</h3>
+                </div>
+                <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-amber-300">
+                  PRO LEVEL
+                </span>
+              </div>
+
+              {/* Balance & Progress Breakdown */}
+              <div className="mt-5 space-y-3">
+                <Link to="/vault" className="group flex items-center justify-between rounded-xl border border-white/10 bg-black/40 p-3.5 transition hover:border-amber-400/40 hover:bg-white/[0.05]">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                      <Gem className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">Gems Vault</p>
+                      <p className="text-[11px] text-white/40">Available economy balance</p>
+                    </div>
+                  </div>
+                  <span className="text-base font-extrabold text-amber-400">{balance?.gems || 0}</span>
+                </Link>
+
+                <Link to="/vault" className="group flex items-center justify-between rounded-xl border border-white/10 bg-black/40 p-3.5 transition hover:border-amber-400/40 hover:bg-white/[0.05]">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                      <KeyRound className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">Promokeys</p>
+                      <p className="text-[11px] text-white/40">Access passes & invites</p>
+                    </div>
+                  </div>
+                  <span className="text-base font-extrabold text-orange-400">{balance?.promokeys || 0}</span>
+                </Link>
+
+                <Link to="/growth" className="group flex items-center justify-between rounded-xl border border-white/10 bg-black/40 p-3.5 transition hover:border-amber-400/40 hover:bg-white/[0.05]">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">Proof Signals</p>
+                      <p className="text-[11px] text-white/40">Participation points</p>
+                    </div>
+                  </div>
+                  <span className="text-base font-extrabold text-yellow-400">{balance?.points || 0}</span>
                 </Link>
               </div>
             </div>
-          </section>
 
-          <section className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
-            <h2 className="font-bold">Pick up where you left off</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-              {[
-                ["Content Drop", "Join a creator signal", "/content-drops", Play],
-                ["Mission", "Complete proof and unlock", "/missions", CheckCircle],
-                ["Piece", "Pieces unlock as you grow", "/portfolio", Coins],
-                ["Vault", "Keep memories and access", "/vault", Key],
-                ["Growth Hub", "Track, earn, grow", "/growth", TrendingUp],
-              ].map(([label, text, href, Icon]) => (
-                <Link key={String(label)} to={String(href)} className="rounded-xl border border-white/[0.07] bg-black/30 p-3 hover:border-primary/35">
-                  <Icon className="h-4 w-4 text-primary" /><p className="mt-3 text-xs text-white/40">{String(label)}</p><p className="mt-1 text-sm font-bold">{String(text)}</p>
+            {/* Quick Actions Shortcuts */}
+            <div className="mt-6 border-t border-white/10 pt-4">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-wider text-white/40">Quick Commands</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Link to="/vault" className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-2.5 text-xs font-bold text-white/80 transition hover:border-amber-400/40 hover:text-white">
+                  <span>Open Vault</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-amber-400" />
+                </Link>
+                <Link to="/missions" className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-2.5 text-xs font-bold text-white/80 transition hover:border-amber-400/40 hover:text-white">
+                  <span>Missions</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-amber-400" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Compact Trail / Metrics Cards Grid */}
+        <section aria-labelledby="trail-heading">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Activity Overview</p>
+              <h2 id="trail-heading" className="text-xl font-extrabold text-white sm:text-2xl">What Stayed With You</h2>
+            </div>
+            <Link to="/vault" className="text-xs font-bold text-white/50 transition hover:text-amber-400">
+              View All <ArrowRight className="inline h-3.5 w-3.5 ml-1" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {trail.map((item) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-md transition-all duration-300 hover:border-amber-400/40 hover:bg-white/[0.06] hover:shadow-lg hover:shadow-amber-500/5 min-h-[120px]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg border border-amber-400/20 bg-amber-400/10 text-amber-400">
+                    <item.icon className="h-4 w-4" />
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-white/20 transition group-hover:translate-x-1 group-hover:text-amber-400" />
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl font-extrabold tracking-tight text-white group-hover:text-amber-300 sm:text-3xl">
+                    {item.value.toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-xs font-bold text-white/80">{item.label}</p>
+                  <p className="text-[11px] text-white/40">{item.detail}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Stakeholder Role Archetypes Console */}
+        <section aria-labelledby="archetypes-heading" className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#181920] to-[#0d0e12] p-5 sm:p-7 shadow-xl">
+          <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-5 md:flex-row md:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Stakeholder Superpowers</p>
+              <h2 id="archetypes-heading" className="text-2xl font-extrabold text-white sm:text-3xl">Role Archetypes & Missions</h2>
+              <p className="mt-1 text-xs text-white/50">Choose how you participate in the economy. Earn rewards, build reputation, and unlock co-ownership.</p>
+            </div>
+            <Link to="/missions" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:underline">
+              Browse All Role Missions <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              {
+                id: "scout",
+                title: "Scout 🔍",
+                role: "Spotter & Finder",
+                desc: "Uncover hidden gems, verify physical turnout & claim Scout bounties.",
+                perk: "+100 Points / Spot",
+                color: "border-amber-400/30 bg-amber-400/5 text-amber-300",
+                href: "/missions?role=scout",
+              },
+              {
+                id: "catalyst",
+                title: "Catalyst ⚡",
+                role: "Momentum Igniter",
+                desc: "Be the first to join, spark crowd momentum & launch live drops.",
+                perk: "High Match Boosts",
+                color: "border-orange-500/30 bg-orange-500/5 text-orange-400",
+                href: "/missions?role=catalyst",
+              },
+              {
+                id: "anchor",
+                title: "Anchor ⚓",
+                role: "Venue & Merchant Host",
+                desc: "Anchor local culture with physical space, check-ins & redeemable perks.",
+                perk: "Commerce Payouts",
+                color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-400",
+                href: "/missions?role=anchor",
+              },
+              {
+                id: "hype",
+                title: "Hype 📣",
+                role: "Amplifier & Viral Linker",
+                desc: "Distribute tracked referral links, build viral reach & earn slice rewards.",
+                perk: "Referral Revenue",
+                color: "border-purple-500/30 bg-purple-500/5 text-purple-400",
+                href: "/missions?role=hype",
+              },
+              {
+                id: "pulse",
+                title: "Pulse 📊",
+                role: "Auditor & Trust Signal",
+                desc: "Audit proof receipts, analyze crowd signals & enforce compliance.",
+                perk: "Auditor Rep + Gems",
+                color: "border-cyan-500/30 bg-cyan-500/5 text-cyan-400",
+                href: "/missions?role=pulse",
+              },
+            ].map((arch) => (
+              <Link
+                key={arch.id}
+                to={arch.href}
+                className={`group flex flex-col justify-between rounded-xl border p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${arch.color}`}
+              >
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider">{arch.title}</span>
+                  <p className="mt-1 text-sm font-bold text-white group-hover:text-amber-300">{arch.role}</p>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-white/60">{arch.desc}</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-[10px] font-black uppercase tracking-wider">
+                  <span>{arch.perk}</span>
+                  <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Discoveries / Scout Section */}
+        <DiscoveriesFeedSection />
+
+        {/* Living Feed Stream */}
+        <section aria-labelledby="feed-heading" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-7 backdrop-blur-xl">
+          <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Live Stream</p>
+              <h2 id="feed-heading" className="text-2xl font-extrabold text-white sm:text-3xl">Everything Moving Toward You</h2>
+              <p className="mt-1 text-xs text-white/50">Moments to join, proof worth completing, and creator drops.</p>
+            </div>
+            <Link to="/for-you" className="inline-flex items-center gap-1.5 text-xs font-bold text-white/60 transition hover:text-amber-400">
+              Open Full Feed <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {/* Pill Intent Filters */}
+          <div className="mt-5 flex flex-wrap gap-2">
+            {feedLenses.map((lens) => {
+              const isActive = activeIntent === lens.value;
+              return (
+                <button
+                  key={lens.label}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setActiveIntent(lens.value)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-wider transition-all",
+                    isActive
+                      ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black shadow-md shadow-amber-500/20 scale-[1.02]"
+                      : "border border-white/10 bg-white/5 text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <span>{lens.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feed Stream Content */}
+          <div className="pt-6">
+            <FeedStream
+              items={feedItems}
+              isLoading={feedQuery.isLoading && !feedItems.length}
+              isRefreshing={feedQuery.isFetching}
+              onRefresh={() => void feedQuery.refetch()}
+            />
+          </div>
+        </section>
+
+        {/* Hosted and Joined Moments Showcase */}
+        <section aria-labelledby="moments-heading">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">Moments Gallery</p>
+              <h2 id="moments-heading" className="text-xl font-extrabold text-white sm:text-2xl">Hosted & Joined by You</h2>
+            </div>
+            <Link to="/explore/moments" className="text-xs font-bold text-white/50 transition hover:text-amber-400">
+              Manage All <ArrowRight className="inline h-3.5 w-3.5 ml-1" />
+            </Link>
+          </div>
+
+          {featuredMoments.length ? (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {featuredMoments.map((moment) => (
+                <Link
+                  key={moment.id}
+                  to={`/moments/${moment.id}`}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-[#121317] p-5 shadow-xl transition-all duration-300 hover:border-amber-400/40 hover:scale-[1.01] min-h-[260px]"
+                >
+                  {moment.image_url ? (
+                    <img src={moment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50 transition duration-500 group-hover:scale-105 group-hover:opacity-70" />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,158,11,0.2),transparent_40%),linear-gradient(145deg,#1f1510,#0c0c0e)]" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-amber-300 backdrop-blur-md">
+                      {hostedMoments.some((item) => item.id === moment.id) ? "Host" : "Joined"}
+                    </span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition group-hover:border-amber-400 group-hover:bg-amber-400 group-hover:text-black">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+
+                  <div className="relative z-10 mt-auto pt-8">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400/80">{moment.category || "Moment"}</span>
+                    <h3 className="mt-1 font-sans text-xl font-bold leading-snug text-white transition group-hover:text-amber-300">
+                      {moment.title}
+                    </h3>
+                    <p className="mt-2 flex items-center gap-1.5 text-xs text-white/60">
+                      <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                      <span className="truncate">{moment.venue_name || moment.location}</span>
+                    </p>
+                  </div>
                 </Link>
               ))}
             </div>
-          </section>
-        </main>
-
-        <aside className="space-y-5">
-          <section className="overflow-hidden rounded-2xl border border-primary/45 bg-[radial-gradient(circle_at_top_right,rgba(236,72,153,.18),transparent_42%),linear-gradient(135deg,rgba(255,106,0,.13),rgba(255,255,255,.035))] p-5">
-            <p className="text-xs font-black text-primary">PromoShare Spotlight</p>
-            <h2 className="mt-3 text-2xl font-bold">{hasPromoShare ? `${balance?.gems || 0} Gems available` : "Make your next share count"}</h2>
-            <p className="mt-2 text-sm text-white/55">{hasPromoShare ? "Your verified movement is building recurring value." : "Share a moment or content drop to activate PromoShare."}</p>
-            <Button asChild className="mt-5 w-full"><Link to="/promoshare">View PromoShare</Link></Button>
-          </section>
-
-          <section className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4">
-            <div className="flex items-center justify-between"><h2 className="font-bold">Upcoming for you</h2><Link to="/discover" className="text-xs font-bold text-primary">View all</Link></div>
-            <div className="mt-3 divide-y divide-white/[0.07]">
-              {((upcoming.length ? upcoming : cultureEvents.slice(0, 3)) as UpcomingCard[]).map((item) => (
-                <Link key={item.id || item.momentId} to={`/moments/${item.id || item.momentId}`} className="flex gap-3 py-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-xs font-black">{item.date?.slice(0, 6) || "NEXT"}</div>
-                  <div className="min-w-0"><p className="truncate text-sm font-bold">{item.title}</p><p className="mt-1 truncate text-xs text-white/40">{item.venue_name || item.place || item.location}</p></div>
-                  <Bookmark className="ml-auto h-4 w-4 text-white/30" />
-                </Link>
-              ))}
+          ) : (
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-12 text-center backdrop-blur-md">
+              <CalendarDays className="mx-auto h-8 w-8 text-amber-400" />
+              <h3 className="mt-3 text-lg font-bold text-white">No recorded Moments yet.</h3>
+              <p className="mx-auto mt-1 max-w-md text-xs text-white/50">Moments you host or join will appear here in your dashboard.</p>
+              <Link to="/discover" className="mt-4 inline-flex h-9 items-center gap-2 rounded-full bg-amber-400 px-4 text-xs font-extrabold text-black transition hover:bg-amber-300">
+                Explore Moments
+              </Link>
             </div>
-          </section>
+          )}
+        </section>
 
-          <section className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4">
-            <div className="flex items-center justify-between"><h2 className="font-bold">Live now</h2><Link to="/pulse" className="text-xs font-bold text-primary">View all</Link></div>
-            <div className="mt-3 flex gap-2 overflow-x-auto">
-              {cultureEvents.slice(0, 3).map((event) => (
-                <Link key={event.momentId} to={`/moments/${event.momentId}`} className="w-28 shrink-0 overflow-hidden rounded-xl border border-white/[0.07] bg-black/35">
-                  <img src={event.image} alt="" className="h-20 w-full object-cover" /><div className="p-2"><p className="truncate text-xs font-bold">{event.shortTitle}</p><p className="text-[10px] text-primary">Live signal</p></div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4">
-            <div className="flex items-center justify-between"><h2 className="font-bold">Your growth</h2><Link to="/growth" className="text-xs font-bold text-primary">Open hub</Link></div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {[["Proof", stats?.checkedIn || 0], ["Rewards", stats?.rewardsClaimed || 0], ["Shares", 0], ["Earnings", balance?.gems || 0]].map(([label, value]) => (
-                <div key={String(label)} className="rounded-xl bg-black/30 p-3"><p className="text-xs text-white/40">{label}</p><p className="mt-1 text-xl font-bold">{Number(value).toLocaleString()}</p><p className="mt-1 text-[10px] text-emerald-400">Ready to grow</p></div>
-              ))}
-            </div>
-          </section>
-        </aside>
-      </div>
+        {/* Quick Trail Links Bar */}
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 backdrop-blur-md">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              ["Upcoming", upcoming.length ? `${upcoming.length} waiting` : "Find moments", "/discover", Compass],
+              ["Missions", "Complete proof tasks", "/missions", Trophy],
+              ["Vault", "Access & memories", "/vault", Layers],
+              ["Referrals", "Invite your friends", "/growth/referrals", UserRoundPlus],
+            ].map(([label, text, href, IconComponent]) => (
+              <Link
+                key={label as string}
+                to={href as string}
+                className="group flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] p-3.5 transition hover:border-amber-400/40 hover:bg-white/[0.06]"
+              >
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-amber-400">{label as string}</p>
+                  <p className="mt-0.5 text-xs font-semibold text-white/80">{text as string}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-white/20 transition group-hover:translate-x-1 group-hover:text-amber-400" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

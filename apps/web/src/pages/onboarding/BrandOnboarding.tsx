@@ -11,7 +11,7 @@ import { Sparkles, Building2, Globe, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function BrandOnboarding() {
-    const { user, refreshProfile } = useAuth();
+    const { user, refreshWorkspaceContext } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
@@ -32,26 +32,21 @@ export default function BrandOnboarding() {
         setLoading(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/organizations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-                },
-                body: JSON.stringify(formData)
+            const { error } = await supabase.rpc("create_organization_workspace", {
+                p_name: formData.name,
+                p_type: formData.type,
+                p_industry: formData.industry || null,
+                p_website: formData.website || null,
+                p_contact_email: formData.contact_email || null,
             });
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.error || 'Failed to create organization');
+            if (error) throw error;
 
             toast({
                 title: "Brand account ready",
                 description: `${formData.name} can start planning a first Moment.`,
             });
 
-            // Refresh profile to update roles
-            await refreshProfile();
+            await refreshWorkspaceContext();
 
             // Navigate to the Flash Launch compiler to immediately start creating a campaign
             navigate('/dashboard/brand/campaigns/create');

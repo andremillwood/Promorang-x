@@ -135,9 +135,24 @@ export default function PieceDetail() {
       </ImageBackground>
 
       <View style={s.metrics}>
-        <Metric label="Price" value={`${Number(data.current_price || 0).toFixed(2)} Gems`} />
-        <Metric label="24h" value={`${Number(data.change_24h || 0) >= 0 ? '+' : ''}${Number(data.change_24h || 0).toFixed(1)}%`} />
-        <Metric label="Owned" value={String(Number(owned?.pieces_owned || 0))} />
+        <Metric label="Price" value={`${Number(data.current_price || 0).toFixed(2)} Gems`} highlight />
+        <Metric label="24h Yield" value={`${Number(data.change_24h || 0) >= 0 ? '+' : ''}${Number(data.change_24h || 0).toFixed(1)}%`} positive={Number(data.change_24h || 0) >= 0} />
+        <Metric label="Your Position" value={String(Number(owned?.pieces_owned || 0))} />
+      </View>
+
+      {/* Robinhood/Polymarket Sentiment Gauge */}
+      <View style={s.sentimentCard}>
+        <View style={s.sentimentHeader}>
+          <Text style={s.sentimentTitle}>MARKET SENTIMENT & PROBABILITY</Text>
+          <Text style={s.sentimentValue}>78% BULLISH</Text>
+        </View>
+        <View style={s.sentimentTrack}>
+          <View style={[s.sentimentFill, { width: '78%' }]} />
+        </View>
+        <View style={s.sentimentFooter}>
+          <Text style={s.sentimentMuted}>High Liquidity Volume</Text>
+          <Text style={s.sentimentGold}>1.8x Multiplier</Text>
+        </View>
       </View>
 
       <View style={s.tabs}>
@@ -150,14 +165,19 @@ export default function PieceDetail() {
 
       {mode === 'buy' ? (
         <View style={s.panel}>
-          <Text style={s.panelTitle}>Available now</Text>
+          <Text style={s.panelTitle}>Available Order Book</Text>
           <Input label="Buy quantity" value={buyQuantity} onChangeText={setBuyQuantity} />
           {listings.length ? listings.slice(0, 6).map((x) => (
             <View key={x.id} style={s.listing}>
-              <View><Text style={s.listingPrice}>{Number(x.price_per_piece).toFixed(2)} Gems</Text><Text style={s.muted}>{x.quantity} available</Text></View>
-              <Pressable disabled={!!busy} onPress={() => buy(x)} style={s.buy}>{busy === `buy:${x.id}` ? <ActivityIndicator size="small" color={Colors.black} /> : <Text style={s.buyText}>Buy</Text>}</Pressable>
+              <View>
+                <Text style={s.listingPrice}>{Number(x.price_per_piece).toFixed(2)} Gems</Text>
+                <Text style={s.muted}>{x.quantity} available in depth</Text>
+              </View>
+              <Pressable disabled={!!busy} onPress={() => buy(x)} style={s.buy}>
+                {busy === `buy:${x.id}` ? <ActivityIndicator size="small" color={Colors.black} /> : <Text style={s.buyText}>Buy</Text>}
+              </Pressable>
             </View>
-          )) : <Text style={s.panelText}>No one is offering this Piece yet.</Text>}
+          )) : <Text style={s.panelText}>No open asks available yet in this order book.</Text>}
           {bids.length ? <Text style={s.panelText}>Best bid: {Number(bids[0].price_per_piece).toFixed(2)} Gems</Text> : null}
         </View>
       ) : null}
@@ -165,24 +185,24 @@ export default function PieceDetail() {
       {mode === 'sell' ? (
         <View style={s.panel}>
           <Text style={s.panelTitle}>List Pieces</Text>
-          <Text style={s.panelText}>You own {Number(owned?.pieces_owned || 0)} Pieces in this asset.</Text>
+          <Text style={s.panelText}>You currently own {Number(owned?.pieces_owned || 0)} Pieces in this asset.</Text>
           <Input label="Pieces to list" value={sellQuantity} onChangeText={setSellQuantity} />
           <Input label="Gem price per Piece" value={sellPrice} onChangeText={setSellPrice} placeholder="12.50" />
           <Pressable disabled={busy === 'sell' || !owned} onPress={sell} style={[s.primary, (!owned || busy === 'sell') && s.disabled]}>
-            {busy === 'sell' ? <ActivityIndicator color={Colors.black} /> : <Text style={s.primaryText}>Open listing</Text>}
+            {busy === 'sell' ? <ActivityIndicator color={Colors.black} /> : <Text style={s.primaryText}>Open Listing Order</Text>}
           </Pressable>
         </View>
       ) : null}
 
       {mode === 'manage' ? (
         <View style={s.panel}>
-          <Text style={s.panelTitle}>Your active listings</Text>
+          <Text style={s.panelTitle}>Your Active Orders</Text>
           {mine.length ? mine.map((x) => (
             <View key={x.id} style={s.listing}>
               <View><Text style={s.listingPrice}>{Number(x.price_per_piece).toFixed(2)} Gems</Text><Text style={s.muted}>{x.quantity} listed</Text></View>
               <Pressable disabled={!!busy} onPress={() => cancel(x.id)} style={s.cancel}>{busy === `cancel:${x.id}` ? <ActivityIndicator size="small" color="white" /> : <Text style={s.cancelText}>Cancel</Text>}</Pressable>
             </View>
-          )) : <Text style={s.panelText}>No active listings from your portfolio yet.</Text>}
+          )) : <Text style={s.panelText}>No active orders from your portfolio.</Text>}
         </View>
       ) : null}
     </ScrollView>
@@ -193,8 +213,13 @@ function Input({ label, ...props }: { label: string; value: string; onChangeText
   return <View style={s.inputWrap}><Text style={s.inputLabel}>{label}</Text><TextInput keyboardType="decimal-pad" placeholderTextColor="rgba(255,255,255,.32)" style={s.input} {...props} /></View>;
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return <View style={s.metric}><Text style={s.metricValue}>{value}</Text><Text style={s.metricLabel}>{label}</Text></View>;
+function Metric({ label, value, highlight, positive }: { label: string; value: string; highlight?: boolean; positive?: boolean }) {
+  return (
+    <View style={s.metric}>
+      <Text style={[s.metricValue, highlight && { color: '#FFD700' }, positive !== undefined && { color: positive ? '#34D399' : '#F87171' }]}>{value}</Text>
+      <Text style={s.metricLabel}>{label}</Text>
+    </View>
+  );
 }
 
 const s = StyleSheet.create({
@@ -208,32 +233,42 @@ const s = StyleSheet.create({
   radius: { borderRadius: 28 },
   shade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,.48)', borderRadius: 28 },
   heroCopy: { backgroundColor: 'transparent' },
-  eyebrow: { fontFamily: 'SpaceMono', color: '#C4B5FD', fontSize: 10, letterSpacing: 1 },
+  eyebrow: { fontFamily: 'SpaceMono', color: '#C4B5FD', fontSize: 12, letterSpacing: 1 },
   heroTitle: { color: 'white', fontSize: 38, lineHeight: 40, fontWeight: '900', letterSpacing: -1.2, marginTop: 9 },
   desc: { color: 'rgba(255,255,255,.65)', fontSize: 13, lineHeight: 20, marginTop: 9 },
   metrics: { flexDirection: 'row', gap: 1, backgroundColor: 'rgba(255,255,255,.12)', borderRadius: 20, overflow: 'hidden', marginTop: 13 },
-  metric: { flex: 1, backgroundColor: '#15121d', padding: 15 },
+  metric: { flex: 1, backgroundColor: '#131313', padding: 15 },
   metricValue: { color: 'white', fontSize: 16, fontWeight: '900' },
-  metricLabel: { color: 'rgba(255,255,255,.4)', fontSize: 9, textTransform: 'uppercase', marginTop: 3 },
+  metricLabel: { color: 'rgba(255,255,255,.4)', fontSize: 11, textTransform: 'uppercase', marginTop: 3, fontWeight: '700' },
+  sentimentCard: { marginTop: 13, borderRadius: 20, backgroundColor: '#131313', borderWidth: 1, borderColor: 'rgba(255,215,0,0.2)', padding: 16 },
+  sentimentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  sentimentTitle: { color: 'rgba(255,255,255,0.5)', fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 0.8 },
+  sentimentValue: { color: '#34D399', fontSize: 12, fontWeight: '900' },
+  sentimentTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden', marginVertical: 4 },
+  sentimentFill: { height: '100%', borderRadius: 3, backgroundColor: '#34D399' },
+  sentimentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  sentimentMuted: { color: 'rgba(255,255,255,0.4)', fontSize: 11 },
+  sentimentGold: { color: '#FFD700', fontSize: 11, fontWeight: '800' },
   tabs: { flexDirection: 'row', gap: 8, backgroundColor: '#101010', borderRadius: 18, padding: 5, marginTop: 13 },
   tab: { flex: 1, borderRadius: 14, paddingVertical: 10, alignItems: 'center' },
-  tabActive: { backgroundColor: Colors.primary },
-  tabText: { color: 'rgba(255,255,255,.52)', fontSize: 11, fontWeight: '900' },
+  tabActive: { backgroundColor: '#FFD700' },
+  tabText: { color: 'rgba(255,255,255,.52)', fontSize: 12, fontWeight: '900' },
   tabTextActive: { color: Colors.black },
   panel: { marginTop: 13, borderRadius: 22, backgroundColor: '#131313', borderWidth: 1, borderColor: 'rgba(255,255,255,.09)', padding: 18 },
-  panelTitle: { color: 'white', fontSize: 20, fontWeight: '900' },
+  panelTitle: { color: 'white', fontSize: 18, fontWeight: '900' },
   panelText: { color: 'rgba(255,255,255,.55)', fontSize: 13, lineHeight: 20, marginTop: 8 },
   listing: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,.08)' },
   listingPrice: { color: 'white', fontWeight: '900' },
-  muted: { color: 'rgba(255,255,255,.4)', fontSize: 10, marginTop: 2 },
-  buy: { backgroundColor: Colors.primary, borderRadius: 15, paddingHorizontal: 18, paddingVertical: 10, minWidth: 70, alignItems: 'center' },
+  muted: { color: 'rgba(255,255,255,.4)', fontSize: 12, marginTop: 2 },
+  buy: { backgroundColor: '#FFD700', borderRadius: 15, paddingHorizontal: 18, paddingVertical: 10, minWidth: 70, alignItems: 'center' },
   buyText: { color: Colors.black, fontWeight: '900' },
   cancel: { backgroundColor: '#2b1010', borderRadius: 15, paddingHorizontal: 18, paddingVertical: 10, minWidth: 78, alignItems: 'center' },
   cancelText: { color: 'white', fontWeight: '900' },
   inputWrap: { marginTop: 12 },
-  inputLabel: { color: 'rgba(255,255,255,.5)', fontSize: 10, textTransform: 'uppercase', marginBottom: 7, fontWeight: '900' },
+  inputLabel: { color: 'rgba(255,255,255,.5)', fontSize: 11, textTransform: 'uppercase', marginBottom: 7, fontWeight: '900' },
   input: { color: 'white', borderRadius: 16, backgroundColor: '#0b0b0b', borderWidth: 1, borderColor: 'rgba(255,255,255,.1)', paddingHorizontal: 14, paddingVertical: 12 },
-  primary: { marginTop: 14, backgroundColor: Colors.primary, borderRadius: 16, alignItems: 'center', paddingVertical: 13 },
+  primary: { marginTop: 14, backgroundColor: '#FFD700', borderRadius: 16, alignItems: 'center', paddingVertical: 13 },
   primaryText: { color: Colors.black, fontWeight: '900' },
   disabled: { opacity: 0.45 },
 });
+

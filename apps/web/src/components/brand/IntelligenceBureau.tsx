@@ -149,7 +149,7 @@ export const IntelligenceBureau = () => {
                             <div className="relative group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                 <input 
-                                    className="bg-card border border-border/60 rounded-xl h-10 pl-10 pr-4 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary w-48 transition-all"
+                                    className="bg-card border border-border/60 rounded-xl h-10 pl-10 pr-4 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary w-48 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
                                     placeholder="Search moments..."
                                 />
                             </div>
@@ -168,11 +168,11 @@ export const IntelligenceBureau = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {globalMoments?.slice(0, 6).map((moment) => (
-                                <div key={moment.id} className="group relative bg-card h-80 rounded-[2rem] border border-border/50 overflow-hidden hover:shadow-soft-xl transition-all duration-500">
+                                <div key={moment.id} className="group relative bg-card h-80 rounded-[2rem] border border-border/50 overflow-hidden hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500">
                                     <div className="absolute inset-0">
                                         <img 
                                             src={moment.image_url || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80"} 
-                                            className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" 
+                                            className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 group-hover:scale-110 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-700"
                                             alt={moment.title}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Text, View } from '@/components/Themed';
 import { BorderRadius, Colors, Spacing, Typography } from '@/constants/DesignTokens';
 import { commerceApi } from '@/lib/api';
+import { resolveCommerceReceiptPresentation } from '@promorang/shared';
 
 type Receipt = {
   id: string;
@@ -80,6 +81,7 @@ export default function ReceiptDetailScreen() {
   const timeline = (query.data?.timeline || []) as TimelineItem[];
   const status = statusColor(receipt?.status);
   const code = receipt?.redemption_code || receipt?.attribution?.coupon_code || receipt?.id;
+  const presentation = receipt ? resolveCommerceReceiptPresentation({ receiptType: receipt.receipt_type, status: receipt.status, productName: receipt.merchant_products?.name, attribution: receipt.attribution }) : null;
 
   return (
     <View style={styles.screen}>
@@ -118,9 +120,15 @@ export default function ReceiptDetailScreen() {
                 <Text style={[styles.statusText, { color: status }]}>{receipt.status}</Text>
               </View>
             </View>
-            <Text style={styles.typeLabel}>{receipt.receipt_type}</Text>
-            <Text style={styles.title}>{receiptTitle(receipt)}</Text>
-            <Text style={styles.description}>A durable record for the transaction, claim, reservation, redemption, or refund.</Text>
+            <View style={styles.paperReceipt}>
+              <Text style={styles.paperBrand}>{presentation?.eyebrow.toUpperCase()}</Text>
+              <Text style={styles.paperHeadline}>{presentation?.headline.toUpperCase()}</Text>
+              <Text style={styles.paperTitle}>{presentation?.title || receiptTitle(receipt)}</Text>
+              <Text style={styles.paperDescription}>{presentation?.explanation}</Text>
+              <View style={styles.paperRule} />
+              {presentation?.outcomes.map(outcome => <View key={outcome.id} style={styles.outcomeRow}><Text style={styles.outcomeLabel}>{outcome.label}</Text><Text style={styles.outcomeValue}>{outcome.value}</Text></View>)}
+              <View style={styles.savedRow}><Ionicons name="checkmark-circle" size={16} color={Colors.primary} /><Text style={styles.savedText}>SAVED TO VAULT</Text></View>
+            </View>
           </View>
 
           <View style={styles.metricGrid}>
@@ -162,6 +170,7 @@ export default function ReceiptDetailScreen() {
             {receipt.attribution?.stripe_payment_intent_id ? <Detail label="Stripe intent" value={receipt.attribution.stripe_payment_intent_id} mono /> : null}
             {receipt.attribution?.stripe_refund_id ? <Detail label="Stripe refund" value={receipt.attribution.stripe_refund_id} mono /> : null}
           </View>
+          {!['cancelled', 'refunded'].includes(receipt.status) ? <Pressable accessibilityRole="button" style={styles.reportButton} onPress={() => router.push({ pathname: '/commerce-issue', params: { receiptId: receipt.id, product: receiptTitle(receipt) } } as never)}><Ionicons name="alert-circle-outline" size={18} color={Colors.error} /><Text style={styles.reportText}>Report a problem with this transaction</Text></Pressable> : null}
 
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -184,7 +193,7 @@ const styles = StyleSheet.create({
   header: { paddingTop: 18, paddingHorizontal: Spacing.container, paddingBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.black },
   backButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   headerCopy: { backgroundColor: 'transparent' },
-  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: 1 },
+  eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1 },
   headerTitle: { color: Colors.white, fontSize: Typography.sizes['2xl'], fontWeight: '900' as any, letterSpacing: -0.8 },
   content: { paddingHorizontal: Spacing.container },
   state: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl, backgroundColor: Colors.black },
@@ -196,13 +205,26 @@ const styles = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
   iconBadge: { width: 44, height: 44, borderRadius: 16, backgroundColor: Colors.ambientWash, alignItems: 'center', justifyContent: 'center' },
   statusPill: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, borderWidth: 1 },
-  statusText: { fontSize: 10, fontWeight: '900' as any, textTransform: 'uppercase', letterSpacing: 0.7 },
-  typeLabel: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 10, letterSpacing: 1, textTransform: 'uppercase', marginTop: 56 },
+  statusText: { fontSize: 12, fontWeight: '900' as any, textTransform: 'uppercase', letterSpacing: 0.7 },
+  paperReceipt:{marginTop:26,padding:18,backgroundColor:'#f4ead8',borderTopWidth:1,borderBottomWidth:1,borderStyle:'dashed',borderColor:'rgba(0,0,0,.24)'},
+  paperBrand:{color:Colors.primary,fontFamily:'SpaceMono',fontSize:9,letterSpacing:1},
+  paperHeadline:{color:'#17130f',fontSize:37,lineHeight:39,fontWeight:'900' as any,letterSpacing:-1.4,marginTop:6},
+  paperTitle:{color:'#17130f',fontSize:14,fontWeight:'900' as any,textTransform:'capitalize',marginTop:3},
+  paperDescription:{color:'rgba(0,0,0,.55)',fontSize:11,lineHeight:17,marginTop:8},
+  paperRule:{height:1,backgroundColor:'rgba(0,0,0,.14)',marginVertical:13},
+  outcomeRow:{flexDirection:'row',justifyContent:'space-between',gap:12,paddingVertical:7,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:'rgba(0,0,0,.12)',backgroundColor:'transparent'},
+  outcomeLabel:{color:'rgba(0,0,0,.5)',fontSize:11},
+  outcomeValue:{color:'#17130f',fontSize:11,fontWeight:'900' as any,textTransform:'capitalize'},
+  savedRow:{flexDirection:'row',alignItems:'center',gap:6,paddingTop:14,backgroundColor:'transparent'},
+  savedText:{color:'#17130f',fontFamily:'SpaceMono',fontSize:9,letterSpacing:.5},
+  reportButton:{marginTop:16,minHeight:48,borderRadius:16,borderWidth:1,borderColor:'rgba(239,68,68,.28)',backgroundColor:'rgba(239,68,68,.08)',flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8,paddingHorizontal:14},
+  reportText:{color:Colors.error,fontSize:12,fontWeight:'900' as any},
+  typeLabel: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', marginTop: 56 },
   title: { color: Colors.white, fontSize: 38, lineHeight: 39, fontWeight: '900' as any, letterSpacing: -1.6, textTransform: 'uppercase', marginTop: 10 },
   description: { color: Colors.gray[300], fontSize: Typography.sizes.sm, lineHeight: 21, marginTop: 12 },
   metricGrid: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md, backgroundColor: 'transparent' },
   metric: { flex: 1, padding: Spacing.md, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
-  metricLabel: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .7, textTransform: 'uppercase' },
+  metricLabel: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7, textTransform: 'uppercase' },
   metricValue: { color: Colors.white, fontSize: Typography.sizes.xl, fontWeight: '900' as any, marginTop: 7 },
   metricValueSmall: { color: Colors.white, fontSize: Typography.sizes.xs, fontWeight: '800' as any, marginTop: 7 },
   codeCard: { marginTop: Spacing.sm, padding: Spacing.md, borderRadius: BorderRadius.xl, backgroundColor: Colors.ambientWash, borderWidth: 1, borderColor: 'rgba(255,106,26,.25)' },
@@ -219,5 +241,5 @@ const styles = StyleSheet.create({
   detailRow: { paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border, backgroundColor: 'transparent' },
   detailLabel: { color: Colors.gray[500], fontSize: Typography.sizes.xs, textTransform: 'uppercase', letterSpacing: 0.5 },
   detailValue: { color: Colors.white, fontSize: Typography.sizes.sm, fontWeight: '700' as any, marginTop: 3 },
-  detailMono: { fontFamily: 'SpaceMono', fontSize: 11 },
+  detailMono: { fontFamily: 'SpaceMono', fontSize: 13 },
 });

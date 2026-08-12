@@ -1,130 +1,103 @@
-## Promorang - Full Stack Application
+# Promorang
 
-This is the complete Promorang application with both frontend and backend components.
+Promorang is a multi-surface platform for Moments, verified participation, merchant commerce, sponsorship, rewards, and reusable outcome records.
 
-## 🏗️ Architecture
+## Repository layout
 
-### Frontend (Vercel Static Site)
-- **Location**: `/frontend/`
-- **Framework**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel static site
+| Path | Purpose |
+| --- | --- |
+| `apps/web` | Primary React 18 + TypeScript + Vite web application |
+| `apps/mobile` | Expo / React Native application for iOS and Android |
+| `backend` | Express API and Vercel serverless functions |
+| `packages/shared` | Shared domain types and business rules |
+| `supabase/migrations` | Canonical Supabase database migrations |
+| `docs` | Product, operations, economy, and release documentation |
+| `src/react-app` | Legacy application surface retained during migration |
+| `apps/legacy-web` | Legacy static web snapshot |
 
-### Backend (Vercel Serverless Functions)
-- **Location**: `/backend/`
-- **Project**: `promorang-api` (separate Vercel project)
-- **Framework**: Express.js + Node.js
-- **Database**: Supabase (recommended)
-- **Deployment**: Vercel serverless functions
+The active web application is `apps/web`; there is no active `/frontend` directory.
 
-## 🚀 Deployment
+## Prerequisites
 
-### Frontend Deployment
+- Node.js 20 or newer
+- npm 10 or newer
+- A Supabase project for authenticated/data-backed flows
+- Expo and EAS access for native builds
+- Vercel access for production deployment
+
+Install all workspace dependencies from the repository root:
+
 ```bash
-# Deploy frontend to Vercel
-cd frontend
-npx vercel --prod
+npm install
 ```
 
-### Backend Deployment
+## Local development
+
+Copy the relevant example environment files and fill in local values:
+
+- `apps/web/.env.example`
+- `apps/mobile/.env.example`
+- `backend/.env.example`
+
+Never place service-role keys, signing credentials, or other secrets in an `EXPO_PUBLIC_*` variable.
+
 ```bash
-# Deploy backend to promorang-api Vercel project
-cd backend
-npx vercel --prod
+# Web
+npm run dev:web
+
+# Mobile
+npm run dev:mobile
+
+# Backend
+npm run dev --workspace backend
 ```
 
-## 📁 Project Structure
+The production API is expected at `https://api.promorang.co`; the public web application is expected at `https://promorang.co`.
 
-```
-promorang/
-├── frontend/              # React SPA (Vercel static)
-│   ├── src/react-app/     # Frontend code
-│   ├── dist/             # Built files
-│   └── vercel.json       # Frontend deployment config
-│
-└── backend/              # API (Vercel serverless)
-    ├── api/              # API routes
-    │   ├── index.js      # Main application
-    │   ├── auth.js       # Authentication routes
-    │   ├── users.js      # User management
-    │   └── content.js    # Content management
-    ├── package.json      # Backend dependencies
-    ├── vercel.json       # Backend deployment config
-    └── README.md         # Backend documentation
-```
+## Validation
 
-## 🔗 API Integration
-
-The frontend communicates with the backend through:
-- **Production**: `https://api.promorang.co/api/*`
-- **Development**: Deploy backend separately for testing
-
-## 🔄 Authentication Flow
-
-1. Frontend handles UI/UX for authentication
-2. Backend handles actual authentication logic
-3. Supabase Auth manages user sessions
-4. JWT tokens for API authorization
-
-## 🛠️ Development
-
-### Frontend Development
 ```bash
-cd frontend
-npm run dev        # Start frontend server
-npm run build      # Build for production
+npm run build
+npm run lint
+npm run test:shared
+npm test --workspace backend
+npm run release:check --workspace apps/mobile
 ```
 
-### Backend Development
+The mobile release check validates native configuration, TypeScript, and independent iOS and Android production exports. It intentionally fails while required account-owned values such as the EAS project ID are missing.
+
+## Deployment
+
+Web and backend are separate Vercel deployments:
+
 ```bash
-cd backend
-npm run dev        # Start backend server locally
-npm run deploy     # Deploy to production
+npm run deploy:web
+npm run deploy:backend
 ```
 
-### Full Stack Development
-1. Deploy backend to `promorang-api` project first
-2. Update frontend `.env` with backend URL
-3. Develop frontend with live backend
+Database changes in `supabase/migrations` must be applied to the intended Supabase environment before deploying code that depends on them. Do not assume a successful frontend build means the production database is current.
 
-## 📋 Setup Checklist
+Native builds are created from `apps/mobile` with EAS. Follow:
 
-- [ ] Deploy backend to `promorang-api` Vercel project
-- [ ] Configure backend environment variables in Vercel
-- [ ] Update frontend `.env` with correct API URL
-- [ ] Deploy frontend to main Vercel project
-- [ ] Test end-to-end authentication flow
-- [ ] Configure production database
-- [ ] Set up monitoring and error tracking
+- [Mobile store release checklist](docs/mobile-store-release-checklist.md)
+- [Mobile account configuration](docs/mobile-account-configuration.md)
+- [Mobile payments policy](docs/mobile-payments-policy.md)
+- [Store listing copy and evidence](docs/mobile-store-listing.md)
 
-## 🔧 Environment Variables
+## Production services
 
-### Frontend (.env)
-```
-VITE_API_URL=https://api.promorang.co/api
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+- Supabase: authentication, database, and storage
+- Vercel: web and API hosting
+- Expo/EAS: native builds, signing, submission, and push credentials
+- Stripe: eligible physical goods, real-world services, and event-access payments
+- Apple and Google: native authentication and store distribution
 
-### Backend (.env)
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-JWT_SECRET=your_jwt_secret
-FRONTEND_URL=https://your-frontend-domain.vercel.app
-```
+Authentication, API integration, and database-backed flows are implemented. Production readiness depends on applying migrations, supplying environment-specific credentials, configuring provider consoles, and completing release QA—not replacing mock functions across the application.
 
-## 📚 Documentation
+## Security
 
-- [Frontend README](./frontend/README.md) - Frontend development guide
-- [Backend README](./backend/README.md) - Backend development guide
-
-## 🎯 Next Steps
-
-1. **Deploy Backend**: Set up the `promorang-api` Vercel project
-2. **Configure Database**: Set up Supabase or your preferred database
-3. **Implement Authentication**: Connect Supabase Auth to backend
-4. **Add Real API Logic**: Replace mock functions with real database operations
-5. **Deploy Frontend**: Deploy frontend with correct API endpoints
-
-**Your full-stack application structure is now ready for deployment!** 🎉
+- Keep `.env` files and signing credentials out of Git.
+- Use the Supabase anon key in clients and the service-role key only on the backend.
+- Keep production demo login disabled.
+- Treat payment webhooks as the authority for completed payments and fulfillment.
+- Review dependency audit results before each native submission.

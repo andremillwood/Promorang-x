@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { seededContentDrops } from "@/data/seeded-content-drops";
 import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
+import { LaunchContentDropModal } from "@/components/content/LaunchContentDropModal";
 
 const defaultDrop = {
   title: "",
@@ -210,7 +211,8 @@ export default function ContentDrops() {
               <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl">Move the culture.<br /><span className="text-primary">Prove your influence.</span></h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Watch the original. Share with attribution. Help a creator, scene, or moment reach the right people, then earn the status and upside your movement creates.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild><a href="#content-drop-feed">Browse drops <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
+                <LaunchContentDropModal />
+                <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><a href="#content-drop-feed">Browse drops <ArrowRight className="ml-2 h-4 w-4" /></a></Button>
                 <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/growth">Open Growth Hub</Link></Button>
               </div>
             </div>

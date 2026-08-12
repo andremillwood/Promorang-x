@@ -3,6 +3,7 @@ import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { ExploreMoment } from "@/hooks/useExploreMoments";
+import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 
 interface MomentDiscoveryCardProps {
   moment: ExploreMoment;
@@ -10,7 +11,8 @@ interface MomentDiscoveryCardProps {
 }
 
 export function MomentDiscoveryCard({ moment, onSponsor }: MomentDiscoveryCardProps) {
-  const isUpcoming = new Date(moment.starts_at) > new Date();
+  const occurrence = resolveMomentOccurrence(moment);
+  const isUpcoming = occurrence.hasFutureOccurrence;
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow">
@@ -50,7 +52,7 @@ export function MomentDiscoveryCard({ moment, onSponsor }: MomentDiscoveryCardPr
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
-            {format(new Date(moment.starts_at), "MMM d")}
+            {format(new Date(occurrence.startsAt), "MMM d")}
           </span>
           <span className="flex items-center gap-1">
             <MapPin className="w-4 h-4" />

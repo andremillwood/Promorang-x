@@ -29,8 +29,93 @@ import InfluenceRewardsModal from '@/react-app/components/InfluenceRewardsModal'
 import EditContentModal from '@/react-app/components/EditContentModal';
 import EditProfileModal from '@/react-app/components/EditProfileModal';
 import ConfirmationModal from '@/react-app/components/ConfirmationModal';
+import PiecesPortfolioTab from '@/react-app/components/profile/PiecesPortfolioTab';
+import MerchantStoreTab from '@/react-app/components/profile/MerchantStoreTab';
+import EngagedContentTab from '@/react-app/components/profile/EngagedContentTab';
+import MomentsTab from '@/react-app/components/profile/MomentsTab';
+import { Layers, Store, Tag } from 'lucide-react';
+import { UserPieceHoldingType, MerchantCouponType, EventMomentType } from '@/shared/types';
 
-type TabType = 'overview' | 'content' | 'drops' | 'applications' | 'achievements';
+type TabType = 'overview' | 'pieces' | 'store' | 'content' | 'drops' | 'applications' | 'moments' | 'achievements';
+
+const DEMO_HOLDINGS: UserPieceHoldingType[] = [
+  {
+    id: 1,
+    piece_id: 101,
+    title: 'Decentralized Creator Economy Breakdown',
+    creator_name: 'Alex Rivera',
+    platform: 'YouTube',
+    shares_owned: 25,
+    purchase_price: 10,
+    current_value: 14.50,
+    dividends_earned: 42.80,
+    dividend_yield_percent: 14.2,
+    acquired_at: '2026-05-10',
+  },
+  {
+    id: 2,
+    piece_id: 102,
+    title: 'Top AI Growth Hacks Reel',
+    creator_name: 'TechPulse',
+    platform: 'Instagram',
+    shares_owned: 50,
+    purchase_price: 5,
+    current_value: 7.20,
+    dividends_earned: 65.00,
+    dividend_yield_percent: 18.5,
+    acquired_at: '2026-06-01',
+  }
+];
+
+const DEMO_MERCHANT_COUPONS: MerchantCouponType[] = [
+  {
+    id: 1,
+    merchant_id: 10,
+    title: 'Summer Launch Discount',
+    code: 'PROMO-SUMMER25',
+    discount_description: '25% off all physical merchandise & digital passes',
+    discount_value: '25%',
+    redemptions_count: 142,
+    is_active: true,
+  },
+  {
+    id: 2,
+    merchant_id: 10,
+    title: 'VIP Creator Gem Bonus',
+    code: 'VIP-GEMS-100',
+    discount_description: 'Free 100 Gems bonus on first ecosystem store checkout',
+    discount_value: '$15',
+    redemptions_count: 89,
+    is_active: true,
+  }
+];
+
+const DEMO_MOMENTS: EventMomentType[] = [
+  {
+    id: 1,
+    host_id: 1,
+    host_name: 'Promorang Official',
+    title: 'Creator Economy Summit 2026',
+    description: 'Live interactive keynote, piece minting ceremony, and networking drop.',
+    location: 'Austin Convention Center & Virtual Stream',
+    event_date: 'August 15, 2026',
+    attendees_count: 340,
+    is_hosted: true,
+    is_attended: false,
+  },
+  {
+    id: 2,
+    host_id: 2,
+    host_name: 'Web3 Austin',
+    title: 'Proof-of-Presence Meetup & Drop Activation',
+    description: 'Community check-in drop and fractional piece dividend distribution event.',
+    location: 'Downtown Hub, Austin TX',
+    event_date: 'July 28, 2026',
+    attendees_count: 112,
+    is_hosted: false,
+    is_attended: true,
+  }
+];
 
 interface ProfileProps {
   isPublicProfile?: boolean;
@@ -50,6 +135,9 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
   const [userContent, setUserContent] = useState<ContentPieceType[]>([]);
   const [userDrops, setUserDrops] = useState<DropType[]>([]);
   const [userApplications, setUserApplications] = useState<DropApplicationType[]>([]);
+  const [userHoldings, setUserHoldings] = useState<UserPieceHoldingType[]>(DEMO_HOLDINGS);
+  const [merchantCoupons, setMerchantCoupons] = useState<MerchantCouponType[]>(DEMO_MERCHANT_COUPONS);
+  const [userMoments, setUserMoments] = useState<EventMomentType[]>(DEMO_MOMENTS);
   const [leaderboardPosition, setLeaderboardPosition] = useState<any>(null);
   const [contentLoading, setContentLoading] = useState(false);
   const [dropsLoading, setDropsLoading] = useState(false);
@@ -346,17 +434,23 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
     );
   }
 
-  // Define tabs based on whether it's a public profile or not
+  // Define dynamic role-aware tabs for public and personal profiles
   const tabs = isPublicProfile ? [
     { id: 'overview', label: 'Overview', icon: User },
-    { id: 'content', label: 'Content', icon: FileText, count: userContent.length },
+    { id: 'pieces', label: 'Pieces Portfolio', icon: Layers, count: userHoldings.length },
+    ...(user.user_type === 'advertiser' ? [{ id: 'store', label: 'Merchant Store', icon: Store, count: merchantCoupons.length }] : []),
+    { id: 'content', label: 'Content & Activity', icon: FileText, count: userContent.length },
     ...(user.user_type === 'advertiser' ? [{ id: 'drops', label: 'Drops Created', icon: Zap, count: userDrops.length }] : []),
+    { id: 'moments', label: 'Moments & Events', icon: Calendar, count: userMoments.length },
     { id: 'achievements', label: 'Achievements', icon: Award },
   ] : [
     { id: 'overview', label: 'Overview', icon: User },
-    { id: 'content', label: 'Content', icon: FileText, count: userContent.length },
+    { id: 'pieces', label: 'Pieces Portfolio', icon: Layers, count: userHoldings.length },
+    ...(user.user_type === 'advertiser' ? [{ id: 'store', label: 'Merchant Store', icon: Store, count: merchantCoupons.length }] : []),
+    { id: 'content', label: 'Content & Activity', icon: FileText, count: userContent.length },
     { id: 'drops', label: 'Drops Created', icon: Zap, count: userDrops.length },
     { id: 'applications', label: 'Applications', icon: MapPin, count: userApplications.length },
+    { id: 'moments', label: 'Moments & Events', icon: Calendar, count: userMoments.length },
     { id: 'achievements', label: 'Achievements', icon: Award },
   ];
 
@@ -440,6 +534,22 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
                     </span>
                   </>
                 )}
+              </div>
+
+              {/* Status & Reputation Badges Strip */}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-full">
+                  🌟 Verified Participant
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-full">
+                  🏆 City Champion (#4 Local)
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold rounded-full">
+                  🔍 Top Explorer
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold rounded-full">
+                  🤝 Elite Ambassador
+                </span>
               </div>
               
               {leaderboardPosition && (
@@ -690,89 +800,20 @@ export default function Profile({ isPublicProfile = false, useUserId = false }: 
             </div>
           )}
 
+          {activeTab === 'pieces' && (
+            <PiecesPortfolioTab holdings={userHoldings} createdPieces={userContent} isPublic={isPublicProfile} />
+          )}
+
+          {activeTab === 'store' && (
+            <MerchantStoreTab coupons={merchantCoupons} sponsoredDrops={userDrops} merchantName={user.display_name || user.username} isPublic={isPublicProfile} />
+          )}
+
           {activeTab === 'content' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">Your Content</h3>
-                <Link
-                  to="/create"
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-                >
-                  Create New Content
-                </Link>
-              </div>
-              
-              {contentLoading ? (
-                <div className="flex items-center justify-center h-32">
-                  <div className="animate-spin w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full"></div>
-                </div>
-              ) : userContent.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {userContent.map((content) => (
-                    <div key={content.id} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          {getContentTypeIcon(content.platform)}
-                          <span className="text-sm font-medium text-gray-600 capitalize">{content.platform}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {!isPublicProfile && (
-                            <>
-                              <Tooltip content="Edit content" compact={true}>
-                                <button
-                                  onClick={() => openEditContentModal(content)}
-                                  className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-                                >
-                                  <Edit3 className="w-4 h-4" />
-                                </button>
-                              </Tooltip>
-                              <Tooltip content="Delete content" compact={true}>
-                                <button
-                                  onClick={() => openDeleteContentConfirm(content)}
-                                  className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                </button>
-                              </Tooltip>
-                            </>
-                          )}
-                          <Link
-                            to={`/content/${content.id}`}
-                            className="text-orange-600 hover:text-orange-700 transition-colors"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      </div>
-                      <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2">{content.title}</h4>
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{content.description}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">
-                          {content.available_shares || 0}/{content.total_shares || 0} shares
-                        </span>
-                        <span className="font-semibold text-green-600">
-                          ${(content.share_price || 0).toFixed(2)}/share
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Content Yet</h3>
-                  <p className="text-gray-600 mb-6">Start creating content to build your portfolio</p>
-                  <Link
-                    to="/create"
-                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200"
-                  >
-                    Create Your First Content
-                  </Link>
-                </div>
-              )}
-            </div>
+            <EngagedContentTab uploadedContent={userContent} engagedContent={[]} isPublic={isPublicProfile} />
+          )}
+
+          {activeTab === 'moments' && (
+            <MomentsTab moments={userMoments} isPublic={isPublicProfile} />
           )}
 
           {activeTab === 'drops' && (

@@ -41,7 +41,7 @@ function normalizeMove(move = {}, index = 0) {
     title: String(move.title).trim(),
     description: move.description ? String(move.description).trim() : null,
     proof_type: proofType,
-    reward_amount_jmd: toMoney(move.reward_amount_jmd),
+    reward_amount_jmd: toMoney(move.reward_amount_gems ?? move.reward_amount_jmd),
     max_completions: move.max_completions ? Number(move.max_completions) : null,
     requires_unique: move.requires_unique !== false,
     sort_order: Number.isFinite(Number(move.sort_order)) ? Number(move.sort_order) : index,
@@ -63,8 +63,8 @@ function normalizeRule(rule = {}, index = 0) {
 
   return {
     rule_type: ruleType,
-    amount_jmd: toMoney(rule.amount_jmd),
-    cap_jmd: rule.cap_jmd === null || rule.cap_jmd === undefined || rule.cap_jmd === '' ? null : toMoney(rule.cap_jmd),
+    amount_jmd: toMoney(rule.amount_gems ?? rule.amount_jmd),
+    cap_jmd: (rule.cap_gems ?? rule.cap_jmd) === null || (rule.cap_gems ?? rule.cap_jmd) === undefined || (rule.cap_gems ?? rule.cap_jmd) === '' ? null : toMoney(rule.cap_gems ?? rule.cap_jmd),
     rank_start: rule.rank_start ? Number(rule.rank_start) : null,
     rank_end: rule.rank_end ? Number(rule.rank_end) : null,
     criteria_json: rule.criteria_json || {},
@@ -186,13 +186,13 @@ function validateEconomyPayload(payload = {}) {
   if (moves.length === 0) throw new Error('At least one Move is required');
   if (payoutRules.length === 0) throw new Error('At least one payout rule is required');
 
-  const entryFee = toMoney(payload.entry_fee_jmd);
+  const entryFee = toMoney(payload.entry_fee_gems ?? payload.entry_fee_jmd);
   if (moneySource === 'entry' && entryFee <= 0) {
-    throw new Error('entry_fee_jmd is required for entry-based Moments');
+    throw new Error('entry_fee_gems is required for entry-based Moments');
   }
 
-  const rewardPool = toMoney(payload.reward_pool_jmd);
-  const totalFunded = toMoney(payload.total_funded_jmd || payload.initial_funding_jmd);
+  const rewardPool = toMoney(payload.reward_pool_gems ?? payload.reward_pool_jmd);
+  const totalFunded = toMoney(payload.total_funded_gems ?? payload.total_funded_jmd ?? payload.initial_funding_jmd);
   const moveLiability = calculateMoveLiability(moves);
   const maxMoveCompletions = moves.reduce((total, move) => {
     if (move.reward_amount_jmd > 0 && !move.max_completions) {
@@ -210,7 +210,7 @@ function validateEconomyPayload(payload = {}) {
   const maxLiability = Math.max(moveLiability, cappedRuleLiability);
 
   if (rewardPool > 0 && maxLiability > rewardPool) {
-    throw new Error(`Reward pool must cover max liability. Pool: ${rewardPool} JMD, liability: ${maxLiability} JMD`);
+    throw new Error(`Reward pool must cover max liability. Pool: ${rewardPool} Gems, liability: ${maxLiability} Gems`);
   }
 
   if (rewardPool > 0 && moneySource !== 'entry' && !ALLOCATION_MONEY_SOURCES.has(moneySource) && totalFunded < rewardPool) {
@@ -222,9 +222,9 @@ function validateEconomyPayload(payload = {}) {
     entryFee,
     rewardPool,
     totalFunded,
-    hostMargin: toMoney(payload.host_margin_jmd),
-    platformFee: toMoney(payload.platform_fee_jmd),
-    opsBuffer: toMoney(payload.ops_buffer_jmd),
+    hostMargin: toMoney(payload.host_margin_gems ?? payload.host_margin_jmd),
+    platformFee: toMoney(payload.platform_fee_gems ?? payload.platform_fee_jmd),
+    opsBuffer: toMoney(payload.ops_buffer_gems ?? payload.ops_buffer_jmd),
     moves,
     payoutRules,
   };
@@ -303,6 +303,30 @@ async function createMomentWithEconomy(userId, payload = {}) {
     : 'stakeholder_created';
   const parentMomentId = payload.parent_moment_id || null;
   const creativeOwnerId = payload.creative_owner_id || userId;
+  let parentMoment = null;
+  let submomentGovernance = {};
+
+  if (parentMomentId) {
+    const { data: parent, error: parentError } = await supabase
+      .from('moments')
+      .select('id,host_id,organizer_id,venue_id,venue_name,title')
+      .eq('id', parentMomentId)
+      .maybeSingle();
+    if (parentError) throw parentError;
+    if (!parent) throw new Error('Parent Moment not found');
+    parentMoment = parent;
+    const parentOwner = parent.host_id === userId || parent.organizer_id === userId;
+    const venueApprovalRequired = Boolean(payload.venue_approval_required);
+    submomentGovernance = {
+      submoment_status: parentOwner ? (venueApprovalRequired ? 'venue_review' : 'approved') : 'proposed',
+      submoment_submitted_by: userId,
+      submoment_submitted_at: new Date().toISOString(),
+      submoment_reviewed_by: parentOwner ? userId : null,
+      submoment_reviewed_at: parentOwner ? new Date().toISOString() : null,
+      venue_approval_required: venueApprovalRequired,
+      venue_approval_status: venueApprovalRequired ? 'pending' : 'not_required',
+    };
+  }
 
   if (organizationId) {
     const { data: roleRows, error: roleError } = await supabase
@@ -332,7 +356,7 @@ async function createMomentWithEconomy(userId, payload = {}) {
   const status = economy.rewardPool > 0 && (economy.moneySource === 'entry' || ALLOCATION_MONEY_SOURCES.has(economy.moneySource))
     ? 'funding'
     : 'joinable';
-  const isActive = true;
+  const isActive = !parentMomentId || submomentGovernance.submoment_status === 'approved';
   const momentProofType = normalizeMomentProofType(payload.proof_type, economy.moves[0]?.proof_type);
 
   const coreMomentInsert = {
@@ -365,6 +389,7 @@ async function createMomentWithEconomy(userId, payload = {}) {
       evidence_requirements: payload.evidence_requirements || [],
       expected_action_unit: economy.moves[0]?.title || 'Action',
       check_in_code: payload.check_in_code || Math.random().toString(36).substring(2, 8).toUpperCase(),
+      ...submomentGovernance,
   };
   const baseMomentInsert = {
       ...coreMomentInsert,
@@ -436,7 +461,7 @@ async function createMomentWithEconomy(userId, payload = {}) {
       amountJmd: economy.totalFunded,
       userId,
       reference: payload.funding_reference || 'initial_funding',
-      metadata: { money_source: economy.moneySource },
+      metadata: { money_source: economy.moneySource, value_unit: payload.value_unit || 'GEM' },
     });
   }
 

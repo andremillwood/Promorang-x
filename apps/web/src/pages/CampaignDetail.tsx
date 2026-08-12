@@ -1,179 +1,198 @@
-import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Coins, Eye, Gift, Target } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useBrandCampaigns } from "@/hooks/useCampaigns";
-import { useCampaignProofOutcome } from "@/hooks/useProofOutcome";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  CircleDollarSign,
+  Eye,
+  Gift,
+  MapPin,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBrandCampaigns, type Campaign } from "@/hooks/useCampaigns";
+import { useCampaignProofOutcome } from "@/hooks/useProofOutcome";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
+import { PromoPilotExecutionPanel } from "@/components/campaigns/PromoPilotExecutionPanel";
+import { DemandFlightPath } from "@/components/campaigns/DemandFlightPath";
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
+type CampaignPlanMetadata = {
+  original_prompt?: string;
+  normalizedIntent?: { cleanedInput?: string };
+  moves?: string[];
+  proof_requirement?: string;
+  planned_reward_per_action_gems?: number;
+  funding_status?: string;
+  activation_status?: string;
+};
+
+const proofCopy: Record<string, string> = {
+  LINK: "A submitted link confirms the action",
+  OCR: "A receipt confirms the purchase",
+  UPLOAD: "A photo confirms the visit",
+};
+
+function readableDate(value?: string | null) {
+  if (!value) return "To be decided";
   try {
     return format(new Date(value), "MMM d, yyyy");
   } catch {
-    return "—";
+    return "To be decided";
   }
 }
 
-function formatRange(start?: string | null, end?: string | null) {
-  if (!start && !end) return "—";
-  return `${formatDate(start)} to ${formatDate(end)}`;
+function descriptionValue(campaign: Campaign | undefined, prefix: string) {
+  return campaign?.description?.split("\n").find((line) => line.startsWith(prefix))?.slice(prefix.length).trim();
 }
 
 const CampaignDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id = "" } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, activeRole } = useAuth();
   const campaignsQuery = useBrandCampaigns();
-  const proofOutcomeQuery = useCampaignProofOutcome(id);
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (activeRole !== "brand" && activeRole !== "agency" && activeRole !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   const campaign = campaignsQuery.data?.find((entry) => entry.id === id);
-  const isPromoPush = campaign?.system_module === "promopush";
+  const outcomeQuery = useCampaignProofOutcome(campaign?.is_active ? id : undefined);
+  const metadata = (campaign?.compiler_metadata || {}) as CampaignPlanMetadata;
+  const isDraft = Boolean(campaign && !campaign.is_active);
+
+  const enterStudio = useMutation({
+    mutationFn: async () => {
+      if (!campaign || !user) throw new Error("This activation plan is not available.");
+      if (campaign.activation_proposal_id) return campaign.activation_proposal_id;
+      const { data: proposalId, error } = await supabase.rpc("open_campaign_activation", { p_campaign_id: campaign.id });
+      if (error) throw error;
+      if (!proposalId) throw new Error("The Activation Studio could not be opened.");
+      return proposalId;
+    },
+    onSuccess: async (proposalId) => {
+      await queryClient.invalidateQueries({ queryKey: ["brand-campaigns"] });
+      navigate(`/dashboard/proposals/${proposalId}`);
+    },
+    onError: (error: Error) => toast.error(error.message || "The activation studio could not be opened."),
+  });
+
+  if (!user) return <Navigate to="/auth" replace />;
+  if (activeRole !== "brand" && activeRole !== "agency" && activeRole !== "admin") return <Navigate to="/dashboard" replace />;
+
+  if (campaignsQuery.isLoading) {
+    return <main className="min-h-screen bg-[#f2eee5] px-5 py-10"><div className="mx-auto max-w-7xl"><Skeleton className="h-12 w-72" /><Skeleton className="mt-8 h-[520px] w-full" /></div></main>;
+  }
+
+  if (!campaign) {
+    return <main className="min-h-screen bg-[#f2eee5] px-5 py-16 text-[#191816]"><div className="mx-auto max-w-3xl border-t border-black/20 pt-8"><Sparkles className="h-8 w-8 text-[#d85b24]" /><h1 className="mt-5 text-4xl font-black">This activation is not in your workspace.</h1><Button asChild className="mt-7 rounded-full"><Link to="/dashboard?tab=campaigns">Return to your activations</Link></Button></div></main>;
+  }
+
+  const desiredOutcome = metadata.original_prompt || metadata.normalizedIntent?.cleanedInput || descriptionValue(campaign, "Desired outcome:") || campaign.description;
+  const peopleWill = descriptionValue(campaign, "People will:") || "The participant action still needs to be shaped.";
+  const whatCounts = proofCopy[metadata.proof_requirement || ""] || descriptionValue(campaign, "What counts:") || "The proof requirement still needs to be agreed.";
+  const expectedMovement = descriptionValue(campaign, "Expected movement:") || "The expected movement will be agreed before funding.";
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <Button variant="ghost" size="sm" asChild className="-ml-3 mb-2">
-            <Link to="/dashboard?tab=campaigns">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to campaigns
-            </Link>
-          </Button>
-          {campaignsQuery.isLoading ? (
-            <>
-              <Skeleton className="h-8 w-72" />
-              <Skeleton className="mt-2 h-5 w-96" />
-            </>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-serif text-3xl font-bold text-foreground">{campaign?.title || "Campaign detail"}</h1>
-                {campaign && (
-                  <Badge variant={campaign.is_active ? "default" : "outline"}>
-                    {campaign.is_active ? (isPromoPush ? "Distribution Live" : "Active") : "Paused"}
-                  </Badge>
-                )}
+    <main className="min-h-screen bg-[#f2eee5] pb-24 text-[#191816]">
+      <section className="bg-[#151412] px-5 pb-12 pt-8 text-white sm:px-10 lg:px-16 xl:px-24">
+        <div className="mx-auto max-w-7xl">
+          <Link to="/dashboard?tab=campaigns" className="flex w-fit items-center gap-2 text-sm font-semibold text-white/50 transition hover:text-white"><ArrowLeft className="h-4 w-4" /> Your activations</Link>
+          <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-end">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${isDraft ? "bg-amber-300 text-black" : "bg-emerald-400 text-black"}`}>{isDraft ? "Plan · not live" : "Live activation"}</span>
+                {campaign.geo_label && <span className="flex items-center gap-1.5 text-xs text-white/45"><MapPin className="h-3.5 w-3.5" />{campaign.geo_label}</span>}
               </div>
-              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                {campaign?.description || "Review the closed loop from entry to proof-bearing outcome."}
-              </p>
-            </>
-          )}
+              <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.055em] sm:text-7xl">{campaign.title}</h1>
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-white/55">{desiredOutcome}</p>
+            </div>
+            <div className="border-l border-white/15 pl-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">The honest next move</p>
+              <p className="mt-3 text-2xl font-black leading-tight">{isDraft ? "Shape the Scene, people, and reserve." : "See what people actually changed."}</p>
+              <p className="mt-3 text-sm leading-6 text-white/45">{isDraft ? "No Gems are secured and no invitation is open yet." : "Review accepted proof, participant value, and the return to the Scene."}</p>
+            </div>
+          </div>
         </div>
-        <Button asChild>
-          <Link to="/dashboard/campaigns/create">Launch another PromoPush</Link>
-        </Button>
-      </div>
+      </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {campaignsQuery.isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-24 rounded-xl" />)
-        ) : (
-          [
-            { label: "Impressions", value: campaign?.impressions?.toLocaleString() || "0", icon: Eye },
-            { label: isPromoPush ? "Rewards" : "Redemptions", value: campaign?.redemptions?.toLocaleString() || "0", icon: Gift },
-            { label: "Budget", value: campaign?.budget ? `$${campaign.budget.toLocaleString()}` : "—", icon: Coins },
-            { label: isPromoPush ? "Zone Window" : "Live Since", value: isPromoPush ? formatRange(campaign?.distribution_starts_at, campaign?.distribution_ends_at) : formatDate(campaign?.created_at), icon: Calendar },
-          ].map((metric) => (
-            <Card key={metric.label}>
-              <CardContent className="p-4">
-                <metric.icon className="mb-2 h-5 w-5 text-primary" />
-                <p className="text-xl font-bold">{metric.value}</p>
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+      <div className="mx-auto max-w-7xl px-5 sm:px-10 lg:px-16 xl:px-24">
+        {isDraft ? (
+          <>
+            <section className="grid gap-x-10 gap-y-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { number: "01", label: "People", value: "Choose the Scene and contributors", icon: Users },
+                { number: "02", label: "What they do", value: peopleWill, icon: Rocket },
+                { number: "03", label: "What counts", value: whatCounts, icon: ShieldCheck },
+                { number: "04", label: "What follows", value: campaign.reward_value || "Participant value to be agreed", icon: Gift },
+              ].map((item) => (
+                <article key={item.number} className="border-t border-black/20 pt-5">
+                  <div className="flex items-center justify-between"><span className="text-xs font-black text-[#d85b24]">{item.number}</span><item.icon className="h-5 w-5 text-black/30" /></div>
+                  <p className="mt-7 text-[10px] font-black uppercase tracking-[0.2em] text-black/40">{item.label}</p>
+                  <h2 className="mt-2 text-xl font-black leading-tight">{item.value}</h2>
+                </article>
+              ))}
+            </section>
 
-      <ProofOutcomeRail
-        eyebrow={isPromoPush ? "PromoPush Outcome Loop" : "Proof Of Outcome"}
-        title={isPromoPush ? "Every role should see the same distribution-to-proof chain" : "Every role should see the same verified campaign chain"}
-        data={proofOutcomeQuery.data}
-        isLoading={proofOutcomeQuery.isLoading}
-      />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{isPromoPush ? "Distribution Readout" : "Commercial Readout"}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>
-              {isPromoPush
-                ? "PromoPush is the traffic layer. It should route attention into one Moment, then rely on check-ins and proof to validate the behavior it created."
-                : "This page is the brand-side answer to the same moment and host proof flow. The action is campaign-attributed joins, the verification is check-ins plus approved proofs, and the outcome is reward-bearing verified behavior."}
-            </p>
-            <p>
-              {isPromoPush
-                ? "What matters here is not raw attention. It is whether the distribution zone created entries, proof completions, and reward-worthy actions that can be repeated in the next geo campaign."
-                : "What matters here is not just attention. It is whether the campaign generated check-ins, proof completions, and reward-worthy actions that can be repeated across other moments."}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Activation Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">Reward</p>
-              <p className="mt-2 text-sm text-foreground">{campaign?.reward_value || "No reward value configured"}</p>
-            </div>
-            {isPromoPush && (
-              <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">Distribution Zone</p>
-                <p className="mt-2 text-sm text-foreground">
-                  {campaign?.geo_label || "No geo zone configured"}
-                  {campaign?.geo_radius_meters ? ` • ${campaign.geo_radius_meters}m radius` : ""}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {campaign?.entry_endpoint || "No entry endpoint configured"}
-                </p>
+            <section className="grid overflow-hidden border border-black/15 bg-[#faf7f0] lg:grid-cols-[minmax(0,1fr)_400px]">
+              <div className="p-7 sm:p-10 lg:p-12">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#d85b24]">Activation readiness</p>
+                <h2 className="mt-3 max-w-2xl text-4xl font-black leading-[0.95] tracking-[-0.045em]">A promising plan still needs relationships, terms, and secured value.</h2>
+                <div className="mt-9 grid gap-5 sm:grid-cols-2">
+                  {[
+                    ["Outcome shaped", true, expectedMovement],
+                    ["Proof explained", true, whatCounts],
+                    ["Scene and people aligned", false, "Choose who this strengthens and who helps make it happen."],
+                    ["Gems secured", false, "Set a participant limit, agree the promises, and secure the full reserve."],
+                  ].map(([label, complete, detail]) => (
+                    <div key={String(label)} className="flex gap-3">
+                      <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${complete ? "bg-emerald-700 text-white" : "border border-black/20 text-black/25"}`}>{complete && <Check className="h-3.5 w-3.5" />}</span>
+                      <div><p className="text-sm font-black">{label}</p><p className="mt-1 text-xs leading-5 text-black/48">{detail}</p></div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">Conversion Rate</p>
-              <p className="mt-2 text-sm text-foreground">
-                {campaign && campaign.impressions > 0
-                  ? `${((campaign.redemptions / campaign.impressions) * 100).toFixed(1)}% ${isPromoPush ? "reward completion against exposure" : "redemption against exposure"}`
-                  : "No exposure or outcome data yet"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">Next Move</p>
-              <p className="mt-2 text-sm text-foreground">
-                {proofOutcomeQuery.data?.metrics.pending_proofs
-                  ? `Follow through on ${proofOutcomeQuery.data.metrics.pending_proofs} pending proof submissions to tighten attribution.`
-                  : "Scale the same proof and reward structure into the next moment cluster."}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              <aside className="bg-[#d85b24] p-7 text-white sm:p-10 lg:p-12">
+                <CircleDollarSign className="h-8 w-8" />
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Continue in Activation Studio</p>
+                <h2 className="mt-3 text-3xl font-black leading-tight">Turn the draft into something people can trust.</h2>
+                <p className="mt-4 text-sm leading-6 text-white/75">Connect a Scene and Moment, invite contributors, define the participant limit, then secure Gems through the canonical activation reserve.</p>
+                <Button onClick={() => enterStudio.mutate()} disabled={enterStudio.isPending} className="mt-8 h-14 w-full rounded-full bg-[#191816] text-base font-black text-white hover:bg-black">
+                  {enterStudio.isPending ? "Opening the studio…" : campaign.activation_proposal_id ? "Return to Activation Studio" : "Continue shaping"}<ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <p className="mt-4 text-center text-xs text-white/65">This still does not publish or move Gems.</p>
+              </aside>
+            </section>
 
-      {!campaignsQuery.isLoading && !campaign && (
-        <Card className="border-dashed">
-          <CardContent className="p-8 text-center">
-            <Target className="mx-auto mb-4 h-12 w-12 text-muted-foreground/40" />
-            <p className="text-muted-foreground">Campaign not found in this workspace.</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            <PromoPilotExecutionPanel campaignId={campaign.id} />
+          </>
+        ) : (
+          <>
+            <section className="grid gap-8 border-b border-black/15 py-10 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { label: "People reached", value: campaign.impressions.toLocaleString(), icon: Eye },
+                { label: "Accepted actions", value: campaign.redemptions.toLocaleString(), icon: ShieldCheck },
+                { label: "Participant return", value: campaign.reward_value || "Not recorded", icon: Gift },
+                { label: "Open window", value: `${readableDate(campaign.start_date)} — ${readableDate(campaign.end_date)}`, icon: CalendarDays },
+              ].map((item) => <div key={item.label}><item.icon className="h-5 w-5 text-[#d85b24]" /><p className="mt-4 text-2xl font-black">{item.value}</p><p className="mt-1 text-xs text-black/45">{item.label}</p></div>)}
+            </section>
+            <div className="py-10"><ProofOutcomeRail guidanceId={`campaign-detail:${campaign.id}:proof-outcome`} eyebrow="Shared return" title="Follow the path from attention to accepted action" data={outcomeQuery.data} isLoading={outcomeQuery.isLoading} /></div>
+          </>
+        )}
+
+        <DemandFlightPath campaignId={campaign.id} />
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-7">
+          <p className="text-sm text-black/45">Want to shape a different outcome?</p>
+          <Button asChild variant="outline" className="rounded-full border-black/20 bg-transparent"><Link to="/create/campaign">Create another activation</Link></Button>
+        </div>
+      </div>
+    </main>
   );
 };
 

@@ -160,7 +160,7 @@ const ForCreators = () => {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-5">
             {creatorBenefits.map((item) => (
-              <div key={item.title} className="rounded-[2rem] border border-border bg-card p-6 transition-all hover:border-primary/30">
+              <div key={item.title} className="rounded-[2rem] border border-border bg-card p-6 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:border-primary/30">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 text-primary">
                   <item.icon className="w-6 h-6" />
                 </div>

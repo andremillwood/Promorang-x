@@ -11,12 +11,15 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { TourProvider } from '@/context/TourContext';
 import { useRouter, useSegments } from 'expo-router';
 import { commerceApi } from '@/lib/api';
+import { OnboardingProvider, useOnboarding } from '@/context/OnboardingContext';
+import { NotificationNavigationObserver } from '@/components/NotificationNavigationObserver';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -30,6 +33,13 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+    mutations: { retry: 0 },
+  },
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -65,21 +75,23 @@ export default function RootLayout() {
   }
 
   return (
-    <StripeProvider
-      publishableKey={stripePublishableKey}
-      urlScheme="promorang"
-    >
-      <AuthProvider>
-        <TourProvider>
-          <InitialLayout />
-        </TourProvider>
-      </AuthProvider>
-    </StripeProvider>
+    <QueryClientProvider client={queryClient}>
+      <StripeProvider publishableKey={stripePublishableKey} urlScheme="promorang">
+        <AuthProvider>
+          <OnboardingProvider>
+            <TourProvider>
+              <InitialLayout />
+            </TourProvider>
+          </OnboardingProvider>
+        </AuthProvider>
+      </StripeProvider>
+    </QueryClientProvider>
   );
 }
 
 function InitialLayout() {
   const { session, isLoading } = useAuth();
+  const { completed: onboardingCompleted, loading: onboardingLoading } = useOnboarding();
   const segments = useSegments();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -89,18 +101,21 @@ function InitialLayout() {
   }, []);
 
   useEffect(() => {
-    if (isLoading || !isMounted) return;
+    if (isLoading || onboardingLoading || !isMounted) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const inOnboarding = segments[0] === 'onboarding';
 
-    if (session && inAuthGroup) {
+    if (session && !onboardingCompleted && !inOnboarding) {
+      router.replace('/onboarding');
+    } else if (session && onboardingCompleted && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)');
     } else if (!session && !inAuthGroup) {
       router.replace('/auth/login');
     }
-  }, [session, isLoading, segments, isMounted]);
+  }, [session, isLoading, onboardingCompleted, onboardingLoading, segments, isMounted]);
 
-  return <RootLayoutNav />;
+  return <><NotificationNavigationObserver /><RootLayoutNav /></>;
 }
 
 function RootLayoutNav() {
@@ -137,6 +152,8 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="moment/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="scenes" options={{ headerShown: false }} />
+        <Stack.Screen name="scene/[slug]" options={{ headerShown: false }} />
         <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="merchant/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="pieces/[type]/[id]" options={{ headerShown: false }} />
@@ -144,8 +161,14 @@ function RootLayoutNav() {
         <Stack.Screen name="modal" options={{ presentation: 'modal', headerTitle: 'Switch Context' }} />
         <Stack.Screen name="create-proposal" options={{ presentation: 'modal', headerTitle: 'Activation Plan' }} />
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="report" options={{ headerShown: false }} />
+        <Stack.Screen name="commerce-issue" options={{ headerShown: false }} />
+        <Stack.Screen name="guest-rsvp" options={{ headerShown: false }} />
+        <Stack.Screen name="guest-check-in" options={{ headerShown: false }} />
+        <Stack.Screen name="guest-pass/[token]" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

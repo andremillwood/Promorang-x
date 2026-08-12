@@ -226,6 +226,7 @@ export interface DropType {
   title: string;
   description: string;
   drop_type: string;
+  opportunity_type?: 'moment' | 'campaign' | 'discovery';
   difficulty: string;
   key_cost: number;
   gem_reward_base: number;
@@ -246,6 +247,15 @@ export interface DropType {
   key_reward_amount: number;
   is_proof_drop: boolean;
   is_paid_drop: boolean;
+  geofence_radius_meters?: number;
+  latitude?: number;
+  longitude?: number;
+  location_name?: string;
+  promo_key_required?: number;
+  total_pieces?: number;
+  piece_price?: number;
+  backer_dividend_percent?: number;
+  prediction_volume_points?: number;
   created_at: string;
   updated_at: string;
 }
@@ -285,8 +295,56 @@ export interface ContentPieceType {
   share_price: number;
   current_revenue: number;
   performance_metrics?: string;
+  opportunity_id?: number;
+  dividend_yield_percent?: number;
+  total_checkins_milestone?: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserPieceHoldingType {
+  id: number;
+  piece_id: number;
+  title: string;
+  creator_name: string;
+  creator_avatar?: string;
+  platform: string;
+  shares_owned: number;
+  purchase_price: number;
+  current_value: number;
+  dividends_earned: number;
+  dividend_yield_percent: number;
+  acquired_at: string;
+}
+
+export interface MerchantCouponType {
+  id: number;
+  merchant_id: number;
+  title: string;
+  code: string;
+  discount_description: string;
+  discount_value: string;
+  expires_at?: string;
+  terms?: string;
+  redemptions_count: number;
+  image_url?: string;
+  is_active: boolean;
+}
+
+export interface EventMomentType {
+  id: number;
+  host_id: number;
+  host_name: string;
+  host_avatar?: string;
+  title: string;
+  description: string;
+  location: string;
+  event_date: string;
+  attendees_count: number;
+  is_attended?: boolean;
+  is_hosted?: boolean;
+  image_url?: string;
+  badge_reward?: string;
 }
 
 export interface MasterKeyActivationType {

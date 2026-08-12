@@ -72,8 +72,12 @@ app.use(express.urlencoded({
 
 // Log request body for debugging
 app.use((req, res, next) => {
-  console.log('Request body:', req.body);
-  console.log('Request headers:', req.headers);
+  const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
+  for (const key of ['manage_token', 'password', 'token', 'secret']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
+  const safeHeaders = { ...req.headers };
+  for (const key of ['authorization', 'cookie', 'x-cron-secret', 'x-messaging-webhook-secret']) if (safeHeaders[key]) safeHeaders[key] = '[REDACTED]';
+  console.log('Request body:', safeBody);
+  console.log('Request headers:', safeHeaders);
   next();
 });
 
@@ -293,9 +297,11 @@ app.use('/api/shares', require('./shares'));
 app.use('/api/social-forecasts', require('./social-forecasts'));
 app.use('/api/growth', require('./growth'));
 app.use('/api/operator', require('./operator'));
+app.use('/api/agent', require('./agent'));
 app.use('/api/advertisers', require('./advertisers'));
 app.use('/api/advertisers', requireAuth, require('./advertiserTeam')); // Team management routes
 app.use('/api/campaigns', require('./campaigns'));
+app.use('/api/demand-plans', require('./demand-plans'));
 // app.use('/api/leaderboard', require('./leaderboard'));
 app.use('/api/rewards', require('./rewards'));
 app.use('/api/pioneer-points', require('./pioneer-points'));
@@ -309,6 +315,7 @@ app.use('/api/merchant-team', requireAuth, require('./merchantTeam'));
 app.use('/api/coupons', require('./coupons'));
 app.use('/api/offers', require('./offers'));
 app.use('/api/events', require('./events'));
+app.use('/api/guest-rsvp', require('./guest-rsvp'));
 app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
 const errorHandlers = require('./errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
@@ -319,8 +326,8 @@ app.use('/api/telemetry', require('./telemetry'));
 app.use('/api/revenue-funnels', require('./revenue-funnels'));
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
-app.use('/api/promoshare', require('./promoshare'));
 app.use('/api/promoshare/sponsors', require('./promoshare-sponsors'));
+app.use('/api/promoshare', require('./promoshare'));
 app.use('/api/promopush', require('./promopush'));
 app.use('/api/content-distribution', require('./content-distribution'));
 app.use('/api/relays', require('./relays'));

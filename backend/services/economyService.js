@@ -6,6 +6,7 @@
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const crypto = require('crypto');
 const supabase = global.supabase || serviceSupabase || null;
+const { CREATOR_TIERS } = require('../constants/pricing');
 
 // Economy Configuration (v3.2)
 const CONFIG = {
@@ -27,8 +28,11 @@ const CONFIG = {
         }
     },
     master_key: {
-        cost: 500, // Points required to unlock if free user
-        duration_hours: 24
+        activation_source: 'verified_free_proof',
+        duration_hours: 24,
+        daily_proofs_by_tier: Object.fromEntries(
+            Object.entries(CREATOR_TIERS).map(([id, tier]) => [id, tier.constraints.dailyMasterKeyProofs])
+        )
     }
 };
 
@@ -205,23 +209,12 @@ async function convertPointsToPromoKeys(userId, quantity = 1) {
  * Check if Master Key is active
  */
 async function getMasterKeyStatus(userId) {
-    if (!supabase) throw new Error('Database not available');
-
     try {
-        const { data: balance } = await getBalance(userId);
-
-        if (balance.master_key_unlocked && balance.master_key_expires_at) {
-            const expiresAt = new Date(balance.master_key_expires_at);
-            if (expiresAt > new Date()) {
-                return { active: true, expires_at: expiresAt };
-            }
-        }
-
-        // Check if auto-unlock conditions met (MVP: simplified)
-        // E.g. assume they need to pay points to unlock manually via separate endpoint
-        return { active: false };
+        const status = await require('./masterKeyService').getStatus(userId);
+        return { ...status, active: status.is_activated };
     } catch (error) {
-        return { active: false };
+        console.warn('[Economy Service] canonical Master Key status unavailable:', error.message);
+        return { active: false, is_activated: false };
     }
 }
 
@@ -229,26 +222,10 @@ async function getMasterKeyStatus(userId) {
  * Unlock Master Key (manual)
  */
 async function unlockMasterKey(userId) {
-    const cost = CONFIG.master_key.cost;
-
-    try {
-        await spendCurrency(userId, 'points', cost, 'master_key_unlock');
-
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + CONFIG.master_key.duration_hours);
-
-        await supabase
-            .from('economy_wallets')
-            .update({
-                master_key_unlocked: true,
-                master_key_expires_at: expiresAt.toISOString()
-            })
-            .eq('user_id', userId);
-
-        return { success: true, expires_at: expiresAt };
-    } catch (error) {
-        throw error;
-    }
+    void userId;
+    const error = new Error('Master Key activation requires today\'s tier-based verified Proof contribution; Points cannot purchase it.');
+    error.code = 'MASTER_KEY_PROOF_REQUIRED';
+    throw error;
 }
 
 /**
@@ -266,14 +243,14 @@ async function getBrandAccount(brandId) {
         let { data, error } = await supabase
             .from('brand_accounts')
             .select('*')
-            .eq('brand_id', brandId)
+            .eq('organization_id', brandId)
             .single();
 
         if (error && error.code === 'PGRST116') {
             // Account not found, create one
             const { data: newData, error: createError } = await supabase
                 .from('brand_accounts')
-                .insert({ brand_id: brandId })
+                .insert({ organization_id: brandId })
                 .select()
                 .single();
 

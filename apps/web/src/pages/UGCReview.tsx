@@ -115,7 +115,7 @@ const UGCReview = () => {
                     <button
                         key={option.value}
                         onClick={() => setStatusFilter(option.value)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${statusFilter === option.value
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${statusFilter === option.value
                                 ? "bg-primary text-primary-foreground shadow-soft"
                                 : "bg-card border border-border hover:bg-muted"
                             }`}
@@ -152,7 +152,7 @@ const UGCReview = () => {
                     {filteredMedia.map((item) => (
                         <div
                             key={item.id}
-                            className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-soft hover:shadow-soft-xl transition-all duration-300"
+                            className="bg-card rounded-2xl border border-border/40 overflow-hidden shadow-soft hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300"
                         >
                             {/* Media Preview */}
                             <div className="relative aspect-video bg-muted">

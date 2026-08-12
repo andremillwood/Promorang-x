@@ -76,7 +76,7 @@ export function BrandImpactDashboard() {
                 <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                   <div 
                     className={cn(
-                        "w-full rounded-t-lg transition-all duration-500 group-hover:brightness-110",
+                        "w-full rounded-t-lg transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500 group-hover:brightness-110",
                         i > 9 ? "bg-muted-foreground/20" : "bg-gradient-to-t from-orange-600 to-orange-400"
                     )} 
                     style={{ height: `${h}%` }} 

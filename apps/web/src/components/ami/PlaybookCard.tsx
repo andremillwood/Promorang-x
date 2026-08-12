@@ -30,7 +30,7 @@ export function PlaybookCard({ playbook, onUse }: PlaybookCardProps) {
     };
 
     return (
-        <Card className="flex flex-col h-full bg-card hover:shadow-xl transition-all duration-300 border-border/50 group overflow-hidden">
+        <Card className="flex flex-col h-full bg-card hover:shadow-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 border-border/50 group overflow-hidden">
             <CardHeader className="p-6 pb-2">
                 <div className="flex justify-between items-start mb-4">
                     <Badge variant="outline" className={`rounded-full px-3 py-1 text-[10px] uppercase font-black tracking-widest ${getGoalBadge(playbook.goal)} border`}>
@@ -73,7 +73,7 @@ export function PlaybookCard({ playbook, onUse }: PlaybookCardProps) {
 
             <CardFooter className="p-6 pt-0 mt-auto">
                 <Button 
-                    className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-black italic tracking-tighter shadow-lg shadow-primary/20 transition-all active:scale-95 group-hover:scale-[1.02]"
+                    className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-black italic tracking-tighter shadow-lg shadow-primary/20 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] active:scale-95 group-hover:scale-[1.02]"
                     onClick={() => onUse(playbook)}
                 >
                     <Play className="w-4 h-4 mr-2 fill-current" />

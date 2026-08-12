@@ -126,19 +126,19 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
   const selectedMoment = momentOptions.find((item) => item.id === momentId);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Mission Builder</p>
-        <h3 className="mt-2 text-3xl font-black tracking-tight text-foreground">Give the story somewhere meaningful to lead.</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <section className="space-y-8">
+      <div className="max-w-3xl">
+        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose where the story leads</p>
+        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">Turn attention into a meaningful next move.</h3>
+        <p className="mt-4 text-sm leading-7 text-muted-foreground">
           Pair a story with an existing moment when the next step should be watch, join, visit, redeem, or prove. Stories can still stand alone or launch new moments.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-lg border border-border bg-card p-5 sm:p-7">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,.9fr)_minmax(24rem,1.1fr)]">
+        <div className="rounded-[2rem] border border-border/60 bg-card/55 p-6 sm:p-8">
           {optionsQuery.isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Skeleton className="h-10 w-full rounded-xl" />
               <Skeleton className="h-10 w-full rounded-xl" />
               <Skeleton className="h-10 w-full rounded-xl" />
@@ -146,10 +146,10 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Story</Label>
+                <Label>Which story are people coming from?</Label>
                 <Select value={contentId} onValueChange={setContentId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select content" />
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Choose a published story" />
                   </SelectTrigger>
                   <SelectContent>
                     {contentOptions.map((item) => (
@@ -162,10 +162,10 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>Where should it lead?</Label>
+                <Label>Which real Moment should it open into?</Label>
                 <Select value={momentId} onValueChange={setMomentId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select moment" />
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Choose a Moment" />
                   </SelectTrigger>
                   <SelectContent>
                     {momentOptions.map((item) => (
@@ -183,7 +183,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                   {actionOptions.map((action) => {
                     const active = selectedActions.includes(action.id);
                     return (
-                      <button key={action.id} type="button" onClick={() => toggleAction(action.id)} className={`flex items-center gap-2 rounded-md border px-3 py-2.5 text-sm font-semibold transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
+                      <button key={action.id} type="button" aria-pressed={active} onClick={() => toggleAction(action.id)} className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
                         <action.icon className="h-4 w-4" /> {action.label}
                       </button>
                     );
@@ -193,24 +193,24 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
 
               <div className="space-y-2">
                 <Label>What becomes available after proof?</Label>
-                <Input value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return offer, status, or a saved memory..." />
+                <Input className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
               </div>
 
               <Button
-                className="h-12 w-full font-black"
+                className="h-12 w-full rounded-full font-black"
                 onClick={() => createLink.mutate()}
                 disabled={!contentId || !momentId || createLink.isPending}
               >
                 <Link2 className="mr-2 h-4 w-4" />
-                Publish mission link <ArrowRight className="ml-2 h-4 w-4" />
+                Connect story to Moment <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           )}
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-lg border border-primary/25 bg-primary/5 p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Participant path preview</p>
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-7">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">The path people will experience</p>
             <div className="mt-5 space-y-3">
               {[
                 { label: "Story", value: selectedContent?.title || "Choose a published story", icon: PlayCircle },
@@ -219,24 +219,24 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                 { label: "Proof", value: selectedActions.includes("check_in") ? "Verified check-in" : "Tracked completion", icon: ShieldCheck },
                 { label: "Unlock", value: unlockSummary || "Define what completion opens", icon: Gift },
               ].map((item) => (
-                <div key={item.label} className="flex items-center gap-3 rounded-md border border-border/60 bg-background/70 p-3">
-                  <item.icon className="h-4 w-4 shrink-0 text-primary" />
-                  <div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{item.label}</p><p className="truncate text-sm font-semibold text-foreground">{item.value}</p></div>
+                <div key={item.label} className="flex items-center gap-4 border-b border-white/10 py-3 last:border-b-0">
+                  <item.icon className="h-4 w-4 shrink-0 text-orange-400" />
+                  <div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-wider text-white/35">{item.label}</p><p className="truncate text-sm font-semibold text-white/90">{item.value}</p></div>
                 </div>
               ))}
             </div>
           </div>
-        <div className="rounded-lg border border-border bg-card p-5 sm:p-6">
+        <div className="rounded-[2rem] border border-border/60 bg-card/55 p-5 sm:p-7">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked Missions</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Stories already in motion</p>
           </div>
           <div className="mt-5 space-y-3">
             {linksQuery.isLoading ? (
               Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-2xl" />)
             ) : (linkedItems.length ? (
               linkedItems.map((item) => (
-                <div key={item.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                <div key={item.id} className="border-b border-border/60 py-4 last:border-b-0">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold text-foreground">{item.content?.title}</p>
@@ -257,6 +257,6 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

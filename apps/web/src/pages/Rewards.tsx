@@ -51,6 +51,7 @@ import { useToast } from "@/hooks/use-toast";
 import { EconomyPathGuide } from "@/components/participant/EconomyPathGuide";
 import { KeyUnlockAnimation } from "@/components/rewards/KeyUnlockAnimation";
 import { PublicStanding } from "@/components/rewards/PublicStanding";
+import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 
 const Rewards = () => {
   const { user, roles } = useAuth();
@@ -111,6 +112,7 @@ const Rewards = () => {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
+      <PersonalValueNav />
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
@@ -327,21 +329,21 @@ const Rewards = () => {
         <TabsList className="mb-8 justify-start gap-4 rounded-none border-b border-border bg-transparent p-0 sm:gap-8">
           <TabsTrigger
             value="perks"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-all"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <Gift className="w-4 h-4 mr-2" />
             My Perks
           </TabsTrigger>
           <TabsTrigger
             value="standing"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-all"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <Crown className="w-4 h-4 mr-2" />
             Standing
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-all"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2 font-semibold text-base transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
           >
             <HistoryIcon className="w-4 h-4 mr-2" />
             Activity Ledger
@@ -384,7 +386,7 @@ const Rewards = () => {
                   {earnedRewards.map((reward) => (
                     <div
                       key={reward.id}
-                      className="bg-card rounded-[1.5rem] p-6 border border-border/60 hover:border-primary/40 hover:shadow-glow transition-all group relative overflow-hidden"
+                      className="bg-card rounded-[1.5rem] p-6 border border-border/60 hover:border-primary/40 hover:shadow-glow transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Key className="w-16 h-16" />
@@ -505,7 +507,7 @@ const Rewards = () => {
                   {claimedRewards.map((reward) => (
                     <div
                       key={reward.id}
-                      className="group flex flex-col gap-3 rounded-2xl border border-border/40 bg-card/50 p-4 grayscale transition-all duration-500 hover:grayscale-0 sm:flex-row sm:items-center sm:justify-between"
+                      className="group flex flex-col gap-3 rounded-2xl border border-border/40 bg-card/50 p-4 grayscale transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500 hover:grayscale-0 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="flex items-center gap-3 text-sm">
                         <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">

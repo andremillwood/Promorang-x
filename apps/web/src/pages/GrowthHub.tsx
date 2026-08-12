@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, Coins, Gem, HandHeart, Megaphone, Radio, Rocket, Share2, Sparkles, Target, TrendingUp, Trophy } from "lucide-react";
 import SEO from "@/components/SEO";
 import { cultureCreators, cultureEvents } from "@/data/culture-demo";
+import { PersonalValueNav } from "@/components/value/PersonalValueNav";
 
 const growthTiles = [
   { title: "Content", text: "Publish drops, recap moments, and turn attention into movement.", href: "/growth/content", icon: Radio },
@@ -21,7 +22,7 @@ const routeFallbacks: Record<string, string> = {
   "/growth/content": "/content-drops",
   "/growth/promoshare": "/promoshare",
   "/growth/campaigns": "/promopush",
-  "/growth/referrals": "/promopush/promoter",
+  "/growth/referrals": "/growth/referrals",
   "/growth/pieces": "/portfolio",
   "/growth/analytics": "/dashboard/analytics",
   "/growth/earnings": "/wallet",
@@ -69,6 +70,10 @@ export default function GrowthHub() {
           </div>
         </div>
       </section>
+
+      <div className="container relative z-20 -mt-5 px-6">
+        <PersonalValueNav />
+      </div>
 
       <section className="container px-6 py-10">
         <div className="mb-5 flex items-end justify-between gap-4">

@@ -19,6 +19,13 @@ export interface ExploreMoment {
   status: string;
   visibility: string;
   participant_count?: number;
+  recurrence_enabled?: boolean | null;
+  recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
+  recurrence_interval?: number | null;
+  recurrence_by_weekday?: number[] | null;
+  recurrence_day_of_month?: number | null;
+  recurrence_until?: string | null;
+  recurrence_count?: number | null;
   host_profile?: {
     full_name: string | null;
     avatar_url: string | null;

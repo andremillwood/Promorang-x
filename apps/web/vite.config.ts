@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@promorang/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
@@ -42,25 +43,7 @@ export default defineConfig(({ mode }) => {
     include: ["react", "react-dom"],
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-
-          if (id.includes("recharts")) return "vendor-charts";
-          if (id.includes("@stripe")) return "vendor-stripe";
-          if (id.includes("@supabase")) return "vendor-supabase";
-          if (id.includes("@tanstack")) return "vendor-query";
-          if (id.includes("react-router")) return "vendor-router";
-          if (id.includes("@radix-ui")) return "vendor-radix";
-          if (id.includes("framer-motion")) return "vendor-motion";
-          if (id.includes("date-fns")) return "vendor-dates";
-          // v2 intentionally changes the public chunk URL to escape stale
-          // immutable/negative CDN and browser cache entries from the broken deployment.
-          if (id.includes("react") || id.includes("scheduler")) return "vendor-react-v2";
-        },
-      },
-    },
+    chunkSizeWarningLimit: 1500,
   },
   };
 });

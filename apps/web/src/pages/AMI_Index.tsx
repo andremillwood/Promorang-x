@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Button } from '../components/ui/button';
-import { 
-    Target, 
-    ArrowRight, 
-    Zap, 
-    TrendingUp, 
-    Users, 
+import {
+    Target,
+    ArrowRight,
+    Zap,
+    TrendingUp,
+    Users,
     MessageSquare,
     ShoppingBag,
     MapPin,
@@ -14,14 +14,14 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { Playbook, PlaybookCard } from '../components/ami/PlaybookCard';
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogHeader, 
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
     DialogTitle,
     DialogDescription
 } from '../components/ui/dialog';
-import { FlashCampaignCompiler } from '../components/campaigns/FlashCampaignCompiler';
+import { PromoPilotCompiler } from '../components/campaigns/PromoPilotCompiler';
 
 const PLAYBOOKS: Playbook[] = [
     // CONTENT
@@ -113,7 +113,7 @@ export default function AMI_Index() {
             />
 
             <div className="container mx-auto px-4 py-12 max-w-6xl space-y-16">
-                
+
                 {/* Section 1: Result Selection */}
                 <div className="space-y-8 text-center">
                     <div className="space-y-4">
@@ -122,7 +122,7 @@ export default function AMI_Index() {
                             What do you want to <span className="text-primary underline decoration-primary/30">achieve?</span>
                         </h1>
                         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                            Stop browsing concepts. Start selecting results. 
+                            Stop browsing concepts. Start selecting results.
                             Choose a goal to see proven patterns that work.
                         </p>
                     </div>
@@ -133,9 +133,9 @@ export default function AMI_Index() {
                                 key={goal.id}
                                 onClick={() => setSelectedGoal(goal.id as GoalType)}
                                 className={`
-                                    relative p-6 rounded-2xl border-2 transition-all duration-300 text-left flex flex-col gap-4 group
-                                    ${selectedGoal === goal.id 
-                                        ? 'border-primary bg-primary/5 shadow-xl shadow-primary/10' 
+                                    relative p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 text-left flex flex-col gap-4 group
+                                    ${selectedGoal === goal.id
+                                        ? 'border-primary bg-primary/5 shadow-xl shadow-primary/10'
                                         : 'border-border/50 bg-card hover:border-primary/50 hover:bg-muted/50'}
                                 `}
                             >
@@ -170,9 +170,9 @@ export default function AMI_Index() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredPlaybooks.length > 0 ? (
                             filteredPlaybooks.map((playbook) => (
-                                <PlaybookCard 
-                                    key={playbook.id} 
-                                    playbook={playbook} 
+                                <PlaybookCard
+                                    key={playbook.id}
+                                    playbook={playbook}
                                     onUse={handleUsePlaybook}
                                 />
                             ))
@@ -195,7 +195,7 @@ export default function AMI_Index() {
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
-                    
+
                     <div className="p-8 pb-0">
                         <DialogHeader>
                             <div className="flex items-center gap-2 mb-2">
@@ -214,7 +214,7 @@ export default function AMI_Index() {
 
                     <div className="p-8 pt-4 overflow-y-auto max-h-[80vh]">
                         {activePlaybook && (
-                            <FlashCampaignCompiler 
+                            <PromoPilotCompiler
                                 initialInput={{
                                     goal: activePlaybook.goal,
                                     context: activePlaybook.context

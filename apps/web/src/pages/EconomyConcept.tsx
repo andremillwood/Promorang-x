@@ -21,9 +21,10 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cultureEvents } from "@/data/culture-demo";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
+import { revenueLines, moneyBoundaries } from "@/lib/revenue-model";
 
-type ConceptKey = "overview" | "moments" | "points" | "keys" | "pieces" | "content" | "promoshare-gems" | "network";
+type ConceptKey = "overview" | "moments" | "points" | "keys" | "master-key" | "pieces" | "content" | "promoshare-gems" | "network";
 type IconType = typeof KeyRound;
 
 type RoleValue = {
@@ -54,6 +55,14 @@ const routes = [
 ];
 
 const roleLabel = (role: string) => role.replace("Hosts and venues", "Hosts");
+
+const economyMap = [
+  { label: "01 · Contribute", title: "Verified free Proof", detail: "Useful action creates Points, eligible Tickets, and daily Master Key progress.", href: "/economy/points" },
+  { label: "02 · Convert", title: "Points → PromoKeys", detail: "500 Points converts to 1 PromoKey, with a maximum of 3 conversions per platform day.", href: "/economy/keys" },
+  { label: "03 · Activate", title: "Daily Master Key", detail: "Complete your level’s verified free-Proof requirement to activate funded access for the day.", href: "/economy/master-key" },
+  { label: "04 · Enter", title: "Funded opportunities", detail: "An active Master Key plus any published PromoKey cost opens eligible opportunities.", href: "/missions" },
+  { label: "05 · Receive", title: "Gems or committed reward", detail: "Funded, verified outcomes can issue Gems or another reward named by the opportunity.", href: "/economy/promoshare-gems" },
+];
 
 const concepts: Record<ConceptKey, {
   eyebrow: string;
@@ -127,7 +136,7 @@ const concepts: Record<ConceptKey, {
       { label: "02", title: "Prove it happened", text: "Marks, check-ins, content, referrals, and actions create a record." },
       { label: "03", title: "Use the record", text: "That record can support access, rewards, memory, and future decisions." },
     ],
-    receipts: ["Moments", "Marks", "Points", "Keys", "Pieces", "Content", "PromoShare", "Gems", "Network value"],
+    receipts: ["Moments", "Proof", "Points", "PromoKeys", "Master Key", "PromoShare Tickets", "Gems", "USD receipts", "Pieces"],
     closing: "The simple version: real activity creates a record, and that record can become useful later.",
   },
   moments: {
@@ -190,12 +199,12 @@ const concepts: Record<ConceptKey, {
     closing: "Moments matter because they keep value tied to something that actually happened.",
   },
   points: {
-    eyebrow: "Marks, Gems, and earned value",
-    title: "Marks show what happened. Gems move platform value.",
+    eyebrow: "Points and organic progress",
+    title: "Points measure useful participation. They do not mint funded value.",
     description:
-      "Marks record that someone showed up or contributed. Gems carry paid platform value where funding, access, rewards, or payouts are involved.",
+      "Verified organic and free-Proof activity creates Points. Points build rank and can convert into PromoKeys; funded Gems require a separate committed pool.",
     stake:
-      "Participants need their effort to count. Hosts and brands need a way to distinguish real movement from empty attention. Marks and Gems create the first readable value layer.",
+      "This boundary keeps progression abundant and funded value accountable. A view, like, save, comment, share, check-in, or approved Proof can earn disclosed Points without silently creating cash liability.",
     icon: Coins,
     primaryCta: "Find ways to earn",
     primaryHref: "/explore/moments",
@@ -210,7 +219,7 @@ const concepts: Record<ConceptKey, {
       {
         role: "Participants",
         why: "You need your real activity to count somewhere.",
-        outcome: "Marks, Gems, and receipts help your attendance, reviews, content, and contribution become part of your record.",
+        outcome: "Points and receipts show how verified activity builds progress toward rank, milestones, and PromoKeys.",
         action: "Join a moment",
         href: "/explore/moments",
         icon: Users,
@@ -243,18 +252,18 @@ const concepts: Record<ConceptKey, {
     steps: [
       { label: "01", title: "Attend", text: "A participant joins a moment, place, mission, or offer." },
       { label: "02", title: "Mark", text: "Promorang records a verified action tied to that real context." },
-      { label: "03", title: "Progress", text: "Gems and receipts help activity become access, rewards, future invitations, or a stronger record." },
+      { label: "03", title: "Convert or progress", text: "Use 500 Points for 1 PromoKey, up to 3 conversions per platform day, or keep building rank." },
     ],
     receipts: ["Marks", "Check-ins", "Reviews", "Photos", "Referrals", "Progression"],
-    closing: "Marks and Gems matter because nobody should have to guess what participation happened or what value moved.",
+    closing: "Points record organic progress. Gems only appear when a funded rule explicitly supports them.",
   },
   keys: {
     eyebrow: "Access",
-    title: "Keys make limited access feel earned, not arbitrary.",
+    title: "PromoKeys ration access to individual gated opportunities.",
     description:
-      "When space, rewards, or follow-through matter, Keys help Promorang decide who should get access without turning the experience into a cold application process.",
+      "PromoKeys are the per-opportunity access instrument. They can come from Point conversion, verified milestones, Community Draws, or disclosed subscription allowances.",
     stake:
-      "Keys are for moments where space, perks, or rewards are limited. They help hosts invite people who have already shown real interest, and they help participants understand why they earned access.",
+      "Owning a PromoKey does not bypass the daily Master Key. PromoKeys answer how many gated opportunities you may pursue; the Master Key confirms you contributed enough today.",
     icon: KeyRound,
     primaryCta: "Find gated moments",
     primaryHref: "/explore/moments",
@@ -301,11 +310,37 @@ const concepts: Record<ConceptKey, {
     ],
     steps: [
       { label: "01", title: "Show up", text: "Join real moments and leave Marks that record participation." },
-      { label: "02", title: "Earn Keys", text: "Consistent participation can give you Keys for limited moments, rewards, or offers." },
-      { label: "03", title: "Use them", text: "Spend Keys when a host, venue, or campaign limits access to people with stronger history." },
+      { label: "02", title: "Get PromoKeys", text: "Convert 500 Points, reach a verified milestone, win a Community Draw, or receive a disclosed allowance." },
+      { label: "03", title: "Use one when required", text: "A PromoKey is consumed only when the opportunity’s published access rule requires it." },
     ],
     receipts: ["Limited moments", "Funded rewards", "Capacity control", "Priority access", "Higher-trust rooms"],
-    closing: "Keys are useful when a moment cannot simply be open to everyone.",
+    closing: "PromoKeys ration scarce opportunities; they are not money, a payout promise, or the daily Master Key.",
+  },
+  "master-key": {
+    eyebrow: "Daily contribution gate",
+    title: "The Master Key proves you contributed before entering funded opportunity flows.",
+    description: "The Master Key activates only through verified free Proof contribution. Points cannot buy it, and PromoKeys cannot bypass it.",
+    stake: "Every participant contributes. Starter completes 5 verified free Proofs daily, Professional completes 2, and Power User completes 1. Progress resets on the declared platform day.",
+    icon: ShieldCheck,
+    primaryCta: "Find eligible Proofs", primaryHref: "/missions", secondaryCta: "Open wallet", secondaryHref: "/wallet",
+    proof: [
+      { label: "Starter", value: "5 Proofs", helper: "1x Point multiplier; five verified free Proofs activate today’s Master Key." },
+      { label: "Professional", value: "2 Proofs", helper: "1.5x Point multiplier; accepted legacy aliases include premium, plus, and pro." },
+      { label: "Power User", value: "1 Proof", helper: "2x Point multiplier; accepted legacy aliases include super, elite, and power." },
+    ],
+    roles: [
+      { role: "Participants", why: "Funded access starts with contribution, not payment alone.", outcome: "Your daily progress shows the exact verified free Proof requirement, reset, and activation state.", action: "Build today’s progress", href: "/missions", icon: Users },
+      { role: "Hosts and venues", why: "Committed-value opportunities need participants who are contributing now.", outcome: "The Master Key provides a renewable quality gate before scarce inventory or funded work is released.", action: "Create a Moment", href: "/create/moment", icon: MapPin },
+      { role: "Brands", why: "A funded pool needs protection from passive extraction.", outcome: "Daily contribution and per-opportunity PromoKeys create two clear access checks.", action: "Plan funded work", href: "/for-brands", icon: Building2 },
+      { role: "Creators", why: "Contributor quality matters when your mission carries funded value.", outcome: "Free Proof participation builds the daily trust signal before funded creator opportunities open.", action: "Create a mission", href: "/for-creators", icon: PlayCircle },
+    ],
+    steps: [
+      { label: "01", title: "Complete free Proof", text: "Only completed, verified, unpaid Proof contributions marked eligible count." },
+      { label: "02", title: "Activate automatically", text: "The API resolves your level and activates the Master Key when today’s requirement is met." },
+      { label: "03", title: "Enter funded access", text: "Use the active Master Key with any PromoKeys required by the specific opportunity." },
+    ],
+    receipts: ["Daily progress", "Verified free Proofs", "Level multiplier", "Reset time", "Active Master Key", "Funded access"],
+    closing: "The Master Key is a renewable daily contribution gate—not a purchase, currency, or lifetime badge.",
   },
   pieces: {
     eyebrow: "Lasting Upside",
@@ -426,21 +461,21 @@ const concepts: Record<ConceptKey, {
     closing: "Content matters when it helps people understand what actually happened and what to do next.",
   },
   "promoshare-gems": {
-    eyebrow: "PromoShare and Gems",
-    title: "PromoShare and Gems turn verified activity into usable reward value.",
+    eyebrow: "Tickets, draws, and funded value",
+    title: "PromoShare Tickets create chances. Gems represent funded platform value.",
     description:
-      "PromoShare tracks who qualifies for reward cycles. Gems are the spendable unit that makes funded value easier to track and use across moments, rewards, pieces, and marketplace activity.",
+      "Every Ticket names a specific draw. A Ticket is not Points, weight, or a guaranteed reward. Gems can follow funded, verified outcomes and remain distinct from payable USD.",
     stake:
-      "This is where Promorang has to be most clear: rewards should feel earned, funded, limited, and connected to verified contribution.",
+      "Funded Draws begin with committed value such as Gems, prizes, products, coupons, experiences, or VIP access. Community Draws award progression such as Points, PromoKeys, boosts, badges, rank, status, or early access.",
     icon: Gem,
     primaryCta: "See PromoShare",
     primaryHref: "/promoshare",
     secondaryCta: "Open wallet",
     secondaryHref: "/wallet",
     proof: [
-      { label: "For participants", value: "Reward", helper: "Qualified activity can become useful value." },
+      { label: "Funded Draw", value: "Committed reward", helper: "The reserve exists before launch and the published rules name the eligible outcome." },
       { label: "For hosts", value: "Incentive", helper: "Rewards can support attendance, contribution, and return behavior." },
-      { label: "For brands", value: "Governance", helper: "Funded value can be capped, measured, and tied to proof." },
+      { label: "Community Draw", value: "Progression", helper: "Points, PromoKeys, boosts, badges, rank, status, or early access—without open-ended payout liability." },
     ],
     roles: [
       {
@@ -478,11 +513,11 @@ const concepts: Record<ConceptKey, {
     ],
     steps: [
       { label: "01", title: "Qualify", text: "A user completes activity tied to a real moment, campaign, or contribution." },
-      { label: "02", title: "Enter", text: "PromoShare records the verified action under the correct reward rules." },
-      { label: "03", title: "Use", text: "Gems make reward value easier to spend, track, and explain." },
+      { label: "02", title: "Receive named Tickets", text: "Each qualifying action receives a separate receipt for every draw whose published rules it matched." },
+      { label: "03", title: "Draw and issue", text: "Random selection uses eligible Tickets; any funded reward is issued from its committed pool." },
     ],
-    receipts: ["Reward cycles", "Gems", "Eligibility", "Funded campaigns", "Wallet", "Payout-safe value"],
-    closing: "PromoShare and Gems matter when rewards need to feel earned, measured, and useful.",
+    receipts: ["Named Tickets", "Funded Draws", "Community Draws", "Gems", "Committed rewards", "USD receipts", "Published rules"],
+    closing: "Tickets create chances, not guarantees. Gems require funded rules; payable USD remains a separate ledger balance.",
   },
   network: {
     eyebrow: "Network Value",
@@ -561,7 +596,7 @@ export default function EconomyConcept() {
       <SEO title={`${data.eyebrow} - Promorang`} description={data.description} />
 
       <section className="relative overflow-hidden border-b border-black/10 bg-[#1e1e1d] pb-12 pt-28 text-white md:pb-16 md:pt-32">
-        <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_50%_0%,rgba(255,113,16,0.22),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(255,113,16,0.2),transparent_30%),repeating-linear-gradient(90deg,rgba(255,255,255,.025)_0,rgba(255,255,255,.025)_1px,transparent_1px,transparent_80px)]" />
         <div className="container relative z-10 px-6">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
@@ -577,6 +612,7 @@ export default function EconomyConcept() {
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
                 {data.description}
               </p>
+              <p className="mt-5 max-w-2xl border-l-2 border-primary pl-4 text-sm leading-7 text-zinc-400">{data.stake}</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button variant="hero" size="xl" asChild>
                   <Link to={data.primaryHref}>
@@ -592,9 +628,17 @@ export default function EconomyConcept() {
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur md:p-6">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">Choose your path</p>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">
-                Start with the role closest to you. Each path shows why the system matters and what to do next.
-              </p>
+              <GuidanceDisclosure
+                id="economy:choose-your-path"
+                eyebrow="Path guide"
+                title="How to choose a role path"
+                summary="Start with the role closest to you; each path shows why the system matters and what to do next."
+                className="mt-3"
+              >
+                <p className="text-sm leading-6 text-zinc-300">
+                  Start with the role closest to you. Each path shows why the system matters and what to do next.
+                </p>
+              </GuidanceDisclosure>
 
               <Tabs defaultValue="0" className="mt-5">
                 <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1.5 md:grid-cols-4">
@@ -652,11 +696,78 @@ export default function EconomyConcept() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-12 md:py-16">
-        <div className="pointer-events-none absolute inset-0 opacity-20">
-          <img src={cultureEvents[1].image} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+      <nav aria-label="Economy concepts" className="border-b border-white/10 bg-black">
+        <div className="container flex gap-2 overflow-x-auto px-6 py-4 scrollbar-none">
+          {[
+            ["Overview", "/economy"], ["Moments", "/economy/moments"], ["Points", "/economy/points"],
+            ["PromoKeys", "/economy/keys"], ["Master Key", "/economy/master-key"], ["Pieces", "/economy/pieces"],
+            ["Content", "/economy/content"], ["Tickets & Gems", "/economy/promoshare-gems"], ["Network", "/economy/network"],
+          ].map(([label, href]) => (
+            <Link key={href} to={href} className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-black transition ${((conceptKey === "overview" && href === "/economy") || href.endsWith(`/${conceptKey}`)) ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-primary/50 hover:text-white"}`}>{label}</Link>
+          ))}
         </div>
+      </nav>
+
+      <section className="border-b border-white/10 bg-[#070707] py-14 md:py-20">
+        <div className="container px-6">
+          <div className="max-w-3xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.26em] text-primary">Canonical participant flow</p>
+            <h2 className="mt-4 text-4xl font-black uppercase leading-[0.88] tracking-[-0.055em] md:text-6xl">Contribution before extraction.</h2>
+            <GuidanceDisclosure
+              id="economy:canonical-flow"
+              eyebrow="Flow guide"
+              title="Why the instruments are separate"
+              summary="One verified action may advance several systems, but each result appears as its own transparent receipt."
+              className="mt-5 max-w-2xl"
+            >
+              <p className="text-sm leading-7 text-white/55">The instruments are separate on purpose. One verified action may advance several systems, but every result appears as its own transparent receipt.</p>
+            </GuidanceDisclosure>
+          </div>
+          <div className="mt-10 grid overflow-hidden rounded-3xl border border-white/10 md:grid-cols-5">
+            {economyMap.map((item, index) => <Link key={item.title} to={item.href} className="group relative border-b border-white/10 bg-white/[0.025] p-5 transition hover:bg-primary/[0.08] md:min-h-64 md:border-b-0 md:border-r last:border-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{item.label}</p>
+              <h3 className="mt-10 text-xl font-black leading-tight text-white">{item.title}</h3>
+              <p className="mt-3 text-xs leading-5 text-white/45">{item.detail}</p>
+              <ArrowRight className="absolute bottom-5 right-5 h-4 w-4 text-white/20 transition group-hover:translate-x-1 group-hover:text-primary" />
+            </Link>)}
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              ["Organic progression", "Points, eligible Tickets, Master Key progress, rank, and non-cash milestones."],
+              ["Funded platform value", "Gems and committed rewards require an identifiable sponsor, platform budget, pool, or revenue-backed allocation."],
+              ["Payable value", "USD records sales, approved earnings, winnings, and referrals; withdrawal remains subject to verification and payout rules."],
+            ].map(([title, copy]) => <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5"><p className="font-black text-white">{title}</p><p className="mt-2 text-xs leading-5 text-white/45">{copy}</p></div>)}
+          </div>
+        </div>
+      </section>
+
+      <section id="how-promorang-earns" className="scroll-mt-24 border-b border-white/10 bg-[#0d0d0d] py-16 md:py-24">
+        <div className="container px-6">
+          <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-primary">Platform sustainability</p>
+              <h2 className="mt-4 text-4xl font-black uppercase leading-[0.88] tracking-[-0.055em] text-white md:text-6xl">How Promorang earns.</h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-white/55">Promorang earns when it helps funded value move, verifies an outcome, supports a transaction, or provides an ongoing paid service. Free contribution is not converted into hidden revenue and committed rewards are not presented as platform income.</p>
+              <Button variant="hero" className="mt-7" asChild><Link to="/pricing">See products and pricing <ArrowRight className="h-4 w-4" /></Link></Button>
+            </div>
+            <div className="grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 sm:grid-cols-2">
+              {revenueLines.map((line, index) => <article key={line.key} className="bg-[#151515] p-6">
+                <div className="flex items-center justify-between gap-3"><span className="font-mono text-xs text-primary">0{index + 1}</span><span className="text-[10px] font-black uppercase tracking-wider text-white/35">{line.capture}</span></div>
+                <h3 className="mt-7 text-xl font-black text-white">{line.title}</h3>
+                <p className="mt-2 text-[10px] font-black uppercase tracking-wider text-white/30">Paid by {line.payer}</p>
+                <p className="mt-4 text-sm leading-6 text-white/50">{line.description}</p>
+              </article>)}
+            </div>
+          </div>
+          <div className="mt-8 grid gap-3 md:grid-cols-3">
+            {moneyBoundaries.map((item, index) => <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[.035] p-5"><p className="font-mono text-xs text-primary">LEDGER 0{index + 1}</p><h3 className="mt-4 font-black text-white">{item.label}</h3><p className="mt-2 text-xs leading-5 text-white/45">{item.detail}</p></div>)}
+          </div>
+          <p className="mt-5 text-xs leading-5 text-white/35">Exact fees must be disclosed before funding or checkout. Taxes, processor charges, refunds, and any operator-specific terms appear in the applicable order—not as implied universal rates.</p>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden py-12 md:py-16">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,106,0,.10),transparent_28%),repeating-linear-gradient(135deg,rgba(255,255,255,.018)_0,rgba(255,255,255,.018)_1px,transparent_1px,transparent_12px)]" />
         <div className="container px-6">
           <div className="relative rounded-[2rem] border border-white/10 bg-[#151515]/95 p-5 text-white shadow-2xl md:p-8">
             <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] md:items-center">
@@ -712,7 +823,7 @@ export default function EconomyConcept() {
               <Link
                 key={route.title}
                 to={route.href}
-                className="group rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:bg-white/[0.07]"
+                className="group rounded-[1.25rem] border border-white/10 bg-white/[0.045] p-5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-0.5 hover:border-primary/50 hover:bg-white/[0.07]"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">

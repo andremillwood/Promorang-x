@@ -19,6 +19,39 @@ router.post('/events', optionalAuth, async (req, res) => {
   }
 });
 
+router.post('/referral-click', optionalAuth, async (req, res) => {
+  try {
+    const referralCode = String(req.body?.referralCode || '').trim().toUpperCase();
+    const sessionId = String(req.body?.sessionId || '').trim().slice(0, 120);
+    if (!referralCode || !sessionId) {
+      return res.status(400).json({ success: false, error: 'referralCode and sessionId are required' });
+    }
+    if (!supabase) return res.status(202).json({ success: true, data: { skipped: true } });
+
+    const { data: code } = await supabase.from('referral_codes')
+      .select('id,user_id,is_active,expires_at').eq('code', referralCode).maybeSingle();
+    if (!code?.is_active || (code.expires_at && new Date(code.expires_at) < new Date())) {
+      return res.status(202).json({ success: true, data: { tracked: false } });
+    }
+
+    const { error } = await supabase.from('referral_link_clicks').upsert({
+      referral_code_id: code.id,
+      referrer_id: code.user_id,
+      session_id: sessionId,
+      anonymous_id: req.body?.anonymousId || null,
+      landing_path: String(req.body?.landingPath || '').slice(0, 500) || null,
+      referrer_url: String(req.body?.referrerUrl || req.headers.referer || '').slice(0, 1000) || null,
+      user_agent: String(req.headers['user-agent'] || '').slice(0, 500) || null,
+      metadata: req.body?.metadata || {},
+    }, { onConflict: 'referral_code_id,session_id', ignoreDuplicates: true });
+    if (error) throw error;
+
+    res.status(202).json({ success: true, data: { tracked: true } });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/identity', requireAuth, async (req, res) => {
   try {
     const result = await growth.linkIdentity({

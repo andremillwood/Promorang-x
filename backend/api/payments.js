@@ -2,6 +2,7 @@ const express = require('express');
 const Stripe = require('stripe');
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('../middleware/auth');
+const { getSubscriptionPlan } = require('../config/subscriptionPlans');
 let commerce = null;
 
 try {
@@ -38,6 +39,15 @@ function normalizeParticipantTier(planId) {
       : null;
   } catch (error) {
     return null;
+  }
+}
+
+async function recordRevenueFunnelSafely(payload, context) {
+  try {
+    const revenueFunnels = require('../services/revenueFunnelService');
+    await revenueFunnels.record(payload);
+  } catch (error) {
+    console.error(`[payments.${context}] non-blocking funnel analytics error`, error);
   }
 }
 
@@ -247,7 +257,8 @@ router.post('/checkout', requireAuth, async (req, res) => {
   }
 
   const normalisedPlanId = String(plan_id).toUpperCase();
-  const priceId = process.env[`STRIPE_PRICE_${normalisedPlanId}`];
+  const plan = getSubscriptionPlan(normalisedPlanId);
+  const priceId = plan ? process.env[plan.priceEnv] : null;
 
   if (!priceId) {
     return res.status(400).json({ status: 'error', message: 'Invalid plan_id' });
@@ -265,6 +276,7 @@ router.post('/checkout', requireAuth, async (req, res) => {
       metadata: {
         user_id: req.user?.id || null,
         plan_id: normalisedPlanId,
+        stakeholder_role: plan.role,
         plan_label: plan_id,
         revenue_funnel: 'membership',
         entity_type: 'membership_plan',
@@ -275,25 +287,30 @@ router.post('/checkout', requireAuth, async (req, res) => {
         metadata: {
           user_id: req.user?.id || null,
           plan_id: normalisedPlanId,
+          stakeholder_role: plan.role,
           plan_label: plan_id,
           ...metadata,
         },
       },
     });
 
-    const revenueFunnels = require('../services/revenueFunnelService');
-    await revenueFunnels.record({
-      userId: req.user?.id,
-      sessionId: req.body?.session_id,
-      funnel: 'membership',
-      stage: 'checkout_started',
-      entityType: 'membership_plan',
-      entityId: normalisedPlanId,
-      provider: 'stripe',
-      providerEventId: session.id,
-      idempotencyKey: `stripe:${session.id}:checkout_started`,
-      metadata: { checkout_session_id: session.id },
-    });
+    try {
+      const revenueFunnels = require('../services/revenueFunnelService');
+      await revenueFunnels.record({
+        userId: req.user?.id,
+        sessionId: req.body?.session_id,
+        funnel: 'membership',
+        stage: 'checkout_started',
+        entityType: 'membership_plan',
+        entityId: normalisedPlanId,
+        provider: 'stripe',
+        providerEventId: session.id,
+        idempotencyKey: `stripe:${session.id}:checkout_started`,
+        metadata: { checkout_session_id: session.id },
+      });
+    } catch (funnelError) {
+      console.error('[payments.checkout] non-blocking funnel analytics error', funnelError);
+    }
 
     return res.json({
       status: 'success',
@@ -364,13 +381,23 @@ async function stripeWebhook(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+        if (session.metadata?.commerce_flow === 'merchant_direct_order') {
+          const marketplaceService = require('../services/marketplaceService');
+          const result = await marketplaceService.finalizeConnectedCheckout(session, event.account);
+          console.log('[payments.webhook.stripe] Merchant direct checkout completed', {
+            session_id: session.id,
+            connected_account: event.account,
+            receipt_id: result.receipt_id,
+            idempotent: Boolean(result.idempotent),
+          });
+          break;
+        }
         const { user_id: metadataUserId, plan_id: metadataPlanId } = session.metadata || {};
         const participantTier = normalizeParticipantTier(metadataPlanId || session.metadata?.plan);
         const funnel = session.metadata?.revenue_funnel || (participantTier ? 'membership' : null);
 
         if (funnel) {
-          const revenueFunnels = require('../services/revenueFunnelService');
-          await revenueFunnels.record({
+          await recordRevenueFunnelSafely({
             userId: metadataUserId,
             funnel,
             stage: 'payment_succeeded',
@@ -382,7 +409,7 @@ async function stripeWebhook(req, res) {
             currency: session.currency || 'usd',
             idempotencyKey: `stripe:${event.id}:payment_succeeded`,
             metadata: { checkout_session_id: session.id, plan_id: metadataPlanId || null },
-          });
+          }, 'webhook.checkout_completed');
         }
 
         console.log('[payments.webhook.stripe] checkout.session.completed', {
@@ -392,24 +419,15 @@ async function stripeWebhook(req, res) {
           plan_id: session.metadata?.plan_id || session.metadata?.plan,
         });
 
-        if (metadataUserId && metadataPlanId) {
-          if (!supabaseAdmin) {
-            console.warn('[payments.webhook.stripe] Supabase client not configured, skipping plan update');
-          } else {
-            const { error } = await supabaseAdmin
-              .from('users')
-              .update({
-                plan_id: metadataPlanId,
-                plan_updated_at: new Date().toISOString(),
-              })
-              .eq('id', metadataUserId);
-
-            if (error) {
-              console.error('[payments.webhook.stripe] Supabase plan update error', error);
-            } else {
-              console.log('[payments.webhook.stripe] Plan updated for user', metadataUserId);
-            }
-          }
+        if (metadataUserId && metadataPlanId && session.subscription) {
+          const subscription = await stripeClient.subscriptions.retrieve(session.subscription);
+          const subscriptionService = require('../services/subscriptionService');
+          await subscriptionService.syncStripeSubscription(subscription, {
+            userId: metadataUserId,
+            planId: metadataPlanId,
+            customerId: session.customer,
+            metadata: { checkout_session_id: session.id },
+          });
         }
 
         if (metadataUserId && participantTier && session.amount_total) {
@@ -468,13 +486,101 @@ async function stripeWebhook(req, res) {
         break;
       }
 
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        const context = await resolveSubscriptionContext(invoice);
+        const subscriptionService = require('../services/subscriptionService');
+        await subscriptionService.markInvoicePastDue({
+          userId: context.userId,
+          planId: context.planId,
+          subscriptionId: context.subscriptionId,
+          customerId: invoice.customer,
+          invoiceId: invoice.id,
+        });
+        break;
+      }
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const subscriptionService = require('../services/subscriptionService');
+        await subscriptionService.syncStripeSubscription(event.data.object);
+        break;
+      }
+
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        if (charge.payment_intent && supabaseAdmin) {
+          const { data: order, error: orderError } = await supabaseAdmin
+            .from('commerce_orders')
+            .select('*')
+            .eq('stripe_payment_intent_id', charge.payment_intent)
+            .maybeSingle();
+          if (orderError) throw orderError;
+          if (!order) break;
+
+          const refundedAmount = Number(((charge.amount_refunded || 0) / 100).toFixed(2));
+          const fullyRefunded = Boolean(charge.refunded) || refundedAmount >= Number(order.total_amount);
+          await supabaseAdmin.from('commerce_orders').update({
+            payment_status: fullyRefunded ? 'refunded' : 'partially_refunded',
+            updated_at: new Date().toISOString(),
+          }).eq('id', order.id);
+
+          const { data: receipt } = await supabaseAdmin.from('commerce_receipts')
+            .select('id,attribution').eq('sale_id', order.id).maybeSingle();
+          if (receipt) {
+            await supabaseAdmin.from('commerce_receipts').update({
+              status: fullyRefunded ? 'refunded' : 'issued',
+              attribution: {
+                ...(receipt.attribution || {}),
+                stripe_refund_reconciled_at: new Date().toISOString(),
+                stripe_charge_id: charge.id,
+                refund_amount: refundedAmount,
+                refund_source: 'stripe_webhook',
+              },
+            }).eq('id', receipt.id);
+          }
+
+          const settlementService = require('../services/merchantSettlementService');
+          await settlementService.reverseOrderSettlement(order.id, refundedAmount);
+        }
+        break;
+      }
+
+      case 'charge.dispute.created':
+      case 'charge.dispute.closed': {
+        const dispute = event.data.object;
+        if (supabaseAdmin && dispute.payment_intent) {
+          const disputeLost = event.type === 'charge.dispute.created' || dispute.status === 'lost';
+          await supabaseAdmin.from('commerce_orders').update({
+            payment_status: disputeLost ? 'disputed' : 'paid',
+            metadata: {
+              stripe_dispute_id: dispute.id,
+              stripe_dispute_status: dispute.status,
+              stripe_dispute_reason: dispute.reason,
+            },
+            updated_at: new Date().toISOString(),
+          }).eq('stripe_payment_intent_id', dispute.payment_intent);
+        }
+        break;
+      }
+
       case 'checkout.session.expired':
       case 'payment_intent.payment_failed': {
         const object = event.data.object;
+        if (event.type === 'payment_intent.payment_failed' && object.metadata?.commerce_order_id && supabaseAdmin) {
+          await supabaseAdmin.from('commerce_orders').update({
+            payment_status: 'failed',
+            metadata: {
+              payment_failure_code: object.last_payment_error?.code || null,
+              payment_failure_message: object.last_payment_error?.message || null,
+            },
+            updated_at: new Date().toISOString(),
+          }).eq('id', object.metadata.commerce_order_id).neq('payment_status', 'paid');
+        }
         const funnel = object.metadata?.revenue_funnel;
         if (funnel) {
-          const revenueFunnels = require('../services/revenueFunnelService');
-          await revenueFunnels.record({
+          await recordRevenueFunnelSafely({
             userId: object.metadata?.user_id || null,
             funnel,
             stage: 'payment_failed',
@@ -486,7 +592,19 @@ async function stripeWebhook(req, res) {
             currency: object.currency || 'usd',
             idempotencyKey: `stripe:${event.id}:payment_failed`,
             metadata: { reason: event.type },
-          });
+          }, 'webhook.payment_failed');
+        }
+        break;
+      }
+
+      case 'payment_intent.canceled': {
+        const intent = event.data.object;
+        if (intent.metadata?.commerce_order_id) {
+          const marketplaceService = require('../services/marketplaceService');
+          await marketplaceService.cancelStripeOrder(
+            intent.metadata.commerce_order_id,
+            intent.cancellation_reason || 'stripe_payment_intent_cancelled',
+          );
         }
         break;
       }
@@ -501,8 +619,7 @@ async function stripeWebhook(req, res) {
 
         const revenueFunnel = intent.metadata?.revenue_funnel;
         if (revenueFunnel) {
-          const revenueFunnels = require('../services/revenueFunnelService');
-          await revenueFunnels.record({
+          await recordRevenueFunnelSafely({
             userId: await resolveUserIdForPaymentIntent(intent),
             funnel: revenueFunnel,
             stage: 'payment_succeeded',
@@ -514,7 +631,23 @@ async function stripeWebhook(req, res) {
             currency: intent.currency || 'usd',
             idempotencyKey: `stripe:${event.id}:payment_succeeded`,
             metadata: { payment_intent_id: intent.id },
-          });
+          }, 'webhook.payment_succeeded');
+        }
+
+        try {
+          const gemsService = require('../services/gemsService');
+          const gemsResult = await gemsService.handleStripeWebhook(event);
+          if (gemsResult.handled) {
+            console.log('[payments.webhook.stripe] Gems purchase credited', {
+              payment_intent: intent.id,
+              user_id: gemsResult.user_id,
+              gems_credited: gemsResult.gems_credited,
+              transaction_id: gemsResult.transaction_id,
+            });
+          }
+        } catch (err) {
+          console.error('[payments.webhook.stripe] Failed to fulfill Gems purchase', err);
+          throw err;
         }
 
         try {

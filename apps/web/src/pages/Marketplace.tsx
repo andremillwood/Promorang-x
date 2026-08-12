@@ -1,20 +1,22 @@
 import { useMemo, useState } from "react";
-import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Coins, CreditCard, Sparkles, CalendarDays } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Sparkles, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import { useMarketplace } from "@/hooks/useMarketplace";
 import { useQuery } from "@tanstack/react-query";
 import type { Tables } from "@/integrations/supabase/types";
+import { ValueOutcomeChips, type ValueOutcome } from "@/components/economy/ValueOutcomes";
+import { commerceCategorySlug, isSampleCommerceListing } from "@/lib/commerce-provenance";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
 const Marketplace = () => {
-    const { user } = useAuth();
+    const { category: categoryParam } = useParams();
     const [searchQuery, setSearchQuery] = useState("");
-    const [activeCategory, setActiveCategory] = useState("all");
+    const [showSamples, setShowSamples] = useState(false);
+    const activeCategory = categoryParam || "all";
 
     const commerceQuery = useQuery({
         queryKey: ["marketplace-commerce-directory"],
@@ -42,11 +44,15 @@ const Marketplace = () => {
         return ["All", "Products", "Services", ...Array.from(values).slice(0, 8)];
     }, [commerceQuery.data]);
 
+    const realListings = useMemo(() => (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing)), [commerceQuery.data]);
+    const sampleListings = useMemo(() => (commerceQuery.data || []).filter(isSampleCommerceListing), [commerceQuery.data]);
+    const sourceListings = realListings.length || !showSamples ? realListings : sampleListings;
+
     const listings = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
         const category = activeCategory.toLowerCase();
 
-        return (commerceQuery.data || []).filter((listing) => {
+        return sourceListings.filter((listing) => {
             const matchesSearch =
                 !query ||
                 [
@@ -66,18 +72,11 @@ const Marketplace = () => {
                 category === "all" ||
                 (category === "products" && listing.listing_kind !== "service") ||
                 (category === "services" && listing.listing_kind === "service") ||
-                String(listing.category || "").toLowerCase() === category;
+                commerceCategorySlug(listing.category) === category;
 
             return matchesSearch && matchesCategory;
         });
-    }, [commerceQuery.data, searchQuery, activeCategory]);
-
-    const { purchase, processing } = useMarketplace();
-
-    const handlePurchase = async (listing: CommerceListing, method: 'cash' | 'points') => {
-        if (listing.source_table !== "merchant_products" || !listing.source_id) return;
-        await purchase(listing.source_id, method);
-    };
+    }, [sourceListings, searchQuery, activeCategory]);
 
     const formatPrice = (listing: CommerceListing) => {
         if (typeof listing.price !== "number") return "Open";
@@ -88,8 +87,15 @@ const Marketplace = () => {
         }).format(listing.price);
     };
 
+    const getListingOutcomes = (listing: CommerceListing): ValueOutcome[] => {
+        const outcomes: ValueOutcome[] = [];
+        if (listing.is_redeemable_with_points) outcomes.push({ kind: "reward", label: "Points eligible", detail: "This listing can be redeemed using Points when available." });
+        if (listing.booking_url || listing.listing_kind === "service") outcomes.push({ kind: "access", label: listing.booking_url ? "Bookable" : "Service access" });
+        return outcomes;
+    };
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
+        <main className="mx-auto max-w-[1440px] space-y-8 px-4 pb-16 pt-4 animate-in fade-in duration-700 sm:px-6 lg:px-8">
             {/* Search & Filter Header */}
             <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-5 shadow-2xl md:p-8">
                 <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -135,21 +141,31 @@ const Marketplace = () => {
             </div>
 
             {/* Categories / Tags */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <nav aria-label="Shop categories" className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {categories.map((cat) => (
-                    <Badge
+                    <Link
                         key={cat}
-                        variant={activeCategory === cat ? "default" : "secondary"}
-                        className="px-4 py-2 cursor-pointer hover:bg-primary hover:text-white transition-colors"
-                        onClick={() => setActiveCategory(cat)}
+                        to={cat === "All" ? "/shop" : `/shop/category/${commerceCategorySlug(cat)}`}
+                        className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-black transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.05] text-white/65 hover:border-primary/50 hover:text-white"}`}
                     >
                         {cat}
-                    </Badge>
+                    </Link>
                 ))}
-            </div>
+            </nav>
+
+            {realListings.length === 0 && !commerceQuery.isLoading ? (
+                <section className="rounded-3xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
+                    <ShoppingBag className="mx-auto h-10 w-10 text-primary" />
+                    <h2 className="mt-4 text-2xl font-black text-white">No live merchant inventory yet</h2>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">Products must come from an active merchant listing before we present them as purchasable. Samples stay separate.</p>
+                    {sampleListings.length ? <Button type="button" variant="outline" className="mt-5" onClick={() => setShowSamples((value) => !value)}>{showSamples ? "Hide sample catalog" : "View sample catalog"}</Button> : null}
+                </section>
+            ) : null}
+
+            {showSamples && realListings.length === 0 ? <div className="flex items-center justify-between rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-4 py-3 text-sm text-amber-100"><span><strong>Sample catalog.</strong> These items demonstrate the shopping experience and cannot be purchased.</span><Button size="sm" variant="ghost" onClick={() => setShowSamples(false)}>Hide</Button></div> : null}
 
             {/* Product Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {commerceQuery.isLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
                         <div key={i} className="bg-card rounded-2xl p-4 border border-border/40 animate-pulse h-80" />
@@ -162,9 +178,9 @@ const Marketplace = () => {
                     </div>
                 ) : (
                     listings.map((listing) => (
-                        <div key={listing.listing_id} className="group bg-card rounded-2xl border border-border/40 overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 flex flex-col">
+                        <article key={listing.listing_id} className="group flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#121212] transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_70px_rgba(0,0,0,.35)]">
                             {/* Product Image */}
-                            <div className="relative aspect-square overflow-hidden bg-muted">
+                            <Link to={`/shop/${encodeURIComponent(listing.listing_id || "")}`} className="relative block aspect-[4/3] overflow-hidden bg-white/[0.05]">
                                 {listing.image_url ? (
                                     <img src={listing.image_url} alt={listing.name || "Marketplace listing"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
@@ -179,9 +195,9 @@ const Marketplace = () => {
                                     </div>
                                 )}
                                 <div className="absolute right-3 top-3 rounded-full bg-background/90 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-foreground">
-                                    {listing.listing_kind === "service" ? "Service" : "Product"}
+                                    {isSampleCommerceListing(listing) ? "Sample · " : ""}{listing.listing_kind === "service" ? "Service" : "Product"}
                                 </div>
-                            </div>
+                            </Link>
 
                             {/* Product Info */}
                             <div className="p-5 flex-1 flex flex-col">
@@ -189,59 +205,23 @@ const Marketplace = () => {
                                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
                                         <MapPin className="w-3 h-3" /> {listing.venue_name || listing.merchant_name || "Local merchant"}
                                     </div>
-                                    <h3 className="font-bold text-foreground leading-tight group-hover:text-primary transition-colors">{listing.name}</h3>
+                                    <Link to={`/shop/${encodeURIComponent(listing.listing_id || "")}`}><h3 className="font-serif text-2xl font-bold leading-tight text-white transition-colors group-hover:text-primary">{listing.name}</h3></Link>
                                 </div>
 
                                 <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">
                                     {listing.description || "Available through the Promorang commerce directory."}
                                 </p>
 
+                                <ValueOutcomeChips outcomes={getListingOutcomes(listing)} className="mb-3" />
+
                                 <div className="mb-3 flex flex-wrap gap-2">
                                     {listing.category ? <Badge variant="outline" className="capitalize">{listing.category}</Badge> : null}
                                     {listing.fulfillment_mode ? <Badge variant="secondary" className="capitalize">{String(listing.fulfillment_mode).replace(/_/g, " ")}</Badge> : null}
                                 </div>
 
-                                <div className="space-y-3">
-                                    {listing.booking_url ? (
-                                        <Button className="w-full justify-between h-10 rounded-xl group/btn" variant="hero" asChild>
-                                            <a href={listing.booking_url} target="_blank" rel="noreferrer">
-                                                <span className="flex items-center gap-2">
-                                                    <CalendarDays className="w-4 h-4" /> Book
-                                                </span>
-                                                <span className="font-bold">{formatPrice(listing)}</span>
-                                            </a>
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            className="w-full justify-between h-10 rounded-xl group/btn"
-                                            variant="hero"
-                                            disabled={processing || listing.source_table !== "merchant_products"}
-                                            onClick={() => handlePurchase(listing, 'cash')}
-                                        >
-                                            <span className="flex items-center gap-2">
-                                                <CreditCard className="w-4 h-4" /> {listing.listing_kind === "service" ? "Request" : "Buy Now"}
-                                            </span>
-                                            <span className="font-bold">{formatPrice(listing)}</span>
-                                        </Button>
-                                    )}
-
-                                    {/* Redeem with Points */}
-                                    {listing.is_redeemable_with_points && (
-                                        <Button
-                                            className="w-full justify-between h-10 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 border border-amber-500/20"
-                                            variant="outline"
-                                            disabled={processing || !user || listing.source_table !== "merchant_products"}
-                                            onClick={() => handlePurchase(listing, 'points')}
-                                        >
-                                            <span className="flex items-center gap-2">
-                                                <Coins className="w-4 h-4" /> Use Points
-                                            </span>
-                                            <span className="font-bold">{listing.points_cost} Pts</span>
-                                        </Button>
-                                    )}
-                                </div>
+                                <Button className="w-full justify-between rounded-xl" variant="hero" asChild><Link to={`/shop/${encodeURIComponent(listing.listing_id || "")}`}><span className="flex items-center gap-2"><Eye className="h-4 w-4" />View details</span><span className="font-bold">{formatPrice(listing)}</span></Link></Button>
                             </div>
-                        </div>
+                        </article>
                     ))
                 )}
             </div>
@@ -259,7 +239,7 @@ const Marketplace = () => {
                     <Sparkles className="w-32 h-32" />
                 </div>
             </div>
-        </div>
+        </main>
     );
 };
 

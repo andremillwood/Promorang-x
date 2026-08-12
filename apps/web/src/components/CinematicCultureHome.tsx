@@ -31,6 +31,8 @@ import {
   Tag,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
+import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
+import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
@@ -445,6 +447,7 @@ export default function CinematicCultureHome() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <HomeFeedToggle />
       <section className="relative min-h-[92svh] overflow-hidden border-b border-white/10">
         <img src={heroImage} alt="People gathered around a live culture moment" className="absolute inset-0 h-full w-full object-cover object-[62%_center]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.2),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.82)_42%,rgba(0,0,0,0.92)_100%)] md:bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.18),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_45%,rgba(0,0,0,0.2)_100%)]" />
@@ -560,6 +563,8 @@ export default function CinematicCultureHome() {
               })}
             </nav>
           </div>
+
+          <DiscoveriesFeedSection />
 
           <div className="pt-9">
             <SectionHeader eyebrow="Upcoming and active" title="Moments worth" accent="showing up for" action="Explore all moments" actionHref="/discover/moments" />

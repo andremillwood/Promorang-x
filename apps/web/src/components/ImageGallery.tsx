@@ -231,13 +231,13 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                             <div className="flex gap-4 pb-1">
                                 <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors group">
                                     <div className="p-2 rounded-full bg-white/10 group-hover:bg-red-500/20 transition-colors">
-                                        <Heart className="w-6 h-6 group-hover:fill-red-500 group-hover:text-red-500 transition-all group-active:scale-90" />
+                                        <Heart className="w-6 h-6 group-hover:fill-red-500 group-hover:text-red-500 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group-active:scale-90" />
                                     </div>
                                     <span className="text-xs font-bold">{Math.floor(Math.random() * 20 + 5)}</span>
                                 </button>
                                 <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors group">
                                     <div className="p-2 rounded-full bg-white/10 group-hover:bg-orange-500/20 transition-colors">
-                                        <Flame className="w-6 h-6 group-hover:fill-orange-500 group-hover:text-orange-500 transition-all group-active:scale-90" />
+                                        <Flame className="w-6 h-6 group-hover:fill-orange-500 group-hover:text-orange-500 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group-active:scale-90" />
                                     </div>
                                     <span className="text-xs font-bold">{Math.floor(Math.random() * 5 + 1)}</span>
                                 </button>
@@ -274,7 +274,7 @@ export function ImageGallery({ images, className }: ImageGalleryProps) {
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
                                 className={cn(
-                                    "h-16 w-16 flex-shrink-0 snap-start overflow-hidden rounded-lg transition-all",
+                                    "h-16 w-16 flex-shrink-0 snap-start overflow-hidden rounded-lg transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                                     idx === currentIndex
                                         ? "ring-2 ring-white opacity-100"
                                         : "opacity-50 hover:opacity-75"

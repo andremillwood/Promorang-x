@@ -34,7 +34,7 @@ export function NextUnlock({ current, target = 500, label = "Next PromoKey", dar
   return (
     <div className={cn("rounded-xl border p-4", dark ? "border-white/10 bg-black/30" : "border-border bg-card")}>
       <div className="flex items-center justify-between gap-3 text-sm"><span className={cn("flex items-center gap-2 font-semibold", dark && "text-white")}><KeyRound className="h-4 w-4 text-primary" />{label}</span><span className={dark ? "text-white/45" : "text-muted-foreground"}>{Math.max(0, target - current)} to go</span></div>
-      <div className={cn("mt-3 h-2 overflow-hidden rounded-full", dark ? "bg-white/10" : "bg-muted")}><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} /></div>
+      <div className={cn("mt-3 h-2 overflow-hidden rounded-full", dark ? "bg-white/10" : "bg-muted")}><div className="h-full rounded-full bg-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]" style={{ width: `${progress}%` }} /></div>
     </div>
   );
 }
@@ -46,10 +46,21 @@ export function ProofReceipt({
   nextHref: string; nextLabel: string; secondaryHref?: string; secondaryLabel?: string;
 }) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-emerald-500/25 bg-[radial-gradient(circle_at_top,rgba(16,185,129,.18),transparent_42%),#0a0a0a] p-6 text-white shadow-2xl sm:p-8">
-      <div className="flex items-start gap-4"><div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-emerald-500/12"><BadgeCheck className="h-7 w-7 text-emerald-400" /></div><div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{pending ? "Proof received" : eyebrow}</p><h1 className="mt-2 text-3xl font-black tracking-[-0.04em]">{title}</h1><p className="mt-2 text-sm leading-6 text-white/55">{description}</p></div></div>
-      <div className="mt-6"><RewardStack items={items} dark /></div>
-      <div className="mt-6 flex flex-col gap-2 sm:flex-row"><Button asChild className="flex-1"><Link to={nextHref}>{nextLabel}<ChevronRight className="ml-2 h-4 w-4" /></Link></Button><Button asChild variant="outline" className="flex-1 border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"><Link to={secondaryHref}>{secondaryLabel}</Link></Button></div>
+    <section aria-live="polite" className="relative overflow-hidden rounded-[2rem] border border-emerald-400/20 bg-[#090b09] p-6 text-white shadow-2xl sm:p-8">
+      <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/70 to-transparent" />
+      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.62fr)] lg:items-end">
+        <div>
+          <div className="flex items-center gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-emerald-300/25 bg-emerald-400/10"><BadgeCheck className="h-6 w-6 text-emerald-300" /></div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">{pending ? "We received what you shared" : eyebrow}</p></div>
+          <h1 className="mt-7 max-w-2xl font-serif text-4xl font-semibold leading-[.95] tracking-[-0.045em] sm:text-5xl">{title}</h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/58">{description}</p>
+          <div className="mt-7 flex flex-col gap-2 sm:flex-row"><Button asChild><Link to={nextHref}>{nextLabel}<ChevronRight className="ml-2 h-4 w-4" /></Link></Button><Button asChild variant="outline" className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"><Link to={secondaryHref}>{secondaryLabel}</Link></Button></div>
+        </div>
+        <div className="relative rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 backdrop-blur">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">What changed</p>
+          <RewardStack items={items} dark />
+        </div>
+      </div>
     </section>
   );
 }

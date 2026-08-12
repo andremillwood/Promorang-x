@@ -16,11 +16,12 @@ const footerLinks = {
   how: [
     { label: "Overview", href: "/economy" },
     { label: "Moments", href: "/economy/moments" },
-    { label: "Marks & Points", href: "/economy/points" },
-    { label: "Keys", href: "/economy/keys" },
+    { label: "Points", href: "/economy/points" },
+    { label: "PromoKeys", href: "/economy/keys" },
+    { label: "Master Key", href: "/economy/master-key" },
     { label: "Pieces", href: "/economy/pieces" },
     { label: "Content", href: "/economy/content" },
-    { label: "PromoShare & Gems", href: "/economy/promoshare-gems" },
+    { label: "Tickets & Gems", href: "/economy/promoshare-gems" },
     { label: "Network value", href: "/economy/network" },
   ],
   partners: [
@@ -29,6 +30,8 @@ const footerLinks = {
     { label: "For Merchants", href: "/for-merchants" },
     { label: "For Hosts", href: "/for-communities" },
     { label: "For Agencies", href: "/for-agencies" },
+    { label: "For Enterprise", href: "/for-enterprise" },
+    { label: "For Causes & Non-Profits", href: "/for-causes" },
   ],
   support: [
     { label: "Help Center", href: "/help" },

@@ -124,7 +124,7 @@ export function StakeholderPaths() {
                 type="button"
                 onClick={() => setActivePath(path)}
                 className={cn(
-                  "w-48 rounded-2xl border p-4 text-left transition-all",
+                  "w-48 rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                   activePath.id === path.id
                     ? "border-primary bg-primary text-primary-foreground shadow-glow"
                     : "border-border bg-card text-card-foreground shadow-sm",
@@ -148,7 +148,7 @@ export function StakeholderPaths() {
                 type="button"
                 onClick={() => setActivePath(path)}
                 className={cn(
-                  "flex min-h-20 items-center gap-3 rounded-2xl p-4 text-left transition-all lg:min-h-0",
+                  "flex min-h-20 items-center gap-3 rounded-2xl p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] lg:min-h-0",
                   activePath.id === path.id
                     ? "bg-charcoal text-white shadow-card"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",

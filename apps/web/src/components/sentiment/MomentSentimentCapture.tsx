@@ -151,7 +151,7 @@ export function MomentSentimentCapture({
         </div>
         <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
           <div 
-            className="bg-primary h-full transition-all duration-300"
+            className="bg-primary h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -175,7 +175,7 @@ export function MomentSentimentCapture({
                     key={star}
                     onClick={() => setOverallRating(star)}
                     className={cn(
-                      "p-2 transition-all duration-200 hover:scale-110",
+                      "p-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 hover:scale-110",
                       star <= overallRating ? "text-yellow-400" : "text-gray-300"
                     )}
                   >
@@ -238,7 +238,7 @@ export function MomentSentimentCapture({
                       key={star}
                       onClick={() => setExperienceRating(star)}
                       className={cn(
-                        "p-1 transition-all duration-200 hover:scale-110",
+                        "p-1 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 hover:scale-110",
                         star <= experienceRating ? "text-yellow-400" : "text-gray-300"
                       )}
                     >
@@ -264,7 +264,7 @@ export function MomentSentimentCapture({
                       key={star}
                       onClick={() => setValueRating(star)}
                       className={cn(
-                        "p-1 transition-all duration-200 hover:scale-110",
+                        "p-1 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200 hover:scale-110",
                         star <= valueRating ? "text-yellow-400" : "text-gray-300"
                       )}
                     >
@@ -347,7 +347,7 @@ export function MomentSentimentCapture({
                   key={tag.id}
                   onClick={() => toggleTag(tag.id)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                    "px-3 py-1.5 rounded-full text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200",
                     selectedTags.includes(tag.id)
                       ? cn(tag.color, "ring-2 ring-offset-1 ring-primary")
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"

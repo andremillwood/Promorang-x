@@ -27,7 +27,8 @@ const supabase = supabaseUrl && supabaseServiceKey
   : null;
 
 const DEMO_USER_ID_PREFIXES = ['demo-', 'a0000000', '00000000-0000-'];
-const ADMIN_ROLES = ['admin', 'master_admin', 'moderator'];
+const ADMIN_ROLES = ['admin', 'administrator', 'master_admin', 'moderator'];
+const PLATFORM_ADMIN_ROLES = ['admin', 'administrator', 'master_admin'];
 
 function isDemoUserId(userId) {
   const value = String(userId || '');
@@ -529,6 +530,44 @@ const requireAdmin = async (req, res, next) => {
   return res.status(403).json({ error: 'Admin access required' });
 };
 
+/**
+ * Require platform-management privileges. Moderators intentionally do not pass
+ * this guard: they can review and moderate records, but cannot perform arbitrary
+ * CRUD, ownership transfers, or other platform-management changes.
+ */
+const requirePlatformAdmin = async (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const tokenRoles = [
+    req.user.role,
+    req.user.user_type,
+    ...(req.user.roles || []),
+    req.user.token_payload?.role,
+    req.user.token_payload?.user_role,
+    req.user.token_payload?.user_metadata?.role,
+    req.user.token_payload?.user_metadata?.user_type
+  ].filter(Boolean);
+
+  if (tokenRoles.some((role) => PLATFORM_ADMIN_ROLES.includes(role))) {
+    return next();
+  }
+
+  try {
+    const roles = await getUserRoles(req.user.id);
+    if (roles.some((role) => PLATFORM_ADMIN_ROLES.includes(role))) {
+      req.user.roles = Array.from(new Set([...(req.user.roles || []), ...roles]));
+      req.user.role = roles.find((role) => PLATFORM_ADMIN_ROLES.includes(role)) || req.user.role;
+      return next();
+    }
+  } catch (error) {
+    console.error('[Auth] Platform admin role lookup failed:', error.message);
+  }
+
+  return res.status(403).json({ error: 'Platform admin access required' });
+};
+
 const requireMasterAdmin = async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
 
@@ -580,4 +619,4 @@ const requireRole = (roles) => (req, res, next) => {
   });
 };
 
-module.exports = { requireAuth, requireAdmin, requireMasterAdmin, requireRole, optionalAuth, resolveAdvertiserContext, resolveMerchantContext, getUserRoles };
+module.exports = { requireAuth, requireAdmin, requirePlatformAdmin, requireMasterAdmin, requireRole, optionalAuth, resolveAdvertiserContext, resolveMerchantContext, getUserRoles };

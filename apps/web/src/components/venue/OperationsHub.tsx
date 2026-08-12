@@ -131,7 +131,7 @@ function TodayFlowTab({ operations }: { operations: VenueOperationsMetrics[] }) 
                   <div className="h-8 bg-secondary rounded-md overflow-hidden relative">
                     <div
                       className={cn(
-                        "h-full transition-all",
+                        "h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                         isPeak ? "bg-primary" : "bg-primary/60",
                         op.queue_times_minutes && op.queue_times_minutes > 5 ? "bg-amber-500" : ""
                       )}

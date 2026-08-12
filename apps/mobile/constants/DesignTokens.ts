@@ -37,9 +37,11 @@ export const Colors = {
 
 export const Typography = {
   families: { serif: 'System', sans: 'System', mono: 'SpaceMono' },
-  sizes: { xs: 11, sm: 13, base: 15, lg: 18, xl: 21, '2xl': 26, '3xl': 32, '4xl': 40 },
+  sizes: { xs: 12, sm: 14, base: 16, lg: 18, xl: 21, '2xl': 26, '3xl': 32, '4xl': 40 },
   weights: { light: '300', regular: '400', medium: '500', semibold: '600', bold: '700', heavy: '900' },
 } as const;
+
+export const Motion = { pressScale: 0.97, fast: 150, standard: 220 } as const;
 
 export const Spacing = { container: 18, xs: 4, sm: 8, md: 14, lg: 22, xl: 30, '2xl': 44 };
 export const BorderRadius = { sm: 6, md: 10, lg: 14, xl: 18, '2xl': 26, full: 9999 };

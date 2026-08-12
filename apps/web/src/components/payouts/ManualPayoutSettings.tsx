@@ -367,7 +367,7 @@ const ManualPayoutSettings = () => {
                                 </div>
                             ) : (
                                 methods.map((method) => (
-                                    <div key={method.id} className="bg-card border border-border rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-primary/50 transition-all shadow-sm hover:shadow-md">
+                                    <div key={method.id} className="bg-card border border-border rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-primary/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] shadow-sm hover:shadow-md">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                                 {method.method_type === 'wire_transfer' && <Landmark className="w-6 h-6" />}

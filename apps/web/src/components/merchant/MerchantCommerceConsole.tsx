@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { summarizeMerchantLiveOps, type MerchantLiveOpsListing } from "@promorang/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -48,6 +49,17 @@ type ReceiptRow = {
   } | null;
 };
 
+type MerchantPaymentOrder = {
+  id: string;
+  payment_status: string;
+  total_amount: number | string;
+  currency: string;
+  reservation_expires_at: string;
+  merchant_payment_reference?: string | null;
+  metadata?: { merchant_payment_display_name?: string; merchant_payment_instructions?: string } | null;
+  commerce_order_items?: Array<{ product_name: string; quantity: number }>;
+};
+
 const money = (amount: number | string | null | undefined, currency = "USD") => {
   const value = Number(amount || 0);
   return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
@@ -59,6 +71,15 @@ const receiptLabel = (receipt: ReceiptRow) => {
   if (receipt.receipt_type === "redemption") return `Offer redeemed${receipt.attribution?.coupon_code ? ` · ${receipt.attribution.coupon_code}` : ""}`;
   return receipt.receipt_type.replace("_", " ");
 };
+
+const DIRECT_METHODS = [
+  ["cash_on_pickup", "Cash on pickup"],
+  ["card_terminal_pickup", "Card terminal at pickup"],
+  ["lynk_at_venue", "Lynk payment at the venue"],
+  ["bank_transfer", "Bank transfer"],
+  ["merchant_payment_link", "Merchant-issued payment link"],
+  ["cash_on_delivery", "Cash on delivery"],
+] as const;
 
 export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { onOpenProducts?: () => void; onOpenValidation?: () => void }) {
   const { session } = useAuth();
@@ -91,6 +112,93 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
     },
   });
 
+  const liveOpsQuery = useQuery({
+    queryKey: ["merchant-live-ops"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/merchant/live-ops`, { headers: { Authorization: `Bearer ${session!.access_token}` } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load live operations");
+      return data as { listings: MerchantLiveOpsListing[]; receipts: ReceiptRow[]; moments: Array<{ id: string; title: string }>; live_moment_ids: string[] };
+    },
+  });
+  const merchantPaymentOrders = useQuery({
+    queryKey: ["merchant-payment-orders"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/merchant/commerce/merchant-payment-orders`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load merchant-collected orders");
+      return (data.orders || []) as MerchantPaymentOrder[];
+    },
+  });
+  const directMethods = useQuery({
+    queryKey: ["merchant-direct-payment-methods"],
+    enabled: !!session?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/merchant/commerce/direct-payment-methods`, { headers: { Authorization: `Bearer ${session!.access_token}` } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load direct payment settings");
+      return data.methods as Array<{ method_type: string; active: boolean; instructions?: string | null; payment_link?: string | null }>;
+    },
+  });
+  const saveDirectMethod = useMutation({
+    mutationFn: async ({ type, label, active }: { type: string; label: string; active: boolean }) => {
+      const existing = directMethods.data?.find((method) => method.method_type === type);
+      const instructions = active ? window.prompt(`Instructions customers should see for ${label}:`, existing?.instructions || "") : existing?.instructions || "";
+      if (active && instructions === null) throw new Error("Cancelled");
+      const paymentLink = type === "merchant_payment_link" && active
+        ? window.prompt("Paste the merchant payment link:", existing?.payment_link || "") : existing?.payment_link || "";
+      if (type === "merchant_payment_link" && active && !paymentLink) throw new Error("A payment link is required");
+      const response = await fetch(`${API_URL}/api/merchant/commerce/direct-payment-methods/${type}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${session!.access_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name: label, instructions, payment_link: paymentLink, active }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not save payment method");
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["merchant-direct-payment-methods"] }),
+  });
+  const confirmMerchantPayment = useMutation({
+    mutationFn: async ({ orderId, reference }: { orderId: string; reference: string }) => {
+      const response = await fetch(`${API_URL}/api/merchant/commerce/merchant-payment-orders/${orderId}/confirm`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session!.access_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ reference }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not confirm payment");
+      return data;
+    },
+    onSuccess: () => {
+      toast({ title: "Merchant payment confirmed", description: "A paid receipt was issued. Fulfillment remains separate." });
+      queryClient.invalidateQueries({ queryKey: ["merchant-payment-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["merchant-commerce-receipts"] });
+    },
+    onError: (error) => toast({ title: "Payment not confirmed", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" }),
+  });
+  const awaitingMerchantPayments = (merchantPaymentOrders.data || []).filter((order) =>
+    order.payment_status === "requires_payment" && new Date(order.reservation_expires_at).getTime() > Date.now()
+  );
+  const casesQuery = useQuery({
+    queryKey: ["merchant-commerce-cases"], enabled: !!session?.access_token,
+    queryFn: async () => { const response = await fetch(`${API_URL}/api/support/merchant/commerce-cases`, { headers: { Authorization: `Bearer ${session!.access_token}` } }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not load cases"); return data.cases as Array<any>; },
+  });
+  const openCases = (casesQuery.data || []).filter((item) => ["open", "in_progress"].includes(item.status));
+  const respondToCase = async (caseId: string) => {
+    const message = window.prompt("Write the merchant response the customer and Promorang should see:");
+    if (!message?.trim()) return;
+    const response = await fetch(`${API_URL}/api/support/merchant/commerce-cases/${caseId}/respond`, { method: "POST", headers: { Authorization: `Bearer ${session!.access_token}`, "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
+    const data = await response.json();
+    if (!response.ok) return toast({ title: "Response not sent", description: data.error || "Please try again.", variant: "destructive" });
+    toast({ title: "Merchant response recorded", description: "Promorang can now review the case and resolution." });
+    casesQuery.refetch();
+  };
+
   const updateReceiptStatus = useMutation({
     mutationFn: async ({ id, status, note }: { id: string; status: "fulfilled" | "cancelled" | "refunded"; note?: string }) => {
       const response = await fetch(`${API_URL}/api/merchant/receipts/${id}/status`, {
@@ -112,6 +220,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
       });
       queryClient.invalidateQueries({ queryKey: ["merchant-commerce-receipts"] });
       queryClient.invalidateQueries({ queryKey: ["merchant-sales-console"] });
+      queryClient.invalidateQueries({ queryKey: ["merchant-live-ops"] });
     },
     onError: (error) => {
       toast({
@@ -137,6 +246,9 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
     .filter((receipt) => receipt.receipt_type === "purchase" && receipt.status === "fulfilled")
     .reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0);
   const recentActivity = receipts.slice(0, 8);
+  const liveOps = summarizeMerchantLiveOps(liveOpsQuery.data?.listings || [], liveOpsQuery.data?.receipts || []);
+  const liveMomentNames = (liveOpsQuery.data?.moments || []).filter((moment) => liveOpsQuery.data?.live_moment_ids.includes(moment.id)).map((moment) => moment.title);
+  const pressuredListings = (liveOpsQuery.data?.listings || []).filter((item) => item.inventory_quantity != null && Number(item.inventory_quantity) <= 5).slice(0, 5);
 
   const stats = useMemo(() => [
     { label: "Open reservations", value: pendingSales.length.toLocaleString(), icon: Bookmark, helper: "Awaiting validation" },
@@ -149,6 +261,20 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
 
   return (
     <section className="space-y-4">
+      <Card className="overflow-hidden border-orange-500/25 bg-[#11100e] text-white">
+        <CardContent className="p-5 sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-orange-400">Live operations</p><h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight">{liveMomentNames.length ? liveMomentNames.join(" · ") : "Your counter right now"}</h2><p className="mt-2 max-w-xl text-sm text-white/55">See what needs staff attention before a customer reaches the front of the line.</p></div>
+            <Button onClick={onOpenValidation} className="bg-orange-500 text-black hover:bg-orange-400"><QrCode className="mr-2 h-4 w-4" />Open scanner · {liveOps.needsAction} waiting</Button>
+          </div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[["Available",liveOps.activeListings],["Low stock",liveOps.lowStock],["Sold out",liveOps.soldOut],["Needs action",liveOps.needsAction],["Fulfilled",liveOps.fulfilled],["Attributed",money(liveOps.attributedRevenue)]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/[.04] p-3"><p className="text-xl font-black">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/45">{label}</p></div>)}
+          </div>
+          {pressuredListings.length ? <div className="mt-4 flex flex-wrap gap-2" aria-label="Stock requiring attention">{pressuredListings.map((item)=><button key={item.id} type="button" onClick={onOpenProducts} className={`rounded-full border px-3 py-2 text-xs font-bold ${Number(item.inventory_quantity) === 0 ? "border-red-400/30 bg-red-400/10 text-red-300" : "border-amber-400/30 bg-amber-400/10 text-amber-200"}`}>{item.name} · {Number(item.inventory_quantity) === 0 ? "sold out" : `${item.inventory_quantity} left`}</button>)}</div> : null}
+        </CardContent>
+      </Card>
+      {openCases.length ? <Card className="border-red-500/25 bg-red-500/[.04]"><CardContent className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-red-500">Customer cases</p><h3 className="mt-1 text-xl font-black">{openCases.length} need a response</h3></div><Badge variant="destructive">Response clock active</Badge></div><div className="mt-4 space-y-2">{openCases.slice(0,4).map((item)=><div key={item.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold">{item.receipt?.merchant_products?.name || item.subject}</p><p className="mt-1 text-xs text-muted-foreground">{String(item.commerce_reason || "commerce issue").replaceAll("_"," ")} · due {item.merchant_response_due_at ? new Date(item.merchant_response_due_at).toLocaleString() : "soon"}</p></div><Button size="sm" onClick={()=>respondToCase(item.id)}>Respond</Button></div>)}</div></CardContent></Card> : null}
+      {awaitingMerchantPayments.length ? <Card className="border-amber-500/25 bg-amber-500/[.05]"><CardContent className="p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-amber-600">Paid directly to you</p><h3 className="mt-1 text-xl font-black">{awaitingMerchantPayments.length} awaiting payment confirmation</h3><p className="mt-2 text-sm text-muted-foreground">Verify the money in your terminal, bank, Lynk account, or cash drawer before confirming.</p><div className="mt-4 space-y-2">{awaitingMerchantPayments.map((order)=><div key={order.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{order.commerce_order_items?.map((item)=>`${item.quantity}× ${item.product_name}`).join(", ") || "Merchant order"}</p><p className="mt-1 text-xs text-muted-foreground">{order.metadata?.merchant_payment_display_name || "Direct merchant payment"} · expires {new Date(order.reservation_expires_at).toLocaleTimeString()}</p></div><div className="flex items-center gap-3"><strong>{money(order.total_amount, order.currency)}</strong><Button size="sm" disabled={confirmMerchantPayment.isPending} onClick={()=>{const reference=window.prompt("Enter the terminal, bank, Lynk, cash, or payment-link reference:"); if(reference?.trim()) confirmMerchantPayment.mutate({orderId:order.id,reference:reference.trim()});}}>Confirm money received</Button></div></div>)}</div></CardContent></Card> : null}
       <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-primary/5">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -160,7 +286,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={() => { salesQuery.refetch(); receiptsQuery.refetch(); }}>
+              <Button variant="outline" onClick={() => { salesQuery.refetch(); receiptsQuery.refetch(); liveOpsQuery.refetch(); }}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
               </Button>
@@ -183,6 +309,15 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
                 <p className="mt-1 text-[11px] text-muted-foreground">{stat.helper}</p>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-5">
+          <h3 className="font-black">Payment collected by you</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Enable only methods you personally accept. Promorang reserves stock but does not collect or guarantee these payments.</p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {DIRECT_METHODS.map(([type,label])=>{const enabled=Boolean(directMethods.data?.find((method)=>method.method_type===type)?.active);return <button key={type} type="button" disabled={saveDirectMethod.isPending} onClick={()=>saveDirectMethod.mutate({type,label,active:!enabled})} className={`rounded-2xl border p-4 text-left ${enabled?"border-emerald-500/30 bg-emerald-500/10":"bg-card"}`}><p className="font-bold">{label}</p><p className="mt-1 text-xs text-muted-foreground">{enabled?"Enabled · click to disable":"Click to configure"}</p></button>})}
           </div>
         </CardContent>
       </Card>

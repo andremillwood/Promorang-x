@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { 
   Search, 
   CheckCircle, 
@@ -244,7 +245,16 @@ export function KYCAdminDashboard() {
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-3xl font-bold">KYC Review Dashboard</h1>
-            <p className="text-muted-foreground">Review user identity verifications</p>
+            <GuidanceDisclosure
+              id="kyc-admin:review-queue"
+              eyebrow="Review guide"
+              title="How to work the identity queue"
+              summary="Review submitted documents, assign the appropriate level, and record clear notes for approval or rejection."
+              className="mt-3"
+              tone="light"
+            >
+              <p className="text-sm text-muted-foreground">Review user identity verifications.</p>
+            </GuidanceDisclosure>
           </div>
           <Button onClick={() => { fetchSubmissions(); fetchStats(); }}>
             Refresh
@@ -368,6 +378,18 @@ export function KYCAdminDashboard() {
             <DialogTitle>
               Review KYC: {selectedSubmission?.first_name} {selectedSubmission?.last_name}
             </DialogTitle>
+            <GuidanceDisclosure
+              id="kyc-admin:submission-decision"
+              eyebrow="Decision guide"
+              title="What to check before deciding"
+              summary="Compare identity fields, documents, selfie, address proof, level, and notes before approving or rejecting."
+              className="mt-3"
+              tone="light"
+            >
+              <p className="text-sm text-muted-foreground">
+                Confirm the user details match the uploaded documents before assigning a level or rejection reason.
+              </p>
+            </GuidanceDisclosure>
           </DialogHeader>
 
           {selectedSubmission && (

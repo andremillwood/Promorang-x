@@ -288,15 +288,24 @@ export function useMomentsForApproval() {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name, avatar_url")
+        .select("user_id, display_name, avatar_url")
         .in("user_id", hostIds);
 
-      return moments.map((moment) => ({
-        ...moment,
-        status: (moment as any).status || "joinable",
-        visibility: (moment as any).visibility || "open",
-        host_profile: profiles?.find((p) => p.user_id === moment.host_id) || null,
-      })) as MomentForApproval[];
+      return moments.map((moment) => {
+        const profile = profiles?.find((p) => p.user_id === moment.host_id);
+
+        return {
+          ...moment,
+          status: (moment as any).status || "joinable",
+          visibility: (moment as any).visibility || "open",
+          host_profile: profile
+            ? {
+                full_name: profile.display_name,
+                avatar_url: profile.avatar_url,
+              }
+            : null,
+        };
+      }) as MomentForApproval[];
     },
     enabled: !!user,
   });

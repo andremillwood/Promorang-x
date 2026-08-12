@@ -11,6 +11,7 @@ import {
   Eye,
   Flame,
   Handshake,
+  HelpCircle,
   Play,
   Shield,
   Sparkles,
@@ -20,30 +21,32 @@ import {
   Users,
   Zap
 } from 'lucide-react';
+import CollapsibleSection from '@/react-app/components/CollapsibleSection';
+import ExplainerModal, { ExplainerContent } from '@/react-app/components/ExplainerModal';
 
 const opportunityCards = [
   {
-    label: 'Creator moment',
-    title: 'A short-form drop is gaining early velocity',
-    meta: 'Open for backers',
-    signal: '+38% saves',
-    action: 'Back the moment',
+    label: 'Creator drop',
+    title: 'Support an upcoming short video release before it goes viral',
+    meta: 'Instant reward',
+    signal: '+38% backers',
+    action: 'Back this drop',
     tone: 'from-orange-500 to-red-500'
   },
   {
-    label: 'Brand mission',
-    title: 'A local launch needs verified attention',
-    meta: 'Proof required',
-    signal: '5 day sprint',
-    action: 'Join the mission',
+    label: 'Brand task',
+    title: 'Try out a local product & share your honest feedback',
+    meta: 'Proof needed',
+    signal: '5 days left',
+    action: 'Join task',
     tone: 'from-blue-500 to-cyan-500'
   },
   {
-    label: 'Place activation',
-    title: 'A weekend experience is filling fast',
+    label: 'Weekend place',
+    title: 'Attend a live pop-up venue and get exclusive perks',
     meta: 'Limited spots',
     signal: '82% claimed',
-    action: 'Reserve a role',
+    action: 'Claim perk',
     tone: 'from-emerald-500 to-teal-500'
   }
 ];
@@ -51,103 +54,103 @@ const opportunityCards = [
 const stakeholderPaths = [
   {
     icon: Sparkles,
-    title: 'Creators',
-    outcome: 'Turn attention into funded momentum.',
-    proof: 'Pre-launch backing, social proof, repeat supporters',
-    cta: 'Create a moment'
+    title: 'Creators & Artists',
+    outcome: 'Turn your passion and drops into early funding and real fans.',
+    proof: 'Get backed before launching, grow repeat supporters, and share success.',
+    cta: 'Share your drop'
   },
   {
     icon: Users,
-    title: 'Participants',
-    outcome: 'Discover things worth doing, sharing, and backing.',
-    proof: 'Missions, rewards, saved value, visible progress',
-    cta: 'Browse opportunities'
+    title: 'Community & Earners',
+    outcome: 'Discover fun things to do, support creators, and earn real rewards.',
+    proof: 'Simple tasks, instant perks, saved rewards, clear wallet balance.',
+    cta: 'Browse tasks'
   },
   {
     icon: Target,
-    title: 'Brands',
-    outcome: 'Buy verified action instead of vague impressions.',
-    proof: 'Proof capture, completion quality, campaign dashboards',
-    cta: 'Launch a campaign'
+    title: 'Brands & Businesses',
+    outcome: 'Get real people taking real actions instead of paying for fake clicks.',
+    proof: 'Photo proof, completion dashboards, authentic user reviews.',
+    cta: 'Start a campaign'
   },
   {
     icon: Handshake,
-    title: 'Hosts and merchants',
-    outcome: 'Convert local moments into foot traffic and loyalty.',
-    proof: 'Check-ins, redemptions, community memory',
-    cta: 'Activate a place'
+    title: 'Local Hosts & Venues',
+    outcome: 'Bring foot traffic to your physical store or event venue.',
+    proof: 'Check-in proof, coupon redemptions, returning customer rewards.',
+    cta: 'List your venue'
   }
 ];
 
 const successFactors = [
-  { icon: Eye, label: 'Discoverable', text: 'Every card shows what it is, who it helps, and the next action.' },
-  { icon: Shield, label: 'Verifiable', text: 'Proof, status, and reward rules are visible before commitment.' },
-  { icon: BarChart3, label: 'Measurable', text: 'Creators and brands see momentum, completion, and value returned.' },
-  { icon: CheckCircle, label: 'Retainable', text: 'Wallet, saved items, and achievements give every journey a reason to return.' }
+  { icon: Eye, label: 'Super Simple', text: 'Clear tasks so you always know what to do and what you get.' },
+  { icon: Shield, label: 'Fair & Verified', text: 'Rules and rewards are shown upfront before you begin.' },
+  { icon: BarChart3, label: 'Real Results', text: 'Creators and brands see authentic engagement from real people.' },
+  { icon: CheckCircle, label: 'Keep What You Earn', text: 'Your rewards, gems, and perks are saved securely in your wallet.' }
 ];
 
 const pathTabs = [
   {
     id: 'participants',
-    label: 'Participants',
-    headline: 'Find tasks, moments, and places that are worth your next move.',
-    copy: 'Browse rewards, proof requirements, timelines, and upside before you commit. The product should feel like a market of choices, not a maze of panels.',
-    actions: ['Join proof missions', 'Back creator moments', 'Save rewards to Vault'],
-    cta: 'Start earning'
+    label: 'Earners & Fans',
+    headline: 'Find tasks, creator drops, and local spots that pay you back.',
+    copy: 'Browse reward payouts, time limits, and simple proof steps before committing. It is as easy as choosing what sounds fun.',
+    actions: ['Complete simple tasks', 'Support creator drops early', 'Save perks to your wallet'],
+    cta: 'Start earning now'
   },
   {
     id: 'creators',
     label: 'Creators',
-    headline: 'Launch moments with early backing and visible momentum.',
-    copy: 'Creators need pre-launch signal, funding, repeat supporters, and a path from content to community value.',
-    actions: ['Fund upcoming drops', 'Sell momentum shares', 'Convert supporters into advocates'],
-    cta: 'Create a moment'
+    headline: 'Launch your content with early support from real fans.',
+    copy: 'Get funding before you publish, build a loyal community, and share the upside of your success.',
+    actions: ['Fund upcoming content', 'Share growth with fans', 'Turn followers into true supporters'],
+    cta: 'Share a project'
   },
   {
     id: 'brands',
     label: 'Brands',
-    headline: 'Buy verified action instead of hoping impressions turn into intent.',
-    copy: 'Commercial users need pricing clarity, proof dashboards, UGC rights, and confidence that real people completed real actions.',
-    actions: ['100 real people campaigns', 'Proof capture and dashboards', 'UGC and local activation'],
-    cta: 'Launch campaign'
+    headline: 'Get real customer actions instead of hoping ads work.',
+    copy: 'Know exactly what you spend: verified photos, real foot traffic, user reviews, and clear results dashboards.',
+    actions: ['100 real people campaigns', 'Verified photo proof', 'User-generated content'],
+    cta: 'Launch a campaign'
   },
   {
     id: 'hosts',
-    label: 'Hosts',
-    headline: 'Turn local energy into check-ins, memories, and repeat visits.',
-    copy: 'Hosts and merchants need discovery, foot traffic, redemptions, and a reason for people to come back after the event.',
-    actions: ['Place activations', 'Reward redemptions', 'Community memory capture'],
-    cta: 'Activate a place'
+    label: 'Local Venues',
+    headline: 'Turn foot traffic into loyal customers for your local business.',
+    copy: 'Welcome new guests into your venue with check-in deals, instant digital coupons, and fun rewards.',
+    actions: ['In-person check-ins', 'Redeemable venue perks', 'Community loyalty'],
+    cta: 'Promote your venue'
   }
 ];
 
 const earningMechanics = [
   {
     icon: Zap,
-    title: 'Fuel the Moment',
-    description: 'Boost upcoming content and earn participation rewards.',
-    signal: '$25 avg',
+    title: 'Support Drops',
+    description: 'Back upcoming creator videos or music and share the rewards.',
+    signal: '$25 avg reward',
     tone: 'bg-blue-50 text-blue-700 border-blue-100'
   },
   {
     icon: TrendingUp,
-    title: 'Equity Trading',
-    description: 'Own permanent shares of viral moments and follow the upside.',
-    signal: '12.5% ROI',
+    title: 'Share & Grow',
+    description: 'Own pieces of popular creator drops and earn as they grow.',
+    signal: 'High growth potential',
     tone: 'bg-emerald-50 text-emerald-700 border-emerald-100'
   },
   {
     icon: Target,
-    title: 'Social Arbitrage',
-    description: 'Spot early signals and predict which moments will trend next.',
-    signal: '87% win rate',
+    title: 'Spot Trends Early',
+    description: 'Discover trending videos and tasks before everyone else.',
+    signal: 'Easy start',
     tone: 'bg-violet-50 text-violet-700 border-violet-100'
   },
   {
     icon: Users,
-    title: 'Moment Scaling',
-    description: 'Help brands and hosts turn ideas into measurable movement.',
-    signal: 'Direct rewards',
+    title: 'Complete Missions',
+    description: 'Help local brands and hosts run successful community events.',
+    signal: 'Instant payouts',
     tone: 'bg-orange-50 text-orange-700 border-orange-100'
   }
 ];
@@ -155,30 +158,30 @@ const earningMechanics = [
 const calculatorPackages = [
   {
     id: 'starter',
-    label: 'Hero Bundle',
+    label: 'Starter Pack',
     price: 25000,
     actions: 100,
-    ugc: '10-20 UGC pieces',
+    ugc: '10-20 customer posts',
     delivery: '5 days',
-    proof: 'Full proof dashboard'
+    proof: 'Verified photo dashboard'
   },
   {
     id: 'growth',
-    label: 'Customer Activation',
+    label: 'Growth Boost',
     price: 120000,
     actions: 750,
-    ugc: 'Multi-day venue proof',
+    ugc: 'Venue visits & posts',
     delivery: '7-14 days',
-    proof: 'Advanced audience targeting'
+    proof: 'Targeted local reach'
   },
   {
     id: 'scale',
-    label: 'Market Movement',
+    label: 'City Takeover',
     price: 300000,
     actions: 2200,
-    ugc: 'Campaign content library',
+    ugc: 'Full content library',
     delivery: '30 days',
-    proof: 'ROI and retention reporting'
+    proof: 'Sales & loyalty analytics'
   }
 ];
 
@@ -187,32 +190,64 @@ const platformSignals = ['Instagram', 'TikTok', 'YouTube', 'X', 'LinkedIn', 'Fac
 const proofStories = [
   {
     name: 'Sarah Chen',
-    role: 'Early creator',
+    role: 'Creator',
     result: '$247',
     label: 'first month',
-    quote: 'Made money before I had a large audience because people could back the idea early.'
+    quote: 'I got funding from supporters before launching my first video. It gave me the confidence to create!'
   },
   {
     name: 'Mike Rodriguez',
-    role: 'Participant',
+    role: 'Earner',
     result: '$384',
-    label: '2 months',
-    quote: 'The best part is seeing what is open now, what proof is needed, and what I keep after.'
+    label: 'in 2 months',
+    quote: 'I love seeing what tasks are available near me, completing them in minutes, and watching my earnings grow.'
   },
   {
     name: 'Local Coffee Co.',
-    role: 'Brand partner',
+    role: 'Local Merchant',
     result: '100+',
-    label: 'verified actions',
-    quote: 'We needed authentic local activity, not another abstract impressions report.'
+    label: 'real customers',
+    quote: 'We got actual foot traffic into our cafe instead of spending money on online ads that bring no one in.'
   }
 ];
+
+const howItWorksExplainer: ExplainerContent = {
+  title: 'How Promorang Works',
+  subtitle: 'A simple way to discover fun tasks, support creators, and get rewarded for real actions.',
+  badge: 'Simple Step-by-Step Guide',
+  steps: [
+    {
+      number: '1',
+      title: 'Discover what is open',
+      description: 'Browse tasks, creator drops, and local venue perks. Filter by what pays best or what sounds fun to you.',
+      tip: 'New drops and local tasks are added daily!'
+    },
+    {
+      number: '2',
+      title: 'Pick an action',
+      description: 'Choose a task you want to do: try out a product, check in at a venue, or support a creator video early.',
+    },
+    {
+      number: '3',
+      title: 'Show quick proof',
+      description: 'Upload a quick screenshot, photo, or check-in to confirm you completed the action.',
+      tip: 'Verification usually takes under 60 seconds.'
+    },
+    {
+      number: '4',
+      title: 'Collect & keep your rewards',
+      description: 'Your cash earnings, gems, and perks land straight in your wallet. Use them or cash out whenever you like!',
+    }
+  ],
+  ctaText: 'Start Exploring Now'
+};
 
 export default function Home() {
   const { user, isPending, redirectToLogin } = useAuth();
   const navigate = useNavigate();
   const [activePath, setActivePath] = useState(pathTabs[0]);
   const [selectedPackage, setSelectedPackage] = useState(calculatorPackages[0]);
+  const [explainerOpen, setExplainerOpen] = useState(false);
   const [activeStats, setActiveStats] = useState({
     earners: 127,
     payout: 0.3,
@@ -220,10 +255,10 @@ export default function Home() {
   });
 
   const marketStrip = useMemo(() => [
-    { label: 'Live opportunities', value: activeStats.opportunities.toString(), change: '+4 today' },
-    { label: 'Early members', value: activeStats.earners.toLocaleString(), change: 'growing' },
-    { label: 'Weekly value', value: `${activeStats.payout.toFixed(1)}k gems`, change: 'paid out' },
-    { label: 'Proof rate', value: '95%', change: 'verified' }
+    { label: 'Open tasks now', value: activeStats.opportunities.toString(), change: '+4 added today' },
+    { label: 'Active members', value: activeStats.earners.toLocaleString(), change: 'joining daily' },
+    { label: 'Rewards paid', value: `${activeStats.payout.toFixed(1)}k gems`, change: 'to community' },
+    { label: 'Proof success rate', value: '95%', change: 'verified' }
   ], [activeStats]);
 
   const calculatorResults = useMemo(() => {
@@ -268,6 +303,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#f7f3ec] text-slate-950">
+      <ExplainerModal
+        isOpen={explainerOpen}
+        onClose={() => setExplainerOpen(false)}
+        content={{
+          ...howItWorksExplainer,
+          onCtaClick: () => redirectToLogin()
+        }}
+      />
+
       <nav className="sticky top-0 z-50 border-b border-slate-900/10 bg-[#f7f3ec]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <img
@@ -276,13 +320,16 @@ export default function Home() {
             className="h-8 w-auto"
           />
           <div className="hidden items-center gap-7 md:flex">
-            <a href="#discover" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Discover</a>
-            <a href="#mechanics" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Earn</a>
-            <a href="#calculator" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Calculator</a>
-            <a href="#paths" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Journeys</a>
-            <a href="#trust" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Success factors</a>
+            <a href="#discover" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Live Tasks</a>
+            <a href="#paths" className="text-sm font-semibold text-slate-700 hover:text-slate-950">Who it's for</a>
+            <a href="#how-it-works" className="text-sm font-semibold text-slate-700 hover:text-slate-950">How it works</a>
+            <a href="#calculator" className="text-sm font-semibold text-slate-700 hover:text-slate-950">For Business</a>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={() => setExplainerOpen(true)} className="hidden sm:inline-flex items-center text-sm font-semibold text-orange-700 hover:text-orange-900 gap-1">
+              <HelpCircle className="w-4 h-4" />
+              How it works
+            </button>
             <button onClick={() => redirectToLogin()} className="text-sm font-semibold text-slate-700 hover:text-slate-950">
               Sign in
             </button>
@@ -290,7 +337,7 @@ export default function Home() {
               onClick={() => redirectToLogin()}
               className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition hover:-translate-y-0.5 hover:bg-slate-800"
             >
-              Enter market
+              Start Earning
             </button>
           </div>
         </div>
@@ -303,27 +350,28 @@ export default function Home() {
             <div className="flex flex-col justify-center">
               <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                Live discovery, verified action, shared upside
+                Discover fun tasks, support creators, earn real rewards
               </div>
               <h1 className="max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
-                Scroll the moments worth acting on.
+                Get paid to do things you already love.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
-                Promorang turns campaigns, creator drops, places, and community missions into a discovery market where people can choose what to back, prove what they did, and keep the value they helped create.
+                Explore local deals, back creators before they trend, complete quick tasks, and keep the money and perks you earn.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-wrap gap-3">
                 <button
                   onClick={() => redirectToLogin()}
                   className="group inline-flex items-center justify-center rounded-full bg-orange-600 px-7 py-4 text-base font-black text-white shadow-xl shadow-orange-600/20 transition hover:-translate-y-0.5 hover:bg-orange-700"
                 >
-                  Start discovering
+                  Start earning now
                   <ArrowRight className="ml-2 h-5 w-5 transition group-hover:translate-x-1" />
                 </button>
                 <button
-                  onClick={() => navigate('/activate')}
-                  className="inline-flex items-center justify-center rounded-full border border-slate-900/15 bg-white/75 px-7 py-4 text-base font-black text-slate-950 transition hover:border-slate-950"
+                  onClick={() => setExplainerOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-900/15 bg-white/80 px-6 py-4 text-base font-black text-slate-950 transition hover:bg-white"
                 >
-                  Build a campaign
+                  <HelpCircle className="h-5 w-5 text-orange-600" />
+                  How it works
                 </button>
               </div>
             </div>
@@ -331,10 +379,12 @@ export default function Home() {
             <div id="discover" className="rounded-[2rem] border border-slate-900/10 bg-slate-950 p-3 shadow-2xl shadow-slate-950/20">
               <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 text-white">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-orange-300">Pulse board</p>
-                  <h2 className="text-xl font-black">Open now</h2>
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-orange-300">Live opportunities</p>
+                  <h2 className="text-xl font-black">Open right now</h2>
                 </div>
-                <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">LIVE</div>
+                <div className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 text-xs font-bold">
+                  🔥 HOT
+                </div>
               </div>
               <div className="space-y-3 p-2">
                 {opportunityCards.map((card) => (
@@ -376,251 +426,206 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="mechanics" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Choose your path</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">The marketing promise stays: multiple ways to earn, create, activate, and grow.</h2>
-              <p className="mt-4 text-lg leading-8 text-slate-700">
-                The platform should preserve the strong conversion copy while making it easier to scan, compare, and act. These are not explanation panels anymore; they are entry points.
-              </p>
-            </div>
+        {/* Collapsible Explanations & Journeys */}
+        <section id="paths" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <CollapsibleSection
+              badge="Explore journeys"
+              title="Four easy ways to join Promorang"
+              subtitle="Whether you want to earn extra income, launch creative projects, or bring real customers to your store."
+              promptText="Tap to view role details & options"
+              defaultOpen={true}
+              icon={Sparkles}
+            >
+              <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] pt-2">
+                <div>
+                  <h4 className="text-2xl font-black text-slate-950">Choose what matches your goals</h4>
+                  <p className="mt-3 text-base leading-relaxed text-slate-700">
+                    You don't need a huge social following to start. Pick your path below to see what you get and how to start.
+                  </p>
+                </div>
 
-            <div className="rounded-[2rem] border border-slate-900/10 bg-white p-3 shadow-xl shadow-slate-950/5">
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                {pathTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActivePath(tab)}
-                    className={`rounded-2xl px-3 py-3 text-sm font-black transition ${
-                      activePath.id === tab.id
-                        ? 'bg-slate-950 text-white shadow-lg shadow-slate-950/15'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                <div className="rounded-3xl border border-slate-900/10 bg-[#f7f3ec] p-4">
+                  <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                    {pathTabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActivePath(tab)}
+                        className={`rounded-2xl px-3 py-3 text-xs font-black transition ${
+                          activePath.id === tab.id
+                            ? 'bg-slate-950 text-white shadow-lg'
+                            : 'bg-white text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
+                    <h5 className="text-2xl font-black leading-tight text-slate-950">{activePath.headline}</h5>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-700">{activePath.copy}</p>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                      {activePath.actions.map((action) => (
+                        <div key={action} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                          <CheckCircle className="mb-2 h-4 w-4 text-emerald-600" />
+                          <p className="text-xs font-bold leading-snug text-slate-800">{action}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => activePath.id === 'brands' || activePath.id === 'hosts' ? navigate('/activate') : redirectToLogin()}
+                      className="mt-5 inline-flex items-center rounded-full bg-orange-600 px-6 py-3 text-xs font-black text-white transition hover:bg-orange-700"
+                    >
+                      {activePath.cta}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-3 rounded-[1.5rem] bg-[#f7f3ec] p-6">
-                <h3 className="text-3xl font-black leading-tight text-slate-950">{activePath.headline}</h3>
-                <p className="mt-4 text-base leading-7 text-slate-700">{activePath.copy}</p>
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  {activePath.actions.map((action) => (
-                    <div key={action} className="rounded-2xl border border-slate-900/10 bg-white p-4">
-                      <CheckCircle className="mb-3 h-5 w-5 text-emerald-600" />
-                      <p className="text-sm font-bold leading-5 text-slate-800">{action}</p>
+              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {earningMechanics.map((mechanic) => {
+                  const Icon = mechanic.icon;
+                  return (
+                    <article key={mechanic.title} className={`rounded-2xl border p-5 ${mechanic.tone}`}>
+                      <Icon className="mb-3 h-6 w-6" />
+                      <h5 className="text-lg font-black text-slate-950">{mechanic.title}</h5>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-700">{mechanic.description}</p>
+                      <p className="mt-4 text-xs font-black">{mechanic.signal}</p>
+                    </article>
+                  );
+                })}
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              id="how-it-works"
+              badge="How it works"
+              title="Simple 4-step process from discovery to payout"
+              subtitle="No confusing rules. You see the reward upfront, complete the task, and keep the earnings."
+              promptText="Tap to expand step-by-step breakdown"
+              defaultOpen={false}
+              icon={Compass}
+            >
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+                {[
+                  ['1. Find a task', 'Browse open drops, venue check-ins, or brand missions.', Compass],
+                  ['2. Complete action', 'Follow simple instructions like sharing a photo or checking in.', Play],
+                  ['3. Show quick proof', 'Upload a simple screenshot or location confirmation.', Zap],
+                  ['4. Collect rewards', 'Get your cash, gems, and perks deposited right into your wallet.', Flame]
+                ].map(([title, text, Icon], index) => {
+                  const StepIcon = Icon as typeof Compass;
+                  return (
+                    <div key={title as string} className="rounded-2xl border border-slate-900/10 bg-slate-50 p-5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <StepIcon className="h-6 w-6 text-orange-600" />
+                        <span className="text-xs font-black text-slate-400">STEP 0{index + 1}</span>
+                      </div>
+                      <h5 className="text-lg font-black text-slate-950">{title as string}</h5>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-600">{text as string}</p>
                     </div>
+                  );
+                })}
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              id="calculator"
+              badge="For Businesses & Brands"
+              title="Estimate your campaign results & pricing"
+              subtitle="See how many real customer actions and verified posts your budget gets before committing."
+              promptText="Tap to view package breakdown & calculator"
+              defaultOpen={false}
+              icon={Calculator}
+            >
+              <div className="grid gap-6 lg:grid-cols-[1fr_0.85fr] pt-2">
+                <div className="grid gap-4 md:grid-cols-3">
+                  {calculatorPackages.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setSelectedPackage(item)}
+                      className={`rounded-2xl border p-5 text-left transition hover:-translate-y-0.5 ${
+                        selectedPackage.id === item.id
+                          ? 'border-orange-500 bg-orange-50 shadow-md'
+                          : 'border-slate-900/10 bg-[#f7f3ec] hover:border-slate-900/25'
+                      }`}
+                    >
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{item.delivery}</p>
+                      <h5 className="mt-2 text-xl font-black text-slate-950">{item.label}</h5>
+                      <p className="mt-2 text-2xl font-black text-orange-700">JMD ${item.price.toLocaleString()}</p>
+                      <div className="mt-4 space-y-2 text-xs font-bold text-slate-700">
+                        <p>{item.actions.toLocaleString()} real customer actions</p>
+                        <p>{item.ugc}</p>
+                        <p>{item.proof}</p>
+                      </div>
+                    </button>
                   ))}
                 </div>
-                <button
-                  onClick={() => activePath.id === 'brands' || activePath.id === 'hosts' ? navigate('/activate') : redirectToLogin()}
-                  className="mt-6 inline-flex items-center rounded-full bg-orange-600 px-6 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-orange-700"
-                >
-                  {activePath.cta}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {earningMechanics.map((mechanic) => {
-              const Icon = mechanic.icon;
-              return (
-                <article key={mechanic.title} className={`rounded-3xl border p-6 ${mechanic.tone}`}>
-                  <Icon className="mb-5 h-8 w-8" />
-                  <h3 className="text-xl font-black text-slate-950">{mechanic.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">{mechanic.description}</p>
-                  <p className="mt-5 text-sm font-black">{mechanic.signal}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-xl">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                      <Calculator className="h-5 w-5 text-orange-300" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">Package preview</p>
+                      <h5 className="text-xl font-black">{selectedPackage.label}</h5>
+                    </div>
+                  </div>
 
-        <section id="calculator" className="bg-white py-16 lg:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Commercial calculator</p>
-                <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Keep the pricing clarity. Make the outcome obvious.</h2>
-                <p className="mt-4 text-lg leading-8 text-slate-700">
-                  Brands need a concrete starting point: price, actions, proof, delivery, and expected value before they talk to anyone.
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/activate')}
-                className="inline-flex items-center justify-center rounded-full border border-slate-900/15 bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:-translate-y-0.5"
-              >
-                See business page
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </button>
-            </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl bg-white/10 p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Cost per action</p>
+                      <p className="mt-1 text-2xl font-black">JMD ${calculatorResults.costPerAction}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/10 p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Estimated audience</p>
+                      <p className="mt-1 text-2xl font-black">{calculatorResults.estimatedReach.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/10 p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Proof type</p>
+                      <p className="mt-1 text-2xl font-black">{calculatorResults.proofValue}</p>
+                    </div>
+                    <div className="rounded-xl bg-white/10 p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Delivery time</p>
+                      <p className="mt-1 text-2xl font-black">{selectedPackage.delivery}</p>
+                    </div>
+                  </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-              <div className="grid gap-4 md:grid-cols-3">
-                {calculatorPackages.map((item) => (
                   <button
-                    key={item.id}
-                    onClick={() => setSelectedPackage(item)}
-                    className={`rounded-3xl border p-6 text-left transition hover:-translate-y-1 ${
-                      selectedPackage.id === item.id
-                        ? 'border-orange-500 bg-orange-50 shadow-xl shadow-orange-600/10'
-                        : 'border-slate-900/10 bg-[#f7f3ec] hover:border-slate-900/25'
-                    }`}
+                    onClick={() => redirectToLogin()}
+                    className="mt-5 flex w-full items-center justify-center rounded-full bg-white px-5 py-3 font-black text-slate-950 transition hover:bg-slate-100"
                   >
-                    <p className="text-sm font-black uppercase tracking-[0.18em] text-slate-500">{item.delivery}</p>
-                    <h3 className="mt-3 text-2xl font-black text-slate-950">{item.label}</h3>
-                    <p className="mt-3 text-3xl font-black text-orange-700">JMD ${item.price.toLocaleString()}</p>
-                    <div className="mt-5 space-y-3 text-sm font-bold text-slate-700">
-                      <p>{item.actions.toLocaleString()} verified actions</p>
-                      <p>{item.ugc}</p>
-                      <p>{item.proof}</p>
-                    </div>
+                    Launch this package
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </button>
-                ))}
+                </div>
               </div>
-
-              <div className="rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-950/20">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                    <Calculator className="h-6 w-6 text-orange-300" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">Estimate</p>
-                    <h3 className="text-2xl font-black">{selectedPackage.label}</h3>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-white/10 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Cost/action</p>
-                    <p className="mt-2 text-3xl font-black">JMD ${calculatorResults.costPerAction}</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Est. reach</p>
-                    <p className="mt-2 text-3xl font-black">{calculatorResults.estimatedReach.toLocaleString()}</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Proof</p>
-                    <p className="mt-2 text-3xl font-black">{calculatorResults.proofValue}</p>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Delivery</p>
-                    <p className="mt-2 text-3xl font-black">{selectedPackage.delivery}</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => redirectToLogin()}
-                  className="mt-6 flex w-full items-center justify-center rounded-full bg-white px-6 py-4 font-black text-slate-950 transition hover:-translate-y-0.5"
-                >
-                  Launch this package
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </button>
-              </div>
-            </div>
+            </CollapsibleSection>
           </div>
         </section>
 
-        <section id="paths" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mb-10 max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Stakeholder journeys</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">One platform, four reasons to care.</h2>
-            <p className="mt-4 text-lg leading-8 text-slate-700">
-              The product should meet each stakeholder with an action, not a lecture: discover, create, verify, measure, and come back.
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {stakeholderPaths.map((path) => {
-              const Icon = path.icon;
-              return (
-                <article key={path.title} className="rounded-3xl border border-slate-900/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-950">{path.title}</h3>
-                  <p className="mt-3 text-base font-semibold leading-7 text-slate-800">{path.outcome}</p>
-                  <p className="mt-4 text-sm leading-6 text-slate-600">{path.proof}</p>
-                  <button onClick={() => redirectToLogin()} className="mt-6 inline-flex items-center text-sm font-black text-orange-700">
-                    {path.cta}
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </button>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="bg-slate-950 py-16 text-white lg:py-24">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-300">How it behaves</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">From browsing to proof in one loop.</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                ['Discover', 'Browse live opportunities by role, reward, urgency, and proof needed.', Compass],
-                ['Choose', 'Commit to a mission, moment, campaign, or place with clear expectations.', Play],
-                ['Act', 'Complete the social, local, or creative task with guided proof capture.', Zap],
-                ['Keep value', 'Track earnings, status, memories, and next-best actions in the wallet.', Flame]
-              ].map(([title, text, Icon], index) => {
-                const StepIcon = Icon as typeof Compass;
-                return (
-                  <div key={title as string} className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                    <div className="mb-5 flex items-center justify-between">
-                      <StepIcon className="h-6 w-6 text-orange-300" />
-                      <span className="text-sm font-black text-white/40">0{index + 1}</span>
-                    </div>
-                    <h3 className="text-xl font-black">{title as string}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">{text as string}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-slate-900/10 bg-[#f7f3ec] py-16 lg:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-10 text-center">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Platform reach</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Creators earn across the channels people already use.</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {platformSignals.map((platform) => (
-                <div key={platform} className="rounded-3xl border border-slate-900/10 bg-white p-5 text-center shadow-sm">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white">
-                    {platform.slice(0, 2).toUpperCase()}
-                  </div>
-                  <p className="text-sm font-black text-slate-800">{platform}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white py-16 lg:py-24">
+        {/* Social Proof */}
+        <section className="bg-white py-16 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Social proof</p>
-                <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Real people, real results, now framed as a product loop.</h2>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-700">Real stories</p>
+                <h2 className="mt-2 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Hear from everyday members and local partners.</h2>
               </div>
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="rounded-2xl bg-emerald-50 px-4 py-3">
                   <p className="text-2xl font-black text-emerald-700">{activeStats.earners.toLocaleString()}</p>
-                  <p className="text-xs font-bold text-emerald-900">Early adopters</p>
+                  <p className="text-xs font-bold text-emerald-900">Active members</p>
                 </div>
                 <div className="rounded-2xl bg-orange-50 px-4 py-3">
                   <p className="text-2xl font-black text-orange-700">${activeStats.payout.toFixed(1)}k</p>
-                  <p className="text-xs font-bold text-orange-900">Paid out</p>
+                  <p className="text-xs font-bold text-orange-900">Earned so far</p>
                 </div>
                 <div className="rounded-2xl bg-blue-50 px-4 py-3">
-                  <p className="text-2xl font-black text-blue-700">4.8</p>
-                  <p className="text-xs font-bold text-blue-900">Rating</p>
+                  <p className="text-2xl font-black text-blue-700">4.8 / 5</p>
+                  <p className="text-xs font-bold text-blue-900">Member rating</p>
                 </div>
               </div>
             </div>
@@ -631,15 +636,15 @@ export default function Home() {
                   <div className="mb-5 flex items-center justify-between">
                     <div>
                       <h3 className="text-xl font-black text-slate-950">{story.name}</h3>
-                      <p className="text-sm font-bold text-slate-500">{story.role}</p>
+                      <p className="text-xs font-bold text-slate-500">{story.role}</p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 text-right">
-                      <p className="text-2xl font-black text-orange-700">{story.result}</p>
-                      <p className="text-xs font-bold text-slate-500">{story.label}</p>
+                    <div className="rounded-2xl bg-white px-3 py-2 text-right">
+                      <p className="text-xl font-black text-orange-700">{story.result}</p>
+                      <p className="text-[10px] font-bold text-slate-500">{story.label}</p>
                     </div>
                   </div>
-                  <p className="text-base leading-7 text-slate-700">"{story.quote}"</p>
-                  <div className="mt-5 flex text-orange-500">
+                  <p className="text-sm leading-relaxed text-slate-700">"{story.quote}"</p>
+                  <div className="mt-4 flex text-orange-500">
                     {[...Array(5)].map((_, index) => (
                       <Star key={index} className="h-4 w-4 fill-current" />
                     ))}
@@ -650,61 +655,37 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="trust" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="grid gap-8 lg:grid-cols-[1fr_1.25fr]">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-700">Success factors</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">Design standards for the platform, not just the page.</h2>
-              <p className="mt-4 text-lg leading-8 text-slate-700">
-                A stronger Promorang should help people scan quickly, trust what they see, and understand why their next action matters.
-              </p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {successFactors.map((factor) => {
-                const Icon = factor.icon;
-                return (
-                  <div key={factor.label} className="rounded-3xl border border-slate-900/10 bg-white p-6">
-                    <Icon className="mb-5 h-7 w-7 text-orange-600" />
-                    <h3 className="text-xl font-black text-slate-950">{factor.label}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{factor.text}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="px-4 pb-16 sm:px-6 lg:px-8">
+        <section className="px-4 pb-16 pt-8 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl rounded-[2rem] bg-orange-600 px-6 py-10 text-white shadow-2xl shadow-orange-600/20 sm:px-10 lg:flex lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Ready to enter the live market?</h2>
-              <p className="mt-3 max-w-2xl text-orange-50">Start with discovery, then grow into creation, campaigns, and measurable stakeholder value.</p>
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Ready to start earning?</h2>
+              <p className="mt-2 max-w-2xl text-orange-50">Join thousands of creators, fans, and local venues already building together.</p>
             </div>
             <button
               onClick={() => redirectToLogin()}
               className="mt-6 inline-flex items-center rounded-full bg-white px-7 py-4 font-black text-orange-700 transition hover:-translate-y-0.5 lg:mt-0"
             >
-              Open Promorang
+              Get Started Free
               <TrendingUp className="ml-2 h-5 w-5" />
             </button>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-slate-900/10 bg-white/50 py-10">
+      <footer className="border-t border-slate-900/10 bg-white/50 py-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 text-sm text-slate-600 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div className="flex items-center gap-4">
             <img
               src="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_extended-03.png"
               alt="Promorang"
-              className="h-8 w-auto"
+              className="h-7 w-auto"
             />
-            <span>Discovery, action, and verified value.</span>
+            <span>Discover, act, and keep your rewards.</span>
           </div>
-          <div className="flex gap-6 font-semibold">
-            <a href="#discover" className="hover:text-slate-950">Discover</a>
-            <a href="#paths" className="hover:text-slate-950">Journeys</a>
-            <a href="#trust" className="hover:text-slate-950">Trust</a>
+          <div className="flex gap-6 font-semibold text-xs">
+            <a href="#discover" className="hover:text-slate-950">Live Tasks</a>
+            <a href="#paths" className="hover:text-slate-950">Who it's for</a>
+            <a href="#how-it-works" className="hover:text-slate-950">How it works</a>
           </div>
         </div>
       </footer>

@@ -37,6 +37,14 @@ Legacy `users.*_balance`, `user_balances`, `transaction_history`, and feature-sp
 
 Default Point conversion is 500 Points → 1 PromoKey, capped at 3 PromoKeys daily.
 
+## Daily Master Key and participant levels
+
+The Master Key is a renewable daily contribution gate, not a lifetime achievement and not a Point purchase. Points create PromoKeys; verified free Proof contribution activates the Master Key. A participant needs both an active Master Key and the opportunity's required PromoKeys to enter gated funded work.
+
+Canonical participant levels are Starter (1x Points, 5 daily verified free Proofs), Professional (1.5x, 2 Proofs), and Power User (2x, 1 Proof). Historical account labels resolve through the aliases defined in `PARTICIPANT_ECONOMY_AUTHORITY.md`.
+
+`PARTICIPANT_ECONOMY_AUTHORITY.md` governs all overlapping participant-facing rules in this document.
+
 ## Growth Hub products
 
 - Paid membership periods issue disclosed Gem allowances: Plus 5, Pro 15, Elite 30. Allowances are benefits, not returns.

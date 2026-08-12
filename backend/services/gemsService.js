@@ -56,6 +56,11 @@ async function getGemsBalance(userId) {
 
   const balance = data?.balance || 0;
   const redemptionSummary = await getRedemptionSummary(userId);
+  const { data: funding } = await supabase
+    .from('gem_funding_balances')
+    .select('purchased_available,promotional_available')
+    .eq('user_id', userId)
+    .maybeSingle();
 
   return {
     user_id: userId,
@@ -69,7 +74,8 @@ async function getGemsBalance(userId) {
     withdrawable_balance: redemptionSummary.withdrawable_balance,
     pending_purchase_redemption_balance: redemptionSummary.pending_purchase_redemption_balance,
     locked_bonus_balance: redemptionSummary.locked_bonus_balance,
-    purchased_balance: redemptionSummary.purchased_balance,
+    purchased_balance: Number(funding?.purchased_available ?? redemptionSummary.purchased_balance),
+    promotional_balance: Number(funding?.promotional_available || 0),
     bonus_balance: redemptionSummary.bonus_balance,
     trade_balance: redemptionSummary.trade_balance,
     next_purchase_redemption_at: redemptionSummary.next_purchase_redemption_at,
@@ -329,33 +335,53 @@ async function handleStripeWebhook(event) {
 
   if (type === 'payment_intent.succeeded') {
     const paymentIntent = data.object;
-    const metadata = paymentIntent.metadata;
+    const metadata = paymentIntent.metadata || {};
 
     if (metadata.type !== 'gems_purchase') {
-      return { success: false, reason: 'Not a gems purchase' };
+      return { handled: false, reason: 'not_gems_purchase' };
     }
 
     const userId = metadata.user_id;
-    const gemsAmount = parseInt(metadata.gems_amount);
-    const usdAmount = parseFloat(metadata.usd_amount);
+    const gemsAmount = Number(metadata.gems_amount);
+    const usdAmount = Number(((paymentIntent.amount_received || paymentIntent.amount || 0) / 100).toFixed(2));
 
-    // Credit Gems
-    await creditGems(userId, gemsAmount, 'purchase', {
-      fiat_amount: usdAmount,
-      fiat_currency: 'USD',
-      stripe_payment_intent_id: paymentIntent.id,
-      description: `Purchased ${gemsAmount} Gems for $${usdAmount.toFixed(2)}`,
+    if (!userId || !Number.isFinite(gemsAmount) || gemsAmount <= 0) {
+      throw new Error('Gem payment intent is missing valid fulfillment metadata');
+    }
+    if (paymentIntent.status !== 'succeeded' || Number(paymentIntent.amount_received || 0) <= 0) {
+      throw new Error('Gem payment intent has not been paid');
+    }
+
+    const expectedUsdAmount = Number((gemsAmount * GEMS_EXCHANGE_RATE).toFixed(2));
+    if (usdAmount !== expectedUsdAmount) {
+      throw new Error(`Gem payment amount mismatch: expected ${expectedUsdAmount}, received ${usdAmount}`);
+    }
+
+    const idempotencyKey = `stripe:gems:${paymentIntent.id}`;
+    const { data: transaction, error } = await supabase.rpc('fulfill_purchased_gems', {
+      p_user_id: userId,
+      p_payment_intent_id: paymentIntent.id,
+      p_gems_amount: gemsAmount,
+      p_fiat_amount: usdAmount,
+      p_fiat_currency: String(paymentIntent.currency || 'usd').toUpperCase(),
+      p_livemode: Boolean(paymentIntent.livemode),
     });
+    if (error) throw error;
 
     return {
       success: true,
+      handled: true,
       user_id: userId,
       gems_credited: gemsAmount,
       usd_paid: usdAmount,
+      transaction_id: transaction?.transaction_id || null,
+      idempotency_key: idempotencyKey,
+      idempotent: Boolean(transaction?.idempotent),
+      purchased_available: Number(transaction?.purchased_available || 0),
     };
   }
 
-  return { success: false, reason: 'Unhandled event type' };
+  return { handled: false, reason: 'unhandled_event_type' };
 }
 
 // =====================================================

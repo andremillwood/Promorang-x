@@ -95,7 +95,7 @@ export default function FeaturedMomentCard({
         ref={ref}
         to={`/moments/${moment.id}`}
         onClick={handleClick}
-        className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 hover:border-primary/40 transition-all group"
+        className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group"
       >
         {/* Image */}
         <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
@@ -225,7 +225,7 @@ export default function FeaturedMomentCard({
       ref={ref}
       to={`/moments/${moment.id}`}
       onClick={handleClick}
-      className="relative block rounded-xl overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-all group bg-card"
+      className="relative block rounded-xl overflow-hidden border-2 border-primary/20 hover:border-primary/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group bg-card"
     >
       {/* Image */}
       <div className="aspect-video relative">

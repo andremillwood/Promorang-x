@@ -124,7 +124,7 @@ export function EvidenceFeed({ brandId, campaignId, maxItems = 10 }: EvidenceFee
                 {items.map((item) => (
                     <div 
                         key={item.id} 
-                        className="bg-card border border-border/60 hover:border-border rounded-xl p-4 flex gap-4 transition-all hover:shadow-soft"
+                        className="bg-card border border-border/60 hover:border-border rounded-xl p-4 flex gap-4 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:shadow-soft"
                     >
                         {/* Media or Icon Area */}
                         <div className="flex-shrink-0">

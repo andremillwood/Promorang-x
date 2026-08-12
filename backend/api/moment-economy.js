@@ -29,6 +29,63 @@ router.post('/moments', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/moments/:id/submoments', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { data: parent, error: parentError } = await db.from('moments').select('host_id,organizer_id').eq('id', req.params.id).single();
+    if (parentError) throw parentError;
+    const isOwner = parent.host_id === req.user.id || parent.organizer_id === req.user.id;
+    let query = db.from('moments').select('id,title,description,starts_at,ends_at,location,venue_name,creative_owner_id,submoment_status,submoment_submitted_by,submoment_submitted_at,submoment_review_note,venue_approval_required,venue_approval_status,is_active').eq('parent_moment_id', req.params.id).order('submoment_submitted_at', { ascending: false });
+    if (!isOwner) query = query.or(`submoment_submitted_by.eq.${req.user.id},submoment_status.eq.approved`);
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json({ success: true, data: data || [], permissions: { can_review: isOwner } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/moments/:parentId/submoments/:id/review', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { decision, note = null } = req.body || {};
+    if (!['approve', 'reject'].includes(decision)) return res.status(400).json({ success: false, error: 'Decision must be approve or reject' });
+    const { data: parent, error: parentError } = await db.from('moments').select('host_id,organizer_id').eq('id', req.params.parentId).single();
+    if (parentError) throw parentError;
+    if (parent.host_id !== req.user.id && parent.organizer_id !== req.user.id) return res.status(403).json({ success: false, error: 'Only the parent Moment host can review this proposal' });
+    const { data: child, error: childError } = await db.from('moments').select('venue_approval_required').eq('id', req.params.id).eq('parent_moment_id', req.params.parentId).single();
+    if (childError) throw childError;
+    const approvedStatus = child.venue_approval_required ? 'venue_review' : 'approved';
+    const { data, error } = await db.from('moments').update({ submoment_status: decision === 'approve' ? approvedStatus : 'rejected', submoment_reviewed_by: req.user.id, submoment_reviewed_at: new Date().toISOString(), submoment_review_note: note, is_active: decision === 'approve' && !child.venue_approval_required }).eq('id', req.params.id).select().single();
+    if (error) throw error;
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/moments/:parentId/submoments/:id/venue-review', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { decision, note = null } = req.body || {};
+    if (!['approve', 'reject'].includes(decision)) return res.status(400).json({ success: false, error: 'Decision must be approve or reject' });
+    const { data: parent, error: parentError } = await db.from('moments').select('venue_id,host_id,organizer_id').eq('id', req.params.parentId).single();
+    if (parentError) throw parentError;
+    let canReview = parent.host_id === req.user.id || parent.organizer_id === req.user.id;
+    if (parent.venue_id && !canReview) {
+      const { data: venue } = await db.from('venues').select('owner_id').eq('id', parent.venue_id).maybeSingle();
+      canReview = venue?.owner_id === req.user.id;
+    }
+    if (!canReview) return res.status(403).json({ success: false, error: 'Venue permission is required' });
+    const approved = decision === 'approve';
+    const { data, error } = await db.from('moments').update({ venue_approval_status: approved ? 'approved' : 'rejected', venue_approved_by: req.user.id, venue_approved_at: new Date().toISOString(), submoment_status: approved ? 'approved' : 'rejected', submoment_review_note: note, is_active: approved }).eq('id', req.params.id).eq('parent_moment_id', req.params.parentId).select().single();
+    if (error) throw error;
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.patch('/moments/:id', requireAuth, async (req, res) => {
   try {
     const user = await hydrateAdminRole(req.user);

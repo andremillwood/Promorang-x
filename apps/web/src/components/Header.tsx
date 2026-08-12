@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
-import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket, ShieldCheck, UserRoundPlus } from "lucide-react";
+import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
+import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket, ShieldCheck, UserRoundPlus, Globe2, Heart, Bot } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -145,6 +146,17 @@ const Header = () => {
                       <div>
                         <p className="font-bold text-sm">Organizer Workspace</p>
                         <p className="text-[10px] text-muted-foreground">Manage moments, check-ins, revenue, and proof</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/campaign-intelligence" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600">
+                        <Bot className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Campaign Intelligence</p>
+                        <p className="text-[10px] text-muted-foreground">AI Operator campaign planning & drafts</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -309,17 +321,33 @@ const Header = () => {
                     </div>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/for-enterprise" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600">
+                      <Globe2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">For Enterprise</p>
+                      <p className="text-[10px] text-muted-foreground">Scaled brand activation</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/for-causes" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">For Causes</p>
+                      <p className="text-[10px] text-muted-foreground">Action-backed impact</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Search Icon */}
-            <Link
-              to="/search"
-              className={`p-2 rounded-full transition-colors shrink-0 ${isCinematicPublicPage ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </Link>
+            {/* Command Palette & Instant Search */}
+            <HeaderSearchPreview />
           </div>
 
           {/* Right Side */}

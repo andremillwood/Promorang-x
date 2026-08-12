@@ -13,12 +13,17 @@ import {
   Sparkles,
   Ticket,
   Trophy,
+  MapPin,
+  ShoppingBag,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useContentDrop,
   useContentDropLeaderboard,
+  useContentDropContext,
   useRecordContentDropAction,
 } from "@/hooks/useContentDistribution";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +51,7 @@ export default function ContentDropDetail() {
   const { session } = useAuth();
   const dropQuery = useContentDrop(id);
   const leaderboardQuery = useContentDropLeaderboard(id);
+  const contextQuery = useContentDropContext(id);
   const recordAction = useRecordContentDropAction(id);
   const [receipt, setReceipt] = useState<{ action: string; items: RewardItem[] } | null>(null);
 
@@ -59,6 +65,7 @@ export default function ContentDropDetail() {
   const leaderboard = useMemo(() => {
     return leaderboardQuery.data || (id ? seededContentDropLeaderboards[id] : []) || [];
   }, [id, leaderboardQuery.data]);
+  const context = contextQuery.data;
 
   const totals = useMemo(() => ({
     shares: leaderboard.reduce((sum, row) => sum + Number(row.shares_count || 0), 0),
@@ -77,8 +84,8 @@ export default function ContentDropDetail() {
         source: "content_drop_detail",
       },
     }, {
-      onSuccess: (payload: any) => {
-        const action = payload?.data || {};
+      onSuccess: (payload: unknown) => {
+        const action = ((payload as { data?: { points_awarded?: number; promoshare_entries_awarded?: number } })?.data || {});
         const items: RewardItem[] = [
           { label: "Earned value", value: `+${Number(action.points_awarded || pointsPerAction)} contribution value`, kind: "points" },
           { label: "PromoShare", value: `${Number(action.promoshare_entries_awarded || 0)} entries`, kind: "entry" },
@@ -172,6 +179,28 @@ export default function ContentDropDetail() {
                 </div>
               ))}
             </div>
+
+            <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.045]">
+              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Connected context</p><h2 className="mt-2 font-serif text-3xl font-semibold">Where this content lives.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">The original source, Moment, stakeholders, commerce and Piece stay attached so this is more than an isolated post.</p></div>
+              <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+                <div className="bg-[#0d0d0d] p-5">
+                  <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Associated Moment</span></div>
+                  {context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || "Open the Moment"}</p><p className="mt-4 text-xs font-black text-primary">See the full Moment →</p></Link> : <p className="mt-4 text-sm text-white/40">No Moment has been connected yet.</p>}
+                </div>
+                <div className="bg-[#0d0d0d] p-5">
+                  <div className="flex items-center gap-2 text-primary"><Users className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Stakeholders</span></div>
+                  {context?.stakeholders.length ? <div className="mt-4 space-y-3">{context.stakeholders.map(person=><div key={`${person.role}-${person.id}`} className="flex items-center justify-between gap-3"><span className="font-bold">{person.name}</span><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-white/45">{person.role}</span></div>)}</div> : <p className="mt-4 text-sm text-white/40">Creator and partner attribution will appear here.</p>}
+                </div>
+                <div className="bg-[#0d0d0d] p-5">
+                  <div className="flex items-center gap-2 text-primary"><ShoppingBag className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Connected commerce</span></div>
+                  {context?.commerce.length ? <div className="mt-4 space-y-3">{context.commerce.slice(0,3).map(item=><Link key={item.id} to={`/shop/${item.id}`} className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"><span className="font-bold">{item.name}</span><span className="text-xs font-black text-primary">{item.price == null ? "Open" : `${item.currency || "USD"} ${item.price}`}</span></Link>)}</div> : <p className="mt-4 text-sm text-white/40">Products and offers attributed to this story will appear here.</p>}
+                </div>
+                <div className="bg-[#0d0d0d] p-5">
+                  <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">Content Piece</span></div>
+                  {context?.piece && context.content_id ? <Link to={`/pieces/content/${context.content_id}`} className="mt-4 flex items-end justify-between gap-4"><div><p className="text-2xl font-black">{context.piece.user_quantity || 0} owned</p><p className="mt-1 text-xs text-white/40">View ownership and price movement</p></div><div className="text-right"><p className="text-lg font-black text-primary">{context.piece.current_price == null ? "Open" : `$${Number(context.piece.current_price).toFixed(2)}`}</p>{context.piece.change_24h != null ? <p className="text-xs text-white/45">{Number(context.piece.change_24h) >= 0 ? "+" : ""}{Number(context.piece.change_24h).toFixed(1)}%</p> : null}</div></Link> : <p className="mt-4 text-sm text-white/40">Piece ownership and movement begin when this content becomes collectible.</p>}
+                </div>
+              </div>
+            </section>
           </section>
 
           <aside className="grid gap-5">
@@ -207,7 +236,7 @@ export default function ContentDropDetail() {
                 </div>
                 {primary?.target_url && (
                   <Button asChild className="justify-between">
-                    <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => record("click")}>
+                    <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => session?.access_token && record("click")}>
                       Open original
                       <ExternalLink className="h-4 w-4" />
                     </a>

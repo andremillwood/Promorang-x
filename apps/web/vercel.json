@@ -1,11 +1,11 @@
 {
     "framework": "vite",
     "buildCommand": "npm run build",
-    "installCommand": "npm install",
+    "installCommand": "npm install --legacy-peer-deps",
     "outputDirectory": "dist",
     "rewrites": [
         {
-            "source": "/((?!assets/|api/|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+            "source": "/((?!assets/|api/|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\..*).*)",
             "destination": "/index.html"
         }
     ],
@@ -24,11 +24,29 @@
             ]
         },
         {
+            "source": "/index.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache, no-store, must-revalidate"
+                }
+            ]
+        },
+        {
+            "source": "/",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache, no-store, must-revalidate"
+                }
+            ]
+        },
+        {
             "source": "/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
-                    "value": "public, max-age=0, must-revalidate"
+                    "value": "no-cache, no-store, must-revalidate"
                 }
             ]
         },
