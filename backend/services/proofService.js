@@ -6,6 +6,7 @@ const pieceEarningService = require('./pieceEarningService');
 const promoPushTrackingService = require('./promoPushTrackingService');
 const experienceAutomationService = require('./experienceAutomationService');
 const growthOperatingService = require('./growthOperatingService');
+const { geoProperties } = require('../lib/jamaicaGeo');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -411,6 +412,22 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
     .single();
 
   if (error) throw error;
+  let momentRow = {};
+  try {
+    const { data: moment } = await supabase
+      .from('moments')
+      .select('id, city, country, country_code, location, proof_type')
+      .eq('id', momentId)
+      .maybeSingle();
+    momentRow = moment || {};
+  } catch (momentError) {
+    console.warn('[Proof Service] moment geo lookup skipped:', momentError.message);
+  }
+  const proofKind = String(normalizedBundle?.proof_type || momentRow.proof_type || '').toLowerCase();
+  const geoProps = geoProperties(momentRow, {
+    moment_move_id: momentMoveId || null,
+    proof_type: normalizedBundle?.proof_type || momentRow.proof_type || null,
+  });
   try {
     await growthOperatingService.recordEvent({
       eventName: 'proof_submitted', journey: 'participant', stage: 'outcome',
@@ -422,10 +439,24 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
       promoPushCampaignId: normalizedBundle?.promopush_campaign_id || null,
       promoPushChannelId: normalizedBundle?.promopush_channel_id || null,
       idempotencyKey: `growth:proof-submitted:${data.id}`,
-      properties: { moment_move_id: momentMoveId || null },
+      properties: geoProps,
     });
   } catch (growthError) {
     console.warn('[Proof Service] growth proof submission mirror skipped:', growthError.message);
+  }
+  if (proofKind === 'share' || proofKind === 'screenshot' || proofKind === 'link') {
+    try {
+      await growthOperatingService.recordEvent({
+        eventName: 'share_completed', journey: 'shared', stage: 'amplified',
+        userId, momentId, entityType: 'proof_submission', entityId: data.id,
+        source: 'product',
+        medium: proofKind,
+        idempotencyKey: `growth:share-completed:${data.id}`,
+        properties: geoProps,
+      });
+    } catch (growthError) {
+      console.warn('[Proof Service] growth share_completed skipped:', growthError.message);
+    }
   }
   return data;
 }
@@ -511,6 +542,22 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     },
   });
 
+  let momentRow = {};
+  try {
+    const { data: moment } = await supabase
+      .from('moments')
+      .select('id, city, country, country_code, location, proof_type')
+      .eq('id', momentId)
+      .maybeSingle();
+    momentRow = moment || {};
+  } catch (momentError) {
+    console.warn('[Proof Service] moment geo lookup skipped:', momentError.message);
+  }
+  const geoProps = geoProperties(momentRow, {
+    reviewer_id: reviewerId,
+    reward_id: reward?.id || null,
+    proof_type: proofBundle?.proof_type || momentRow.proof_type || null,
+  });
   try {
     await growthOperatingService.recordEvent({
       eventName: 'verified_outcome', journey: 'participant', stage: 'outcome',
@@ -522,10 +569,26 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
       promoPushCampaignId: proofBundle?.promopush_campaign_id || null,
       promoPushChannelId: proofBundle?.promopush_channel_id || null,
       idempotencyKey: `growth:verified-proof:${proofSubmissionId}`,
-      properties: { reviewer_id: reviewerId, reward_id: reward?.id || null },
+      properties: geoProps,
     });
   } catch (growthError) {
     console.warn('[Proof Service] growth outcome mirror skipped:', growthError.message);
+  }
+  try {
+    await growthOperatingService.recordEvent({
+      eventName: 'proof_approved', journey: 'participant', stage: 'outcome',
+      userId, momentId, entityType: 'proof_submission', entityId: proofSubmissionId,
+      source: proofBundle?.utm_source || (proofBundle?.promopush_tracking_code ? 'promopush' : 'product'),
+      medium: proofBundle?.utm_medium || (proofBundle?.promopush_tracking_code ? 'attributed_link' : 'organic'),
+      campaign: proofBundle?.utm_campaign || null,
+      referralCode: proofBundle?.referral_code || null,
+      promoPushCampaignId: proofBundle?.promopush_campaign_id || null,
+      promoPushChannelId: proofBundle?.promopush_channel_id || null,
+      idempotencyKey: `growth:proof-approved:${proofSubmissionId}`,
+      properties: geoProps,
+    });
+  } catch (growthError) {
+    console.warn('[Proof Service] growth proof_approved skipped:', growthError.message);
   }
 
   if (reward?.id) {

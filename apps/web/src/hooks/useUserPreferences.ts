@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { resolvePlaceGeo } from "@/lib/jamaica-geo";
 
 export interface UserPreferences {
   id: string;
@@ -86,13 +87,18 @@ export function useCreateUserPreferences() {
 
       // Call a SECURITY DEFINER RPC that atomically ensures the profile
       // exists and upserts preferences — avoids FK and RLS issues.
+      const geo = resolvePlaceGeo({
+        city: preferences.city,
+        location: preferences.city,
+        country: preferences.country,
+      });
       const { data, error } = await supabase.rpc("upsert_user_preferences", {
         p_user_id: user.id,
         p_age_range: preferences.age_range ?? null,
         p_gender: preferences.gender ?? null,
-        p_city: preferences.city ?? null,
+        p_city: geo.city ?? preferences.city ?? null,
         p_state: preferences.state ?? null,
-        p_country: preferences.country ?? "US",
+        p_country: geo.country || preferences.country || null,
         p_latitude: preferences.latitude ?? null,
         p_longitude: preferences.longitude ?? null,
         p_location_radius_km: preferences.location_radius_km ?? 25,
@@ -133,9 +139,22 @@ export function useUpdateUserPreferences() {
     mutationFn: async (preferences: UserPreferencesInput) => {
       if (!user) throw new Error("Not authenticated");
 
+      const geo = resolvePlaceGeo({
+        city: preferences.city,
+        location: preferences.city,
+        country: preferences.country,
+      });
+      const nextPreferences = {
+        ...preferences,
+        city: geo.city ?? preferences.city ?? null,
+        country: geo.country || preferences.country,
+      };
+      if (geo.city === "Kingston") {
+        nextPreferences.country = "Jamaica";
+      }
       const { data, error } = await supabase
         .from("user_preferences")
-        .update(preferences)
+        .update(nextPreferences)
         .eq("user_id", user.id)
         .select()
         .single();

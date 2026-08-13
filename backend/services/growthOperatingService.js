@@ -4,10 +4,12 @@ const { supabase } = require('../lib/supabase');
 const EVENT_NAMES = new Set([
   'page_view', 'cta_clicked', 'signup_started', 'signup_completed',
   'onboarding_completed', 'moment_joined', 'proof_submitted',
+  'proof_approved', 'share_completed',
   'verified_outcome', 'share_created', 'referral_signup',
   'referral_activated', 'checkout_started', 'payment_succeeded',
   'repeat_outcome',
 ]);
+const MOMENT_REQUIRED_EVENTS = new Set(['proof_submitted', 'proof_approved', 'share_completed']);
 const JOURNEYS = new Set(['participant', 'commercial', 'shared']);
 const STAGES = new Set(['acquired', 'captured', 'activated', 'outcome', 'amplified', 'monetized', 'retained']);
 const PUBLIC_EVENTS = new Set(['page_view', 'cta_clicked', 'signup_started']);
@@ -37,6 +39,9 @@ function validateEvent(event, { publicRequest = false } = {}) {
   if (!STAGES.has(event.stage)) throw new Error('Unsupported growth stage');
   if (publicRequest && !PUBLIC_EVENTS.has(event.eventName)) throw new Error('Authentication required for this event');
   if (!event.anonymousId && !event.userId) throw new Error('anonymousId or authenticated user is required');
+  if (MOMENT_REQUIRED_EVENTS.has(event.eventName) && !uuidOrNull(event.momentId)) {
+    throw new Error('moment_id is required for this growth event');
+  }
   if (event.value != null && (!Number.isFinite(Number(event.value)) || Number(event.value) < 0)) {
     throw new Error('value must be a non-negative number');
   }

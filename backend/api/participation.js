@@ -14,6 +14,7 @@ const accessRulesService = require('../services/accessRulesService');
 const memoryService = require('../services/memoryService');
 const offerService = require('../services/offerService');
 const growthOperatingService = require('../services/growthOperatingService');
+const { geoProperties } = require('../lib/jamaicaGeo');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -488,7 +489,7 @@ router.post('/moments/:id/join', requireAuth, async (req, res) => {
         promoPushCampaignId: promopush_campaign_id,
         promoPushChannelId: promopush_channel_id,
         idempotencyKey: `growth:moment-joined:${data.id}`,
-        properties: { source_content_id, source_mission_id, invited_by_user_id: invited_by_user_id || referrer_id || null },
+        properties: geoProperties(moment, { source_content_id, source_mission_id, invited_by_user_id: invited_by_user_id || referrer_id || null }),
       });
     } catch (growthError) {
       console.warn('[Participation API] growth join mirror skipped:', growthError.message);

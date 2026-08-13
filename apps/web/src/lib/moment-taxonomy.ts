@@ -11,6 +11,7 @@ export const momentCategories = [
 
 export const venueCategories = [
   { value: "food_beverage", label: "Food & Beverage" },
+  { value: "nightlife", label: "Nightlife" },
   { value: "fashion_retail", label: "Fashion Retail" },
   { value: "beauty_retail", label: "Beauty Retail" },
   { value: "grocery", label: "Grocery & Everyday Commerce" },

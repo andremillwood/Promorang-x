@@ -40,6 +40,7 @@ import {
   momentArchetypes,
   conversionTypes,
 } from "@/lib/moment-taxonomy";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo } from "@/lib/jamaica-geo";
 import type { Tables } from "@/integrations/supabase/types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -68,6 +69,10 @@ const EditMoment = () => {
     venue_category?: string | null;
     moment_archetype?: string | null;
     conversion_type?: string | null;
+    proof_type?: string | null;
+    city?: string | null;
+    country?: string | null;
+    country_code?: string | null;
     recurrence_enabled?: boolean;
     recurrence_frequency?: RecurrenceFrequency | null;
     recurrence_interval?: number | null;
@@ -90,6 +95,7 @@ const EditMoment = () => {
     venueCategory: "",
     momentArchetype: "",
     conversionType: "check_in",
+    proofType: "screenshot",
     location: "",
     venueName: "",
     startsAt: "",
@@ -142,6 +148,7 @@ const EditMoment = () => {
         venueCategory: recurrenceData.venue_category || "",
         momentArchetype: recurrenceData.moment_archetype || "",
         conversionType: recurrenceData.conversion_type || "check_in",
+        proofType: recurrenceData.proof_type || "screenshot",
         location: data.location,
         venueName: data.venue_name || "",
         startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
@@ -217,7 +224,11 @@ const EditMoment = () => {
           venue_category: formData.venueCategory || null,
           moment_archetype: formData.momentArchetype || null,
           conversion_type: formData.conversionType || null,
+          proof_type: formData.proofType || "screenshot",
           location: formData.location,
+          city: resolvePlaceGeo({ location: formData.location }).city,
+          country: resolvePlaceGeo({ location: formData.location }).country,
+          country_code: resolvePlaceGeo({ location: formData.location }).country_code,
           venue_name: formData.venueName || null,
           starts_at: new Date(formData.startsAt).toISOString(),
           ends_at: formData.endsAt ? new Date(formData.endsAt).toISOString() : null,
@@ -668,6 +679,28 @@ const EditMoment = () => {
           {/* Additional Details */}
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Proof, Capacity, Unlock</h2>
+
+            <div>
+              <Label htmlFor="proofType">Proof type</Label>
+              <Select
+                value={formData.proofType}
+                onValueChange={(value) => setFormData({ ...formData, proofType: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select proof type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCAL_DROP_PROOF_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Local Drops use screenshot, share, or link. QR remains available as a secondary option.
+              </p>
+            </div>
 
             <div>
               <Label htmlFor="maxParticipants">Max Participants</Label>
