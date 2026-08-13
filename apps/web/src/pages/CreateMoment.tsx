@@ -35,6 +35,7 @@ import {
   conversionTypes,
   getTaxonomyLabel,
 } from "@/lib/moment-taxonomy";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum, toMoveProofType } from "@/lib/jamaica-geo";
 
 const recurrenceWeekdayOptions = [
   { value: 0, label: "Sun" },
@@ -198,6 +199,17 @@ const creationTypes = [
     moveTitle: "Check in and prove attendance",
   },
   {
+    id: "local_drop",
+    label: "Local Drop",
+    eyebrow: "Jamaica share + proof",
+    description: "A Kingston food, beverage, or nightlife drop proved by screenshot, share, or link. QR is optional.",
+    icon: Gift,
+    archetype: "drop",
+    conversionType: "check_in",
+    recurring: false,
+    moveTitle: "Share proof of the drop",
+  },
+  {
     id: "recurring",
     label: "Recurring Moment",
     eyebrow: "Weekly or repeatable",
@@ -326,7 +338,7 @@ const CreateMoment = () => {
     bannerImageUrl: "",
     galleryImages: [],
     visibility: "open",
-    proofType: "QR",
+    proofType: "Screenshot",
     evidenceRequirements: [],
     expectedActionUnit: "Check-in",
     moneySource: "host",
@@ -390,14 +402,15 @@ const CreateMoment = () => {
       "Check-in";
 
     const nextProofType =
-      formData.conversionType === "purchase" ? "Photo" :
-      formData.conversionType === "sample" ? "QR" :
-      formData.conversionType === "try_on" ? "Photo" :
+      formData.momentArchetype === "drop" ? "Screenshot" :
+      formData.conversionType === "purchase" ? "Screenshot" :
+      formData.conversionType === "sample" ? "Screenshot" :
+      formData.conversionType === "try_on" ? "Screenshot" :
       formData.conversionType === "appointment" || formData.conversionType === "booking" ? "Code" :
-      formData.momentArchetype === "content" ? "QR" :
+      formData.momentArchetype === "content" ? "Share" :
       formData.momentArchetype === "service" ? "Code" :
       formData.momentArchetype === "visit" ? "GPS" :
-      "QR";
+      "Screenshot";
 
     setFormData((prev) => {
       if (prev.expectedActionUnit === nextExpectedAction && prev.proofType === nextProofType) {
@@ -490,6 +503,8 @@ const CreateMoment = () => {
       moneySource: typeId === "creator" ? "content" : typeId === "campaign" ? "platform" : prev.moneySource,
       rewardPoolJmd: typeId === "campaign" && prev.rewardPoolJmd === 0 ? 5000 : prev.rewardPoolJmd,
       totalFundedJmd: typeId === "campaign" ? 0 : prev.totalFundedJmd,
+      venueCategory: typeId === "local_drop" ? (prev.venueCategory || "food_beverage") : prev.venueCategory,
+      proofType: typeId === "local_drop" ? "Screenshot" : prev.proofType,
     }));
     setRecurrence((prev) => ({
       ...prev,
@@ -654,13 +669,8 @@ const CreateMoment = () => {
       const accessToken = session.data.session?.access_token;
       if (!accessToken) throw new Error("Authentication session expired");
 
-      const proofTypeMap: Record<string, string> = {
-        QR: "code",
-        Code: "code",
-        Photo: "photo",
-        Video: "video",
-        GPS: "code",
-      };
+      const momentGeo = resolvePlaceGeo({ location: formData.location });
+      const productProofType = toMomentProofEnum(formData.proofType || "Screenshot");
 
       const response = await fetch(`${API_BASE_URL}/moment-economy/moments`, {
         method: "POST",
@@ -693,7 +703,10 @@ const CreateMoment = () => {
         is_active: true,
         visibility: formData.visibility,
         mechanic_id: mechanicId || null, // Link to AMI
-        proof_type: formData.proofType || 'QR',
+        proof_type: productProofType,
+        city: momentGeo.city,
+        country: momentGeo.country,
+        country_code: momentGeo.country_code,
         evidence_requirements: formData.evidenceRequirements || [],
         expected_action_unit: formData.expectedActionUnit || 'Action',
         check_in_code: checkInCode,
@@ -731,7 +744,7 @@ const CreateMoment = () => {
         moves: [{
           title: formData.moveTitle,
           description: formData.moveDescription || null,
-          proof_type: proofTypeMap[formData.proofType || "QR"] || "code",
+          proof_type: toMoveProofType(productProofType),
           reward_amount_jmd: formData.moveRewardAmountJmd || formData.payoutAmountJmd || 0,
           reward_amount_gems: formData.moveRewardAmountJmd || formData.payoutAmountJmd || 0,
           max_completions: formData.moveMaxCompletions,
@@ -876,7 +889,7 @@ const CreateMoment = () => {
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <Label htmlFor="venueCategory">Venue Category</Label>
-                  <InfoTooltip content="Define the kind of place this moment belongs to so Promorang can support retail, grocery, service, and wellness flows properly." />
+                  <InfoTooltip content="Jamaica Local Drops use Food & Beverage or Nightlife. Other venue types remain available." />
                 </div>
                 <Select
                   value={formData.venueCategory || ""}
@@ -974,7 +987,7 @@ const CreateMoment = () => {
                 data-tour="create-moment-location"
                 value={formData.location}
                 onChange={(e) => updateField("location", e.target.value)}
-                placeholder="e.g., 123 Main Street, New York, NY"
+                placeholder="e.g., 12 Hope Road, Kingston, Jamaica"
                 className={errors.location ? "border-destructive" : ""}
               />
               {errors.location && (
@@ -1383,6 +1396,29 @@ const CreateMoment = () => {
                   placeholder="e.g., Check in at the front desk"
                 />
                 {errors.moveTitle && <p className="text-destructive text-sm mt-1">{errors.moveTitle}</p>}
+              </div>
+
+              <div>
+                <Label>Proof type</Label>
+                <Select
+                  value={formData.proofType || "Screenshot"}
+                  onValueChange={(value) => updateField("proofType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select proof type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOCAL_DROP_PROOF_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {LOCAL_DROP_PROOF_OPTIONS.find((option) => option.value === formData.proofType)?.description
+                    || "Local Drops default to screenshot, share, or link. QR is secondary."}
+                </p>
               </div>
 
               <div>

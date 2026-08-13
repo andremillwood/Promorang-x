@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { venueCategories } from "@/lib/moment-taxonomy";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
 
 const categories = [
     { value: "social", label: "Social Gathering" },
@@ -58,6 +60,8 @@ export const AdminCreateMomentTab = () => {
         category: "social",
         location: "",
         venueId: "",
+        venueCategory: "food_beverage",
+        proofType: "Screenshot",
         startsAt: "",
         endsAt: "",
         maxParticipants: 50,
@@ -111,14 +115,19 @@ export const AdminCreateMomentTab = () => {
 
         setIsSubmitting(true);
         try {
-            const { error } = await supabase.from("moments").insert({
+            const momentGeo = resolvePlaceGeo({ location: formData.location });
+            const payload = {
                 host_id: selectedHostId,
                 title: formData.title,
                 description: formData.description,
                 type: DEFAULT_MOMENT_TYPE,
                 moment_type: DEFAULT_MOMENT_TYPE,
                 category: formData.category,
+                venue_category: formData.venueCategory || "food_beverage",
                 location: formData.location,
+                city: momentGeo.city,
+                country: momentGeo.country,
+                country_code: momentGeo.country_code,
                 venue_id: formData.venueId || null,
                 starts_at: new Date(formData.startsAt).toISOString(),
                 ends_at: formData.endsAt ? new Date(formData.endsAt).toISOString() : null,
@@ -126,9 +135,15 @@ export const AdminCreateMomentTab = () => {
                 is_active: true,
                 status: 'joinable', // Admins bypass the review queue
                 visibility: formData.visibility,
-                proof_type: 'QR',
+                proof_type: toMomentProofEnum(formData.proofType || 'Screenshot'),
                 evidence_requirements: []
-            });
+            };
+            let { error } = await supabase.from("moments").insert(payload);
+            if (error && /column|schema cache/i.test(error.message || "") && /city|country/i.test(error.message || "")) {
+                const { city, country, country_code, ...withoutGeo } = payload;
+                void city; void country; void country_code;
+                ({ error } = await supabase.from("moments").insert(withoutGeo));
+            }
 
             if (error) throw error;
 
@@ -141,6 +156,8 @@ export const AdminCreateMomentTab = () => {
                 category: "social",
                 location: "",
                 venueId: "",
+                venueCategory: "food_beverage",
+                proofType: "Screenshot",
                 startsAt: "",
                 endsAt: "",
                 maxParticipants: 50,
@@ -249,10 +266,38 @@ export const AdminCreateMomentTab = () => {
                                 <Label>Manual Address</Label>
                                 <Input 
                                     required 
-                                    placeholder="Enter full address" 
+                                    placeholder="e.g., 12 Hope Road, Kingston, Jamaica" 
                                     value={formData.location}
                                     onChange={e => setFormData({...formData, location: e.target.value})}
                                 />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Venue Category</Label>
+                                    <Select value={formData.venueCategory} onValueChange={v => setFormData({...formData, venueCategory: v})}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {venueCategories.map(cat => (
+                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Proof type</Label>
+                                    <Select value={formData.proofType} onValueChange={v => setFormData({...formData, proofType: v})}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {LOCAL_DROP_PROOF_OPTIONS.map(option => (
+                                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">

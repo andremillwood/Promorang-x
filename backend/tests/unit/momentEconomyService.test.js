@@ -90,6 +90,71 @@ describe('momentEconomyService', () => {
     expect(momentInsert.payload.proof_type).toBe('Code');
   });
 
+  it('stores live Screenshot/Share/Link on moments and lowercase photo/link on moves', async () => {
+    const inserts = [];
+    global.supabase = createSupabaseMock(inserts);
+    const { createMomentWithEconomy } = require('../../services/momentEconomyService');
+
+    await createMomentWithEconomy('user-1', basePayload({
+      proof_type: 'screenshot',
+      moves: [
+        {
+          title: 'Share a screenshot of the drop',
+          proof_type: 'Screenshot',
+          reward_amount_jmd: 0,
+          max_completions: 10,
+        },
+      ],
+    }));
+
+    const momentInsert = inserts.find((insert) => insert.table === 'moments');
+    const moveInsert = inserts.find((insert) => insert.table === 'moment_moves');
+
+    expect(momentInsert.payload.proof_type).toBe('Screenshot');
+    expect(moveInsert.payload[0].proof_type).toBe('photo');
+  });
+
+  it('maps Share and Link product types to the live mechanic enum without collapsing them', async () => {
+    const inserts = [];
+    global.supabase = createSupabaseMock(inserts);
+    const { createMomentWithEconomy } = require('../../services/momentEconomyService');
+
+    await createMomentWithEconomy('user-1', basePayload({
+      proof_type: 'share',
+      moves: [
+        {
+          title: 'Share the drop',
+          proof_type: 'Share',
+          reward_amount_jmd: 0,
+          max_completions: 10,
+        },
+      ],
+    }));
+
+    let momentInsert = inserts.find((insert) => insert.table === 'moments');
+    let moveInsert = inserts.find((insert) => insert.table === 'moment_moves');
+    expect(momentInsert.payload.proof_type).toBe('Share');
+    expect(moveInsert.payload[0].proof_type).toBe('photo');
+
+    inserts.length = 0;
+    await createMomentWithEconomy('user-1', basePayload({
+      proof_type: 'Link',
+      moves: [
+        {
+          title: 'Paste the completed-action URL',
+          proof_type: 'link',
+          reward_amount_jmd: 0,
+          max_completions: 10,
+        },
+      ],
+    }));
+
+    momentInsert = inserts.find((insert) => insert.table === 'moments');
+    moveInsert = inserts.find((insert) => insert.table === 'moment_moves');
+    expect(momentInsert.payload.proof_type).toBe('Link');
+    expect(moveInsert.payload[0].proof_type).toBe('link');
+  });
+
   it('keeps Promorang-backed reward pools pending until allocation is funded', async () => {
     const inserts = [];
     global.supabase = createSupabaseMock(inserts);

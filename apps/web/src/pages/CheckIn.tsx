@@ -21,6 +21,8 @@ import { demoMoments } from "@/data/demo-moments";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { NextUnlock, RewardStack } from "@/components/value/ValueJourney";
 import { recordJourneyEvent } from "@/lib/value-journey";
+import { toMomentProofEnum } from "@/lib/jamaica-geo";
+
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -65,9 +67,7 @@ const CheckIn = () => {
 
   const moveId = searchParams.get("moveId");
   const activeMove = economyMoves.find((move) => move.id === moveId) || economyMoves[0] || null;
-  const activeProofType = activeMove?.proof_type
-    ? activeMove.proof_type === "code" ? "Code" : activeMove.proof_type.charAt(0).toUpperCase() + activeMove.proof_type.slice(1)
-    : moment?.proof_type;
+  const activeProofType = toMomentProofEnum(moment?.proof_type || activeMove?.proof_type || "Screenshot");
 
   useEffect(() => {
     if (id) {
@@ -181,12 +181,22 @@ const CheckIn = () => {
       }];
     }
 
-    if (moment.proof_type === "Photo" || moment.proof_type === "Video") {
+    if (["Photo", "Video", "screenshot", "share", "Screenshot", "Share"].includes(String(moment.proof_type))) {
       return [{
         id: "legacy-media",
         requirement_type: "media",
-        label: "Photo Mark",
-        instructions: "Upload a clear image showing you are at the venue or completing the moment.",
+        label: String(moment.proof_type).toLowerCase() === "share" ? "Share Mark" : "Screenshot Mark",
+        instructions: "Upload a screenshot or photo that proves the share, visit, or drop.",
+        is_required: true,
+      }];
+    }
+
+    if (["link", "Link", "API", "url"].includes(String(moment.proof_type))) {
+      return [{
+        id: "legacy-link",
+        requirement_type: "link",
+        label: "Link proof",
+        instructions: "Paste the public post or completed-action URL.",
         is_required: true,
       }];
     }
@@ -271,26 +281,30 @@ const CheckIn = () => {
         if (moment.check_in_code?.toUpperCase() !== code.toUpperCase()) {
           throw new Error("Invalid check-in code");
         }
-      } else if (activeProofType === 'Photo' || activeProofType === 'Video') {
-        if (!imageFile) {
-          throw new Error(activeProofType === 'Video' ? "Please upload a video as proof of attendance" : "Please upload a photo as proof of attendance");
+      } else if (activeProofType === 'Photo' || activeProofType === 'Video' || activeProofType === 'Screenshot' || activeProofType === 'Share') {
+        if (activeProofType === 'Share' && uniqueProofValue.trim() && !imageFile) {
+          // share proof can be a public link without a screenshot
+        } else {
+          if (!imageFile) {
+            throw new Error(activeProofType === 'Video' ? "Please upload a video as proof of attendance" : "Please upload a screenshot or photo as proof");
+          }
+          const uploaded = await uploadImage(imageFile, "moment-images", user.id, {
+            allowVideo: activeProofType === 'Video',
+          });
+          if (!uploaded) throw new Error("Failed to upload proof");
+          evidenceUrl = uploaded;
         }
-        const uploaded = await uploadImage(imageFile, "moment-images", user.id, {
-          allowVideo: activeProofType === 'Video',
-        });
-        if (!uploaded) throw new Error("Failed to upload proof");
-        evidenceUrl = uploaded;
       } else if (activeProofType === 'GPS') {
         if (!locationVerified) throw new Error("Please verify your location first");
-      } else if (activeProofType === 'Link' || activeProofType === 'Referral') {
+      } else if (activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral') {
         if (!uniqueProofValue.trim()) throw new Error(`Please enter your ${activeProofType.toLowerCase()} proof`);
       }
 
       if (session) {
         const proofBundle = {
-          proof_type: activeProofType || null,
+          proof_type: activeProofType,
           code: code.trim() || null,
-          link_url: activeProofType === 'Link' ? uniqueProofValue.trim() : null,
+          link_url: (activeProofType === 'Link' || activeProofType === 'Share') ? uniqueProofValue.trim() || null : null,
           referral_code: activeProofType === 'Referral' ? uniqueProofValue.trim() : null,
           location_verified: locationVerified,
           evidence_url: evidenceUrl,
@@ -390,8 +404,41 @@ const CheckIn = () => {
               ) : null}
             </div>
             <div className="space-y-3">
-              <Button variant="hero" className="w-full" asChild>
-                <Link to={`/moments/${id}`}>View Moment & Join</Link>
+              <Button
+                variant="hero"
+                className="w-full"
+                disabled={loading}
+                onClick={async () => {
+                  if (!session || !id) return;
+                  setLoading(true);
+                  try {
+                    const response = await fetch(`${API_URL}/api/participation/moments/${id}/join`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${session.access_token}`,
+                      },
+                      body: JSON.stringify({
+                        promopush_campaign_id: promoPushCampaignId,
+                        promopush_channel_id: promoPushChannelId,
+                        promopush_tracking_code: promoPushChannelCode,
+                      }),
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) throw new Error(payload?.error || "Failed to join moment");
+                    setHasJoined(true);
+                    toast({ title: "Joined", description: "You are in. Submit screenshot, share, or link proof next." });
+                  } catch (error: any) {
+                    toast({ title: "Join failed", description: error.message, variant: "destructive" });
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
+                {loading ? <Loader2 className="animate-spin" /> : "Join this Moment"}
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to={`/moments/${id}`}>View Moment</Link>
               </Button>
               <Button variant="outline" className="w-full" onClick={() => navigate('/discover')}>
                 Browse Other Moments
@@ -544,7 +591,7 @@ const CheckIn = () => {
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${moment.proof_type === 'GPS' ? 'bg-blue-500/10' : moment.proof_type === 'Photo' ? 'bg-purple-500/10' : 'bg-primary/10'
                   }`}>
                   {activeProofType === 'GPS' ? <MapPin className="w-8 h-8 text-blue-500" /> :
-                    activeProofType === 'Photo' ? <Camera className="w-8 h-8 text-purple-500" /> :
+                    (activeProofType === 'Photo' || activeProofType === 'Screenshot' || activeProofType === 'Share') ? <Camera className="w-8 h-8 text-purple-500" /> :
                       <QrCode className="w-8 h-8 text-primary" />}
                 </div>
                 <p className="mb-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Proof Moment</p>
@@ -609,7 +656,7 @@ const CheckIn = () => {
                 )}
 
                 {/* 2. PHOTO UI */}
-                {(activeProofType === 'Photo' || activeProofType === 'Video') && (
+                {(activeProofType === 'Photo' || activeProofType === 'Video' || activeProofType === 'Screenshot' || activeProofType === 'Share') && (
                   <div className="space-y-3">
                     <Label>Proof of Presence</Label>
                     <ImageUpload
@@ -647,7 +694,7 @@ const CheckIn = () => {
                   </div>
                 )}
 
-                {(activeProofType === 'Link' || activeProofType === 'Referral') && (
+                {(activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral' || activeProofType === 'Share') && (
                   <div className="space-y-2">
                     <Label htmlFor="uniqueProofValue">{activeProofType} Proof</Label>
                     <Input
@@ -663,7 +710,7 @@ const CheckIn = () => {
                   type="submit"
                   variant="hero"
                   className="w-full h-14 font-bold text-lg"
-                  disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || (activeProofType === 'Photo' && !imageFile) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
+                  disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || ((activeProofType === 'Photo' || activeProofType === 'Screenshot') && !imageFile) || (activeProofType === 'Share' && !imageFile && !uniqueProofValue.trim()) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Submit proof and unlock"}
                 </Button>
