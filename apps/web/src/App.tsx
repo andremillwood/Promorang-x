@@ -14,6 +14,7 @@ import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GrowthTracker from "@/components/GrowthTracker";
+import MetaPixel from "@/components/MetaPixel";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 
@@ -166,6 +167,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <DemoExperienceProvider>
+                <MetaPixel />
                 <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />

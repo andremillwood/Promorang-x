@@ -7,7 +7,6 @@ export default function GrowthTracker() {
   const location = useLocation();
   const { user, loading } = useAuth();
   const lastPath = useRef("");
-  const hasTrackedInitialMetaPage = useRef(false);
 
   useEffect(() => {
     captureGrowthAttribution();
@@ -17,16 +16,6 @@ export default function GrowthTracker() {
     const path = `${location.pathname}${location.search}`;
     if (lastPath.current === path) return;
     lastPath.current = path;
-
-    if (hasTrackedInitialMetaPage.current) {
-      const fbq = (window as typeof window & {
-        fbq?: (command: "track", eventName: "PageView") => void;
-      }).fbq;
-      fbq?.("track", "PageView");
-    } else {
-      hasTrackedInitialMetaPage.current = true;
-    }
-
     void trackStoredReferralClick();
     void trackGrowthEvent({
       eventName: "page_view",
