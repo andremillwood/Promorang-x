@@ -14,6 +14,24 @@ const JAMAICA_CITY_HINTS = [
   'mandeville',
 ];
 
+const JAMAICA_GOLD_REGION_ID = 'a6a363f4-32d2-4f3b-b8bc-013255851621';
+
+const MECHANIC_PROOF_TYPES = ['QR', 'GPS', 'Photo', 'Video', 'API', 'Code', 'Share', 'Screenshot', 'Link'];
+const MOMENT_PROOF_TYPE_ALIASES = new Map([
+  ['qr', 'QR'],
+  ['gps', 'GPS'],
+  ['photo', 'Photo'],
+  ['image', 'Photo'],
+  ['screenshot', 'Screenshot'],
+  ['share', 'Share'],
+  ['video', 'Video'],
+  ['api', 'API'],
+  ['code', 'Code'],
+  ['referral', 'Code'],
+  ['link', 'Link'],
+  ['url', 'Link'],
+]);
+
 function clean(value) {
   if (value === undefined || value === null) return '';
   return String(value).trim();
@@ -82,16 +100,43 @@ function geoProperties(moment = {}, extra = {}) {
     country: moment.country,
     countryCode: moment.country_code,
   });
-  return {
+  const properties = {
     city: geo.city,
     country: geo.country,
     country_code: geo.country_code,
+  };
+  if (geo.country_code === 'JM') {
+    properties.gold_region_id = JAMAICA_GOLD_REGION_ID;
+  }
+  return {
+    ...properties,
     ...extra,
   };
 }
 
+function toMomentProofEnum(proofType, fallback = 'Screenshot') {
+  const raw = String(proofType || fallback || 'Screenshot').trim();
+  if (MECHANIC_PROOF_TYPES.includes(raw)) return raw;
+  const key = raw.toLowerCase();
+  return MOMENT_PROOF_TYPE_ALIASES.get(key) || null;
+}
+
+function toMoveProofType(proofType) {
+  const key = String(proofType || '').trim().toLowerCase();
+  if (key === 'screenshot' || key === 'share' || key === 'photo' || key === 'image') return 'photo';
+  if (key === 'link' || key === 'url' || key === 'api') return 'link';
+  if (key === 'video') return 'video';
+  if (key === 'referral') return 'referral';
+  if (key === 'code' || key === 'qr' || key === 'gps') return 'code';
+  return null;
+}
+
 module.exports = {
+  JAMAICA_GOLD_REGION_ID,
+  MECHANIC_PROOF_TYPES,
   resolvePlaceGeo,
   geoProperties,
   extractCity,
+  toMomentProofEnum,
+  toMoveProofType,
 };

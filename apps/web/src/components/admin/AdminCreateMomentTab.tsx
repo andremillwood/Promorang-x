@@ -27,7 +27,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { venueCategories } from "@/lib/moment-taxonomy";
-import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo } from "@/lib/jamaica-geo";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
 
 const categories = [
     { value: "social", label: "Social Gathering" },
@@ -61,7 +61,7 @@ export const AdminCreateMomentTab = () => {
         location: "",
         venueId: "",
         venueCategory: "food_beverage",
-        proofType: "screenshot",
+        proofType: "Screenshot",
         startsAt: "",
         endsAt: "",
         maxParticipants: 50,
@@ -135,18 +135,14 @@ export const AdminCreateMomentTab = () => {
                 is_active: true,
                 status: 'joinable', // Admins bypass the review queue
                 visibility: formData.visibility,
-                proof_type: formData.proofType || 'screenshot',
+                proof_type: toMomentProofEnum(formData.proofType || 'Screenshot'),
                 evidence_requirements: []
             };
             let { error } = await supabase.from("moments").insert(payload);
-            if (error && /proof_type|invalid input value/i.test(error.message || "")) {
-                const enumFallback = formData.proofType === "link" ? "API" : formData.proofType === "QR" ? "QR" : formData.proofType === "GPS" ? "GPS" : formData.proofType === "Video" ? "Video" : formData.proofType === "Code" ? "Code" : "Photo";
-                ({ error } = await supabase.from("moments").insert({ ...payload, proof_type: enumFallback }));
-            }
-            if (error && /city|country/i.test(error.message || "")) {
+            if (error && /column|schema cache/i.test(error.message || "") && /city|country/i.test(error.message || "")) {
                 const { city, country, country_code, ...withoutGeo } = payload;
                 void city; void country; void country_code;
-                ({ error } = await supabase.from("moments").insert({ ...withoutGeo, proof_type: payload.proof_type === "screenshot" || payload.proof_type === "share" ? "Photo" : payload.proof_type === "link" ? "API" : payload.proof_type }));
+                ({ error } = await supabase.from("moments").insert(withoutGeo));
             }
 
             if (error) throw error;
@@ -161,7 +157,7 @@ export const AdminCreateMomentTab = () => {
                 location: "",
                 venueId: "",
                 venueCategory: "food_beverage",
-                proofType: "screenshot",
+                proofType: "Screenshot",
                 startsAt: "",
                 endsAt: "",
                 maxParticipants: 50,

@@ -35,7 +35,7 @@ import {
   conversionTypes,
   getTaxonomyLabel,
 } from "@/lib/moment-taxonomy";
-import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMoveProofType } from "@/lib/jamaica-geo";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum, toMoveProofType } from "@/lib/jamaica-geo";
 
 const recurrenceWeekdayOptions = [
   { value: 0, label: "Sun" },
@@ -338,7 +338,7 @@ const CreateMoment = () => {
     bannerImageUrl: "",
     galleryImages: [],
     visibility: "open",
-    proofType: "screenshot",
+    proofType: "Screenshot",
     evidenceRequirements: [],
     expectedActionUnit: "Check-in",
     moneySource: "host",
@@ -402,15 +402,15 @@ const CreateMoment = () => {
       "Check-in";
 
     const nextProofType =
-      formData.momentArchetype === "drop" ? "screenshot" :
-      formData.conversionType === "purchase" ? "screenshot" :
-      formData.conversionType === "sample" ? "screenshot" :
-      formData.conversionType === "try_on" ? "screenshot" :
+      formData.momentArchetype === "drop" ? "Screenshot" :
+      formData.conversionType === "purchase" ? "Screenshot" :
+      formData.conversionType === "sample" ? "Screenshot" :
+      formData.conversionType === "try_on" ? "Screenshot" :
       formData.conversionType === "appointment" || formData.conversionType === "booking" ? "Code" :
-      formData.momentArchetype === "content" ? "share" :
+      formData.momentArchetype === "content" ? "Share" :
       formData.momentArchetype === "service" ? "Code" :
       formData.momentArchetype === "visit" ? "GPS" :
-      "screenshot";
+      "Screenshot";
 
     setFormData((prev) => {
       if (prev.expectedActionUnit === nextExpectedAction && prev.proofType === nextProofType) {
@@ -504,7 +504,7 @@ const CreateMoment = () => {
       rewardPoolJmd: typeId === "campaign" && prev.rewardPoolJmd === 0 ? 5000 : prev.rewardPoolJmd,
       totalFundedJmd: typeId === "campaign" ? 0 : prev.totalFundedJmd,
       venueCategory: typeId === "local_drop" ? (prev.venueCategory || "food_beverage") : prev.venueCategory,
-      proofType: typeId === "local_drop" ? "screenshot" : prev.proofType,
+      proofType: typeId === "local_drop" ? "Screenshot" : prev.proofType,
     }));
     setRecurrence((prev) => ({
       ...prev,
@@ -670,7 +670,7 @@ const CreateMoment = () => {
       if (!accessToken) throw new Error("Authentication session expired");
 
       const momentGeo = resolvePlaceGeo({ location: formData.location });
-      const productProofType = formData.proofType || "screenshot";
+      const productProofType = toMomentProofEnum(formData.proofType || "Screenshot");
 
       const response = await fetch(`${API_BASE_URL}/moment-economy/moments`, {
         method: "POST",
@@ -1401,7 +1401,7 @@ const CreateMoment = () => {
               <div>
                 <Label>Proof type</Label>
                 <Select
-                  value={formData.proofType || "screenshot"}
+                  value={formData.proofType || "Screenshot"}
                   onValueChange={(value) => updateField("proofType", value)}
                 >
                   <SelectTrigger>

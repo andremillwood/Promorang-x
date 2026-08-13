@@ -65,7 +65,7 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
 
     const submission = await proofService.getProofSubmissionById(req.params.id);
     const isAdmin = proofService.isAdminReviewer(req.user);
-    const isHostOwner = submission?.moment?.host_id === req.user.id;
+    const isHostOwner = submission?.moment?.host_id === req.user.id || submission?.moment?.organizer_id === req.user.id;
 
     if (!isAdmin && !isHostOwner) {
       return res.status(403).json({ success: false, error: 'Host or admin access required' });
@@ -74,6 +74,7 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
     const result = await proofService.reviewProofSubmission({
       submissionId: req.params.id,
       reviewerId: req.user.id,
+      reviewer: req.user,
       action,
       reviewReason: review_reason,
     });
@@ -89,7 +90,7 @@ router.get('/submissions/:id/audit', requireAuth, async (req, res) => {
   try {
     const submission = await proofService.getProofSubmissionById(req.params.id);
     const isAdmin = proofService.isAdminReviewer(req.user);
-    const isHostOwner = submission?.moment?.host_id === req.user.id;
+    const isHostOwner = submission?.moment?.host_id === req.user.id || submission?.moment?.organizer_id === req.user.id;
 
     if (!isAdmin && !isHostOwner) {
       return res.status(403).json({ success: false, error: 'Host or admin access required' });

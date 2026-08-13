@@ -40,7 +40,7 @@ import {
   momentArchetypes,
   conversionTypes,
 } from "@/lib/moment-taxonomy";
-import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo } from "@/lib/jamaica-geo";
+import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
 import type { Tables } from "@/integrations/supabase/types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -95,7 +95,7 @@ const EditMoment = () => {
     venueCategory: "",
     momentArchetype: "",
     conversionType: "check_in",
-    proofType: "screenshot",
+    proofType: "Screenshot",
     location: "",
     venueName: "",
     startsAt: "",
@@ -148,7 +148,7 @@ const EditMoment = () => {
         venueCategory: recurrenceData.venue_category || "",
         momentArchetype: recurrenceData.moment_archetype || "",
         conversionType: recurrenceData.conversion_type || "check_in",
-        proofType: recurrenceData.proof_type || "screenshot",
+        proofType: toMomentProofEnum(recurrenceData.proof_type || "Screenshot"),
         location: data.location,
         venueName: data.venue_name || "",
         startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
@@ -224,7 +224,7 @@ const EditMoment = () => {
           venue_category: formData.venueCategory || null,
           moment_archetype: formData.momentArchetype || null,
           conversion_type: formData.conversionType || null,
-          proof_type: formData.proofType || "screenshot",
+          proof_type: toMomentProofEnum(formData.proofType || "Screenshot"),
           location: formData.location,
           city: resolvePlaceGeo({ location: formData.location }).city,
           country: resolvePlaceGeo({ location: formData.location }).country,

@@ -6,7 +6,7 @@ const pieceEarningService = require('./pieceEarningService');
 const promoPushTrackingService = require('./promoPushTrackingService');
 const experienceAutomationService = require('./experienceAutomationService');
 const growthOperatingService = require('./growthOperatingService');
-const { geoProperties } = require('../lib/jamaicaGeo');
+const { geoProperties, toMomentProofEnum } = require('../lib/jamaicaGeo');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -73,7 +73,8 @@ async function getPendingProofSubmissions(viewer = {}) {
         memory_rarity,
         venue_name,
         category,
-        host_id
+        host_id,
+        organizer_id
       )
     `)
     .eq('submission_state', 'pending')
@@ -81,7 +82,7 @@ async function getPendingProofSubmissions(viewer = {}) {
 
   if (error) throw error;
   const rows = data || [];
-  const scopedRows = isAdminReviewer(viewer) ? rows : rows.filter((row) => row.moment?.host_id === viewer.id);
+  const scopedRows = isAdminReviewer(viewer) ? rows : rows.filter((row) => row.moment?.host_id === viewer.id || row.moment?.organizer_id === viewer.id);
   return attachMissionAttribution(scopedRows);
 }
 
@@ -100,7 +101,8 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
         memory_rarity,
         venue_name,
         category,
-        host_id
+        host_id,
+        organizer_id
       )
     `)
     .neq('submission_state', 'pending')
@@ -111,7 +113,7 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
 
   const scopedSubmissions = isAdminReviewer(viewer)
     ? (data || [])
-    : (data || []).filter((row) => row.moment?.host_id === viewer.id);
+    : (data || []).filter((row) => row.moment?.host_id === viewer.id || row.moment?.organizer_id === viewer.id);
   const submissions = scopedSubmissions;
   if (submissions.length === 0) return [];
 
@@ -212,7 +214,8 @@ async function getProofSubmissionById(submissionId) {
       moment:moments (
         id,
         title,
-        host_id
+        host_id,
+        organizer_id
       )
     `)
     .eq('id', submissionId)
@@ -391,7 +394,10 @@ async function getProofSubmissionAudit(submissionId) {
 async function submitProofSubmission({ momentId, userId, proofBundle, momentMoveId = null }) {
   if (!supabase) throw new Error('Database not available');
 
-  const normalizedBundle = proofBundle || {};
+  const normalizedBundle = {
+    ...(proofBundle || {}),
+    proof_type: proofBundle?.proof_type ? toMomentProofEnum(proofBundle.proof_type) : (proofBundle?.proof_type || null),
+  };
   const uniqueKey = await momentEconomyService.validateUniqueProof({
     momentId,
     userId,
@@ -625,7 +631,7 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
   return { reward, piece_awards: pieceAwards };
 }
 
-async function reviewProofSubmission({ submissionId, reviewerId, action, reviewReason }) {
+async function reviewProofSubmission({ submissionId, reviewerId, reviewer = null, action, reviewReason }) {
   if (!supabase) throw new Error('Database not available');
 
   const nextState = action === 'approve' ? 'verified' : 'rejected';
@@ -670,7 +676,7 @@ async function reviewProofSubmission({ submissionId, reviewerId, action, reviewR
       reviewerId,
     });
 
-    payout = await momentEconomyService.executePayoutForProof(data.id, reviewerId);
+    payout = await momentEconomyService.executePayoutForProof(data.id, reviewerId, reviewer);
 
     const sourceContentId = data.proof_bundle?.source_content_id || data.proof_bundle?.content_id || null;
     if (sourceContentId) {

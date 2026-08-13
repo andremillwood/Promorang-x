@@ -4,22 +4,7 @@ const supabase = global.supabase || serviceSupabase || null;
 const MONEY_SOURCES = new Set(['entry', 'host', 'event', 'platform', 'content', 'hybrid']);
 const ALLOCATION_MONEY_SOURCES = new Set(['platform', 'content']);
 const PROOF_TYPES = new Set(['code', 'photo', 'video', 'referral', 'link']);
-const MOMENT_PROOF_TYPE_ALIASES = new Map([
-  ['qr', 'QR'],
-  ['gps', 'GPS'],
-  ['photo', 'Photo'],
-  ['image', 'Photo'],
-  ['screenshot', 'Photo'],
-  ['share', 'Photo'],
-  ['video', 'Video'],
-  ['api', 'API'],
-  ['code', 'Code'],
-  ['referral', 'Code'],
-  ['link', 'API'],
-  ['url', 'API'],
-]);
-const PRODUCT_PROOF_TYPES = new Set(['screenshot', 'link', 'share']);
-const { resolvePlaceGeo } = require('../lib/jamaicaGeo');
+const { resolvePlaceGeo, toMomentProofEnum, toMoveProofType } = require('../lib/jamaicaGeo');
 const RULE_TYPES = new Set(['first_n', 'per_action', 'leaderboard', 'milestone', 'judged']);
 const RECURRENCE_FREQUENCIES = new Set(['daily', 'weekly', 'monthly']);
 const CONTENT_ORIGINS = new Set(['stakeholder_created', 'platform_seed', 'demo', 'scraped', 'imported']);
@@ -38,9 +23,7 @@ function toMoney(value) {
 }
 
 function normalizeMove(move = {}, index = 0) {
-  let proofType = String(move.proof_type || '').toLowerCase();
-  if (proofType === 'screenshot' || proofType === 'share' || proofType === 'image') proofType = 'photo';
-  if (proofType === 'url' || proofType === 'api') proofType = 'link';
+  const proofType = toMoveProofType(move.proof_type);
   if (!move.title) throw new Error(`Move ${index + 1} requires a title`);
   if (!PROOF_TYPES.has(proofType)) throw new Error(`Move ${index + 1} has invalid proof_type`);
 
@@ -56,26 +39,18 @@ function normalizeMove(move = {}, index = 0) {
 }
 
 function normalizeMomentProofType(value, fallbackMoveProofType = 'code') {
-  const rawValue = value || fallbackMoveProofType || 'code';
-  const key = String(rawValue).trim().toLowerCase();
-  const proofType = MOMENT_PROOF_TYPE_ALIASES.get(key);
+  const rawValue = value || fallbackMoveProofType || 'Screenshot';
+  const proofType = toMomentProofEnum(rawValue);
   if (!proofType) {
-    throw new Error('proof_type must be QR, GPS, Photo, Video, API, Code, screenshot, link, or share');
+    throw new Error('proof_type must be QR, GPS, Photo, Video, API, Code, Share, Screenshot, or Link');
   }
   return proofType;
 }
 
 function productProofType(value, fallback = null) {
-  const key = String(value || fallback || '').trim().toLowerCase();
-  if (PRODUCT_PROOF_TYPES.has(key)) return key;
-  if (key === 'photo' || key === 'image') return 'screenshot';
-  if (key === 'api' || key === 'url') return 'link';
+  const proofType = toMomentProofEnum(value || fallback);
+  if (proofType === 'Screenshot' || proofType === 'Share' || proofType === 'Link') return proofType;
   return null;
-}
-
-function isProofTypeSchemaError(error) {
-  const message = `${error?.message || ''} ${error?.details || ''} ${error?.code || ''}`.toLowerCase();
-  return message.includes('proof_type') || message.includes('invalid input value') || message.includes('22p02');
 }
 
 function isGeoSchemaError(error) {
@@ -437,15 +412,12 @@ async function createMomentWithEconomy(userId, payload = {}) {
     .select()
     .single());
 
-  if (momentError && (isRecurrenceSchemaError(momentError) || isMomentLineageSchemaError(momentError) || isProofTypeSchemaError(momentError) || isGeoSchemaError(momentError) || isLatLngSchemaError(momentError))) {
+  if (momentError && (isRecurrenceSchemaError(momentError) || isMomentLineageSchemaError(momentError) || isGeoSchemaError(momentError) || isLatLngSchemaError(momentError))) {
     if (recurrence.recurrence_enabled && isRecurrenceSchemaError(momentError)) {
       throw new Error('Recurring moments require the latest database migration to be applied');
     }
 
     const fallbackInsert = { ...(isMomentLineageSchemaError(momentError) ? coreMomentInsert : (isRecurrenceSchemaError(momentError) ? baseMomentInsert : recurrenceMomentInsert)) };
-    if (isProofTypeSchemaError(momentError)) {
-      fallbackInsert.proof_type = momentProofType;
-    }
     if (isGeoSchemaError(momentError) || isLatLngSchemaError(momentError)) {
       delete fallbackInsert.city;
       delete fallbackInsert.country;
@@ -459,15 +431,6 @@ async function createMomentWithEconomy(userId, payload = {}) {
     ({ data: moment, error: momentError } = await supabase
       .from('moments')
       .insert(fallbackInsert)
-      .select()
-      .single());
-  }
-
-  if (momentError && isProofTypeSchemaError(momentError)) {
-    const enumFallback = { ...coreMomentInsert, proof_type: momentProofType };
-    ({ data: moment, error: momentError } = await supabase
-      .from('moments')
-      .insert(enumFallback)
       .select()
       .single());
   }
@@ -559,7 +522,7 @@ async function updateMoment(userOrId, momentId, payload = {}) {
   });
 
   const nextProofType = payload.proof_type
-    ? productProofType(payload.proof_type) || normalizeMomentProofType(payload.proof_type)
+    ? (productProofType(payload.proof_type) || normalizeMomentProofType(payload.proof_type))
     : existingMoment.proof_type;
   const momentGeo = resolveMomentGeo({
     ...existingMoment,
@@ -625,15 +588,12 @@ async function updateMoment(userOrId, momentId, payload = {}) {
     .select()
     .single());
 
-  if (updateError && (isRecurrenceSchemaError(updateError) || isMomentLineageSchemaError(updateError) || isProofTypeSchemaError(updateError) || isGeoSchemaError(updateError) || isLatLngSchemaError(updateError))) {
+  if (updateError && (isRecurrenceSchemaError(updateError) || isMomentLineageSchemaError(updateError) || isGeoSchemaError(updateError) || isLatLngSchemaError(updateError))) {
     if (recurrence.recurrence_enabled && isRecurrenceSchemaError(updateError)) {
       throw new Error('Recurring moments require the latest database migration to be applied');
     }
 
     const fallbackUpdates = { ...(isMomentLineageSchemaError(updateError) ? legacyUpdates : (isRecurrenceSchemaError(updateError) ? coreUpdates : updates)) };
-    if (isProofTypeSchemaError(updateError) && payload.proof_type) {
-      fallbackUpdates.proof_type = normalizeMomentProofType(payload.proof_type);
-    }
     if (isGeoSchemaError(updateError) || isLatLngSchemaError(updateError)) {
       delete fallbackUpdates.city;
       delete fallbackUpdates.country;
@@ -891,7 +851,7 @@ async function calculatePayoutForSubmission(submission, move) {
   return { amount, rule, reason: 'payable' };
 }
 
-async function executePayoutForProof(submissionId, reviewerId = null) {
+async function executePayoutForProof(submissionId, reviewerId = null, reviewer = null) {
   const { data: submission, error: submissionError } = await supabase
     .from('proof_submissions')
     .select('*')
@@ -902,31 +862,47 @@ async function executePayoutForProof(submissionId, reviewerId = null) {
   if (submission.submission_state !== 'verified') return { queued: false, reason: 'proof_not_verified' };
   if (submission.payout_ledger_id) return { queued: false, reason: 'already_paid_or_queued', ledger_id: submission.payout_ledger_id };
 
+  const { data: moment, error: momentError } = await supabase
+    .from('moments')
+    .select('id, host_id, organizer_id')
+    .eq('id', submission.moment_id)
+    .single();
+
+  if (momentError) throw momentError;
+  if (!moment) throw new Error('Moment not found');
+
+  const actorHostId = moment.host_id || moment.organizer_id || null;
+  const isHostOrOrganizer = Boolean(reviewerId) && (reviewerId === moment.host_id || reviewerId === moment.organizer_id);
+  if (!isHostOrOrganizer && !canAdministerMoments(reviewer || {})) {
+    throw new Error('Only the host or organizer can credit moment_ledger on approve');
+  }
+
   const move = await resolveMoveForSubmission(submission);
   const payout = await calculatePayoutForSubmission(submission, move);
   const points = Number(move?.reward_amount_jmd || payout.amount || 0);
+  const ledgerMetadata = {
+    moment_move_id: move?.id || null,
+    reviewer_id: reviewerId,
+    actor_host_id: actorHostId,
+    proof_approved: true,
+  };
+
   if (payout.amount <= 0) {
-    try {
-      const ledger = await createLedgerEntry({
-        momentId: submission.moment_id,
-        type: 'payout',
-        amountJmd: points,
-        userId: submission.user_id,
-        proofSubmissionId: submission.id,
-        reference: 'proof_approved',
-        metadata: {
-          moment_move_id: move?.id || null,
-          points,
-          proof_approved: true,
-          reason: payout.reason,
-        },
-        allowZero: true,
-      });
-      return { queued: false, reason: payout.reason, ledger, points };
-    } catch (ledgerError) {
-      console.warn('[MomentEconomy] proof_approved ledger skipped:', ledgerError.message);
-      return { queued: false, reason: payout.reason, points };
-    }
+    const ledger = await createLedgerEntry({
+      momentId: submission.moment_id,
+      type: 'payout',
+      amountJmd: points,
+      userId: submission.user_id,
+      proofSubmissionId: submission.id,
+      reference: 'proof_approved',
+      metadata: {
+        ...ledgerMetadata,
+        points,
+        reason: payout.reason,
+      },
+      allowZero: true,
+    });
+    return { queued: false, reason: payout.reason, ledger, points };
   }
 
   const ledger = await createLedgerEntry({
@@ -937,9 +913,8 @@ async function executePayoutForProof(submissionId, reviewerId = null) {
     proofSubmissionId: submission.id,
     reference: 'manual_queue',
     metadata: {
-      moment_move_id: move.id,
+      ...ledgerMetadata,
       payout_rule_id: payout.rule?.id || null,
-      reviewer_id: reviewerId,
     },
   });
 

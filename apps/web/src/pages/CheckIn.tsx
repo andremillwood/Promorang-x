@@ -21,6 +21,8 @@ import { demoMoments } from "@/data/demo-moments";
 import { getAccessState, type AccessQuote } from "@/lib/access";
 import { NextUnlock, RewardStack } from "@/components/value/ValueJourney";
 import { recordJourneyEvent } from "@/lib/value-journey";
+import { toMomentProofEnum } from "@/lib/jamaica-geo";
+
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -65,16 +67,7 @@ const CheckIn = () => {
 
   const moveId = searchParams.get("moveId");
   const activeMove = economyMoves.find((move) => move.id === moveId) || economyMoves[0] || null;
-  const rawProofType = String(activeMove?.proof_type || moment?.proof_type || "screenshot").toLowerCase();
-  const activeProofType = rawProofType === "qr" ? "QR"
-    : rawProofType === "gps" ? "GPS"
-    : rawProofType === "code" ? "Code"
-    : rawProofType === "video" ? "Video"
-    : rawProofType === "referral" ? "Referral"
-    : rawProofType === "link" || rawProofType === "url" || rawProofType === "api" ? "Link"
-    : rawProofType === "share" ? "Share"
-    : rawProofType === "screenshot" ? "Screenshot"
-    : "Photo";
+  const activeProofType = toMomentProofEnum(moment?.proof_type || activeMove?.proof_type || "Screenshot");
 
   useEffect(() => {
     if (id) {
@@ -303,13 +296,13 @@ const CheckIn = () => {
         }
       } else if (activeProofType === 'GPS') {
         if (!locationVerified) throw new Error("Please verify your location first");
-      } else if (activeProofType === 'Link' || activeProofType === 'Referral') {
+      } else if (activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral') {
         if (!uniqueProofValue.trim()) throw new Error(`Please enter your ${activeProofType.toLowerCase()} proof`);
       }
 
       if (session) {
         const proofBundle = {
-          proof_type: rawProofType || activeProofType || null,
+          proof_type: activeProofType,
           code: code.trim() || null,
           link_url: (activeProofType === 'Link' || activeProofType === 'Share') ? uniqueProofValue.trim() || null : null,
           referral_code: activeProofType === 'Referral' ? uniqueProofValue.trim() : null,
@@ -701,7 +694,7 @@ const CheckIn = () => {
                   </div>
                 )}
 
-                {(activeProofType === 'Link' || activeProofType === 'Referral' || activeProofType === 'Share') && (
+                {(activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral' || activeProofType === 'Share') && (
                   <div className="space-y-2">
                     <Label htmlFor="uniqueProofValue">{activeProofType} Proof</Label>
                     <Input
@@ -717,7 +710,7 @@ const CheckIn = () => {
                   type="submit"
                   variant="hero"
                   className="w-full h-14 font-bold text-lg"
-                  disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || ((activeProofType === 'Photo' || activeProofType === 'Screenshot') && !imageFile) || (activeProofType === 'Share' && !imageFile && !uniqueProofValue.trim()) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
+                  disabled={loading || ((activeProofType === 'QR' || activeProofType === 'Code') && !code.trim()) || ((activeProofType === 'Photo' || activeProofType === 'Screenshot') && !imageFile) || (activeProofType === 'Share' && !imageFile && !uniqueProofValue.trim()) || (activeProofType === 'GPS' && !locationVerified) || ((activeProofType === 'Link' || activeProofType === 'API' || activeProofType === 'Referral') && !uniqueProofValue.trim())}
                 >
                   {loading ? <Loader2 className="animate-spin" /> : "Submit proof and unlock"}
                 </Button>

@@ -74,10 +74,46 @@ export function resolvePlaceGeo(input: {
   };
 }
 
+/** Live gold_regions.id for Jamaica. moments has no gold_region column. */
+export const JAMAICA_GOLD_REGION_ID = "a6a363f4-32d2-4f3b-b8bc-013255851621";
+
+/** Live mechanic_proof_type labels (moments.proof_type). Title Case, exact strings. */
+export const MECHANIC_PROOF_TYPES = [
+  "QR",
+  "GPS",
+  "Photo",
+  "Video",
+  "API",
+  "Code",
+  "Share",
+  "Screenshot",
+  "Link",
+] as const;
+
+export type MechanicProofType = (typeof MECHANIC_PROOF_TYPES)[number];
+
+/** Live moment_move_proof_type labels (moment_moves.proof_type). Lowercase only. */
+export type MoveProofType = "code" | "photo" | "video" | "referral" | "link";
+
+const MOMENT_PROOF_TYPE_ALIASES: Record<string, MechanicProofType> = {
+  qr: "QR",
+  gps: "GPS",
+  photo: "Photo",
+  image: "Photo",
+  video: "Video",
+  api: "API",
+  code: "Code",
+  referral: "Code",
+  share: "Share",
+  screenshot: "Screenshot",
+  link: "Link",
+  url: "Link",
+};
+
 export const LOCAL_DROP_PROOF_OPTIONS = [
-  { value: "screenshot", label: "Screenshot", description: "Upload a photo or screenshot as proof." },
-  { value: "share", label: "Share proof", description: "Show the share you made with a screenshot or link." },
-  { value: "link", label: "Link", description: "Paste the public post or completed-action URL." },
+  { value: "Screenshot", label: "Screenshot", description: "Upload a photo or screenshot as proof." },
+  { value: "Share", label: "Share proof", description: "Show the share you made with a screenshot or link." },
+  { value: "Link", label: "Link", description: "Paste the public post or completed-action URL." },
   { value: "QR", label: "QR / code", description: "Venue code or QR scan. Secondary for Local Drops." },
   { value: "GPS", label: "Location", description: "Confirm presence at the venue." },
   { value: "Photo", label: "Photo", description: "On-site photo mark." },
@@ -85,19 +121,17 @@ export const LOCAL_DROP_PROOF_OPTIONS = [
   { value: "Code", label: "Code", description: "Staff or check-in code." },
 ] as const;
 
-export function toMomentProofEnum(proofType?: string | null) {
-  const key = String(proofType || "screenshot").trim().toLowerCase();
-  if (key === "screenshot" || key === "share" || key === "photo" || key === "image") return "Photo";
-  if (key === "link" || key === "url" || key === "api") return "API";
-  if (key === "video") return "Video";
-  if (key === "gps") return "GPS";
-  if (key === "qr") return "QR";
-  if (key === "code" || key === "referral") return "Code";
-  return "Photo";
+export function toMomentProofEnum(proofType?: string | null): MechanicProofType {
+  const raw = String(proofType || "Screenshot").trim();
+  if ((MECHANIC_PROOF_TYPES as readonly string[]).includes(raw)) {
+    return raw as MechanicProofType;
+  }
+  const key = raw.toLowerCase();
+  return MOMENT_PROOF_TYPE_ALIASES[key] || "Screenshot";
 }
 
-export function toMoveProofType(proofType?: string | null) {
-  const key = String(proofType || "screenshot").trim().toLowerCase();
+export function toMoveProofType(proofType?: string | null): MoveProofType {
+  const key = String(proofType || "Screenshot").trim().toLowerCase();
   if (key === "screenshot" || key === "share" || key === "photo" || key === "image") return "photo";
   if (key === "link" || key === "url" || key === "api") return "link";
   if (key === "video") return "video";
