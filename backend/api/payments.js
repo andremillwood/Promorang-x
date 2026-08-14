@@ -265,11 +265,14 @@ router.post('/checkout', requireAuth, async (req, res) => {
   }
 
   try {
+    const checkoutSuccessUrl = success_url
+      ? `${success_url}${success_url.includes('?') ? '&' : '?'}session_id={CHECKOUT_SESSION_ID}`
+      : `${publicOrigin}/billing/result?status=success&session_id={CHECKOUT_SESSION_ID}`;
     const session = await stripeClient.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: success_url || `${publicOrigin}/billing/success`,
+      success_url: checkoutSuccessUrl,
       cancel_url: cancel_url || `${publicOrigin}/billing/cancel`,
       customer_email: req.user?.email || customer_email || undefined,
       allow_promotion_codes: true,
@@ -317,11 +320,44 @@ router.post('/checkout', requireAuth, async (req, res) => {
       data: {
         provider: 'stripe',
         url: session.url,
+        session_id: session.id,
       },
     });
   } catch (error) {
     console.error('[payments.checkout] stripe error', error);
     return res.status(500).json({ status: 'error', message: 'Failed to create checkout session' });
+  }
+});
+
+router.get('/checkout/session/:sessionId', requireAuth, async (req, res) => {
+  if (!stripeClient) {
+    return res.status(503).json({ status: 'error', message: 'Stripe provider not configured' });
+  }
+
+  try {
+    const session = await stripeClient.checkout.sessions.retrieve(req.params.sessionId);
+    if (!session.metadata?.user_id || session.metadata.user_id !== req.user?.id) {
+      return res.status(404).json({ status: 'error', message: 'Checkout session not found' });
+    }
+
+    const paid = session.status === 'complete'
+      && ['paid', 'no_payment_required'].includes(session.payment_status);
+    return res.json({
+      status: 'success',
+      data: {
+        paid,
+        session_id: session.id,
+        plan_id: session.metadata?.plan_id || null,
+        value: Number(((session.amount_total || 0) / 100).toFixed(2)),
+        currency: (session.currency || 'usd').toUpperCase(),
+      },
+    });
+  } catch (error) {
+    if (error?.type === 'StripeInvalidRequestError') {
+      return res.status(404).json({ status: 'error', message: 'Checkout session not found' });
+    }
+    console.error('[payments.checkout.session] stripe error', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to verify checkout session' });
   }
 });
 

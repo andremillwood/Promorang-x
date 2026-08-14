@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, MessageSquare, MapPin, Send, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
+import { trackMetaEvent } from "@/components/MetaPixel";
 
 const ContactPage = () => {
     const [submitted, setSubmitted] = useState(false);
@@ -48,6 +49,10 @@ const ContactPage = () => {
                 throw new Error(payload.error || "Failed to send message");
             }
 
+            trackMetaEvent("Lead", {
+                content_name: "Contact form",
+                lead_type: formData.topic,
+            });
             setSubmitted(true);
         } catch (sendError) {
             setError(sendError instanceof Error ? sendError.message : "Failed to send message");

@@ -5,14 +5,15 @@ import { API_BASE_URL } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
+import { trackMetaEvent } from "@/components/MetaPixel";
 
 const plans = {
-  plus: { name: "Plus", price: "$9.99 / month", benefits: ["1.25× disclosed Points multiplier", "90% of standard PromoKey cost", "Cash/Gem PromoShare eligibility"] },
-  pro: { name: "Pro", price: "$24.99 / month", benefits: ["1.5× disclosed Points multiplier", "75% of standard PromoKey cost", "Higher caps and priority access"] },
-  elite: { name: "Elite", price: "$49.99 / month", benefits: ["2× disclosed Points multiplier", "60% of standard PromoKey cost", "Premium pools and local impact funding"] },
-  host_pro: { name: "Host Pro", price: "$49 / month", benefits: ["Advanced host operations", "Reusable Moment templates", "Priority brand and sponsor matching"] },
-  merchant_growth: { name: "Merchant Growth", price: "$499 / month", benefits: ["8 Merchant Moments per month", "Featured venue placement", "Loyalty integrations and priority support"] },
-  brand_studio: { name: "Brand Studio", price: "$999 / month", benefits: ["Brand workspace and reusable templates", "Priority matching and reporting", "Moment funding is billed separately"] },
+  plus: { name: "Plus", value: 9.99, price: "$9.99 / month", benefits: ["1.25× disclosed Points multiplier", "90% of standard PromoKey cost", "Cash/Gem PromoShare eligibility"] },
+  pro: { name: "Pro", value: 24.99, price: "$24.99 / month", benefits: ["1.5× disclosed Points multiplier", "75% of standard PromoKey cost", "Higher caps and priority access"] },
+  elite: { name: "Elite", value: 49.99, price: "$49.99 / month", benefits: ["2× disclosed Points multiplier", "60% of standard PromoKey cost", "Premium pools and local impact funding"] },
+  host_pro: { name: "Host Pro", value: 49, price: "$49 / month", benefits: ["Advanced host operations", "Reusable Moment templates", "Priority brand and sponsor matching"] },
+  merchant_growth: { name: "Merchant Growth", value: 499, price: "$499 / month", benefits: ["8 Merchant Moments per month", "Featured venue placement", "Loyalty integrations and priority support"] },
+  brand_studio: { name: "Brand Studio", value: 999, price: "$999 / month", benefits: ["Brand workspace and reusable templates", "Priority matching and reporting", "Moment funding is billed separately"] },
 } as const;
 
 export default function MembershipCheckout() {
@@ -42,6 +43,13 @@ export default function MembershipCheckout() {
       });
       const payload = await response.json();
       if (!response.ok || !payload.data?.url) throw new Error(payload.message || "Checkout is not available yet.");
+      trackMetaEvent("InitiateCheckout", {
+        content_ids: [planId],
+        content_name: plan.name,
+        content_type: "product",
+        currency: "USD",
+        value: plan.value,
+      });
       window.location.assign(payload.data.url);
     } catch (checkoutError) {
       setError(checkoutError instanceof Error ? checkoutError.message : "Checkout could not start.");

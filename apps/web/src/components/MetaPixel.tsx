@@ -47,6 +47,21 @@ const initializeMetaPixel = () => {
   return fbq;
 };
 
+type MetaStandardEvent = "CompleteRegistration" | "Lead" | "InitiateCheckout" | "Purchase";
+
+export const trackMetaEvent = (
+  eventName: MetaStandardEvent,
+  parameters: Record<string, unknown> = {},
+  eventId?: string,
+) => {
+  const fbq = initializeMetaPixel();
+  if (eventId) {
+    fbq("track", eventName, parameters, { eventID: eventId });
+    return;
+  }
+  fbq("track", eventName, parameters);
+};
+
 export default function MetaPixel() {
   const location = useLocation();
   const lastTrackedLocation = useRef<string | null>(null);

@@ -10,6 +10,7 @@ import logo from "@/assets/promorang-logo-full.png";
 import { z } from "zod";
 import { DEMO_EMAIL_STORAGE_KEY, DemoRole } from "@/lib/demo-session";
 import { captureGrowthAttribution, markPendingSignup, trackGrowthEvent } from "@/lib/marketing-attribution";
+import { trackMetaEvent } from "@/components/MetaPixel";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
 
@@ -147,6 +148,11 @@ const AuthPage = () => {
           });
         } else {
           markPendingSignup();
+          trackMetaEvent("CompleteRegistration", {
+            content_name: "Promorang account",
+            status: true,
+            user_role: selectedRole,
+          });
           toast({
             title: "Welcome to Promorang!",
             description: "Your account has been created successfully.",
