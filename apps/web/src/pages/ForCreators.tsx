@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import { PlayCircle, Link2, MapPin, Sparkles, TrendingUp, ArrowRight, Gem, Users, Camera, Store, CalendarCheck, BadgeDollarSign, ShieldCheck, BarChart3, CheckCircle2 } from "lucide-react";
 
 const creatorBenefits = [
@@ -139,6 +140,8 @@ const ForCreators = () => {
           </div>
         </div>
       </section>
+
+      <LeadMagnetGateway audience="creator" />
 
       <MissionRoleValue audience="creator" />
 

@@ -29,6 +29,7 @@ import {
   ShoppingBag,
   ChevronDown,
   UserPlus,
+  ContactRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
@@ -52,12 +53,14 @@ import { AdminCatalogTab } from "@/components/admin/AdminCatalogTab";
 import { AdminCommerceTab } from "@/components/admin/AdminCommerceTab";
 import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
 import { AdminClaimablePagesTab } from "@/components/admin/AdminClaimablePagesTab";
+import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 
 const ADMIN_TABS = new Set([
   "command",
   "overview",
   "growth",
+  "leads",
   "proof-builder",
   "pioneer",
   "operations",
@@ -92,6 +95,7 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
       { value: "command", label: "Command Center", icon: Shield },
       { value: "overview", label: "Analytics", icon: BarChart3 },
       { value: "growth", label: "Growth", icon: TrendingUp },
+      { value: "leads", label: "Leads & CRM", icon: ContactRound },
     ],
   },
   {
@@ -312,6 +316,9 @@ const AdminDashboard = () => {
 
             <TabsContent value="growth">
               <AdminGrowthTab />
+            </TabsContent>
+            <TabsContent value="leads">
+              <AdminLeadsCRM />
             </TabsContent>
 
             <TabsContent value="proof-builder">

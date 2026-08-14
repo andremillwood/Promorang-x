@@ -145,7 +145,7 @@ app.use(express.urlencoded({
 // Log request body for debugging
 app.use((req, res, next) => {
   const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
-  for (const key of ['manage_token', 'password', 'token', 'secret']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
+  for (const key of ['manage_token', 'password', 'token', 'secret', 'email', 'phone', 'answers']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
   console.log('Request body:', safeBody);
   next();
 });
@@ -172,6 +172,7 @@ app.use('/api/maturity', require('./api/maturity'));
 app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/growth-ops', require('./api/growth-ops'));
+app.use('/api/leads', require('./api/leads'));
 // app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/platform-drops', require('./api/platform-drops'));
 // app.use('/api/shares', shares);

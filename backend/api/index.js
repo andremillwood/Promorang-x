@@ -73,7 +73,7 @@ app.use(express.urlencoded({
 // Log request body for debugging
 app.use((req, res, next) => {
   const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
-  for (const key of ['manage_token', 'password', 'token', 'secret']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
+  for (const key of ['manage_token', 'password', 'token', 'secret', 'email', 'phone', 'answers']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
   const safeHeaders = { ...req.headers };
   for (const key of ['authorization', 'cookie', 'x-cron-secret', 'x-messaging-webhook-secret']) if (safeHeaders[key]) safeHeaders[key] = '[REDACTED]';
   console.log('Request body:', safeBody);
@@ -324,6 +324,7 @@ app.get('/api/error-logs', errorHandlers.handleGetLogs);
 app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
 app.use('/api/telemetry', require('./telemetry'));
 app.use('/api/revenue-funnels', require('./revenue-funnels'));
+app.use('/api/leads', require('./leads'));
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));
 app.use('/api/promoshare/sponsors', require('./promoshare-sponsors'));

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Building2,
     Handshake,
@@ -148,6 +149,8 @@ const ForBrands = () => {
                     </div>
                 </div>
             </section>
+
+            <LeadMagnetGateway audience="brand" />
 
             <MissionRoleValue audience="brand" />
 

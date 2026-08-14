@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Store,
     Users,
@@ -119,6 +120,8 @@ const ForMerchants = () => {
                     </div>
                 </div>
             </section>
+
+            <LeadMagnetGateway audience="merchant" />
 
             <MissionRoleValue audience="merchant" />
 

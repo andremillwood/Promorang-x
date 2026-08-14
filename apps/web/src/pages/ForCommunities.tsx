@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
   ArrowRight,
   CheckCircle2,
@@ -127,6 +128,8 @@ const ForCommunities = () => {
           </div>
         </div>
       </section>
+
+      <LeadMagnetGateway audience="host" />
 
       <PioneerCallout
         title="Founding hosts are building more than an event calendar."

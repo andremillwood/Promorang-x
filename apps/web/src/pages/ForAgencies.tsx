@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Briefcase,
     TrendingUp,
@@ -83,6 +84,8 @@ const ForAgencies = () => {
                     </div>
                 </div>
             </section>
+
+            <LeadMagnetGateway audience="brand" />
 
             {/* Features Section */}
             <section className="py-20 md:py-32">

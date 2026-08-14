@@ -141,6 +141,7 @@ const ClaimPages = lazy(() => import("./pages/ClaimPages"));
 const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
 const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PromorangPresents = lazy(() => import("./pages/PromorangPresents"));
 
 // Campaign Expansion Pages
 const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
@@ -148,6 +149,8 @@ const SeasonShowdownPage = lazy(() => import("./pages/SeasonShowdownPage"));
 const MerchantCouponHub = lazy(() => import("./pages/MerchantCouponHub"));
 const GemRushPage = lazy(() => import("./pages/GemRushPage"));
 const ActionDetail = lazy(() => import("./pages/ActionDetail"));
+const LeadMagnetFunnels = lazy(() => import("./pages/LeadMagnetFunnels"));
+const CampaignLanding = lazy(() => import("./pages/CampaignLanding"));
 const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
@@ -178,6 +181,12 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/strategies" element={<AMI_Index />} />
                     <Route path="/strategies/:id" element={<MechanicDetail />} />
+                    <Route path="/free/:funnel" element={<LeadMagnetFunnels />} />
+                    <Route path="/presents" element={<PromorangPresents />} />
+                    <Route path="/nightlife" element={<Navigate to="/presents" replace />} />
+                    <Route path="/nightlife/ilhh" element={<Navigate to="/presents#editions-title" replace />} />
+                    <Route path="/nightlife/encore" element={<Navigate to="/presents#editions-title" replace />} />
+                    <Route path="/campaigns/:campaign" element={<CampaignLanding />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/onboarding" element={<Onboarding />} />

@@ -55,6 +55,7 @@ import { isSampleCommerceListing } from "@/lib/commerce-provenance";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -464,23 +465,23 @@ export default function CinematicCultureHome() {
             </div>
 
             <h1 className="max-w-4xl font-sans text-[clamp(2.8rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-white">
-              <span className="block">Show up.</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">Grab Free Coffee,</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">Cash & Local Perks.</span>
+              <span className="block">Find the people,</span>
+              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">places & Moments</span>
+              <span className="block">worth moving toward.</span>
             </h1>
             <p className="mt-5 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Discover local brand drops, free food & drink vouchers, and easy tasks. Share on Instagram or TikTok, get instant cash, and unlock community perks in 30 seconds.
+              Promorang helps you find the room that fits, show up with confidence, and keep the access, people, memories and opportunities that open because you took part.
             </p>
             <p className="mt-3 max-w-xl text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              Post → Get Cash → Grab Perks → Unlock Treat Vault
+              Find your Scene → choose one Moment → show up → see what opens next
             </p>
             <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
               <Link
-                to="/content-drops"
-                onClick={() => rememberMarketingIntent("hero_first_mission", "/content-drops", "participant")}
+                to="/free/scene"
+                onClick={() => rememberMarketingIntent("hero_find_scene", "/free/scene", "participant")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition hover:bg-primary/90 sm:text-sm"
               >
-                Tap to Grab $12 Instant Perk 🚀
+                Find Your Scene
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
@@ -488,11 +489,11 @@ export default function CinematicCultureHome() {
                 onClick={() => rememberMarketingIntent("hero_discover", "/discover")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/25 bg-black/40 px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white transition hover:border-primary hover:text-primary sm:text-sm"
               >
-                Browse Free Perks
+                See What’s Happening
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/50">100% Free to join • Takes 30 seconds • No credit card needed.</p>
+            <p className="mt-3 text-xs text-white/50">Free result • Two minutes • No account required.</p>
           </div>
 
           {activeHeroItem ? (
@@ -532,6 +533,8 @@ export default function CinematicCultureHome() {
           ) : null}
         </div>
       </section>
+
+      <LeadMagnetGateway />
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />
