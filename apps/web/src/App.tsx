@@ -142,6 +142,8 @@ const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
 const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PromorangPresents = lazy(() => import("./pages/PromorangPresents"));
+const PromorangAccess = lazy(() => import("./pages/PromorangAccess"));
+const PromorangCrew = lazy(() => import("./pages/PromorangCrew"));
 
 // Campaign Expansion Pages
 const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
@@ -183,9 +185,13 @@ const App = () => (
                     <Route path="/strategies/:id" element={<MechanicDetail />} />
                     <Route path="/free/:funnel" element={<LeadMagnetFunnels />} />
                     <Route path="/presents" element={<PromorangPresents />} />
-                    <Route path="/nightlife" element={<Navigate to="/presents" replace />} />
-                    <Route path="/nightlife/ilhh" element={<Navigate to="/presents#editions-title" replace />} />
-                    <Route path="/nightlife/encore" element={<Navigate to="/presents#editions-title" replace />} />
+                    <Route path="/nightlife" element={<PromorangPresents />} />
+                    <Route path="/nightlife/ilhh" element={<PromorangPresents />} />
+                    <Route path="/nightlife/encore" element={<PromorangPresents />} />
+                    <Route path="/this-week" element={<PromorangPresents />} />
+                    <Route path="/access" element={<PromorangAccess />} />
+                    <Route path="/crew" element={<PromorangCrew />} />
+                    <Route path="/passport" element={<PromorangCrew />} />
                     <Route path="/campaigns/:campaign" element={<CampaignLanding />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />

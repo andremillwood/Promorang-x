@@ -14,9 +14,10 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getPresentsCatalog, redeemPresentsInvite } from "@/lib/presents";
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
 import "./PromorangPresents.css";
 
-const FOUNDING_CODES = ["PRESENTS", "ILHH", "ENCORE", "FIRST100"];
 const ACCESS_KEY = "promorang_presents_access";
 
 const editions = [
@@ -48,12 +49,6 @@ function cleanCode(value: string) {
   return value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
 }
 
-function makeInviteCode() {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const suffix = Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
-  return `PR-${suffix}`;
-}
-
 export default function PromorangPresents() {
   const [params] = useSearchParams();
   const [code, setCode] = useState(() => cleanCode(params.get("code") || params.get("invite") || ""));
@@ -61,6 +56,7 @@ export default function PromorangPresents() {
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState("");
   const [inviteCodes, setInviteCodes] = useState<string[]>([]);
+  const [remaining, setRemaining] = useState(37);
 
   useEffect(() => {
     try {
@@ -74,28 +70,34 @@ export default function PromorangPresents() {
     }
   }, []);
 
-  const spots = useMemo(() => Math.max(17, 100 - 63 - inviteCodes.length), [inviteCodes.length]);
+  useEffect(() => {
+    getPresentsCatalog().then(({ program }) => {
+      if (typeof program.remaining === "number") setRemaining(program.remaining);
+    }).catch(() => undefined);
+    trackGrowthEvent({ eventName: "presents_viewed", journey: "participant", stage: "acquired", entityType: "presents_program", entityId: "founding-season", experimentKey: "presents-hero", experimentVariant: "guest-list" }).catch(() => undefined);
+  }, []);
 
-  const redeem = (event: FormEvent) => {
+  const spots = useMemo(() => Math.max(0, remaining), [remaining]);
+
+  const redeem = async (event: FormEvent) => {
     event.preventDefault();
     setChecking(true);
     setMessage("");
-    window.setTimeout(() => {
+    try {
       const normalized = cleanCode(code);
-      const valid = FOUNDING_CODES.includes(normalized) || /^PR-[A-Z2-9]{6}$/.test(normalized);
-      setChecking(false);
-      if (!valid) {
-        setMessage("That code isn’t on the list. Ask the person who invited you for a fresh one.");
-        return;
-      }
-      const created = [makeInviteCode(), makeInviteCode(), makeInviteCode()];
-      localStorage.setItem(ACCESS_KEY, JSON.stringify({ accepted: true, code: normalized, inviteCodes: created }));
-      setInviteCodes(created);
+      const result = await redeemPresentsInvite(normalized);
+      localStorage.setItem(ACCESS_KEY, JSON.stringify({ accepted: true, code: normalized, membershipId: result.membership_id, inviteCodes: result.invite_codes }));
+      setInviteCodes(result.invite_codes);
       setAccess(true);
-      setMessage("");
+      setRemaining((value) => Math.max(0, value - (result.already_member ? 0 : 1)));
       toast.success("You’re on the inside.");
+      trackGrowthEvent({ eventName: "presents_invite_redeemed", journey: "participant", stage: "activated", entityType: "presents_membership", entityId: result.membership_id, properties: { program: result.program_slug, already_member: result.already_member } }).catch(() => undefined);
       document.getElementById("inside")?.scrollIntoView({ behavior: "smooth" });
-    }, 480);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "That code isn’t on the list.");
+    } finally {
+      setChecking(false);
+    }
   };
 
   const copyInvite = async (invite: string) => {
@@ -126,7 +128,7 @@ export default function PromorangPresents() {
             <a href="#access" className="presents-primary">Enter your access code <ArrowRight size={18} /></a>
             <div className="presents-proof">
               <div className="presents-avatars" aria-hidden="true"><span>KM</span><span>J</span><span>AE</span><span>+</span></div>
-              <p><strong>63 founding insiders</strong><br />already have access</p>
+              <p><strong>{100 - spots} founding insiders</strong><br />already have access</p>
             </div>
           </div>
 

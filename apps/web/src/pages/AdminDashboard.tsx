@@ -54,6 +54,7 @@ import { AdminCommerceTab } from "@/components/admin/AdminCommerceTab";
 import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
 import { AdminClaimablePagesTab } from "@/components/admin/AdminClaimablePagesTab";
 import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
+import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
 import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 
 const ADMIN_TABS = new Set([
@@ -366,6 +367,7 @@ const AdminDashboard = () => {
 
             <TabsContent value="access">
               <AdminAccessRulesTab />
+              <AdminPresentsPanel />
             </TabsContent>
 
             <TabsContent value="audit">
