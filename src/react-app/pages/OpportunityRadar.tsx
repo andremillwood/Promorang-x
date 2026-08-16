@@ -395,6 +395,54 @@ const SAMPLE_MOMENTS: MomentProps[] = [
     attendeesCount: 205,
     pointsReward: 150,
     isClaimed: false
+  },
+  {
+    id: 'moment-22',
+    title: 'Tacos, Margaritas & Patio Beats at Tacbar',
+    description: 'Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.',
+    intentType: 'TRY',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: 'Tacbar Jamaica (Devon House)',
+    location: '26 Hope Rd, Devon House Courtyard',
+    dateDisplay: 'Taco Tuesday & Daily 1:00 PM – Midnight',
+    image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 3,
+    attendeesCount: 195,
+    pointsReward: 100,
+    isClaimed: false
+  },
+  {
+    id: 'moment-23',
+    title: 'Let\'s Lyme Friday Poolside & Grill at Pegasus',
+    description: 'Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.',
+    intentType: 'CONNECT',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: 'The Jamaica Pegasus Hotel (Pool Lounge)',
+    location: '81 Knutsford Blvd, New Kingston',
+    dateDisplay: 'Every Friday from 6:00 PM',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 3,
+    attendeesCount: 210,
+    pointsReward: 100,
+    isClaimed: false
+  },
+  {
+    id: 'moment-24',
+    title: 'Late Night Gourmet Bites at 24 Seven Café',
+    description: 'Kingston\'s iconic 24/7 cafe inside The Pegasus serving artisan cheesecakes, fresh paninis, smoothies, and Blue Mountain Coffee.',
+    intentType: 'TRY',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: '24 Seven Café (Jamaica Pegasus)',
+    location: 'Knutsford Blvd, New Kingston',
+    dateDisplay: 'Open 24 Hours Daily',
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 2,
+    attendeesCount: 135,
+    pointsReward: 100,
+    isClaimed: false
   }
 ];
 
