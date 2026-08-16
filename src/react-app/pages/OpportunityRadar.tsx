@@ -107,6 +107,22 @@ const SAMPLE_MOMENTS: MomentProps[] = [
     subMomentsCount: 3,
     attendeesCount: 65,
     pointsReward: 300
+  },
+  {
+    id: 'moment-4',
+    title: 'Sunday Roots & Dub Sunset Gathering',
+    description: 'Curated by community discoverers. Authentic vinyl roots reggae listening session overlooking the Kingston hills.',
+    intentType: 'CONNECT',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: 'Skyline Dub Outpost',
+    location: 'Skyline Drive, Kingston',
+    dateDisplay: 'This Sun at 5:00 PM',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 2,
+    attendeesCount: 92,
+    pointsReward: 100,
+    isClaimed: false
   }
 ];
 

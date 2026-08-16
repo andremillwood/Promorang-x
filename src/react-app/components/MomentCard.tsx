@@ -2,7 +2,7 @@ import React from 'react';
 import { Calendar, MapPin, Key, Users, Clock, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export type IntentType = 'ATTEND' | 'TRY' | 'GET' | 'LEARN' | 'CONNECT' | 'WATCH' | 'CONTRIBUTE';
-export type MomentOwnership = 'PROMORANG ORIGINAL' | 'PROMORANG PRESENTS' | 'PARTNER MOMENT' | 'FEATURED MOMENT' | 'COMMUNITY MOMENT' | 'EMERGING MOMENT';
+export type MomentOwnership = 'PROMORANG ORIGINAL' | 'PROMORANG PRESENTS' | 'PARTNER MOMENT' | 'FEATURED MOMENT' | 'COMMUNITY MOMENT' | 'EMERGING MOMENT' | 'EDITORIAL DISCOVERY';
 
 export interface MomentProps {
   id: string;
@@ -18,8 +18,10 @@ export interface MomentProps {
   subMomentsCount: number;
   attendeesCount: number;
   pointsReward: number;
+  isClaimed?: boolean;
   onClaimKey?: (id: string) => void;
   onViewDetails?: (id: string) => void;
+  onClaimListing?: (id: string, venueName: string) => void;
 }
 
 const intentColors: Record<IntentType, string> = {
@@ -38,7 +40,8 @@ const ownershipBadgeStyles: Record<MomentOwnership, string> = {
   'PARTNER MOMENT': 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold',
   'FEATURED MOMENT': 'bg-blue-100 text-blue-800 border border-blue-300 font-semibold',
   'COMMUNITY MOMENT': 'bg-gray-100 text-gray-800 border border-gray-300 font-medium',
-  'EMERGING MOMENT': 'bg-pink-100 text-pink-800 border border-pink-300 font-bold'
+  'EMERGING MOMENT': 'bg-pink-100 text-pink-800 border border-pink-300 font-bold',
+  'EDITORIAL DISCOVERY': 'bg-amber-100 text-amber-900 border border-amber-300 font-bold'
 };
 
 export const MomentCard: React.FC<MomentProps> = ({
@@ -135,13 +138,23 @@ export const MomentCard: React.FC<MomentProps> = ({
             <span>View Details</span>
           </button>
 
-          <button
-            onClick={() => onClaimKey && onClaimKey(id)}
-            className="w-full py-2 px-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02]"
-          >
-            <Key className="w-3.5 h-3.5 mr-1" />
-            <span>Unlock Key</span>
-          </button>
+          {ownership === 'EDITORIAL DISCOVERY' && !isClaimed ? (
+            <button
+              onClick={() => onClaimListing ? onClaimListing(id, venueName) : (window.location.href = `/join/venue?venue=${encodeURIComponent(venueName)}`)}
+              className="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-gray-950 text-xs font-black rounded-xl flex items-center justify-center shadow-md shadow-amber-500/20 transition-all hover:scale-[1.02]"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 mr-1 text-gray-950" />
+              <span>Claim Listing</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onClaimKey && onClaimKey(id)}
+              className="w-full py-2 px-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02]"
+            >
+              <Key className="w-3.5 h-3.5 mr-1" />
+              <span>Unlock Key</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
