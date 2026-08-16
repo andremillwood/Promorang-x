@@ -111,17 +111,17 @@ const SAMPLE_MOMENTS: MomentProps[] = [
 ];
 
 const SAMPLE_DISCOVERY: DiscoveryProps = {
-  id: 'disc-1',
-  question: 'Which restaurant in Kingston has the best late-night food after 1:00 AM?',
-  category: 'Food & Taste',
-  authorName: 'Jamaican Eats Scout',
-  totalVotes: 84,
-  thresholdForMoment: 100,
+  id: 'disc-demand-001',
+  question: 'What should Promorang make happen in Kingston next?',
+  category: 'Demand Construction',
+  authorName: 'Promorang Community Scout',
+  totalVotes: 44,
+  thresholdForMoment: 50,
   options: [
-    { id: 'opt-1', text: 'Truck Stop Jerk (Constant Spring)', votes: 34 },
-    { id: 'opt-2', text: 'Sweetwood Jerk Joint', votes: 28 },
-    { id: 'opt-3', text: 'Chillers Sports Bar', votes: 14 },
-    { id: 'opt-4', text: 'Island Grill 24h Drive-thru', votes: 8 }
+    { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 22 },
+    { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
+    { id: 'opt-3', text: 'Sunset Vinyl Listening Night (Hope Rd)', votes: 6 },
+    { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
   ]
 };
 

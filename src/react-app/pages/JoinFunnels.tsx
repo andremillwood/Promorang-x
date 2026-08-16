@@ -110,16 +110,16 @@ export default function JoinFunnelsPage() {
         {activeTab === 'participant' && (
           <div className="text-center max-w-3xl mx-auto mb-12 animate-fadeIn">
             <span className="px-3 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs font-black uppercase tracking-widest inline-block mb-4">
-              Founding Participant Access
+              Founding 100 • Kingston
             </span>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 leading-tight">
-              Find something worth doing. <br />
+              Uncover what Kingston is <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-                Participate. Unlock access.
+                actually worth doing.
               </span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Join the Founding 100 in Kingston. Get VIP access to hidden gems, exclusive PromoKeys, and earn rewards just for experiencing your city.
+              Help Promorang discover, shape, and unlock hidden gems, exclusive PromoKeys, and secret experiences across Kingston.
             </p>
           </div>
         )}
@@ -130,13 +130,13 @@ export default function JoinFunnelsPage() {
               Promorang Creator Guild
             </span>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 leading-tight">
-              Turn your local discoveries into <br />
+              Help us find and show Kingston <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300">
-                Paid Assignments & Brand Gigs
+                what's worth knowing & trying.
               </span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              We match Food Scouts, Nightlife Correspondents, and Storytellers directly with paying venues, events, and brand campaigns.
+              Get VIP venue access, credited editorial distribution, and clear creator assignments—with paid commercial opportunities as you ascend.
             </p>
           </div>
         )}
@@ -144,16 +144,16 @@ export default function JoinFunnelsPage() {
         {activeTab === 'venue' && (
           <div className="text-center max-w-3xl mx-auto mb-12 animate-fadeIn">
             <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-black uppercase tracking-widest inline-block mb-4">
-              Venue & Merchant Growth Engine
+              Venue & Merchant Pilot
             </span>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 leading-tight">
-              Give people a reason to move. <br />
+              Give us slow-period capacity. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
-                Fill slow days with high-value foot traffic.
+                We'll run a tracked foot-traffic experiment.
               </span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Convert complimentary perks and off-peak table capacity into guaranteed customer visits and verified reviews—without upfront ad costs.
+              Allocate 10–20 limited perks. We'll test whether concentrated community interest turns into verified on-site customer visits—zero upfront ad spend.
             </p>
           </div>
         )}
@@ -166,11 +166,11 @@ export default function JoinFunnelsPage() {
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 leading-tight">
               Turn passive event listings into <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
-                Confirmed RSVPs & Ticket Sales
+                Confirmed RSVPs & Cultural Energy
               </span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Build structured participation architecture around your concert, popup, brunch, or workshop. Drive referral loops and UGC content.
+              Build structured participation around your popup, brunch, or workshop. Drive referral loops and community creator coverage.
             </p>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function JoinFunnelsPage() {
         {activeTab === 'brand' && (
           <div className="text-center max-w-3xl mx-auto mb-12 animate-fadeIn">
             <span className="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-xs font-black uppercase tracking-widest inline-block mb-4">
-              Brand Activation & Cultural Intelligence
+              Brand Activation & Market Intelligence
             </span>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4 leading-tight">
               Stop buying empty impressions. <br />
@@ -187,7 +187,7 @@ export default function JoinFunnelsPage() {
               </span>
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Integrate your brand into active Scenes through sponsored Discoveries, product sampling missions, and creator challenge campaigns.
+              Integrate your brand into active Moments through sponsored Discoveries, product sampling missions, and verified consumer feedback.
             </p>
           </div>
         )}
@@ -198,9 +198,9 @@ export default function JoinFunnelsPage() {
             <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 mb-4">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white mb-2 text-base">Hormozi Value Equation</h3>
+            <h3 className="font-bold text-white mb-2 text-base">Earn By Participating</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
-              High perceived value outcome with minimal effort and immediate turn-around.
+              Complete the 4-step Founding Journey: Discover, Recommend, Follow, and Save to unlock exclusive perks.
             </p>
           </div>
 
@@ -208,9 +208,9 @@ export default function JoinFunnelsPage() {
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white mb-2 text-base">Behavioral Scarcity</h3>
+            <h3 className="font-bold text-white mb-2 text-base">Scarce Access</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Exclusive PromoKeys and Founding Member status create genuine, high-utility scarcity.
+              Limited-quantity PromoKeys unlock priority tables, tastings, and secret experiences.
             </p>
           </div>
 
@@ -220,7 +220,7 @@ export default function JoinFunnelsPage() {
             </div>
             <h3 className="font-bold text-white mb-2 text-base">Attributed Proof</h3>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Track real-world foot traffic, redemptions, and user actions transparently.
+              Real-world QR verification gives merchants and creators transparent evidence of attendance.
             </p>
           </div>
         </div>
