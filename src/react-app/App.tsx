@@ -27,6 +27,7 @@ import SceneDetailPage from "@/react-app/pages/SceneDetailPage";
 import CreateMomentWizard from "@/react-app/pages/CreateMomentWizard";
 import AdminMarketplaceCRM from "@/react-app/pages/AdminMarketplaceCRM";
 import MerchantScannerPage from "@/react-app/pages/MerchantScannerPage";
+import WeeklyRecapPage from '@/react-app/pages/WeeklyRecapPage';
 import Layout from "@/react-app/components/Layout";
 import ErrorBoundary from "@/react-app/components/ErrorBoundary";
 import { VisibleFeaturesProvider } from "@/react-app/hooks/useVisibleFeatures";
@@ -99,6 +100,7 @@ export default function App() {
               <Route path="/create-moment" element={<ProtectedRoute><CreateMomentWizard /></ProtectedRoute>} />
               <Route path="/admin/crm" element={<ProtectedRoute><AdminMarketplaceCRM /></ProtectedRoute>} />
               <Route path="/merchant/scanner" element={<ProtectedRoute><MerchantScannerPage /></ProtectedRoute>} />
+              <Route path="/recap" element={<WeeklyRecapPage />} />
 
               {/* Protected routes */}
               <Route path="/home" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
