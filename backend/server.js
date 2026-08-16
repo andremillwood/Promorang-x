@@ -231,6 +231,7 @@ app.use('/api/promoshare', require('./api/promoshare'));
 app.use('/api/content-distribution', require('./api/content-distribution'));
 app.use('/api/featured-marketplace', require('./api/featured-marketplace'));
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
+app.use('/api/market-construction', require('./api/market-construction')); // Market construction & persistent scenes
 app.use('/api/cron', require('./api/cron')); // Serverless cron entrypoints
 app.use('/api/email', require('./api/email')); // Email event entrypoints
 const errorHandlers = require('./api/errors');

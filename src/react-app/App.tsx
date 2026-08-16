@@ -22,6 +22,11 @@ import AdvertiserDashboard from "@/react-app/pages/AdvertiserDashboard";
 import AdvertiserOnboarding from "@/react-app/pages/AdvertiserOnboarding";
 import ActivatePage from "@/react-app/pages/Activate";
 import ErrorPage from "@/react-app/pages/ErrorPage";
+import JoinFunnelsPage from "@/react-app/pages/JoinFunnels";
+import SceneDetailPage from "@/react-app/pages/SceneDetailPage";
+import CreateMomentWizard from "@/react-app/pages/CreateMomentWizard";
+import AdminMarketplaceCRM from "@/react-app/pages/AdminMarketplaceCRM";
+import MerchantScannerPage from "@/react-app/pages/MerchantScannerPage";
 import Layout from "@/react-app/components/Layout";
 import ErrorBoundary from "@/react-app/components/ErrorBoundary";
 import { VisibleFeaturesProvider } from "@/react-app/hooks/useVisibleFeatures";
@@ -84,11 +89,22 @@ export default function App() {
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/activate" element={<ActivatePage />} />
               <Route path="/error" element={<ErrorPage />} />
+              
+              {/* Stakeholder Onboarding Acquisition Funnels */}
+              <Route path="/join" element={<JoinFunnelsPage />} />
+              <Route path="/join/:stakeholder" element={<JoinFunnelsPage />} />
+
+              {/* Scene Lens Detail & Partner Creation */}
+              <Route path="/scenes/:slug" element={<ProtectedRoute><SceneDetailPage /></ProtectedRoute>} />
+              <Route path="/create-moment" element={<ProtectedRoute><CreateMomentWizard /></ProtectedRoute>} />
+              <Route path="/admin/crm" element={<ProtectedRoute><AdminMarketplaceCRM /></ProtectedRoute>} />
+              <Route path="/merchant/scanner" element={<ProtectedRoute><MerchantScannerPage /></ProtectedRoute>} />
 
               {/* Protected routes */}
               <Route path="/home" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
               <Route path="/radar" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
               <Route path="/pulse" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
+              <Route path="/scenes" element={<ProtectedRoute><OpportunityRadarPage /></ProtectedRoute>} />
               <Route path="/social-feed" element={<ProtectedRoute><HomeFeedPage /></ProtectedRoute>} />
               <Route path="/earn" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />
               <Route path="/discover" element={<ProtectedRoute><EarnPage /></ProtectedRoute>} />

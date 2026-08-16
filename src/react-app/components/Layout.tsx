@@ -118,16 +118,16 @@ export default function Layout({ children }: LayoutProps) {
 
   const getNavigation = () => {
     const baseNav = [
-      { name: 'Today', href: '/home', icon: Home, badge: "What's Hot" },
-      { name: 'Discover', href: '/earn', icon: Compass, badge: 'Free Perks' },
-      { name: 'Create', href: '/create', icon: Plus, badge: 'Post a Perk' },
-      { name: 'Progress', href: '/success', icon: Gauge, badge: 'Your Wins' },
-      { name: 'Vault', href: '/invest', icon: TrendingUp, badge: 'Saved Perks' },
+      { name: 'Scenes & Moments', href: '/radar', icon: Home, badge: 'Live Now' },
+      { name: 'Discoveries', href: '/earn', icon: Compass, badge: 'Vote & Demand' },
+      { name: 'Create Moment', href: '/create', icon: Plus, badge: 'Post Perk' },
+      { name: 'Join & Partner', href: '/join', icon: Users, badge: 'Funnels' },
+      { name: 'My Promorang', href: '/success', icon: Gauge, badge: 'Wins' },
     ];
     
-    // Add advertiser dashboard for advertisers
+    // Add partner/advertiser dashboard for business users
     if (userData && (userData as any).user_type === 'advertiser') {
-      baseNav.push({ name: 'Brand Hub', href: '/advertiser', icon: Settings, badge: 'My Drops' });
+      baseNav.push({ name: 'Partner Hub', href: '/advertiser', icon: Settings, badge: 'Campaigns' });
     }
     
     return baseNav;
