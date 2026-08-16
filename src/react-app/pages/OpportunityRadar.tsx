@@ -206,20 +206,62 @@ const SAMPLE_MOMENTS: MomentProps[] = [
   }
 ];
 
-const SAMPLE_DISCOVERY: DiscoveryProps = {
-  id: 'disc-demand-001',
-  question: 'What should Promorang make happen in Kingston next?',
-  category: 'Demand Construction',
-  authorName: 'Promorang Community Scout',
-  totalVotes: 44,
-  thresholdForMoment: 50,
-  options: [
-    { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 22 },
-    { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
-    { id: 'opt-3', text: 'Sunset Vinyl Listening Night (Hope Rd)', votes: 6 },
-    { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
-  ]
-};
+const SAMPLE_DISCOVERIES: DiscoveryProps[] = [
+  {
+    id: 'disc-demand-001',
+    question: 'What should Promorang make happen in Kingston next?',
+    category: 'Demand Construction',
+    authorName: 'Promorang Community Scout',
+    totalVotes: 44,
+    thresholdForMoment: 50,
+    options: [
+      { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 22 },
+      { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
+      { id: 'opt-3', text: 'Sunset Vinyl Listening Night (Hope Rd)', votes: 6 },
+      { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
+    ]
+  },
+  {
+    id: 'disc-food-002',
+    question: 'Who serves the undisputed best escovitch fish in Kingston & St. Andrew?',
+    category: 'Food & Taste Lens',
+    authorName: 'Chef Andre (Food Scout)',
+    totalVotes: 86,
+    thresholdForMoment: 100,
+    options: [
+      { id: 'opt-f1', text: 'Gloria\'s Seafood City (Port Royal)', votes: 41 },
+      { id: 'opt-f2', text: 'Prendy\'s on the Beach (Hellshire)', votes: 26 },
+      { id: 'opt-f3', text: 'Fish Pot Fry Table (Downtown Waterfront)', votes: 12 },
+      { id: 'opt-f4', text: 'Ocean Style (Liguanea)', votes: 7 }
+    ]
+  },
+  {
+    id: 'disc-culture-003',
+    question: 'Which creative Kingston experience should get exclusive PromoKey perks next?',
+    category: 'Music & Culture Lens',
+    authorName: 'Trench Town Guild Steward',
+    totalVotes: 61,
+    thresholdForMoment: 75,
+    options: [
+      { id: 'opt-c1', text: 'Downtown Artwalk & Mural Tour Access', votes: 28 },
+      { id: 'opt-c2', text: 'Tuff Gong Record Pressing Behind-The-Scenes', votes: 19 },
+      { id: 'opt-c3', text: 'National Gallery After-Hours Wine & Tour', votes: 14 }
+    ]
+  },
+  {
+    id: 'disc-wellness-004',
+    question: 'What Sunday morning wellness recharge would you actually attend?',
+    category: 'Move & Wellness Lens',
+    authorName: 'Kingston Wellness Collective',
+    totalVotes: 37,
+    thresholdForMoment: 50,
+    options: [
+      { id: 'opt-w1', text: 'Sunrise Yoga at Hope Botanical Gardens', votes: 18 },
+      { id: 'opt-w2', text: 'Blue Mountain Coffee Hike & Cool Off', votes: 11 },
+      { id: 'opt-w3', text: 'Pilates in the Park (Emancipation Park)', votes: 8 }
+    ]
+  }
+];
 
 export default function OpportunityRadar() {
   const { user } = useAuth();
@@ -384,31 +426,41 @@ export default function OpportunityRadar() {
             </div>
           </div>
         ) : activeTab === 'DISCOVER' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Active Market Intelligence</h2>
+          <div>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Active Kingston Market Intelligence</h2>
                 <p className="text-xs text-gray-500">
-                  Vote on discoveries to stimulate new supply and trigger Promorang Moments.
+                  Vote on discoveries across Kingston lenses to stimulate new supply and trigger exclusive PromoKeys.
                 </p>
               </div>
-              <DiscoveryWidget {...SAMPLE_DISCOVERY} />
+              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
+                {SAMPLE_DISCOVERIES.length} Active Polls
+              </span>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="px-2.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+              {SAMPLE_DISCOVERIES.map(discovery => (
+                <DiscoveryWidget key={discovery.id} {...discovery} />
+              ))}
+            </div>
+
+            {/* Demand to Supply Banner */}
+            <div className="bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 text-white p-8 rounded-3xl border border-gray-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="max-w-xl">
+                <span className="px-3 py-1 bg-orange-500/20 border border-orange-500/30 text-orange-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
                   Demand-to-Supply Engine
                 </span>
-                <h3 className="text-lg font-bold text-gray-900 mt-2">
-                  Have a suggestion for your city?
-                </h3>
-                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  When 100 people vote for a discovery, Promorang approaches local studio owners, venues, and hosts to create a real-world Moment.
+                <h3 className="text-xl font-black mt-2">Have a venue, experience, or dish Kingston needs to know?</h3>
+                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+                  When 50+ participants vote for an experience, Promorang approaches local business owners and hosts to unlock exclusive perks and convert community curiosity into verified Moments.
                 </p>
               </div>
-              <button className="w-full mt-6 py-2.5 bg-gray-900 hover:bg-orange-600 text-white font-bold text-xs rounded-xl transition-colors">
-                Submit New Discovery Question
+              <button 
+                onClick={() => window.location.href = '/join/participant'}
+                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 whitespace-nowrap"
+              >
+                Submit Discovery & Earn +25 Points
               </button>
             </div>
           </div>
