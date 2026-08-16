@@ -18,6 +18,7 @@ import { SceneCard, SceneProps } from '@/react-app/components/SceneCard';
 import { MomentCard, MomentProps, IntentType } from '@/react-app/components/MomentCard';
 import { DiscoveryWidget, DiscoveryProps } from '@/react-app/components/DiscoveryWidget';
 import { PromoKeyModal } from '@/react-app/components/PromoKeyModal';
+import { MomentDetailModal } from '@/react-app/components/MomentDetailModal';
 
 // Sample Seed Data for Demonstration & Verification
 const SAMPLE_SCENES: SceneProps[] = [
@@ -513,10 +514,20 @@ export default function OpportunityRadar() {
   const [keyModalOpen, setKeyModalOpen] = useState(false);
   const [activeKeyMoment, setActiveKeyMoment] = useState<MomentProps | null>(null);
 
+  // Sub-Moments & Mission Detail Modal State
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [activeDetailMoment, setActiveDetailMoment] = useState<MomentProps | null>(null);
+
   const handleClaimKey = (momentId: string) => {
     const target = SAMPLE_MOMENTS.find(m => m.id === momentId) || SAMPLE_MOMENTS[0];
     setActiveKeyMoment(target);
     setKeyModalOpen(true);
+  };
+
+  const handleViewDetails = (momentId: string) => {
+    const target = SAMPLE_MOMENTS.find(m => m.id === momentId) || SAMPLE_MOMENTS[0];
+    setActiveDetailMoment(target);
+    setDetailModalOpen(true);
   };
 
   const filteredMoments = SAMPLE_MOMENTS.filter(moment => {
@@ -725,6 +736,7 @@ export default function OpportunityRadar() {
                   key={moment.id}
                   {...moment}
                   onClaimKey={handleClaimKey}
+                  onViewDetails={handleViewDetails}
                 />
               ))}
             </div>
@@ -732,6 +744,16 @@ export default function OpportunityRadar() {
         )}
 
       </div>
+
+      {/* Moment Detail & Sub-Moments / Missions Modal */}
+      {activeDetailMoment && (
+        <MomentDetailModal
+          isOpen={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          moment={activeDetailMoment}
+          onClaimKey={handleClaimKey}
+        />
+      )}
 
       {/* PromoKey Redemption Modal */}
       {activeKeyMoment && (
