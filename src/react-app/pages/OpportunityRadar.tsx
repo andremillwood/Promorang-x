@@ -444,6 +444,38 @@ const SAMPLE_MOMENTS: MomentProps[] = [
     attendeesCount: 135,
     pointsReward: 100,
     isClaimed: false
+  },
+  {
+    id: 'moment-25',
+    title: 'FAT Wednesdays Live Social & Game Night',
+    description: 'High-energy midweek gathering at Usain Bolt\'s flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.',
+    intentType: 'ATTEND',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: 'Usain Bolt\'s Tracks & Records',
+    location: '67 Constant Spring Rd, Marketplace',
+    dateDisplay: 'Every Wednesday 7:00 PM – Midnight',
+    image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 3,
+    attendeesCount: 220,
+    pointsReward: 100,
+    isClaimed: false
+  },
+  {
+    id: 'moment-26',
+    title: 'Chandon Open House Friday Courtyard Soirée',
+    description: 'Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.',
+    intentType: 'CONNECT',
+    ownership: 'EDITORIAL DISCOVERY',
+    venueName: 'Steakhouse on the Verandah (Devon House)',
+    location: '26 Hope Rd, Devon House Courtyard',
+    dateDisplay: 'Every Friday from 9:00 PM',
+    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 0,
+    subMomentsCount: 3,
+    attendeesCount: 340,
+    pointsReward: 150,
+    isClaimed: false
   }
 ];
 

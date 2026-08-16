@@ -114,6 +114,70 @@ export function getSubMomentsForMoment(moment: MomentProps | null): SubMoment[] 
     ];
   }
 
+  if (titleLower.includes('tracks') || venueLower.includes('tracks') || titleLower.includes('fat wednesday')) {
+    return [
+      {
+        id: 'sub-fat-1',
+        title: 'FAT Wednesday Midweek Kickoff Check-In',
+        timeWindow: '7:00 PM – 8:30 PM',
+        description: 'Check in at Usain Bolt\'s Marketplace lounge and claim your digital drink stamp.',
+        points: 50,
+        missionType: 'CHECK_IN',
+        rewardType: 'POINTS'
+      },
+      {
+        id: 'sub-fat-2',
+        title: 'Bolt Burger & Jerk Platter Review',
+        timeWindow: '8:00 PM – 10:30 PM',
+        description: 'Rate the signature jerk platter seasoning in the live Promorang Taste Discovery.',
+        points: 75,
+        missionType: 'TASTING_PROOF',
+        rewardType: 'EXCLUSIVE_KEY'
+      },
+      {
+        id: 'sub-fat-3',
+        title: 'FAT Wednesday Stadium Screen Story Drop',
+        timeWindow: '9:00 PM – Midnight',
+        description: 'Share a 10s story clip of the 20ft big-screen sports lounge energy tagging @promorang.',
+        points: 80,
+        missionType: 'CONTENT_DROP',
+        rewardType: 'EXCLUSIVE_KEY'
+      }
+    ];
+  }
+
+  if (titleLower.includes('steakhouse') || titleLower.includes('verandah') || titleLower.includes('chandon') || titleLower.includes('open house')) {
+    return [
+      {
+        id: 'sub-chandon-1',
+        title: 'Devon House Courtyard Friday Arrival',
+        timeWindow: '9:00 PM – 10:30 PM',
+        description: 'Scan Friday Open House beacon upon entering the historic Devon House courtyard.',
+        points: 60,
+        missionType: 'CHECK_IN',
+        rewardType: 'POINTS'
+      },
+      {
+        id: 'sub-chandon-2',
+        title: 'Chandon Champagne & Dry-Aged Cut Pairing',
+        timeWindow: '10:00 PM – Midnight',
+        description: 'Submit tasting review of the chef\'s dry-aged steak cut or champagne flight.',
+        points: 90,
+        missionType: 'TASTING_PROOF',
+        rewardType: 'EXCLUSIVE_KEY'
+      },
+      {
+        id: 'sub-chandon-3',
+        title: 'Courtyard Friday Vibe Drop',
+        timeWindow: '10:30 PM – 1:00 AM',
+        description: 'Upload high-vibe atmosphere visual to unlock VIP guest pass status for next Friday.',
+        points: 100,
+        missionType: 'CONTENT_DROP',
+        rewardType: 'EXCLUSIVE_KEY'
+      }
+    ];
+  }
+
   if (titleLower.includes('chilitos') || venueLower.includes('chilitos')) {
     return [
       {
