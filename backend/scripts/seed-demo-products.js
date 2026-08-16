@@ -115,56 +115,39 @@ async function manualSeed() {
     store = newStore;
   }
 
-  // Sample products - with required slug field
+  // Sample products - Real Kingston Scraped Experiences
   const products = [
     {
       store_id: store.id,
-      name: 'Creator Starter Pack',
-      slug: 'creator-starter-pack',
-      description: 'Everything you need to kickstart your creator journey. Includes templates, guides, and exclusive resources.',
-      price_usd: 29.99,
-      price_gems: 150
-    },
-    {
-      store_id: store.id,
-      name: 'Premium Content Templates',
-      slug: 'premium-content-templates',
-      description: '50+ professional templates for social media, YouTube thumbnails, and promotional materials.',
-      price_usd: 49.99,
+      name: 'Devon House Tasting Passport',
+      slug: 'devon-house-tasting-passport',
+      description: 'The ultimate culinary sampler: 1 Devon House I Scream single scoop + 1 Tacbar signature street taco + 1 Gourmet Bakery pastry.',
+      price_usd: 18.50,
       price_gems: 250
     },
     {
       store_id: store.id,
-      name: 'Promorang Logo T-Shirt',
-      slug: 'promorang-logo-tshirt',
-      description: 'Premium cotton t-shirt with embroidered Promorang logo. Available in multiple sizes.',
-      price_usd: 34.99,
-      price_gems: 175
+      name: 'FAT Wednesday VIP Table Pack (Tracks & Records)',
+      slug: 'fat-wednesdays-vip-pack',
+      description: 'Midweek VIP lounge experience: 1 Signature Jerk Sampler Platter + 2 Bolt Craft Beers + reserved seating for live DJ sets.',
+      price_usd: 24.00,
+      price_gems: 320
     },
     {
       store_id: store.id,
-      name: 'Creator Hoodie',
-      slug: 'creator-hoodie',
-      description: 'Comfortable pullover hoodie with "Creator" embroidery. Perfect for content creation sessions.',
-      price_usd: 59.99,
-      price_gems: 300
+      name: 'Blue Mountain Coffee & High Tea Flight',
+      slug: 'blue-mountain-coffee-flight',
+      description: '100% Grade 1 Jamaica Blue Mountain Coffee cupping tasting flight with artisan fresh scones at Cafe Blue Irish Town.',
+      price_usd: 16.00,
+      price_gems: 220
     },
     {
       store_id: store.id,
-      name: 'Content Strategy Session',
-      slug: 'content-strategy-session',
-      description: '1-hour personalized content strategy consultation with industry experts.',
-      price_usd: 149.99,
-      price_gems: 750
-    },
-    {
-      store_id: store.id,
-      name: 'Ultimate Creator Bundle',
-      slug: 'ultimate-creator-bundle',
-      description: 'Everything you need: Digital templates, brand kit, 3 strategy sessions, and exclusive merch. Best value!',
-      price_usd: 499.99,
-      price_gems: 2500,
-      price_gold: 100
+      name: 'Downtown Artwalk & Reggae Heritage Pass',
+      slug: 'downtown-artwalk-reggae-pass',
+      description: 'Guided street mural walking pass in Downtown Kingston Art District with official audio tour and Bob Marley Museum pass.',
+      price_usd: 28.00,
+      price_gems: 380
     }
   ];
 
