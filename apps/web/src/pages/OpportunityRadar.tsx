@@ -20,6 +20,7 @@ import { MomentCard, MomentProps, IntentType } from '@/components/radar/MomentCa
 import { DiscoveryWidget, DiscoveryProps } from '@/components/radar/DiscoveryWidget';
 import { PromoKeyModal } from '@/components/radar/PromoKeyModal';
 import { MomentDetailModal } from '@/components/radar/MomentDetailModal';
+import { AskQuestionModal } from '@/components/discovery/AskQuestionModal';
 
 // Sample Seed Data for Demonstration & Verification
 const SAMPLE_SCENES: SceneProps[] = [
@@ -710,16 +711,23 @@ export default function OpportunityRadar() {
           </div>
         ) : activeTab === 'DISCOVER' ? (
           <div>
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Kingston Market Intelligence</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Market Intelligence & Discoveries</h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Vote on discoveries across Kingston lenses to stimulate new supply and trigger exclusive PromoKeys.
+                  Ask or vote on discoveries across city lenses to stimulate new supply and trigger exclusive PromoKeys.
                 </p>
               </div>
-              <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-900/50">
-                {SAMPLE_DISCOVERIES.length} Active Polls
-              </span>
+              <div className="flex items-center space-x-2 shrink-0">
+                <AskQuestionModal
+                  onQuestionCreated={(newQ) => {
+                    SAMPLE_DISCOVERIES.unshift(newQ);
+                  }}
+                />
+                <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-900/50">
+                  {SAMPLE_DISCOVERIES.length} Active Polls
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -734,17 +742,29 @@ export default function OpportunityRadar() {
                 <span className="px-3 py-1 bg-orange-500/20 border border-orange-500/30 text-orange-400 text-[10px] font-black uppercase tracking-wider rounded-lg">
                   Demand-to-Supply Engine
                 </span>
-                <h3 className="text-xl font-black mt-2">Have a venue, experience, or dish Kingston needs to know?</h3>
+                <h3 className="text-xl font-black mt-2">Have a question or spot your city needs to unlock?</h3>
                 <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  When 50+ participants vote for an experience, Promorang approaches local business owners and hosts to unlock exclusive perks and convert community curiosity into verified Moments.
+                  Ask the community or nominate an experience. When 35+ participants vote for an option, Promorang approaches local business owners and hosts to unlock exclusive perks and convert community curiosity into verified Moments.
                 </p>
               </div>
-              <button 
-                onClick={() => window.location.href = '/join/participant'}
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 whitespace-nowrap"
-              >
-                Submit Discovery & Earn +25 Points
-              </button>
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <AskQuestionModal
+                  trigger={
+                    <button className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/20 whitespace-nowrap transition-colors">
+                      Ask a Question
+                    </button>
+                  }
+                  onQuestionCreated={(newQ) => {
+                    SAMPLE_DISCOVERIES.unshift(newQ);
+                  }}
+                />
+                <button 
+                  onClick={() => window.location.href = '/join/participant'}
+                  className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 whitespace-nowrap transition-colors"
+                >
+                  Join Founding Curators
+                </button>
+              </div>
             </div>
           </div>
         ) : (
