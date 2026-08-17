@@ -10,9 +10,9 @@ import type { Tables } from "@/integrations/supabase/types";
 import { ValueOutcomeChips, type ValueOutcome } from "@/components/economy/ValueOutcomes";
 import { commerceCategorySlug, isSampleCommerceListing } from "@/lib/commerce-provenance";
 
-type CommerceListing = Tables<"view_public_commerce_directory">;
+export type CommerceListing = Tables<"view_public_commerce_directory">;
 
-const KINGSTON_EXPERIENCE_LISTINGS: CommerceListing[] = [
+export const KINGSTON_EXPERIENCE_LISTINGS: CommerceListing[] = [
     {
         listing_id: "devon-house-tasting-passport",
         source_id: "devon-house-passport",

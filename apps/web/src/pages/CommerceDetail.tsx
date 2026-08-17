@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { API_BASE_URL } from '@/lib/api';
 import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-provenance';
+import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
 
 export default function CommerceDetail() {
   const { listingId } = useParams();
@@ -24,13 +25,51 @@ export default function CommerceDetail() {
   const q = useQuery({
     queryKey: ['commerce-detail', listingId],
     queryFn: async () => {
+      const decodedId = decodeURIComponent(listingId || '');
       const { data, error } = await supabase
         .from('view_public_commerce_directory')
         .select('*')
-        .eq('listing_id', decodeURIComponent(listingId || ''))
+        .eq('listing_id', decodedId)
         .maybeSingle();
-      if (error) throw error;
-      return data;
+
+      if (data) return data;
+
+      // Fallback 1: Lookup in curated Kingston Experience & Dining Listings
+      const curatedMatch = KINGSTON_EXPERIENCE_LISTINGS.find(
+        item => item.listing_id === decodedId || item.source_id === decodedId
+      );
+      if (curatedMatch) return curatedMatch;
+
+      // Fallback 2: Check products table directly
+      const { data: productData } = await supabase
+        .from('products')
+        .select('*')
+        .or(`id.eq.${decodedId},title.ilike.%${decodedId.replace(/-/g, ' ')}%`)
+        .maybeSingle();
+
+      if (productData) {
+        return {
+          listing_id: productData.id,
+          source_id: productData.id,
+          source_table: 'products',
+          listing_kind: 'product',
+          name: productData.title,
+          description: productData.description,
+          category: productData.category || 'Experience',
+          price: productData.price,
+          currency: productData.currency || 'USD',
+          points_cost: productData.points_cost || 200,
+          is_redeemable_with_points: true,
+          image_url: productData.image_url,
+          venue_name: productData.venue_name || 'Kingston Venue',
+          location: productData.location || 'Kingston, Jamaica',
+          is_active: true,
+          created_at: productData.created_at,
+        };
+      }
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return null;
     },
   });
 
