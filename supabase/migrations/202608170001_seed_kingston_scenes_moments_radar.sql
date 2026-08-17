@@ -1,8 +1,7 @@
 -- ============================================================
 -- MIGRATION: 202608170001_seed_kingston_scenes_moments_radar.sql
--- Description: Seeds authoritative Kingston Scenes, Moments, Discovery Polls,
---              and PromoKey schemas into Supabase so live database feeds,
---              API endpoints, and radar interfaces stay 100% in sync.
+-- Description: Clean, robust seed for Kingston Scenes, Moments, 
+--              Discovery Polls, and PromoKey schemas into Supabase.
 -- ============================================================
 
 -- 1. Ensure Supporting Tables exist for Market Construction & Radar
@@ -100,16 +99,16 @@ ON CONFLICT (slug) DO UPDATE SET
   metadata = EXCLUDED.metadata,
   updated_at = NOW();
 
--- 3. Seed Kingston Moments
+-- 3. Seed Kingston Moments (Using standard dollar-quoted strings to prevent apostrophe escaping errors)
 INSERT INTO public.moments (id, title, description, category, location, venue_name, starts_at, max_participants, reward, image_url, is_active, visibility)
 VALUES
   (
     '00000000-0000-0000-0002-000000000025',
     'FAT Wednesdays Live Social & Game Night',
-    'High-energy midweek gathering at Usain Bolt''s flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.',
+    $desc$High-energy midweek gathering at Usain Bolt's flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.$desc$,
     'Nightlife & Social',
     '67 Constant Spring Rd, Marketplace, Kingston',
-    'Usain Bolt''s Tracks & Records',
+    $venue$Usain Bolt's Tracks & Records$venue$,
     NOW() + INTERVAL '2 days',
     150,
     '120 Proof Points + PromoKey',
@@ -120,10 +119,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000026',
     'Chandon Open House Friday Courtyard Soirée',
-    'Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.',
+    $desc$Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.$desc$,
     'Food & Wine',
     '26 Hope Rd, Devon House Courtyard, Kingston',
-    'Steakhouse on the Verandah (Devon House)',
+    $venue$Steakhouse on the Verandah (Devon House)$venue$,
     NOW() + INTERVAL '4 days',
     100,
     '150 Proof Points + PromoKey',
@@ -134,10 +133,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000022',
     'Tacos, Margaritas & Patio Beats at Tacbar',
-    'Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.',
+    $desc$Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.$desc$,
     'Dining & Culture',
     '26 Hope Rd, Devon House Courtyard, Kingston',
-    'Tacbar Jamaica (Devon House)',
+    $venue$Tacbar Jamaica (Devon House)$venue$,
     NOW() + INTERVAL '1 day',
     80,
     '100 Proof Points',
@@ -147,11 +146,11 @@ VALUES
   ),
   (
     '00000000-0000-0000-0002-000000000023',
-    'Let''s Lyme Friday Poolside & Grill at Pegasus',
-    'Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.',
+    'Let Lyme Friday Poolside & Grill at Pegasus',
+    $desc$Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.$desc$,
     'Social & Music',
     '81 Knutsford Blvd, New Kingston',
-    'The Jamaica Pegasus Hotel (Pool Lounge)',
+    $venue$The Jamaica Pegasus Hotel (Pool Lounge)$venue$,
     NOW() + INTERVAL '4 days',
     200,
     '100 Proof Points',
@@ -162,10 +161,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000004',
     'Kingston Dub Club Sunday Roots Session',
-    'Legendary weekly hilltop sound system gathering overlooking city lights. Authentic dub plates and strictly conscious vibes.',
+    $desc$Legendary weekly hilltop sound system gathering overlooking city lights. Authentic dub plates and strictly conscious vibes.$desc$,
     'Music & Roots',
-    'Skyline Drive, Jack''s Hill, Kingston',
-    'Kingston Dub Club',
+    'Skyline Drive, Jacks Hill, Kingston',
+    $venue$Kingston Dub Club$venue$,
     NOW() + INTERVAL '6 days',
     300,
     '100 Proof Points',
@@ -176,10 +175,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000015',
     'Downtown Kingston Creative Artwalk & Mural Tour',
-    'Free public cultural festival celebrating street murals, live performances, local crafts, and historic lane tours.',
+    $desc$Free public cultural festival celebrating street murals, live performances, local crafts, and historic lane tours.$desc$,
     'Arts & Heritage',
     'Water Lane & Church St, Downtown Kingston',
-    'Downtown Art District',
+    $venue$Downtown Art District$venue$,
     NOW() + INTERVAL '12 days',
     500,
     '150 Proof Points + Badge',
