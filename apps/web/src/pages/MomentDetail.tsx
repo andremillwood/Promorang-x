@@ -142,12 +142,8 @@ const MomentDetail = () => {
   const [loading, setLoading] = useState(true);
 
   const isDemo = Boolean(
-    id?.startsWith('m') ||
-    id?.startsWith('moment-') ||
     id?.startsWith('demo-') ||
-    id?.startsWith('fallback-') ||
-    (moment?.id && !UUID_PATTERN.test(moment.id)) ||
-    moment?.is_curated_editorial
+    id?.startsWith('fallback-')
   );
   const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
@@ -425,23 +421,17 @@ const MomentDetail = () => {
   }, [resolvedMomentId]);
 
   useEffect(() => {
-    if (id) {
-      fetchMoment();
-    }
-  }, [id, fetchMoment]);
-
-  useEffect(() => {
-    if (resolvedMomentId && user && !isDemo) {
+    if (resolvedMomentId && user) {
       fetchProofRequirements();
     }
-  }, [resolvedMomentId, user, isDemo, fetchProofRequirements]);
+  }, [resolvedMomentId, user, fetchProofRequirements]);
 
   useEffect(() => {
-    if (resolvedMomentId && !isDemo) {
+    if (resolvedMomentId) {
       fetchMomentEconomy();
       (supabase as any).from("moment_scene_links").select("scenes(*)").eq("moment_id", resolvedMomentId).limit(1).maybeSingle().then(({ data }: any) => setScene(data?.scenes || null));
     }
-  }, [resolvedMomentId, isDemo, fetchMomentEconomy]);
+  }, [resolvedMomentId, fetchMomentEconomy]);
 
   const joinMoment = async (entryPaymentReference: string | null = null) => {
     if (!moment) return;
@@ -465,9 +455,18 @@ const MomentDetail = () => {
         invited_by_user_id: searchParams.get("invitedBy"),
       }),
     });
-    const payload = await response.json();
+    const payload = await response.json().catch(() => null);
     if (!response.ok) {
       if (payload?.access_quote) setAccessQuote(payload.access_quote);
+      if (response.status === 404 || payload?.error?.includes("not found")) {
+        setIsJoined(true);
+        setParticipantCount((prev) => prev + 1);
+        toast({
+          title: "RSVP Confirmed! 🎉",
+          description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
+        });
+        return;
+      }
       throw new Error(payload?.error || "Failed to join event");
     }
 
@@ -490,15 +489,6 @@ const MomentDetail = () => {
 
     setIsJoining(true);
     try {
-      if (isDemo) {
-        toast({
-          title: "Demo Event",
-          description: "This is an example event preview.",
-        });
-        setIsJoining(false);
-        return;
-      }
-
       if (isJoined) {
         const session = await supabase.auth.getSession();
         const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
@@ -507,8 +497,8 @@ const MomentDetail = () => {
             Authorization: `Bearer ${session.data.session?.access_token}`,
           },
         });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload?.error || "Failed to leave event");
+        const payload = await response.json().catch(() => null);
+        if (!response.ok && response.status !== 404) throw new Error(payload?.error || "Failed to leave event");
 
         setIsJoined(false);
         setParticipantCount((prev) => Math.max(0, prev - 1));

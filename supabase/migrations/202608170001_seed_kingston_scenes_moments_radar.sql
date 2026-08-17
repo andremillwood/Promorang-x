@@ -212,6 +212,62 @@ VALUES
     'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800',
     TRUE,
     'open'
+  ),
+  (
+    '00000000-0000-0000-0002-000000000017',
+    'Tacos & Reggae Jam at Chilitos JaMexican',
+    'Lively courtyard fiesta blending authentic Mexican tacos, burritos, and tequila cocktails with bold Jamaican spices.',
+    'Dining & Culture',
+    '88 Hope Rd, Kingston 6',
+    'Chilitos JaMexican',
+    NOW() + INTERVAL '3 days',
+    120,
+    '100 Proof Points',
+    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=800',
+    TRUE,
+    'open'
+  ),
+  (
+    '00000000-0000-0000-0002-000000000018',
+    'AC Lounge Tapas & Craft Mixology Evenings',
+    'Chic European-inspired lounge with Spanish tapas, signature rum cocktails, and cosmopolitan weekend DJ sets.',
+    'Nightlife & Social',
+    '38-42 Lady Musgrave Rd, Kingston',
+    'AC Lounge (AC Hotel Kingston)',
+    NOW() + INTERVAL '5 days',
+    140,
+    '100 Proof Points',
+    'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&q=80&w=800',
+    TRUE,
+    'open'
+  ),
+  (
+    '00000000-0000-0000-0002-000000000005',
+    'Devon House Gourmet Bakery & Ice Cream Crawl',
+    'Historic estate culinary exploration featuring world-famous gourmet patties and authentic Devon House I Scream.',
+    'Food & Wine',
+    'Hope Rd, Kingston',
+    'Devon House Gourmet Court',
+    NOW() + INTERVAL '2 days',
+    150,
+    '100 Proof Points',
+    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
+    TRUE,
+    'open'
+  ),
+  (
+    '00000000-0000-0000-0002-000000000006',
+    'Live Acoustic & Grill at Janga''s',
+    'Relaxed open-air courtyard sessions with acoustic live bands, craft cocktails, and authentic Jamaican grilled bites.',
+    'Social & Music',
+    'Belmont Rd, New Kingston',
+    'Janga''s Soundbar & Grill',
+    NOW() + INTERVAL '3 days',
+    100,
+    '100 Proof Points',
+    'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
+    TRUE,
+    'open'
   )
 ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title,
@@ -252,6 +308,26 @@ ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 
 INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
 SELECT '00000000-0000-0000-0002-000000000015'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000017'::uuid, s.id, 'partner'
+FROM public.scenes s WHERE s.slug = 'food-and-taste'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000018'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000005'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'food-and-taste'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000006'::uuid, s.id, 'featured'
 FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
 ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 

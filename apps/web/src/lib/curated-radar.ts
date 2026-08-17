@@ -2,7 +2,7 @@ import type { MomentProps, SceneProps } from '@/components/radar/types';
 
 export const CURATED_KINGSTON_SCENES: SceneProps[] = [
   {
-    id: 'scene-1',
+    id: '00000000-0000-0000-0001-000000000001',
     slug: 'kingston-after-dark',
     name: 'Kingston After Dark',
     description: 'The definitive lens for nightlife, late-night food spots, live music, and party culture in Kingston.',
@@ -15,7 +15,7 @@ export const CURATED_KINGSTON_SCENES: SceneProps[] = [
     isJoined: true
   },
   {
-    id: 'scene-2',
+    id: '00000000-0000-0000-0001-000000000002',
     slug: 'food-and-taste',
     name: 'Food & Taste Jamaica',
     description: 'Discover underrated breakfast joints, street vendors, chef popups, and signature dining experiences.',
@@ -28,7 +28,7 @@ export const CURATED_KINGSTON_SCENES: SceneProps[] = [
     isJoined: false
   },
   {
-    id: 'scene-3',
+    id: '00000000-0000-0000-0001-000000000003',
     slug: 'move-jamaica',
     name: 'Move & Fitness Jamaica',
     description: 'Active lifestyle, outdoor runs, fitness popups, wellness retreats, and beach workouts.',
@@ -44,7 +44,7 @@ export const CURATED_KINGSTON_SCENES: SceneProps[] = [
 
 export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
   {
-    id: 'moment-25',
+    id: '00000000-0000-0000-0002-000000000025',
     title: 'FAT Wednesdays Live Social & Game Night',
     description: "High-energy midweek gathering at Usain Bolt's flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.",
     intentType: 'ATTEND',
@@ -60,7 +60,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-26',
+    id: '00000000-0000-0000-0002-000000000026',
     title: 'Chandon Open House Friday Courtyard Soirée',
     description: 'Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.',
     intentType: 'CONNECT',
@@ -76,7 +76,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-22',
+    id: '00000000-0000-0000-0002-000000000022',
     title: 'Tacos, Margaritas & Patio Beats at Tacbar',
     description: 'Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.',
     intentType: 'TRY',
@@ -92,7 +92,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-23',
+    id: '00000000-0000-0000-0002-000000000023',
     title: "Let's Lyme Friday Poolside & Grill at Pegasus",
     description: 'Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.',
     intentType: 'CONNECT',
@@ -108,7 +108,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-17',
+    id: '00000000-0000-0000-0002-000000000017',
     title: 'Tacos & Reggae Jam at Chilitos JaMexican',
     description: 'Lively courtyard fiesta blending authentic Mexican tacos, burritos, and tequila cocktails with bold Jamaican spices.',
     intentType: 'TRY',
@@ -124,7 +124,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-18',
+    id: '00000000-0000-0000-0002-000000000018',
     title: 'AC Lounge Tapas & Craft Mixology Evenings',
     description: 'Chic European-inspired lounge with Spanish tapas, signature rum cocktails, and cosmopolitan weekend DJ sets.',
     intentType: 'CONNECT',
@@ -140,7 +140,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-4',
+    id: '00000000-0000-0000-0002-000000000004',
     title: 'Kingston Dub Club Sunday Roots Session',
     description: 'Legendary weekly hilltop sound system gathering overlooking city lights. Authentic dub plates and strictly conscious vibes.',
     intentType: 'ATTEND',
@@ -156,7 +156,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-5',
+    id: '00000000-0000-0000-0002-000000000005',
     title: 'Devon House Gourmet Bakery & Ice Cream Crawl',
     description: 'Historic estate culinary exploration featuring world-famous gourmet patties and authentic Devon House I Scream.',
     intentType: 'TRY',
@@ -172,7 +172,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-6',
+    id: '00000000-0000-0000-0002-000000000006',
     title: "Live Acoustic & Grill at Janga's",
     description: 'Relaxed open-air courtyard sessions with acoustic live bands, craft cocktails, and authentic Jamaican grilled bites.',
     intentType: 'CONNECT',
@@ -188,7 +188,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     isClaimed: false
   },
   {
-    id: 'moment-15',
+    id: '00000000-0000-0000-0002-000000000015',
     title: 'Downtown Kingston Creative Artwalk & Mural Tour',
     description: 'Free public cultural festival celebrating street murals, live performances, local crafts, and historic lane tours.',
     intentType: 'LEARN',
