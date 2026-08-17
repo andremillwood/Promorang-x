@@ -21,6 +21,7 @@ import { DiscoveryWidget, DiscoveryProps } from '@/components/radar/DiscoveryWid
 import { PromoKeyModal } from '@/components/radar/PromoKeyModal';
 import { MomentDetailModal } from '@/components/radar/MomentDetailModal';
 import { AskQuestionModal } from '@/components/discovery/AskQuestionModal';
+import { CityRhythmTracker } from '@/components/radar/CityRhythmTracker';
 
 // Sample Seed Data for Demonstration & Verification
 const SAMPLE_SCENES: SceneProps[] = [
@@ -610,6 +611,15 @@ export default function OpportunityRadar() {
               </a>
             </div>
           </div>
+
+          {/* 7-Day Economic Operating Rhythm & Theater Tracker */}
+          <CityRhythmTracker
+            currentStage="DISCOVER"
+            city="Kingston"
+            activeDebateTitle="Jerk King of Kingston Debate"
+            keysCount={15}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+          />
 
           {/* Navigation Mode Tabs */}
           <div className="flex items-center space-x-2 border-b border-gray-800 pb-3 overflow-x-auto">
