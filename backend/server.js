@@ -79,39 +79,47 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
     'https://promorang.co',
     'https://www.promorang.co',
     'https://promorang-alt.vercel.app',
+    'https://promorang-alt-andremillwood.vercel.app',
     process.env.FRONTEND_URL,
-    ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : [])
+    ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim()) : [])
   ].filter(Boolean);
 
   const origin = req.headers.origin;
 
-  // In development mode, allow any origin (for Replit proxy support)
-  // In production, only allow whitelisted origins
-  if (process.env.NODE_ENV === 'development') {
-    // When there's an origin header, echo it back
-    // When there's no origin (same-origin requests), use '*'
-    if (origin) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    } else {
-      res.setHeader('Access-Control-Allow-Origin', '*');
+  const isAllowedOrigin = (orig) => {
+    if (!orig) return true;
+    if (allowedOrigins.includes(orig)) return true;
+    try {
+      const parsed = new URL(orig);
+      if (parsed.hostname === 'promorang.co' || parsed.hostname.endsWith('.promorang.co')) return true;
+      if (parsed.hostname.endsWith('.vercel.app')) return true;
+    } catch {
+      // invalid url
     }
-  } else if (origin && allowedOrigins.includes(origin)) {
+    return false;
+  };
+
+  if (origin && (process.env.NODE_ENV === 'development' || isAllowedOrigin(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Version, X-Advertiser-Account-Id, X-Merchant-Account-Id');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   next();

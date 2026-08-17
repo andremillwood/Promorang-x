@@ -3,13 +3,20 @@
 
 const express = require('express');
 const router = express.Router();
-const { pool } = require('../config/database'); // DB pool connection
+const { supabase } = require('../lib/supabase');
 
 // 1. GET ALL SCENES
 router.get('/scenes', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM public.scenes WHERE is_active = TRUE ORDER BY created_at DESC');
-    res.json(result.rows);
+    if (!supabase) return res.json([]);
+    const { data, error } = await supabase
+      .from('scenes')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.json(data || []);
   } catch (err) {
     console.error('Error fetching scenes:', err);
     res.status(500).json({ error: 'Failed to fetch scenes' });
@@ -19,22 +26,31 @@ router.get('/scenes', async (req, res) => {
 // 2. GET SCENE DETAIL BY SLUG
 router.get('/scenes/:slug', async (req, res) => {
   try {
+    if (!supabase) return res.status(404).json({ error: 'Scene not found' });
     const { slug } = req.params;
-    const sceneResult = await pool.query('SELECT * FROM public.scenes WHERE slug = $1', [slug]);
+    const { data: scene, error: sceneError } = await supabase
+      .from('scenes')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
     
-    if (sceneResult.rows.length === 0) {
+    if (sceneError) throw sceneError;
+    if (!scene) {
       return res.status(404).json({ error: 'Scene not found' });
     }
 
-    const scene = sceneResult.rows[0];
-    const discoveriesResult = await pool.query(
-      'SELECT * FROM public.discovery_questions WHERE scene_id = $1 ORDER BY created_at DESC LIMIT 10',
-      [scene.id]
-    );
+    const { data: discoveries, error: discError } = await supabase
+      .from('discovery_questions')
+      .select('*')
+      .eq('scene_id', scene.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (discError) throw discError;
 
     res.json({
       scene,
-      discoveries: discoveriesResult.rows
+      discoveries: discoveries || []
     });
   } catch (err) {
     console.error('Error fetching scene detail:', err);
@@ -45,6 +61,7 @@ router.get('/scenes/:slug', async (req, res) => {
 // 3. VOTE ON DISCOVERY QUESTION
 router.post('/discoveries/:id/vote', async (req, res) => {
   try {
+    if (!supabase) return res.status(500).json({ error: 'Database unavailable' });
     const { id } = req.params;
     const { optionId, userId } = req.body;
 
@@ -52,31 +69,41 @@ router.post('/discoveries/:id/vote', async (req, res) => {
       return res.status(400).json({ error: 'optionId and userId are required' });
     }
 
-    // Increment option vote count
-    await pool.query(
-      'UPDATE public.discovery_options SET votes_count = votes_count + 1 WHERE id = $1',
-      [optionId]
-    );
+    // Increment option vote count using rpc or fetch-update
+    const { data: opt } = await supabase
+      .from('discovery_options')
+      .select('votes_count')
+      .eq('id', optionId)
+      .maybeSingle();
 
-    // Increment discovery question total votes
-    const discoveryResult = await pool.query(
-      'UPDATE public.discovery_questions SET total_votes = total_votes + 1 WHERE id = $1 RETURNING total_votes, threshold_for_moment',
-      [id]
-    );
-
-    const discovery = discoveryResult.rows[0];
-    const isTriggered = discovery.total_votes >= discovery.threshold_for_moment;
-
-    if (isTriggered) {
-      await pool.query(
-        'UPDATE public.discovery_questions SET is_moment_triggered = TRUE WHERE id = $1',
-        [id]
-      );
+    if (opt) {
+      await supabase
+        .from('discovery_options')
+        .update({ votes_count: (opt.votes_count || 0) + 1 })
+        .eq('id', optionId);
     }
+
+    // Fetch and update question
+    const { data: question } = await supabase
+      .from('discovery_questions')
+      .select('total_votes, threshold_for_moment')
+      .eq('id', id)
+      .maybeSingle();
+
+    const newTotal = (question?.total_votes || 0) + 1;
+    const isTriggered = newTotal >= (question?.threshold_for_moment || 100);
+
+    await supabase
+      .from('discovery_questions')
+      .update({
+        total_votes: newTotal,
+        ...(isTriggered ? { is_moment_triggered: true } : {})
+      })
+      .eq('id', id);
 
     res.json({
       success: true,
-      totalVotes: discovery.total_votes,
+      totalVotes: newTotal,
       isMomentTriggered: isTriggered
     });
   } catch (err) {
@@ -88,6 +115,7 @@ router.post('/discoveries/:id/vote', async (req, res) => {
 // 4. CLAIM PROMOKEY
 router.post('/promokeys/claim', async (req, res) => {
   try {
+    if (!supabase) return res.status(500).json({ error: 'Database unavailable' });
     const { momentId, userId, perkDescription, venueName } = req.body;
 
     if (!userId || !perkDescription || !venueName) {
@@ -95,19 +123,26 @@ router.post('/promokeys/claim', async (req, res) => {
     }
 
     const promoCode = `KEY-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`;
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // Expires in 1 hour
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // Expires in 1 hour
 
-    const result = await pool.query(
-      `INSERT INTO public.promokey_claims 
-        (moment_id, user_id, promo_code, perk_description, venue_name, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [momentId || null, userId, promoCode, perkDescription, venueName, expiresAt]
-    );
+    const { data, error } = await supabase
+      .from('promokey_claims')
+      .insert([{
+        moment_id: momentId || null,
+        user_id: userId,
+        promo_code: promoCode,
+        perk_description: perkDescription,
+        venue_name: venueName,
+        expires_at: expiresAt
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
 
     res.json({
       success: true,
-      claim: result.rows[0]
+      claim: data
     });
   } catch (err) {
     console.error('Error claiming PromoKey:', err);
@@ -118,22 +153,23 @@ router.post('/promokeys/claim', async (req, res) => {
 // 5. VERIFY & REDEEM PROMOKEY (MERCHANT SCANNER)
 router.post('/promokeys/verify', async (req, res) => {
   try {
+    if (!supabase) return res.status(500).json({ error: 'Database unavailable' });
     const { promoCode } = req.body;
 
     if (!promoCode) {
       return res.status(400).json({ error: 'promoCode is required' });
     }
 
-    const result = await pool.query(
-      'SELECT * FROM public.promokey_claims WHERE promo_code = $1',
-      [promoCode.trim().toUpperCase()]
-    );
+    const { data: claim, error } = await supabase
+      .from('promokey_claims')
+      .select('*')
+      .eq('promo_code', promoCode.trim().toUpperCase())
+      .maybeSingle();
 
-    if (result.rows.length === 0) {
+    if (error) throw error;
+    if (!claim) {
       return res.json({ status: 'INVALID' });
     }
-
-    const claim = result.rows[0];
 
     if (claim.is_redeemed) {
       return res.json({ status: 'REDEEMED', claim });
@@ -144,14 +180,18 @@ router.post('/promokeys/verify', async (req, res) => {
     }
 
     // Mark as redeemed
-    await pool.query(
-      'UPDATE public.promokey_claims SET is_redeemed = TRUE, redeemed_at = NOW() WHERE id = $1',
-      [claim.id]
-    );
+    const { data: updated, error: updateError } = await supabase
+      .from('promokey_claims')
+      .update({ is_redeemed: true, redeemed_at: new Date().toISOString() })
+      .eq('id', claim.id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
 
     res.json({
       status: 'VALID',
-      claim
+      claim: updated
     });
   } catch (err) {
     console.error('Error verifying PromoKey:', err);
@@ -162,19 +202,29 @@ router.post('/promokeys/verify', async (req, res) => {
 // 6. CREATE STAKEHOLDER CRM LEAD
 router.post('/crm/leads', async (req, res) => {
   try {
+    if (!supabase) return res.status(500).json({ error: 'Database unavailable' });
     const { name, category, contactPerson, phone, email, objective, sceneAffinity, offPeakCapacityPerk } = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO public.marketplace_crm_leads
-        (name, category, contact_person, phone, email, objective, scene_affinity, off_peak_capacity_perk)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [name, category, contactPerson, phone, email, objective, sceneAffinity, offPeakCapacityPerk]
-    );
+    const { data, error } = await supabase
+      .from('marketplace_crm_leads')
+      .insert([{
+        name,
+        category,
+        contact_person: contactPerson,
+        phone,
+        email,
+        objective,
+        scene_affinity: sceneAffinity,
+        off_peak_capacity_perk: offPeakCapacityPerk
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
 
     res.json({
       success: true,
-      lead: result.rows[0]
+      lead: data
     });
   } catch (err) {
     console.error('Error creating CRM lead:', err);
