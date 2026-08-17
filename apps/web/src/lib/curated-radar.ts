@@ -44,6 +44,38 @@ export const CURATED_KINGSTON_SCENES: SceneProps[] = [
 
 export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
   {
+    id: '00000000-0000-0000-0002-000000000001',
+    title: 'I Luv Hip Hop Live Culture Lab',
+    description: "Kingston’s premier hip hop and sound system lab at Fiction. Vote on the sound of the night, discover the next selector, and earn your way inside the DJ booth with your crew.",
+    intentType: 'ATTEND',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: 'Fiction Nightclub',
+    location: 'Marketplace, Constant Spring Rd, Kingston',
+    dateDisplay: 'Every Thursday from 10:00 PM',
+    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 20,
+    subMomentsCount: 3,
+    attendeesCount: 280,
+    pointsReward: 150,
+    isClaimed: false
+  },
+  {
+    id: '00000000-0000-0000-0002-000000000002',
+    title: 'Encore Wednesday Social & VIP',
+    description: 'A room built for crews and tastemakers. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
+    intentType: 'CONNECT',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: 'Fiction Nightclub',
+    location: 'Marketplace, Constant Spring Rd, Kingston',
+    dateDisplay: 'Every Wednesday from 9:00 PM',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 15,
+    subMomentsCount: 3,
+    attendeesCount: 240,
+    pointsReward: 150,
+    isClaimed: false
+  },
+  {
     id: '00000000-0000-0000-0002-000000000025',
     title: 'FAT Wednesdays Live Social & Game Night',
     description: "High-energy midweek gathering at Usain Bolt's flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.",

@@ -68,7 +68,12 @@ import { getAccessState, type AccessQuote } from "@/lib/access";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import type { Scene } from "@promorang/shared";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://api.promorang.co")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/$/, "");
+const API_URL = (typeof window !== "undefined" && window.location.protocol === "https:" && API_BASE.startsWith("http://localhost"))
+  ? "https://api.promorang.co"
+  : API_BASE;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -191,10 +196,23 @@ const MomentDetail = () => {
     if (!id) return;
     setLoading(true);
 
-    if (id.startsWith('moment-') || id.startsWith('m')) {
-      const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => m.id === id);
+    try {
+      const cleanId = id.trim().toLowerCase();
+      const identifierIsUuid = UUID_PATTERN.test(id.trim());
+      let momentData: Moment | null = null;
+
+      // 1. Direct Curated Kingston / Promorang Presents matching (instant, no network lag)
+      const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
+        if (m.id.toLowerCase() === cleanId) return true;
+        if (cleanId === "encore" && (m.id.includes("0002") || m.title.toLowerCase().includes("encore"))) return true;
+        if ((cleanId === "ilhh" || cleanId === "i-luv-hip-hop" || cleanId.includes("hip-hop") || cleanId.includes("hip hop")) && (m.id.includes("0001") || m.title.toLowerCase().includes("hip hop"))) return true;
+        const normalizedTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normalizedInput = cleanId.replace(/[^a-z0-9]/g, '');
+        return normalizedTitle.length > 3 && (normalizedTitle.includes(normalizedInput) || normalizedInput.includes(normalizedTitle));
+      });
+
       if (curatedMatch) {
-        setMoment({
+        momentData = {
           id: curatedMatch.id,
           title: curatedMatch.title,
           description: curatedMatch.description,
@@ -210,103 +228,60 @@ const MomentDetail = () => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           is_curated_editorial: true,
-        } as unknown as Moment);
-        setParticipantCount(curatedMatch.attendeesCount || 18);
+        } as unknown as Moment;
+        setParticipantCount(curatedMatch.attendeesCount || 24);
         setHostProfile({
           display_name: curatedMatch.venueName,
           avatar_url: curatedMatch.image,
           created_at: new Date().toISOString(),
         });
-        setLoading(false);
-        return;
       }
 
-      const demoMoment = demoMoments.find(m => m.id === id);
-      if (demoMoment) {
-        setMoment(demoMoment as unknown as Moment);
-        setParticipantCount(demoMoment.participant_count || 0);
-        setHostProfile({
-          display_name: demoMoment.host.display_name,
-          avatar_url: demoMoment.host.avatar_url,
-          created_at: new Date().toISOString()
-        });
-        setLoading(false);
-        return;
-      }
-    }
-
-    try {
-      const identifierIsUuid = UUID_PATTERN.test(id);
-      let momentData: Moment | null = null;
-
-      // 1. Try querying 'moments' table
-      if (identifierIsUuid) {
-        const { data, error } = await supabase.from("moments").select("*").eq("id", id).maybeSingle();
-        if (!error && data) momentData = data;
-      } else {
-        const { data, error } = await supabase.from("moments").select("*").eq("slug", id).maybeSingle();
-        if (!error && data) {
-          momentData = data;
+      // 2. Query Supabase 'moments' table
+      if (!momentData) {
+        if (identifierIsUuid) {
+          const { data, error } = await supabase.from("moments").select("*").eq("id", id.trim()).maybeSingle();
+          if (!error && data) momentData = data;
         } else {
-          const { data: titleData } = await supabase.from("moments").select("*").ilike("title", `%${id.replace(/-/g, ' ')}%`).maybeSingle();
-          if (titleData) momentData = titleData;
+          const { data, error } = await supabase.from("moments").select("*").eq("slug", cleanId).maybeSingle();
+          if (!error && data) {
+            momentData = data;
+          } else {
+            const { data: titleData } = await supabase.from("moments").select("*").ilike("title", `%${id.replace(/[-_]/g, ' ')}%`).maybeSingle();
+            if (titleData) momentData = titleData;
+          }
         }
       }
 
-      // 2. Try querying 'view_public_moment_directory' if not found in moments table
+      // 3. Query Supabase 'view_public_moment_directory'
       if (!momentData) {
         if (identifierIsUuid) {
-          const { data: viewData } = await supabase.from("view_public_moment_directory").select("*").eq("id", id).maybeSingle();
+          const { data: viewData } = await supabase.from("view_public_moment_directory").select("*").eq("id", id.trim()).maybeSingle();
           if (viewData) momentData = viewData as unknown as Moment;
         } else {
-          const { data: viewSlugData } = await supabase.from("view_public_moment_directory").select("*").eq("slug", id).maybeSingle();
+          const { data: viewSlugData } = await supabase.from("view_public_moment_directory").select("*").eq("slug", cleanId).maybeSingle();
           if (viewSlugData) momentData = viewSlugData as unknown as Moment;
         }
       }
 
-      // 3. Fallback to Curated Kingston Moments (including synthetic seed UUID matching)
+      // 4. Try Backend API endpoint (uses service-role client, bypassing client RLS if newly created)
       if (!momentData) {
-        // Extract numeric suffix from seed UUIDs like 00000000-0000-0000-0002-000000000023 -> 23
-        const numMatch = id.match(/00000000-0000-0000-0002-0000000000(\d+)/i);
-        const momentNum = numMatch ? parseInt(numMatch[1], 10) : null;
-
-        const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
-          if (m.id === id) return true;
-          if (momentNum !== null && (m.id === `moment-${momentNum}` || m.id === `m-${momentNum}`)) return true;
-          const cleanTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-          const cleanId = id.toLowerCase().replace(/[^a-z0-9]/g, '');
-          return cleanTitle.includes(cleanId) || cleanId.includes(cleanTitle);
-        });
-
-        if (curatedMatch) {
-          momentData = {
-            id: curatedMatch.id,
-            title: curatedMatch.title,
-            description: curatedMatch.description,
-            category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : curatedMatch.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
-            location: curatedMatch.location,
-            venue_name: curatedMatch.venueName,
-            starts_at: new Date(Date.now() + 86400000).toISOString(),
-            ends_at: null,
-            max_participants: 100,
-            reward: `${curatedMatch.pointsReward} Points + PromoKey`,
-            image_url: curatedMatch.image,
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            is_curated_editorial: true,
-          } as unknown as Moment;
-          setHostProfile({
-            display_name: curatedMatch.venueName,
-            avatar_url: curatedMatch.image,
-            created_at: new Date().toISOString(),
-          });
+        try {
+          const apiRes = await fetch(`${API_URL}/api/moments/${encodeURIComponent(id.trim())}`);
+          if (apiRes.ok) {
+            const apiMoment = await apiRes.json();
+            if (apiMoment && apiMoment.id) {
+              momentData = apiMoment;
+            }
+          }
+        } catch {
+          // Backend call failed or offline, proceed to fallbacks
         }
       }
 
-      // 4. Fallback to demo moments
+      // 5. Fallback to demo moments
       if (!momentData) {
-        const demoMatch = demoMoments.find(m => m.id === id || m.title.toLowerCase().includes(id.toLowerCase().replace(/-/g, ' ')));
+        const demoMatch = demoMoments.find(m => m.id === id || m.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')));
         if (demoMatch) {
           momentData = demoMatch as unknown as Moment;
           setHostProfile({
@@ -325,48 +300,61 @@ const MomentDetail = () => {
 
       setMoment(momentData);
 
+      // Safe loading of secondary metadata
       if (momentData.id && UUID_PATTERN.test(momentData.id)) {
-        const { count } = await supabase
-          .from("moment_participants")
-          .select("*", { count: "exact", head: true })
-          .eq("moment_id", momentData.id);
+        try {
+          const { count } = await supabase
+            .from("moment_participants")
+            .select("*", { count: "exact", head: true })
+            .eq("moment_id", momentData.id);
 
-        setParticipantCount(count || 0);
+          setParticipantCount(count || 0);
+        } catch {
+          // Ignore count error
+        }
 
         if (user) {
-          const session = await supabase.auth.getSession();
-          const accessToken = session.data.session?.access_token;
+          try {
+            const session = await supabase.auth.getSession();
+            const accessToken = session.data.session?.access_token;
 
-          if (accessToken) {
-            const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            });
+            if (accessToken) {
+              const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
 
-            const statusPayload = await statusResponse.json();
-            if (statusResponse.ok) {
-              setIsJoined(!!statusPayload?.joined);
-              setIsCheckedIn(!!statusPayload?.checked_in);
-              setAccessQuote(statusPayload?.access_quote || null);
+              if (statusResponse.ok) {
+                const statusPayload = await statusResponse.json();
+                setIsJoined(!!statusPayload?.joined);
+                setIsCheckedIn(!!statusPayload?.checked_in);
+                setAccessQuote(statusPayload?.access_quote || null);
+              }
             }
+          } catch {
+            // Ignore auth participation check error
           }
         }
       }
 
       if (momentData.host_id && UUID_PATTERN.test(momentData.host_id)) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("full_name, avatar_url, created_at")
-          .eq("user_id", momentData.host_id)
-          .maybeSingle();
+        try {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name, avatar_url, created_at")
+            .eq("user_id", momentData.host_id)
+            .maybeSingle();
 
-        if (profileData) {
-          setHostProfile({
-            display_name: profileData.full_name,
-            avatar_url: profileData.avatar_url,
-            created_at: profileData.created_at,
-          });
+          if (profileData) {
+            setHostProfile({
+              display_name: profileData.full_name,
+              avatar_url: profileData.avatar_url,
+              created_at: profileData.created_at,
+            });
+          }
+        } catch {
+          // Ignore profile error
         }
       }
     } catch (error) {
@@ -379,7 +367,7 @@ const MomentDetail = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, user, navigate, toast]);
+  }, [id, user, toast]);
 
   const fetchProofRequirements = useCallback(async () => {
     const session = await supabase.auth.getSession();
