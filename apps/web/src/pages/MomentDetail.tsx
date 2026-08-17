@@ -241,46 +241,89 @@ const MomentDetail = () => {
 
     try {
       const identifierIsUuid = UUID_PATTERN.test(id);
-      const momentQuery = supabase.from("moments").select("*");
       let momentData: Moment | null = null;
 
+      // 1. Try querying 'moments' table
       if (identifierIsUuid) {
-        const { data, error } = await momentQuery.eq("id", id).maybeSingle();
-        if (error) throw error;
-        momentData = data;
+        const { data, error } = await supabase.from("moments").select("*").eq("id", id).maybeSingle();
+        if (!error && data) momentData = data;
       } else {
-        const { data, error } = await momentQuery.eq("slug", id).maybeSingle();
+        const { data, error } = await supabase.from("moments").select("*").eq("slug", id).maybeSingle();
         if (!error && data) {
           momentData = data;
         } else {
-          // Fallback search by title or substring
           const { data: titleData } = await supabase.from("moments").select("*").ilike("title", `%${id.replace(/-/g, ' ')}%`).maybeSingle();
-          momentData = titleData;
+          if (titleData) momentData = titleData;
         }
       }
 
+      // 2. Try querying 'view_public_moment_directory' if not found in moments table
       if (!momentData) {
-        const curatedMatch = CURATED_KINGSTON_MOMENTS.find(
-          m => m.id === id || m.title.toLowerCase().includes(id.toLowerCase().replace(/-/g, ' '))
-        );
+        if (identifierIsUuid) {
+          const { data: viewData } = await supabase.from("view_public_moment_directory").select("*").eq("id", id).maybeSingle();
+          if (viewData) momentData = viewData as unknown as Moment;
+        } else {
+          const { data: viewSlugData } = await supabase.from("view_public_moment_directory").select("*").eq("slug", id).maybeSingle();
+          if (viewSlugData) momentData = viewSlugData as unknown as Moment;
+        }
+      }
+
+      // 3. Fallback to Curated Kingston Moments (including synthetic seed UUID matching)
+      if (!momentData) {
+        // Extract numeric suffix from seed UUIDs like 00000000-0000-0000-0002-000000000023 -> 23
+        const numMatch = id.match(/00000000-0000-0000-0002-0000000000(\d+)/i);
+        const momentNum = numMatch ? parseInt(numMatch[1], 10) : null;
+
+        const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
+          if (m.id === id) return true;
+          if (momentNum !== null && (m.id === `moment-${momentNum}` || m.id === `m-${momentNum}`)) return true;
+          const cleanTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const cleanId = id.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return cleanTitle.includes(cleanId) || cleanId.includes(cleanTitle);
+        });
+
         if (curatedMatch) {
           momentData = {
             id: curatedMatch.id,
             title: curatedMatch.title,
             description: curatedMatch.description,
-            category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : "Food & Drinks",
+            category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : curatedMatch.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
             location: curatedMatch.location,
             venue_name: curatedMatch.venueName,
             starts_at: new Date(Date.now() + 86400000).toISOString(),
-            reward: `${curatedMatch.pointsReward} Points`,
+            ends_at: null,
+            max_participants: 100,
+            reward: `${curatedMatch.pointsReward} Points + PromoKey`,
             image_url: curatedMatch.image,
             is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            is_curated_editorial: true,
           } as unknown as Moment;
+          setHostProfile({
+            display_name: curatedMatch.venueName,
+            avatar_url: curatedMatch.image,
+            created_at: new Date().toISOString(),
+          });
+        }
+      }
+
+      // 4. Fallback to demo moments
+      if (!momentData) {
+        const demoMatch = demoMoments.find(m => m.id === id || m.title.toLowerCase().includes(id.toLowerCase().replace(/-/g, ' ')));
+        if (demoMatch) {
+          momentData = demoMatch as unknown as Moment;
+          setHostProfile({
+            display_name: demoMatch.host?.display_name || "Host",
+            avatar_url: demoMatch.host?.avatar_url || null,
+            created_at: new Date().toISOString(),
+          });
         }
       }
 
       if (!momentData) {
-        navigate("/explore/moments");
+        setMoment(null);
+        setLoading(false);
         return;
       }
 
