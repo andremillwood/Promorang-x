@@ -201,13 +201,13 @@ const Marketplace = () => {
                     <div>
                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-primary">
                             <Store className="h-3.5 w-3.5" />
-                            Marketplace
+                            Marketplace · Curated Experience Passes
                         </div>
                         <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-6xl">
-                            Spend locally. Build status.
+                            Curated Passes. Guaranteed Value.
                         </h1>
                         <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
-                            Discover offers, services, and rewards from Promorang merchants. Purchases and redemptions should move you closer to value: Points, access, proof receipts, and future eligibility.
+                            Promorang curates group experience packages with local partners and trusted cultural institutions. All customer payments are held in escrow and pre-funded directly with the venue upon arrival or booking.
                         </p>
                     </div>
 

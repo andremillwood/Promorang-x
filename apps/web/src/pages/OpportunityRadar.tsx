@@ -769,6 +769,9 @@ export default function OpportunityRadar() {
                   {...moment}
                   onClaimKey={handleClaimKey}
                   onViewDetails={handleViewDetails}
+                  onClaimListing={(id, venue) => {
+                    window.location.href = `/for-merchants?claimVenue=${encodeURIComponent(venue)}&momentId=${encodeURIComponent(id)}`;
+                  }}
                 />
               ))}
             </div>
