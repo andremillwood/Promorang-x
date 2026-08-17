@@ -478,44 +478,44 @@ export default function CinematicCultureHome() {
             style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
             className="w-full max-w-[calc(100vw-3rem)] md:max-w-4xl space-y-4 will-change-transform"
           >
-            <div className="inline-flex items-center space-x-2 bg-primary/20 border border-primary/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary">
+            <div className="inline-flex items-center space-x-2 bg-orange-500/20 border border-orange-500/40 px-3.5 py-1.5 rounded-full text-xs font-black text-orange-400">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              <span>Live Community Wins: Sarah M. just snagged $45 Instant Cash & Treats 🎉</span>
+              <span>Live Kingston Pulse: 112 Votes in Friday Jerk Debate • 15 Tasting Keys Drop Wednesday 🔥</span>
             </div>
 
             <h1 className="max-w-4xl font-sans text-[clamp(2.8rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-white">
-              <span className="block">Find the people,</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">places & Moments</span>
-              <span className="block">worth moving toward.</span>
+              <span className="block">Where your city</span>
+              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">decides what happens</span>
+              <span className="block">this weekend.</span>
             </h1>
             <p className="mt-5 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Promorang helps you find the room that fits, show up with confidence, and keep the access, people, memories and opportunities that open because you took part.
+              Promorang turns weekly local debates into funded real-world experiences. Vote on Discoveries, influence which spots get funded, and unlock 15 limited VIP tasting keys every Friday.
             </p>
-            <p className="mt-3 max-w-xl text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              Find your Scene → choose one Moment → show up → see what opens next
+            <p className="mt-3 max-w-xl text-xs font-black uppercase tracking-[0.16em] text-primary">
+              Mon Debate → Wed Keys Drop → Fri Go Out → Sun Proof
             </p>
             <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
               <Link
-                to="/free/scene"
-                onClick={() => rememberMarketingIntent("hero_find_scene", "/free/scene", "participant")}
+                to="/radar?tab=discover"
+                onClick={() => rememberMarketingIntent("hero_vote_discover", "/radar?tab=discover", "participant")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition hover:bg-primary/90 sm:text-sm"
               >
-                Find Your Scene
+                Vote on Live Debates
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
-                to="/discover"
-                onClick={() => rememberMarketingIntent("hero_discover", "/discover")}
+                to="/radar"
+                onClick={() => rememberMarketingIntent("hero_explore_radar", "/radar")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/25 bg-black/40 px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white transition hover:border-primary hover:text-primary sm:text-sm"
               >
-                See What’s Happening
+                Explore City Radar
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/50">Free result • Two minutes • No account required.</p>
+            <p className="mt-3 text-xs text-white/50">Zero login to vote • +25 PromoPoints reward • Live on WhatsApp.</p>
           </motion.div>
 
           {activeHeroItem ? (

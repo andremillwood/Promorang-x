@@ -145,35 +145,60 @@ export default function HowItWorks() {
         <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_420px] lg:items-end">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">The Promorang operating map</p>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-primary">The 7-Day Economic Operating Rhythm</p>
             <h1 className="mt-5 max-w-5xl text-5xl font-black uppercase leading-[0.84] tracking-[-0.075em] sm:text-6xl lg:text-[6.6rem]">
-              Make a move.<br /><span className="text-primary">Keep the value.</span><br />Grow the network.
+              Vote Monday.<br /><span className="text-primary">Unlock Wednesday.</span><br />Move Friday.
             </h1>
             <p className="mt-7 max-w-3xl text-base leading-8 text-white/66 md:text-lg">
-              Promorang is a participation exchange. People turn useful action, influence and early support into money, rewards, access, reputation and ownership. Creators, venues, merchants and brands create the opportunities that make those outcomes possible.
+              Promorang turns weekly city debates into verified real-world movement. Locals vote on Discoveries, venues fulfill pre-committed demand, creators earn on-site foot-traffic bounties, and corporate brands sponsor the VIP tasting keys.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:-translate-y-0.5">Find a move <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/growth" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-sm font-black transition hover:border-primary/60">Create movement <Rocket className="h-4 w-4 text-primary" /></Link>
+              <Link to="/radar?tab=discover" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:-translate-y-0.5">Vote on Discoveries <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/radar" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-5 py-3 text-sm font-black transition hover:border-primary/60">Explore City Rhythm <Rocket className="h-4 w-4 text-primary" /></Link>
             </div>
           </div>
-          <aside className="rounded-[2rem] border border-white/12 bg-black/55 p-5 shadow-2xl backdrop-blur-xl">
-            <GuidanceDisclosure
-              id="how-it-works:opportunity-questions"
-              eyebrow="Opportunity guide"
-              title="Every opportunity must answer"
-              summary="Useful opportunities explain action, return, proof, funding, and the next unlock."
-              className="mt-0"
-            >
-              <div className="space-y-2">
-                {["What do I do?", "What do I receive?", "What proof is required?", "Who funds or provides the value?", "What does this unlock next?"].map((question, index) => (
-                  <div key={question} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.045] p-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-xs font-black text-primary">{index + 1}</span>
-                    <span className="text-sm font-bold text-white/78">{question}</span>
-                  </div>
-                ))}
+          <aside className="rounded-[2rem] border border-orange-500/30 bg-black/75 p-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-orange-400">The 7-Day Cycle</h3>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-black font-black text-xs">01</span>
+                <div>
+                  <div className="font-bold text-white">Mon–Tue: The Debate</div>
+                  <div className="text-white/60 text-[11px]">Community votes on spicy food, drink & culture questions.</div>
+                </div>
               </div>
-            </GuidanceDisclosure>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">02</span>
+                <div>
+                  <div className="font-bold text-white">Tue: Venue Notification</div>
+                  <div className="text-white/60 text-[11px]">Winning venues see pre-committed demand and confirm tasting slots.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">03</span>
+                <div>
+                  <div className="font-bold text-white">Wed: PromoKey Drop</div>
+                  <div className="text-white/60 text-[11px]">15 limited VIP passes drop at 6:00 PM for active voters.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">04</span>
+                <div>
+                  <div className="font-bold text-white">Fri–Sat: Live Movement</div>
+                  <div className="text-white/60 text-[11px]">Patrons arrive, venues scan countertop QR, creators earn gems.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white font-black text-xs">05</span>
+                <div>
+                  <div className="font-bold text-white">Sun: Proof & Renewal</div>
+                  <div className="text-white/60 text-[11px]">Weekly rankings lock; points reset for next Monday debate.</div>
+                </div>
+              </div>
+            </div>
           </aside>
         </div>
       </section>
