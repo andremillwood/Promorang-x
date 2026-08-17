@@ -24,6 +24,7 @@ import { useMomentConversation } from "@/hooks/useMomentConversation";
 import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { demoMoments } from "@/data/demo-moments";
+import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
@@ -185,7 +186,36 @@ const MomentDetail = () => {
     if (!id) return;
     setLoading(true);
 
-    if (id.startsWith('m') && id.length <= 4) {
+    if (id.startsWith('moment-') || id.startsWith('m')) {
+      const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => m.id === id);
+      if (curatedMatch) {
+        setMoment({
+          id: curatedMatch.id,
+          title: curatedMatch.title,
+          description: curatedMatch.description,
+          category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : curatedMatch.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+          location: curatedMatch.location,
+          venue_name: curatedMatch.venueName,
+          starts_at: new Date(Date.now() + 86400000).toISOString(),
+          ends_at: null,
+          max_participants: 100,
+          reward: `${curatedMatch.pointsReward} Points + PromoKey`,
+          image_url: curatedMatch.image,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          is_curated_editorial: true,
+        } as unknown as Moment);
+        setParticipantCount(curatedMatch.attendeesCount || 18);
+        setHostProfile({
+          display_name: curatedMatch.venueName,
+          avatar_url: curatedMatch.image,
+          created_at: new Date().toISOString(),
+        });
+        setLoading(false);
+        return;
+      }
+
       const demoMoment = demoMoments.find(m => m.id === id);
       if (demoMoment) {
         setMoment(demoMoment as unknown as Moment);
@@ -203,11 +233,43 @@ const MomentDetail = () => {
     try {
       const identifierIsUuid = UUID_PATTERN.test(id);
       const momentQuery = supabase.from("moments").select("*");
-      const { data: momentData, error: momentError } = identifierIsUuid
-        ? await momentQuery.eq("id", id).maybeSingle()
-        : await momentQuery.eq("slug", id).maybeSingle();
+      let momentData: Moment | null = null;
 
-      if (momentError) throw momentError;
+      if (identifierIsUuid) {
+        const { data, error } = await momentQuery.eq("id", id).maybeSingle();
+        if (error) throw error;
+        momentData = data;
+      } else {
+        const { data, error } = await momentQuery.eq("slug", id).maybeSingle();
+        if (!error && data) {
+          momentData = data;
+        } else {
+          // Fallback search by title or substring
+          const { data: titleData } = await supabase.from("moments").select("*").ilike("title", `%${id.replace(/-/g, ' ')}%`).maybeSingle();
+          momentData = titleData;
+        }
+      }
+
+      if (!momentData) {
+        const curatedMatch = CURATED_KINGSTON_MOMENTS.find(
+          m => m.id === id || m.title.toLowerCase().includes(id.toLowerCase().replace(/-/g, ' '))
+        );
+        if (curatedMatch) {
+          momentData = {
+            id: curatedMatch.id,
+            title: curatedMatch.title,
+            description: curatedMatch.description,
+            category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : "Food & Drinks",
+            location: curatedMatch.location,
+            venue_name: curatedMatch.venueName,
+            starts_at: new Date(Date.now() + 86400000).toISOString(),
+            reward: `${curatedMatch.pointsReward} Points`,
+            image_url: curatedMatch.image,
+            is_active: true,
+          } as unknown as Moment;
+        }
+      }
+
       if (!momentData) {
         navigate("/explore/moments");
         return;

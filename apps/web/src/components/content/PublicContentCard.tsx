@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,18 +28,24 @@ export function PublicContentCard({ item }: PublicContentCardProps) {
     ? `/moments/${item.linked_moment_slug || item.linked_moment_id}`
     : null;
 
+  const [imgError, setImgError] = useState(false);
+  const mediaSrc = item.media_url?.includes("cdn.promorang.com")
+    ? "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800"
+    : item.media_url;
+
   return (
     <Card className="overflow-hidden border-border/70 bg-card shadow-soft">
       <div className="relative h-44 overflow-hidden bg-muted">
-        {item.media_url ? (
+        {mediaSrc && !imgError ? (
           <img
-            src={item.media_url}
+            src={mediaSrc}
             alt={item.title || "Content preview"}
+            onError={() => setImgError(true)}
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <PlayCircle className="h-10 w-10 text-muted-foreground" />
+          <div className="flex h-full items-center justify-center bg-zinc-900">
+            <PlayCircle className="h-10 w-10 text-primary/60" />
           </div>
         )}
         {item.platform && (
