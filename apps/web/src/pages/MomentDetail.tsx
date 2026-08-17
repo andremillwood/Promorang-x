@@ -279,9 +279,13 @@ const MomentDetail = () => {
         }
       }
 
-      // 5. Fallback to demo moments
+      // 5. Fallback to demo moments & cultureEvents
       if (!momentData) {
-        const demoMatch = demoMoments.find(m => m.id === id || m.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')));
+        const demoMatch = demoMoments.find(m => 
+          m.id.toLowerCase() === cleanId || 
+          m.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')) ||
+          cleanId.includes(m.id.toLowerCase())
+        );
         if (demoMatch) {
           momentData = demoMatch as unknown as Moment;
           setHostProfile({
@@ -289,6 +293,38 @@ const MomentDetail = () => {
             avatar_url: demoMatch.host?.avatar_url || null,
             created_at: new Date().toISOString(),
           });
+        } else {
+          const cultureMatch = cultureEvents.find(c =>
+            c.momentId?.toLowerCase() === cleanId ||
+            c.slug.toLowerCase() === cleanId ||
+            c.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')) ||
+            cleanId.includes(c.slug.toLowerCase())
+          );
+          if (cultureMatch) {
+            momentData = {
+              id: cultureMatch.momentId || cultureMatch.slug,
+              title: cultureMatch.title,
+              description: cultureMatch.description,
+              category: cultureMatch.category || "Gatherings & Culture",
+              location: cultureMatch.place || cultureMatch.city || "Kingston, Jamaica",
+              venue_name: cultureMatch.place || "Featured Venue",
+              starts_at: new Date(Date.now() + 86400000).toISOString(),
+              ends_at: null,
+              max_participants: 100,
+              reward: cultureMatch.reward || "PromoPoints + Exclusive Key",
+              image_url: cultureMatch.image,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              is_curated_editorial: true,
+            } as unknown as Moment;
+            setParticipantCount(parseInt(cultureMatch.attending) || 30);
+            setHostProfile({
+              display_name: cultureMatch.host || "Featured Host",
+              avatar_url: cultureMatch.image,
+              created_at: new Date().toISOString(),
+            });
+          }
         }
       }
 
