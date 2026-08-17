@@ -37,11 +37,11 @@ const intentColors: Record<IntentType, string> = {
 const ownershipBadgeStyles: Record<MomentOwnership, string> = {
   'PROMORANG ORIGINAL': 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black',
   'PROMORANG PRESENTS': 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold',
-  'PARTNER MOMENT': 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold',
-  'FEATURED MOMENT': 'bg-blue-100 text-blue-800 border border-blue-300 font-semibold',
-  'COMMUNITY MOMENT': 'bg-gray-100 text-gray-800 border border-gray-300 font-medium',
-  'EMERGING MOMENT': 'bg-pink-100 text-pink-800 border border-pink-300 font-bold',
-  'EDITORIAL DISCOVERY': 'bg-amber-100 text-amber-900 border border-amber-300 font-bold'
+  'PARTNER MOMENT': 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80 font-semibold',
+  'FEATURED MOMENT': 'bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800/80 font-semibold',
+  'COMMUNITY MOMENT': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 font-medium',
+  'EMERGING MOMENT': 'bg-pink-100 dark:bg-pink-950/70 text-pink-800 dark:text-pink-300 border border-pink-300 dark:border-pink-800/80 font-bold',
+  'EDITORIAL DISCOVERY': 'bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 font-bold'
 };
 
 export const MomentCard: React.FC<MomentProps> = ({
@@ -64,7 +64,7 @@ export const MomentCard: React.FC<MomentProps> = ({
   onClaimListing
 }) => {
   return (
-    <div className="group rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
+    <div className="group rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
       {/* Cover Header */}
       <div className="relative h-48 w-full overflow-hidden bg-gray-900">
         <img
@@ -112,21 +112,21 @@ export const MomentCard: React.FC<MomentProps> = ({
 
       {/* Content */}
       <div className="p-4 flex-1 flex flex-col justify-between">
-        <p className="text-gray-600 text-xs line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-gray-600 dark:text-gray-300 text-xs line-clamp-2 mb-4 leading-relaxed">
           {description}
         </p>
 
         {/* Sub-moments & Proof row */}
-        <div className="flex items-center justify-between py-2 border-y border-gray-100 mb-4 text-xs">
-          <div className="flex items-center text-gray-500 font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600 mr-1" />
+        <div className="flex items-center justify-between py-2 border-y border-gray-100 dark:border-gray-800 mb-4 text-xs">
+          <div className="flex items-center text-gray-500 dark:text-gray-400 font-medium">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 mr-1" />
             <span>{subMomentsCount} Sub-Moments</span>
           </div>
-          <div className="flex items-center text-gray-500 font-medium">
-            <Users className="w-3.5 h-3.5 text-blue-600 mr-1" />
+          <div className="flex items-center text-gray-500 dark:text-gray-400 font-medium">
+            <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 mr-1" />
             <span>{attendeesCount} RSVPs</span>
           </div>
-          <div className="flex items-center text-orange-600 font-bold">
+          <div className="flex items-center text-orange-600 dark:text-orange-400 font-bold">
             +{pointsReward} Points
           </div>
         </div>
@@ -135,7 +135,7 @@ export const MomentCard: React.FC<MomentProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => onViewDetails && onViewDetails(id)}
-            className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold rounded-xl flex items-center justify-center transition-colors"
+            className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold rounded-xl flex items-center justify-center transition-colors"
           >
             <span>View Details</span>
           </button>

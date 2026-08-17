@@ -570,7 +570,7 @@ export default function OpportunityRadar() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white pb-20 pt-16 md:pt-20 transition-colors duration-200">
       {/* Hero Header */}
       <div className="bg-gradient-to-b from-gray-950 via-gray-900 to-gray-900 text-white pt-8 pb-12 px-4 border-b border-gray-800">
         <div className="max-w-6xl mx-auto">
@@ -662,7 +662,7 @@ export default function OpportunityRadar() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           {/* Intent Filters */}
           <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 md:pb-0">
-            <span className="text-xs font-bold text-gray-500 mr-2 flex items-center">
+            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 mr-2 flex items-center">
               <Filter className="w-3.5 h-3.5 mr-1" /> Intent:
             </span>
             {(['ALL', 'ATTEND', 'TRY', 'GET', 'LEARN', 'CONNECT'] as const).map(intent => (
@@ -671,8 +671,8 @@ export default function OpportunityRadar() {
                 onClick={() => setSelectedIntent(intent)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
                   selectedIntent === intent
-                    ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white shadow-sm'
+                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
                 }`}
               >
                 {intent}
@@ -688,7 +688,7 @@ export default function OpportunityRadar() {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Search moments, venues..."
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-orange-500 shadow-sm"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-xl text-xs focus:outline-none focus:border-orange-500 shadow-sm"
             />
           </div>
         </div>
@@ -697,8 +697,8 @@ export default function OpportunityRadar() {
         {activeTab === 'SCENES' ? (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Active Persistent Scenes</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Persistent Scenes</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Persistent networks of people, interests, and places around things you care about.
               </p>
             </div>
@@ -712,12 +712,12 @@ export default function OpportunityRadar() {
           <div>
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Active Kingston Market Intelligence</h2>
-                <p className="text-xs text-gray-500">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Kingston Market Intelligence</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Vote on discoveries across Kingston lenses to stimulate new supply and trigger exclusive PromoKeys.
                 </p>
               </div>
-              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
+              <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-900/50">
                 {SAMPLE_DISCOVERIES.length} Active Polls
               </span>
             </div>
@@ -752,12 +752,12 @@ export default function OpportunityRadar() {
             {/* Featured Moments Section */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Active Moments</h2>
-                <p className="text-xs text-gray-500">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Active Moments</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Time-bounded opportunities worth acting on in Kingston today.
                 </p>
               </div>
-              <span className="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+              <span className="text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/50 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50">
                 {filteredMoments.length} Opportunities Live
               </span>
             </div>

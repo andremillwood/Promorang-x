@@ -33,11 +33,15 @@ export interface MomentReview {
   updated_at: string;
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 // Fetch media for a moment
 export function useMomentMedia(momentId: string) {
+  const isValidUuid = Boolean(momentId && UUID_PATTERN.test(momentId));
   return useQuery({
     queryKey: ["moment-media", momentId],
     queryFn: async () => {
+      if (!isValidUuid) return [];
       const { data, error } = await supabase
         .from("moment_media")
         .select("*")
@@ -48,7 +52,7 @@ export function useMomentMedia(momentId: string) {
       if (error) throw error;
       return data as MomentMedia[];
     },
-    enabled: !!momentId,
+    enabled: isValidUuid,
   });
 }
 
@@ -149,9 +153,11 @@ export function useUploadMedia() {
 
 // Fetch reviews for a moment
 export function useMomentReviews(momentId: string) {
+  const isValidUuid = Boolean(momentId && UUID_PATTERN.test(momentId));
   return useQuery({
     queryKey: ["moment-reviews", momentId],
     queryFn: async () => {
+      if (!isValidUuid) return [];
       const { data, error } = await supabase
         .from("moment_reviews")
         .select("*")
@@ -162,7 +168,7 @@ export function useMomentReviews(momentId: string) {
       if (error) throw error;
       return data as MomentReview[];
     },
-    enabled: !!momentId,
+    enabled: isValidUuid,
   });
 }
 

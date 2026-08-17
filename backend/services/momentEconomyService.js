@@ -586,8 +586,18 @@ async function updateMoment(userOrId, momentId, payload = {}) {
   return updatedMoment;
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 async function getMomentEconomy(momentId) {
   if (!supabase) throw new Error('Database not available');
+  if (!momentId || !UUID_PATTERN.test(momentId)) {
+    return {
+      economics: null,
+      moves: [],
+      payout_rules: [],
+      ledger: [],
+    };
+  }
 
   const [economicsResult, movesResult, rulesResult, ledgerResult] = await Promise.all([
     supabase.from('moment_economics').select('*').eq('moment_id', momentId).maybeSingle(),

@@ -141,7 +141,14 @@ const MomentDetail = () => {
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isDemo = id?.startsWith('m') && id?.length <= 4;
+  const isDemo = Boolean(
+    id?.startsWith('m') ||
+    id?.startsWith('moment-') ||
+    id?.startsWith('demo-') ||
+    id?.startsWith('fallback-') ||
+    (moment?.id && !UUID_PATTERN.test(moment.id)) ||
+    moment?.is_curated_editorial
+  );
   const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -168,7 +175,7 @@ const MomentDetail = () => {
     ...(canManageMoment ? [{ id: "host" as const, label: "Host Tools", Icon: ShieldCheck }] : []),
   ];
 
-  const resolvedMomentId = !isDemo ? moment?.id || null : null;
+  const resolvedMomentId = (moment?.id && UUID_PATTERN.test(moment.id)) ? moment.id : null;
   const momentConversation = useMomentConversation(resolvedMomentId, user?.id);
 
   const promoPushCampaignId = searchParams.get("campaign");
@@ -279,45 +286,49 @@ const MomentDetail = () => {
 
       setMoment(momentData);
 
-      const { count } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("moment_id", momentData.id);
+      if (momentData.id && UUID_PATTERN.test(momentData.id)) {
+        const { count } = await supabase
+          .from("moment_participants")
+          .select("*", { count: "exact", head: true })
+          .eq("moment_id", momentData.id);
 
-      setParticipantCount(count || 0);
+        setParticipantCount(count || 0);
 
-      if (user) {
-        const session = await supabase.auth.getSession();
-        const accessToken = session.data.session?.access_token;
+        if (user) {
+          const session = await supabase.auth.getSession();
+          const accessToken = session.data.session?.access_token;
 
-        if (accessToken) {
-          const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          if (accessToken) {
+            const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            });
 
-          const statusPayload = await statusResponse.json();
-          if (statusResponse.ok) {
-            setIsJoined(!!statusPayload?.joined);
-            setIsCheckedIn(!!statusPayload?.checked_in);
-            setAccessQuote(statusPayload?.access_quote || null);
+            const statusPayload = await statusResponse.json();
+            if (statusResponse.ok) {
+              setIsJoined(!!statusPayload?.joined);
+              setIsCheckedIn(!!statusPayload?.checked_in);
+              setAccessQuote(statusPayload?.access_quote || null);
+            }
           }
         }
       }
 
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url, created_at")
-        .eq("user_id", momentData.host_id)
-        .maybeSingle();
+      if (momentData.host_id && UUID_PATTERN.test(momentData.host_id)) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url, created_at")
+          .eq("user_id", momentData.host_id)
+          .maybeSingle();
 
-      if (profileData) {
-        setHostProfile({
-          display_name: profileData.full_name,
-          avatar_url: profileData.avatar_url,
-          created_at: profileData.created_at,
-        });
+        if (profileData) {
+          setHostProfile({
+            display_name: profileData.full_name,
+            avatar_url: profileData.avatar_url,
+            created_at: profileData.created_at,
+          });
+        }
       }
     } catch (error) {
       console.error("Error fetching moment:", error);
