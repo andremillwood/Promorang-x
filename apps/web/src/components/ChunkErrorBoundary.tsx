@@ -20,14 +20,15 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       error.message?.includes("Cannot read properties of undefined") ||
       error.message?.includes("Failed to fetch dynamically imported module") ||
       error.message?.includes("Loading chunk") ||
-      error.message?.includes("Importing a module script failed");
+      error.message?.includes("Importing a module script failed") ||
+      error.message?.includes("404");
 
     if (isChunkError) {
       const CHUNK_RELOAD_KEY = "promorang:chunk-reload";
       const lastReload = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? 0);
 
       // Reload page once if deployment updated asset hashes
-      if (Date.now() - lastReload > 10_000) {
+      if (Date.now() - lastReload > 3_000) {
         sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
         window.location.reload();
       }
