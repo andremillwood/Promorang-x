@@ -22,6 +22,7 @@ import { PromoKeyModal } from '@/components/radar/PromoKeyModal';
 import { MomentDetailModal } from '@/components/radar/MomentDetailModal';
 import { AskQuestionModal } from '@/components/discovery/AskQuestionModal';
 import { CityRhythmTracker } from '@/components/radar/CityRhythmTracker';
+import { RadarLeaderboards } from '@/components/radar/RadarLeaderboards';
 
 // Sample Seed Data for Demonstration & Verification
 const SAMPLE_SCENES: SceneProps[] = [
@@ -808,6 +809,9 @@ export default function OpportunityRadar() {
             </div>
           </div>
         )}
+
+        {/* Culture & Movement Leaderboards (Discoveries, Moments, Scouts) */}
+        <RadarLeaderboards />
 
       </div>
 
