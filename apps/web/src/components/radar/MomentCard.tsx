@@ -58,8 +58,10 @@ export const MomentCard: React.FC<MomentProps> = ({
   subMomentsCount,
   attendeesCount,
   pointsReward,
+  isClaimed = false,
   onClaimKey,
-  onViewDetails
+  onViewDetails,
+  onClaimListing
 }) => {
   return (
     <div className="group rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
