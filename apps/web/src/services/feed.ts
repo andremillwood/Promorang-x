@@ -36,7 +36,9 @@ export function isItemTonight(item: RawFeedItem): boolean {
 }
 
 export function isItemEarning(item: RawFeedItem): boolean {
-  const rawType = item.object_type || item.type;
+  // The API can group Discoveries under generic "content". Preserve the
+  // domain type so the UI never presents a place as a creator story.
+  const rawType = item.type === "discovery" ? "discovery" : item.object_type || item.type;
   if (rawType === "coupon" || rawType === "offer" || rawType === "drop" || rawType === "bounty") {
     return true;
   }
@@ -73,6 +75,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
   const objectType: FeedItem["object_type"] =
     rawType === "event" || rawType === "moment"
       ? "moment"
+      : rawType === "discovery"
+        ? "discovery"
       : rawType === "drop"
         ? "drop"
         : rawType === "coupon" || rawType === "offer"
@@ -118,6 +122,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
   const primaryHref =
     objectType === "moment"
       ? `/moments/${entityId}`
+      : objectType === "discovery"
+        ? `/discoveries/${item.slug || entityId}`
       : objectType === "drop"
         ? "/watch-unlock"
         : objectType === "offer"
@@ -133,6 +139,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
   const primaryLabel =
     objectType === "moment"
       ? "View Moment"
+      : objectType === "discovery"
+        ? "View Discovery"
       : objectType === "drop"
         ? "Start Proof"
         : objectType === "offer"
@@ -229,7 +237,7 @@ export const getForYouFeed = async ({
 
     rawFeed = [
       ...(dbMoments || []).map((m) => ({ ...m, object_type: "moment", type: "event" })),
-      ...(dbDiscoveries || []).map((d) => ({ ...d, object_type: "content", type: "discovery" })),
+      ...(dbDiscoveries || []).map((d) => ({ ...d, object_type: "discovery", type: "discovery" })),
       ...(dbMissions || []).map((b) => ({ ...b, object_type: "drop", type: "bounty" })),
     ];
   }

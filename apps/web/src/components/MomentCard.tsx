@@ -228,6 +228,9 @@ export function MomentCard({
         </div>
 
         <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
+            Moment
+          </span>
           {originLabel && (
             <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
               <originLabel.Icon className="h-3 w-3" />

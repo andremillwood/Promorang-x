@@ -2,6 +2,7 @@ export type FeedIntent = "nearby" | "tonight" | "earn";
 
 export type FeedObjectType =
   | "moment"
+  | "discovery"
   | "drop"
   | "content"
   | "product"
@@ -110,6 +111,7 @@ export const feedObjectHref = (objectType: FeedObjectType, entityId: string, pla
   const routes = platform === "mobile"
     ? {
         moment: `/moment/${entityId}`,
+        discovery: `/discoveries/${entityId}`,
         drop: "/search?type=content",
         content: `/content/${entityId}`,
         product: `/product/${entityId}`,
@@ -120,6 +122,7 @@ export const feedObjectHref = (objectType: FeedObjectType, entityId: string, pla
       }
     : {
         moment: `/moments/${entityId}`,
+        discovery: `/discoveries/${entityId}`,
         drop: "/watch-unlock",
         content: `/content-drops/${entityId}`,
         product: `/shop/${entityId}`,

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Compass, Plus, MapPin, Sparkles, Bookmark, ArrowRight } from "lucide-react";
+import { Compass, Plus, MapPin, Sparkles, ArrowRight } from "lucide-react";
 import { formatDiscoveryCategory, discoveryLocation } from "@promorang/shared";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { SubmitDiscoveryModal } from "./SubmitDiscoveryModal";
@@ -20,7 +20,7 @@ export function DiscoveriesFeedSection() {
             Fresh Cultural Discoveries
           </h2>
           <p className="mt-1 text-xs text-white/50">
-            Hidden gems, secret spots, and community finds recommended by Scouts near you.
+            Places worth finding—not scheduled events. Save one, visit it, or add a local find of your own.
           </p>
         </div>
 
@@ -62,12 +62,17 @@ export function DiscoveriesFeedSection() {
                     <Compass className="h-8 w-8 text-white/20" />
                   </div>
                 )}
-                <Badge
-                  variant="outline"
-                  className="absolute left-3 top-3 border-black/40 bg-black/60 text-[10px] font-bold text-primary backdrop-blur-md"
-                >
-                  {formatDiscoveryCategory(item.category)}
-                </Badge>
+                <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                  <Badge className="border-cyan-300/30 bg-black/70 text-[10px] font-black uppercase tracking-[0.14em] text-cyan-300 backdrop-blur-md">
+                    Discovery
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="border-black/40 bg-black/60 text-[10px] font-bold text-primary backdrop-blur-md"
+                  >
+                    {formatDiscoveryCategory(item.category)}
+                  </Badge>
+                </div>
               </div>
 
               <div className="p-4">
@@ -86,7 +91,7 @@ export function DiscoveriesFeedSection() {
                 <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-2 text-[10px] text-white/40">
                   <span>{item.checkin_count || 0} visits</span>
                   <span className="flex items-center gap-1 font-bold text-primary">
-                    View <ArrowRight className="h-3 w-3" />
+                    View Discovery <ArrowRight className="h-3 w-3" />
                   </span>
                 </div>
               </div>

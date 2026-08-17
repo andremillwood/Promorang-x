@@ -177,6 +177,19 @@ const Discover = () => {
           </div>
         </div>
 
+        <div className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-4 sm:grid-cols-2 sm:p-5">
+          <div className="rounded-2xl border border-[#ff5500]/25 bg-[#ff5500]/[0.07] p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff8a50]">Moment</p>
+            <p className="mt-1 text-sm font-bold text-white">Something happening at a set time.</p>
+            <p className="mt-1 text-xs text-white/50">Reserve a spot, attend, complete missions, and unlock perks.</p>
+          </div>
+          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Discovery</p>
+            <p className="mt-1 text-sm font-bold text-white">A place or cultural find worth knowing.</p>
+            <p className="mt-1 text-xs text-white/50">Save it, visit it, log your check-in—or submit a find of your own.</p>
+          </div>
+        </div>
+
         {/* Top Story & Daily Gamification Rail */}
         <StoryGamificationRail
           onOpenWheel={() => setWheelOpen(true)}

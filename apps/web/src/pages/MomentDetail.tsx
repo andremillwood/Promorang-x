@@ -171,7 +171,7 @@ const MomentDetail = () => {
 
   const momentTabs: Array<{ id: MomentTab; label: string; Icon: typeof Sparkles }> = [
     { id: "overview", label: "Details", Icon: Compass },
-    { id: "perks", label: "Perks & Rewards", Icon: Trophy },
+    { id: "perks", label: "Missions & Perks", Icon: Trophy },
     { id: "community", label: "Community & Discussion", Icon: MessageSquare },
     ...(canManageMoment ? [{ id: "host" as const, label: "Host Tools", Icon: ShieldCheck }] : []),
   ];
@@ -605,6 +605,28 @@ const MomentDetail = () => {
     );
   }
 
+  const momentMissions = getSubMomentsForMoment({
+    id: moment.id,
+    title: moment.title,
+    description: moment.description || "",
+    intentType: "ATTEND",
+    ownership: "EDITORIAL DISCOVERY",
+    venueName: moment.venue_name || moment.location || "",
+    location: moment.location || "",
+    dateDisplay: displayStartsAt,
+    image: galleryImages[0]?.url || "",
+    promoKeysAvailable: 5,
+    subMomentsCount: 3,
+    attendeesCount: participantCount,
+    pointsReward: 100,
+    isClaimed: false,
+  });
+  const missionPointTotal = momentMissions.reduce((sum, mission) => sum + mission.points, 0);
+  const openMissionsAndPerks = () => {
+    setActiveMomentTab("perks");
+    window.requestAnimationFrame(() => document.getElementById("moment-content")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] text-white font-sans selection:bg-[#ff5500] selection:text-white">
       <SEO
@@ -804,6 +826,23 @@ const MomentDetail = () => {
                 >
                   <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> Invite Friends
                 </Button>
+
+                <button
+                  type="button"
+                  onClick={openMissionsAndPerks}
+                  className="group w-full rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-4 text-left transition hover:border-amber-300/55 hover:bg-amber-400/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                >
+                  <span className="flex items-center justify-between gap-3">
+                    <span>
+                      <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">More inside this Moment</span>
+                      <span className="mt-1 block text-sm font-extrabold text-white">
+                        {momentMissions.length} Missions · 1 Attendee Perk · +{missionPointTotal} Points
+                      </span>
+                    </span>
+                    <ArrowRight className="h-5 w-5 shrink-0 text-amber-300 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <span className="mt-2 block text-xs text-white/55">See what you can do and earn before you arrive.</span>
+                </button>
               </div>
             </div>
           </div>
@@ -834,7 +873,7 @@ const MomentDetail = () => {
       </nav>
 
       {/* Main Body 2-Column Grid */}
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <main id="moment-content" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
 
           {/* Left Main Column */}
@@ -955,26 +994,9 @@ const MomentDetail = () => {
                   </div>
                 </section>
 
-                {/* Sub-Moments & Scout Missions */}
+                {/* Missions available inside this Moment */}
                 {(() => {
-                  const subMoments = getSubMomentsForMoment({
-                    id: moment.id,
-                    title: moment.title,
-                    description: moment.description || "",
-                    intentType: "ATTEND",
-                    ownership: "EDITORIAL DISCOVERY",
-                    venueName: moment.venue_name || moment.location || "",
-                    location: moment.location || "",
-                    dateDisplay: displayStartsAt,
-                    image: galleryImages[0]?.url || "",
-                    promoKeysAvailable: 5,
-                    subMomentsCount: 3,
-                    attendeesCount: participantCount,
-                    pointsReward: 100,
-                    isClaimed: false,
-                  });
-
-                  if (!subMoments || subMoments.length === 0) return null;
+                  if (!momentMissions.length) return null;
 
                   return (
                     <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-6 shadow-xl">
@@ -983,15 +1005,15 @@ const MomentDetail = () => {
                           <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
                             <Sparkles className="h-4 w-4" /> Interactive Micro-Actions
                           </div>
-                          <h3 className="text-xl font-extrabold text-white">Sub-Moments & Scout Missions ({subMoments.length})</h3>
+                          <h3 className="text-xl font-extrabold text-white">Missions inside this Moment ({momentMissions.length})</h3>
                         </div>
                         <Badge className="bg-[#ff5500]/20 text-[#ff5500] border-none font-bold text-xs px-3 py-1">
-                          +{subMoments.reduce((sum, s) => sum + s.points, 0)} Total Points
+                          +{missionPointTotal} Total Points
                         </Badge>
                       </div>
 
                       <div className="space-y-3">
-                        {subMoments.map((sub, idx) => (
+                        {momentMissions.map((sub, idx) => (
                           <div
                             key={sub.id}
                             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-[#ff5500]/40 hover:bg-white/10"
@@ -1183,6 +1205,9 @@ const MomentDetail = () => {
         onJoin={handleJoin}
         isJoining={isJoining}
         accessState={accessState}
+        missionCount={momentMissions.length}
+        missionPointTotal={missionPointTotal}
+        onExploreMissions={openMissionsAndPerks}
       />
 
       {/* Social Share Modal */}

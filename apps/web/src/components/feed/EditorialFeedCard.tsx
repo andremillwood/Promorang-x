@@ -13,12 +13,14 @@ import {
   ShoppingBag,
   Sparkles,
   Users,
+  Compass,
 } from "lucide-react";
 import type { FeedItem } from "@/services/feed";
 import { cn } from "@/lib/utils";
 
 const typeMeta = {
   moment: { label: "Moment", icon: CalendarDays, accent: "text-primary" },
+  discovery: { label: "Discovery", icon: Compass, accent: "text-cyan-300" },
   content: { label: "Creator story", icon: Play, accent: "text-sky-300" },
   drop: { label: "Proof drop", icon: CheckCircle2, accent: "text-emerald-300" },
   offer: { label: "Offer", icon: Gem, accent: "text-amber-300" },
