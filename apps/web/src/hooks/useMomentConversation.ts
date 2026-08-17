@@ -88,16 +88,19 @@ export function useMomentConversation(momentId: string | null, userId?: string) 
     queryKey,
     enabled: isValidUuid,
     queryFn: async () => {
-      if (!isValidUuid || !momentId) return [];
-      const { data: commentData, error: commentError } = await operationalSupabase
-        .from("moment_comments")
-        .select("id,moment_id,user_id,parent_id,content,created_at,updated_at")
-        .eq("moment_id", momentId)
-        .order("created_at", { ascending: true });
-      if (commentError) throw commentError;
+      try {
+        const { data: commentData, error: commentError } = await operationalSupabase
+          .from("moment_comments")
+          .select("id,moment_id,user_id,parent_id,content,created_at,updated_at")
+          .eq("moment_id", momentId)
+          .order("created_at", { ascending: true });
+        if (commentError) {
+          console.warn("Moment comments unavailable:", commentError.message);
+          return [];
+        }
 
-      const rows = (commentData || []) as CommentRow[];
-      if (rows.length === 0) return [];
+        const rows = (commentData || []) as CommentRow[];
+        if (rows.length === 0) return [];
 
       const userIds = [...new Set(rows.map((row) => row.user_id))];
       const commentIds = rows.map((row) => row.id);
@@ -125,7 +128,11 @@ export function useMomentConversation(momentId: string | null, userId?: string) 
         if (userId && reaction.user_id === userId) myReactions.set(reaction.entity_id, reaction.reaction_type);
       });
 
-      return buildThreads(rows, profiles, reactionCounts, myReactions);
+        return buildThreads(rows, profiles, reactionCounts, myReactions);
+      } catch (err) {
+        console.warn("Moment conversation error:", err);
+        return [];
+      }
     },
   });
 
