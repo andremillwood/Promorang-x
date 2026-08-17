@@ -1,7 +1,7 @@
 -- ============================================================
 -- MIGRATION: 202608170001_seed_kingston_scenes_moments_radar.sql
--- Description: Clean, robust seed for Kingston Scenes, Moments, 
---              Discovery Polls, and PromoKey schemas into Supabase.
+-- Description: Dynamic ID resolution for Scenes and Moments seeding
+--              Guarantees zero foreign-key constraint violations.
 -- ============================================================
 
 -- 1. Ensure Supporting Tables exist for Market Construction & Radar
@@ -53,11 +53,10 @@ CREATE TABLE IF NOT EXISTS public.marketplace_crm_leads (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Seed Kingston Scenes
-INSERT INTO public.scenes (id, title, slug, description, city, country, image_url, visibility, status, metadata)
+-- 2. Seed / Upsert Kingston Scenes by slug
+INSERT INTO public.scenes (title, slug, description, city, country, image_url, visibility, status, metadata)
 VALUES
   (
-    '00000000-0000-0000-0001-000000000001',
     'Kingston After Dark',
     'kingston-after-dark',
     'The definitive lens for nightlife, late-night food spots, live music, and party culture in Kingston.',
@@ -69,7 +68,6 @@ VALUES
     '{"category": "Nightlife & Music", "tagline": "Where Kingston nights turn into stories.", "curator": "Promorang Culture Guild"}'::jsonb
   ),
   (
-    '00000000-0000-0000-0001-000000000002',
     'Food & Taste Jamaica',
     'food-and-taste',
     'Discover underrated breakfast joints, street vendors, chef popups, and signature dining experiences.',
@@ -81,7 +79,6 @@ VALUES
     '{"category": "Food & Dining", "tagline": "Taste the craft, passion, and heritage of Kingston.", "curator": "Taste Collective"}'::jsonb
   ),
   (
-    '00000000-0000-0000-0001-000000000003',
     'Move & Fitness Jamaica',
     'move-jamaica',
     'Active lifestyle, outdoor runs, fitness popups, wellness retreats, and beach workouts.',
@@ -99,7 +96,7 @@ ON CONFLICT (slug) DO UPDATE SET
   metadata = EXCLUDED.metadata,
   updated_at = NOW();
 
--- 3. Seed Kingston Moments (Using standard dollar-quoted strings to prevent apostrophe escaping errors)
+-- 3. Seed / Upsert Kingston Moments
 INSERT INTO public.moments (id, title, description, category, location, venue_name, starts_at, max_participants, reward, image_url, is_active, visibility)
 VALUES
   (
@@ -197,48 +194,65 @@ ON CONFLICT (id) DO UPDATE SET
   is_active = EXCLUDED.is_active,
   updated_at = NOW();
 
--- 4. Link Moments to Scenes
+-- 4. Dynamically Link Moments to Scenes using slug lookups (Guarantees FK integrity)
 INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
-VALUES
-  ('00000000-0000-0000-0002-000000000025', '00000000-0000-0000-0001-000000000001', 'featured'),
-  ('00000000-0000-0000-0002-000000000026', '00000000-0000-0000-0001-000000000002', 'featured'),
-  ('00000000-0000-0000-0002-000000000022', '00000000-0000-0000-0001-000000000002', 'partner'),
-  ('00000000-0000-0000-0002-000000000023', '00000000-0000-0000-0001-000000000001', 'featured'),
-  ('00000000-0000-0000-0002-000000000004', '00000000-0000-0000-0001-000000000001', 'origin'),
-  ('00000000-0000-0000-0002-000000000015', '00000000-0000-0000-0001-000000000001', 'featured')
+SELECT '00000000-0000-0000-0002-000000000025'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
 ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 
--- 5. Seed Discovery Intelligence Questions & Polls
-INSERT INTO public.discovery_questions (id, scene_id, question, category, author_name, total_votes, threshold_for_moment)
-VALUES
-  (
-    '00000000-0000-0000-0003-000000000001',
-    '00000000-0000-0000-0001-000000000002',
-    'What should Promorang make happen in Kingston next?',
-    'Market Intelligence',
-    'Kingston Culture Desk',
-    42,
-    50
-  ),
-  (
-    '00000000-0000-0000-0003-000000000002',
-    '00000000-0000-0000-0001-000000000001',
-    'Which midweek after-work hangout spot needs better exclusive perks?',
-    'Nightlife & Dining',
-    'Promorang Community Guild',
-    29,
-    40
-  )
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000026'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'food-and-taste'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 
-INSERT INTO public.discovery_options (id, question_id, option_text, votes_count)
-VALUES
-  ('00000000-0000-0000-0004-000000000001', '00000000-0000-0000-0003-000000000001', 'FAT Wednesdays at Tracks & Records VIP pass', 22),
-  ('00000000-0000-0000-0004-000000000002', '00000000-0000-0000-0003-000000000001', 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
-  ('00000000-0000-0000-0004-000000000003', '00000000-0000-0000-0003-000000000001', 'Sunset High Tea & Coffee Cupping in Irish Town', 6),
-  ('00000000-0000-0000-0004-000000000004', '00000000-0000-0000-0003-000000000002', 'Pegasus Poolside Lyme & Barbecue', 16),
-  ('00000000-0000-0000-0004-000000000005', '00000000-0000-0000-0003-000000000002', 'Tacbar Taco Tuesday at Devon House', 9),
-  ('00000000-0000-0000-0004-000000000006', '00000000-0000-0000-0003-000000000002', 'AC Hotel Lounge Tapas & Mixology', 4)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000022'::uuid, s.id, 'partner'
+FROM public.scenes s WHERE s.slug = 'food-and-taste'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000023'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000004'::uuid, s.id, 'origin'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
+SELECT '00000000-0000-0000-0002-000000000015'::uuid, s.id, 'featured'
+FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
+ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
+
+-- 5. Seed Discovery Intelligence Questions with Dynamic Scene FK resolution
+DO $$
+DECLARE
+  v_food_scene_id UUID;
+  v_dark_scene_id UUID;
+  v_q1_id UUID := '00000000-0000-0000-0003-000000000001'::uuid;
+  v_q2_id UUID := '00000000-0000-0000-0003-000000000002'::uuid;
+BEGIN
+  SELECT id INTO v_food_scene_id FROM public.scenes WHERE slug = 'food-and-taste' LIMIT 1;
+  SELECT id INTO v_dark_scene_id FROM public.scenes WHERE slug = 'kingston-after-dark' LIMIT 1;
+
+  INSERT INTO public.discovery_questions (id, scene_id, question, category, author_name, total_votes, threshold_for_moment)
+  VALUES
+    (v_q1_id, v_food_scene_id, 'What should Promorang make happen in Kingston next?', 'Market Intelligence', 'Kingston Culture Desk', 42, 50),
+    (v_q2_id, v_dark_scene_id, 'Which midweek after-work hangout spot needs better exclusive perks?', 'Nightlife & Dining', 'Promorang Community Guild', 29, 40)
+  ON CONFLICT (id) DO UPDATE SET
+    scene_id = EXCLUDED.scene_id,
+    question = EXCLUDED.question;
+
+  INSERT INTO public.discovery_options (id, question_id, option_text, votes_count)
+  VALUES
+    ('00000000-0000-0000-0004-000000000001', v_q1_id, 'FAT Wednesdays at Tracks & Records VIP pass', 22),
+    ('00000000-0000-0000-0004-000000000002', v_q1_id, 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
+    ('00000000-0000-0000-0004-000000000003', v_q1_id, 'Sunset High Tea & Coffee Cupping in Irish Town', 6),
+    ('00000000-0000-0000-0004-000000000004', v_q2_id, 'Pegasus Poolside Lyme & Barbecue', 16),
+    ('00000000-0000-0000-0004-000000000005', v_q2_id, 'Tacbar Taco Tuesday at Devon House', 9),
+    ('00000000-0000-0000-0004-000000000006', v_q2_id, 'AC Hotel Lounge Tapas & Mixology', 4)
+  ON CONFLICT (id) DO NOTHING;
+END $$;
 
 NOTIFY pgrst, 'reload schema';
