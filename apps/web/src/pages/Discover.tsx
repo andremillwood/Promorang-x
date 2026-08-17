@@ -34,14 +34,62 @@ import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
+import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
+import { HelpCircle, MessageSquare } from "lucide-react";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 
 const categoryFilters = [
   { id: "all", label: "All Events", icon: Sparkles },
+  { id: "questions", label: "Discovery Polls 🔥", icon: HelpCircle },
   { id: "music", label: "Music & Parties", icon: Radio },
   { id: "food", label: "Food & Drinks", icon: Gift },
   { id: "community", label: "Gatherings & Culture", icon: Users },
+];
+
+const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [
+  {
+    id: 'disc-debate-001',
+    question: 'Which Kingston jerk spot is undisputed King on a Friday evening?',
+    category: 'Cultural Debate 🔥',
+    authorName: 'Food Scout Jules (@KingstonFoodies)',
+    totalVotes: 112,
+    thresholdForMoment: 120,
+    options: [
+      { id: 'opt-j1', text: 'Sweetwood Jerk Joint (Liguanea)', votes: 48 },
+      { id: 'opt-j2', text: 'Scotchies Jerk Center (Chelsea Ave)', votes: 39 },
+      { id: 'opt-j3', text: 'Boston Jerk Table (Downtown Waterfront)', votes: 16 },
+      { id: 'opt-j4', text: 'Pepperwood Jerk Center (New Kingston)', votes: 9 }
+    ]
+  },
+  {
+    id: 'disc-demand-002',
+    question: 'What should Promorang fund and unlock in Kingston next?',
+    category: 'Demand-to-Supply 🎯',
+    authorName: 'Promorang Kingston Guild',
+    totalVotes: 46,
+    thresholdForMoment: 50,
+    options: [
+      { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 23 },
+      { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
+      { id: 'opt-3', text: 'Sunset Vinyl & High Tea (Strawberry Hill)', votes: 7 },
+      { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
+    ]
+  },
+  {
+    id: 'disc-nightlife-004',
+    question: 'Which Wednesday after-work hangout spot needs exclusive table perks?',
+    category: 'Kingston After Dark 🍸',
+    authorName: 'Fiction Resident DJ & Host',
+    totalVotes: 58,
+    thresholdForMoment: 60,
+    options: [
+      { id: 'opt-n1', text: 'FAT Wednesdays at Tracks & Records', votes: 27 },
+      { id: 'opt-n2', text: 'Tacbar Courtyard Margaritas (Devon House)', votes: 18 },
+      { id: 'opt-n3', text: 'AC Lounge Mixology & Tapas Bar', votes: 13 }
+    ]
+  }
 ];
 
 const formatMomentDate = (value?: string | null) => {
@@ -264,8 +312,47 @@ const Discover = () => {
               </div>
             )}
 
+            {/* Discovery Questions & Debate Polls Grid */}
+            {(activeCategory === "all" || activeCategory === "questions") && !searchQuery && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2.5 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        Demand Construction
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mt-1">Live Discovery Debates</h3>
+                    <p className="text-xs text-white/50">Vote to influence which venue unlocks 15 limited Tasting Keys this week.</p>
+                  </div>
+                  <AskQuestionModal
+                    trigger={
+                      <Button className="rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/20">
+                        Ask Question
+                      </Button>
+                    }
+                    onQuestionCreated={(newQ) => {
+                      DISCOVERY_QUESTIONS_FEED.unshift(newQ);
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {DISCOVERY_QUESTIONS_FEED.map((q) => (
+                    <DiscoveryWidget
+                      key={q.id}
+                      {...q}
+                      onVote={(qId, optId) => {
+                        console.log('Voted on discover page:', qId, optId);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Events Content View */}
-            {viewMode === "map" ? (
+            {activeCategory !== "questions" && (viewMode === "map" ? (
               <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10">
                 <PromorangMap />
               </div>
@@ -351,7 +438,7 @@ const Discover = () => {
                   </div>
                 )}
               </div>
-            )}
+            ))}
           </div>
 
           {/* Right Utility Rail */}
