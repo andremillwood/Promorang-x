@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { useToast } from '@/components/ui/use-toast';
 import { PieceOrderBook } from '@/components/trading/PieceOrderBook';
+import { TiltCard3D } from '@/components/ui/TiltCard3D';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -157,17 +158,22 @@ export function PieceProfile() {
                 {profile.asset.description || profile.journey?.summary}
               </p>
             </div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Piece Snapshot</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span>{currentPrice.toFixed(2)} Gems</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">24h Volume</span><span>{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Holders</span><span>{Number(profile.stats?.holder_count || 0)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Market Cap</span><span>{Number(profile.stats?.market_cap || 0).toFixed(2)}</span></div>
-              </CardContent>
-            </Card>
+            <TiltCard3D maxTilt={8} scaleOnHover={1.02} className="w-full">
+              <Card className="overflow-hidden border-white/20 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
+                <CardHeader className="border-b border-white/10 pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-white">Piece Snapshot</CardTitle>
+                    <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-4 text-white">
+                  <div className="flex justify-between items-baseline"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Price</span><span className="text-xl font-black text-primary">{currentPrice.toFixed(2)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span><span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Holders</span><span className="font-semibold text-white/90">{Number(profile.stats?.holder_count || 0)}</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span><span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span></div>
+                </CardContent>
+              </Card>
+            </TiltCard3D>
           </div>
         </div>
       </div>

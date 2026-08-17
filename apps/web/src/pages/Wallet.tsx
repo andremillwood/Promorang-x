@@ -32,6 +32,7 @@ import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
+import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
 import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 
 type GemsTransaction = {
@@ -288,18 +289,22 @@ const Wallet = () => {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-black/60 p-5 text-white backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Next usable unlock</p><p className="mt-2 text-5xl font-black">{availableConversions > 0 ? `${availableConversions} Key${availableConversions > 1 ? "s" : ""}` : `${Math.max(0, pointsPerKey - (points % pointsPerKey))} pts`}</p><p className="mt-1 text-sm text-white/45">{availableConversions > 0 ? "Ready to convert from Points" : "until your next PromoKey"}</p></div>
-              <KeyRound className="h-10 w-10 text-primary" />
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <div className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{walletLoading ? "..." : walletBalance?.points?.toLocaleString() || 0}</p><p className="text-[9px] uppercase text-white/35">Points</p></div>
-              <div className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{walletLoading ? "..." : walletBalance?.promokeys || 0}</p><p className="text-[9px] uppercase text-white/35">PromoKeys</p></div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <Button className="flex-1" asChild><Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />Earn your next unlock</Link></Button>
-              <Button variant="outline" size="icon" className="border-white/15 bg-black/20 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet}><RefreshCw className="h-4 w-4" /></Button>
+          <div className="flex flex-col items-center gap-4">
+            <DigitalWalletPass3D
+              displayName={user.user_metadata?.full_name || user.user_metadata?.name}
+              userEmail={user.email}
+              userId={user.id}
+              points={walletBalance?.points || 0}
+              promoKeys={walletBalance?.promokeys || 0}
+              gems={gems}
+            />
+            <div className="flex w-full max-w-[420px] gap-2">
+              <Button className="flex-1 rounded-xl shadow-lg" asChild>
+                <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />Earn Next Unlock</Link>
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-xl border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet} title="Refresh Balance">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
