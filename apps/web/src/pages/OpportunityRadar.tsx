@@ -483,57 +483,58 @@ const SAMPLE_MOMENTS: MomentProps[] = [
 
 const SAMPLE_DISCOVERIES: DiscoveryProps[] = [
   {
-    id: 'disc-demand-001',
-    question: 'What should Promorang make happen in Kingston next?',
-    category: 'Demand Construction',
-    authorName: 'Promorang Community Scout',
-    totalVotes: 44,
+    id: 'disc-debate-001',
+    question: 'Which Kingston jerk spot is undisputed King on a Friday evening?',
+    category: 'Cultural Debate 🔥',
+    authorName: 'Food Scout Jules (@KingstonFoodies)',
+    totalVotes: 112,
+    thresholdForMoment: 120,
+    options: [
+      { id: 'opt-j1', text: 'Sweetwood Jerk Joint (Liguanea)', votes: 48 },
+      { id: 'opt-j2', text: 'Scotchies Jerk Center (Chelsea Ave)', votes: 39 },
+      { id: 'opt-j3', text: 'Boston Jerk Table (Downtown Waterfront)', votes: 16 },
+      { id: 'opt-j4', text: 'Pepperwood Jerk Center (New Kingston)', votes: 9 }
+    ]
+  },
+  {
+    id: 'disc-demand-002',
+    question: 'What should Promorang fund and unlock in Kingston next?',
+    category: 'Demand-to-Supply 🎯',
+    authorName: 'Promorang Kingston Guild',
+    totalVotes: 46,
     thresholdForMoment: 50,
     options: [
-      { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 22 },
+      { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 23 },
       { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
-      { id: 'opt-3', text: 'Sunset Vinyl Listening Night (Hope Rd)', votes: 6 },
+      { id: 'opt-3', text: 'Sunset Vinyl & High Tea (Strawberry Hill)', votes: 7 },
       { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
     ]
   },
   {
-    id: 'disc-food-002',
-    question: 'Who serves the undisputed best escovitch fish in Kingston & St. Andrew?',
+    id: 'disc-food-003',
+    question: 'Who serves the undisputed best fresh fish in Kingston & St. Andrew?',
     category: 'Food & Taste Lens',
-    authorName: 'Chef Andre (Food Scout)',
+    authorName: 'Chef Andre (Culinary Steward)',
     totalVotes: 86,
     thresholdForMoment: 100,
     options: [
       { id: 'opt-f1', text: 'Gloria\'s Seafood City (Port Royal)', votes: 41 },
       { id: 'opt-f2', text: 'Prendy\'s on the Beach (Hellshire)', votes: 26 },
       { id: 'opt-f3', text: 'Fish Pot Fry Table (Downtown Waterfront)', votes: 12 },
-      { id: 'opt-f4', text: 'Ocean Style (Liguanea)', votes: 7 }
+      { id: 'opt-f4', text: 'Ocean Style Seafood (Liguanea)', votes: 7 }
     ]
   },
   {
-    id: 'disc-culture-003',
-    question: 'Which creative Kingston experience should get exclusive PromoKey perks next?',
-    category: 'Music & Culture Lens',
-    authorName: 'Trench Town Guild Steward',
-    totalVotes: 61,
-    thresholdForMoment: 75,
+    id: 'disc-nightlife-004',
+    question: 'Which Wednesday after-work hangout spot needs exclusive table perks?',
+    category: 'Kingston After Dark 🍸',
+    authorName: 'Fiction Resident DJ & Host',
+    totalVotes: 58,
+    thresholdForMoment: 60,
     options: [
-      { id: 'opt-c1', text: 'Downtown Artwalk & Mural Tour Access', votes: 28 },
-      { id: 'opt-c2', text: 'Tuff Gong Record Pressing Behind-The-Scenes', votes: 19 },
-      { id: 'opt-c3', text: 'National Gallery After-Hours Wine & Tour', votes: 14 }
-    ]
-  },
-  {
-    id: 'disc-wellness-004',
-    question: 'What Sunday morning wellness recharge would you actually attend?',
-    category: 'Move & Wellness Lens',
-    authorName: 'Kingston Wellness Collective',
-    totalVotes: 37,
-    thresholdForMoment: 50,
-    options: [
-      { id: 'opt-w1', text: 'Sunrise Yoga at Hope Botanical Gardens', votes: 18 },
-      { id: 'opt-w2', text: 'Blue Mountain Coffee Hike & Cool Off', votes: 11 },
-      { id: 'opt-w3', text: 'Pilates in the Park (Emancipation Park)', votes: 8 }
+      { id: 'opt-n1', text: 'FAT Wednesdays at Tracks & Records', votes: 27 },
+      { id: 'opt-n2', text: 'Tacbar Courtyard Margaritas (Devon House)', votes: 18 },
+      { id: 'opt-n3', text: 'AC Lounge Mixology & Tapas Bar', votes: 13 }
     ]
   }
 ];
