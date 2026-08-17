@@ -570,7 +570,7 @@ export default function OpportunityRadar() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20 pt-16 md:pt-20">
       {/* Hero Header */}
       <div className="bg-gradient-to-b from-gray-950 via-gray-900 to-gray-900 text-white pt-8 pb-12 px-4 border-b border-gray-800">
         <div className="max-w-6xl mx-auto">

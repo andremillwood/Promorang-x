@@ -30,6 +30,8 @@ const Header = () => {
     location.pathname === "/pioneers" ||
     location.pathname === "/organizer" ||
     location.pathname === "/live" ||
+    location.pathname.startsWith("/radar") ||
+    location.pathname.startsWith("/opportunity-radar") ||
     location.pathname.startsWith("/scenes") ||
     location.pathname.startsWith("/communities") ||
     location.pathname.startsWith("/creators") ||
