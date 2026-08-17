@@ -594,14 +594,14 @@ export default function OpportunityRadar() {
             {/* Quick Stakeholder Navigation Link */}
             <div className="flex items-center space-x-2">
               <a
-                href="/join/participant"
+                href="/pricing"
                 className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/20 flex items-center space-x-1.5 transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Founding Member Access</span>
               </a>
               <a
-                href="/join/venue"
+                href="/for-merchants"
                 className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold text-xs rounded-xl border border-gray-700 transition-colors"
               >
                 For Venues

@@ -139,6 +139,7 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
 const roleNavItems: Record<UserRole, NavItem[]> = {
   participant: [
     { icon: Home, label: "Today", href: "/dashboard", group: "primary" },
+    { icon: Sparkles, label: "Radar", href: "/radar", group: "primary" },
     { icon: Compass, label: "For You", href: "/for-you", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
     { icon: PlayCircle, label: "Missions", href: "/missions", group: "primary" },
@@ -153,6 +154,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
   creator: [
     { icon: Home, label: "Studio", href: "/dashboard", group: "primary" },
+    { icon: Sparkles, label: "Radar", href: "/radar", group: "primary" },
     { icon: Search, label: "Discover", href: "/discover", group: "primary" },
     { icon: Gift, label: "PromoShare Draws", href: "/promoshare", group: "growth" },
     { icon: RadioTower, label: "Content Drops", href: "/content-drops", group: "growth" },

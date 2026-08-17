@@ -236,6 +236,8 @@ const App = () => (
                     <Route path="/rsvp/:momentId" element={<GuestRsvp />} />
                     <Route path="/guest-pass/:token" element={<GuestPass />} />
                     <Route path="/host/moments/:momentId/guests" element={<ProtectedRoute><HostGuestOperations /></ProtectedRoute>} />
+                    <Route path="/join/participant" element={<Navigate to="/pricing" replace />} />
+                    <Route path="/join/venue" element={<Navigate to="/for-merchants" replace />} />
                     <Route path="/host" element={<Navigate to="/for-communities" replace />} />
                     <Route path="/why-join" element={<Navigate to="/" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />

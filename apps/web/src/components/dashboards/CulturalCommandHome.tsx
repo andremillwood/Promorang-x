@@ -28,6 +28,8 @@ import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 
+import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+
 const feedLenses: Array<{ label: string; value: FeedIntent | null; description: string }> = [
   { label: "For You", value: null, description: "The strongest mix across your world" },
   { label: "Near You", value: "nearby", description: "People, places, and Moments within reach" },
@@ -51,11 +53,32 @@ const CulturalCommandHome = () => {
   );
   const ownedMoments = useMemo(() => {
     const seen = new Set<string>();
-    return [...hostedMoments, ...joinedMoments].filter((moment) => {
+    const userMoments = [...hostedMoments, ...joinedMoments].filter((moment) => {
       if (seen.has(moment.id)) return false;
       seen.add(moment.id);
       return true;
     });
+
+    if (userMoments.length > 0) return userMoments;
+
+    // Fallback to top curated Kingston network moments (FAT Wednesdays, Chandon Open House, etc.)
+    return CURATED_KINGSTON_MOMENTS.map((cm) => ({
+      id: cm.id,
+      host_id: "editorial",
+      title: cm.title,
+      description: cm.description,
+      category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+      location: cm.location,
+      venue_name: cm.venueName,
+      starts_at: new Date().toISOString(),
+      ends_at: null,
+      max_participants: 50,
+      reward: `${cm.pointsReward} Points`,
+      image_url: cm.image,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
   }, [hostedMoments, joinedMoments]);
   const heroMoment = ownedMoments[0] || null;
   const heroJourney = useMomentJourney(heroMoment?.id || null).data;

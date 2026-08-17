@@ -33,6 +33,8 @@ import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { RightUtilityRail } from "@/components/RightUtilityRail";
 import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 
+import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+
 type PublicMoment = Tables<"view_public_moment_directory">;
 
 const categoryFilters = [
@@ -75,7 +77,30 @@ const Discover = () => {
         .order("starts_at", { ascending: true })
         .limit(20);
 
-      return momentsData || [];
+      const dbMoments = momentsData || [];
+      const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => ({
+        id: cm.id,
+        host_id: "editorial",
+        title: cm.title,
+        description: cm.description,
+        category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+        location: cm.location,
+        venue_name: cm.venueName,
+        starts_at: new Date(Date.now() + 86400000).toISOString(),
+        ends_at: null,
+        max_participants: 50,
+        reward: `${cm.pointsReward} Points + PromoKey`,
+        image_url: cm.image,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      // Combine curated Kingston moments with any user-hosted DB moments
+      const seenTitles = new Set(dbMoments.map(m => m.title.toLowerCase()));
+      const filteredCurated = curatedAsMoments.filter(cm => !seenTitles.has(cm.title.toLowerCase()));
+
+      return [...filteredCurated, ...dbMoments];
     },
   });
 
