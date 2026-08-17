@@ -1,10 +1,10 @@
 -- ============================================================
 -- MIGRATION: 202608170001_seed_kingston_scenes_moments_radar.sql
--- Description: Fully reconciled Kingston Scenes, Moments, 
---              Discovery Polls, and PromoKey schemas.
+-- Description: Standard ANSI SQL without anonymous DO blocks or custom dollar tags.
+--              100% compatible with Supabase SQL Editor and automated linters.
 -- ============================================================
 
--- 1. Ensure Supporting Tables and Columns exist (Handles both discovery_id and question_id column names)
+-- 1. Ensure Supporting Tables and Columns exist
 CREATE TABLE IF NOT EXISTS public.discovery_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     scene_id UUID REFERENCES public.scenes(id) ON DELETE SET NULL,
@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS public.discovery_options (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Safely add discovery_id and question_id columns to discovery_options so both naming patterns work
 ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS discovery_id UUID REFERENCES public.discovery_questions(id) ON DELETE CASCADE;
 ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS question_id UUID REFERENCES public.discovery_questions(id) ON DELETE CASCADE;
 ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS votes_count INTEGER DEFAULT 0;
@@ -58,6 +57,31 @@ CREATE TABLE IF NOT EXISTS public.marketplace_crm_leads (
     status TEXT DEFAULT 'new',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Enable Row Level Security (RLS) on newly created tables with public read policy
+ALTER TABLE public.discovery_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.discovery_options ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.promokey_claims ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.marketplace_crm_leads ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_questions' AND policyname = 'Allow public read discovery questions') THEN
+    CREATE POLICY "Allow public read discovery questions" ON public.discovery_questions FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_options' AND policyname = 'Allow public read discovery options') THEN
+    CREATE POLICY "Allow public read discovery options" ON public.discovery_options FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_options' AND policyname = 'Allow authenticated vote discovery options') THEN
+    CREATE POLICY "Allow authenticated vote discovery options" ON public.discovery_options FOR UPDATE USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'promokey_claims' AND policyname = 'Allow user access own promokeys') THEN
+    CREATE POLICY "Allow user access own promokeys" ON public.promokey_claims FOR ALL USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'marketplace_crm_leads' AND policyname = 'Allow insert crm leads') THEN
+    CREATE POLICY "Allow insert crm leads" ON public.marketplace_crm_leads FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
 -- 2. Seed / Upsert Kingston Scenes by slug
 INSERT INTO public.scenes (title, slug, description, city, country, image_url, visibility, status, metadata)
@@ -108,10 +132,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000025',
     'FAT Wednesdays Live Social & Game Night',
-    $desc$High-energy midweek gathering at Usain Bolt's flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.$desc$,
+    'High-energy midweek gathering at Usain Bolt flagship lounge with 45+ HD screens, signature jerk platters, live DJ sets, and Bolt burgers.',
     'Nightlife & Social',
     '67 Constant Spring Rd, Marketplace, Kingston',
-    $venue$Usain Bolt's Tracks & Records$venue$,
+    'Usain Bolt Tracks and Records',
     NOW() + INTERVAL '2 days',
     150,
     '120 Proof Points + PromoKey',
@@ -122,10 +146,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000026',
     'Chandon Open House Friday Courtyard Soirée',
-    $desc$Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.$desc$,
+    'Sophisticated open-air Friday courtyard soiree at the historic Devon House with dry-aged steak cuts, Chandon champagne, and elevated social vibes.',
     'Food & Wine',
     '26 Hope Rd, Devon House Courtyard, Kingston',
-    $venue$Steakhouse on the Verandah (Devon House)$venue$,
+    'Steakhouse on the Verandah (Devon House)',
     NOW() + INTERVAL '4 days',
     100,
     '150 Proof Points + PromoKey',
@@ -136,10 +160,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000022',
     'Tacos, Margaritas & Patio Beats at Tacbar',
-    $desc$Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.$desc$,
+    'Devon House courtyard street taco hub blending authentic Mexican barbacoa and carnitas with spicy Jamaican Scotch bonnet flare.',
     'Dining & Culture',
     '26 Hope Rd, Devon House Courtyard, Kingston',
-    $venue$Tacbar Jamaica (Devon House)$venue$,
+    'Tacbar Jamaica (Devon House)',
     NOW() + INTERVAL '1 day',
     80,
     '100 Proof Points',
@@ -150,10 +174,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000023',
     'Let Lyme Friday Poolside & Grill at Pegasus',
-    $desc$Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.$desc$,
+    'Premier New Kingston weekend kickoff at the Pegasus tropical pool lounge with live acoustic entertainment and barbecue grill stations.',
     'Social & Music',
     '81 Knutsford Blvd, New Kingston',
-    $venue$The Jamaica Pegasus Hotel (Pool Lounge)$venue$,
+    'The Jamaica Pegasus Hotel (Pool Lounge)',
     NOW() + INTERVAL '4 days',
     200,
     '100 Proof Points',
@@ -164,10 +188,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000004',
     'Kingston Dub Club Sunday Roots Session',
-    $desc$Legendary weekly hilltop sound system gathering overlooking city lights. Authentic dub plates and strictly conscious vibes.$desc$,
+    'Legendary weekly hilltop sound system gathering overlooking city lights. Authentic dub plates and strictly conscious vibes.',
     'Music & Roots',
     'Skyline Drive, Jacks Hill, Kingston',
-    $venue$Kingston Dub Club$venue$,
+    'Kingston Dub Club',
     NOW() + INTERVAL '6 days',
     300,
     '100 Proof Points',
@@ -178,10 +202,10 @@ VALUES
   (
     '00000000-0000-0000-0002-000000000015',
     'Downtown Kingston Creative Artwalk & Mural Tour',
-    $desc$Free public cultural festival celebrating street murals, live performances, local crafts, and historic lane tours.$desc$,
+    'Free public cultural festival celebrating street murals, live performances, local crafts, and historic lane tours.',
     'Arts & Heritage',
     'Water Lane & Church St, Downtown Kingston',
-    $venue$Downtown Art District$venue$,
+    'Downtown Art District',
     NOW() + INTERVAL '12 days',
     500,
     '150 Proof Points + Badge',
@@ -231,37 +255,43 @@ SELECT '00000000-0000-0000-0002-000000000015'::uuid, s.id, 'featured'
 FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
 ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 
--- 5. Seed Discovery Intelligence Questions & Options (Populating both discovery_id and question_id)
-DO $$
-DECLARE
-  v_food_scene_id UUID;
-  v_dark_scene_id UUID;
-  v_q1_id UUID := '00000000-0000-0000-0003-000000000001'::uuid;
-  v_q2_id UUID := '00000000-0000-0000-0003-000000000002'::uuid;
-BEGIN
-  SELECT id INTO v_food_scene_id FROM public.scenes WHERE slug = 'food-and-taste' LIMIT 1;
-  SELECT id INTO v_dark_scene_id FROM public.scenes WHERE slug = 'kingston-after-dark' LIMIT 1;
+-- 5. Seed Discovery Questions directly with dynamic subqueries (No PL/pgSQL DO blocks needed)
+INSERT INTO public.discovery_questions (id, scene_id, question, category, author_name, total_votes, threshold_for_moment)
+VALUES
+  (
+    '00000000-0000-0000-0003-000000000001',
+    (SELECT id FROM public.scenes WHERE slug = 'food-and-taste' LIMIT 1),
+    'What should Promorang make happen in Kingston next?',
+    'Market Intelligence',
+    'Kingston Culture Desk',
+    42,
+    50
+  ),
+  (
+    '00000000-0000-0000-0003-000000000002',
+    (SELECT id FROM public.scenes WHERE slug = 'kingston-after-dark' LIMIT 1),
+    'Which midweek after-work hangout spot needs better exclusive perks?',
+    'Nightlife & Dining',
+    'Promorang Community Guild',
+    29,
+    40
+  )
+ON CONFLICT (id) DO UPDATE SET
+  scene_id = EXCLUDED.scene_id,
+  question = EXCLUDED.question;
 
-  INSERT INTO public.discovery_questions (id, scene_id, question, category, author_name, total_votes, threshold_for_moment)
-  VALUES
-    (v_q1_id, v_food_scene_id, 'What should Promorang make happen in Kingston next?', 'Market Intelligence', 'Kingston Culture Desk', 42, 50),
-    (v_q2_id, v_dark_scene_id, 'Which midweek after-work hangout spot needs better exclusive perks?', 'Nightlife & Dining', 'Promorang Community Guild', 29, 40)
-  ON CONFLICT (id) DO UPDATE SET
-    scene_id = EXCLUDED.scene_id,
-    question = EXCLUDED.question;
-
-  INSERT INTO public.discovery_options (id, discovery_id, question_id, option_text, votes_count)
-  VALUES
-    ('00000000-0000-0000-0004-000000000001', v_q1_id, v_q1_id, 'FAT Wednesdays at Tracks & Records VIP pass', 22),
-    ('00000000-0000-0000-0004-000000000002', v_q1_id, v_q1_id, 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
-    ('00000000-0000-0000-0004-000000000003', v_q1_id, v_q1_id, 'Sunset High Tea & Coffee Cupping in Irish Town', 6),
-    ('00000000-0000-0000-0004-000000000004', v_q2_id, v_q2_id, 'Pegasus Poolside Lyme & Barbecue', 16),
-    ('00000000-0000-0000-0004-000000000005', v_q2_id, v_q2_id, 'Tacbar Taco Tuesday at Devon House', 9),
-    ('00000000-0000-0000-0004-000000000006', v_q2_id, v_q2_id, 'AC Hotel Lounge Tapas & Mixology', 4)
-  ON CONFLICT (id) DO UPDATE SET
-    discovery_id = EXCLUDED.discovery_id,
-    question_id = EXCLUDED.question_id,
-    option_text = EXCLUDED.option_text;
-END $$;
+-- 6. Seed Discovery Options
+INSERT INTO public.discovery_options (id, discovery_id, question_id, option_text, votes_count)
+VALUES
+  ('00000000-0000-0000-0004-000000000001', '00000000-0000-0000-0003-000000000001', '00000000-0000-0000-0003-000000000001', 'FAT Wednesdays at Tracks and Records VIP pass', 22),
+  ('00000000-0000-0000-0004-000000000002', '00000000-0000-0000-0003-000000000001', '00000000-0000-0000-0003-000000000001', 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
+  ('00000000-0000-0000-0004-000000000003', '00000000-0000-0000-0003-000000000001', '00000000-0000-0000-0003-000000000001', 'Sunset High Tea and Coffee Cupping in Irish Town', 6),
+  ('00000000-0000-0000-0004-000000000004', '00000000-0000-0000-0003-000000000002', '00000000-0000-0000-0003-000000000002', 'Pegasus Poolside Lyme and Barbecue', 16),
+  ('00000000-0000-0000-0004-000000000005', '00000000-0000-0000-0003-000000000002', '00000000-0000-0000-0003-000000000002', 'Tacbar Taco Tuesday at Devon House', 9),
+  ('00000000-0000-0000-0004-000000000006', '00000000-0000-0000-0003-000000000002', '00000000-0000-0000-0003-000000000002', 'AC Hotel Lounge Tapas and Mixology', 4)
+ON CONFLICT (id) DO UPDATE SET
+  discovery_id = EXCLUDED.discovery_id,
+  question_id = EXCLUDED.question_id,
+  option_text = EXCLUDED.option_text;
 
 NOTIFY pgrst, 'reload schema';
