@@ -1,10 +1,10 @@
 -- ============================================================
 -- MIGRATION: 202608170001_seed_kingston_scenes_moments_radar.sql
--- Description: Dynamic ID resolution for Scenes and Moments seeding
---              Guarantees zero foreign-key constraint violations.
+-- Description: Fully reconciled Kingston Scenes, Moments, 
+--              Discovery Polls, and PromoKey schemas.
 -- ============================================================
 
--- 1. Ensure Supporting Tables exist for Market Construction & Radar
+-- 1. Ensure Supporting Tables and Columns exist (Handles both discovery_id and question_id column names)
 CREATE TABLE IF NOT EXISTS public.discovery_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     scene_id UUID REFERENCES public.scenes(id) ON DELETE SET NULL,
@@ -20,11 +20,17 @@ CREATE TABLE IF NOT EXISTS public.discovery_questions (
 
 CREATE TABLE IF NOT EXISTS public.discovery_options (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    question_id UUID NOT NULL REFERENCES public.discovery_questions(id) ON DELETE CASCADE,
+    discovery_id UUID REFERENCES public.discovery_questions(id) ON DELETE CASCADE,
     option_text TEXT NOT NULL,
     votes_count INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Safely add discovery_id and question_id columns to discovery_options so both naming patterns work
+ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS discovery_id UUID REFERENCES public.discovery_questions(id) ON DELETE CASCADE;
+ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS question_id UUID REFERENCES public.discovery_questions(id) ON DELETE CASCADE;
+ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS votes_count INTEGER DEFAULT 0;
+ALTER TABLE public.discovery_options ADD COLUMN IF NOT EXISTS option_text TEXT;
 
 CREATE TABLE IF NOT EXISTS public.promokey_claims (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -194,7 +200,7 @@ ON CONFLICT (id) DO UPDATE SET
   is_active = EXCLUDED.is_active,
   updated_at = NOW();
 
--- 4. Dynamically Link Moments to Scenes using slug lookups (Guarantees FK integrity)
+-- 4. Dynamically Link Moments to Scenes using slug lookups
 INSERT INTO public.moment_scene_links (moment_id, scene_id, relationship)
 SELECT '00000000-0000-0000-0002-000000000025'::uuid, s.id, 'featured'
 FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
@@ -225,7 +231,7 @@ SELECT '00000000-0000-0000-0002-000000000015'::uuid, s.id, 'featured'
 FROM public.scenes s WHERE s.slug = 'kingston-after-dark'
 ON CONFLICT (moment_id, scene_id, relationship) DO NOTHING;
 
--- 5. Seed Discovery Intelligence Questions with Dynamic Scene FK resolution
+-- 5. Seed Discovery Intelligence Questions & Options (Populating both discovery_id and question_id)
 DO $$
 DECLARE
   v_food_scene_id UUID;
@@ -244,15 +250,18 @@ BEGIN
     scene_id = EXCLUDED.scene_id,
     question = EXCLUDED.question;
 
-  INSERT INTO public.discovery_options (id, question_id, option_text, votes_count)
+  INSERT INTO public.discovery_options (id, discovery_id, question_id, option_text, votes_count)
   VALUES
-    ('00000000-0000-0000-0004-000000000001', v_q1_id, 'FAT Wednesdays at Tracks & Records VIP pass', 22),
-    ('00000000-0000-0000-0004-000000000002', v_q1_id, 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
-    ('00000000-0000-0000-0004-000000000003', v_q1_id, 'Sunset High Tea & Coffee Cupping in Irish Town', 6),
-    ('00000000-0000-0000-0004-000000000004', v_q2_id, 'Pegasus Poolside Lyme & Barbecue', 16),
-    ('00000000-0000-0000-0004-000000000005', v_q2_id, 'Tacbar Taco Tuesday at Devon House', 9),
-    ('00000000-0000-0000-0004-000000000006', v_q2_id, 'AC Hotel Lounge Tapas & Mixology', 4)
-  ON CONFLICT (id) DO NOTHING;
+    ('00000000-0000-0000-0004-000000000001', v_q1_id, v_q1_id, 'FAT Wednesdays at Tracks & Records VIP pass', 22),
+    ('00000000-0000-0000-0004-000000000002', v_q1_id, v_q1_id, 'Friday Courtyard Open House at Steakhouse on the Verandah', 14),
+    ('00000000-0000-0000-0004-000000000003', v_q1_id, v_q1_id, 'Sunset High Tea & Coffee Cupping in Irish Town', 6),
+    ('00000000-0000-0000-0004-000000000004', v_q2_id, v_q2_id, 'Pegasus Poolside Lyme & Barbecue', 16),
+    ('00000000-0000-0000-0004-000000000005', v_q2_id, v_q2_id, 'Tacbar Taco Tuesday at Devon House', 9),
+    ('00000000-0000-0000-0004-000000000006', v_q2_id, v_q2_id, 'AC Hotel Lounge Tapas & Mixology', 4)
+  ON CONFLICT (id) DO UPDATE SET
+    discovery_id = EXCLUDED.discovery_id,
+    question_id = EXCLUDED.question_id,
+    option_text = EXCLUDED.option_text;
 END $$;
 
 NOTIFY pgrst, 'reload schema';
