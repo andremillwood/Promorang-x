@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Compass,
@@ -538,6 +539,7 @@ const SAMPLE_DISCOVERIES: DiscoveryProps[] = [
 
 export default function OpportunityRadar() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'NOW' | 'DISCOVER' | 'UNLOCK' | 'SCENES'>('NOW');
   const [selectedIntent, setSelectedIntent] = useState<IntentType | 'ALL'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
@@ -557,9 +559,7 @@ export default function OpportunityRadar() {
   };
 
   const handleViewDetails = (momentId: string) => {
-    const target = SAMPLE_MOMENTS.find(m => m.id === momentId) || SAMPLE_MOMENTS[0];
-    setActiveDetailMoment(target);
-    setDetailModalOpen(true);
+    navigate(`/moments/${momentId}`);
   };
 
   const filteredMoments = SAMPLE_MOMENTS.filter(moment => {

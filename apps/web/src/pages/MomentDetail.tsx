@@ -25,6 +25,8 @@ import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { demoMoments } from "@/data/demo-moments";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
+import type { MomentProps } from "@/components/radar/MomentCard";
 import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
@@ -900,7 +902,7 @@ const MomentDetail = () => {
                 {/* Perk Highlight Box */}
                 <section className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#121215] to-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
                   <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <Trophy className="h-4 w-4" /> Attendee Perk
+                    <Trophy className="h-4 w-4" /> Attendee Perk & Points
                   </div>
                   <h2 className="text-xl sm:text-2xl font-extrabold text-white">What You Receive</h2>
 
@@ -916,6 +918,85 @@ const MomentDetail = () => {
                     </div>
                   </div>
                 </section>
+
+                {/* Sub-Moments & Scout Missions */}
+                {(() => {
+                  const subMoments = getSubMomentsForMoment({
+                    id: moment.id,
+                    title: moment.title,
+                    description: moment.description || "",
+                    intentType: "ATTEND",
+                    ownership: "EDITORIAL DISCOVERY",
+                    venueName: moment.venue_name || moment.location || "",
+                    location: moment.location || "",
+                    dateDisplay: displayStartsAt,
+                    image: galleryImages[0]?.url || "",
+                    promoKeysAvailable: 5,
+                    subMomentsCount: 3,
+                    attendeesCount: participantCount,
+                    pointsReward: 100,
+                    isClaimed: false,
+                  });
+
+                  if (!subMoments || subMoments.length === 0) return null;
+
+                  return (
+                    <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-6 shadow-xl">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
+                            <Sparkles className="h-4 w-4" /> Interactive Micro-Actions
+                          </div>
+                          <h3 className="text-xl font-extrabold text-white">Sub-Moments & Scout Missions ({subMoments.length})</h3>
+                        </div>
+                        <Badge className="bg-[#ff5500]/20 text-[#ff5500] border-none font-bold text-xs px-3 py-1">
+                          +{subMoments.reduce((sum, s) => sum + s.points, 0)} Total Points
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-3">
+                        {subMoments.map((sub, idx) => (
+                          <div
+                            key={sub.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-[#ff5500]/40 hover:bg-white/10"
+                          >
+                            <div className="flex items-start gap-3.5">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white font-bold text-xs">
+                                {idx + 1}
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-bold text-white text-sm">{sub.title}</h4>
+                                  <span className="text-[10px] font-semibold text-white/50 bg-black/40 px-2 py-0.5 rounded-full border border-white/10">
+                                    {sub.timeWindow}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-white/60 leading-relaxed max-w-xl">{sub.description}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                              <span className="font-extrabold text-xs text-[#ff5500]">+{sub.points} pts</span>
+                              <Button
+                                size="sm"
+                                className="rounded-xl bg-white text-black hover:bg-white/90 font-bold text-xs px-4"
+                                onClick={() => {
+                                  if (isJoined) {
+                                    navigate(`/moments/${moment.id}/checkin`);
+                                  } else {
+                                    handleJoin();
+                                  }
+                                }}
+                              >
+                                {isJoined ? "Complete Mission" : "Unlock Mission"}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })()}
 
                 {/* Check-In Instructions */}
                 <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
