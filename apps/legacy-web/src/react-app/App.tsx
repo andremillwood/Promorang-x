@@ -157,43 +157,48 @@ const TodayLayout = ({ children, title }: { children: ReactNode; title?: string 
   const location = useLocation();
   return (
     <ProtectedRoute>
-      <div className="min-h-screen-dynamic bg-[#08060a]">
-        {/* Minimal Airbnb-style header */}
-        <header className="sticky top-0 z-40 bg-[#08060a]/80 backdrop-blur-xl">
-          <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div className="min-h-screen-dynamic bg-[#08060a] text-white">
+        {/* Modern Promorang Header */}
+        <header className="sticky top-0 z-40 bg-[#08060a]/90 backdrop-blur-xl border-b border-white/5">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em] leading-none mb-0.5">{title || 'Home'}</span>
+              <Link to="/today" className="flex items-center gap-2 group">
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FF5500] to-[#CC4400] flex items-center justify-center text-white font-black text-xs shadow-md shadow-[#FF5500]/20">
+                  P
+                </div>
+                <span className="text-xs font-black uppercase tracking-[0.25em] text-white group-hover:text-[#FF5500] transition-colors">{title || 'Today Hub'}</span>
+              </Link>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-[8px] font-black text-white/40 uppercase tracking-[0.3em] leading-none">Presence Live</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse" />
+              <span className="text-[10px] font-mono font-bold text-white/50 uppercase tracking-widest">Live Engine</span>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="max-w-4xl mx-auto pb-32">
+        <main className="max-w-5xl mx-auto pb-32">
           {children}
         </main>
 
-        {/* Minimal Bottom Nav */}
-        <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#0c0a0f]/90 backdrop-blur-2xl safe-area-bottom border-t border-white/5">
-          <div className="max-w-md mx-auto px-6 py-5 flex items-center justify-around">
-            <Link to="/today" className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/today' ? 'text-amber-500 scale-110' : 'text-white/30 hover:text-white/50'}`}>
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#0c0a0f]/95 backdrop-blur-2xl safe-area-bottom border-t border-white/10">
+          <div className="max-w-md mx-auto px-6 py-3.5 flex items-center justify-around">
+            <Link to="/today" className={`flex flex-col items-center gap-1 transition-all ${location.pathname === '/today' || location.pathname === '/dashboard' ? 'text-[#FF5500] scale-105 font-bold' : 'text-white/40 hover:text-white/70'}`}>
               <ShieldCheck className="w-5 h-5" />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none">Journal</span>
+              <span className="text-[9px] uppercase tracking-wider leading-none">Today</span>
             </Link>
-            <Link to="/moments" className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/moments' ? 'text-amber-500 scale-110' : 'text-white/30 hover:text-white/50'}`}>
+            <Link to="/moments" className={`flex flex-col items-center gap-1 transition-all ${location.pathname === '/moments' ? 'text-[#FF5500] scale-105 font-bold' : 'text-white/40 hover:text-white/70'}`}>
               <Globe className="w-5 h-5" />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none">Around Me</span>
+              <span className="text-[9px] uppercase tracking-wider leading-none">Explore</span>
             </Link>
-            <Link to="/moments/create" className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname.startsWith('/moments/create') || location.pathname.includes('manage') ? 'text-amber-500 scale-110' : 'text-white/30 hover:text-white/50'}`}>
+            <Link to="/moments/create" className={`flex flex-col items-center gap-1 transition-all ${location.pathname.startsWith('/moments/create') || location.pathname.includes('create') ? 'text-[#FF5500] scale-105 font-bold' : 'text-white/40 hover:text-white/70'}`}>
               <Plus className="w-5 h-5" />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none">Host</span>
+              <span className="text-[9px] uppercase tracking-wider leading-none">Create</span>
             </Link>
-            <Link to="/profile" className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname.startsWith('/profile') || location.pathname === '/recognition' || location.pathname === '/canon' ? 'text-amber-500 scale-110' : 'text-white/30 hover:text-white/50'}`}>
+            <Link to="/profile" className={`flex flex-col items-center gap-1 transition-all ${location.pathname.startsWith('/profile') || location.pathname === '/wallet' ? 'text-[#FF5500] scale-105 font-bold' : 'text-white/40 hover:text-white/70'}`}>
               <UserIcon className="w-5 h-5" />
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none">Story</span>
+              <span className="text-[9px] uppercase tracking-wider leading-none">Vault</span>
             </Link>
           </div>
         </nav>

@@ -64,24 +64,20 @@ ALTER TABLE public.discovery_options ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.promokey_claims ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketplace_crm_leads ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_questions' AND policyname = 'Allow public read discovery questions') THEN
-    CREATE POLICY "Allow public read discovery questions" ON public.discovery_questions FOR SELECT USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_options' AND policyname = 'Allow public read discovery options') THEN
-    CREATE POLICY "Allow public read discovery options" ON public.discovery_options FOR SELECT USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discovery_options' AND policyname = 'Allow authenticated vote discovery options') THEN
-    CREATE POLICY "Allow authenticated vote discovery options" ON public.discovery_options FOR UPDATE USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'promokey_claims' AND policyname = 'Allow user access own promokeys') THEN
-    CREATE POLICY "Allow user access own promokeys" ON public.promokey_claims FOR ALL USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'marketplace_crm_leads' AND policyname = 'Allow insert crm leads') THEN
-    CREATE POLICY "Allow insert crm leads" ON public.marketplace_crm_leads FOR INSERT WITH CHECK (true);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Allow public read discovery questions" ON public.discovery_questions;
+CREATE POLICY "Allow public read discovery questions" ON public.discovery_questions FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public read discovery options" ON public.discovery_options;
+CREATE POLICY "Allow public read discovery options" ON public.discovery_options FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated vote discovery options" ON public.discovery_options;
+CREATE POLICY "Allow authenticated vote discovery options" ON public.discovery_options FOR UPDATE USING (true);
+
+DROP POLICY IF EXISTS "Allow user access own promokeys" ON public.promokey_claims;
+CREATE POLICY "Allow user access own promokeys" ON public.promokey_claims FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow insert crm leads" ON public.marketplace_crm_leads;
+CREATE POLICY "Allow insert crm leads" ON public.marketplace_crm_leads FOR INSERT WITH CHECK (true);
 
 -- 2. Seed / Upsert Kingston Scenes by slug
 INSERT INTO public.scenes (title, slug, description, city, country, image_url, visibility, status, metadata)

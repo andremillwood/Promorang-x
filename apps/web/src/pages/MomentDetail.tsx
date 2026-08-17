@@ -421,6 +421,10 @@ const MomentDetail = () => {
   }, [resolvedMomentId]);
 
   useEffect(() => {
+    fetchMoment();
+  }, [fetchMoment]);
+
+  useEffect(() => {
     if (resolvedMomentId && user) {
       fetchProofRequirements();
     }
