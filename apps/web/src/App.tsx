@@ -144,6 +144,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PromorangPresents = lazy(() => import("./pages/PromorangPresents"));
 const PromorangAccess = lazy(() => import("./pages/PromorangAccess"));
 const PromorangCrew = lazy(() => import("./pages/PromorangCrew"));
+const OpportunityRadar = lazy(() => import("./pages/OpportunityRadar"));
 
 // Campaign Expansion Pages
 const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
@@ -253,6 +254,8 @@ const App = () => (
                     <Route path="/discover/venues" element={<ExploreVenues />} />
                     <Route path="/discover/rewards" element={<ExploreRewards />} />
                     <Route path="/discover/content" element={<ExploreContent />} />
+                    <Route path="/radar" element={<OpportunityRadar />} />
+                    <Route path="/opportunity-radar" element={<OpportunityRadar />} />
                     <Route path="/explore/moments" element={<Navigate to="/discover/moments" replace />} />
                     <Route path="/explore/venues" element={<Navigate to="/discover/venues" replace />} />
                     <Route path="/explore/rewards" element={<Navigate to="/discover/rewards" replace />} />
