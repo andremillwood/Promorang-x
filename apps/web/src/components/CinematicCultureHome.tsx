@@ -384,21 +384,10 @@ export default function CinematicCultureHome() {
         merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
         price: formatCommercePrice(listing),
         image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
-        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop",
+        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/radar",
         isSample: false,
       }))
-    : showSamples
-      ? (sampleCommerceListings.length ? sampleCommerceListings.slice(0, 4).map((listing, index) => ({
-          id: listing.listing_id || listing.source_id || `sample-listing-${index}`,
-          kind: commerceKind(listing),
-          title: listing.name || "Sample offer",
-          merchant: listing.merchant_name || listing.venue_name || "Sample merchant",
-          price: formatCommercePrice(listing),
-          image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
-          href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop",
-          isSample: true,
-        })) : commerceFallback.map((listing) => ({ ...listing, isSample: true })))
-      : [];
+    : commerceFallback.map((listing) => ({ ...listing, isSample: false }));
 
   const heroItems = [
     ...(discoveryQuery.data?.moments || []).map((moment) => ({

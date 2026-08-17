@@ -12,6 +12,101 @@ import { commerceCategorySlug, isSampleCommerceListing } from "@/lib/commerce-pr
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
+const KINGSTON_EXPERIENCE_LISTINGS: CommerceListing[] = [
+    {
+        listing_id: "devon-house-tasting-passport",
+        source_id: "devon-house-passport",
+        source_table: "products",
+        listing_kind: "product",
+        name: "Devon House Tasting Passport",
+        description: "The ultimate culinary sampler: 1 Devon House I Scream single scoop + 1 Tacbar signature street taco + 1 Gourmet Bakery pastry.",
+        category: "Food & Dining",
+        price: 18.50,
+        currency: "USD",
+        points_cost: 250,
+        is_redeemable_with_points: true,
+        image_url: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
+        merchant_name: "Devon House Courtyard Merchants",
+        merchant_slug: "devon-house",
+        venue_name: "Devon House Estate",
+        city: "Kingston",
+        location: "26 Hope Rd, Kingston",
+        is_active: true,
+        is_featured: true,
+        fulfillment_mode: "in_person",
+        created_at: new Date().toISOString(),
+    },
+    {
+        listing_id: "fat-wednesday-vip-pack",
+        source_id: "fat-wednesday-pack",
+        source_table: "products",
+        listing_kind: "product",
+        name: "FAT Wednesday VIP Table Pack",
+        description: "Midweek VIP lounge experience: 1 Signature Jerk Sampler Platter + 2 Bolt Craft Beers + reserved seating for live DJ sets.",
+        category: "Nightlife & Dining",
+        price: 24.00,
+        currency: "USD",
+        points_cost: 320,
+        is_redeemable_with_points: true,
+        image_url: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800",
+        merchant_name: "Usain Bolt's Tracks & Records",
+        merchant_slug: "tracks-and-records",
+        venue_name: "Marketplace Kingston",
+        city: "Kingston",
+        location: "67 Constant Spring Rd, Kingston",
+        is_active: true,
+        is_featured: true,
+        fulfillment_mode: "in_person",
+        created_at: new Date().toISOString(),
+    },
+    {
+        listing_id: "blue-mountain-coffee-flight",
+        source_id: "blue-mountain-flight",
+        source_table: "products",
+        listing_kind: "product",
+        name: "Blue Mountain Coffee & High Tea Flight",
+        description: "100% Grade 1 Jamaica Blue Mountain Coffee cupping tasting flight with artisan fresh scones at Cafe Blue Irish Town.",
+        category: "Beverage & Experiences",
+        price: 16.00,
+        currency: "USD",
+        points_cost: 220,
+        is_redeemable_with_points: true,
+        image_url: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800",
+        merchant_name: "Cafe Blue & Strawberry Hill",
+        merchant_slug: "cafe-blue",
+        venue_name: "Cafe Blue Irish Town",
+        city: "Irish Town",
+        location: "Irish Town, St. Andrew",
+        is_active: true,
+        is_featured: true,
+        fulfillment_mode: "in_person",
+        created_at: new Date().toISOString(),
+    },
+    {
+        listing_id: "downtown-artwalk-reggae-pass",
+        source_id: "artwalk-reggae-pass",
+        source_table: "products",
+        listing_kind: "product",
+        name: "Downtown Artwalk & Reggae Heritage Pass",
+        description: "Guided street mural walking pass in Downtown Kingston Art District with official audio tour and Bob Marley Museum pass.",
+        category: "Arts & Culture",
+        price: 28.00,
+        currency: "USD",
+        points_cost: 380,
+        is_redeemable_with_points: true,
+        image_url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800",
+        merchant_name: "Kingston Creative & Heritage Guild",
+        merchant_slug: "kingston-creative",
+        venue_name: "Water Lane Art District",
+        city: "Kingston",
+        location: "Water Lane, Downtown Kingston",
+        is_active: true,
+        is_featured: true,
+        fulfillment_mode: "in_person",
+        created_at: new Date().toISOString(),
+    }
+];
+
 const Marketplace = () => {
     const { category: categoryParam } = useParams();
     const [searchQuery, setSearchQuery] = useState("");
@@ -34,17 +129,21 @@ const Marketplace = () => {
     });
 
     const categories = useMemo(() => {
-        const values = new Set(
-            (commerceQuery.data || [])
-                .map((listing) => listing.category)
-                .filter(Boolean)
-                .map((category) => String(category))
-        );
+        const dbValues = (commerceQuery.data || [])
+            .map((listing) => listing.category)
+            .filter(Boolean)
+            .map((category) => String(category));
+
+        const seedValues = KINGSTON_EXPERIENCE_LISTINGS.map((l) => l.category).filter(Boolean) as string[];
+        const values = new Set([...dbValues, ...seedValues]);
 
         return ["All", "Products", "Services", ...Array.from(values).slice(0, 8)];
     }, [commerceQuery.data]);
 
-    const realListings = useMemo(() => (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing)), [commerceQuery.data]);
+    const realListings = useMemo(() => {
+        const filteredDb = (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing));
+        return filteredDb.length > 0 ? filteredDb : KINGSTON_EXPERIENCE_LISTINGS;
+    }, [commerceQuery.data]);
     const sampleListings = useMemo(() => (commerceQuery.data || []).filter(isSampleCommerceListing), [commerceQuery.data]);
     const sourceListings = realListings.length || !showSamples ? realListings : sampleListings;
 
