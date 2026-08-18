@@ -154,6 +154,8 @@ const GemRushPage = lazy(() => import("./pages/GemRushPage"));
 const ActionDetail = lazy(() => import("./pages/ActionDetail"));
 const LeadMagnetFunnels = lazy(() => import("./pages/LeadMagnetFunnels"));
 const CampaignLanding = lazy(() => import("./pages/CampaignLanding"));
+const ArlaCampaignHub = lazy(() => import("./pages/ArlaCampaignHub"));
+const ArlaCommercialProposal = lazy(() => import("./pages/ArlaCommercialProposal"));
 const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
@@ -193,6 +195,11 @@ const App = () => (
                     <Route path="/access" element={<PromorangAccess />} />
                     <Route path="/crew" element={<PromorangCrew />} />
                     <Route path="/passport" element={<PromorangCrew />} />
+                    <Route path="/campaigns/arla-whip-and-cook" element={<ArlaCampaignHub />} />
+                    <Route path="/campaigns/arla" element={<ArlaCampaignHub />} />
+                    <Route path="/arla" element={<ArlaCampaignHub />} />
+                    <Route path="/proposals/arla-pro" element={<ArlaCommercialProposal />} />
+                    <Route path="/proposals/arla" element={<ArlaCommercialProposal />} />
                     <Route path="/campaigns/:campaign" element={<CampaignLanding />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />

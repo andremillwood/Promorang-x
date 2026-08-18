@@ -50,6 +50,76 @@ const categoryFilters = [
 
 const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [
   {
+    id: 'disc-arla-tasteoff-001',
+    question: 'Rasta Pasta or Chocolate Chip Mousse: Which one wins the PriceSmart Taste-Off?',
+    category: 'Arla Taste-Off 🍝🍫',
+    authorName: 'Arla Pro × Promorang Scout',
+    totalVotes: 184,
+    thresholdForMoment: 200,
+    options: [
+      { id: 'opt-arla-pasta', text: '🍝 Team Rasta Pasta (Hot & Savoury)', votes: 98 },
+      { id: 'opt-arla-mousse', text: '🍫 Team Chocolate Chip Mousse (Cold & Whipped)', votes: 86 }
+    ]
+  },
+  {
+    id: 'disc-arla-mode-002',
+    question: 'Whip It, Cook It, or Drink It: If you get one carton of Arla Whip & Cook right now, what happens first?',
+    category: 'Product Mode 🍳🍰🥤',
+    authorName: 'Taste Collective Jamaica',
+    totalVotes: 126,
+    thresholdForMoment: 150,
+    options: [
+      { id: 'opt-arla-cook', text: '🍳 Cook It (Alfredo, creamy chicken, seafood pasta)', votes: 58 },
+      { id: 'opt-arla-whip', text: '🍰 Whip It (Mousse, cheesecake, cake toppings)', votes: 46 },
+      { id: 'opt-arla-drink', text: '🥤 Drink It (Strong Back punch, specialty coffee)', votes: 22 }
+    ]
+  },
+  {
+    id: 'disc-arla-price-003',
+    question: 'What would you expect to pay for a 1L cream designed for both cooking AND whipping?',
+    category: 'Price Perception 💡',
+    authorName: 'Retail Intelligence Scout',
+    totalVotes: 158,
+    thresholdForMoment: 160,
+    options: [
+      { id: 'opt-p1', text: 'Under J$1,000', votes: 14 },
+      { id: 'opt-p2', text: 'J$1,000 – J$1,499 (Roadshow Price approx. J$1,200)', votes: 48 },
+      { id: 'opt-p3', text: 'J$1,500 – J$1,999', votes: 52 },
+      { id: 'opt-p4', text: 'J$2,000 – J$2,499', votes: 28 },
+      { id: 'opt-p5', text: 'J$2,500+ (Stated Regular approx. J$2,700)', votes: 16 }
+    ]
+  },
+  {
+    id: 'disc-summer-end-001',
+    question: 'How are you ending summer 2026 in Jamaica?',
+    category: 'Summer Finale ☀️',
+    authorName: 'Promorang Culture Guild',
+    totalVotes: 142,
+    thresholdForMoment: 150,
+    options: [
+      { id: 'opt-se1', text: 'Beach party & oceanfront vibes', votes: 68 },
+      { id: 'opt-se2', text: 'Live concert & conscious stage show', votes: 42 },
+      { id: 'opt-se3', text: 'Club night & high-energy indoor party', votes: 19 },
+      { id: 'opt-se4', text: 'Something chill & food/lounge lyme', votes: 9 },
+      { id: 'opt-se5', text: 'Haven’t decided yet', votes: 4 }
+    ]
+  },
+  {
+    id: 'disc-live-music-002',
+    question: 'What gets you out for a live experience?',
+    category: 'Live Culture 🎤',
+    authorName: 'Midas Live Scout',
+    totalVotes: 98,
+    thresholdForMoment: 100,
+    options: [
+      { id: 'opt-lm1', text: 'Reggae & conscious roots vibration', votes: 44 },
+      { id: 'opt-lm2', text: 'Dancehall energy & top selectors', votes: 29 },
+      { id: 'opt-lm3', text: 'Afrobeats & crossover rhythm', votes: 12 },
+      { id: 'opt-lm4', text: 'Hip Hop & sound clashes', votes: 7 },
+      { id: 'opt-lm5', text: 'Depends strictly on who is performing', votes: 6 }
+    ]
+  },
+  {
     id: 'disc-debate-001',
     question: 'Which Kingston jerk spot is undisputed King on a Friday evening?',
     category: 'Cultural Debate 🔥',

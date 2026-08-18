@@ -204,7 +204,9 @@ const MomentDetail = () => {
       // 1. Direct Curated Kingston / Promorang Presents matching (instant, no network lag)
       const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
         if (m.id.toLowerCase() === cleanId) return true;
-        if (cleanId === "encore" && (m.id.includes("0002") || m.title.toLowerCase().includes("encore"))) return true;
+        if (cleanId.includes("sophisticated") && m.title.toLowerCase().includes("sophisticated")) return true;
+        if ((cleanId === "encore-live" || cleanId.includes("capleton") || cleanId.includes("encore-live")) && m.title.toLowerCase().includes("capleton")) return true;
+        if (cleanId === "encore" && !m.title.toLowerCase().includes("capleton") && (m.id.includes("0002") || m.title.toLowerCase().includes("encore"))) return true;
         if ((cleanId === "ilhh" || cleanId === "i-luv-hip-hop" || cleanId.includes("hip-hop") || cleanId.includes("hip hop")) && (m.id.includes("0001") || m.title.toLowerCase().includes("hip hop"))) return true;
         const normalizedTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
         const normalizedInput = cleanId.replace(/[^a-z0-9]/g, '');

@@ -27,6 +27,56 @@ export function getSubMomentsForMoment(moment: MomentProps | null): SubMoment[] 
   const titleLower = moment.title.toLowerCase();
   const venueLower = moment.venueName.toLowerCase();
 
+  if (titleLower.includes('arla') || titleLower.includes('whip & cook') || venueLower.includes('pricesmart') || titleLower.includes('pricesmart')) {
+    return [
+      {
+        id: 'sub-arla-1',
+        title: 'Taste It Cooked — Rasta Pasta',
+        timeWindow: '10:00 AM – 8:00 PM',
+        description: 'Taste the hot, creamy Jamaican Rasta Pasta sample cooked with Arla Whip & Cook. Rate 1-5 and log if you would make it at home.',
+        points: 40,
+        missionType: 'TASTING_PROOF',
+        rewardType: 'POINTS'
+      },
+      {
+        id: 'sub-arla-2',
+        title: 'Taste It Whipped — Chocolate Chip Mousse',
+        timeWindow: '10:00 AM – 8:00 PM',
+        description: 'Taste the cold, airy Chocolate Chip Mousse whipped with the exact same 28% cream. Rate 1-5 and test your dual-use knowledge.',
+        points: 40,
+        missionType: 'TASTING_PROOF',
+        rewardType: 'POINTS'
+      },
+      {
+        id: 'sub-arla-3',
+        title: 'The Taste-Off — Rasta Pasta vs Chocolate Chip Mousse',
+        timeWindow: 'Live All Day (10:00 AM – 8:00 PM)',
+        description: 'Taste both samples and cast your vote: Team Rasta Pasta 🍝 or Team Chocolate Chip Mousse 🍫. Real votes shape live rankings.',
+        points: 50,
+        missionType: 'TASTING_PROOF',
+        rewardType: 'EXCLUSIVE_KEY'
+      },
+      {
+        id: 'sub-arla-4',
+        title: 'Roadshow Deal — Get Arla Whip & Cook for J$1,200',
+        timeWindow: '10:00 AM – 8:00 PM',
+        description: 'Claim the J$1,200 roadshow offer (approx. J$1,500 / 56% savings vs advised regular J$2,700 price). On-ground promoters can confirm purchases.',
+        points: 60,
+        missionType: 'CHECK_IN',
+        rewardType: 'EXCLUSIVE_KEY'
+      },
+      {
+        id: 'sub-arla-5',
+        title: 'Did You Catch the Strong Back? (Conditional Bonus)',
+        timeWindow: 'Surprise / Unscheduled Drop',
+        description: 'Catch the occasional Jamaican Strong Back Punch drop made with Arla Whip & Cook (not guaranteed daily). Tell us which use surprised you most.',
+        points: 50,
+        missionType: 'CONTENT_DROP',
+        rewardType: 'BEVERAGE_TOKEN'
+      }
+    ];
+  }
+
   if (titleLower.includes('tacbar') || venueLower.includes('tacbar')) {
     return [
       {
