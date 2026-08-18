@@ -1,9 +1,8 @@
 -- =============================================================================
--- Migration: Seed Curated Kingston Venues, Scenes, Moments & Discoveries
--- Timestamp: 2026-08-17
--- Description: Ensures all canonical venues, moments, and scenes exist in 
---              Supabase so that card clicks, public directory views, and 
---              detail pages resolve without relying solely on client fallbacks.
+-- Migration: 202608170001_seed_curated_venues_and_moments.sql
+-- Description: Robust, schema-safe seed for Scenes, Venues, and Moments.
+--              Compatible with existing public.scenes (using title/slug)
+--              and public.venues/moments.
 -- =============================================================================
 
 -- Ensure extensions
@@ -49,22 +48,33 @@ BEGIN
   END IF;
 END $$;
 
--- 2. Create / ensure scenes table exists and seed curated scenes
+-- 2. Ensure scenes table exists and matches schema (with title, slug, description, image_url, etc.)
 CREATE TABLE IF NOT EXISTS public.scenes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
+  owner_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
   description TEXT,
-  category TEXT,
-  cover_image TEXT,
-  active_moments_count INTEGER DEFAULT 0,
-  active_discoveries_count INTEGER DEFAULT 0,
-  active_participants_count INTEGER DEFAULT 0,
-  creators_count INTEGER DEFAULT 0,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  city TEXT,
+  country TEXT,
+  image_url TEXT,
+  visibility TEXT NOT NULL DEFAULT 'public',
+  status TEXT NOT NULL DEFAULT 'active',
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure required columns exist if table was already created earlier
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS slug TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS city TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS country TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS visibility TEXT DEFAULT 'public';
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
+ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 
 ALTER TABLE public.scenes ENABLE ROW LEVEL SECURITY;
 
@@ -79,62 +89,60 @@ END $$;
 
 INSERT INTO public.scenes (
   id,
+  title,
   slug,
-  name,
   description,
-  category,
-  cover_image,
-  active_moments_count,
-  active_discoveries_count,
-  active_participants_count,
-  creators_count,
-  is_active
+  city,
+  country,
+  image_url,
+  visibility,
+  status,
+  metadata
 ) VALUES 
 (
   '00000000-0000-0000-0001-000000000001',
-  'kingston-after-dark',
   'Kingston After Dark',
+  'kingston-after-dark',
   'The definitive lens for nightlife, late-night food spots, live music, and party culture in Kingston.',
-  'Nightlife & Music',
+  'Kingston',
+  'Jamaica',
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
-  12,
-  4,
-  1420,
-  8,
-  true
+  'public',
+  'active',
+  '{"category": "Nightlife & Music", "curator": "Promorang Culture Guild"}'::jsonb
 ),
 (
   '00000000-0000-0000-0001-000000000002',
-  'food-and-taste',
   'Food & Taste Jamaica',
+  'food-and-taste',
   'Discover underrated breakfast joints, street vendors, chef popups, and signature dining experiences.',
-  'Food & Dining',
+  'Kingston',
+  'Jamaica',
   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
-  9,
-  6,
-  980,
-  12,
-  true
+  'public',
+  'active',
+  '{"category": "Food & Dining", "curator": "Taste Collective"}'::jsonb
 ),
 (
   '00000000-0000-0000-0001-000000000003',
-  'move-jamaica',
   'Move & Fitness Jamaica',
+  'move-jamaica',
   'Active lifestyle, outdoor runs, fitness popups, wellness retreats, and beach workouts.',
-  'Fitness & Health',
+  'Kingston',
+  'Jamaica',
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800',
-  5,
-  3,
-  450,
-  4,
-  true
+  'public',
+  'active',
+  '{"category": "Fitness & Health", "curator": "Movement Club"}'::jsonb
 )
-ON CONFLICT (id) DO UPDATE SET
-  name = EXCLUDED.name,
+ON CONFLICT (slug) DO UPDATE SET
+  title = EXCLUDED.title,
   description = EXCLUDED.description,
-  category = EXCLUDED.category,
-  cover_image = EXCLUDED.cover_image,
-  is_active = EXCLUDED.is_active;
+  image_url = EXCLUDED.image_url,
+  city = EXCLUDED.city,
+  country = EXCLUDED.country,
+  metadata = EXCLUDED.metadata,
+  updated_at = NOW();
 
 -- 3. Create / ensure venues table exists and seed curated venues
 CREATE TABLE IF NOT EXISTS public.venues (
