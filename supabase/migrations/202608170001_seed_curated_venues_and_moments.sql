@@ -1,8 +1,8 @@
 -- =============================================================================
 -- Migration: 202608170001_seed_curated_venues_and_moments.sql
--- Description: Robust, schema-safe seed for Scenes, Venues, and Moments.
---              Compatible with existing public.scenes (using title/slug)
---              and public.venues/moments.
+-- Description: Schema-safe seed for Scenes, Venues, and Moments.
+--              Sets both `name` and `venue_name` (and `address`/`location`)
+--              to satisfy any existing columns/constraints on public.venues.
 -- =============================================================================
 
 -- Ensure extensions
@@ -48,7 +48,7 @@ BEGIN
   END IF;
 END $$;
 
--- 2. Ensure scenes table exists and matches schema (with title, slug, description, image_url, etc.)
+-- 2. Ensure scenes table exists and matches schema
 CREATE TABLE IF NOT EXISTS public.scenes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -65,7 +65,6 @@ CREATE TABLE IF NOT EXISTS public.scenes (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Ensure required columns exist if table was already created earlier
 ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS title TEXT;
 ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS slug TEXT;
 ALTER TABLE public.scenes ADD COLUMN IF NOT EXISTS description TEXT;
@@ -144,21 +143,32 @@ ON CONFLICT (slug) DO UPDATE SET
   metadata = EXCLUDED.metadata,
   updated_at = NOW();
 
--- 3. Create / ensure venues table exists and seed curated venues
+-- 3. Create / ensure venues table exists and set up columns safely
 CREATE TABLE IF NOT EXISTS public.venues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  address TEXT NOT NULL,
+  name TEXT,
+  venue_name TEXT,
+  address TEXT,
+  location TEXT,
   description TEXT,
   image_url TEXT,
-  category TEXT NOT NULL DEFAULT 'Entertainment',
+  category TEXT DEFAULT 'Entertainment',
   phone TEXT,
   website TEXT,
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS venue_name TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS location TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Entertainment';
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 
 ALTER TABLE public.venues ENABLE ROW LEVEL SECURITY;
 
@@ -175,7 +185,9 @@ INSERT INTO public.venues (
   id,
   owner_id,
   name,
+  venue_name,
   address,
+  location,
   description,
   image_url,
   category,
@@ -185,6 +197,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000001',
   '00000000-0000-0000-0000-000000000001',
   'Fiction Nightclub',
+  'Fiction Nightclub',
+  'Marketplace, Constant Spring Rd, Kingston, Jamaica',
   'Marketplace, Constant Spring Rd, Kingston, Jamaica',
   'Kingston premier upscale nightclub and cultural lounge.',
   'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800',
@@ -195,6 +209,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000002',
   '00000000-0000-0000-0000-000000000001',
   'Usain Bolt''s Tracks & Records',
+  'Usain Bolt''s Tracks & Records',
+  '67 Constant Spring Rd, Marketplace, Kingston, Jamaica',
   '67 Constant Spring Rd, Marketplace, Kingston, Jamaica',
   'Flagship sports lounge celebrating Jamaican culture, jerk cuisine, and live entertainment.',
   'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800',
@@ -205,6 +221,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000003',
   '00000000-0000-0000-0000-000000000001',
   'Steakhouse on the Verandah (Devon House)',
+  'Steakhouse on the Verandah (Devon House)',
+  '26 Hope Rd, Devon House Courtyard, Kingston, Jamaica',
   '26 Hope Rd, Devon House Courtyard, Kingston, Jamaica',
   'Historic verandah dining with prime dry-aged steak cuts and open-air ambiance.',
   'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
@@ -215,6 +233,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000004',
   '00000000-0000-0000-0000-000000000001',
   'Tacbar Jamaica (Devon House)',
+  'Tacbar Jamaica (Devon House)',
+  '26 Hope Rd, Devon House Courtyard, Kingston, Jamaica',
   '26 Hope Rd, Devon House Courtyard, Kingston, Jamaica',
   'Gourmet street taco and cocktail patio at Devon House.',
   'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800',
@@ -225,6 +245,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000005',
   '00000000-0000-0000-0000-000000000001',
   'The Jamaica Pegasus Hotel (Pool Lounge)',
+  'The Jamaica Pegasus Hotel (Pool Lounge)',
+  '81 Knutsford Blvd, New Kingston, Jamaica',
   '81 Knutsford Blvd, New Kingston, Jamaica',
   'Tropical poolside retreat and barbecue terrace in the heart of the financial district.',
   'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800',
@@ -235,6 +257,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000006',
   '00000000-0000-0000-0000-000000000001',
   'Chilitos JaMexican',
+  'Chilitos JaMexican',
+  '88 Hope Rd, Kingston 6, Jamaica',
   '88 Hope Rd, Kingston 6, Jamaica',
   'Courtyard Mexican-Jamaican fusion kitchen and bar.',
   'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=800',
@@ -245,6 +269,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000007',
   '00000000-0000-0000-0000-000000000001',
   'AC Lounge (AC Hotel Kingston)',
+  'AC Lounge (AC Hotel Kingston)',
+  '38-42 Lady Musgrave Rd, Kingston, Jamaica',
   '38-42 Lady Musgrave Rd, Kingston, Jamaica',
   'Sophisticated European style lounge and cocktail venue.',
   'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&q=80&w=800',
@@ -255,6 +281,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000008',
   '00000000-0000-0000-0000-000000000001',
   'Kingston Dub Club',
+  'Kingston Dub Club',
+  'Skyline Drive, Jack''s Hill, Kingston, Jamaica',
   'Skyline Drive, Jack''s Hill, Kingston, Jamaica',
   'High-altitude sound system sanctuary overlooking Kingston city lights.',
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
@@ -265,6 +293,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000009',
   '00000000-0000-0000-0000-000000000001',
   'Devon House Gourmet Court',
+  'Devon House Gourmet Court',
+  'Hope Rd, Kingston, Jamaica',
   'Hope Rd, Kingston, Jamaica',
   'Famous national heritage gastronomy court and ice cream parlour.',
   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
@@ -275,6 +305,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000010',
   '00000000-0000-0000-0000-000000000001',
   'Janga''s Soundbar & Grill',
+  'Janga''s Soundbar & Grill',
+  'Belmont Rd, New Kingston, Jamaica',
   'Belmont Rd, New Kingston, Jamaica',
   'Open-air music bar, live acoustics, and grilled delicacies.',
   'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=800',
@@ -285,6 +317,8 @@ INSERT INTO public.venues (
   '00000000-0000-0000-0003-000000000011',
   '00000000-0000-0000-0000-000000000001',
   'Downtown Art District',
+  'Downtown Art District',
+  'Water Lane & Church St, Downtown Kingston, Jamaica',
   'Water Lane & Church St, Downtown Kingston, Jamaica',
   'Vibrant outdoor mural gallery and creative cultural streetscape.',
   'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800',
@@ -293,7 +327,9 @@ INSERT INTO public.venues (
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
+  venue_name = EXCLUDED.venue_name,
   address = EXCLUDED.address,
+  location = EXCLUDED.location,
   description = EXCLUDED.description,
   image_url = EXCLUDED.image_url,
   category = EXCLUDED.category,
