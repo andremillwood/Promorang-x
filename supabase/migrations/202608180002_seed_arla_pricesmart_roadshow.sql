@@ -38,6 +38,7 @@ BEGIN
     id,
     owner_id,
     name,
+    venue_name,
     address,
     description,
     image_url,
@@ -47,6 +48,7 @@ BEGIN
     v_pricesmart_id,
     v_host_id,
     'PriceSmart Jamaica (Red Hills Road)',
+    'PriceSmart Jamaica (Red Hills Road)',
     '111 Red Hills Road, Kingston 19, Jamaica',
     'PriceSmart warehouse club and retail destination in Kingston, Jamaica, hosting the Arla Pro Whip & Cook consumer sampling and roadshow activation.',
     'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1200',
@@ -54,6 +56,7 @@ BEGIN
     true
   ) ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
+    venue_name = EXCLUDED.venue_name,
     address = EXCLUDED.address,
     description = EXCLUDED.description,
     image_url = EXCLUDED.image_url,
