@@ -1,18 +1,212 @@
+import React, { lazy, Suspense } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Check, CircleDot, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 
-const campaigns:Record<string,any>={
-  "kingston-comes-alive":{eyebrow:"A citywide social compass",title:"Kingston Comes Alive",accent:"Find the room that feels worth entering.",body:"Tell us what you want more of. We’ll help you find the Scenes, people and Moments that fit—while your anonymous preferences help local hosts and places create better reasons to gather.",cta:"Find Your Scene",funnel:"scene",audience:"For people who want better plans",steps:[["Find your signal","Get a personal Scene profile in two minutes."],["See your doorway","Discover the easiest kind of Moment to enter."],["Make the city smarter","Your aggregated preferences reveal what Kingston wants next."]],fit:["You want plans with the right energy","You care who and what the room is for","You want something better than another event list"]},
-  "quiet-hours":{eyebrow:"The 30-day local demand challenge",title:"The Quiet Hours Challenge",accent:"Your slowest window could become a local ritual.",body:"Give Promorang one underused time window. We’ll help identify the audience, visit trigger, creator or host, and measurable pilot that can make it valuable—without defaulting to blanket discounts.",cta:"Reveal My Demand Opening",funnel:"demand",audience:"For merchants and venues",steps:[["Diagnose","Find the strongest demand opening in your existing capacity."],["Design","Shape one reason to visit around what your place already does well."],["Pilot","Apply for a focused activation with visits, redemption and return measured."]],fit:["You have identifiable off-peak capacity","Your place has a real strength worth amplifying","You can support a focused 30-day test"]},
-  "moment-lab":{eyebrow:"From good idea to repeatable gathering",title:"The Moment Lab",accent:"The first right people matter more than everyone.",body:"Score your gathering, clarify the human promise and discover what would make it easier to attend, fund and bring back.",cta:"Score My Moment",funnel:"moment",audience:"For hosts and community builders",steps:[["Score it","Test the promise, people, place and return path."],["Shape it","Turn the idea into a legible activation plan."],["Bring it back","Design memory and the next invitation before launch."]],fit:["You already convene people or want to","You have a gathering idea worth testing","You care about repeat community, not one-off attendance"]},
-  "creators-who-move":{eyebrow:"An initial verified creator cohort",title:"The Creators Who Move Kingston",accent:"Reach is rented. Movement is a reputation.",body:"We’re looking for trusted creators whose recommendations help people visit, join, discover and return—not only watch.",cta:"Audit My Influence",funnel:"creator",audience:"For creators with trusted taste",steps:[["Audit","Identify the behaviour your audience already follows."],["Match","Find a place, Moment or mission suited to your craft."],["Prove","Build an action record that future partners can understand."]],fit:["People act on your recommendations","Your format can lead somewhere useful","You want evidence stronger than impressions"]},
-  "sponsor-kingston":{eyebrow:"A measurable city participation programme",title:"Sponsor Kingston Coming Alive",accent:"Make culture happen—and know what happened next.",body:"Start with a human outcome, then connect funding to Scenes, creators, places, participation and a reusable value receipt.",cta:"Build My Activation Brief",funnel:"sponsor",audience:"For brands and agencies",steps:[["Choose the change","Define what becomes better or possible for people."],["Fund the system","Connect creators, hosts, merchants and participant value."],["Read the return","See presence, content, commerce and repeat participation separately."]],fit:["You need more than passive impressions","Local credibility matters to the campaign","You want a measurable pilot before scale"]},
+const ArlaCampaignHub = lazy(() => import("./ArlaCampaignHub"));
+
+const campaigns: Record<string, any> = {
+  "kingston-comes-alive": {
+    eyebrow: "A citywide social compass",
+    title: "Kingston Comes Alive",
+    accent: "Find the room that feels worth entering.",
+    body: "Tell us what you want more of. We’ll help you find the Scenes, people and Moments that fit—while your anonymous preferences help local hosts and places create better reasons to gather.",
+    cta: "Find Your Scene",
+    funnel: "scene",
+    audience: "For people who want better plans",
+    steps: [
+      ["Find your signal", "Get a personal Scene profile in two minutes."],
+      ["See your doorway", "Discover the easiest kind of Moment to enter."],
+      ["Make the city smarter", "Your aggregated preferences reveal what Kingston wants next."]
+    ],
+    fit: [
+      "You want plans with the right energy",
+      "You care who and what the room is for",
+      "You want something better than another event list"
+    ]
+  },
+  "quiet-hours": {
+    eyebrow: "The 30-day local demand challenge",
+    title: "The Quiet Hours Challenge",
+    accent: "Your slowest window could become a local ritual.",
+    body: "Give Promorang one underused time window. We’ll help identify the audience, visit trigger, creator or host, and measurable pilot that can make it valuable—without defaulting to blanket discounts.",
+    cta: "Reveal My Demand Opening",
+    funnel: "demand",
+    audience: "For merchants and venues",
+    steps: [
+      ["Diagnose", "Find the strongest demand opening in your existing capacity."],
+      ["Design", "Shape one reason to visit around what your place already does well."],
+      ["Pilot", "Apply for a focused activation with visits, redemption and return measured."]
+    ],
+    fit: [
+      "You have identifiable off-peak capacity",
+      "Your place has a real strength worth amplifying",
+      "You can support a focused 30-day test"
+    ]
+  },
+  "moment-lab": {
+    eyebrow: "From good idea to repeatable gathering",
+    title: "The Moment Lab",
+    accent: "The first right people matter more than everyone.",
+    body: "Score your gathering, clarify the human promise and discover what would make it easier to attend, fund and bring back.",
+    cta: "Score My Moment",
+    funnel: "moment",
+    audience: "For hosts and community builders",
+    steps: [
+      ["Score it", "Test the promise, people, place and return path."],
+      ["Shape it", "Turn the idea into a legible activation plan."],
+      ["Bring it back", "Design memory and the next invitation before launch."]
+    ],
+    fit: [
+      "You already convene people or want to",
+      "You have a gathering idea worth testing",
+      "You care about repeat community, not one-off attendance"
+    ]
+  },
+  "creators-who-move": {
+    eyebrow: "An initial verified creator cohort",
+    title: "The Creators Who Move Kingston",
+    accent: "Reach is rented. Movement is a reputation.",
+    body: "We’re looking for trusted creators whose recommendations help people visit, join, discover and return—not only watch.",
+    cta: "Audit My Influence",
+    funnel: "creator",
+    audience: "For creators with trusted taste",
+    steps: [
+      ["Audit", "Identify the behaviour your audience already follows."],
+      ["Match", "Find a place, Moment or mission suited to your craft."],
+      ["Prove", "Build an action record that future partners can understand."]
+    ],
+    fit: [
+      "People act on your recommendations",
+      "Your format can lead somewhere useful",
+      "You want evidence stronger than impressions"
+    ]
+  },
+  "sponsor-kingston": {
+    eyebrow: "A measurable city participation programme",
+    title: "Sponsor Kingston Coming Alive",
+    accent: "Make culture happen—and know what happened next.",
+    body: "Start with a human outcome, then connect funding to Scenes, creators, places, participation and a reusable value receipt.",
+    cta: "Build My Activation Brief",
+    funnel: "sponsor",
+    audience: "For brands and agencies",
+    steps: [
+      ["Choose the change", "Define what becomes better or possible for people."],
+      ["Fund the system", "Connect creators, hosts, merchants and participant value."],
+      ["Read the return", "See presence, content, commerce and repeat participation separately."]
+    ],
+    fit: [
+      "You need more than passive impressions",
+      "Local credibility matters to the campaign",
+      "You want a measurable pilot before scale"
+    ]
+  }
 };
 
-export default function CampaignLanding(){const {campaign="kingston-comes-alive"}=useParams();const c=campaigns[campaign]||campaigns["kingston-comes-alive"];const funnel=`/free/${c.funnel}?utm_source=promorang&utm_medium=campaign_landing&utm_campaign=${campaign}`;return <main className="min-h-screen bg-[#0b0b0a] text-white"><SEO title={c.title} description={c.body}/>
-  <section className="relative overflow-hidden border-b border-white/10 px-6 pb-24 pt-36 md:pb-32 md:pt-48"><div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(255,91,20,.24),transparent_30%),repeating-linear-gradient(90deg,transparent,transparent_calc(25%-1px),rgba(255,255,255,.04)_25%)]"/><div className="relative mx-auto max-w-7xl"><div className="grid gap-12 lg:grid-cols-[1.35fr_.65fr] lg:items-end"><div><p className="text-xs font-black uppercase tracking-[.24em] text-primary">{c.eyebrow}</p><h1 className="mt-7 max-w-5xl font-serif text-6xl font-bold leading-[.82] tracking-[-.065em] sm:text-8xl lg:text-[8rem]">{c.title}</h1><p className="mt-7 max-w-3xl text-xl font-bold leading-tight text-primary md:text-3xl">{c.accent}</p><p className="mt-6 max-w-2xl text-base leading-8 text-white/58">{c.body}</p><div className="mt-9 flex flex-wrap items-center gap-5"><Link to={funnel} className="inline-flex min-h-14 items-center gap-3 bg-primary px-7 text-sm font-black uppercase tracking-wide text-white shadow-[8px_8px_0_#f0d342] transition hover:-translate-y-1">{c.cta}<ArrowRight className="h-5 w-5"/></Link><span className="text-xs text-white/40">Free result · 3–5 minutes · No account required</span></div></div><aside className="border border-white/15 bg-white/[.04] p-6"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">This is for you if</p><div className="mt-5 space-y-4">{c.fit.map((item:string)=><p key={item} className="flex gap-3 text-sm leading-6 text-white/65"><Check className="mt-1 h-4 w-4 shrink-0 text-primary"/>{item}</p>)}</div></aside></div></div></section>
-  <section className="border-b border-white/10 bg-[#f0ece2] px-6 py-20 text-[#171713] md:py-28"><div className="mx-auto max-w-7xl"><p className="text-xs font-black uppercase tracking-[.2em] text-[#ef5b19]">How it moves</p><div className="mt-8 grid border-l border-t border-black/15 md:grid-cols-3">{c.steps.map(([title,body]:string[],i:number)=><article key={title} className="min-h-64 border-b border-r border-black/15 p-7"><span className="text-xs font-black text-[#ef5b19]">0{i+1}</span><h2 className="mt-16 font-serif text-3xl font-bold">{title}</h2><p className="mt-3 text-sm leading-6 text-black/55">{body}</p></article>)}</div></div></section>
-  <section className="px-6 py-20 md:py-28"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.7fr_1.3fr]"><div><Sparkles className="h-8 w-8 text-primary"/><p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-primary">Why Promorang</p></div><div><h2 className="font-serif text-4xl font-bold leading-tight md:text-6xl">Most people do not need more information. They need the right decision to feel easier.</h2><p className="mt-6 max-w-3xl text-base leading-8 text-white/50">Promorang connects declared intent to an immediate next move, then lets verified participation improve the invitations, partnerships and commercial decisions that follow.</p><Link to={funnel} className="mt-8 inline-flex items-center gap-2 text-sm font-black text-primary">{c.cta}<ArrowRight className="h-4 w-4"/></Link></div></div></section>
-  <section className="border-t border-white/10 bg-primary px-6 py-20 text-center"><CircleDot className="mx-auto h-8 w-8"/><p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-black/55">{c.audience}</p><h2 className="mx-auto mt-4 max-w-4xl font-serif text-5xl font-bold leading-none md:text-7xl">Start with a useful result.</h2><Link to={funnel} className="mt-8 inline-flex min-h-14 items-center gap-3 bg-black px-7 text-sm font-black uppercase text-white">{c.cta}<ArrowRight className="h-5 w-5"/></Link></section>
-  </main>}
+export default function CampaignLanding() {
+  const { campaign = "kingston-comes-alive" } = useParams();
+
+  // If the campaign is Arla, render the Arla Campaign Hub directly
+  if (campaign === "arla-whip-and-cook" || campaign === "arla" || campaign === "arla-pro") {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0d0d0f] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#8A1538] border-t-transparent rounded-full animate-spin" /></div>}>
+        <ArlaCampaignHub />
+      </Suspense>
+    );
+  }
+
+  const c = campaigns[campaign] || campaigns["kingston-comes-alive"];
+  const funnel = `/free/${c.funnel}?utm_source=promorang&utm_medium=campaign_landing&utm_campaign=${campaign}`;
+
+  return (
+    <main className="min-h-screen bg-[#0b0b0a] text-white">
+      <SEO title={c.title} description={c.body} />
+      <section className="relative overflow-hidden border-b border-white/10 px-6 pb-24 pt-36 md:pb-32 md:pt-48">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,rgba(255,91,20,.24),transparent_30%),repeating-linear-gradient(90deg,transparent,transparent_calc(25%-1px),rgba(255,255,255,.04)_25%)]" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="grid gap-12 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[.24em] text-primary">{c.eyebrow}</p>
+              <h1 className="mt-7 max-w-5xl font-serif text-6xl font-bold leading-[.82] tracking-[-.065em] sm:text-8xl lg:text-[8rem]">
+                {c.title}
+              </h1>
+              <p className="mt-7 max-w-3xl text-xl font-bold leading-tight text-primary md:text-3xl">
+                {c.accent}
+              </p>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/58">{c.body}</p>
+              <div className="mt-9 flex flex-wrap items-center gap-5">
+                <Link
+                  to={funnel}
+                  className="inline-flex min-h-14 items-center gap-3 bg-primary px-7 text-sm font-black uppercase tracking-wide text-white shadow-[8px_8px_0_#f0d342] transition hover:-translate-y-1"
+                >
+                  {c.cta}
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+                <span className="text-xs text-white/40">Free result · 3–5 minutes · No account required</span>
+              </div>
+            </div>
+            <aside className="border border-white/15 bg-white/[.04] p-6">
+              <p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">This is for you if</p>
+              <div className="mt-5 space-y-4">
+                {c.fit.map((item: string) => (
+                  <p key={item} className="flex gap-3 text-sm leading-6 text-white/65">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+      <section className="border-b border-white/10 bg-[#f0ece2] px-6 py-20 text-[#171713] md:py-28">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef5b19]">How it moves</p>
+          <div className="mt-8 grid border-l border-t border-black/15 md:grid-cols-3">
+            {c.steps.map(([title, body]: string[], i: number) => (
+              <article key={title} className="min-h-64 border-b border-r border-black/15 p-7">
+                <span className="text-xs font-black text-[#ef5b19]">0{i + 1}</span>
+                <h2 className="mt-16 font-serif text-3xl font-bold">{title}</h2>
+                <p className="mt-3 text-sm leading-6 text-black/55">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="px-6 py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.7fr_1.3fr]">
+          <div>
+            <Sparkles className="h-8 w-8 text-primary" />
+            <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-primary">Why Promorang</p>
+          </div>
+          <div>
+            <h2 className="font-serif text-4xl font-bold leading-tight md:text-6xl">
+              Most people do not need more information. They need the right decision to feel easier.
+            </h2>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-white/50">
+              Promorang connects declared intent to an immediate next move, then lets verified participation improve the invitations, partnerships and commercial decisions that follow.
+            </p>
+            <Link to={funnel} className="mt-8 inline-flex items-center gap-2 text-sm font-black text-primary">
+              {c.cta}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+      <section className="border-t border-white/10 bg-primary px-6 py-20 text-center">
+        <CircleDot className="mx-auto h-8 w-8" />
+        <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-black/55">{c.audience}</p>
+        <h2 className="mx-auto mt-4 max-w-4xl font-serif text-5xl font-bold leading-none md:text-7xl">
+          Start with a useful result.
+        </h2>
+        <Link
+          to={funnel}
+          className="mt-8 inline-flex min-h-14 items-center gap-3 bg-black px-7 text-sm font-black uppercase text-white"
+        >
+          {c.cta}
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+      </section>
+    </main>
+  );
+}

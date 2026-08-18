@@ -69,13 +69,15 @@ async function emit(page) {
   await writeFile(destination, inject(page));
 }
 
-const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works"];
+const staticUrls = ["/", "/discover", "/discover/moments", "/discover/venues", "/discover/content", "/scenes", "/brands", "/creators", "/merchants", "/for-communities", "/for-brands", "/for-creators", "/how-it-works", "/campaigns/arla-whip-and-cook", "/proposals/arla-pro"];
 const pages = [
   { path: "/discover", title: "Discover what is happening around you", description: "Explore local Moments, Scenes, trusted Discoveries, venues, and creator stories on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Discover on Promorang", url: `${site}/discover` } },
   { path: "/discover/moments", title: "Discover local Moments", description: "Find upcoming events and real-world experiences on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Moments", url: `${site}/discover/moments` } },
   { path: "/discover/venues", title: "Discover local venues", description: "Explore venues and the Moments happening at them on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Venues", url: `${site}/discover/venues` } },
   { path: "/discover/content", title: "Discover local stories", description: "Explore creator stories connected to real Moments and places on Promorang.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Stories", url: `${site}/discover/content` } },
   { path: "/scenes", title: "Promorang Scenes — Find your people", description: "Find the people, places, rituals, and Moments that feel like your world.", schema: { "@context": "https://schema.org", "@type": "CollectionPage", name: "Promorang Scenes", url: `${site}/scenes` } },
+  { path: "/campaigns/arla-whip-and-cook", title: "Arla Pro Whip & Cook @ PriceSmart Jamaica — Taste It. Whip It. Cook It.", description: "Experience Arla Pro Whip & Cook 28% live at PriceSmart Jamaica. Taste Rasta Pasta vs Chocolate Chip Mousse, vote in the live Taste-Off, and unlock the 5-Recipe Pack.", schema: { "@context": "https://schema.org", "@type": "WebPage", name: "Arla Pro Whip & Cook PriceSmart Campaign", url: `${site}/campaigns/arla-whip-and-cook` } },
+  { path: "/proposals/arla-pro", title: "PROMORANG × ARLA PRO — Commercial Proposal", description: "Commercial proposal for Arla Pro Whip & Cook: Consumer Discovery, Sampling Amplification & Retail Conversion Pilot.", schema: { "@context": "https://schema.org", "@type": "WebPage", name: "Arla Pro Commercial Proposal", url: `${site}/proposals/arla-pro` } },
 ];
 
 try {
