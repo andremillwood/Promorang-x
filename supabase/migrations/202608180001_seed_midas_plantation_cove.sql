@@ -85,7 +85,7 @@ BEGIN
     category = EXCLUDED.category,
     is_active = EXCLUDED.is_active;
 
-  -- 3. Seed Plantation Cove in public.venue_profiles (if table exists)
+  -- 3. Seed Plantation Cove in public.venue_profiles (venue_type must be in: 'cafe','restaurant','bar','club','gallery','theater','outdoor','retail','other')
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'venue_profiles') THEN
     INSERT INTO public.venue_profiles (
       id,
@@ -106,7 +106,7 @@ BEGIN
       'A1 North Coast Highway, Priory',
       'St. Ann',
       'Jamaica',
-      'outdoor_festival_grounds',
+      'outdoor',
       15000,
       95
     ) ON CONFLICT (id) DO UPDATE SET
@@ -116,6 +116,7 @@ BEGIN
       location = EXCLUDED.location,
       city = EXCLUDED.city,
       country = EXCLUDED.country,
+      venue_type = 'outdoor',
       capacity = EXCLUDED.capacity;
   END IF;
 
