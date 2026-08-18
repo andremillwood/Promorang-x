@@ -1,23 +1,48 @@
 -- =============================================================================
 -- Migration: 202608180001_seed_midas_plantation_cove.sql
--- Description: Canonical database seeding for Midas Entertainment activations:
+-- Description: Schema-safe seeding for Midas Entertainment activations:
 --              1. Plantation Cove Venue (Priory, St. Ann, Jamaica)
 --              2. Sophisticated — The Summer End Beach Party (Aug 29, 2026)
 --              3. Encore Live featuring Capleton (Aug 30, 2026)
---              4. Summer Finale & Live Music Discoveries
 -- =============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- 1. Safely ensure public.venues table & optional columns exist
+CREATE TABLE IF NOT EXISTS public.venues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  address TEXT NOT NULL,
+  category TEXT DEFAULT 'venue',
+  phone TEXT,
+  website TEXT,
+  image_url TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS venue_name TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS location TEXT;
+
+-- 2. Safely ensure public.moments optional columns exist
+ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS venue_name TEXT;
+ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS latitude DECIMAL;
+ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS longitude DECIMAL;
+ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS reward TEXT;
+ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS max_participants INTEGER;
+
 DO $$
 DECLARE
-  v_host_id UUID := '00000000-0000-0000-0000-000000000001'; -- Promorang Presents / Editorial Host
+  v_host_id UUID := '00000000-0000-0000-0000-000000000001'; -- Promorang Presents Host
   v_plantation_cove_id UUID := '00000000-0000-0000-0003-000000000050';
   v_sophisticated_id UUID := '00000000-0000-0000-0002-000000000051';
   v_encore_live_id UUID := '00000000-0000-0000-0002-000000000052';
 BEGIN
-  -- 1. Ensure host exists
+  -- 1. Ensure editorial host user exists in public.users
   IF NOT EXISTS (SELECT 1 FROM public.users WHERE id = v_host_id) THEN
     INSERT INTO public.users (
       id, email, username, display_name, user_type, user_tier, avatar_url, points_balance, keys_balance, gems_balance
@@ -33,9 +58,7 @@ BEGIN
     id,
     owner_id,
     name,
-    venue_name,
     address,
-    location,
     description,
     image_url,
     category,
@@ -43,23 +66,25 @@ BEGIN
   ) VALUES (
     v_plantation_cove_id,
     v_host_id,
-    'Grizzly''s Plantation Cove',
     'Plantation Cove',
     'A1 North Coast Highway, Priory, St. Ann, Jamaica',
-    'Priory, St. Ann, Jamaica',
     '250-acre premier oceanfront event and festival park on Jamaica''s north coast, hosting major entertainment, beach, and cultural experiences.',
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1200',
     'Entertainment & Festivals',
     true
   ) ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
-    venue_name = EXCLUDED.venue_name,
     address = EXCLUDED.address,
-    location = EXCLUDED.location,
     description = EXCLUDED.description,
     image_url = EXCLUDED.image_url,
     category = EXCLUDED.category,
     is_active = EXCLUDED.is_active;
+
+  -- Update optional columns if present
+  UPDATE public.venues 
+  SET venue_name = 'Plantation Cove',
+      location = 'Priory, St. Ann, Jamaica'
+  WHERE id = v_plantation_cove_id;
 
   -- 3. Seed Plantation Cove in public.venue_profiles (if table exists)
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'venue_profiles') THEN
