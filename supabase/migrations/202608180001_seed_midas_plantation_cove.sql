@@ -13,9 +13,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS public.venues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
+  name TEXT,
+  venue_name TEXT,
   description TEXT,
-  address TEXT NOT NULL,
+  address TEXT,
   category TEXT DEFAULT 'venue',
   phone TEXT,
   website TEXT,
@@ -25,8 +26,9 @@ CREATE TABLE IF NOT EXISTS public.venues (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS name TEXT;
 ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS venue_name TEXT;
-ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS location TEXT;
+ALTER TABLE public.venues ADD COLUMN IF NOT EXISTS address TEXT;
 
 -- 2. Safely ensure public.moments optional columns exist
 ALTER TABLE public.moments ADD COLUMN IF NOT EXISTS venue_name TEXT;
@@ -53,11 +55,12 @@ BEGIN
     ) ON CONFLICT (id) DO NOTHING;
   END IF;
 
-  -- 2. Seed Plantation Cove in public.venues
+  -- 2. Seed Plantation Cove in public.venues (setting both name and venue_name)
   INSERT INTO public.venues (
     id,
     owner_id,
     name,
+    venue_name,
     address,
     description,
     image_url,
@@ -67,6 +70,7 @@ BEGIN
     v_plantation_cove_id,
     v_host_id,
     'Plantation Cove',
+    'Plantation Cove',
     'A1 North Coast Highway, Priory, St. Ann, Jamaica',
     '250-acre premier oceanfront event and festival park on Jamaica''s north coast, hosting major entertainment, beach, and cultural experiences.',
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1200',
@@ -74,17 +78,12 @@ BEGIN
     true
   ) ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
+    venue_name = EXCLUDED.venue_name,
     address = EXCLUDED.address,
     description = EXCLUDED.description,
     image_url = EXCLUDED.image_url,
     category = EXCLUDED.category,
     is_active = EXCLUDED.is_active;
-
-  -- Update optional columns if present
-  UPDATE public.venues 
-  SET venue_name = 'Plantation Cove',
-      location = 'Priory, St. Ann, Jamaica'
-  WHERE id = v_plantation_cove_id;
 
   -- 3. Seed Plantation Cove in public.venue_profiles (if table exists)
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'venue_profiles') THEN
