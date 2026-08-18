@@ -3,6 +3,7 @@
 -- Description: Canonical database seeding for Arla Pro Whip & Cook Activation:
 --              1. PriceSmart Jamaica — Red Hills Road Venue (Kingston 19)
 --              2. Arla Whip & Cook @ PriceSmart Recurring Moments (Aug 18-23, 2026)
+--                 Daily Hours: 10:00 AM – 8:00 PM (10:00:00-05 to 20:00:00-05)
 --              3. Arla Whip & Cook Discoveries & Public Discovery Graph
 --              4. Promorang Presents Editorial Experience placement
 -- =============================================================================
@@ -129,11 +130,11 @@ BEGIN
     'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook @ PriceSmart — Taste It. Whip It. Cook It.',
     'arla-whip-and-cook-pricesmart',
-    'Experience Arla Pro Whip & Cook 28% live at PriceSmart Jamaica. Taste both savoury Rasta Pasta and dessert Chocolate Chip Mousse, vote in the live Taste-Off, unlock the 5-Recipe Pack, and get 1L cartons for approximately J$1,200 during the roadshow (regular price approx. J$2,700).',
+    'Experience Arla Pro Whip & Cook 28% live at PriceSmart Jamaica. Taste savoury Rasta Pasta and dessert Chocolate Chip Mousse, vote in the live Taste-Off, unlock the 5-Recipe Pack, and get 1L cartons for approx. J$1,200 during the roadshow (regular price approx. J$2,700). Daily 10:00 AM – 8:00 PM.',
     'Food & Dining',
     '111 Red Hills Road, Kingston 19, Jamaica',
     '2026-08-18 10:00:00-05',
-    '2026-08-23 18:00:00-05',
+    '2026-08-23 20:00:00-05',
     500,
     'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200',
@@ -159,55 +160,55 @@ BEGIN
     longitude = EXCLUDED.longitude,
     updated_at = NOW();
 
-  -- 5. Seed Daily Roadshow Occurrences (Aug 18 to Aug 23, 2026)
+  -- 5. Seed Daily Roadshow Occurrences (Aug 18 to Aug 23, 2026: 10:00 AM to 8:00 PM)
   INSERT INTO public.moments (id, host_id, venue_id, venue_name, title, slug, description, category, location, starts_at, ends_at, max_participants, reward, image_url, is_active, visibility, latitude, longitude, created_at, updated_at)
   VALUES
   (
     v_arla_day1, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Tuesday Taste-Off', 'arla-whip-cook-pricesmart-tuesday',
-    'Day 1 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse and pick your winner.',
+    'Day 1 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse (10:00 AM – 8:00 PM).',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-18 10:00:00-05', '2026-08-18 18:00:00-05', 200, 'Arla Recipe Key + 150 Points',
+    '2026-08-18 10:00:00-05', '2026-08-18 20:00:00-05', 200, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   ),
   (
     v_arla_day2, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Wednesday Taste-Off', 'arla-whip-cook-pricesmart-wednesday',
-    'Day 2 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse and pick your winner.',
+    'Day 2 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse (10:00 AM – 8:00 PM).',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-19 10:00:00-05', '2026-08-19 18:00:00-05', 200, 'Arla Recipe Key + 150 Points',
+    '2026-08-19 10:00:00-05', '2026-08-19 20:00:00-05', 200, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   ),
   (
     v_arla_day3, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Thursday Taste-Off', 'arla-whip-cook-pricesmart-thursday',
-    'Day 3 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse and pick your winner.',
+    'Day 3 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse (10:00 AM – 8:00 PM).',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-20 10:00:00-05', '2026-08-20 18:00:00-05', 200, 'Arla Recipe Key + 150 Points',
+    '2026-08-20 10:00:00-05', '2026-08-20 20:00:00-05', 200, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   ),
   (
     v_arla_day4, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Friday Taste-Off', 'arla-whip-cook-pricesmart-friday',
-    'Day 4 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse and pick your winner.',
+    'Day 4 of the roadshow at PriceSmart. Taste hot Rasta Pasta vs sweet Chocolate Chip Mousse (10:00 AM – 8:00 PM).',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-21 10:00:00-05', '2026-08-21 18:00:00-05', 200, 'Arla Recipe Key + 150 Points',
+    '2026-08-21 10:00:00-05', '2026-08-21 20:00:00-05', 200, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   ),
   (
     v_arla_day5, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Saturday Weekend Special', 'arla-whip-cook-pricesmart-saturday',
-    'Weekend roadshow sampling at PriceSmart. Taste Rasta Pasta, Mousse, and occasional Strong Back Punch drops.',
+    'Weekend roadshow sampling at PriceSmart (10:00 AM – 8:00 PM). Taste Rasta Pasta, Mousse, and occasional Strong Back Punch drops.',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-22 10:00:00-05', '2026-08-22 18:00:00-05', 300, 'Arla Recipe Key + 150 Points',
+    '2026-08-22 10:00:00-05', '2026-08-22 20:00:00-05', 300, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   ),
   (
     v_arla_day6, v_host_id, v_pricesmart_id, 'PriceSmart Jamaica (Red Hills Road)',
     'Arla Whip & Cook Roadshow — Sunday Finale', 'arla-whip-cook-pricesmart-sunday',
-    'Final day of the PriceSmart roadshow activation. Last chance to taste, vote, and secure J$1,200 cartons.',
+    'Final day of the PriceSmart roadshow activation (10:00 AM – 8:00 PM). Last chance to taste, vote, and secure J$1,200 cartons.',
     'Food & Dining', '111 Red Hills Road, Kingston 19, Jamaica',
-    '2026-08-23 10:00:00-05', '2026-08-23 18:00:00-05', 300, 'Arla Recipe Key + 150 Points',
+    '2026-08-23 10:00:00-05', '2026-08-23 20:00:00-05', 300, 'Arla Recipe Key + 150 Points',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200', true, 'open', 18.04118, -76.81508, NOW(), NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
@@ -248,14 +249,14 @@ BEGIN
       'Arla Whip & Cook @ PriceSmart',
       'PriceSmart Jamaica',
       'food',
-      'One cream. Two samples. Pick a side. Taste hot Rasta Pasta vs cold Chocolate Chip Mousse at PriceSmart, vote on your winner, and unlock the 5-Recipe Pack.',
+      'One cream. Two samples. Pick a side. Taste hot Rasta Pasta vs cold Chocolate Chip Mousse at PriceSmart (10 AM – 8 PM), vote on your winner, and unlock the 5-Recipe Pack.',
       'Recipe Pack + Sampling VIP',
       100,
       1,
       '["taste-off-vote", "whip-or-cook-discovery"]'::jsonb,
-      'Show your digital tasting pass at the PriceSmart Arla sampling booth on Red Hills Road.',
+      'Visit the Arla sampling station at PriceSmart Jamaica on Red Hills Road.',
       'live',
-      '{"day":"This Week","badge":"Featured Sampling","brand":"Arla Pro"}'::jsonb
+      '{"day":"This Week (10am-8pm)","badge":"Featured Sampling","brand":"Arla Pro"}'::jsonb
     FROM public.presents_programs
     WHERE slug = 'founding-season'
     ON CONFLICT (program_id, slug) DO UPDATE SET
