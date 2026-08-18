@@ -3,9 +3,8 @@
 -- Description: Canonical database seeding for Arla Pro Whip & Cook Activation:
 --              1. PriceSmart Jamaica — Red Hills Road Venue (Kingston 19)
 --              2. Arla Whip & Cook @ PriceSmart Recurring Moments (Aug 18-23, 2026)
---                 Daily Hours: 10:00 AM – 8:00 PM (10:00:00-05 to 20:00:00-05)
---              3. Arla Whip & Cook Discoveries & Public Discovery Graph
---              4. Promorang Presents Editorial Experience placement
+--                 Daily Operating Hours: 10:00 AM – 8:00 PM (10:00:00-05 to 20:00:00-05)
+--              3. Promorang Presents Editorial Experience placement
 -- =============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -23,7 +22,7 @@ DECLARE
   v_arla_day5 UUID := '00000000-0000-0000-0002-000000000065';
   v_arla_day6 UUID := '00000000-0000-0000-0002-000000000066';
 BEGIN
-  -- 1. Ensure host exists
+  -- 1. Ensure editorial host exists
   IF NOT EXISTS (SELECT 1 FROM public.users WHERE id = v_host_id) THEN
     INSERT INTO public.users (
       id, email, username, display_name, user_type, user_tier, avatar_url, points_balance, keys_balance, gems_balance
@@ -39,9 +38,7 @@ BEGIN
     id,
     owner_id,
     name,
-    venue_name,
     address,
-    location,
     description,
     image_url,
     category,
@@ -50,8 +47,6 @@ BEGIN
     v_pricesmart_id,
     v_host_id,
     'PriceSmart Jamaica (Red Hills Road)',
-    'PriceSmart Jamaica',
-    '111 Red Hills Road, Kingston 19, Jamaica',
     '111 Red Hills Road, Kingston 19, Jamaica',
     'PriceSmart warehouse club and retail destination in Kingston, Jamaica, hosting the Arla Pro Whip & Cook consumer sampling and roadshow activation.',
     'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=1200',
@@ -59,9 +54,7 @@ BEGIN
     true
   ) ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
-    venue_name = EXCLUDED.venue_name,
     address = EXCLUDED.address,
-    location = EXCLUDED.location,
     description = EXCLUDED.description,
     image_url = EXCLUDED.image_url,
     category = EXCLUDED.category,
