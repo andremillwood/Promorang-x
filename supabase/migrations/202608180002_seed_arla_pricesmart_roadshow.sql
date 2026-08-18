@@ -84,7 +84,7 @@ BEGIN
       '111 Red Hills Road, Kingston 19',
       'Kingston',
       'Jamaica',
-      'retail_club',
+      'retail',
       5000,
       94
     ) ON CONFLICT (id) DO UPDATE SET
@@ -94,6 +94,7 @@ BEGIN
       location = EXCLUDED.location,
       city = EXCLUDED.city,
       country = EXCLUDED.country,
+      venue_type = 'retail',
       capacity = EXCLUDED.capacity;
   END IF;
 
