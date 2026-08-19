@@ -822,6 +822,69 @@ export default function MidasCommercialProposal() {
 
             </div>
 
+            {/* PERPETUAL HOST AFFILIATE OVERRIDE ENGINE */}
+            <div className="rounded-sm border-2 border-emerald-500/40 bg-[#121812] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#10b98122]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                      Compounding Audience Equity
+                    </span>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">
+                      PERPETUAL AFFILIATE COMMISSIONS
+                    </Badge>
+                  </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    Why Every Fan You Onboard Pays Midas Forever
+                  </h3>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-3xl">
+                When a partygoer votes on the poll, claims a gate perk, or scans into Plantation Cove, their Promorang account is permanently tagged to <strong>Midas Entertainment</strong> as their referring Host.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Users className="w-4 h-4 text-emerald-400" />
+                    1. Permanent Downline Attribution
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    You are not just selling a ticket once. You are building a tagged network of 3,500+ culture consumers who remain linked to Midas in the Promorang ecosystem.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Coins className="w-4 h-4 text-[#ffcf38]" />
+                    2. Ongoing Platform Overrides
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Whenever these users engage with future brand campaigns, claim merchant offers, or attend other Promorang events across Jamaica, Midas earns continuous affiliate overrides.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Award className="w-4 h-4 text-[#ff5a1f]" />
+                    3. Micro-Promoter Royalties
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    If any partygoers who signed up under Midas become active micro-promoters on PromoPush, Midas receives an ongoing royalty on every brand campaign they complete.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-black/40 border border-emerald-500/20 rounded-sm flex items-center justify-between text-xs font-mono text-emerald-300">
+                <span>✓ Turns a 2-day weekend event into a 365-day compounding revenue stream for Midas</span>
+                <Link to="/hosts/midas" className="text-white hover:underline flex items-center gap-1">
+                  <span>View Host CRM</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
             {/* Bottom Chapter Navigation */}
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
               <Button
