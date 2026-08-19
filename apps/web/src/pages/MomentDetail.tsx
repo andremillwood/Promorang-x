@@ -231,7 +231,7 @@ const MomentDetail = () => {
           updated_at: new Date().toISOString(),
           is_curated_editorial: true,
         } as unknown as Moment;
-        setParticipantCount(curatedMatch.attendeesCount || 24);
+        setParticipantCount(curatedMatch.attendeesCount ?? 0);
         setHostProfile({
           display_name: curatedMatch.venueName,
           avatar_url: curatedMatch.image,

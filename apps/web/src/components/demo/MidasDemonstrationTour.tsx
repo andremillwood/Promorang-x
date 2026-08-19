@@ -66,7 +66,7 @@ export const DEMO_STEPS = [
     stage: 'STAGE 05 · HOST INTELLIGENCE & ATTENDEE CRM',
     title: 'Midas Entertainment Host Operations Center',
     path: '/hosts/midas?demo=midas&step=5',
-    executiveInsight: 'Midas accesses their verified attendee directory (phone & WhatsApp numbers), live poll breakdown (240 votes), 1.8x squad referrals, and gate pass inventory.',
+    executiveInsight: 'Midas accesses their real-time attendee directory (phone & WhatsApp captures), live poll response breakdown, squad referrals, and gate pass inventory as attendees RSVP.',
     actionLabel: 'Finish & Return to Midas Brief ➔',
     icon: BarChart3,
     badgeColor: 'text-[#ff5a1f] bg-[#ff5a1f15] border-[#ff5a1f33]'

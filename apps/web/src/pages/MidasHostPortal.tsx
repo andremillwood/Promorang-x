@@ -22,93 +22,29 @@ import {
   Filter,
   Layers,
   Award,
-  Zap
+  Zap,
+  Inbox,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
 
-// Simulated verified attendee list captured through Promorang polls & moment joins
-const CAPTURED_ATTENDEES = [
-  {
-    id: 'att-001',
-    name: 'Kadeem Sterling',
-    phone: '+1 (876) 542-8910',
-    preferredMoment: 'Sophisticated — Beach Party',
-    perkUnlocked: 'Express Gate Pass + Drink Token',
-    squadInvitesSent: 3,
-    status: 'Fast-Track Gate Ready',
-    joinedAt: '12 mins ago',
-    pointsEarned: 200
-  },
-  {
-    id: 'att-002',
-    name: 'Shanice Campbell',
-    phone: '+1 (876) 831-4092',
-    preferredMoment: 'Capleton Encore Live',
-    perkUnlocked: 'VIP Deck Upgrade (Top Referrer)',
-    squadInvitesSent: 5,
-    status: 'VIP Verified',
-    joinedAt: '34 mins ago',
-    pointsEarned: 350
-  },
-  {
-    id: 'att-003',
-    name: 'Tariq Anderson',
-    phone: '+1 (876) 919-6632',
-    preferredMoment: 'Sophisticated — Beach Party',
-    perkUnlocked: 'Express Gate Pass',
-    squadInvitesSent: 2,
-    status: 'Fast-Track Gate Ready',
-    joinedAt: '1 hour ago',
-    pointsEarned: 200
-  },
-  {
-    id: 'att-004',
-    name: 'Jhenelle Thompson',
-    phone: '+1 (876) 473-2281',
-    preferredMoment: 'Capleton Encore Live',
-    perkUnlocked: 'Soundcheck Double Pass',
-    squadInvitesSent: 7,
-    status: 'Backstage Guest List',
-    joinedAt: '2 hours ago',
-    pointsEarned: 500
-  },
-  {
-    id: 'att-005',
-    name: 'Andre Miller',
-    phone: '+1 (876) 388-1904',
-    preferredMoment: 'Sophisticated — Beach Party',
-    perkUnlocked: 'Hosted Drinks Token (Before 6 PM)',
-    squadInvitesSent: 2,
-    status: 'Early Arrival Fast-Track',
-    joinedAt: '3 hours ago',
-    pointsEarned: 200
-  },
-  {
-    id: 'att-006',
-    name: 'Racquel Edwards',
-    phone: '+1 (876) 790-5519',
-    preferredMoment: 'Capleton Encore Live',
-    perkUnlocked: 'Express Gate Pass',
-    squadInvitesSent: 2,
-    status: 'Fast-Track Gate Ready',
-    joinedAt: '4 hours ago',
-    pointsEarned: 200
-  },
-  {
-    id: 'att-007',
-    name: 'Damian Clarke',
-    phone: '+1 (876) 612-8840',
-    preferredMoment: 'Sophisticated — Beach Party',
-    perkUnlocked: 'VIP Deck Upgrade',
-    squadInvitesSent: 4,
-    status: 'VIP Verified',
-    joinedAt: '5 hours ago',
-    pointsEarned: 300
-  }
-];
+interface AttendeeRecord {
+  id: string;
+  name: string;
+  phone: string;
+  preferredMoment: string;
+  perkUnlocked: string;
+  squadInvitesSent: number;
+  status: string;
+  joinedAt: string;
+  pointsEarned: number;
+}
+
+// Live real captured attendees list starts at 0 before launch
+const CAPTURED_ATTENDEES: AttendeeRecord[] = [];
 
 export default function MidasHostPortal() {
   const [filterMoment, setFilterMoment] = useState<'all' | 'sophisticated' | 'capleton'>('all');
@@ -129,6 +65,10 @@ export default function MidasHostPortal() {
   });
 
   const handleExportCSV = () => {
+    if (CAPTURED_ATTENDEES.length === 0) {
+      toast.info("No attendee records yet. Export will be active once attendees claim passes.");
+      return;
+    }
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Name,Phone,Preferred Event,Perk Unlocked,Squad Invites,Status,Points\n" +
       CAPTURED_ATTENDEES.map(a => `"${a.name}","${a.phone}","${a.preferredMoment}","${a.perkUnlocked}",${a.squadInvitesSent},"${a.status}",${a.pointsEarned}`).join("\n");
@@ -204,6 +144,9 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono text-[#ffcf38]">
                   Co-Promoter: 8Rivaz Ultra Lounge
                 </span>
+                <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 border border-amber-500/30 rounded-sm">
+                  Pre-Launch Setup Ready
+                </span>
               </div>
               <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
                 Midas Entertainment · Live Audience Operations
@@ -214,30 +157,30 @@ export default function MidasHostPortal() {
               </p>
             </div>
 
-            {/* Quick KPI Counters */}
+            {/* Real Zero State KPI Counters */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Total Poll Votes</span>
-                <strong className="text-2xl font-serif font-bold text-white block">240</strong>
-                <span className="text-[10px] text-emerald-400 font-mono">142 Summer · 98 Live</span>
+                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
+                <span className="text-[10px] text-stone-400 font-mono">Awaiting Campaign Launch</span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Captured Contacts</span>
-                <strong className="text-2xl font-serif font-bold text-[#ff5a1f] block">418</strong>
-                <span className="text-[10px] text-stone-400 font-mono">Phone & WhatsApp</span>
+                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
+                <span className="text-[10px] text-stone-400 font-mono">Live Captures at Launch</span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Squad Multiplier</span>
-                <strong className="text-2xl font-serif font-bold text-[#a855f7] block">1.8x</strong>
-                <span className="text-[10px] text-purple-300 font-mono">752 Crew Reach</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">Squad Referrals</span>
+                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
+                <span className="text-[10px] text-stone-400 font-mono">0 Shares Logged</span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Gate Passes Claimed</span>
-                <strong className="text-2xl font-serif font-bold text-[#10b981] block">62 / 92</strong>
-                <span className="text-[10px] text-emerald-300 font-mono">67% Inventory Used</span>
+                <strong className="text-2xl font-serif font-bold text-[#10b981] block">0 / 92</strong>
+                <span className="text-[10px] text-emerald-300 font-mono">100% Inventory Open</span>
               </div>
             </div>
           </div>
@@ -250,10 +193,10 @@ export default function MidasHostPortal() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-3 text-xs font-mono uppercase tracking-wider scrollbar-none">
             {[
-              { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: 418 },
-              { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: 240 },
-              { id: 'squads', label: '3. WhatsApp Referral Squad Depth', icon: Share2, count: '1.8x' },
-              { id: 'gate', label: '4. Gate Passes & Access Drop Status', icon: Ticket, count: '67%' }
+              { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: 0 },
+              { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: 0 },
+              { id: 'squads', label: '3. WhatsApp Referral Squad Depth', icon: Share2, count: '0x' },
+              { id: 'gate', label: '4. Gate Passes & Access Drop Status', icon: Ticket, count: '0 / 92' }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -295,7 +238,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'all' ? 'bg-[#ff5a1f] border-[#ff5a1f] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  All Events (418)
+                  All Events (0)
                 </button>
                 <button
                   onClick={() => setFilterMoment('sophisticated')}
@@ -303,7 +246,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'sophisticated' ? 'bg-[#ff5a1f] border-[#ff5a1f] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  Sophisticated (246)
+                  Sophisticated (0)
                 </button>
                 <button
                   onClick={() => setFilterMoment('capleton')}
@@ -311,7 +254,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'capleton' ? 'bg-[#a855f7] border-[#a855f7] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  Capleton Encore Live (172)
+                  Capleton Encore Live (0)
                 </button>
               </div>
 
@@ -337,64 +280,86 @@ export default function MidasHostPortal() {
               </div>
             </div>
 
-            {/* Attendees Data Table */}
-            <div className="overflow-x-auto rounded-sm border-2 border-[#ffffff15] bg-[#141210]">
-              <table className="w-full text-left text-xs font-sans">
-                <thead className="bg-[#0a0908] border-b border-[#ffffff15] text-[10px] font-mono uppercase tracking-wider text-stone-400">
-                  <tr>
-                    <th className="py-3 px-4">Attendee Name</th>
-                    <th className="py-3 px-4">Phone / WhatsApp</th>
-                    <th className="py-3 px-4">Preferred Event</th>
-                    <th className="py-3 px-4">Perk Unlocked</th>
-                    <th className="py-3 px-4 text-center">Squad Invites</th>
-                    <th className="py-3 px-4">Gate Status</th>
-                    <th className="py-3 px-4 text-right">Points</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#ffffff0c]">
-                  {filteredAttendees.map((att) => (
-                    <tr key={att.id} className="hover:bg-[#ffffff05] transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-white flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-[10px] flex items-center justify-center">
-                          {att.name.charAt(0)}
-                        </div>
-                        <span>{att.name}</span>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-stone-300 flex items-center gap-1.5">
-                        <Phone className="w-3 h-3 text-[#10b981]" />
-                        <span>{att.phone}</span>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className={`px-2 py-0.5 rounded-sm font-mono text-[10px] font-bold ${
-                          att.preferredMoment.includes('Sophisticated') ? 'bg-orange-500/20 text-orange-400' : 'bg-purple-500/20 text-purple-400'
-                        }`}>
-                          {att.preferredMoment}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-stone-300 font-medium">
-                        {att.perkUnlocked}
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono font-bold text-[#ffcf38]">
-                        {att.squadInvitesSent} friends
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          {att.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-bold text-[#ffcf38]">
-                        +{att.pointsEarned}
-                      </td>
+            {/* Clean Real Zero State Display */}
+            {filteredAttendees.length === 0 ? (
+              <div className="p-12 text-center rounded-sm border-2 border-dashed border-[#ffffff15] bg-[#141210] space-y-4">
+                <div className="w-12 h-12 rounded-full bg-white/5 text-stone-400 flex items-center justify-center mx-auto">
+                  <Inbox className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-lg font-bold text-white">No Attendees Captured Yet</h4>
+                  <p className="text-xs text-stone-400 max-w-md mx-auto">
+                    The Midas Summer 2026 activation is configured and waiting to launch. Once attendees vote on Promorang and claim their gate perks, their verified phone numbers and referral status will populate here in real time.
+                  </p>
+                </div>
+                <div className="pt-2 flex justify-center gap-3">
+                  <Link
+                    to="/proposals/midas"
+                    className="text-xs font-mono text-[#ff5a1f] hover:underline"
+                  >
+                    View Activation Brief & Launch Plan ➔
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-sm border-2 border-[#ffffff15] bg-[#141210]">
+                <table className="w-full text-left text-xs font-sans">
+                  <thead className="bg-[#0a0908] border-b border-[#ffffff15] text-[10px] font-mono uppercase tracking-wider text-stone-400">
+                    <tr>
+                      <th className="py-3 px-4">Attendee Name</th>
+                      <th className="py-3 px-4">Phone / WhatsApp</th>
+                      <th className="py-3 px-4">Preferred Event</th>
+                      <th className="py-3 px-4">Perk Unlocked</th>
+                      <th className="py-3 px-4 text-center">Squad Invites</th>
+                      <th className="py-3 px-4">Gate Status</th>
+                      <th className="py-3 px-4 text-right">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#ffffff0c]">
+                    {filteredAttendees.map((att) => (
+                      <tr key={att.id} className="hover:bg-[#ffffff05] transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-white flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-[10px] flex items-center justify-center">
+                            {att.name.charAt(0)}
+                          </div>
+                          <span>{att.name}</span>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-stone-300 flex items-center gap-1.5">
+                          <Phone className="w-3 h-3 text-[#10b981]" />
+                          <span>{att.phone}</span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`px-2 py-0.5 rounded-sm font-mono text-[10px] font-bold ${
+                            att.preferredMoment.includes('Sophisticated') ? 'bg-orange-500/20 text-orange-400' : 'bg-purple-500/20 text-purple-400'
+                          }`}>
+                            {att.preferredMoment}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-stone-300 font-medium">
+                          {att.perkUnlocked}
+                        </td>
+                        <td className="py-3.5 px-4 text-center font-mono font-bold text-[#ffcf38]">
+                          {att.squadInvitesSent} friends
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            {att.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-mono font-bold text-[#ffcf38]">
+                          +{att.pointsEarned}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             <div className="flex items-center justify-between text-xs text-stone-400 font-mono">
-              <span>Showing {filteredAttendees.length} verified attendee records</span>
-              <span className="text-[#ff5a1f]">100% Owned Contact List · Direct WhatsApp Export Ready</span>
+              <span>0 verified attendee records (Pre-Launch Stage)</span>
+              <span className="text-[#ff5a1f]">Direct WhatsApp Export & Gate Scanner Integration Ready</span>
             </div>
 
           </div>
@@ -409,7 +374,7 @@ export default function MidasHostPortal() {
               </span>
               <h3 className="font-serif text-3xl font-bold text-white">Live Discovery Poll Response Breakdown</h3>
               <p className="text-stone-300 text-sm">
-                Real votes recorded natively across Promorang's discovery engine, feeding partygoers directly into Midas Moments.
+                Real votes recorded natively across Promorang's discovery engine once campaign promotion is published.
               </p>
             </div>
 
@@ -419,7 +384,7 @@ export default function MidasHostPortal() {
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ff5a1f40] space-y-5">
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase">Summer Finale Poll</span>
-                  <span className="text-xs font-mono text-stone-400">142 Total Votes</span>
+                  <span className="text-xs font-mono text-stone-400">0 Total Votes</span>
                 </div>
 
                 <h4 className="font-serif text-xl font-bold text-white">
@@ -430,52 +395,52 @@ export default function MidasHostPortal() {
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Beach party & oceanfront vibes</span>
-                      <span className="text-[#ff5a1f] font-mono">68 votes (48%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#ff5a1f] h-full w-[48%]" />
+                      <div className="bg-[#ff5a1f] h-full w-[0%]" />
                     </div>
-                    <span className="text-[10px] text-stone-400">$\rightarrow$ Routed directly to Sophisticated Beach Party</span>
+                    <span className="text-[10px] text-stone-500">$\rightarrow$ Routes directly to Sophisticated Beach Party</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Live concert & conscious stage show</span>
-                      <span className="text-[#a855f7] font-mono">42 votes (30%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#a855f7] h-full w-[30%]" />
+                      <div className="bg-[#a855f7] h-full w-[0%]" />
                     </div>
-                    <span className="text-[10px] text-stone-400">$\rightarrow$ Routed directly to Capleton Encore Live</span>
+                    <span className="text-[10px] text-stone-500">$\rightarrow$ Routes directly to Capleton Encore Live</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Club night & high-energy indoor party</span>
-                      <span className="text-stone-400 font-mono">19 votes (13%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[13%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Chill lounge & food lyme</span>
-                      <span className="text-stone-400 font-mono">9 votes (6%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[6%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Haven't decided yet</span>
-                      <span className="text-stone-400 font-mono">4 votes (3%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[3%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
                 </div>
@@ -484,7 +449,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#ff5a1f] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live on Consumer Discovery feed</span>
+                  <span>View live poll on Consumer Discovery feed</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -493,7 +458,7 @@ export default function MidasHostPortal() {
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#a855f740] space-y-5">
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#a855f7] uppercase">Live Culture Poll</span>
-                  <span className="text-xs font-mono text-stone-400">98 Total Votes</span>
+                  <span className="text-xs font-mono text-stone-400">0 Total Votes</span>
                 </div>
 
                 <h4 className="font-serif text-xl font-bold text-white">
@@ -504,52 +469,52 @@ export default function MidasHostPortal() {
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Reggae & conscious roots vibration</span>
-                      <span className="text-[#a855f7] font-mono">44 votes (45%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#a855f7] h-full w-[45%]" />
+                      <div className="bg-[#a855f7] h-full w-[0%]" />
                     </div>
-                    <span className="text-[10px] text-stone-400">$\rightarrow$ High-intent match for Capleton, Nesbeth & Dean Fraser</span>
+                    <span className="text-[10px] text-stone-500">$\rightarrow$ High-intent match for Capleton, Nesbeth & Dean Fraser</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Dancehall energy & top selectors</span>
-                      <span className="text-[#ff5a1f] font-mono">29 votes (30%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#ff5a1f] h-full w-[30%]" />
+                      <div className="bg-[#ff5a1f] h-full w-[0%]" />
                     </div>
-                    <span className="text-[10px] text-stone-400">$\rightarrow$ High-intent match for Vanessa Bling & Bass Odyssey</span>
+                    <span className="text-[10px] text-stone-500">$\rightarrow$ High-intent match for Vanessa Bling & Bass Odyssey</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Afrobeats & crossover rhythm</span>
-                      <span className="text-stone-400 font-mono">12 votes (12%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[12%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Hip Hop & sound clashes</span>
-                      <span className="text-stone-400 font-mono">7 votes (7%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[7%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Depends strictly on who is performing</span>
-                      <span className="text-stone-400 font-mono">6 votes (6%)</span>
+                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[6%]" />
+                      <div className="bg-stone-500 h-full w-[0%]" />
                     </div>
                   </div>
                 </div>
@@ -558,7 +523,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#a855f7] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live on Consumer Discovery feed</span>
+                  <span>View live poll on Consumer Discovery feed</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -574,81 +539,52 @@ export default function MidasHostPortal() {
               <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
                 Viral Word-of-Mouth Engine
               </span>
-              <h3 className="font-serif text-3xl font-bold text-white">WhatsApp Referral Squad Multiplier (1.8x)</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">WhatsApp Referral Squad Tracking</h3>
               <p className="text-stone-300 text-sm">
-                How one partygoer forwards their pass on WhatsApp to bring 2–5 paying friends to Plantation Cove.
+                Once partygoers forward their passes on WhatsApp, squad referral trees and viral multiplier depth will track live below.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Top Squad Builder</span>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-lg flex items-center justify-center">
-                    J
-                  </div>
-                  <div>
-                    <strong className="text-white text-base block">Jhenelle Thompson</strong>
-                    <span className="text-stone-400 text-xs">+1 (876) 473-2281</span>
-                  </div>
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Squad Leaderboard</span>
+                <div className="p-8 text-center bg-black/40 border border-dashed border-[#ffffff15] rounded-sm space-y-2">
+                  <Share2 className="w-6 h-6 text-stone-500 mx-auto" />
+                  <p className="text-xs text-stone-400">Squad leaderboard opens upon campaign launch</p>
                 </div>
-                <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
-                  <div className="flex justify-between font-bold">
-                    <span>Squad Invites Verified:</span>
-                    <span className="text-[#ffcf38] font-mono">7 Friends Joined</span>
-                  </div>
-                  <div className="flex justify-between font-bold">
-                    <span>Perk Unlocked:</span>
-                    <span className="text-emerald-400 font-mono">Soundcheck Double Pass</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-stone-400 block">Status: Capleton Backstage Guest List</span>
+                <span className="text-[10px] font-mono text-stone-500 block">Top referrers earn Soundcheck double passes & VIP deck upgrades</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Runner-Up Squad Builder</span>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#a855f7]/20 text-[#a855f7] font-mono font-bold text-lg flex items-center justify-center">
-                    S
-                  </div>
-                  <div>
-                    <strong className="text-white text-base block">Shanice Campbell</strong>
-                    <span className="text-stone-400 text-xs">+1 (876) 831-4092</span>
-                  </div>
-                </div>
-                <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
-                  <div className="flex justify-between font-bold">
-                    <span>Squad Invites Verified:</span>
-                    <span className="text-[#ffcf38] font-mono">5 Friends Joined</span>
-                  </div>
-                  <div className="flex justify-between font-bold">
-                    <span>Perk Unlocked:</span>
-                    <span className="text-purple-400 font-mono">VIP Deck Upgrade</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-stone-400 block">Status: VIP Access Pass Confirmed</span>
-              </div>
-
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Viral Economics Summary</span>
+                <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Viral Economics Tracking</span>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between border-b border-[#ffffff15] pb-2">
                     <span className="text-stone-400">Direct Voters:</span>
-                    <strong className="text-white font-mono">240</strong>
+                    <strong className="text-white font-mono">0</strong>
                   </div>
                   <div className="flex justify-between border-b border-[#ffffff15] pb-2">
                     <span className="text-stone-400">Squad Shares Sent:</span>
-                    <strong className="text-[#ffcf38] font-mono">432 shares</strong>
+                    <strong className="text-stone-400 font-mono">0 shares</strong>
                   </div>
                   <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                    <span className="text-stone-400">Total Reach Multiplier:</span>
-                    <strong className="text-emerald-400 font-mono">1.8x</strong>
+                    <span className="text-stone-400">Viral Multiplier:</span>
+                    <strong className="text-stone-400 font-mono">0.0x</strong>
                   </div>
                   <div className="flex justify-between pt-1">
-                    <span className="text-stone-400">Total Audience Touchpoints:</span>
-                    <strong className="text-white font-mono font-bold">752 Partygoers</strong>
+                    <span className="text-stone-400">Total Audience Reach:</span>
+                    <strong className="text-white font-mono font-bold">0 Partygoers</strong>
                   </div>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Squad Engine Specs</span>
+                <div className="p-4 bg-black/40 border border-[#ffffff15] rounded-sm space-y-2 text-xs text-stone-300">
+                  <strong className="text-white block font-bold">Target Viral Ratio: 1.8x</strong>
+                  <p className="text-stone-400 text-[11px] leading-relaxed">
+                    Attendees are incentivized to share pass codes with 2 friends on WhatsApp to unlock gate priority and drink perks.
+                  </p>
                 </div>
               </div>
 
@@ -675,48 +611,48 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Tier 1 · Speed</span>
                 <h4 className="font-serif text-lg font-bold text-white">Express Entry Wristbands</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  38 <span className="text-xs font-mono text-stone-400">/ 50 Allocated</span>
+                  0 <span className="text-xs font-mono text-stone-400">/ 50 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#ff5a1f] h-full w-[76%]" />
+                  <div className="bg-[#ff5a1f] h-full w-[0%]" />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">12 Wristbands Remaining</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">50 Wristbands Available at Launch</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Tier 2 · High Value</span>
                 <h4 className="font-serif text-lg font-bold text-white">VIP Deck Upgrades</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  7 <span className="text-xs font-mono text-stone-400">/ 10 Allocated</span>
+                  0 <span className="text-xs font-mono text-stone-400">/ 10 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#a855f7] h-full w-[70%]" />
+                  <div className="bg-[#a855f7] h-full w-[0%]" />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">3 VIP Upgrades Remaining</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">10 VIP Upgrades Available at Launch</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">Tier 3 · Exclusive</span>
                 <h4 className="font-serif text-lg font-bold text-white">Soundcheck Double Passes</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  2 <span className="text-xs font-mono text-stone-400">/ 2 Claimed</span>
+                  0 <span className="text-xs font-mono text-stone-400">/ 2 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#ffcf38] h-full w-[100%]" />
+                  <div className="bg-[#ffcf38] h-full w-[0%]" />
                 </div>
-                <span className="text-[11px] font-mono text-[#ffcf38] block">100% Claimed by Top Referrers</span>
+                <span className="text-[11px] font-mono text-[#ffcf38] block">Reserved for Top Squad Referrers</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Tier 4 · Early Arrival</span>
                 <h4 className="font-serif text-lg font-bold text-white">Hosted Drinks Passes (Pre-6PM)</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  24 <span className="text-xs font-mono text-stone-400">/ 30 Claimed</span>
+                  0 <span className="text-xs font-mono text-stone-400">/ 30 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#10b981] h-full w-[80%]" />
+                  <div className="bg-[#10b981] h-full w-[0%]" />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">6 Tokens Remaining</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">30 Tokens Available at Launch</span>
               </div>
 
             </div>

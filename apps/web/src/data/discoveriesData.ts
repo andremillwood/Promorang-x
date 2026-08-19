@@ -114,16 +114,16 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     authorRole: 'Community Cultural Curator',
     description: 'Summer 2026 is wrapping up! We are partnering with top event producers and beach clubs to crowdfund exclusive subsidized passes, complimentary cocktails, and backstage wristbands for the winning celebration style.',
     contextNotes: 'Hitting 150 votes triggers a dedicated beachfront sunset pop-up lounge with complimentary welcome cocktails for all verified voters.',
-    totalVotes: 142,
+    totalVotes: 0,
     thresholdForMoment: 150,
     targetUnlockPerk: '🏖️ Beachfront Sunset Pop-Up Lounge + 25 Free Entry Guest Keys',
     pointsReward: 50,
     options: [
-      { id: 'opt-se1', text: '🏖️ Beach party & oceanfront vibes', votes: 68 },
-      { id: 'opt-se2', text: '🎤 Live concert & conscious stage show', votes: 42 },
-      { id: 'opt-se3', text: '🔥 Club night & high-energy indoor party', votes: 19 },
-      { id: 'opt-se4', text: '🍹 Something chill & courtyard food lyme', votes: 9 },
-      { id: 'opt-se5', text: '🌴 Haven’t decided yet', votes: 4 }
+      { id: 'opt-se1', text: '🏖️ Beach party & oceanfront vibes', votes: 0 },
+      { id: 'opt-se2', text: '🎤 Live concert & conscious stage show', votes: 0 },
+      { id: 'opt-se3', text: '🔥 Club night & high-energy indoor party', votes: 0 },
+      { id: 'opt-se4', text: '🍹 Something chill & courtyard food lyme', votes: 0 },
+      { id: 'opt-se5', text: '🌴 Haven’t decided yet', votes: 0 }
     ],
     connectedScene: {
       title: 'Nightlife & Social Rituals',
@@ -131,26 +131,7 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
       category: 'Entertainment'
     },
     tags: ['Summer 2026', 'Beach Party', 'Concerts', 'Nightlife', 'Secret Drop'],
-    comments: [
-      {
-        id: 'c1',
-        author: 'Rohan P.',
-        badge: 'Scene Pioneer',
-        optionSupported: '🏖️ Beach party & oceanfront vibes',
-        text: 'Nothing beats taking the highway down to Ocho Rios or Maiden Cay for the final summer weekend. Pure sun, sand, and water!',
-        likes: 24,
-        timeAgo: '2 hours ago'
-      },
-      {
-        id: 'c2',
-        author: 'Shanice W.',
-        badge: 'Live Music Fan',
-        optionSupported: '🎤 Live concert & conscious stage show',
-        text: 'Conscious roots live on the lawn under the stars is unmatched. Hope we get a hilltop dub session locked in!',
-        likes: 15,
-        timeAgo: '4 hours ago'
-      }
-    ]
+    comments: []
   },
   {
     id: 'disc-live-music-002',
@@ -164,16 +145,16 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     authorRole: 'Live Production & Talent Lead',
     description: 'We are teaming up with Midas Live to fund an exclusive, high-energy live stage showcase with top selectors and conscious performers. Vote on what gets you in the venue to trigger 20 backstage passes.',
     contextNotes: 'Unlocking 100 votes triggers 20 VIP Backstage Soundcheck Passes and complimentary drink tokens for voters.',
-    totalVotes: 98,
+    totalVotes: 0,
     thresholdForMoment: 100,
     targetUnlockPerk: '🎟️ 20 VIP Backstage Soundcheck Keys + Cocktail Tokens',
     pointsReward: 35,
     options: [
-      { id: 'opt-lm1', text: '🦁 Reggae & conscious roots vibration', votes: 44 },
-      { id: 'opt-lm2', text: '⚡ Dancehall energy & top selectors', votes: 29 },
-      { id: 'opt-lm3', text: '🌍 Afrobeats & crossover rhythm', votes: 12 },
-      { id: 'opt-lm4', text: '🔥 Hip Hop & sound clashes', votes: 7 },
-      { id: 'opt-lm5', text: '⭐ Depends strictly on the headliner', votes: 6 }
+      { id: 'opt-lm1', text: '🦁 Reggae & conscious roots vibration', votes: 0 },
+      { id: 'opt-lm2', text: '⚡ Dancehall energy & top selectors', votes: 0 },
+      { id: 'opt-lm3', text: '🌍 Afrobeats & crossover rhythm', votes: 0 },
+      { id: 'opt-lm4', text: '🔥 Hip Hop & sound clashes', votes: 0 },
+      { id: 'opt-lm5', text: '⭐ Depends strictly on the headliner', votes: 0 }
     ],
     connectedScene: {
       title: 'Sound & Music Creators',

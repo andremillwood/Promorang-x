@@ -71,7 +71,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     image: '/events/sophisticated-flyer.jpg',
     promoKeysAvailable: 50,
     subMomentsCount: 4,
-    attendeesCount: 410,
+    attendeesCount: 0,
     pointsReward: 200,
     isClaimed: false
   },
@@ -87,7 +87,7 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     image: '/events/encore-live-capleton-flyer.jpg',
     promoKeysAvailable: 50,
     subMomentsCount: 4,
-    attendeesCount: 380,
+    attendeesCount: 0,
     pointsReward: 200,
     isClaimed: false
   },
