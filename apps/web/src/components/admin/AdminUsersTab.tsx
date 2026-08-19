@@ -260,7 +260,9 @@ export function AdminUsersTab() {
           <table className="w-full min-w-[1020px]">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[220px]">User</th>
+                <th className="sticky left-0 z-20 bg-card/95 backdrop-blur-sm p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[240px] border-r border-border/60 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.5)]">
+                  User
+                </th>
                 <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">State</th>
                 <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Roles</th>
                 <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Activity</th>
@@ -279,18 +281,18 @@ export function AdminUsersTab() {
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
-                  <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                    <td className="p-4 align-top min-w-[220px]">
+                  <tr key={user.id} className="group border-b border-border last:border-0 hover:bg-muted/20">
+                    <td className="sticky left-0 z-10 bg-card group-hover:bg-muted/40 transition-colors p-4 align-top min-w-[240px] border-r border-border/60 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.5)]">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-10 w-10 shrink-0">
                           <AvatarImage src={user.profile?.avatar_url || undefined} />
                           <AvatarFallback>{user.profile?.full_name?.charAt(0) || user.email?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="font-medium text-foreground">{user.profile?.full_name || user.profile?.display_name || "Anonymous User"}</p>
+                          <p className="font-medium text-foreground truncate max-w-[180px]">{user.profile?.full_name || user.profile?.display_name || "Anonymous User"}</p>
                           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                             <Mail className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate">{user.email || "No email on file"}</span>
+                            <span className="truncate max-w-[165px]">{user.email || "No email on file"}</span>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">{user.id.slice(0, 8)}...</p>
                         </div>
