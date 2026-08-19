@@ -342,6 +342,74 @@ export default function MidasBrandSponsorshipProposal() {
               </div>
 
             </div>
+
+            {/* PROMOPUSH MULTI-CHANNEL DISTRIBUTION & PLACEMENT MATRIX */}
+            <div className="rounded-sm border-2 border-white/15 bg-[#141210] p-6 sm:p-8 space-y-6">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider">
+                    PromoPush Omnichannel Distribution
+                  </span>
+                  <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">
+                    MULTI-SURFACE REACH
+                  </Badge>
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  How Your Brand Promotion Is Distributed Across Jamaica
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-300">
+                  Every PromoPush campaign includes cross-channel amplification across social, conversational chatbots, and dedicated Promorang surfaces:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                
+                {/* 1. Geo-Targeted Meta Ads */}
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <div className="w-8 h-8 rounded-sm bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <strong className="text-white font-bold block text-sm">
+                    1. Geo-Fenced Meta Ads & Reels
+                  </strong>
+                  <p className="text-stone-400 leading-relaxed">
+                    Hyper-targeted Instagram & Facebook video ads geo-fenced across St. Ann, Ocho Rios, Kingston, Montego Bay, and diaspora travel routes, driving partygoers directly into your offer.
+                  </p>
+                </div>
+
+                {/* 2. Conversational Chatbots */}
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <div className="w-8 h-8 rounded-sm bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <strong className="text-white font-bold block text-sm">
+                    2. WhatsApp & DM Lead Chatbots
+                  </strong>
+                  <p className="text-stone-400 leading-relaxed">
+                    Automated conversational funnels on WhatsApp and IG Direct answer partygoers' questions and deliver your instant drink voucher or gate pass key directly into their messages.
+                  </p>
+                </div>
+
+                {/* 3. Flexible Placement Surfaces */}
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <div className="w-8 h-8 rounded-sm bg-[#ffcf38]/20 text-[#ffcf38] flex items-center justify-center">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <strong className="text-white font-bold block text-sm">
+                    3. Flexible Placement Surfaces
+                  </strong>
+                  <p className="text-stone-400 leading-relaxed">
+                    Choose your presence: be featured in Promorang’s <strong>Curated Promotion Carousels</strong>, take an <strong>Exclusive Dedicated Feature Post</strong>, or deploy your own <strong>Custom Campaign Hub</strong>.
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-stone-300">
+                <span className="text-[#ffcf38]">✓ Guaranteed attribution from first impression to on-site bar cup redemption</span>
+                <span className="text-stone-400">Powered by PromoPush Smart Escrow</span>
+              </div>
+            </div>
           </div>
         )}
 

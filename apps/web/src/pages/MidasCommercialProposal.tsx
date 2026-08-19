@@ -744,6 +744,55 @@ export default function MidasCommercialProposal() {
 
             </div>
 
+            {/* PROMOPUSH DISTRIBUTION MATRIX: HOW SPONSORS REACH JAMAICA */}
+            <div className="rounded-sm border border-white/15 bg-[#141210] p-6 sm:p-7 space-y-5">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider">
+                    PromoPush Omnichannel Distribution
+                  </span>
+                  <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">
+                    MULTI-SURFACE ENGINE
+                  </Badge>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                  How PromoPush Distributes Promotions for Midas & Your Sponsors
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1.5">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Target className="w-4 h-4 text-blue-400" />
+                    1. Geo-Fenced Meta Ads
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Hyper-local Instagram & Facebook video ads targeted across St. Ann, Kingston, Montego Bay, and diaspora travel corridors driving directly into the ticket & perk funnel.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1.5">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Zap className="w-4 h-4 text-emerald-400" />
+                    2. Conversational Chatbots
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Automated WhatsApp and IG Direct DM chatbots that answer fan questions 24/7 and deliver instant gate pass keys or drink vouchers straight into their chat.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-1.5">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Layers className="w-4 h-4 text-[#ffcf38]" />
+                    3. Flexible Placement Surfaces
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Featured in Promorang's <strong>Discovery Carousels</strong>, pinned in <strong>Exclusive Dedicated Posts</strong>, or hosted on custom <strong>Branded Campaign Landing Hubs</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Practical Sponsor Example Box */}
             <div className="rounded-sm border-2 border-[#ff5a1f] bg-[#1a1410] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#ff5a1f33]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ffffff15] pb-4">
