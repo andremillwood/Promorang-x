@@ -274,20 +274,22 @@ const Discover = () => {
             {/* Discovery Questions & Debate Polls Grid */}
             {(activeCategory === "all" || activeCategory === "questions") && !searchQuery && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="px-2.5 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-[10px] font-black uppercase tracking-wider">
-                        Demand Construction
+                      <span className="px-3 py-1 bg-gradient-to-r from-orange-500/20 to-amber-500/20 text-orange-400 border border-orange-500/40 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+                        <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                        ⚡ Live City Drops & Community Unlocks
                       </span>
                     </div>
-                    <h3 className="text-2xl font-bold text-white mt-1">Live Discovery Debates</h3>
-                    <p className="text-xs text-white/50">Vote to influence which venue unlocks 15 limited Tasting Keys this week.</p>
+                    <h3 className="text-2xl font-black text-white mt-1.5">Rally & Unlock Secret Drops</h3>
+                    <p className="text-xs text-white/60">Every vote charges the city battery. Clear the threshold to drop exclusive tasting passes and VIP access for everyone on the ballot.</p>
                   </div>
                   <AskQuestionModal
                     trigger={
-                      <Button className="rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/20">
-                        Ask Question
+                      <Button className="rounded-2xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs shadow-lg shadow-orange-500/20 flex items-center gap-1.5 px-4 h-10 shrink-0">
+                        <Plus className="w-4 h-4" />
+                        <span>Launch a Quest</span>
                       </Button>
                     }
                     onQuestionCreated={(newQ) => {

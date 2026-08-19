@@ -145,40 +145,42 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
           </h3>
         </div>
 
-        {/* Demand Signal Threshold Progress Bar */}
+        {/* City Unlock Progress Bar */}
         <div 
           onClick={navigateToDetail}
-          className="cursor-pointer mb-5 bg-gray-800/60 hover:bg-gray-800/80 p-3 rounded-xl border border-gray-700/50 hover:border-gray-600/60 transition-all"
+          className="cursor-pointer mb-5 bg-black/50 hover:bg-black/70 p-3.5 rounded-2xl border border-white/10 hover:border-orange-500/40 transition-all shadow-inner group/meter"
         >
-          <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
-            <span className="text-gray-300 flex items-center">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400 mr-1" />
-              Demand Signal Progress
+          <div className="flex items-center justify-between text-xs mb-2 font-medium">
+            <span className="text-white flex items-center font-bold tracking-tight">
+              <Zap className="w-4 h-4 text-amber-400 mr-1.5 animate-bounce" />
+              <span>City Unlock Meter</span>
             </span>
-            <span className="text-orange-400 font-bold">
+            <span className="text-orange-400 font-black text-xs px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30">
               {totalVotes} / {thresholdForMoment} Votes
             </span>
           </div>
-          <div className="w-full bg-gray-700/80 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-gray-800/90 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
             <div
-              className="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-700 shadow-md shadow-orange-500/30"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
           {progressPercentage >= 100 ? (
-            <p className="text-[11px] text-emerald-400 font-semibold mt-1.5 flex items-center">
-              <Sparkles className="w-3 h-3 mr-1" /> Demand Threshold Met! Dedicated Moment unlocked.
+            <p className="text-[11px] text-emerald-400 font-bold mt-2 flex items-center">
+              <Sparkles className="w-3.5 h-3.5 mr-1" /> 🎉 UNLOCKED! Exclusive Tasting Pass is Live!
             </p>
           ) : (
-            <div className="flex items-center justify-between text-[11px] text-gray-400 mt-1">
-              <span>Reaching {thresholdForMoment} votes unlocks a dedicated Promorang Moment!</span>
-              <span className="text-orange-400/80 font-bold ml-1">{thresholdForMoment - totalVotes} left</span>
+            <div className="flex items-center justify-between text-[11px] text-white/60 mt-1.5">
+              <span>{thresholdForMoment - totalVotes} more votes triggers the drop for everyone</span>
+              <span className="text-orange-400 font-extrabold ml-1 group-hover/meter:translate-x-0.5 transition-transform">
+                Charge Meter →
+              </span>
             </div>
           )}
         </div>
 
         {/* Options List */}
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2.5 mb-4">
           {options.map(option => {
             const votePercentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
             const isSelected = votedOptionId === option.id;
@@ -188,16 +190,18 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                 key={option.id}
                 onClick={(e) => handleVote(e, option.id)}
                 disabled={!!votedOptionId}
-                className={`w-full relative overflow-hidden p-3 rounded-xl text-left border transition-all duration-200 ${
+                className={`w-full relative overflow-hidden p-3.5 rounded-2xl text-left border transition-all duration-200 active:scale-[0.99] ${
                   isSelected
-                    ? 'border-orange-500 bg-orange-500/10 text-white font-semibold shadow-inner'
-                    : 'border-gray-800 bg-gray-800/40 text-gray-200 hover:border-gray-700 hover:bg-gray-800/70 active:scale-[0.99]'
+                    ? 'border-orange-500 bg-orange-500/20 text-white font-bold shadow-lg shadow-orange-500/10 ring-1 ring-orange-500/40'
+                    : 'border-white/10 bg-white/[0.03] text-gray-200 hover:border-white/25 hover:bg-white/[0.07]'
                 }`}
               >
                 {/* Voting percentage background bar */}
                 {votedOptionId && (
                   <div
-                    className="absolute left-0 top-0 bottom-0 bg-orange-500/20 transition-all duration-500"
+                    className={`absolute left-0 top-0 bottom-0 transition-all duration-700 ${
+                      isSelected ? 'bg-orange-500/25' : 'bg-white/[0.04]'
+                    }`}
                     style={{ width: `${votePercentage}%` }}
                   />
                 )}
@@ -208,7 +212,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                     {option.text}
                   </span>
                   {votedOptionId && (
-                    <span className="font-bold text-gray-300 ml-2">
+                    <span className="font-black text-white ml-2 shrink-0">
                       {votePercentage}% ({option.votes})
                     </span>
                   )}
@@ -220,32 +224,46 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
 
         {/* Post-Vote Micro-Conversion & Reward Banner */}
         {votedOptionId && (
-          <div className="mb-4 p-3.5 rounded-xl bg-gradient-to-r from-purple-950/60 to-orange-950/60 border border-purple-800/40 animate-in fade-in zoom-in-95 duration-200">
+          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start space-x-2.5">
-                <div className="p-1.5 rounded-lg bg-orange-500/20 text-orange-400 mt-0.5">
-                  <Gift className="w-4 h-4" />
+              <div className="flex items-start space-x-3">
+                <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 mt-0.5">
+                  <Gift className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-white">Your vote has been counted! 🎯</p>
-                  <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">
-                    When this question reaches {thresholdForMoment} votes, voters unlock early access to the winning venue's tasting pass.
+                  <p className="text-xs font-black text-white flex items-center gap-1.5">
+                    <span>Loot Claimed!</span>
+                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[10px] font-black uppercase">
+                      +25 Pts
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-white/70 mt-1 leading-relaxed">
+                    You're locked in! When this reaches {thresholdForMoment} votes, your secret tasting pass unlocks in your Vault.
                   </p>
                 </div>
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between pt-2.5 border-t border-white/10">
-              <span className="text-[10px] text-orange-400 font-bold flex items-center">
-                <Sparkles className="w-3 h-3 mr-1" /> +25 PromoPoints Earned
-              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const text = `Help unlock this drop on Promorang! "${question}" - Vote here: ${window.location.origin}${detailUrl}`;
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Rally on WhatsApp</span>
+              </button>
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(detailUrl);
                 }}
-                className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded-lg flex items-center space-x-1 transition-colors"
+                className="text-xs font-bold text-black bg-orange-500 hover:bg-orange-400 px-3.5 py-1.5 rounded-xl flex items-center space-x-1 transition-colors shadow-md shadow-orange-500/20"
               >
-                <span>View Full Debate</span>
+                <span>Arena & Takes</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             </div>
@@ -260,22 +278,22 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                 e.stopPropagation();
                 setShowAddOption(true);
               }}
-              className="text-xs text-orange-400 hover:text-orange-300 font-semibold flex items-center space-x-1"
+              className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center space-x-1"
             >
-              <PlusCircle className="w-4 h-4 mr-1" />
-              <span>Add your candidate</span>
+              <PlusCircle className="w-4 h-4 mr-1 text-orange-400" />
+              <span>Put your spot on the map 📍</span>
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 const url = `${window.location.origin}${detailUrl}`;
                 navigator.clipboard.writeText(url);
-                toast.success('Poll link copied! Share to your group chat.');
+                toast.success('Battle link copied! Share to group chat.');
               }}
-              className="text-[11px] text-gray-400 hover:text-white flex items-center space-x-1 transition-colors"
+              className="text-[11px] text-white/50 hover:text-white flex items-center space-x-1 transition-colors"
             >
               <Share2 className="w-3.5 h-3.5 mr-1 text-purple-400" />
-              <span>Share Poll</span>
+              <span>Share</span>
             </button>
           </div>
         )}
@@ -286,45 +304,37 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
               type="text"
               value={newOptionText}
               onChange={e => setNewOptionText(e.target.value)}
-              placeholder="Type your recommendation (e.g. Chilitos Courtyard)..."
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500"
+              placeholder="Nominate a spot or choice..."
+              className="flex-1 bg-black/60 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500"
             />
             <button
               type="submit"
-              className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl whitespace-nowrap"
+              className="px-3.5 py-2 bg-orange-500 hover:bg-orange-400 text-black text-xs font-black rounded-xl whitespace-nowrap"
             >
-              Submit
+              Nominate & Vote
             </button>
           </form>
         )}
       </div>
 
       {/* Footer link to dedicated page */}
-      <div className="mt-4 pt-3 border-t border-gray-800/80 flex items-center justify-between text-[11px]">
+      <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px]">
         <button
           onClick={navigateToDetail}
-          className="text-orange-400/90 hover:text-orange-300 font-bold flex items-center gap-1 group/btn transition-colors"
+          className="text-orange-400 hover:text-orange-300 font-black flex items-center gap-1 group/btn transition-colors"
         >
-          <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
-          <span>Explore Discussion & Scout Notes</span>
-          <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
+          <Flame className="w-3.5 h-3.5 text-orange-400" />
+          <span>Enter Live Arena & Hot Takes</span>
+          <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
         </button>
 
         {votedOptionId ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const text = `Vote on Promorang: "${question}" - Which spot is your pick? ${window.location.origin}${detailUrl}`;
-              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-            }}
-            className="px-2.5 py-0.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg font-bold transition-colors flex items-center gap-1"
-          >
-            <Share2 className="w-3 h-3" />
-            <span>WhatsApp</span>
-          </button>
+          <span className="text-emerald-400 font-bold flex items-center gap-1 text-[10px]">
+            <CheckCircle2 className="w-3 h-3" /> Vote Recorded
+          </span>
         ) : (
-          <span className="text-gray-500 text-[10px] font-medium">
-            Click to view page
+          <span className="text-white/40 text-[10px] font-medium">
+            Tap to open debate
           </span>
         )}
       </div>

@@ -271,24 +271,24 @@ export default function DiscoveryDetail() {
             <div className="max-w-4xl mx-auto space-y-6">
               {/* Category & Status Strip */}
               <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-black uppercase tracking-wider">
-                  <Flame className="w-3.5 h-3.5 text-orange-400" />
-                  {poll.category} Discovery
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40 text-xs font-black uppercase tracking-wider shadow-sm">
+                  <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
+                  {poll.category}
                 </span>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Demand Signal
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                  Live Community Quest
                 </span>
 
-                <span className="text-xs font-bold text-purple-400 bg-purple-950/50 border border-purple-800/40 px-3 py-1 rounded-full flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  +{poll.pointsReward} PromoPoints per Vote
+                <span className="text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                  <Gift className="w-3.5 h-3.5 text-amber-400" />
+                  +{poll.pointsReward} PromoPoints Loot
                 </span>
               </div>
 
               {/* Grand Editorial Title */}
-              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight">
                 {poll.question}
               </h1>
 
@@ -321,9 +321,9 @@ export default function DiscoveryDetail() {
                 {poll.connectedScene && (
                   <Link
                     to={`/scenes/${poll.connectedScene.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-xl transition"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3.5 py-1.5 rounded-xl transition"
                   >
-                    <span>Connected to: {poll.connectedScene.title}</span>
+                    <span>Connected Scene: {poll.connectedScene.title}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 )}
@@ -338,51 +338,52 @@ export default function DiscoveryDetail() {
               {/* Left Column: Interactive Ballot & Debate Content */}
               <div className="space-y-8">
                 
-                {/* Demand Signal Progress Card */}
+                {/* Community Unlock Battery Card */}
                 <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-gray-900/90 via-gray-950 to-gray-900 p-6 sm:p-7 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
-                        DEMAND-TO-SUPPLY THRESHOLD
+                      <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
+                        <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        COMMUNITY UNLOCK BATTERY
                       </span>
                       <h3 className="text-xl font-bold text-white flex items-center gap-2 mt-0.5">
-                        <TrendingUp className="h-5 w-5 text-emerald-400" />
-                        <span>Demand Signal Velocity</span>
+                        <span>City Hype Meter</span>
                       </h3>
                     </div>
                     <div className="text-left sm:text-right">
                       <span className="text-2xl font-black text-orange-400">
-                        {totalVotes} <span className="text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Votes</span>
+                        {totalVotes} <span className="text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Power Units</span>
                       </span>
-                      <p className="text-[11px] text-white/50 font-medium">{progressPercentage}% of unlock target</p>
+                      <p className="text-[11px] text-white/50 font-medium">{progressPercentage}% charged</p>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden p-0.5 border border-white/10">
+                  <div className="w-full bg-gray-800/90 h-3.5 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
                     <div
-                      className="bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-orange-500/20"
+                      className="bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-700 shadow-lg shadow-orange-500/30"
                       style={{ width: `${progressPercentage}%` }}
                     />
                   </div>
 
                   {/* Milestone Target Explanation */}
-                  <div className="mt-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3.5">
-                    <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 shrink-0 mt-0.5">
-                      <Target className="w-5 h-5" />
+                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-950/40 to-black/60 border border-orange-500/30 flex items-start gap-3.5">
+                    <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0 mt-0.5">
+                      <Gift className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Target Milestone Perk</p>
-                      <p className="text-xs text-white/80 mt-0.5 font-medium">{poll.targetUnlockPerk}</p>
+                      <p className="text-xs font-black uppercase tracking-wider text-amber-400">THE BOUNTY TO UNLOCK</p>
+                      <p className="text-sm font-bold text-white mt-0.5">{poll.targetUnlockPerk}</p>
                       {isThresholdMet ? (
-                        <p className="text-xs text-emerald-400 font-bold mt-1 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5" /> Threshold Cleared! Promorang is scheduling this Moment.
+                        <p className="text-xs text-emerald-400 font-bold mt-1.5 flex items-center gap-1">
+                          <Sparkles className="h-3.5 w-3.5" /> 🎉 TARGET UNLOCKED! Tasting Pass codes are dropping to all voters!
                         </p>
                       ) : (
-                        <p className="text-[11px] text-orange-300/90 font-semibold mt-1">
-                          🔥 Only {votesRemaining} more votes needed to trigger this community unlock!
+                        <p className="text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
+                          <Flame className="w-3.5 h-3.5 text-orange-400" />
+                          <span>Only {votesRemaining} more votes needed to unlock this perk for everyone!</span>
                         </p>
                       )}
                     </div>
@@ -398,12 +399,12 @@ export default function DiscoveryDetail() {
                         <span>Cast Your Vote</span>
                       </h2>
                       <p className="text-xs text-white/60 mt-0.5">
-                        {userVotedOptionId ? "Your choice has been recorded on the live ledger." : "Select an option below to submit your demand signal."}
+                        {userVotedOptionId ? "🎯 Choice locked in! Your reward has been credited." : "Select your pick below to back your candidate and charge the meter."}
                       </p>
                     </div>
 
-                    <span className="text-xs font-bold text-white/40">
-                      {poll.options.length} Candidates
+                    <span className="text-xs font-black text-orange-400/80 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                      {poll.options.length} Contenders
                     </span>
                   </div>
 
@@ -421,8 +422,8 @@ export default function DiscoveryDetail() {
                           disabled={!!userVotedOptionId}
                           className={`w-full relative overflow-hidden p-4 rounded-2xl text-left border transition-all duration-200 group ${
                             isSelected
-                              ? "border-orange-500 bg-orange-500/15 text-white font-bold ring-2 ring-orange-500/30"
-                              : "border-white/10 bg-white/[0.02] text-white hover:border-white/20 hover:bg-white/[0.05] active:scale-[0.99]"
+                              ? "border-orange-500 bg-orange-500/20 text-white font-bold ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/10"
+                              : "border-white/10 bg-white/[0.02] text-white hover:border-white/25 hover:bg-white/[0.06] active:scale-[0.99]"
                           }`}
                         >
                           {/* Animated vote percentage background bar */}
@@ -452,12 +453,12 @@ export default function DiscoveryDetail() {
                               </div>
                               
                               <div className="text-left">
-                                <span className="text-sm font-medium text-white block">
+                                <span className="text-sm font-bold text-white block">
                                   {option.text}
                                 </span>
                                 {isLeading && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 mt-0.5">
-                                    <Sparkles className="w-2.5 h-2.5" /> Leading Choice ({votePercentage}%)
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-400 mt-0.5">
+                                    <Sparkles className="w-2.5 h-2.5" /> Leading Contender ({votePercentage}%)
                                   </span>
                                 )}
                               </div>
@@ -465,7 +466,7 @@ export default function DiscoveryDetail() {
 
                             {userVotedOptionId && (
                               <div className="text-right shrink-0">
-                                <span className="text-sm font-black text-white block">
+                                <span className="text-base font-black text-white block">
                                   {votePercentage}%
                                 </span>
                                 <span className="text-[11px] text-white/50">
@@ -481,20 +482,20 @@ export default function DiscoveryDetail() {
 
                   {/* Post-Vote Micro-Conversion & Reward Banner */}
                   {userVotedOptionId && (
-                    <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/30 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-300">
                       <div className="flex items-start gap-3.5">
                         <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0">
                           <Gift className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-black text-white">Your vote has been verified! 🎯</h4>
+                            <h4 className="text-sm font-black text-white">Loot Bag Claimed! 🎯</h4>
                             <span className="px-2 py-0.5 rounded-md bg-orange-500 text-black text-[10px] font-black uppercase">
                               +{poll.pointsReward} Pts
                             </span>
                           </div>
-                          <p className="text-xs text-white/70 mt-1 leading-relaxed">
-                            When this question reaches its {poll.thresholdForMoment}-vote threshold, all verified voters receive priority access to the unlocked perk.
+                          <p className="text-xs text-white/80 mt-1 leading-relaxed">
+                            You're registered on the voter ledger! When this hits {poll.thresholdForMoment} votes, your exclusive tasting pass code will drop directly into your Vault.
                           </p>
 
                           <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -502,18 +503,18 @@ export default function DiscoveryDetail() {
                               onClick={() => {
                                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                               }}
-                              className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs flex items-center gap-1.5 transition"
+                              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
                             >
-                              <Share2 className="w-3.5 h-3.5" />
-                              <span>Invite Friends on WhatsApp</span>
+                              <Share2 className="w-4 h-4" />
+                              <span>Rally WhatsApp Squad (Unlock 2x Faster)</span>
                             </button>
 
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(shareUrl);
-                                toast.success("Share link copied!");
+                                toast.success("Share link copied to clipboard!");
                               }}
-                              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center gap-1.5 transition"
+                              className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition"
                             >
                               <Copy className="w-3.5 h-3.5" />
                               <span>Copy Link</span>
@@ -532,7 +533,7 @@ export default function DiscoveryDetail() {
                         className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1.5 transition"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>Nominate another candidate / spot</span>
+                        <span>Put your local spot on the map 📍</span>
                       </button>
                     </div>
                   )}
@@ -551,9 +552,9 @@ export default function DiscoveryDetail() {
                         <Button
                           type="submit"
                           size="sm"
-                          className="bg-orange-500 hover:bg-orange-600 text-black font-bold text-xs rounded-xl px-4"
+                          className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4"
                         >
-                          Add & Vote
+                          Nominate & Vote
                         </Button>
                       </div>
                     </form>
@@ -563,19 +564,19 @@ export default function DiscoveryDetail() {
                 {/* Scout Context & Deep Dive */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md space-y-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">SCOUT INTELLIGENCE</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 THE STORY & WHY IT MATTERS</span>
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-white">Context & Market Rationale</h3>
+                  <h3 className="font-serif text-2xl font-bold text-white">Behind The Quest</h3>
                   <p className="text-sm sm:text-base leading-relaxed text-white/80">
                     {poll.description}
                   </p>
                   
                   {poll.contextNotes && (
-                    <div className="mt-4 p-4 rounded-2xl bg-orange-500/5 border border-orange-500/20">
+                    <div className="mt-4 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20">
                       <p className="text-xs font-bold text-orange-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" /> What Happens Next
+                        <Sparkles className="w-3.5 h-3.5" /> What Unlocks Next
                       </p>
-                      <p className="text-xs text-white/70 mt-1 leading-relaxed">
+                      <p className="text-xs text-white/80 mt-1 leading-relaxed">
                         {poll.contextNotes}
                       </p>
                     </div>
@@ -599,33 +600,33 @@ export default function DiscoveryDetail() {
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
                       <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5 text-orange-400" />
-                        <span>Community Debate & Hot Takes</span>
+                        <Flame className="h-5 w-5 text-orange-400" />
+                        <span>🥊 Live Arena & Hot Takes</span>
                       </h3>
-                      <p className="text-xs text-white/50">{comments.length} arguments recorded</p>
+                      <p className="text-xs text-white/50">{comments.length} takes from the community</p>
                     </div>
                   </div>
 
                   {/* Add Argument Form */}
                   <form onSubmit={handleAddComment} className="space-y-3 border-b border-white/10 pb-6">
-                    <p className="text-xs font-bold text-white/90">Share your reasoning for your pick:</p>
+                    <p className="text-xs font-bold text-white/90">Drop your hot take: Why does your pick deserve the crown?</p>
                     <textarea
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Why did you pick your candidate? Share your experience, flavor notes, or event expectations..."
+                      placeholder="Back your candidate with real notes, flavor comparisons, or memories..."
                       rows={3}
                       className="w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-xs text-white placeholder:text-white/40 focus:border-orange-500 focus:outline-none leading-relaxed"
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-white/40">Keep debates respectful and authentic.</span>
+                      <span className="text-[11px] text-white/40">Real talk only. Keep it authentic.</span>
                       <Button
                         type="submit"
                         disabled={!commentText.trim()}
                         size="sm"
-                        className="bg-orange-500 hover:bg-orange-600 text-black font-bold text-xs rounded-xl flex items-center gap-1.5"
+                        className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Post Argument</span>
+                        <span>Post Hot Take</span>
                       </Button>
                     </div>
                   </form>
@@ -642,7 +643,7 @@ export default function DiscoveryDetail() {
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-white">{c.author}</span>
                               {c.badge && (
-                                <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-semibold text-white/70">
+                                <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-white/70">
                                   {c.badge}
                                 </span>
                               )}
@@ -651,8 +652,8 @@ export default function DiscoveryDetail() {
                           </div>
 
                           {c.optionSupported && (
-                            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-400">
-                              <span>Voted for: {c.optionSupported}</span>
+                            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-400">
+                              <span>🔥 Backing: {c.optionSupported}</span>
                             </div>
                           )}
 
@@ -682,34 +683,35 @@ export default function DiscoveryDetail() {
                 
                 {/* Demand-to-Supply Engine Card */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl space-y-4">
-                  <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400">
-                    HOW IT WORKS
+                  <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-orange-400" />
+                    THE PEOPLE'S GREENLIGHT
                   </span>
-                  <h3 className="font-serif text-xl font-bold text-white">Demand-to-Supply</h3>
+                  <h3 className="font-serif text-xl font-bold text-white">How We Unlock The City</h3>
                   <p className="text-xs text-white/70 leading-relaxed">
-                    Promorang doesn't wait for sponsors to decide what gets created. We aggregate verified community demand to unlock merchant perks and sponsor co-funding.
+                    Instead of waiting for sponsors to guess what you want, our community votes together to force venues and brands to drop subsidized perks and secret moments.
                   </p>
 
                   <div className="space-y-3 pt-2 border-t border-white/10 text-xs">
                     <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-orange-500/20 text-orange-400 font-black flex items-center justify-center shrink-0 text-[10px]">
+                      <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         1
                       </div>
-                      <p className="text-white/80"><strong>You Vote & Debate:</strong> Back your favorite spot or candidate.</p>
+                      <p className="text-white/80"><strong>Vote & Back Your Spot:</strong> Select your favorite candidate.</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-orange-500/20 text-orange-400 font-black flex items-center justify-center shrink-0 text-[10px]">
+                      <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         2
                       </div>
-                      <p className="text-white/80"><strong>Threshold Trigger:</strong> At {poll.thresholdForMoment} votes, Promorang contracts the venue.</p>
+                      <p className="text-white/80"><strong>Charge The Battery:</strong> At {poll.thresholdForMoment} votes, Promorang locks in the sponsor contract.</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-orange-500/20 text-orange-400 font-black flex items-center justify-center shrink-0 text-[10px]">
+                      <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         3
                       </div>
-                      <p className="text-white/80"><strong>Voter Priority:</strong> Voters receive instant PromoKey drops and points.</p>
+                      <p className="text-white/80"><strong>Exclusive Drop:</strong> Voters get priority passes and discount keys in their Vault.</p>
                     </div>
                   </div>
 
@@ -718,7 +720,7 @@ export default function DiscoveryDetail() {
                       onClick={() => {
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                       }}
-                      className="w-full h-11 rounded-2xl bg-orange-500 hover:bg-orange-600 text-black font-bold text-xs flex items-center justify-center gap-2"
+                      className="w-full h-11 rounded-2xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
                     >
                       <Share2 className="w-4 h-4" />
                       <span>Rally Friends on WhatsApp</span>
