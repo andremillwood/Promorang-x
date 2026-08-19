@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import {
@@ -24,609 +24,641 @@ import {
   AlertCircle,
   HelpCircle,
   TrendingDown,
-  Smile
+  Smile,
+  Sliders,
+  DollarSign,
+  Layers,
+  Thermometer,
+  RotateCcw,
+  Volume2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ArlaRecipePackModal } from '@/components/arla/ArlaRecipePackModal';
 import { getSiteUrl } from '@/lib/discovery';
 
-type CulinaryMode = 'cook' | 'whip' | 'drink';
+type DialState = 'cook' | 'whip' | 'drink';
 
 export default function ArlaCampaignHub() {
-  const [activeMode, setActiveMode] = useState<CulinaryMode>('cook');
-  const [tasteOffVote, setTasteOffVote] = useState<'pasta' | 'mousse' | null>(null);
-  const [pastaVotes, setPastaVotes] = useState(164);
-  const [mousseVotes, setMousseVotes] = useState(149);
-  const [priceVote, setPriceVote] = useState<string | null>(null);
-  const [showPriceReveal, setShowPriceReveal] = useState(false);
-  const [intentVote, setIntentVote] = useState<string | null>(null);
-  const [purchaseStatus, setPurchaseStatus] = useState<string | null>(null);
+  // Dual-State Culinary Dial Slider position (0 = Cook/Hot, 50 = Drink/Punch, 100 = Whip/Cold)
+  const [dialPos, setDialPos] = useState<number>(0);
+  const [dialState, setDialState] = useState<DialState>('cook');
+
+  // Interactive Taste-Off Ballot State
+  const [ballotVote, setBallotVote] = useState<'pasta' | 'mousse' | null>(null);
+  const [stampActive, setStampActive] = useState<boolean>(false);
+  const [ticketSerial, setTicketSerial] = useState<string>('');
+  const [pastaCount, setPastaCount] = useState<number>(178);
+  const [mousseCount, setMousseCount] = useState<number>(154);
+
+  // Grocery Savings Basket Calculator
+  const [cartonQty, setCartonQty] = useState<number>(2);
+
+  // Recipe Pack Modal
   const [recipeModalOpen, setRecipeModalOpen] = useState(false);
+  const [activeRecipeTab, setActiveRecipeTab] = useState<number>(0);
 
-  const completedActions = [
-    { id: 'tasteoff', label: 'Voted in Taste-Off', done: !!tasteOffVote },
-    { id: 'mode', label: 'Tested Cooking vs Whipping', done: activeMode !== 'cook' || !!tasteOffVote },
-    { id: 'price', label: 'Checked Price Savings', done: !!priceVote || showPriceReveal },
-    { id: 'intent', label: 'Picked Favourite Dish', done: !!intentVote }
-  ];
-
-  const completedCount = completedActions.filter((a) => a.done).length;
-  const isKeyUnlocked = completedCount >= 2;
-
-  const totalVotes = pastaVotes + mousseVotes;
-  const pastaPct = Math.round((pastaVotes / totalVotes) * 100);
-  const moussePct = 100 - pastaPct;
-
-  const handleTasteOffVote = (choice: 'pasta' | 'mousse') => {
-    if (tasteOffVote) return;
-    setTasteOffVote(choice);
-    if (choice === 'pasta') {
-      setPastaVotes((v) => v + 1);
-      toast.success('Vote recorded for Spicy Rasta Pasta! 🍝 (+50 Points)');
-    } else {
-      setMousseVotes((v) => v + 1);
-      toast.success('Vote recorded for Chocolate Chip Mousse! 🍫 (+50 Points)');
+  // Sound / Micro-feedback mock
+  const playHaptic = () => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(25); } catch { /* ignore */ }
     }
   };
 
-  const handlePriceSelect = (range: string) => {
-    setPriceVote(range);
-    setShowPriceReveal(true);
-    toast.success('Price savings revealed! (+30 Points)');
+  // Sync dial position with mode
+  const handleDialChange = (val: number) => {
+    setDialPos(val);
+    playHaptic();
+    if (val < 33) setDialState('cook');
+    else if (val > 66) setDialState('whip');
+    else setDialState('drink');
   };
+
+  const handleVote = (choice: 'pasta' | 'mousse') => {
+    if (ballotVote) return;
+    playHaptic();
+    setStampActive(true);
+    setBallotVote(choice);
+    const randSerial = 'ARLA-' + Math.random().toString(36).substring(2, 7).toUpperCase() + '-KGN';
+    setTicketSerial(randSerial);
+
+    if (choice === 'pasta') {
+      setPastaCount((p) => p + 1);
+      toast.success('PASSPORT STAMPED: Team Spicy Rasta Pasta! 🍝 (+50 Pts)');
+    } else {
+      setMousseCount((m) => m + 1);
+      toast.success('PASSPORT STAMPED: Team Chocolate Chip Mousse! 🍫 (+50 Pts)');
+    }
+
+    setTimeout(() => setStampActive(false), 800);
+  };
+
+  const totalBallots = pastaCount + mousseCount;
+  const pastaShare = Math.round((pastaCount / totalBallots) * 100);
+  const mousseShare = 100 - pastaShare;
+
+  // Grocery Savings Math
+  const regPriceEach = 2700;
+  const roadshowPriceEach = 1200;
+  const regTotal = cartonQty * regPriceEach;
+  const roadshowTotal = cartonQty * roadshowPriceEach;
+  const savingsTotal = regTotal - roadshowTotal;
+  const mealsCooked = cartonQty * 2;
+  const dessertBowls = cartonQty * 1;
 
   const copyShareLink = () => {
     const url = `${window.location.origin}/campaigns/arla-whip-and-cook?utm_source=promorang&utm_medium=tasteoff_share&utm_campaign=arla_pricesmart`;
     navigator.clipboard.writeText(url);
-    toast.success('Link copied! Share it with someone who loves good food.');
+    toast.success('Share link copied to clipboard!');
   };
 
   const shareWhatsApp = () => {
-    const text = `Have you tried the Rasta Pasta or Chocolate Mousse sample at PriceSmart? Vote for your favourite and get 5 easy dinner & dessert recipes here: ${window.location.origin}/campaigns/arla-whip-and-cook`;
+    const text = `🔥 Hot Rasta Pasta vs ❄️ Cold Chocolate Mousse! Taste them free at PriceSmart Jamaica & cast your vote here: ${window.location.origin}/campaigns/arla-whip-and-cook`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
-    <main className="min-h-screen bg-[#11100e] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans pb-32">
+    <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans pb-36 relative overflow-x-hidden">
       <SEO
-        title="Stop Buying Two Different Creams — Arla Pro Whip & Cook @ PriceSmart Jamaica"
-        description="One cream for hot dinner sauces, cold desserts, and rich Jamaican punches. Stop wasting money on creams that curdle. Taste it free at PriceSmart (10am–8pm) and get 1L for J$1,200."
+        title="PROMORANG × ARLA PRO — Stop Buying Two Different Creams"
+        description="Cook spicy hot dinners and whip fluffy cold desserts from one single carton. Free sampling roadshow active daily at PriceSmart Jamaica (111 Red Hills Road, 10am–8pm). Get 1L for J$1,200."
         image="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200"
         url={getSiteUrl("/campaigns/arla-whip-and-cook")}
       />
 
-      {/* 1. TOP TICKER / LIVE ROADSHOW BANNER */}
-      <div className="bg-[#ff5a1f] text-black font-mono font-black text-xs uppercase tracking-wider py-2.5 px-4 border-b-2 border-black flex items-center justify-between overflow-x-auto gap-4">
+      {/* TOP TICKER TAPE */}
+      <div className="bg-[#ff5a1f] text-black font-mono font-black text-xs uppercase tracking-wider py-2.5 px-4 border-b-2 border-black flex items-center justify-between overflow-x-auto gap-4 z-40 relative">
         <div className="flex items-center gap-3 shrink-0">
           <span className="h-2.5 w-2.5 bg-black rounded-full animate-ping" />
           <span>FREE TASTING BOOTH OPEN TODAY AT PRICESMART (111 RED HILLS ROAD) · 10:00 AM – 8:00 PM</span>
         </div>
         <div className="flex items-center gap-4 shrink-0 font-bold">
-          <span>ON SALE FOR ~J$1,200 (SAVE OVER J$1,500)</span>
-          <Link to="/proposals/arla-pro" className="bg-black text-white px-2.5 py-0.5 hover:bg-[#11100e] transition text-[10px]">
-            FOR BUSINESS / BRAND →
+          <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">ROADSHOW SPECIAL: J$1,200</span>
+          <Link to="/proposals/arla-pro" className="hover:underline text-[10px]">
+            FOR BUSINESS / BRAND PROPOSAL →
           </Link>
         </div>
       </div>
 
-      {/* 2. HERO SECTION — PROBLEM & OUTCOME HEADLINE */}
-      <section className="relative border-b-2 border-black/40 bg-gradient-to-b from-[#181512] to-[#11100e] px-4 sm:px-8 pt-12 pb-16">
-        <div className="max-w-7xl mx-auto grid gap-12 lg:grid-cols-[1.25fr_0.75fr] items-center">
+      {/* 1. HERO WITH THE INTERACTIVE DUAL-STATE CULINARY DIAL */}
+      <section className="relative border-b-2 border-black/40 px-4 sm:px-8 pt-10 pb-16 bg-gradient-to-b from-[#181512] via-[#11100e] to-[#0d0c0a]">
+        <div className="max-w-7xl mx-auto space-y-8">
           
-          {/* Left Column */}
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] font-black uppercase tracking-[0.2em] text-[#ff5a1f]">
-              <span>TIRED OF WASTED CREAM?</span>
-              <span className="text-white/40">/</span>
-              <span>MEET ARLA PRO</span>
-              <span className="text-white/40">/</span>
-              <span className="text-[#ffcf38]">AT PRICESMART</span>
+          {/* Top Pill Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+            <div className="flex items-center gap-2 text-[#ff5a1f] font-black uppercase tracking-widest">
+              <span>PROMORANG EXPERIMENTAL</span>
+              <span className="text-white/30">/</span>
+              <span>ARLA PRO ROADSHOW</span>
+              <span className="text-white/30">/</span>
+              <span className="text-[#ffcf38]">KINGSTON 19</span>
             </div>
 
-            <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] text-white">
-              Stop Buying Two <i className="text-[#ff5a1f] not-italic">Different</i> Creams.
-            </h1>
-
-            <p className="font-serif text-2xl sm:text-3xl font-bold text-[#ffcf38] leading-tight">
-              One carton cooks creamy hot dinners and whips fluffy desserts without spoiling or splitting.
-            </p>
-
-            <p className="text-sm sm:text-base text-[#d0c5b9] leading-relaxed max-w-xl">
-              Ever had heavy cream split into oily water when you cook with Scotch bonnet or lemon? Or bought whipping cream that melted flat in Jamaican heat? <strong>Arla Pro Whip & Cook 28%</strong> solves both problems in a single 1-litre carton.
-            </p>
-
-            {/* Layman Problem-Solution Toggle */}
-            <div className="pt-2 space-y-3">
-              <span className="font-mono text-[10px] uppercase font-black tracking-widest text-[#898071] block">
-                [ CLICK TO SEE HOW YOU CAN USE IT AT HOME ]
-              </span>
-              <div className="grid grid-cols-3 gap-2.5 max-w-lg">
-                {[
-                  { id: 'cook', label: '01 / FOR DINNER', sub: 'Pasta & Curries (No Curdling)', icon: Flame },
-                  { id: 'whip', label: '02 / FOR DESSERT', sub: 'Mousse & Cakes (Holds Shape)', icon: Snowflake },
-                  { id: 'drink', label: '03 / FOR DRINKS', sub: 'Stout & Peanut Punch', icon: Coffee }
-                ].map((mode) => {
-                  const isSel = activeMode === mode.id;
-                  const Icon = mode.icon;
-                  return (
-                    <button
-                      key={mode.id}
-                      onClick={() => setActiveMode(mode.id as CulinaryMode)}
-                      className={`p-3 text-left border-2 transition-all cursor-pointer ${
-                        isSel
-                          ? 'border-[#ff5a1f] bg-[#ff5a1f] text-black shadow-[4px_4px_0_#ffcf38]'
-                          : 'border-white/20 bg-white/5 text-[#d0c5b9] hover:border-white/40'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono font-black text-xs">{mode.label}</span>
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <p className={`text-[10px] font-bold ${isSel ? 'text-black/80' : 'text-white/40'}`}>{mode.sub}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
-              <button
-                onClick={() => document.getElementById('tasteoff-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-7 py-4 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider shadow-[6px_6px_0_#ffcf38] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#ffcf38] transition cursor-pointer border-2 border-black"
-              >
-                WHICH TASTES BETTER? CAST YOUR VOTE ↓
-              </button>
-
-              <button
-                onClick={() => setRecipeModalOpen(true)}
-                className="px-6 py-4 bg-transparent text-[#f4efe5] font-black uppercase text-xs tracking-wider border-2 border-[#f4efe5]/40 hover:border-[#f4efe5] hover:bg-white/5 transition cursor-pointer"
-              >
-                GET 5 EASY RECIPES ({isKeyUnlocked ? 'READY' : 'FREE'})
-              </button>
+            <div className="flex items-center gap-2 bg-black/60 border border-white/15 px-3 py-1 text-[11px] text-[#25D366]">
+              <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
+              <span>CHEF SAMPLING ACTIVE NOW (10AM - 8PM)</span>
             </div>
           </div>
 
-          {/* Right Column: Physical Stamped Roadshow Tasting Pass */}
-          <div className="relative">
-            <div className="bg-[#f4efe5] text-[#11100e] p-6 shadow-[14px_14px_0_#ff5a1f] border-2 border-black rotate-1 hover:rotate-0 transition-transform duration-300">
-              
-              {/* Ticket Top */}
-              <div className="flex justify-between items-center font-mono text-[10px] font-black uppercase tracking-widest border-b-2 border-black pb-3">
-                <span>FREE SAMPLING PASS</span>
-                <span className="bg-black text-white px-2 py-0.5">RED HILLS ROAD</span>
+          {/* Core Title */}
+          <div className="space-y-3 max-w-4xl">
+            <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.88] text-white">
+              Stop Buying Two <i className="text-[#ff5a1f] not-italic">Different</i> Creams.
+            </h1>
+            <p className="font-serif text-2xl sm:text-3xl font-bold text-[#ffcf38] leading-tight">
+              One carton cooks velvety hot dinners and whips firm dessert peaks without spoiling or curdling.
+            </p>
+            <p className="text-sm sm:text-base text-[#d0c5b9] leading-relaxed max-w-2xl">
+              Ever had heavy cream split into oily water when cooked with Scotch bonnet? Or bought whipping cream that melted in Jamaican heat? Arla Pro Whip & Cook 28% solves both in one single 1-litre carton.
+            </p>
+          </div>
+
+          {/* ⚡️ BESPOKE UI COMPONENT 1: THE DUAL-STATE CULINARY SIMULATOR */}
+          <div className="rounded-none border-2 border-black bg-[#161412] p-6 sm:p-8 shadow-[12px_12px_0_#ff5a1f] space-y-6">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black/60 pb-4 font-mono">
+              <div>
+                <span className="text-[#ff5a1f] font-black uppercase text-xs tracking-widest block">
+                  [ INTERACTIVE CULINARY SIMULATOR ]
+                </span>
+                <span className="text-white text-sm font-bold">Drag the Temperature Slider to test what happens in your pan vs bowl:</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className={`px-3 py-1 font-mono font-black text-xs uppercase border ${
+                  dialState === 'cook'
+                    ? 'bg-orange-600 text-black border-black shadow-[2px_2px_0_#ffcf38]'
+                    : dialState === 'whip'
+                    ? 'bg-emerald-500 text-black border-black shadow-[2px_2px_0_#ffcf38]'
+                    : 'bg-purple-500 text-black border-black shadow-[2px_2px_0_#ffcf38]'
+                }`}>
+                  {dialState === 'cook' ? '🔥 100°C HOT PAN (COOK)' : dialState === 'whip' ? '❄️ 4°C COLD WHISK (WHIP)' : '🥤 20°C BLEND (PUNCH)'}
+                </span>
+              </div>
+            </div>
+
+            {/* Tactile Range Slider */}
+            <div className="space-y-2 font-mono">
+              <div className="flex justify-between text-xs font-bold text-[#898071]">
+                <button onClick={() => handleDialChange(0)} className="hover:text-white cursor-pointer">
+                  ◀ 01. HOT COOKING (0° - 100°C)
+                </button>
+                <button onClick={() => handleDialChange(50)} className="hover:text-white cursor-pointer">
+                  02. DRINK BLEND
+                </button>
+                <button onClick={() => handleDialChange(100)} className="hover:text-white cursor-pointer">
+                  03. COLD WHIPPING (4°C) ▶
+                </button>
               </div>
 
-              {/* Photo Preview */}
-              <div className="my-4 relative border-2 border-black overflow-hidden aspect-[4/3] bg-black">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={dialPos}
+                onChange={(e) => handleDialChange(Number(e.target.value))}
+                className="w-full h-4 bg-black border-2 border-black rounded-none appearance-none cursor-pointer accent-[#ff5a1f]"
+              />
+            </div>
+
+            {/* Dynamic Stage Canvas */}
+            <div className={`p-6 border-2 border-black transition-all duration-300 grid gap-8 lg:grid-cols-[1fr_1.1fr] items-center ${
+              dialState === 'cook'
+                ? 'bg-gradient-to-r from-[#2e1308] via-[#1a0f0a] to-black border-orange-600'
+                : dialState === 'whip'
+                ? 'bg-gradient-to-r from-[#072417] via-[#0b1a13] to-black border-emerald-500'
+                : 'bg-gradient-to-r from-[#200f28] via-[#130b19] to-black border-purple-500'
+            }`}>
+              
+              {/* Left Photo & Real Dish View */}
+              <div className="relative border-2 border-black aspect-video sm:aspect-[4/3] overflow-hidden bg-black shadow-[6px_6px_0_#000]">
                 <img
                   src={
-                    activeMode === 'cook'
+                    dialState === 'cook'
                       ? 'https://images.unsplash.com/photo-1621996346565-e3d5d6281699?auto=format&fit=crop&q=80&w=800'
-                      : activeMode === 'whip'
+                      : dialState === 'whip'
                       ? 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&q=80&w=800'
                       : 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&q=80&w=800'
                   }
                   alt="Application View"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-2 left-2 bg-[#ffcf38] text-black font-mono font-black text-[10px] uppercase px-2 py-0.5 border border-black">
-                  {activeMode === 'cook' ? 'DISH 01: HOT RASTA PASTA' : activeMode === 'whip' ? 'DISH 02: CHOCOLATE CHIP MOUSSE' : 'DISH 03: CREAMY STOUT PUNCH'}
+                <div className="absolute top-2 left-2 bg-black text-[#ffcf38] font-mono font-black text-[10px] uppercase px-2.5 py-1 border border-white/20">
+                  {dialState === 'cook' ? 'DISH: SPICY RASTA PASTA' : dialState === 'whip' ? 'DISH: CHOCOLATE CHIP MOUSSE' : 'DISH: STRONG BACK PUNCH'}
                 </div>
               </div>
 
-              {/* Price Highlight */}
-              <div className="text-center py-2 border-b-2 border-dashed border-[#898071]">
-                <span className="font-mono text-[10px] font-black uppercase tracking-widest text-[#776e62]">THIS WEEK AT PRICESMART</span>
-                <strong className="block font-serif text-5xl font-black text-[#ff5a1f] leading-none my-1">
-                  J$1,200
-                </strong>
-                <p className="font-mono text-[10px] text-[#776e62]">
-                  Usually ~J$2,700 for imported heavy cream. You save J$1,500.
-                </p>
-              </div>
-
-              {/* Location Details */}
-              <div className="grid grid-cols-2 font-mono text-[10px] border-b-2 border-black my-3">
-                <div className="py-2 pr-2 border-r-2 border-black">
-                  <span className="text-[#776e62] block">LOCATION</span>
-                  <strong className="text-xs">PriceSmart KGN 19</strong>
+              {/* Right Live Culinary Telemetry */}
+              <div className="space-y-4 font-mono text-xs">
+                <div>
+                  <h3 className="font-serif text-3xl font-black text-white font-sans">
+                    {dialState === 'cook'
+                      ? 'Boil & Pepper Stability (Hot Dinner)'
+                      : dialState === 'whip'
+                      ? '3.5× Expansion & Firm Peaks (Dessert)'
+                      : 'Smooth Stout Emulsion (Jamaican Punch)'}
+                  </h3>
+                  <p className="text-[#c9c0b5] text-xs leading-relaxed mt-1">
+                    {dialState === 'cook'
+                      ? 'Simmered over direct heat with Scotch bonnet pepper, scallions, and bell peppers. Will never split, curdle, or release greasy oil.'
+                      : dialState === 'whip'
+                      ? 'Whips to 350% of its starting volume. Holds its firm shape on cakes and mousses even in warm Jamaican kitchen temperatures.'
+                      : 'Blends seamlessly with Dragon Stout, peanut butter, and condensed milk without curdling or separating over ice.'}
+                  </p>
                 </div>
-                <div className="py-2 pl-2">
-                  <span className="text-[#776e62] block">SAMPLING HOURS</span>
-                  <strong className="text-xs">10:00 AM – 8:00 PM</strong>
-                </div>
-              </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between font-mono text-[10px] text-[#776e62] pt-1">
-                <span>TASTE FREE BEFORE YOU BUY</span>
-                <span className="text-black font-bold">1L CARTON</span>
+                {/* 3 Metric Gauges */}
+                <div className="grid grid-cols-3 gap-2 text-center pt-2">
+                  <div className="p-2.5 bg-black/70 border border-white/10">
+                    <span className="text-[9px] text-white/40 block">HEAT TOLERANCE</span>
+                    <strong className={`text-xs ${dialState === 'cook' ? 'text-orange-400' : 'text-white'}`}>
+                      {dialState === 'cook' ? '100°C (Boil Safe)' : 'Up to 100°C'}
+                    </strong>
+                  </div>
+                  <div className="p-2.5 bg-black/70 border border-white/10">
+                    <span className="text-[9px] text-white/40 block">VOLUME YIELD</span>
+                    <strong className={`text-xs ${dialState === 'whip' ? 'text-emerald-400' : 'text-white'}`}>
+                      {dialState === 'whip' ? '3.5× (350%)' : '1.0× Dense'}
+                    </strong>
+                  </div>
+                  <div className="p-2.5 bg-black/70 border border-white/10">
+                    <span className="text-[9px] text-white/40 block">CURDLE RISK</span>
+                    <strong className="text-xs text-[#25D366]">0% (Zero Curdling)</strong>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => document.getElementById('ballot-section')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="px-5 py-2.5 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[3px_3px_0_#ffcf38] hover:translate-x-[1px] hover:translate-y-[1px] transition cursor-pointer"
+                  >
+                    VOTE FOR THIS DISH IN TASTE-OFF ↓
+                  </button>
+                  <button
+                    onClick={() => setRecipeModalOpen(true)}
+                    className="px-4 py-2.5 bg-white/10 text-white font-bold uppercase text-xs border border-white/20 hover:bg-white/20 transition cursor-pointer"
+                  >
+                    GET RECIPE →
+                  </button>
+                </div>
               </div>
 
             </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 3. THE 3 BIG PROBLEMS WE SOLVE (PLAIN ENGLISH) */}
-      <section className="bg-[#f4efe5] text-[#11100e] px-4 sm:px-8 py-20 border-b-2 border-black">
-        <div className="max-w-7xl mx-auto space-y-12">
-          
-          <div className="max-w-3xl space-y-2">
-            <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ff5a1f]">
-              WHY SWITCH FROM REGULAR CREAM?
-            </p>
-            <h2 className="font-serif text-4xl sm:text-6xl font-bold leading-tight">
-              Cooking with cream in Jamaica shouldn't be a gamble.
-            </h2>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3 border-t-2 border-black pt-8 font-mono">
-            
-            <article className="space-y-3 bg-white p-6 border-2 border-black shadow-[6px_6px_0_#ff5a1f]">
-              <div className="flex items-center justify-between">
-                <span className="text-[#ff5a1f] font-black text-xs">PROBLEM #1</span>
-                <span className="text-xs text-red-600 font-bold">CURDLING</span>
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-black font-sans">No more split, oily pasta sauces</h3>
-              <p className="text-xs text-[#554e45] leading-relaxed">
-                Most heavy creams separate into oil when heated with Scotch bonnet, garlic, or lemon. Arla is heat-stable and never curdles, giving you glossy, restaurant-quality sauces every single time.
-              </p>
-            </article>
-
-            <article className="space-y-3 bg-white p-6 border-2 border-black shadow-[6px_6px_0_#ffcf38]">
-              <div className="flex items-center justify-between">
-                <span className="text-[#ff5a1f] font-black text-xs">PROBLEM #2</span>
-                <span className="text-xs text-amber-600 font-bold">MELTING</span>
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-black font-sans">Whips to 3.5× volume and holds firm</h3>
-              <p className="text-xs text-[#554e45] leading-relaxed">
-                You get more whipped cream from one carton (expands to 350% of its size). Even better, it doesn’t melt into soup on your cakes or desserts in warm weather.
-              </p>
-            </article>
-
-            <article className="space-y-3 bg-white p-6 border-2 border-black shadow-[6px_6px_0_#25D366]">
-              <div className="flex items-center justify-between">
-                <span className="text-[#ff5a1f] font-black text-xs">PROBLEM #3</span>
-                <span className="text-xs text-emerald-700 font-bold">MONEY WASTED</span>
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-black font-sans">One carton handles everything</h3>
-              <p className="text-xs text-[#554e45] leading-relaxed">
-                Stop buying one expensive cream for Alfredo pasta and a separate can for desserts that spoils in 3 days. Use what you need for dinner, whip the rest for dessert or a cream punch.
-              </p>
-            </article>
 
           </div>
 
         </div>
       </section>
 
-      {/* 4. THE LIVE TASTE-OFF ARENA */}
-      <section id="tasteoff-section" className="px-4 sm:px-8 py-20 bg-[#161412] border-b-2 border-black">
-        <div className="max-w-7xl mx-auto space-y-10">
+      {/* 2. ⚡️ BESPOKE UI COMPONENT 2: THE PHYSICAL STAMPED TASTING BALLOT */}
+      <section id="ballot-section" className="px-4 sm:px-8 py-20 bg-[#141210] border-b-2 border-black relative">
+        <div className="max-w-6xl mx-auto space-y-10">
           
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#332e29] pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6">
             <div>
               <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ff5a1f]">
-                THE RED HILLS ROAD TASTE-OFF
+                OFFICIAL ROADSHOW CITIZEN BALLOT
               </p>
               <h2 className="font-serif text-4xl sm:text-6xl font-black text-white mt-1">
-                Which dish won your taste test?
+                Which dish won your vote at PriceSmart?
               </h2>
-              <p className="text-xs text-white/70 font-mono mt-1">
-                Shoppers at PriceSmart get to try both free. Cast your vote below to see what Kingston prefers.
+              <p className="text-xs text-[#d0c5b9] font-mono mt-1">
+                Tap your winner to physically stamp your roadshow ballot and lock in your vote.
               </p>
             </div>
-            <div className="font-mono text-left md:text-right bg-black/60 border border-white/10 p-3 px-5">
-              <span className="text-2xl font-black text-[#ffcf38]">{totalVotes}</span>
-              <p className="text-[10px] font-bold text-white/40 uppercase">Shopper Votes Counted</p>
+
+            <div className="font-mono bg-black border-2 border-black p-4 text-right shrink-0 shadow-[4px_4px_0_#ff5a1f]">
+              <span className="text-3xl font-black text-[#ffcf38]">{totalBallots}</span>
+              <p className="text-[10px] font-bold text-white/50 uppercase">Stamped Ballots Cast</p>
             </div>
           </div>
 
-          {/* Duel Matchup Arena */}
-          <div className="grid gap-6 md:grid-cols-2">
+          {/* Physical Stamped Ballot Board */}
+          <div className="bg-[#f4efe5] text-[#11100e] p-6 sm:p-10 border-2 border-black shadow-[16px_16px_0_#ff5a1f] relative overflow-hidden font-mono">
             
-            {/* Card 1: Team Rasta Pasta */}
-            <div className={`p-6 border-2 transition-all flex flex-col justify-between ${
-              tasteOffVote === 'pasta'
-                ? 'border-[#ff5a1f] bg-[#ff5a1f]/10 shadow-[8px_8px_0_#ff5a1f]'
-                : 'border-white/15 bg-black/40 hover:border-white/40'
-            }`}>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center font-mono text-xs">
-                  <span className="bg-[#ff5a1f] text-black font-black px-2.5 py-0.5">SAVOURY / HOT</span>
-                  <span className="text-white/50">DINNER SAMPLE</span>
+            {/* Ink Stamp Overlay Effect when voted */}
+            {ballotVote && (
+              <div className="absolute top-8 right-8 z-20 pointer-events-none transform rotate-[-12deg] animate-in zoom-in-50 duration-300">
+                <div className="border-4 border-dashed border-red-700 text-red-700 font-mono font-black text-xl sm:text-2xl px-6 py-2 uppercase tracking-widest bg-red-100/90 shadow-lg">
+                  ★ VERIFIED TASTE VOTE STAMPED ★
+                  <span className="block text-[10px] text-center">{ticketSerial}</span>
                 </div>
-
-                <div className="border border-white/20 aspect-video overflow-hidden bg-black">
-                  <img
-                    src="https://images.unsplash.com/photo-1621996346565-e3d5d6281699?auto=format&fit=crop&q=80&w=800"
-                    alt="Rasta Pasta"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <h3 className="font-serif text-3xl font-black text-white">🍝 Spicy Rasta Pasta</h3>
-                <p className="text-xs text-[#c0b5a8] leading-relaxed">
-                  Creamy penne tossed in a hot Scotch bonnet, garlic, scallion, and sweet bell pepper reduction. Shows how rich and silky the sauce stays under high heat.
-                </p>
               </div>
+            )}
 
-              <div className="mt-8 space-y-4">
-                {tasteOffVote && (
-                  <div className="font-mono text-xs space-y-1">
-                    <div className="flex justify-between font-bold">
-                      <span className="text-[#ff5a1f]">{pastaPct}% PREFER THE PASTA</span>
-                      <span className="text-white/60">{pastaVotes} VOTES</span>
-                    </div>
-                    <div className="h-3 w-full bg-black border border-white/20">
-                      <div className="h-full bg-[#ff5a1f]" style={{ width: `${pastaPct}%` }} />
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => handleTasteOffVote('pasta')}
-                  disabled={!!tasteOffVote}
-                  className={`w-full py-4 font-mono font-black uppercase text-xs tracking-wider border-2 transition cursor-pointer ${
-                    tasteOffVote === 'pasta'
-                      ? 'bg-[#ff5a1f] text-black border-black shadow-[4px_4px_0_#ffcf38]'
-                      : 'bg-white text-black border-black hover:bg-[#ff5a1f]'
-                  }`}
-                >
-                  {tasteOffVote === 'pasta' ? '✓ YOUR VOTE IS RECORDED' : 'I PREFER RASTA PASTA (+50 PTS)'}
-                </button>
-              </div>
+            <div className="flex justify-between items-center border-b-2 border-black pb-4 text-xs font-black">
+              <span>KINGSTON SAMPLING BALLOT № {ticketSerial || '0823-PENDING'}</span>
+              <span className="bg-black text-white px-2.5 py-1">111 RED HILLS ROAD</span>
             </div>
 
-            {/* Card 2: Team Chocolate Chip Mousse */}
-            <div className={`p-6 border-2 transition-all flex flex-col justify-between ${
-              tasteOffVote === 'mousse'
-                ? 'border-[#ffcf38] bg-[#ffcf38]/10 shadow-[8px_8px_0_#ffcf38]'
-                : 'border-white/15 bg-black/40 hover:border-white/40'
-            }`}>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center font-mono text-xs">
-                  <span className="bg-[#ffcf38] text-black font-black px-2.5 py-0.5">SWEET / COLD</span>
-                  <span className="text-white/50">DESSERT SAMPLE</span>
-                </div>
-
-                <div className="border border-white/20 aspect-video overflow-hidden bg-black">
-                  <img
-                    src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&q=80&w=800"
-                    alt="Chocolate Chip Mousse"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <h3 className="font-serif text-3xl font-black text-white">🍫 Chocolate Chip Mousse</h3>
-                <p className="text-xs text-[#c0b5a8] leading-relaxed">
-                  Light, fluffy chocolate mousse whipped in minutes from the exact same cream. Shows how smooth and clean the dairy flavour is without being overly sweet.
-                </p>
-              </div>
-
-              <div className="mt-8 space-y-4">
-                {tasteOffVote && (
-                  <div className="font-mono text-xs space-y-1">
-                    <div className="flex justify-between font-bold">
-                      <span className="text-[#ffcf38]">{moussePct}% PREFER THE MOUSSE</span>
-                      <span className="text-white/60">{mousseVotes} VOTES</span>
-                    </div>
-                    <div className="h-3 w-full bg-black border border-white/20">
-                      <div className="h-full bg-[#ffcf38]" style={{ width: `${moussePct}%` }} />
-                    </div>
+            {/* Contender 1 vs Contender 2 Split Cards */}
+            <div className="grid gap-6 md:grid-cols-2 my-8">
+              
+              {/* Option A: Spicy Rasta Pasta */}
+              <div
+                onClick={() => handleVote('pasta')}
+                className={`p-6 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                  ballotVote === 'pasta'
+                    ? 'border-black bg-[#ff5a1f] text-black shadow-[8px_8px_0_#000]'
+                    : 'border-black/30 bg-white hover:border-black hover:shadow-[4px_4px_0_#000]'
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-[10px] font-black">
+                    <span className="bg-black text-white px-2 py-0.5">CONTENDER 01</span>
+                    <span>SAVOURY / DINNER</span>
                   </div>
-                )}
 
-                <button
-                  onClick={() => handleTasteOffVote('mousse')}
-                  disabled={!!tasteOffVote}
-                  className={`w-full py-4 font-mono font-black uppercase text-xs tracking-wider border-2 transition cursor-pointer ${
-                    tasteOffVote === 'mousse'
-                      ? 'bg-[#ffcf38] text-black border-black shadow-[4px_4px_0_#ff5a1f]'
-                      : 'bg-white text-black border-black hover:bg-[#ffcf38]'
-                  }`}
-                >
-                  {tasteOffVote === 'mousse' ? '✓ YOUR VOTE IS RECORDED' : 'I PREFER CHOCOLATE MOUSSE (+50 PTS)'}
-                </button>
+                  <div className="border-2 border-black aspect-video overflow-hidden bg-black">
+                    <img
+                      src="https://images.unsplash.com/photo-1621996346565-e3d5d6281699?auto=format&fit=crop&q=80&w=800"
+                      alt="Rasta Pasta"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <h3 className="font-serif text-3xl font-black font-sans">🍝 Spicy Rasta Pasta</h3>
+                  <p className="text-xs text-[#443e37] leading-relaxed">
+                    Rich penne in a hot Scotch bonnet, garlic, scallion, and sweet bell pepper Arla reduction.
+                  </p>
+                </div>
+
+                <div className="pt-6 space-y-3">
+                  {ballotVote && (
+                    <div className="space-y-1 text-xs font-bold">
+                      <div className="flex justify-between">
+                        <span>{pastaShare}% FAVOURITE</span>
+                        <span>{pastaCount} VOTES</span>
+                      </div>
+                      <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
+                        <div className="h-full bg-black transition-all duration-500" style={{ width: `${pastaShare}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    disabled={!!ballotVote}
+                    className={`w-full py-3.5 text-xs font-black uppercase tracking-wider border-2 border-black cursor-pointer transition ${
+                      ballotVote === 'pasta'
+                        ? 'bg-black text-[#ffcf38]'
+                        : 'bg-black text-white hover:bg-[#ff5a1f] hover:text-black'
+                    }`}
+                  >
+                    {ballotVote === 'pasta' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR RASTA PASTA'}
+                  </button>
+                </div>
               </div>
+
+              {/* Option B: Chocolate Chip Mousse */}
+              <div
+                onClick={() => handleVote('mousse')}
+                className={`p-6 border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                  ballotVote === 'mousse'
+                    ? 'border-black bg-[#ffcf38] text-black shadow-[8px_8px_0_#000]'
+                    : 'border-black/30 bg-white hover:border-black hover:shadow-[4px_4px_0_#000]'
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-[10px] font-black">
+                    <span className="bg-black text-white px-2 py-0.5">CONTENDER 02</span>
+                    <span>SWEET / DESSERT</span>
+                  </div>
+
+                  <div className="border-2 border-black aspect-video overflow-hidden bg-black">
+                    <img
+                      src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&q=80&w=800"
+                      alt="Chocolate Chip Mousse"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <h3 className="font-serif text-3xl font-black font-sans">🍫 Chocolate Chip Mousse</h3>
+                  <p className="text-xs text-[#443e37] leading-relaxed">
+                    Fluffy, airy dessert with firm peaks whipped from the exact same cream in 5 minutes.
+                  </p>
+                </div>
+
+                <div className="pt-6 space-y-3">
+                  {ballotVote && (
+                    <div className="space-y-1 text-xs font-bold">
+                      <div className="flex justify-between">
+                        <span>{mousseShare}% FAVOURITE</span>
+                        <span>{mousseCount} VOTES</span>
+                      </div>
+                      <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
+                        <div className="h-full bg-black transition-all duration-500" style={{ width: `${mousseShare}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    disabled={!!ballotVote}
+                    className={`w-full py-3.5 text-xs font-black uppercase tracking-wider border-2 border-black cursor-pointer transition ${
+                      ballotVote === 'mousse'
+                        ? 'bg-black text-[#ffcf38]'
+                        : 'bg-black text-white hover:bg-[#ffcf38] hover:text-black'
+                    }`}
+                  >
+                    {ballotVote === 'mousse' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR CHOCOLATE MOUSSE'}
+                  </button>
+                </div>
+              </div>
+
             </div>
 
-          </div>
-
-          {/* Social Share Callout */}
-          {tasteOffVote && (
-            <div className="p-6 bg-black border-2 border-[#ff5a1f] flex flex-wrap items-center justify-between gap-4 font-mono">
-              <div className="text-xs">
-                <span className="text-[#ffcf38] font-black uppercase block mb-0.5">SHARE WITH FRIENDS & FAMILY</span>
-                <p className="text-white/70">Let someone in Kingston know they can taste this free today at PriceSmart.</p>
+            {/* Ballot Footer Sharing Bar */}
+            <div className="border-t-2 border-black pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+              <div>
+                <span className="font-black text-black block">PASSPORT CITIZEN ACTION:</span>
+                <p className="text-[#554e45]">Invite family or foodie friends to sample and vote before 8:00 PM.</p>
               </div>
-              <div className="flex items-center gap-3">
+
+              <div className="flex items-center gap-2">
                 <button
                   onClick={shareWhatsApp}
-                  className="px-5 py-2.5 bg-[#25D366] text-black font-black text-xs uppercase border border-black shadow-[3px_3px_0_#fff] cursor-pointer"
+                  className="px-4 py-2 bg-[#25D366] text-black font-black uppercase text-xs border border-black shadow-[2px_2px_0_#000] cursor-pointer"
                 >
-                  SEND VIA WHATSAPP
+                  SHARE TO WHATSAPP
                 </button>
                 <button
                   onClick={copyShareLink}
-                  className="px-5 py-2.5 bg-white/10 text-white font-black text-xs uppercase border border-white/20 hover:bg-white/20 cursor-pointer"
+                  className="px-4 py-2 bg-black text-white font-black uppercase text-xs border border-black hover:bg-neutral-800 cursor-pointer"
                 >
-                  COPY LINK
+                  COPY BALLOT LINK
                 </button>
               </div>
             </div>
-          )}
+
+          </div>
 
         </div>
       </section>
 
-      {/* 5. PRICE COMPARISON RECEIPT (PLAIN ENGLISH SAVINGS) */}
+      {/* 3. ⚡️ BESPOKE UI COMPONENT 3: THE PRICESMART GROCERY BASKET CALCULATOR */}
       <section className="px-4 sm:px-8 py-20 bg-[#11100e] border-b-2 border-black">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-10 font-mono">
           
           <div className="text-center space-y-2">
-            <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ffcf38]">
-              GROCERY PRICE BREAKDOWN
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcf38]">
+              HOUSEHOLD BUDGET IMPACT
             </p>
-            <h2 className="font-serif text-4xl sm:text-5xl font-black text-white">
-              Why this is the smartest grocery buy this week
+            <h2 className="font-serif text-4xl sm:text-5xl font-black text-white font-sans">
+              Interactive Grocery Basket Calculator
             </h2>
-            <p className="text-xs text-white/60 font-mono">
-              PriceSmart Jamaica has Arla Pro on roadshow special right now.
+            <p className="text-xs text-white/60">
+              See what switching to Arla Pro at PriceSmart this week saves your household budget:
             </p>
           </div>
 
-          {/* Monospace Price Receipt Card */}
-          <div className="bg-[#181512] border-2 border-white/20 p-6 sm:p-8 font-mono text-xs text-[#d0c5b9] shadow-[10px_10px_0_#000] space-y-4">
-            <div className="flex justify-between items-center border-b border-white/20 pb-3 font-bold text-white">
-              <span>GROCERY COMPARISON</span>
-              <span>ESTIMATED COST</span>
-            </div>
-
-            <div className="space-y-2 text-[11px]">
-              <div className="flex justify-between">
-                <span>Regular imported cooking cream (1L)</span>
-                <span className="text-white/60 line-through">~J$2,700</span>
-              </div>
-              <div className="flex justify-between text-white/50">
-                <span>+ Separate can of dessert whipping cream</span>
-                <span className="line-through">~J$800</span>
-              </div>
-              <div className="flex justify-between text-[#ffcf38] font-black text-sm pt-2 border-t border-white/10">
-                <span>ARLA PRO 1L (DOES BOTH DINNER & DESSERT)</span>
-                <span>J$1,200</span>
-              </div>
-              <div className="flex justify-between text-[#25D366] font-bold">
-                <span>YOUR ESTIMATED SAVINGS</span>
-                <span>SAVE OVER J$1,500+ (56%)</span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-black/60 border border-white/10 text-[10px] text-white/60 space-y-1">
-              <p>✔ 1 Litre is enough for 2 family pasta dinners AND a full bowl of dessert mousse.</p>
-              <p>✔ Unopened cartons keep long-term in the fridge (Keep at ≤ 8°C. Once opened, use within ~3 days).</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              {['I plan to grab a carton', 'Already bought at the roadshow'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => {
-                    setPurchaseStatus(st);
-                    toast.success(`Noted: ${st}`);
-                  }}
-                  className={`p-3 text-center border font-bold text-xs uppercase transition cursor-pointer ${
-                    purchaseStatus === st
-                      ? 'border-[#ff5a1f] bg-[#ff5a1f] text-black shadow-[2px_2px_0_#ffcf38]'
-                      : 'border-white/20 bg-white/5 text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 6. DIGITAL RECIPE PACK (FREE DOWNLOAD) */}
-      <section className="px-4 sm:px-8 py-20 bg-[#161412] border-b-2 border-black">
-        <div className="max-w-7xl mx-auto grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
-          
-          <div className="space-y-6">
-            <div className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ffcf38] flex items-center gap-2">
-              <span>FREE BONUS</span>
-              <span>/</span>
-              <span>DIGITAL RECIPE GUIDE</span>
-            </div>
-
-            <h2 className="font-serif text-4xl sm:text-6xl font-black text-white leading-tight">
-              5 Delicious Things You Can Cook Tonight
-            </h2>
-
-            <p className="text-sm text-[#d0c5b9] leading-relaxed max-w-xl">
-              We wrote 5 foolproof recipes using ingredients readily available in Jamaican supermarkets: <strong>Roadshow Rasta Pasta</strong>, <strong>Chocolate Chip Mousse</strong>, <strong>Creamy Garlic Pan Chicken</strong>, <strong>Strawberry Cheesecake Cups</strong>, and <strong>Jamaican Strong Back Punch</strong>.
-            </p>
-
-            {/* Access Tracker */}
-            <div className="bg-black border-2 border-white/20 p-5 max-w-md font-mono space-y-3">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-[#ffcf38]">RECIPE ACCESS STATUS</span>
-                <span className={isKeyUnlocked ? 'text-[#25D366]' : 'text-[#ff5a1f]'}>
-                  {isKeyUnlocked ? 'UNLOCKED & READY' : 'COMPLETE 1 ACTION TO UNLOCK'}
+          <div className="bg-[#181512] border-2 border-white/20 p-6 sm:p-10 shadow-[12px_12px_0_#ff5a1f] space-y-8">
+            
+            {/* Quantity Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs font-bold">
+                <span className="text-[#ff5a1f]">CARTONS TO BUY THIS WEEK:</span>
+                <span className="text-2xl font-black text-white bg-black px-4 py-1 border border-white/20">
+                  {cartonQty} CARTON{cartonQty > 1 ? 'S' : ''} (1L EACH)
                 </span>
               </div>
-              <p className="text-[10px] text-white/50">
-                {isKeyUnlocked ? '★ You unlocked the full digital recipe pack! Tap below to view.' : 'Vote in the Taste-Off above to unlock all 5 recipes instantly.'}
-              </p>
+
+              <input
+                type="range"
+                min="1"
+                max="8"
+                step="1"
+                value={cartonQty}
+                onChange={(e) => {
+                  setCartonQty(Number(e.target.value));
+                  playHaptic();
+                }}
+                className="w-full h-4 bg-black border border-white/20 appearance-none cursor-pointer accent-[#25D366]"
+              />
+
+              <div className="flex justify-between text-[10px] text-white/40">
+                <span>1 Carton (1-2 Dinners)</span>
+                <span>4 Cartons (Family Weekly)</span>
+                <span>8 Cartons (Bakers & Caterers)</span>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4">
+            {/* Calculated Yield Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center border-t border-b border-white/10 py-6">
+              <div className="p-3 bg-black/60 border border-white/10">
+                <span className="text-[9px] text-white/40 block">FAMILY DINNERS</span>
+                <strong className="text-xl font-black text-white font-sans">{mealsCooked} Pots</strong>
+                <span className="text-[10px] text-white/50 block mt-0.5">Pasta / Chicken</span>
+              </div>
+
+              <div className="p-3 bg-black/60 border border-white/10">
+                <span className="text-[9px] text-white/40 block">DESSERT BOWLS</span>
+                <strong className="text-xl font-black text-white font-sans">{dessertBowls} Bowls</strong>
+                <span className="text-[10px] text-white/50 block mt-0.5">Mousse / Cheesecake</span>
+              </div>
+
+              <div className="p-3 bg-black/60 border border-white/10">
+                <span className="text-[9px] text-white/40 block">REGULAR STORE COST</span>
+                <strong className="text-xl font-black text-red-400 font-sans line-through">J${regTotal.toLocaleString()}</strong>
+                <span className="text-[10px] text-white/50 block mt-0.5">Separate Creams</span>
+              </div>
+
+              <div className="p-3 bg-emerald-950/40 border border-emerald-500/40">
+                <span className="text-[9px] text-emerald-400 block font-bold">PRICESMART ROADSHOW</span>
+                <strong className="text-2xl font-black text-emerald-400 font-sans">J${roadshowTotal.toLocaleString()}</strong>
+                <span className="text-[10px] text-emerald-300 block font-bold mt-0.5">J$1,200 per 1L</span>
+              </div>
+            </div>
+
+            {/* Net Savings Callout */}
+            <div className="p-5 bg-black border-2 border-[#25D366] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">
+                  YOUR IMMEDIATE GROCERY SAVINGS
+                </span>
+                <p className="text-3xl font-black text-white font-serif font-sans mt-0.5">
+                  Save J${savingsTotal.toLocaleString()} In Your Pocket (56%)
+                </p>
+              </div>
+
               <button
-                onClick={() => setRecipeModalOpen(true)}
-                className={`px-7 py-4 font-mono font-black uppercase text-xs tracking-wider border-2 transition cursor-pointer ${
-                  isKeyUnlocked
-                    ? 'bg-[#25D366] text-black border-black shadow-[6px_6px_0_#ffcf38]'
-                    : 'bg-[#ff5a1f] text-black border-black shadow-[6px_6px_0_#fff]'
-                }`}
+                onClick={() => document.getElementById('location-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-6 py-3.5 bg-[#25D366] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[3px_3px_0_#fff] cursor-pointer shrink-0"
               >
-                {isKeyUnlocked ? 'OPEN 5 RECIPES PACK (FREE) →' : 'PREVIEW THE RECIPES →'}
+                GRAB AT PRICESMART TODAY →
               </button>
             </div>
-          </div>
 
-          {/* Recipe Pack Index Preview */}
-          <div
-            onClick={() => setRecipeModalOpen(true)}
-            className="bg-[#f4efe5] text-[#11100e] p-6 border-2 border-black shadow-[12px_12px_0_#ffcf38] font-mono cursor-pointer hover:rotate-1 transition-transform"
-          >
-            <div className="flex justify-between border-b-2 border-black pb-2 text-xs font-black">
-              <span>WHAT IS INSIDE</span>
-              <span>5 TESTED DISHES</span>
-            </div>
-            <div className="divide-y divide-black/15 text-xs py-2">
-              <div className="py-2.5 flex justify-between">
-                <span>01. Spicy Roadshow Rasta Pasta</span>
-                <span className="font-bold text-[#ff5a1f]">DINNER</span>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>02. 5-Minute Chocolate Mousse</span>
-                <span className="font-bold text-[#ffcf38]">DESSERT</span>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>03. Creamy Garlic & Herb Chicken</span>
-                <span className="font-bold text-[#ff5a1f]">DINNER</span>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>04. No-Bake Cheesecake Cups</span>
-                <span className="font-bold text-[#ffcf38]">DESSERT</span>
-              </div>
-              <div className="py-2.5 flex justify-between">
-                <span>05. Jamaican Stout & Cream Punch</span>
-                <span className="font-bold text-[#ff5a1f]">BEVERAGE</span>
-              </div>
-            </div>
-            <div className="text-[10px] text-center pt-2 text-[#776e62] border-t-2 border-black">
-              TAP TO VIEW ALL 5 INGREDIENTS & STEPS
-            </div>
           </div>
 
         </div>
       </section>
 
-      {/* 7. ROADSHOW LOCATION & OPENING HOURS */}
-      <section className="px-4 sm:px-8 py-20 bg-[#11100e] border-b-2 border-black">
+      {/* 4. ⚡️ BESPOKE UI COMPONENT 4: TEAR-OFF PERFORATED RECIPE DRAWER */}
+      <section className="px-4 sm:px-8 py-20 bg-[#161412] border-b-2 border-black">
         <div className="max-w-7xl mx-auto space-y-8 font-mono">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/20 pb-6">
             <div>
-              <span className="text-xs font-black uppercase text-[#ff5a1f] tracking-widest">WHERE TO TASTE IT TODAY</span>
-              <h2 className="font-serif text-4xl sm:text-5xl font-black text-white mt-1">PriceSmart Jamaica</h2>
+              <p className="text-xs font-black uppercase text-[#ffcf38] tracking-widest">
+                DIGITAL VALUE RECEIPT / LEAD MAGNET
+              </p>
+              <h2 className="font-serif text-4xl sm:text-6xl font-black text-white font-sans mt-1">
+                5 Ways to Whip & Cook with Arla
+              </h2>
+              <p className="text-xs text-[#d0c5b9] mt-1">
+                Step-by-step recipes built for Jamaican pantries using Arla Pro Whip & Cook 28%.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setRecipeModalOpen(true)}
+              className="px-6 py-3.5 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[4px_4px_0_#ffcf38] cursor-pointer"
+            >
+              OPEN FULL RECIPE PACK (FREE) →
+            </button>
+          </div>
+
+          {/* 5 Perforated Index Tab Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              { id: 0, title: 'Roadshow Rasta Pasta', tag: 'DINNER', time: '20 MIN', temp: '🔥 100°C', icon: Flame, note: 'Velvety Scotch bonnet reduction.' },
+              { id: 1, title: 'Chocolate Chip Mousse', tag: 'DESSERT', time: '5 MIN', temp: '❄️ 4°C', icon: Snowflake, note: '3.5× whipped volume expansion.' },
+              { id: 2, title: 'Garlic Pan Chicken', tag: 'DINNER', time: '25 MIN', temp: '🔥 90°C', icon: Flame, note: 'Pan drippings + garlic sauce.' },
+              { id: 3, title: 'Strawberry Cheesecake', tag: 'NO-BAKE', time: '15 MIN', temp: '❄️ 4°C', icon: Snowflake, note: 'Firm cream cheese dessert cups.' },
+              { id: 4, title: 'Strong Back Punch', tag: 'BEVERAGE', time: '5 MIN', temp: '🥤 20°C', icon: Coffee, note: 'Dragon Stout, peanut, vanilla.' }
+            ].map((recipe) => (
+              <div
+                key={recipe.id}
+                onClick={() => setRecipeModalOpen(true)}
+                className="bg-[#f4efe5] text-[#11100e] p-5 border-2 border-black shadow-[6px_6px_0_#ff5a1f] hover:translate-y-[-2px] transition cursor-pointer flex flex-col justify-between"
+              >
+                <div className="space-y-2 border-b-2 border-dashed border-black/30 pb-3">
+                  <div className="flex justify-between text-[10px] font-black">
+                    <span className="bg-black text-white px-1.5 py-0.5">RECIPE 0{recipe.id + 1}</span>
+                    <span className="text-[#ff5a1f] font-bold">{recipe.tag}</span>
+                  </div>
+                  <h4 className="font-serif text-lg font-bold font-sans">{recipe.title}</h4>
+                </div>
+
+                <div className="pt-3 space-y-2 text-[10px]">
+                  <p className="text-[#554e45] leading-snug">{recipe.note}</p>
+                  <div className="flex justify-between font-bold text-black border-t border-black/15 pt-2">
+                    <span>{recipe.time}</span>
+                    <span>{recipe.temp}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* 5. ROADSHOW RADAR & COORDINATES */}
+      <section id="location-section" className="px-4 sm:px-8 py-20 bg-[#11100e] border-b-2 border-black">
+        <div className="max-w-7xl mx-auto space-y-8 font-mono">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/20 pb-6">
+            <div>
+              <span className="text-xs font-black uppercase text-[#ff5a1f] tracking-widest">COORDINATES & SAMPLING STATION</span>
+              <h2 className="font-serif text-4xl sm:text-5xl font-black text-white font-sans mt-1">PriceSmart Jamaica</h2>
               <p className="text-xs text-white/60 mt-1">111 Red Hills Road, Kingston 19 · Daily 10:00 AM – 8:00 PM</p>
             </div>
             <Link
@@ -637,58 +669,53 @@ export default function ArlaCampaignHub() {
             </Link>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="p-4 bg-black border border-white/20 space-y-1.5">
-              <span className="text-[10px] text-[#ff5a1f] font-bold">STEP 01</span>
-              <h4 className="text-sm font-bold text-white font-serif">Try the Hot Rasta Pasta</h4>
-              <p className="text-[11px] text-white/60">Free hot sample from the chef station inside the store.</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="p-4 bg-black border border-white/20 space-y-1">
+              <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 01</span>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">Hot Rasta Pasta</h4>
+              <p className="text-[11px] text-white/60">Try fresh from the chef skillet (+40 Pts).</p>
             </div>
-            <div className="p-4 bg-black border border-white/20 space-y-1.5">
-              <span className="text-[10px] text-[#ffcf38] font-bold">STEP 02</span>
-              <h4 className="text-sm font-bold text-white font-serif">Try the Chocolate Mousse</h4>
-              <p className="text-[11px] text-white/60">Taste how light and firm the whipped dessert is.</p>
+            <div className="p-4 bg-black border border-white/20 space-y-1">
+              <span className="text-[10px] text-[#ffcf38] font-bold">STATION 02</span>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">Whipped Mousse</h4>
+              <p className="text-[11px] text-white/60">Sample the fluffy cold dessert (+40 Pts).</p>
             </div>
-            <div className="p-4 bg-black border border-white/20 space-y-1.5">
-              <span className="text-[10px] text-[#25D366] font-bold">STEP 03</span>
-              <h4 className="text-sm font-bold text-white font-serif">Vote For Your Winner</h4>
-              <p className="text-[11px] text-white/60">Vote on Promorang to unlock the 5 recipes.</p>
+            <div className="p-4 bg-black border border-white/20 space-y-1">
+              <span className="text-[10px] text-[#25D366] font-bold">STATION 03</span>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">Stamp Passport</h4>
+              <p className="text-[11px] text-white/60">Vote online to unlock 5 recipes (+50 Pts).</p>
             </div>
-            <div className="p-4 bg-black border border-white/20 space-y-1.5">
-              <span className="text-[10px] text-[#ff5a1f] font-bold">STEP 04</span>
-              <h4 className="text-sm font-bold text-white font-serif">Grab 1L for J$1,200</h4>
-              <p className="text-[11px] text-white/60">Stock up while the roadshow special price lasts.</p>
-            </div>
-            <div className="p-4 bg-black border border-dashed border-[#ffcf38] space-y-1.5 sm:col-span-2">
-              <span className="text-[10px] text-[#ffcf38] font-bold">BONUS SURPRISE</span>
-              <h4 className="text-sm font-bold text-white font-serif">Catch the Strong Back Punch Drop</h4>
-              <p className="text-[11px] text-white/60">Occasionally during peak hours, promoters sample Jamaican Strong Back punch made with Arla.</p>
+            <div className="p-4 bg-black border border-white/20 space-y-1">
+              <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 04</span>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">Get J$1,200 Cartons</h4>
+              <p className="text-[11px] text-white/60">Promoters verify purchase on site (+60 Pts).</p>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* 8. FOOTER */}
-      <footer className="px-4 sm:px-8 py-16 bg-black text-center font-mono space-y-6">
+      {/* FOOTER */}
+      <footer className="px-4 sm:px-8 py-16 bg-black text-center font-mono space-y-6 border-t-2 border-black">
         <div className="max-w-2xl mx-auto space-y-2">
-          <p className="text-xs text-[#ff5a1f] font-black uppercase tracking-widest">PROMORANG × ARLA PRO ROADSHOW</p>
-          <h3 className="font-serif text-3xl sm:text-4xl font-black text-white">Better cooking. Less waste. Better savings.</h3>
+          <p className="text-xs text-[#ff5a1f] font-black uppercase tracking-widest">ARLA PRO × PROMORANG</p>
+          <h3 className="font-serif text-3xl sm:text-4xl font-black text-white font-sans">Turning Free Samples Into Repeat Buyers</h3>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/proposals/arla-pro"
             className="px-6 py-3 bg-[#ff5a1f] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[4px_4px_0_#ffcf38]"
           >
-            COMMERCIAL PROPOSAL FOR ARLA LEADERSHIP →
+            ARLA COMMERCIAL PROPOSAL DECK →
           </Link>
         </div>
       </footer>
 
-      {/* Recipe Pack Modal */}
+      {/* Recipe Pack Reader Modal */}
       <ArlaRecipePackModal
         isOpen={recipeModalOpen}
         onClose={() => setRecipeModalOpen(false)}
-        unlocked={isKeyUnlocked}
+        unlocked={true}
       />
     </main>
   );
