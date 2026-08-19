@@ -17,6 +17,7 @@ import GrowthTracker from "@/components/GrowthTracker";
 import MetaPixel from "@/components/MetaPixel";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
+import { MidasDemonstrationTour } from "./components/demo/MidasDemonstrationTour";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
@@ -180,6 +181,7 @@ const App = () => (
                 <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />
+                <MidasDemonstrationTour />
                 <ChunkErrorBoundary>
                   <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                   <Routes>

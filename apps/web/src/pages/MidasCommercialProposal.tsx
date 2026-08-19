@@ -719,13 +719,23 @@ export default function MidasCommercialProposal() {
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
               onClick={() => {
-                setDemoStep(1);
-                setShowDemoModal(true);
+                sessionStorage.setItem('promorang_midas_demo_active', 'true');
+                navigate('/discover?demo=midas&step=1');
               }}
               className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all shadow-xl shadow-orange-950 flex items-center gap-2"
             >
               <Play className="w-4 h-4 fill-white" />
-              <span>Launch 7-Step Interactive Demonstration</span>
+              <span>Start Live Guided Demonstration ➔</span>
+            </button>
+            <button
+              onClick={() => {
+                setDemoStep(1);
+                setShowDemoModal(true);
+              }}
+              className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-orange-400" />
+              <span>Preview 7-Step Sequence</span>
             </button>
             <Link
               to="/venues/plantation-cove"
