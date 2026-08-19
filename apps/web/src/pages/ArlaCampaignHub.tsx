@@ -44,11 +44,37 @@ export default function ArlaCampaignHub() {
   const [dialState, setDialState] = useState<DialState>('cook');
 
   // Interactive Taste-Off Ballot State
-  const [ballotVote, setBallotVote] = useState<'pasta' | 'mousse' | null>(null);
+  const [ballotVote, setBallotVote] = useState<'pasta' | 'mousse' | null>(() => {
+    try {
+      return localStorage.getItem('arla_tasteoff_vote') as 'pasta' | 'mousse' | null;
+    } catch {
+      return null;
+    }
+  });
   const [stampActive, setStampActive] = useState<boolean>(false);
-  const [ticketSerial, setTicketSerial] = useState<string>('');
-  const [pastaCount, setPastaCount] = useState<number>(178);
-  const [mousseCount, setMousseCount] = useState<number>(154);
+  const [ticketSerial, setTicketSerial] = useState<string>(() => {
+    try {
+      return localStorage.getItem('arla_ticket_serial') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [pastaCount, setPastaCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('arla_pasta_votes');
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const [mousseCount, setMousseCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('arla_mousse_votes');
+      return saved ? parseInt(saved, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
 
   // Grocery Savings Basket Calculator
   const [cartonQty, setCartonQty] = useState<number>(2);
@@ -81,11 +107,20 @@ export default function ArlaCampaignHub() {
     const randSerial = 'ARLA-' + Math.random().toString(36).substring(2, 7).toUpperCase() + '-KGN';
     setTicketSerial(randSerial);
 
+    try {
+      localStorage.setItem('arla_tasteoff_vote', choice);
+      localStorage.setItem('arla_ticket_serial', randSerial);
+    } catch { /* ignore */ }
+
     if (choice === 'pasta') {
-      setPastaCount((p) => p + 1);
+      const newPasta = pastaCount + 1;
+      setPastaCount(newPasta);
+      try { localStorage.setItem('arla_pasta_votes', String(newPasta)); } catch { /* ignore */ }
       toast.success('PASSPORT STAMPED: Team Spicy Rasta Pasta! 🍝 (+50 Pts)');
     } else {
-      setMousseCount((m) => m + 1);
+      const newMousse = mousseCount + 1;
+      setMousseCount(newMousse);
+      try { localStorage.setItem('arla_mousse_votes', String(newMousse)); } catch { /* ignore */ }
       toast.success('PASSPORT STAMPED: Team Chocolate Chip Mousse! 🍫 (+50 Pts)');
     }
 
@@ -93,8 +128,8 @@ export default function ArlaCampaignHub() {
   };
 
   const totalBallots = pastaCount + mousseCount;
-  const pastaShare = Math.round((pastaCount / totalBallots) * 100);
-  const mousseShare = 100 - pastaShare;
+  const pastaShare = totalBallots > 0 ? Math.round((pastaCount / totalBallots) * 100) : 0;
+  const mousseShare = totalBallots > 0 ? 100 - pastaShare : 0;
 
   // Grocery Savings Math
   const regPriceEach = 2700;

@@ -163,7 +163,7 @@ export default function ArlaCommercialProposal() {
                 <span className="text-[#ff5a1f] font-black text-xs">LEAK #1</span>
                 <h3 className="font-serif text-2xl font-bold text-white font-sans">Zero Shopper Data</h3>
                 <p className="text-xs text-[#d0c5b9] leading-relaxed">
-                  1,000 shoppers try the Rasta Pasta or Chocolate Mousse, say “it taste nice,” and walk away. Arla collects zero emails, zero phone numbers, and has no way to contact them ever again.
+                  When shoppers try the Rasta Pasta or Chocolate Mousse, say “it taste nice,” and walk away, Arla collects zero emails, zero phone numbers, and has no way to contact them ever again.
                 </p>
               </div>
 
