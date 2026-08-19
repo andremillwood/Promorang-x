@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSafeMediaUrl } from "@/lib/utils";
+
 import {
   useContentDrop,
   useContentDropLeaderboard,
@@ -145,7 +147,7 @@ export default function ContentDropDetail() {
           <section className="grid gap-5">
             <div className="relative min-h-[620px] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl">
                 {primary?.media_url ? (
-                  <img src={primary.media_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
+                  <img src={getSafeMediaUrl(primary.media_url)!} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,#0f172a,#f97316_58%,#fde047)]">
                     <RadioTower className="h-16 w-16 text-white" />

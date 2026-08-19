@@ -55,6 +55,7 @@ import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
 import { MISSION_ARCHETYPES } from "@/lib/mission-archetypes";
 import { rememberMarketingIntent } from "@/lib/marketing-attribution";
 import { isSampleCommerceListing } from "@/lib/commerce-provenance";
+import { getSafeMediaUrl } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
@@ -405,7 +406,7 @@ export default function CinematicCultureHome() {
       href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop", action: listing.listing_kind === "service" ? "View service" : "View offer",
     })),
     ...(discoveryQuery.data?.content || []).map((content) => ({
-      id: `content-${content.id}`, kind: "Content", title: content.title || "Creator signal", image: content.media_url,
+      id: `content-${content.id}`, kind: "Content", title: content.title || "Creator signal", image: getSafeMediaUrl(content.media_url),
       detail: content.venue_name || content.platform || "Promorang creator", value: "Worth sharing",
       href: content.slug ? `/content/${content.slug}` : "/content-drops", action: "View content",
     })),

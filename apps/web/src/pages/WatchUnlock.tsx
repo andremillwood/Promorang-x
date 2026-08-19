@@ -8,6 +8,8 @@ import { PlayCircle, Sparkles, ExternalLink, MapPin, Activity, ArrowRight, KeyRo
 import { cultureEvents } from "@/data/culture-demo";
 import SEO from "@/components/SEO";
 import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
+import { getSafeMediaUrl } from "@/lib/utils";
+
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -178,7 +180,7 @@ const WatchUnlock = () => {
               <article key={item.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-soft">
                 <div className="relative h-56 overflow-hidden bg-muted">
                   <img
-                    src={item.content?.media_url}
+                    src={getSafeMediaUrl(item.content?.media_url) || "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800"}
                     alt={item.content?.title}
                     className="h-full w-full object-cover"
                   />

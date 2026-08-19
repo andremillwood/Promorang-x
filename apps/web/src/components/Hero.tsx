@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { demoMoments } from "@/data/demo-moments";
 import heroImage from "@/assets/hero-moments.jpg";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
+import { getSafeMediaUrl } from "@/lib/utils";
+
 
 const heroMarks = [
   { icon: MapPin, label: "Find a Moment", detail: "Pop-ups, rituals, drops, gatherings" },
@@ -155,7 +157,7 @@ const Hero = () => {
           marks: spotsLeft !== null ? `${spotsLeft} spots left` : formatTimeLabel(moment.starts_at),
           href: `/moments/${moment.id}`,
           icon: CalendarDays,
-          imageUrl: moment.banner_image_url || moment.image_url,
+          imageUrl: getSafeMediaUrl(moment.banner_image_url || moment.image_url),
         };
       });
     },
@@ -207,7 +209,7 @@ const Hero = () => {
             marks: link.o2o_conversion_rate ? `${Number(link.o2o_conversion_rate).toFixed(1)}% visit rate` : "Watch & unlock",
             href: `/watch-unlock/${link.id}`,
             icon: PlayCircle,
-            imageUrl: content.banner_image_url || content.thumbnail_url || content.media_url || moment?.banner_image_url || moment?.image_url,
+            imageUrl: getSafeMediaUrl(content.banner_image_url || content.thumbnail_url || content.media_url || moment?.banner_image_url || moment?.image_url),
           };
         })
         .filter(Boolean);
@@ -226,7 +228,7 @@ const Hero = () => {
       marks: moment.max_participants ? `${Math.max(moment.max_participants - (moment.participant_count || 0), 0)} spots left` : "Ready to join",
       href: `/moments/${moment.id}`,
       icon: CalendarDays,
-      imageUrl: (moment as any).banner_image_url || moment.image_url,
+      imageUrl: getSafeMediaUrl((moment as any).banner_image_url || moment.image_url),
     }));
 
   const slides = slideMode === "moments"

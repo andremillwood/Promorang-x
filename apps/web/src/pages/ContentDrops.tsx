@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { cn, getSafeMediaUrl } from "@/lib/utils";
+
 import {
   ContentDistributionCampaign,
   useAddContentDropAsset,
@@ -70,7 +72,7 @@ function DropCard({ drop, featured = false }: { drop: ContentDistributionCampaig
         <div className={cn("grid min-h-[280px] gap-0", featured ? "lg:grid-cols-[1.2fr_.8fr]" : "sm:grid-cols-[0.92fr_1fr]")}>
           <div className="relative min-h-[250px] bg-black">
             {primary?.media_url ? (
-              <img src={primary.media_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" />
+              <img src={getSafeMediaUrl(primary.media_url)!} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" />
             ) : (
               <div className="flex h-full min-h-[220px] items-center justify-center bg-[linear-gradient(135deg,#111827,#f97316_62%,#facc15)]">
                 <RadioTower className="h-14 w-14 text-white/90" />
@@ -203,7 +205,7 @@ export default function ContentDrops() {
     <div className="min-h-screen bg-[#070707] text-white">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-black">
-          <img src={getAssets(drops[0] || seededContentDrops[0])?.[0]?.media_url || ""} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
+          <img src={getSafeMediaUrl(getAssets(drops[0] || seededContentDrops[0])?.[0]?.media_url) || ""} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />
           <div className="relative grid min-h-[420px] gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:items-end">
             <div>

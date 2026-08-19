@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, PlayCircle } from "lucide-react";
+import { getSafeMediaUrl } from "@/lib/utils";
 
 export interface PublicContentItem {
   id: string;
@@ -29,9 +30,7 @@ export function PublicContentCard({ item }: PublicContentCardProps) {
     : null;
 
   const [imgError, setImgError] = useState(false);
-  const mediaSrc = item.media_url?.includes("cdn.promorang.com")
-    ? "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800"
-    : item.media_url;
+  const mediaSrc = getSafeMediaUrl(item.media_url);
 
   return (
     <Card className="overflow-hidden border-border/70 bg-card shadow-soft">
