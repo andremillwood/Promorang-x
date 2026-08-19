@@ -576,130 +576,115 @@ export default function MidasCommercialProposal() {
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                  Chapter 4 · Commercial Monetization Engine
+                  Chapter 4 · PromoPush Sponsor Monetization
                 </span>
                 <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 border border-emerald-500/30 rounded-sm">
-                  REVENUE FOR MIDAS & PROMORANG
+                  15%–20% HOST CASH COMMISSION
                 </span>
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
                 How PromoPush Monetizes Midas Sponsors
               </h2>
               <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-                Why corporate sponsors (beverage, telecom, lifestyle brands) pay more for Promorang-powered events, and how Midas earns direct commission on every sponsor dollar.
+                Corporate sponsors (beverage, telecom, lifestyle brands) pay premium rates for Promorang-powered events because we deliver verified foot traffic and user-generated content—while Midas earns a direct commission on every campaign dollar.
               </p>
             </div>
 
-            {/* The 3-Way Value Engine */}
+            {/* The 3 Core Pillars: What We Do, What Midas Gets, What Sponsors Get */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* 1. The Sponsor Problem */}
+              {/* 1. What We Do For You */}
               <div className="p-6 rounded-sm bg-[#161210] border-2 border-[#ffffff15] space-y-3">
                 <div className="w-9 h-9 rounded-sm bg-[#ff5a1f]/20 text-[#ff5a1f] flex items-center justify-center">
                   <Megaphone className="w-5 h-5" />
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">1. The Sponsor Problem</h4>
+                <h4 className="font-serif text-lg font-bold text-white">1. What We Do For You</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  Beverage brands (Campari, Wray & Nephew, Red Bull, Heineken) spend millions on static banner logos. They get zero data on who actually drank or visited their booth.
+                  We deploy <strong>PromoPush on-site missions</strong>: turning partygoers into active micro-promoters who post with your sponsors' drinks and check in at sponsor tents to earn points and rewards.
                 </p>
-                <span className="text-[10px] font-mono text-stone-400 block pt-2 border-t border-white/10">Sponsors want proof of foot traffic</span>
+                <span className="text-[10px] font-mono text-[#ff5a1f] block pt-2 border-t border-white/10">100+ organic UGC videos per event</span>
               </div>
 
-              {/* 2. The PromoPush Solution */}
-              <div className="p-6 rounded-sm bg-[#161210] border-2 border-[#ff5a1f]/40 space-y-3">
-                <div className="w-9 h-9 rounded-sm bg-[#ffcf38]/20 text-[#ffcf38] flex items-center justify-center">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <h4 className="font-serif text-lg font-bold text-white">2. Creator & Attendee Missions</h4>
-                <p className="text-xs text-stone-300 leading-relaxed">
-                  Sponsors launch performance bounties: partygoers post TikToks/Reels with the cocktail or check in at the sponsor tent to earn cash rewards & points.
-                </p>
-                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">100+ organic UGC videos per event</span>
-              </div>
-
-              {/* 3. Host Commission & Revenue */}
+              {/* 2. What Midas Gets */}
               <div className="p-6 rounded-sm bg-[#141812] border-2 border-[#10b981]/50 space-y-3 shadow-[6px_6px_0_#10b98122]">
                 <div className="w-9 h-9 rounded-sm bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                   <DollarSign className="w-5 h-5" />
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">3. 15%–20% Host Commission</h4>
+                <h4 className="font-serif text-lg font-bold text-white">2. What Midas Gets</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  Midas earns a <strong>15%–20% co-revenue commission</strong> on all brand campaign budgets deployed through PromoPush for Sophisticated & Capleton.
+                  Midas earns a <strong>15%–20% Host Cash Commission</strong> on all brand campaign budgets placed through PromoPush for your events (e.g. J$1M sponsor pool = <strong>J$150k–J$200k profit</strong> to Midas).
                 </p>
                 <span className="text-[10px] font-mono text-emerald-300 block pt-2 border-t border-white/10">Pure incremental revenue for Midas</span>
               </div>
 
+              {/* 3. What Your Sponsors Get */}
+              <div className="p-6 rounded-sm bg-[#161210] border-2 border-[#ffcf38]/40 space-y-3">
+                <div className="w-9 h-9 rounded-sm bg-[#ffcf38]/20 text-[#ffcf38] flex items-center justify-center">
+                  <Award className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white">3. What Your Sponsors Get</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Sponsors get <strong>guaranteed foot traffic</strong>, verified cocktail redemptions, hundreds of TikTok/Reel mentions, and a real-time analytics dashboard proving exact return on investment.
+                </p>
+                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">10x measurable ROI vs static banners</span>
+              </div>
+
             </div>
 
-            {/* Prospective Revenue Model Box: How We Both Win */}
+            {/* Practical Sponsor Example Box */}
             <div className="rounded-sm border-2 border-[#ff5a1f] bg-[#1a1410] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#ff5a1f33]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ffffff15] pb-4">
                 <div>
                   <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider block">
-                    Financial Economics & ROI Breakdown
+                    Real-World Event Activation Example
                   </span>
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">
-                    "How Does This Make Prospective Revenue For Us?"
+                    How This Works at Plantation Cove (August 29–30)
                   </h3>
                 </div>
                 <Badge className="bg-[#ff5a1f] text-white font-mono text-xs px-3 py-1 uppercase tracking-wider self-start sm:self-auto">
-                  Win-Win Economics
+                  High-Margin Sponsor Packages
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
                 
-                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-3">
                   <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
-                    <Coins className="w-4 h-4 text-[#ffcf38]" />
-                    For Midas (The Event Host)
+                    <Zap className="w-4 h-4 text-[#ffcf38]" />
+                    The Beverage Sponsor Campaign
                   </strong>
-                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
-                    <li><strong>New Sponsor Pitch Asset:</strong> Sell tech-enabled sampling & UGC packages at 30% higher rates.</li>
-                    <li><strong>15%–20% Revenue Share:</strong> e.g. J$1M sponsor bounty pool = <strong>J$150,000–J$200,000</strong> direct profit to Midas.</li>
-                    <li><strong>Pre-Sold Ticket Velocity:</strong> Squad referral pass codes drive direct ticket buying on Aitix.</li>
-                  </ul>
+                  <p className="text-stone-300 leading-relaxed">
+                    A liquor sponsor (e.g. Campari or Wray & Nephew) funds a <strong>J$500,000 sampling bounty</strong> on PromoPush. Partygoers at Sophisticated receive a push notification:
+                  </p>
+                  <div className="p-3 bg-white/5 border border-white/10 rounded-sm space-y-1 font-mono text-[11px] text-[#ffcf38]">
+                    <p>🎯 "Order a signature cocktail at the main bar, snap a 5-sec video to your IG Story tagging @Sophisticated & the sponsor, and get 200 points + J$1,000 cash back."</p>
+                  </div>
                 </div>
 
-                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-3">
                   <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
-                    <Award className="w-4 h-4 text-[#10b981]" />
-                    For Corporate Sponsors
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    The Direct Financial Return
                   </strong>
-                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
-                    <li><strong>Guaranteed Foot Traffic:</strong> Pay only when partygoers actually visit their booth and scan in.</li>
-                    <li><strong>Viral UGC Content:</strong> Hundreds of organic video stories on TikTok, IG Reels & WhatsApp status.</li>
-                    <li><strong>Real Analytics:</strong> Live dashboard showing exact redemptions and reach.</li>
-                  </ul>
-                </div>
-
-                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
-                  <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#ff5a1f]" />
-                    For Promorang (The Platform)
-                  </strong>
-                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
-                    <li><strong>15% Platform Take-Rate:</strong> Earned from sponsor brand budgets deployed through the escrow.</li>
-                    <li><strong>Audience Liquidity:</strong> Active partygoers engaging with Jamaican polls and discovering events.</li>
-                    <li><strong>Long-Term Enterprise Partnership:</strong> Annual multi-event promoter contract with Midas.</li>
+                  <ul className="space-y-2 text-stone-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>For Midas:</strong> Earns <strong>J$75,000–J$100,000</strong> host commission on this single sponsor activation.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>For the Sponsor:</strong> 250+ verified drinks ordered at the bar and 250+ video stories shared to thousands of followers across Jamaica.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>For Midas Sales Team:</strong> You can pitch corporate brands high-tech sponsorships that guarantee real sales and digital buzz.</span>
+                    </li>
                   </ul>
                 </div>
 
               </div>
 
-              <div className="p-4 bg-[#0d0c0a] border border-[#ffcf38]/30 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-white block">Want to explore the live PromoPush ecosystem?</span>
-                  <span className="text-[11px] text-stone-400 font-mono">View the promoter commission portal & creator campaigns.</span>
-                </div>
-                <Link
-                  to="/promopush/info"
-                  className="bg-[#ffcf38] hover:bg-[#ffe066] text-black font-mono font-bold text-xs px-4 py-2 rounded-sm uppercase tracking-wider flex items-center gap-1.5 shrink-0"
-                >
-                  <span>Explore PromoPush Hub</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
-              </div>
             </div>
 
             {/* Bottom Chapter Navigation */}
@@ -827,14 +812,16 @@ export default function MidasCommercialProposal() {
             {/* What Promorang Delivers vs What Midas Provides */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
+              {/* 1. What Midas Gets */}
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#10b981]/40 space-y-4">
-                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">
-                  1. What Promorang Delivers to Midas
+                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  1. What Midas Gets
                 </span>
                 <div className="space-y-3 text-xs text-stone-300">
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>100% Owned Contact Database:</strong> Downloadable CSV of verified Jamaican attendee phone numbers.</span>
+                    <span><strong>100% Owned Contact Database:</strong> Downloadable CSV of verified Jamaican attendee phone numbers for direct WhatsApp marketing.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -842,35 +829,37 @@ export default function MidasCommercialProposal() {
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>PromoPush Sponsor Monetization:</strong> 15%–20% commission on corporate brand activation budgets.</span>
+                    <span><strong>15%–20% PromoPush Sponsor Commission:</strong> High-margin cash revenue on all corporate brand campaigns deployed at your event.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <span><strong>Dedicated Midas Host Operations Center:</strong> Real-time gate scanner and attendance telemetry at `/hosts/midas`.</span>
                   </div>
-                  <div className="flex items-start gap-2.5">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Zero Platform Charge:</strong> 100% free pilot partnership for the August 29–30 weekend.</span>
-                  </div>
                 </div>
               </div>
 
+              {/* 2. What's Needed From Midas */}
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffcf38]/40 space-y-4">
-                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">
-                  2. What Midas Provides
+                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block flex items-center gap-1.5">
+                  <KeyRound className="w-4 h-4 text-[#ffcf38]" />
+                  2. What Is Needed From Midas
                 </span>
                 <div className="space-y-3 text-xs text-stone-300">
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
-                    <span><strong>50 Express Entry Wristbands per event:</strong> Fast-lane door access allocated to verified voters.</span>
+                    <span><strong>50 Express Entry Wristbands per event:</strong> Fast-lane door access allocated to verified voters (zero out-of-pocket cost).</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
-                    <span><strong>30 Early Hosted Drinks Tokens:</strong> Redeemable strictly during early arrival hours (4:00 PM – 6:00 PM).</span>
+                    <span><strong>30 Early Hosted Drinks Tokens:</strong> Redeemable strictly during early arrival hours (4:00 PM – 6:00 PM) to pack the venue early.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
-                    <span><strong>Link in Bio / Promo Tag:</strong> Adding `promorang.co/moments/sophisticated` alongside your Aitix links on Instagram.</span>
+                    <span><strong>Co-Promo Link:</strong> Adding `promorang.co/moments/sophisticated` alongside your Aitix links on Instagram stories & bio.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Zero Platform Charge:</strong> 100% free pilot partnership for the August 29–30 weekend.</span>
                   </div>
                 </div>
               </div>
