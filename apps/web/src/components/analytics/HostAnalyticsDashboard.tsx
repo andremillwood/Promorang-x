@@ -17,6 +17,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { useTour } from '@/contexts/TourContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
+import { ProductTour } from '@/components/tours/ProductTour';
 
 interface HostAnalyticsDashboardProps {
     userId: string;

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, DollarSign, Landmark, Mail, MapPin, Send, History, CheckCircle2, AlertCircle, Clock, Plus, ExternalLink } from "lucide-react";
+import { Loader2, DollarSign, Landmark, Mail, MapPin, Send, History, CheckCircle2, AlertCircle, Clock, Plus, ExternalLink, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';

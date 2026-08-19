@@ -13,7 +13,8 @@ import {
   ArrowRight, 
   ArrowUpRight,
   MessageSquare,
-  Flame
+  Flame,
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 
