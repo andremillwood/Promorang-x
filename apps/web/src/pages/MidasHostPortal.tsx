@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import {
@@ -23,8 +23,15 @@ import {
   Layers,
   Award,
   Zap,
-  Inbox,
-  AlertCircle
+  Trash2,
+  RefreshCw,
+  AlertTriangle,
+  Radio,
+  Eye,
+  Lock,
+  Flame,
+  Check,
+  Inbox
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,17 +48,134 @@ interface AttendeeRecord {
   status: string;
   joinedAt: string;
   pointsEarned: number;
+  isDemoSample?: boolean;
 }
 
-// Live real captured attendees list starts at 0 before launch
-const CAPTURED_ATTENDEES: AttendeeRecord[] = [];
+// Sample attendee simulation for preview purposes
+const SAMPLE_DEMO_ATTENDEES: AttendeeRecord[] = [
+  {
+    id: 'demo-att-001',
+    name: 'Kadeem Sterling (Sample)',
+    phone: '+1 (876) 542-8910',
+    preferredMoment: 'Sophisticated — Beach Party',
+    perkUnlocked: 'Express Gate Pass + Drink Token',
+    squadInvitesSent: 3,
+    status: 'Fast-Track Gate Ready',
+    joinedAt: '12 mins ago',
+    pointsEarned: 200,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-002',
+    name: 'Shanice Campbell (Sample)',
+    phone: '+1 (876) 831-4092',
+    preferredMoment: 'Capleton Encore Live',
+    perkUnlocked: 'VIP Deck Upgrade (Top Referrer)',
+    squadInvitesSent: 5,
+    status: 'VIP Verified',
+    joinedAt: '34 mins ago',
+    pointsEarned: 350,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-003',
+    name: 'Tariq Anderson (Sample)',
+    phone: '+1 (876) 919-6632',
+    preferredMoment: 'Sophisticated — Beach Party',
+    perkUnlocked: 'Express Gate Pass',
+    squadInvitesSent: 2,
+    status: 'Fast-Track Gate Ready',
+    joinedAt: '1 hour ago',
+    pointsEarned: 200,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-004',
+    name: 'Jhenelle Thompson (Sample)',
+    phone: '+1 (876) 473-2281',
+    preferredMoment: 'Capleton Encore Live',
+    perkUnlocked: 'Soundcheck Double Pass',
+    squadInvitesSent: 7,
+    status: 'Backstage Guest List',
+    joinedAt: '2 hours ago',
+    pointsEarned: 500,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-005',
+    name: 'Andre Miller (Sample)',
+    phone: '+1 (876) 388-1904',
+    preferredMoment: 'Sophisticated — Beach Party',
+    perkUnlocked: 'Hosted Drinks Token (Before 6 PM)',
+    squadInvitesSent: 2,
+    status: 'Early Arrival Fast-Track',
+    joinedAt: '3 hours ago',
+    pointsEarned: 200,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-006',
+    name: 'Racquel Edwards (Sample)',
+    phone: '+1 (876) 790-5519',
+    preferredMoment: 'Capleton Encore Live',
+    perkUnlocked: 'Express Gate Pass',
+    squadInvitesSent: 2,
+    status: 'Fast-Track Gate Ready',
+    joinedAt: '4 hours ago',
+    pointsEarned: 200,
+    isDemoSample: true
+  },
+  {
+    id: 'demo-att-007',
+    name: 'Damian Clarke (Sample)',
+    phone: '+1 (876) 612-8840',
+    preferredMoment: 'Sophisticated — Beach Party',
+    perkUnlocked: 'VIP Deck Upgrade',
+    squadInvitesSent: 4,
+    status: 'VIP Verified',
+    joinedAt: '5 hours ago',
+    pointsEarned: 300,
+    isDemoSample: true
+  }
+];
 
 export default function MidasHostPortal() {
   const [filterMoment, setFilterMoment] = useState<'all' | 'sophisticated' | 'capleton'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'attendees' | 'polls' | 'squads' | 'gate'>('attendees');
+  
+  // Environment Mode: 'production' (clean 0 real state) vs 'demo' (simulated sample)
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('promorang_midas_host_mode');
+    return saved === 'demo';
+  });
 
-  const filteredAttendees = CAPTURED_ATTENDEES.filter(att => {
+  const [attendeesList, setAttendeesList] = useState<AttendeeRecord[]>(() => {
+    const saved = localStorage.getItem('promorang_midas_host_mode');
+    return saved === 'demo' ? SAMPLE_DEMO_ATTENDEES : [];
+  });
+
+  // Purge Demo Data Handler
+  const handlePurgeDemoData = () => {
+    setIsDemoMode(false);
+    setAttendeesList([]);
+    localStorage.setItem('promorang_midas_host_mode', 'production');
+    toast.success("✨ Demo data successfully purged! Portal is now in clean Production Mode, ready for real partygoer RSVPs.", {
+      duration: 5000
+    });
+  };
+
+  // Toggle Simulation Preview
+  const handleLoadDemoPreview = () => {
+    setIsDemoMode(true);
+    setAttendeesList(SAMPLE_DEMO_ATTENDEES);
+    localStorage.setItem('promorang_midas_host_mode', 'demo');
+    toast.info("Switched to Preview Simulation Mode. You can purge this data at any time with one click.", {
+      duration: 4000
+    });
+  };
+
+  const filteredAttendees = attendeesList.filter(att => {
     const matchesMoment = 
       filterMoment === 'all' ? true :
       filterMoment === 'sophisticated' ? att.preferredMoment.toLowerCase().includes('sophisticated') :
@@ -65,22 +189,22 @@ export default function MidasHostPortal() {
   });
 
   const handleExportCSV = () => {
-    if (CAPTURED_ATTENDEES.length === 0) {
-      toast.info("No attendee records yet. Export will be active once attendees claim passes.");
+    if (attendeesList.length === 0) {
+      toast.info("No attendee records yet. Export will be active once real attendees claim passes.");
       return;
     }
     const csvContent = "data:text/csv;charset=utf-8," + 
-      "Name,Phone,Preferred Event,Perk Unlocked,Squad Invites,Status,Points\n" +
-      CAPTURED_ATTENDEES.map(a => `"${a.name}","${a.phone}","${a.preferredMoment}","${a.perkUnlocked}",${a.squadInvitesSent},"${a.status}",${a.pointsEarned}`).join("\n");
+      "Name,Phone,Preferred Event,Perk Unlocked,Squad Invites,Status,Points,Record Type\n" +
+      attendeesList.map(a => `"${a.name}","${a.phone}","${a.preferredMoment}","${a.perkUnlocked}",${a.squadInvitesSent},"${a.status}",${a.pointsEarned},"${a.isDemoSample ? 'DEMO_SAMPLE' : 'VERIFIED_LIVE'}"`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Midas_Plantation_Cove_Verified_Attendees.csv");
+    link.setAttribute("download", isDemoMode ? "Midas_Plantation_Cove_Sample_Demo_Directory.csv" : "Midas_Plantation_Cove_Live_Verified_Attendees.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("Downloaded Midas Attendee Contact Directory (CSV)!");
+    toast.success(`Downloaded ${isDemoMode ? 'Sample Preview' : 'Live Verified'} Contact Directory (CSV)!`);
   };
 
   return (
@@ -99,7 +223,7 @@ export default function MidasHostPortal() {
         }}
       />
 
-      {/* Header Bar */}
+      {/* Top Promorang Host Bar */}
       <header className="relative z-20 border-b border-[#ffffff18] bg-[#0d0c0a]/90 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -109,30 +233,89 @@ export default function MidasHostPortal() {
             </Link>
             <span className="text-[#ffffff25] text-sm">/</span>
             <span className="text-[#c9c0b5] text-xs font-mono font-bold uppercase tracking-wider">
-              Midas Entertainment Command Center
+              Midas Command Center
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              to="/proposals/midas"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono text-stone-300 hover:text-white px-3 py-1.5 border border-[#ffffff15] rounded-sm"
-            >
-              <span>View Commercial Proposal</span>
-            </Link>
+          {/* Environment Controls: Purge vs Preview Mode */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isDemoMode ? (
+              <button
+                onClick={handlePurgeDemoData}
+                className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-xs font-mono font-bold px-3 sm:px-4 py-2 rounded-sm flex items-center gap-1.5 transition-all shadow-sm"
+                title="Purge all simulated preview data and lock portal into clean production state"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                <span className="hidden sm:inline">Purge Demo Data</span>
+                <span className="sm:hidden">Purge</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleLoadDemoPreview}
+                className="bg-[#ffffff0d] hover:bg-[#ffffff18] text-[#ffcf38] border border-[#ffcf38]/40 text-xs font-mono font-bold px-3 sm:px-4 py-2 rounded-sm flex items-center gap-1.5 transition-all"
+                title="Load sample simulated records to test the dashboard view"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Load Sample Preview</span>
+                <span className="sm:hidden">Preview</span>
+              </button>
+            )}
+
             <Button
               onClick={handleExportCSV}
-              className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm shadow-[3px_3px_0_#000] flex items-center gap-1.5 uppercase tracking-wider"
+              className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-3 sm:px-4 py-2 rounded-sm shadow-[3px_3px_0_#000] flex items-center gap-1.5 uppercase tracking-wider"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Export Contact List</span>
+              <span className="hidden sm:inline">Export Contact List</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
       </header>
 
+      {/* Prominent Demo Mode Notification Banner */}
+      {isDemoMode && (
+        <div className="relative z-10 bg-amber-500/15 border-b border-amber-500/30 px-4 py-3">
+          <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-amber-300">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                <strong>PREVIEW SIMULATION MODE ACTIVE:</strong> You are viewing sample attendee records and simulated telemetry. Click <strong>"Purge Demo Data"</strong> anytime to reset to a clean zero-state for live launch.
+              </span>
+            </div>
+            <button
+              onClick={handlePurgeDemoData}
+              className="bg-amber-400 hover:bg-amber-300 text-black font-mono font-black uppercase text-[11px] px-3 py-1 rounded-sm shrink-0 flex items-center gap-1 transition-colors"
+            >
+              <Trash2 className="w-3 h-3" />
+              <span>Purge & Arm for Live Launch</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Production Live State Banner */}
+      {!isDemoMode && (
+        <div className="relative z-10 bg-emerald-500/10 border-b border-emerald-500/25 px-4 py-2.5">
+          <div className="mx-auto max-w-7xl flex items-center justify-between text-xs text-emerald-300">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono">
+                <strong>PRODUCTION MODE (CLEAN ZERO-STATE):</strong> Portal is armed and ready to receive real live partygoer RSVPs and WhatsApp squad shares.
+              </span>
+            </div>
+            <button
+              onClick={handleLoadDemoPreview}
+              className="text-[11px] font-mono text-stone-400 hover:text-white underline underline-offset-2"
+            >
+              View simulated sample preview
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hero Command Banner */}
-      <section className="relative z-10 pt-10 pb-12 px-4 sm:px-6 border-b border-[#ffffff15] bg-[radial-gradient(circle_at_80%_25%,#48200f_0,transparent_45%),linear-gradient(135deg,#0d0c0a_60%,#1f110a)]">
+      <section className="relative z-10 pt-8 pb-12 px-4 sm:px-6 border-b border-[#ffffff15] bg-[radial-gradient(circle_at_80%_25%,#48200f_0,transparent_45%),linear-gradient(135deg,#0d0c0a_60%,#1f110a)]">
         <div className="mx-auto max-w-7xl space-y-6">
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -144,8 +327,10 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono text-[#ffcf38]">
                   Co-Promoter: 8Rivaz Ultra Lounge
                 </span>
-                <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 border border-amber-500/30 rounded-sm">
-                  Pre-Launch Setup Ready
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-sm border ${
+                  isDemoMode ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                }`}>
+                  {isDemoMode ? 'SIMULATION PREVIEW' : 'PRODUCTION LIVE AT 0'}
                 </span>
               </div>
               <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
@@ -157,30 +342,46 @@ export default function MidasHostPortal() {
               </p>
             </div>
 
-            {/* Real Zero State KPI Counters */}
+            {/* KPI Counters (Dynamic based on Mode) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Total Poll Votes</span>
-                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
-                <span className="text-[10px] text-stone-400 font-mono">Awaiting Campaign Launch</span>
+                <strong className="text-2xl font-serif font-bold text-white block">
+                  {isDemoMode ? '240' : '0'}
+                </strong>
+                <span className="text-[10px] text-stone-400 font-mono">
+                  {isDemoMode ? 'Sample Simulation' : 'Live at Launch'}
+                </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Captured Contacts</span>
-                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
-                <span className="text-[10px] text-stone-400 font-mono">Live Captures at Launch</span>
+                <strong className="text-2xl font-serif font-bold text-[#ff5a1f] block">
+                  {isDemoMode ? '418' : '0'}
+                </strong>
+                <span className="text-[10px] text-stone-400 font-mono">
+                  {isDemoMode ? 'Sample Directory' : 'Real Phone/WhatsApp'}
+                </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
-                <span className="text-[10px] font-mono text-stone-400 uppercase block">Squad Referrals</span>
-                <strong className="text-2xl font-serif font-bold text-white block">0</strong>
-                <span className="text-[10px] text-stone-400 font-mono">0 Shares Logged</span>
+                <span className="text-[10px] font-mono text-stone-400 uppercase block">Squad Multiplier</span>
+                <strong className="text-2xl font-serif font-bold text-[#a855f7] block">
+                  {isDemoMode ? '1.8x' : '0.0x'}
+                </strong>
+                <span className="text-[10px] text-purple-300 font-mono">
+                  {isDemoMode ? '752 Crew Reach' : '0 Shares Logged'}
+                </span>
               </div>
 
               <div className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-1">
                 <span className="text-[10px] font-mono text-stone-400 uppercase block">Gate Passes Claimed</span>
-                <strong className="text-2xl font-serif font-bold text-[#10b981] block">0 / 92</strong>
-                <span className="text-[10px] text-emerald-300 font-mono">100% Inventory Open</span>
+                <strong className="text-2xl font-serif font-bold text-[#10b981] block">
+                  {isDemoMode ? '62 / 92' : '0 / 92'}
+                </strong>
+                <span className="text-[10px] text-emerald-300 font-mono">
+                  {isDemoMode ? '67% Inventory Used' : '100% Inventory Open'}
+                </span>
               </div>
             </div>
           </div>
@@ -193,10 +394,10 @@ export default function MidasHostPortal() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto py-3 text-xs font-mono uppercase tracking-wider scrollbar-none">
             {[
-              { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: 0 },
-              { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: 0 },
-              { id: 'squads', label: '3. WhatsApp Referral Squad Depth', icon: Share2, count: '0x' },
-              { id: 'gate', label: '4. Gate Passes & Access Drop Status', icon: Ticket, count: '0 / 92' }
+              { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: isDemoMode ? '418 (Sample)' : '0 (Live)' },
+              { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: isDemoMode ? '240 (Sample)' : '0 (Live)' },
+              { id: 'squads', label: '3. WhatsApp Referral Squad Depth', icon: Share2, count: isDemoMode ? '1.8x' : '0x' },
+              { id: 'gate', label: '4. Gate Passes & Access Drop Status', icon: Ticket, count: isDemoMode ? '62 / 92' : '0 / 92' }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -238,7 +439,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'all' ? 'bg-[#ff5a1f] border-[#ff5a1f] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  All Events (0)
+                  All Events ({filteredAttendees.length})
                 </button>
                 <button
                   onClick={() => setFilterMoment('sophisticated')}
@@ -246,7 +447,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'sophisticated' ? 'bg-[#ff5a1f] border-[#ff5a1f] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  Sophisticated (0)
+                  Sophisticated ({isDemoMode ? 4 : 0})
                 </button>
                 <button
                   onClick={() => setFilterMoment('capleton')}
@@ -254,7 +455,7 @@ export default function MidasHostPortal() {
                     filterMoment === 'capleton' ? 'bg-[#a855f7] border-[#a855f7] text-white font-bold' : 'border-[#ffffff15] text-stone-400'
                   }`}
                 >
-                  Capleton Encore Live (0)
+                  Capleton Encore Live ({isDemoMode ? 3 : 0})
                 </button>
               </div>
 
@@ -269,6 +470,16 @@ export default function MidasHostPortal() {
                     className="bg-black/60 border border-[#ffffff20] text-xs text-white pl-8 pr-3 py-1.5 rounded-sm focus:outline-none focus:border-[#ff5a1f] font-mono"
                   />
                 </div>
+                {isDemoMode && (
+                  <Button
+                    onClick={handlePurgeDemoData}
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs font-mono uppercase"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Purge Demo Data
+                  </Button>
+                )}
                 <Button
                   onClick={handleExportCSV}
                   variant="outline"
@@ -280,7 +491,7 @@ export default function MidasHostPortal() {
               </div>
             </div>
 
-            {/* Clean Real Zero State Display */}
+            {/* Table or Zero State */}
             {filteredAttendees.length === 0 ? (
               <div className="p-12 text-center rounded-sm border-2 border-dashed border-[#ffffff15] bg-[#141210] space-y-4">
                 <div className="w-12 h-12 rounded-full bg-white/5 text-stone-400 flex items-center justify-center mx-auto">
@@ -289,15 +500,22 @@ export default function MidasHostPortal() {
                 <div className="space-y-1">
                   <h4 className="font-serif text-lg font-bold text-white">No Attendees Captured Yet</h4>
                   <p className="text-xs text-stone-400 max-w-md mx-auto">
-                    The Midas Summer 2026 activation is configured and waiting to launch. Once attendees vote on Promorang and claim their gate perks, their verified phone numbers and referral status will populate here in real time.
+                    The portal is in <strong>Production Mode (Zero-State)</strong> and ready for real attendee RSVPs. As attendees vote on Promorang and claim their perks, their verified numbers and referral squad depth will populate here automatically.
                   </p>
                 </div>
-                <div className="pt-2 flex justify-center gap-3">
+                <div className="pt-3 flex flex-wrap justify-center gap-3">
+                  <button
+                    onClick={handleLoadDemoPreview}
+                    className="bg-white/10 hover:bg-white/15 text-stone-200 border border-white/20 px-4 py-2 rounded-sm text-xs font-mono"
+                  >
+                    Load Sample Preview Data ➔
+                  </button>
                   <Link
                     to="/proposals/midas"
-                    className="text-xs font-mono text-[#ff5a1f] hover:underline"
+                    className="text-xs font-mono text-[#ff5a1f] hover:underline flex items-center gap-1 self-center"
                   >
-                    View Activation Brief & Launch Plan ➔
+                    <span>View Activation Brief</span>
+                    <ExternalLink className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
@@ -322,7 +540,14 @@ export default function MidasHostPortal() {
                           <div className="w-6 h-6 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-[10px] flex items-center justify-center">
                             {att.name.charAt(0)}
                           </div>
-                          <span>{att.name}</span>
+                          <div>
+                            <span className="block">{att.name}</span>
+                            {att.isDemoSample && (
+                              <span className="text-[9px] font-mono text-amber-400/80 uppercase font-bold tracking-wider">
+                                [SIMULATED SAMPLE]
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-stone-300 flex items-center gap-1.5">
                           <Phone className="w-3 h-3 text-[#10b981]" />
@@ -357,9 +582,19 @@ export default function MidasHostPortal() {
               </div>
             )}
 
-            <div className="flex items-center justify-between text-xs text-stone-400 font-mono">
-              <span>0 verified attendee records (Pre-Launch Stage)</span>
-              <span className="text-[#ff5a1f]">Direct WhatsApp Export & Gate Scanner Integration Ready</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-stone-400 font-mono">
+              <span>Showing {filteredAttendees.length} {isDemoMode ? 'sample simulation' : 'live'} records</span>
+              {isDemoMode ? (
+                <button
+                  onClick={handlePurgeDemoData}
+                  className="text-red-400 hover:text-red-300 underline flex items-center gap-1"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  <span>Purge these sample records for production launch</span>
+                </button>
+              ) : (
+                <span className="text-emerald-400">✓ Production Mode Active · Real Contact Captures Only</span>
+              )}
             </div>
 
           </div>
@@ -369,12 +604,21 @@ export default function MidasHostPortal() {
         {activeTab === 'polls' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="max-w-3xl space-y-2">
-              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                Cultural Demand Signals
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                  Cultural Demand Signals
+                </span>
+                {isDemoMode && (
+                  <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
+                    SAMPLE PROJECTION
+                  </span>
+                )}
+              </div>
               <h3 className="font-serif text-3xl font-bold text-white">Live Discovery Poll Response Breakdown</h3>
               <p className="text-stone-300 text-sm">
-                Real votes recorded natively across Promorang's discovery engine once campaign promotion is published.
+                {isDemoMode
+                  ? 'Simulated response distribution based on Jamaican partygoer preferences.'
+                  : 'Real-time poll votes recorded across Promorang once campaign promotion is published.'}
               </p>
             </div>
 
@@ -384,7 +628,9 @@ export default function MidasHostPortal() {
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ff5a1f40] space-y-5">
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase">Summer Finale Poll</span>
-                  <span className="text-xs font-mono text-stone-400">0 Total Votes</span>
+                  <span className="text-xs font-mono text-stone-400">
+                    {isDemoMode ? '142 Sample Votes' : '0 Total Votes'}
+                  </span>
                 </div>
 
                 <h4 className="font-serif text-xl font-bold text-white">
@@ -395,52 +641,62 @@ export default function MidasHostPortal() {
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Beach party & oceanfront vibes</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-[#ff5a1f] font-mono">
+                        {isDemoMode ? '68 votes (48%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#ff5a1f] h-full w-[0%]" />
+                      <div className={`bg-[#ff5a1f] h-full ${isDemoMode ? 'w-[48%]' : 'w-[0%]'}`} />
                     </div>
-                    <span className="text-[10px] text-stone-500">$\rightarrow$ Routes directly to Sophisticated Beach Party</span>
+                    <span className="text-[10px] text-stone-400">$\rightarrow$ Routes directly to Sophisticated Beach Party</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Live concert & conscious stage show</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-[#a855f7] font-mono">
+                        {isDemoMode ? '42 votes (30%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#a855f7] h-full w-[0%]" />
+                      <div className={`bg-[#a855f7] h-full ${isDemoMode ? 'w-[30%]' : 'w-[0%]'}`} />
                     </div>
-                    <span className="text-[10px] text-stone-500">$\rightarrow$ Routes directly to Capleton Encore Live</span>
+                    <span className="text-[10px] text-stone-400">$\rightarrow$ Routes directly to Capleton Encore Live</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Club night & high-energy indoor party</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '19 votes (13%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[13%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Chill lounge & food lyme</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '9 votes (6%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[6%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Haven't decided yet</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '4 votes (3%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[3%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
                 </div>
@@ -449,7 +705,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#ff5a1f] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live poll on Consumer Discovery feed</span>
+                  <span>View live on Consumer Discovery feed</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -458,7 +714,9 @@ export default function MidasHostPortal() {
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#a855f740] space-y-5">
                 <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
                   <span className="text-xs font-mono font-bold text-[#a855f7] uppercase">Live Culture Poll</span>
-                  <span className="text-xs font-mono text-stone-400">0 Total Votes</span>
+                  <span className="text-xs font-mono text-stone-400">
+                    {isDemoMode ? '98 Sample Votes' : '0 Total Votes'}
+                  </span>
                 </div>
 
                 <h4 className="font-serif text-xl font-bold text-white">
@@ -469,52 +727,62 @@ export default function MidasHostPortal() {
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Reggae & conscious roots vibration</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-[#a855f7] font-mono">
+                        {isDemoMode ? '44 votes (45%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#a855f7] h-full w-[0%]" />
+                      <div className={`bg-[#a855f7] h-full ${isDemoMode ? 'w-[45%]' : 'w-[0%]'}`} />
                     </div>
-                    <span className="text-[10px] text-stone-500">$\rightarrow$ High-intent match for Capleton, Nesbeth & Dean Fraser</span>
+                    <span className="text-[10px] text-stone-400">$\rightarrow$ High-intent match for Capleton, Nesbeth & Dean Fraser</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Dancehall energy & top selectors</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-[#ff5a1f] font-mono">
+                        {isDemoMode ? '29 votes (30%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-[#ff5a1f] h-full w-[0%]" />
+                      <div className={`bg-[#ff5a1f] h-full ${isDemoMode ? 'w-[30%]' : 'w-[0%]'}`} />
                     </div>
-                    <span className="text-[10px] text-stone-500">$\rightarrow$ High-intent match for Vanessa Bling & Bass Odyssey</span>
+                    <span className="text-[10px] text-stone-400">$\rightarrow$ High-intent match for Vanessa Bling & Bass Odyssey</span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Afrobeats & crossover rhythm</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '12 votes (12%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[12%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Hip Hop & sound clashes</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '7 votes (7%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[7%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Depends strictly on who is performing</span>
-                      <span className="text-stone-400 font-mono">0 votes (0%)</span>
+                      <span className="text-stone-400 font-mono">
+                        {isDemoMode ? '6 votes (6%)' : '0 votes (0%)'}
+                      </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                      <div className="bg-stone-500 h-full w-[0%]" />
+                      <div className={`bg-stone-500 h-full ${isDemoMode ? 'w-[6%]' : 'w-[0%]'}`} />
                     </div>
                   </div>
                 </div>
@@ -523,7 +791,7 @@ export default function MidasHostPortal() {
                   to="/discover"
                   className="text-xs font-mono text-[#a855f7] hover:underline flex items-center gap-1 pt-2"
                 >
-                  <span>View live poll on Consumer Discovery feed</span>
+                  <span>View live on Consumer Discovery feed</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -536,59 +804,108 @@ export default function MidasHostPortal() {
         {activeTab === 'squads' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="max-w-3xl space-y-2">
-              <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
-                Viral Word-of-Mouth Engine
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
+                  Viral Word-of-Mouth Engine
+                </span>
+                {isDemoMode && (
+                  <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
+                    SAMPLE PROJECTION
+                  </span>
+                )}
+              </div>
               <h3 className="font-serif text-3xl font-bold text-white">WhatsApp Referral Squad Tracking</h3>
               <p className="text-stone-300 text-sm">
-                Once partygoers forward their passes on WhatsApp, squad referral trees and viral multiplier depth will track live below.
+                {isDemoMode
+                  ? 'Sample visualization of top squad referrers who forwarded passes on WhatsApp.'
+                  : 'Real squad referral trees will populate live as partygoers share passes with their crew.'}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Squad Leaderboard</span>
-                <div className="p-8 text-center bg-black/40 border border-dashed border-[#ffffff15] rounded-sm space-y-2">
-                  <Share2 className="w-6 h-6 text-stone-500 mx-auto" />
-                  <p className="text-xs text-stone-400">Squad leaderboard opens upon campaign launch</p>
+            {isDemoMode ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Top Squad Builder (Sample)</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#ff5a1f]/20 text-[#ff5a1f] font-mono font-bold text-lg flex items-center justify-center">
+                      J
+                    </div>
+                    <div>
+                      <strong className="text-white text-base block">Jhenelle Thompson</strong>
+                      <span className="text-stone-400 text-xs">+1 (876) 473-2281</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
+                    <div className="flex justify-between font-bold">
+                      <span>Squad Invites Verified:</span>
+                      <span className="text-[#ffcf38] font-mono">7 Friends Joined</span>
+                    </div>
+                    <div className="flex justify-between font-bold">
+                      <span>Perk Unlocked:</span>
+                      <span className="text-emerald-400 font-mono">Soundcheck Double Pass</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-400 block">Status: Capleton Backstage Guest List</span>
                 </div>
-                <span className="text-[10px] font-mono text-stone-500 block">Top referrers earn Soundcheck double passes & VIP deck upgrades</span>
-              </div>
 
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Viral Economics Tracking</span>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                    <span className="text-stone-400">Direct Voters:</span>
-                    <strong className="text-white font-mono">0</strong>
+                <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                  <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Runner-Up Squad Builder (Sample)</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#a855f7]/20 text-[#a855f7] font-mono font-bold text-lg flex items-center justify-center">
+                      S
+                    </div>
+                    <div>
+                      <strong className="text-white text-base block">Shanice Campbell</strong>
+                      <span className="text-stone-400 text-xs">+1 (876) 831-4092</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                    <span className="text-stone-400">Squad Shares Sent:</span>
-                    <strong className="text-stone-400 font-mono">0 shares</strong>
+                  <div className="p-3 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1 text-xs">
+                    <div className="flex justify-between font-bold">
+                      <span>Squad Invites Verified:</span>
+                      <span className="text-[#ffcf38] font-mono">5 Friends Joined</span>
+                    </div>
+                    <div className="flex justify-between font-bold">
+                      <span>Perk Unlocked:</span>
+                      <span className="text-purple-400 font-mono">VIP Deck Upgrade</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-b border-[#ffffff15] pb-2">
-                    <span className="text-stone-400">Viral Multiplier:</span>
-                    <strong className="text-stone-400 font-mono">0.0x</strong>
-                  </div>
-                  <div className="flex justify-between pt-1">
-                    <span className="text-stone-400">Total Audience Reach:</span>
-                    <strong className="text-white font-mono font-bold">0 Partygoers</strong>
+                  <span className="text-[10px] font-mono text-stone-400 block">Status: VIP Access Pass Confirmed</span>
+                </div>
+
+                <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Viral Economics Summary</span>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between border-b border-[#ffffff15] pb-2">
+                      <span className="text-stone-400">Direct Voters:</span>
+                      <strong className="text-white font-mono">240</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#ffffff15] pb-2">
+                      <span className="text-stone-400">Squad Shares Sent:</span>
+                      <strong className="text-[#ffcf38] font-mono">432 shares</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#ffffff15] pb-2">
+                      <span className="text-stone-400">Viral Multiplier:</span>
+                      <strong className="text-emerald-400 font-mono">1.8x</strong>
+                    </div>
+                    <div className="flex justify-between pt-1">
+                      <span className="text-stone-400">Total Audience Reach:</span>
+                      <strong className="text-white font-mono font-bold">752 Partygoers</strong>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
-                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Squad Engine Specs</span>
-                <div className="p-4 bg-black/40 border border-[#ffffff15] rounded-sm space-y-2 text-xs text-stone-300">
-                  <strong className="text-white block font-bold">Target Viral Ratio: 1.8x</strong>
-                  <p className="text-stone-400 text-[11px] leading-relaxed">
-                    Attendees are incentivized to share pass codes with 2 friends on WhatsApp to unlock gate priority and drink perks.
-                  </p>
-                </div>
               </div>
+            ) : (
+              <div className="p-10 text-center rounded-sm border-2 border-dashed border-[#ffffff15] bg-[#141210] space-y-3">
+                <Share2 className="w-8 h-8 text-stone-500 mx-auto" />
+                <h4 className="font-serif text-lg font-bold text-white">0 Squad Shares Logged (Production Zero-State)</h4>
+                <p className="text-xs text-stone-400 max-w-md mx-auto">
+                  When partygoers tap "Send to Crew on WhatsApp", their squad referral chains and top crew ambassadors will automatically populate this leaderboard.
+                </p>
+              </div>
+            )}
 
-            </div>
           </div>
         )}
 
@@ -596,9 +913,16 @@ export default function MidasHostPortal() {
         {activeTab === 'gate' && (
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="max-w-3xl space-y-2">
-              <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
-                Gate & Venue Capacity Management
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
+                  Gate & Venue Capacity Management
+                </span>
+                {isDemoMode && (
+                  <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
+                    SAMPLE PROJECTION
+                  </span>
+                )}
+              </div>
               <h3 className="font-serif text-3xl font-bold text-white">Midas Access Drop Inventory Status</h3>
               <p className="text-stone-300 text-sm">
                 Real-time tracking of perks allocated vs claimed by verified partygoers at Plantation Cove.
@@ -611,48 +935,56 @@ export default function MidasHostPortal() {
                 <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Tier 1 · Speed</span>
                 <h4 className="font-serif text-lg font-bold text-white">Express Entry Wristbands</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  0 <span className="text-xs font-mono text-stone-400">/ 50 Allocated</span>
+                  {isDemoMode ? '38' : '0'} <span className="text-xs font-mono text-stone-400">/ 50 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#ff5a1f] h-full w-[0%]" />
+                  <div className={`bg-[#ff5a1f] h-full ${isDemoMode ? 'w-[76%]' : 'w-[0%]'}`} />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">50 Wristbands Available at Launch</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">
+                  {isDemoMode ? '12 Wristbands Remaining' : '50 Wristbands Available at Launch'}
+                </span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Tier 2 · High Value</span>
                 <h4 className="font-serif text-lg font-bold text-white">VIP Deck Upgrades</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  0 <span className="text-xs font-mono text-stone-400">/ 10 Allocated</span>
+                  {isDemoMode ? '7' : '0'} <span className="text-xs font-mono text-stone-400">/ 10 Allocated</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#a855f7] h-full w-[0%]" />
+                  <div className={`bg-[#a855f7] h-full ${isDemoMode ? 'w-[70%]' : 'w-[0%]'}`} />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">10 VIP Upgrades Available at Launch</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">
+                  {isDemoMode ? '3 VIP Upgrades Remaining' : '10 VIP Upgrades Available at Launch'}
+                </span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">Tier 3 · Exclusive</span>
                 <h4 className="font-serif text-lg font-bold text-white">Soundcheck Double Passes</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  0 <span className="text-xs font-mono text-stone-400">/ 2 Allocated</span>
+                  {isDemoMode ? '2 / 2' : '0 / 2'}
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#ffcf38] h-full w-[0%]" />
+                  <div className={`bg-[#ffcf38] h-full ${isDemoMode ? 'w-[100%]' : 'w-[0%]'}`} />
                 </div>
-                <span className="text-[11px] font-mono text-[#ffcf38] block">Reserved for Top Squad Referrers</span>
+                <span className="text-[11px] font-mono text-[#ffcf38] block">
+                  {isDemoMode ? '100% Claimed by Top Referrers' : '2 Passes Open for Top Referrers'}
+                </span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
                 <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Tier 4 · Early Arrival</span>
                 <h4 className="font-serif text-lg font-bold text-white">Hosted Drinks Passes (Pre-6PM)</h4>
                 <div className="text-2xl font-serif font-black text-white">
-                  0 <span className="text-xs font-mono text-stone-400">/ 30 Allocated</span>
+                  {isDemoMode ? '24' : '0'} <span className="text-xs font-mono text-stone-400">/ 30 Claimed</span>
                 </div>
                 <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
-                  <div className="bg-[#10b981] h-full w-[0%]" />
+                  <div className={`bg-[#10b981] h-full ${isDemoMode ? 'w-[80%]' : 'w-[0%]'}`} />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 block">30 Tokens Available at Launch</span>
+                <span className="text-[11px] font-mono text-emerald-400 block">
+                  {isDemoMode ? '6 Tokens Remaining' : '30 Tokens Available at Launch'}
+                </span>
               </div>
 
             </div>
@@ -669,18 +1001,31 @@ export default function MidasHostPortal() {
             <p className="text-xs text-[#887f74]">Midas Entertainment Live Operations · Plantation Cove, St. Ann, Jamaica</p>
           </div>
           <div className="flex items-center gap-4">
+            {isDemoMode ? (
+              <Button
+                onClick={handlePurgeDemoData}
+                variant="destructive"
+                className="font-mono text-xs px-5 py-3 rounded-sm uppercase tracking-wider"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                <span>Purge Demo Data</span>
+              </Button>
+            ) : (
+              <Button
+                onClick={handleLoadDemoPreview}
+                variant="outline"
+                className="font-mono text-xs px-5 py-3 rounded-sm uppercase tracking-wider border-white/20"
+              >
+                <Eye className="w-3.5 h-3.5 mr-1.5" />
+                <span>Load Sample Preview</span>
+              </Button>
+            )}
             <Link
               to="/proposals/midas"
               className="bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs px-5 py-3 rounded-sm border border-[#ffffff15]"
             >
-              Return to Proposal Brief
+              Proposal Brief
             </Link>
-            <Button
-              onClick={handleExportCSV}
-              className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000]"
-            >
-              Export CSV Contacts
-            </Button>
           </div>
         </div>
       </footer>
