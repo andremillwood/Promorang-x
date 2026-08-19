@@ -28,7 +28,9 @@ import {
   ShieldCheck,
   Zap,
   Target,
-  Send
+  Send,
+  Vote,
+  CheckSquare
 } from "lucide-react";
 import { formatDiscoveryCategory, discoveryLocation } from "@promorang/shared";
 import SEO from "@/components/SEO";
