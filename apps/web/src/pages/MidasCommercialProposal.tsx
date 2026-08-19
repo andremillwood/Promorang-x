@@ -613,6 +613,53 @@ export default function MidasCommercialProposal() {
 
             </div>
 
+            {/* UNIFIED WEEKEND AUDIENCE CAMPAIGN HUB */}
+            <div className="rounded-sm border-2 border-[#ffcf38]/50 bg-[#161310] p-6 sm:p-8 space-y-5 shadow-[8px_8px_0_#ffcf3822]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider">
+                      Public Fan Destination
+                    </span>
+                    <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 border border-emerald-500/30 rounded-sm">
+                      MASTER PROMO LINK READY
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    The Midas Summer Finale Audience Campaign Page
+                  </h3>
+                </div>
+                <Link
+                  to="/campaigns/midas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider flex items-center gap-2 shadow-md shrink-0"
+                >
+                  <span>Open Public Campaign Page</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                Instead of sending fans to separate confusing links, Midas gets a single high-converting festival hub (<strong>promorang.co/campaigns/midas</strong>) to put in your Instagram bio, press releases, and WhatsApp broadcasts. Fans can vote on the poll, claim express entry passes, invite friends on WhatsApp, and buy tickets directly on Aitix.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono text-stone-300">
+                <div className="p-3 bg-black/50 border border-white/10 rounded-sm">
+                  <span className="text-[#ff5a1f] block font-bold">✓ Weekend Festival Hub</span>
+                  <span className="text-[11px] text-stone-400">Sophisticated + Capleton</span>
+                </div>
+                <div className="p-3 bg-black/50 border border-white/10 rounded-sm">
+                  <span className="text-[#ffcf38] block font-bold">✓ Live Poll & Perks</span>
+                  <span className="text-[11px] text-stone-400">Captures phone / WhatsApp</span>
+                </div>
+                <div className="p-3 bg-black/50 border border-white/10 rounded-sm">
+                  <span className="text-emerald-400 block font-bold">✓ 1.8x WhatsApp Forward</span>
+                  <span className="text-[11px] text-stone-400">Viral squad multiplier active</span>
+                </div>
+              </div>
+            </div>
+
             {/* Bottom Chapter Navigation */}
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
               <Button
@@ -791,14 +838,15 @@ export default function MidasCommercialProposal() {
               </p>
             </div>
 
-            {/* 5 Stages Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {/* 6 Stages Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
-                { step: 1, title: '1. Discovery Polls', desc: 'Summer Finale Jamaican Poll', path: '/discover?demo=midas&step=1', color: 'border-orange-500/40 text-orange-400' },
-                { step: 2, title: '2. Sophisticated', desc: 'Vanessa Bling + Aitix link', path: '/moments/sophisticated?demo=midas&step=2', color: 'border-orange-500/40 text-orange-400' },
-                { step: 3, title: '3. Capleton Live', desc: 'Live Concert + Aitix link', path: '/moments/encore-live-featuring-capleton?demo=midas&step=3', color: 'border-purple-500/40 text-purple-400' },
-                { step: 4, title: '4. Venue Profile', desc: 'Plantation Cove Canonical Hub', path: '/venues/plantation-cove?demo=midas&step=4', color: 'border-emerald-500/40 text-emerald-400' },
-                { step: 5, title: '5. Host Center', desc: 'Real Phone List & Gate Ops', path: '/hosts/midas?demo=midas&step=5', color: 'border-amber-500/40 text-amber-400' }
+                { step: 1, title: '1. Discovery Polls', desc: 'Summer Finale Poll', path: '/discover?demo=midas&step=1', color: 'border-orange-500/40 text-orange-400' },
+                { step: 2, title: '2. Campaign Hub', desc: 'Master Festival Page', path: '/campaigns/midas', color: 'border-[#ffcf38]/40 text-[#ffcf38]' },
+                { step: 3, title: '3. Sophisticated', desc: 'Vanessa Bling + Aitix', path: '/moments/sophisticated?demo=midas&step=2', color: 'border-orange-500/40 text-orange-400' },
+                { step: 4, title: '4. Capleton Live', desc: 'Concert + Aitix', path: '/moments/encore-live-featuring-capleton?demo=midas&step=3', color: 'border-purple-500/40 text-purple-400' },
+                { step: 5, title: '5. Venue Hub', desc: 'Plantation Cove Profile', path: '/venues/plantation-cove?demo=midas&step=4', color: 'border-emerald-500/40 text-emerald-400' },
+                { step: 6, title: '6. Host Center', desc: 'Phone CRM & Gate Ops', path: '/hosts/midas?demo=midas&step=5', color: 'border-amber-500/40 text-amber-400' }
               ].map((s) => (
                 <button
                   key={s.step}
@@ -806,13 +854,13 @@ export default function MidasCommercialProposal() {
                     sessionStorage.setItem('promorang_midas_demo_active', 'true');
                     navigate(s.path);
                   }}
-                  className={`p-4 rounded-sm bg-[#141210] border-2 ${s.color} text-left space-y-2 hover:bg-white/5 transition-all group`}
+                  className={`p-3.5 rounded-sm bg-[#141210] border-2 ${s.color} text-left space-y-1.5 hover:bg-white/5 transition-all group`}
                 >
-                  <span className="text-[10px] font-mono uppercase font-bold block">Stage 0{s.step}</span>
-                  <strong className="text-white text-sm block group-hover:text-[#ff5a1f]">{s.title}</strong>
-                  <p className="text-[11px] text-stone-400 leading-snug">{s.desc}</p>
+                  <span className="text-[9px] font-mono uppercase font-bold block">Node 0{s.step}</span>
+                  <strong className="text-white text-xs block group-hover:text-[#ff5a1f] truncate">{s.title}</strong>
+                  <p className="text-[10px] text-stone-400 leading-snug">{s.desc}</p>
                   <span className="text-[10px] font-mono text-[#ffcf38] flex items-center gap-1 pt-1">
-                    <span>Open node</span>
+                    <span>Open</span>
                     <ArrowRight className="w-3 h-3" />
                   </span>
                 </button>
