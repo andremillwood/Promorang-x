@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import {
   ArrowRight,
@@ -26,7 +26,10 @@ import {
   Calendar,
   Ticket,
   HelpCircle,
-  Smartphone
+  Smartphone,
+  X,
+  Play,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +37,9 @@ import { getSiteUrl } from '@/lib/discovery';
 
 export default function MidasCommercialProposal() {
   const [activeTab, setActiveTab] = useState<'overview' | 'moments' | 'promopush' | 'incentives' | 'data'>('overview');
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [demoStep, setDemoStep] = useState(1);
+  const navigate = useNavigate();
 
   return (
     <main className="min-h-screen bg-[#070709] text-white selection:bg-[#ff5a1f] selection:text-white pb-24 font-sans">
@@ -711,13 +717,16 @@ export default function MidasCommercialProposal() {
             Let's walk through a 5-minute live demonstration of the discovery polls, moment pages, and audience dashboard to confirm our Summer 2026 activation at Plantation Cove.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Link
-              to="/discover"
+            <button
+              onClick={() => {
+                setDemoStep(1);
+                setShowDemoModal(true);
+              }}
               className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all shadow-xl shadow-orange-950 flex items-center gap-2"
             >
-              <span>Launch Live Demonstration</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+              <Play className="w-4 h-4 fill-white" />
+              <span>Launch 7-Step Interactive Demonstration</span>
+            </button>
             <Link
               to="/venues/plantation-cove"
               className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all flex items-center gap-2"
@@ -728,6 +737,213 @@ export default function MidasCommercialProposal() {
           </div>
         </div>
       </section>
+
+      {/* 7-Step Guided Interactive Demonstration Modal */}
+      {showDemoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-[#0e0c0a] border border-orange-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-orange-950/50 space-y-6 text-white max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-white/10 pb-4">
+              <div>
+                <span className="text-orange-400 font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Midas 3–5 Minute Guided Demonstration
+                </span>
+                <h3 className="font-serif text-2xl font-bold text-white mt-1">
+                  Step {demoStep} of 7: {
+                    demoStep === 1 ? "Cultural Discovery Poll (Top of Funnel)" :
+                    demoStep === 2 ? "PROMORANG PRESENTS Recommendation" :
+                    demoStep === 3 ? "Sophisticated Beach Party Moment Page" :
+                    demoStep === 4 ? "Encore Live featuring Capleton Moment" :
+                    demoStep === 5 ? "Canonical Plantation Cove Venue Hub" :
+                    demoStep === 6 ? "Instant Join & WhatsApp Crew Share" :
+                    "Promoter Intelligence Dashboard"
+                  }
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowDemoModal(false)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 transition-colors"
+                aria-label="Close Demonstration Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Step Body */}
+            <div className="space-y-4 text-sm text-white/80">
+              {demoStep === 1 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> The attendee sees an interactive Jamaican discovery poll via Instagram bio, WhatsApp, or DJ ad (e.g. <em>"How are you ending summer 2026 in Jamaica?"</em>).
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Tapping an option (like <em>Beach party & oceanfront vibes</em>) records live demand signals without creating a boring survey barrier.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-orange-500/20 text-xs text-orange-300 font-mono">
+                    Endpoint: /discover · Live vote counts + Demand threshold meters
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 2 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> Immediately following their vote, the attendee receives a personalized result followed by the curated card: <strong>PROMORANG PRESENTS: Sophisticated at Plantation Cove</strong>.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Promorang Presents acts as the active-distribution recommendation tier, cleanly separated from user poll answers.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-orange-500/20 text-xs text-orange-300 font-mono">
+                    Badge: PROMORANG PRESENTS · Curated High-Intent Placement
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 3 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> The attendee lands on the dedicated <strong>Sophisticated Moment Page</strong>.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    They see Vanessa Bling headliner billing, DJ lineup (Trippple X, Bishop Escobar, Illusion Sound), hosted drinks segment (4–7 PM), and J$5,000 pre-sold ticket access.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-orange-500/20 text-xs text-orange-300 font-mono">
+                    Endpoint: /moments/sophisticated · Plantation Cove, Aug 29, 2026
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 4 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> Attendees interested in live concert reggae explore <strong>Encore Live featuring Capleton</strong>.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Strictly disambiguated from any weekly club night, highlighting Capleton's full live band reggae concert on Sunday, August 30 at Plantation Cove.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-purple-500/20 text-xs text-purple-300 font-mono">
+                    Endpoint: /moments/encore-live-featuring-capleton
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 5 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> Clicking the venue opens the canonical <strong>Plantation Cove Venue Hub</strong> in Priory, St. Ann.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Both Midas events sit under this single persistent venue record (18.45509° N, -77.23241° W), building lasting location authority.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-emerald-500/20 text-xs text-emerald-300 font-mono">
+                    Endpoint: /venues/plantation-cove · Verified Google Places Anchor
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 6 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> The attendee taps <strong>"Join Moment"</strong>.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Zero-friction contact capture takes place. The user immediately receives +200 PromoPoints, an unlock code for Midas Access Drops, and an instant WhatsApp referral button to invite their crew.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-amber-500/20 text-xs text-amber-300 font-mono">
+                    Growth Loop: Attendee joins → Unlocks perk → Forwards WhatsApp pass to crew
+                  </div>
+                </div>
+              )}
+
+              {demoStep === 7 && (
+                <div className="space-y-3">
+                  <p>
+                    <strong>What happens:</strong> Midas opens the <strong>Merchant/Host Dashboard</strong> to view real-time data.
+                  </p>
+                  <p className="text-white/60 text-xs">
+                    Track discovery completions, verified moment joins, referral tree attribution, and gate check-ins at Plantation Cove.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-blue-500/20 text-xs text-blue-300 font-mono">
+                    Endpoint: /dashboard/merchant · Real-Time Campaign Intelligence
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Step Stepper Indicators */}
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setDemoStep(num)}
+                    className={`w-7 h-7 rounded-full text-xs font-bold transition-all ${
+                      demoStep === num
+                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-950 font-black'
+                        : demoStep > num
+                        ? 'bg-emerald-600/30 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-white/10 text-white/40'
+                    }`}
+                  >
+                    {demoStep > num ? '✓' : num}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {demoStep > 1 && (
+                  <button
+                    onClick={() => setDemoStep(s => s - 1)}
+                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors"
+                  >
+                    Previous
+                  </button>
+                )}
+
+                {demoStep < 7 ? (
+                  <button
+                    onClick={() => setDemoStep(s => s + 1)}
+                    className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white transition-colors flex items-center gap-1"
+                  >
+                    <span>Next Step</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowDemoModal(false);
+                      navigate('/discover');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-colors flex items-center gap-1"
+                  >
+                    <span>Open Live Demo</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Direct Action Link for Current Step */}
+                <button
+                  onClick={() => {
+                    setShowDemoModal(false);
+                    if (demoStep === 1) navigate('/discover');
+                    else if (demoStep === 2) navigate('/radar');
+                    else if (demoStep === 3) navigate('/moments/sophisticated');
+                    else if (demoStep === 4) navigate('/moments/encore-live-featuring-capleton');
+                    else if (demoStep === 5) navigate('/venues/plantation-cove');
+                    else if (demoStep === 6) navigate('/moments/sophisticated');
+                    else if (demoStep === 7) navigate('/dashboard/merchant');
+                  }}
+                  className="px-3 py-2 rounded-xl border border-white/20 bg-white/5 hover:bg-white/15 text-xs font-bold text-orange-400 transition-colors"
+                >
+                  Jump to Page ↗
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </main>
   );
 }
