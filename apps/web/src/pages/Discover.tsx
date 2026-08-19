@@ -14,14 +14,18 @@ import {
   Compass,
   Gift,
   Heart,
+  HelpCircle,
   LayoutGrid,
   Map,
   MapPin,
+  MessageSquare,
+  Plus,
   Radio,
   Search,
   Sparkles,
   Ticket,
   Users,
+  Zap,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
@@ -37,7 +41,6 @@ import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
 import { DISCOVERY_POLLS } from "@/data/discoveriesData";
-import { HelpCircle, MessageSquare } from "lucide-react";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
 
