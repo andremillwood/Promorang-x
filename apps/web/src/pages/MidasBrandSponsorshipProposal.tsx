@@ -410,6 +410,81 @@ export default function MidasBrandSponsorshipProposal() {
                 <span className="text-stone-400">Powered by PromoPush Smart Escrow</span>
               </div>
             </div>
+
+            {/* IN-PLATFORM MOMENT INTEGRATION FOR BRANDS VIA HOSTS */}
+            <div className="rounded-sm border-2 border-[#ffcf38]/40 bg-[#161310] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#ff5a1f22]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider">
+                      Native In-Platform Commercial Real Estate
+                    </span>
+                    <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">
+                      HOST-MOMENT INTEGRATION
+                    </Badge>
+                  </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    How Brands Natively Engage & Monetize Moments via Midas
+                  </h3>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-3xl">
+                On Promorang, every Moment (like <em>Sophisticated</em> and <em>Capleton Encore Live</em>) is an interactive digital hub. Brands don't just put up logos—they activate in-platform utilities directly alongside the host:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Award className="w-4 h-4 text-[#ff5a1f]" />
+                    1. Native Moment Title Slot
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    "Presented in Partnership with [Brand]" pinned on the official Moment page with verified click-throughs and brand story links.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Zap className="w-4 h-4 text-[#ffcf38]" />
+                    2. Unlockable In-Moment Perks
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Attach digital rewards to the Moment: voting on the poll or checking in unlocks a J$500 cocktail voucher or VIP tasting token.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Camera className="w-4 h-4 text-emerald-400" />
+                    3. Host-Approved Creator Bounties
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Partygoers upload their photo/video proof with your beverage directly to the live Moment feed to claim cash rewards and points.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-white/10 rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Layers className="w-4 h-4 text-purple-400" />
+                    4. Permanent Memory Vault Archive
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Your brand is permanently minted into the official digital Moment Pieces in the Memory Vault, preserving your equity for years.
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex items-center justify-between text-xs font-mono text-stone-300">
+                <span className="text-[#ffcf38]">✓ Full collaboration between Host & Brand with zero conflicting software</span>
+                <Link to="/moments/sophisticated" className="text-white hover:underline flex items-center gap-1">
+                  <span>Preview Live Moment Hub</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
