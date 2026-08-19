@@ -237,8 +237,29 @@ export default function MidasHostPortal() {
             </span>
           </div>
 
-          {/* Environment Controls: Purge vs Preview Mode */}
+          {/* Environment Controls: Purge vs Preview Mode & Quick Links */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/campaigns/midas"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:inline-flex items-center gap-1 text-xs font-mono text-stone-300 hover:text-white px-2.5 py-1.5 border border-white/15 rounded-sm"
+              title="View the public audience campaign landing page"
+            >
+              <span>Public Festival Hub</span>
+              <ExternalLink className="w-3 h-3 text-[#ff5a1f]" />
+            </Link>
+            <Link
+              to="/sponsorships/midas"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:inline-flex items-center gap-1 text-xs font-mono text-[#ffcf38] hover:text-white px-2.5 py-1.5 border border-[#ffcf38]/30 rounded-sm"
+              title="Open Brand Sponsorship & Sponsor ROI Proposal Deck"
+            >
+              <span>Brand Sponsor Deck</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+
             {isDemoMode ? (
               <button
                 onClick={handlePurgeDemoData}

@@ -162,6 +162,7 @@ const ArlaCommercialProposal = lazy(() => import("./pages/ArlaCommercialProposal
 const MidasCommercialProposal = lazy(() => import("./pages/MidasCommercialProposal"));
 const MidasHostPortal = lazy(() => import("./pages/MidasHostPortal"));
 const MidasWeekendCampaign = lazy(() => import("./pages/MidasWeekendCampaign"));
+const MidasBrandSponsorshipProposal = lazy(() => import("./pages/MidasBrandSponsorshipProposal"));
 const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
@@ -211,6 +212,9 @@ const App = () => (
                     <Route path="/proposals/midas" element={<MidasCommercialProposal />} />
                     <Route path="/proposals/midas-entertainment" element={<MidasCommercialProposal />} />
                     <Route path="/midas" element={<MidasCommercialProposal />} />
+                    <Route path="/sponsorships/midas" element={<MidasBrandSponsorshipProposal />} />
+                    <Route path="/proposals/midas/sponsors" element={<MidasBrandSponsorshipProposal />} />
+                    <Route path="/brands/midas-summer-2026" element={<MidasBrandSponsorshipProposal />} />
                     <Route path="/campaigns/midas" element={<MidasWeekendCampaign />} />
                     <Route path="/campaigns/midas-summer-weekend" element={<MidasWeekendCampaign />} />
                     <Route path="/midas-summer-2026" element={<MidasWeekendCampaign />} />

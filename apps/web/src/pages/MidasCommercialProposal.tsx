@@ -798,6 +798,28 @@ export default function MidasCommercialProposal() {
 
               </div>
 
+              {/* Pitch-Ready Brand Deck Forwarding Box */}
+              <div className="p-4 bg-[#0d0c0a] border border-[#ffcf38]/40 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-white block flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#ffcf38]" />
+                    <span>Send This to Your Beverage & Corporate Brand Sponsors:</span>
+                  </span>
+                  <span className="text-[11px] text-stone-400 font-mono">
+                    We built a dedicated Brand Sponsorship Deck & Interactive ROI Calculator (J$250k–J$2.5M tiers) for Midas sponsors.
+                  </span>
+                </div>
+                <Link
+                  to="/sponsorships/midas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#ffcf38] hover:bg-[#ffe066] text-black font-mono font-bold text-xs px-4 py-2.5 rounded-sm uppercase tracking-wider flex items-center gap-1.5 shrink-0 shadow-md"
+                >
+                  <span>Open Brand Proposal Deck</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
             </div>
 
             {/* Bottom Chapter Navigation */}
