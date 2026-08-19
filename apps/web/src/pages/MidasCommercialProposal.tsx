@@ -21,30 +21,37 @@ import {
   Calendar,
   Phone,
   CheckCircle2,
-  LockKeyhole
+  LockKeyhole,
+  Check,
+  ChevronRight,
+  Eye,
+  Info,
+  Clock,
+  Download
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { getSiteUrl } from '@/lib/discovery';
 
 export default function MidasCommercialProposal() {
-  const [activeTab, setActiveTab] = useState<'problem' | 'howitworks' | 'events' | 'perks' | 'outcomes'>('problem');
-  
-  // Interactive Access Drop Simulator State
-  const [expressPassCount, setExpressPassCount] = useState(50);
-  const [vipUpgradeCount, setVipUpgradeCount] = useState(10);
-  const [drinkTokenCount, setDrinkTokenCount] = useState(30);
-
+  const [currentChapter, setCurrentChapter] = useState<number>(1);
   const navigate = useNavigate();
 
-  // Projections
-  const estimatedParticipants = (expressPassCount * 3) + (vipUpgradeCount * 5) + (drinkTokenCount * 2) + 250;
-  const estimatedSquadReferrals = Math.round(estimatedParticipants * 1.8);
-  const estimatedRetainedAudience = Math.round(estimatedParticipants * 0.75);
+  const totalChapters = 5;
+
+  const chapterTitles = [
+    { num: 1, id: 'why', title: 'Why Look at This', subtitle: 'The $0 Monday Problem' },
+    { num: 2, id: 'how', title: 'How It Works', subtitle: 'The 4-Step Fan Journey' },
+    { num: 3, id: 'events', title: 'Your Two Events', subtitle: 'Flyers & Aitix Ticketing' },
+    { num: 4, id: 'tour', title: 'Interactive Tour', subtitle: '5-Minute Live Preview' },
+    { num: 5, id: 'deal', title: 'Host Operations & Terms', subtitle: 'Zero Risk Promoter Deal' }
+  ];
 
   return (
     <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased pb-32">
       <SEO
-        title="MIDAS ENTERTAINMENT × PROMORANG — Executive Proposal & Asset Hub"
-        description="Executive proposal for Midas Entertainment: How Promorang turns event hype into an owned crowd of repeat buyers for Sophisticated and Capleton Encore Live at Plantation Cove."
+        title="MIDAS ENTERTAINMENT × PROMORANG — Executive Brief & Commercial Proposal"
+        description="Executive proposal for Midas Entertainment: How Promorang turns event promotion into an owned audience database for Sophisticated and Capleton Encore Live at Plantation Cove."
         url={getSiteUrl("/proposals/midas")}
       />
 
@@ -56,7 +63,7 @@ export default function MidasCommercialProposal() {
         }}
       />
 
-      {/* Top Promorang Presents Navigation Bar */}
+      {/* Top Header Bar */}
       <header className="relative z-20 border-b border-[#ffffff18] bg-[#0d0c0a]/90 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -66,7 +73,7 @@ export default function MidasCommercialProposal() {
             </Link>
             <span className="text-[#ffffff25] text-sm">/</span>
             <span className="text-[#c9c0b5] text-xs font-mono font-bold uppercase tracking-wider">
-              Midas Proposal Hub
+              Midas Executive Proposal
             </span>
           </div>
 
@@ -92,8 +99,8 @@ export default function MidasCommercialProposal() {
         </div>
       </header>
 
-      {/* Signature Physical Ticket Stub Hero Section */}
-      <section className="relative z-10 pt-12 pb-16 px-4 sm:px-6 overflow-hidden">
+      {/* Signature Physical Golden Ticket Stub Hero Header */}
+      <section className="relative z-10 pt-10 pb-8 px-4 sm:px-6 overflow-hidden">
         <div className="mx-auto max-w-7xl">
           
           {/* Tactile 3D Golden Ticket Container */}
@@ -112,19 +119,19 @@ export default function MidasCommercialProposal() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-black uppercase tracking-widest text-[#ffcf38]">
-                      COMMERCIAL ACTIVATION TICKET · PASS #MIDAS-2026-PC
+                      EXECUTIVE COMMERCIAL BRIEF · PASS #MIDAS-2026-PC
                     </span>
                     <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 border border-emerald-500/30">
                       OFFICIAL PURVIEW
                     </span>
                   </div>
                   <h2 className="text-xs text-stone-400 font-mono">
-                    Midas Entertainment × 8Rivaz Ultra Lounge · Grizzly's Plantation Cove, Jamaica
+                    Prepared for Midas Entertainment & 8Rivaz Ultra Lounge · Grizzly's Plantation Cove, Jamaica
                   </h2>
                 </div>
               </div>
 
-              {/* Barcode & Stamp */}
+              {/* Barcode & Timestamp */}
               <div className="hidden sm:flex items-center gap-4 text-right">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1 h-5 justify-end">
@@ -139,126 +146,47 @@ export default function MidasCommercialProposal() {
               </div>
             </div>
 
-            {/* Main Hero Body Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-8">
-              
-              <div className="lg:col-span-7 space-y-6">
-                <div className="flex items-center gap-3 text-xs font-mono font-bold tracking-widest text-[#ff5a1f] uppercase">
-                  <span className="w-6 h-[2px] bg-[#ff5a1f]" />
-                  <span>The Real Solution for Live Promoters</span>
-                </div>
-
+            {/* Headline Hook */}
+            <div className="pt-8 space-y-6">
+              <div className="max-w-4xl space-y-3">
+                <span className="bg-[#ff5a1f] text-white text-[10px] font-mono font-black uppercase px-2.5 py-1 rounded-sm tracking-wider">
+                  The Bottom Line for Midas Leadership
+                </span>
                 <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#f4efe5] leading-[1.08]">
-                  Every event you promote, <i className="text-[#ff5a1f] font-serif not-italic">you shouldn't have to start from zero.</i>
+                  Stop renting attention. <i className="text-[#ff5a1f] font-serif not-italic">Own your crowd forever.</i>
                 </h1>
-
-                <p className="text-sm sm:text-base text-[#c9c0b5] leading-relaxed max-w-xl font-normal">
-                  Promoters spend thousands renting attention through flyers, Instagram ads, DJs, and WhatsApp broadcasts. People party and go home. On Monday morning, you have zero phone numbers—forcing you to pay all over again for the next show.
+                <p className="text-sm sm:text-base text-stone-300 leading-relaxed max-w-2xl font-normal">
+                  Midas is investing heavily into <strong>Vanessa Bling</strong> and <strong>Capleton</strong> for August 29–30 at Plantation Cove. Once the music stops, Instagram and ticket outlets keep your crowd's contact info. Promorang captures <strong>100% verified phone numbers</strong> and turns one-time ticket buyers into your permanent promoter asset.
                 </p>
+              </div>
 
-                <div className="p-4 bg-black/60 border-l-4 border-[#ffcf38] rounded-r-sm text-xs sm:text-sm text-stone-200 space-y-1">
-                  <strong className="text-white font-bold block flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#ffcf38]" />
-                    The Promorang Audience Equity Engine:
-                  </strong>
-                  <p className="text-stone-300">
-                    We give your attendees zero-cost perks (Express Gate Entry, drink tokens, VIP decks) to vote on Jamaican polls and forward a WhatsApp pass to their squad—building you an <strong>owned contact list</strong> for every future event.
+              {/* 3 Executive Questions Answered Upfront */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 bg-[#0a0908] border border-[#ffffff15] rounded-sm space-y-1.5">
+                  <span className="text-[10px] font-mono text-[#ffcf38] uppercase font-bold flex items-center gap-1">
+                    <Info className="w-3.5 h-3.5 text-[#ff5a1f]" /> 1. What is this?
+                  </span>
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    A zero-cost audience capture engine that runs alongside your existing flyers and <strong>Aitix ticket links</strong> without changing your operations.
                   </p>
                 </div>
 
-                {/* CTAs */}
-                <div className="flex flex-wrap items-center gap-4 pt-2">
-                  <button
-                    onClick={() => {
-                      sessionStorage.setItem('promorang_midas_demo_active', 'true');
-                      navigate('/discover?demo=midas&step=1');
-                    }}
-                    className="bg-gradient-to-r from-[#ff5a1f] to-[#ff3b00] hover:brightness-110 text-white font-bold text-sm px-6 py-4 rounded-sm transition-all shadow-[6px_6px_0_#000000] flex items-center gap-2 uppercase tracking-wider"
-                  >
-                    <span>Launch Live Interactive Walkthrough</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <Link
-                    to="/hosts/midas"
-                    className="bg-[#ffffff0d] hover:bg-[#ffffff18] border border-[#ffffff20] text-[#f4efe5] font-bold text-sm px-6 py-4 rounded-sm transition-all flex items-center gap-2"
-                  >
-                    <BarChart3 className="w-4 h-4 text-[#ffcf38]" />
-                    <span>View Midas Host Portal</span>
-                  </Link>
+                <div className="p-4 bg-[#0a0908] border border-[#ffffff15] rounded-sm space-y-1.5">
+                  <span className="text-[10px] font-mono text-[#ffcf38] uppercase font-bold flex items-center gap-1">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> 2. Why do we need it?
+                  </span>
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    On Monday morning, you won't reset to zero. You get a downloadable directory of phone numbers and a <strong>1.8x WhatsApp viral squad multiplier</strong>.
+                  </p>
                 </div>
-              </div>
 
-              {/* Right Side: Tactile Live Platform Asset Deck */}
-              <div className="lg:col-span-5">
-                <div className="bg-[#0e0c0a] border-2 border-[#ffffff15] p-5 sm:p-6 rounded-sm shadow-xl space-y-3 font-sans">
-                  
-                  <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
-                    <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-[#ff5a1f]" />
-                      Live Platform Asset Directory
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/20">
-                      5 LIVE NODES
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5 text-xs">
-                    <Link
-                      to="/discover"
-                      className="p-3 rounded-sm bg-[#161310] border border-[#ffffff15] flex items-center justify-between hover:border-[#ff5a1f] transition-all group hover:translate-x-1"
-                    >
-                      <div>
-                        <strong className="text-white block font-bold">1. Consumer Discovery Feed</strong>
-                        <span className="text-stone-400 text-[11px]">promorang.co/discover (Summer Polls)</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#ff5a1f]" />
-                    </Link>
-
-                    <Link
-                      to="/moments/sophisticated"
-                      className="p-3 rounded-sm bg-[#161310] border border-[#ffffff15] flex items-center justify-between hover:border-[#ff5a1f] transition-all group hover:translate-x-1"
-                    >
-                      <div>
-                        <strong className="text-white block font-bold">2. Sophisticated Moment Hub</strong>
-                        <span className="text-stone-400 text-[11px]">Vanessa Bling + Flyer + Aitix Ticketing</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#ff5a1f]" />
-                    </Link>
-
-                    <Link
-                      to="/moments/encore-live-featuring-capleton"
-                      className="p-3 rounded-sm bg-[#161310] border border-[#ffffff15] flex items-center justify-between hover:border-[#a855f7] transition-all group hover:translate-x-1"
-                    >
-                      <div>
-                        <strong className="text-white block font-bold">3. Capleton Encore Live Hub</strong>
-                        <span className="text-stone-400 text-[11px]">Live Band Concert + Flyer + Aitix Ticketing</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#a855f7]" />
-                    </Link>
-
-                    <Link
-                      to="/venues/plantation-cove"
-                      className="p-3 rounded-sm bg-[#161310] border border-[#ffffff15] flex items-center justify-between hover:border-[#10b981] transition-all group hover:translate-x-1"
-                    >
-                      <div>
-                        <strong className="text-white block font-bold">4. Plantation Cove Venue Hub</strong>
-                        <span className="text-stone-400 text-[11px]">Canonical GPS Location Graph</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#10b981]" />
-                    </Link>
-
-                    <Link
-                      to="/hosts/midas"
-                      className="p-3 rounded-sm bg-[#161310] border-2 border-[#ff5a1f]/50 flex items-center justify-between hover:border-[#ff5a1f] transition-all group hover:translate-x-1 bg-orange-950/20"
-                    >
-                      <div>
-                        <strong className="text-white block font-bold">5. Midas Host Operations Center</strong>
-                        <span className="text-stone-400 text-[11px]">Live voter counters, phone list & gate status</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-[#ff5a1f]" />
-                    </Link>
-                  </div>
-
+                <div className="p-4 bg-[#0a0908] border border-[#ffffff15] rounded-sm space-y-1.5">
+                  <span className="text-[10px] font-mono text-[#ffcf38] uppercase font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981]" /> 3. What does Midas provide?
+                  </span>
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    Just 50 Express Entry Wristbands and 30 Early Hosted Drinks Tokens from your existing setup. <strong>Zero upfront platform fees.</strong>
+                  </p>
                 </div>
               </div>
 
@@ -269,521 +197,559 @@ export default function MidasCommercialProposal() {
         </div>
       </section>
 
-      {/* Tactile Perforated Navigation Tabs */}
-      <div className="sticky top-0 z-30 border-b border-[#ffffff15] bg-[#0d0c0a]/95 backdrop-blur-xl">
+      {/* Sequential Guided Chapter Navigation Bar */}
+      <div className="sticky top-0 z-30 border-y border-[#ffffff15] bg-[#0d0c0a]/95 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex space-x-1 sm:space-x-3 overflow-x-auto py-3 text-xs font-bold scrollbar-none">
-            {[
-              { id: 'problem', label: '1. The Problem We Solve', icon: AlertCircle },
-              { id: 'howitworks', label: '2. How It Works (4 Simple Steps)', icon: Zap },
-              { id: 'events', label: '3. Your Two Events & Flyers', icon: Ticket },
-              { id: 'perks', label: '4. The Free Perks Midas Offers', icon: KeyRound },
-              { id: 'outcomes', label: '5. The Real Business Outcomes', icon: TrendingUp }
-            ].map(tab => {
-              const TabIcon = tab.icon;
-              return (
+          <div className="flex items-center justify-between py-3">
+            
+            {/* Chapter Tabs */}
+            <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto scrollbar-none">
+              {chapterTitles.map((chap) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-sm transition-all text-xs font-mono uppercase tracking-wider ${
-                    activeTab === tab.id
-                      ? 'bg-[#ff5a1f] text-white font-black shadow-[3px_3px_0_#000]'
-                      : 'text-[#a89f91] hover:text-white hover:bg-[#ffffff0a]'
+                  key={chap.num}
+                  onClick={() => setCurrentChapter(chap.num)}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-sm text-xs font-mono uppercase transition-all whitespace-nowrap ${
+                    currentChapter === chap.num
+                      ? 'bg-[#ff5a1f] text-white font-black shadow-[2px_2px_0_#000]'
+                      : 'text-stone-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <TabIcon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
+                  <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
+                    currentChapter === chap.num ? 'bg-black text-white' : 'bg-white/10 text-stone-300'
+                  }`}>
+                    {chap.num}
+                  </span>
+                  <span>{chap.title}</span>
                 </button>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Step Counter Indicator */}
+            <div className="hidden md:flex items-center gap-2 text-xs font-mono text-stone-400 pl-4 border-l border-white/15">
+              <span>Chapter {currentChapter} of {totalChapters}</span>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* Main Tab Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-12 space-y-16">
+      {/* Main Chapter Content Container */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-12 space-y-12">
 
-        {/* TAB 1: THE PROBLEM WE SOLVE */}
-        {activeTab === 'problem' && (
-          <div className="space-y-12 animate-in fade-in duration-300">
+        {/* CHAPTER 1: THE WHY (THE $0 MONDAY PROBLEM & SOLUTION) */}
+        {currentChapter === 1 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
             
-            <div className="max-w-3xl space-y-3">
+            <div className="max-w-3xl space-y-2">
               <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                The Real Pain Point in Event Promotion
+                Chapter 1 · The Commercial Challenge
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">
-                "The Monday Morning Reset Trap"
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                The "Monday Morning Reset Trap"
               </h2>
               <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-                Right now, when Midas promotes an event in Jamaica, here is what happens:
+                Why Jamaican event promotion costs keep rising while promoters lose direct access to their attendees:
               </p>
             </div>
 
-            {/* 3 Broken Steps */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Comparison Grid: Traditional vs Promorang */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              <div className="p-6 rounded-sm bg-[#161210] border border-red-500/30 space-y-3">
-                <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-400 font-mono font-black text-sm flex items-center justify-center">
-                  1
+              {/* Left: Traditional Status Quo */}
+              <div className="p-6 rounded-sm bg-[#161210] border-2 border-red-500/30 space-y-5">
+                <div className="flex items-center justify-between border-b border-red-500/20 pb-3">
+                  <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider">
+                    Traditional Promotion (Status Quo)
+                  </span>
+                  <span className="text-[10px] font-mono text-red-300 bg-red-500/10 px-2 py-0.5 rounded-sm">
+                    Rented Attention
+                  </span>
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">Attention is Rented, Not Owned</h4>
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  You pay Instagram, WhatsApp promoters, and DJs to hype the party. People see the flyer, but you don't know who they are until they walk through the gate.
-                </p>
+
+                <div className="space-y-4 text-xs text-stone-300">
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 font-bold flex items-center justify-center shrink-0">✕</span>
+                    <div>
+                      <strong className="text-white block font-bold">Rented Instagram & Meta Ads</strong>
+                      <span>You pay for views, but Meta owns the algorithm and charges you again next month.</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 font-bold flex items-center justify-center shrink-0">✕</span>
+                    <div>
+                      <strong className="text-white block font-bold">Anonymous Gate & Ticket Outlets</strong>
+                      <span>People buy at outlets or physical gates, drink, party, and go home without giving you their phone numbers.</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 font-bold flex items-center justify-center shrink-0">✕</span>
+                    <div>
+                      <strong className="text-white block font-bold">Monday Morning Reset ($0 Equity)</strong>
+                      <span>When you announce your December or Easter show, you have to spend the entire marketing budget from scratch.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-6 rounded-sm bg-[#161210] border border-red-500/30 space-y-3">
-                <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-400 font-mono font-black text-sm flex items-center justify-center">
-                  2
+              {/* Right: Promorang Audience Equity */}
+              <div className="p-6 rounded-sm bg-[#141812] border-2 border-[#10b981]/50 space-y-5 shadow-[8px_8px_0_#10b98122]">
+                <div className="flex items-center justify-between border-b border-[#10b981]/30 pb-3">
+                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-wider">
+                    With Promorang Audience Equity
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-sm">
+                    Owned Promoter Asset
+                  </span>
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">Nobody Collects Contacts at the Gate</h4>
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  People pay at ticket outlets or the gate, drink, party, and leave at 2 AM. You have no way to message them directly on Tuesday.
-                </p>
-              </div>
 
-              <div className="p-6 rounded-sm bg-[#161210] border border-red-500/30 space-y-3">
-                <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-400 font-mono font-black text-sm flex items-center justify-center">
-                  3
+                <div className="space-y-4 text-xs text-stone-300">
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold">Native Jamaican Discovery Polls</strong>
+                      <span>Partygoers vote on cultural topics on Promorang in 5 seconds—capturing real intent instantly.</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold">1.8x WhatsApp Referral Multiplier</strong>
+                      <span>Partygoers forward digital pass codes to their crew to unlock fast-lane gate entry and drink perks.</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">✓</span>
+                    <div>
+                      <strong className="text-white block font-bold">Permanent CSV Contact Directory</strong>
+                      <span>Midas exports an owned list of verified attendee phone numbers for direct WhatsApp marketing forever.</span>
+                    </div>
+                  </div>
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">Next Event? Start Back at Zero</h4>
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  When you plan your next party or concert, you have to spend the exact same ad budget to reach the exact same crowd all over again.
-                </p>
               </div>
 
             </div>
 
-            {/* The Solution */}
-            <div className="rounded-sm border-2 border-[#ff5a1f] bg-[#1a1410] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#ff5a1f33]">
-              <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#ffcf38] uppercase">
-                <Sparkles className="w-4 h-4 text-[#ff5a1f]" />
-                <span>How Promorang Solves This For Midas</span>
-              </div>
-
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-                We Turn Your Existing Promotion Into an Owned Customer List.
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm text-stone-200">
-                <div className="p-4 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                  <strong className="text-white block font-bold">1. Native Discovery Polls</strong>
-                  <p className="text-stone-400 text-xs">Partygoers vote on live Jamaican polls on Promorang without filling out long boring surveys.</p>
-                </div>
-                <div className="p-4 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                  <strong className="text-white block font-bold">2. Free WhatsApp Squad Pass</strong>
-                  <p className="text-stone-400 text-xs">To unlock Express Gate Entry or drink tokens, they forward a pass to 2 friends, multiplying your reach for free.</p>
-                </div>
-                <div className="p-4 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                  <strong className="text-white block font-bold">3. Reusable Audience Forever</strong>
-                  <p className="text-stone-400 text-xs">You get a clean dashboard of real phone numbers and past attendees ready to pre-order tickets for your next event.</p>
-                </div>
-              </div>
+            {/* Bottom Chapter Action */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <span className="text-xs text-stone-400 font-mono">Next: See what partygoers experience on their phones</span>
+              <Button
+                onClick={() => setCurrentChapter(2)}
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
+              >
+                <span>Chapter 2: The Fan Journey</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
 
           </div>
         )}
 
-        {/* TAB 2: HOW IT WORKS (SIMPLE STEPS) */}
-        {activeTab === 'howitworks' && (
-          <div className="space-y-12 animate-in fade-in duration-300">
+        {/* CHAPTER 2: THE FAN JOURNEY (4 SIMPLE STEPS) */}
+        {currentChapter === 2 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
             
-            <div className="max-w-3xl space-y-3">
+            <div className="max-w-3xl space-y-2">
               <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                The Simple 4-Step Process
+                Chapter 2 · The Experience
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">
-                How It Works on the Ground
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                How It Works on the Ground (4 Steps)
               </h2>
               <p className="text-stone-300 text-sm">
-                No complex app downloads. Everything works natively in the mobile browser on Promorang.
+                No apps to download. Everything opens instantly in mobile Safari or Chrome.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-xl font-black text-[#ff5a1f]">Step 1</span>
-                <h4 className="font-serif text-lg font-bold text-white">Attendee Sees Poll</h4>
+                <span className="font-mono text-2xl font-black text-[#ff5a1f]">01</span>
+                <h4 className="font-serif text-lg font-bold text-white">Partygoer Votes on Poll</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  On Promorang's Discovery feed: <em>"How are you ending summer in Jamaica?"</em>. One tap to vote.
+                  On Promorang: <em>"How are you ending summer 2026?"</em>. User taps Beach Party or Live Concert.
                 </p>
-                <Link to="/discover" className="text-[11px] font-mono text-[#ff5a1f] hover:underline block pt-2 border-t border-[#ffffff15]">
-                  View live poll on Promorang ➔
+                <Link to="/discover" className="text-[11px] font-mono text-[#ff5a1f] hover:underline block pt-2 border-t border-white/10">
+                  View Discovery Poll ➔
                 </Link>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-xl font-black text-[#ff5a1f]">Step 2</span>
-                <h4 className="font-serif text-lg font-bold text-white">Claims Free Perk</h4>
+                <span className="font-mono text-2xl font-black text-[#ff5a1f]">02</span>
+                <h4 className="font-serif text-lg font-bold text-white">Claims Free Gate Perk</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  They see <strong>PROMORANG PRESENTS: Sophisticated / Capleton Encore Live</strong> and claim an Express Entry pass or drink token.
+                  They see <strong>PROMORANG PRESENTS: Sophisticated / Capleton</strong> and claim an Express Gate Pass or drink token by submitting their phone.
                 </p>
-                <span className="text-[10px] font-mono text-stone-400 block pt-2 border-t border-[#ffffff15]">User enters phone / WhatsApp</span>
+                <span className="text-[10px] font-mono text-emerald-400 block pt-2 border-t border-white/10">Phone number captured</span>
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-xl font-black text-[#ff5a1f]">Step 3</span>
-                <h4 className="font-serif text-lg font-bold text-white">Shares with Squad</h4>
+                <span className="font-mono text-2xl font-black text-[#ffcf38]">03</span>
+                <h4 className="font-serif text-lg font-bold text-white">Shares Pass with Crew</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  They tap <em>"Send to Crew on WhatsApp"</em> so their friends also get fast-line entry, bringing 2–3 more paying partygoers with them.
+                  They tap <em>"Send to Crew on WhatsApp"</em>. Their friends get pass codes and direct links to buy tickets on <strong>Aitix</strong>.
                 </p>
-                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-[#ffffff15]">Free viral word-of-mouth</span>
+                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">1.8x viral multiplier</span>
               </div>
 
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-xl font-black text-[#10b981]">Step 4</span>
-                <h4 className="font-serif text-lg font-bold text-white">Scans at Gate</h4>
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#10b981]/40 space-y-3">
+                <span className="font-mono text-2xl font-black text-[#10b981]">04</span>
+                <h4 className="font-serif text-lg font-bold text-white">Scans at Plantation Cove</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  At Plantation Cove, they show their digital pass for express entry. Midas sees live attendance numbers on their host portal.
+                  At the gate, door staff verify the express pass in 2 seconds on the Promorang Door Scanner.
                 </p>
-                <Link to="/hosts/midas" className="text-[11px] font-mono text-[#10b981] hover:underline block pt-2 border-t border-[#ffffff15]">
-                  View Midas Host Portal ➔
+                <Link to="/hosts/midas" className="text-[11px] font-mono text-[#10b981] hover:underline block pt-2 border-t border-white/10">
+                  View Door Scanner ➔
                 </Link>
               </div>
 
             </div>
 
-            {/* Live Interactive Demo Button */}
-            <div className="p-6 rounded-sm bg-[#ffffff06] border border-[#ffffff15] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <strong className="text-white text-base block">Want to test the full loop live?</strong>
-                <span className="text-stone-400 text-xs">Experience how an attendee votes, claims rewards, and checks into Plantation Cove.</span>
+            {/* Bottom Chapter Navigation */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentChapter(1)}
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                <span>Chapter 1</span>
+              </Button>
+              <Button
+                onClick={() => setCurrentChapter(3)}
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
+              >
+                <span>Chapter 3: The 2 Events & Flyers</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+          </div>
+        )}
+
+        {/* CHAPTER 3: THE 2 EVENTS & OFFICIAL FLYERS */}
+        {currentChapter === 3 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
+            
+            <div className="max-w-3xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                Chapter 3 · Event Activation Showcase
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                The Two Showcase Moments at Plantation Cove
+              </h2>
+              <p className="text-stone-300 text-sm">
+                Both events have been fully built with high-res flyers, official timings, artist lineups, and direct Aitix ticketing.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              
+              {/* Event 1: Sophisticated */}
+              <div className="rounded-sm border-2 border-[#ff5a1f]/40 bg-[#141210] p-6 space-y-5">
+                <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
+                  <div>
+                    <span className="bg-[#ff5a1f] text-white text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-sm">
+                      Saturday, August 29, 2026
+                    </span>
+                    <h3 className="font-serif text-2xl font-bold text-white mt-1.5">
+                      Sophisticated — The Beach Party
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono text-[#ffcf38]">4:00 PM – 10:00 PM</span>
+                </div>
+
+                <div className="aspect-[16/10] rounded-sm overflow-hidden border border-[#ffffff20] bg-black">
+                  <img
+                    src="/events/sophisticated-flyer.jpg"
+                    alt="Sophisticated Beach Party Flyer featuring Vanessa Bling"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="space-y-2 text-xs text-stone-300">
+                  <p><strong>Headliner:</strong> Vanessa Bling live in concert alongside Illusion, Trippple X, Bishop Escobar & Fyah Prince.</p>
+                  <p><strong>Ticketing:</strong> J$5,000 Pre-sold / J$6,000 Gate (Hosted drinks 4–7 PM).</p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <a
+                    href="https://aitix.app/sophisticated"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm flex items-center gap-1.5"
+                  >
+                    <span>Buy Tickets on Aitix</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <Link
+                    to="/moments/sophisticated"
+                    className="text-xs font-mono text-stone-300 hover:text-white underline underline-offset-4"
+                  >
+                    View Promorang Moment Hub ➔
+                  </Link>
+                </div>
+              </div>
+
+              {/* Event 2: Capleton */}
+              <div className="rounded-sm border-2 border-[#a855f7]/40 bg-[#141210] p-6 space-y-5">
+                <div className="flex items-center justify-between border-b border-[#ffffff15] pb-3">
+                  <div>
+                    <span className="bg-[#a855f7] text-white text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-sm">
+                      Sunday, August 30, 2026
+                    </span>
+                    <h3 className="font-serif text-2xl font-bold text-white mt-1.5">
+                      Capleton Encore Live — Culture Rising
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono text-[#ffcf38]">4:00 PM – 10:00 PM</span>
+                </div>
+
+                <div className="aspect-[16/10] rounded-sm overflow-hidden border border-[#ffffff20] bg-black">
+                  <img
+                    src="/events/encore-live-capleton-flyer.jpg"
+                    alt="Capleton Encore Live Flyer"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="space-y-2 text-xs text-stone-300">
+                  <p><strong>Headliner:</strong> Capleton ("The Fireman" / King Shango), Nesbeth & Dean Fraser with DJ Delano (Renaissance) & Bass Odyssey.</p>
+                  <p><strong>Ticketing:</strong> J$5,000 Pre-sold / J$7,000 Gate.</p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <a
+                    href="https://aitix.app/culturerising"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#a855f7] hover:bg-[#b86bf7] text-white font-mono font-bold text-xs px-4 py-2.5 rounded-sm flex items-center gap-1.5"
+                  >
+                    <span>Buy Tickets on Aitix</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <Link
+                    to="/moments/encore-live-featuring-capleton"
+                    className="text-xs font-mono text-stone-300 hover:text-white underline underline-offset-4"
+                  >
+                    View Promorang Moment Hub ➔
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Bottom Chapter Navigation */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentChapter(2)}
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                <span>Chapter 2</span>
+              </Button>
+              <Button
+                onClick={() => setCurrentChapter(4)}
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
+              >
+                <span>Chapter 4: Interactive Live Tour</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+          </div>
+        )}
+
+        {/* CHAPTER 4: INTERACTIVE 5-MINUTE LIVE TOUR */}
+        {currentChapter === 4 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
+            
+            <div className="max-w-3xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                Chapter 4 · Interactive Walkthrough
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                Test the 5 Live Platform Nodes Right Now
+              </h2>
+              <p className="text-stone-300 text-sm">
+                Click any stage below or launch the guided overlay tour to experience the full funnel from consumer to host command center.
+              </p>
+            </div>
+
+            {/* 5 Stages Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {[
+                { step: 1, title: '1. Discovery Polls', desc: 'Summer Finale Jamaican Poll', path: '/discover?demo=midas&step=1', color: 'border-orange-500/40 text-orange-400' },
+                { step: 2, title: '2. Sophisticated', desc: 'Vanessa Bling + Aitix link', path: '/moments/sophisticated?demo=midas&step=2', color: 'border-orange-500/40 text-orange-400' },
+                { step: 3, title: '3. Capleton Live', desc: 'Live Concert + Aitix link', path: '/moments/encore-live-featuring-capleton?demo=midas&step=3', color: 'border-purple-500/40 text-purple-400' },
+                { step: 4, title: '4. Venue Profile', desc: 'Plantation Cove Canonical Hub', path: '/venues/plantation-cove?demo=midas&step=4', color: 'border-emerald-500/40 text-emerald-400' },
+                { step: 5, title: '5. Host Center', desc: 'Real Phone List & Gate Ops', path: '/hosts/midas?demo=midas&step=5', color: 'border-amber-500/40 text-amber-400' }
+              ].map((s) => (
+                <button
+                  key={s.step}
+                  onClick={() => {
+                    sessionStorage.setItem('promorang_midas_demo_active', 'true');
+                    navigate(s.path);
+                  }}
+                  className={`p-4 rounded-sm bg-[#141210] border-2 ${s.color} text-left space-y-2 hover:bg-white/5 transition-all group`}
+                >
+                  <span className="text-[10px] font-mono uppercase font-bold block">Stage 0{s.step}</span>
+                  <strong className="text-white text-sm block group-hover:text-[#ff5a1f]">{s.title}</strong>
+                  <p className="text-[11px] text-stone-400 leading-snug">{s.desc}</p>
+                  <span className="text-[10px] font-mono text-[#ffcf38] flex items-center gap-1 pt-1">
+                    <span>Open node</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Launch Guided Tour CTA */}
+            <div className="p-8 rounded-sm bg-gradient-to-r from-[#ff5a1f]/20 via-black to-[#a855f7]/20 border-2 border-[#ff5a1f]/50 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[8px_8px_0_#000]">
+              <div className="space-y-1 text-center sm:text-left">
+                <strong className="text-white text-lg font-serif block font-bold">Ready to take the 5-step guided tour?</strong>
+                <p className="text-xs text-stone-300">An executive HUD bar will guide you step-by-step through each live screen.</p>
               </div>
               <button
                 onClick={() => {
                   sessionStorage.setItem('promorang_midas_demo_active', 'true');
                   navigate('/discover?demo=midas&step=1');
                 }}
-                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3 uppercase tracking-wider shadow-[4px_4px_0_#000] whitespace-nowrap"
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3.5 rounded-sm uppercase tracking-wider shadow-md flex items-center gap-2 shrink-0"
               >
-                Launch Walkthrough ➔
+                <Play className="w-4 h-4 fill-white" />
+                <span>Start Step 1 of Guided Tour</span>
               </button>
             </div>
 
+            {/* Bottom Chapter Navigation */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentChapter(3)}
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                <span>Chapter 3</span>
+              </Button>
+              <Button
+                onClick={() => setCurrentChapter(5)}
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
+              >
+                <span>Chapter 5: Terms & Next Steps</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+
           </div>
         )}
 
-        {/* TAB 3: THE TWO EVENTS & FLYERS */}
-        {activeTab === 'events' && (
-          <div className="space-y-12 animate-in fade-in duration-300">
+        {/* CHAPTER 5: HOST OPERATIONS & TERMS (ZERO RISK PILOT) */}
+        {currentChapter === 5 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
             
-            {/* The Single Official Venue Hub */}
-            <div className="rounded-sm border-2 border-[#10b981] bg-[#0d1611] p-6 sm:p-8 space-y-4">
+            <div className="max-w-3xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
+                Chapter 5 · Commercial Agreement & Next Steps
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                Zero-Risk Pilot Terms for August 29–30
+              </h2>
+              <p className="text-stone-300 text-sm">
+                No software subscription fees. No complex contracts.
+              </p>
+            </div>
+
+            {/* What Promorang Delivers vs What Midas Provides */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#10b981]/40 space-y-4">
+                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">
+                  1. What Promorang Delivers to Midas
+                </span>
+                <div className="space-y-3 text-xs text-stone-300">
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>100% Owned Contact Database:</strong> Downloadable CSV of verified Jamaican attendee phone numbers.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>1.8x WhatsApp Referral Engine:</strong> Native pass forwarding driving direct ticket sales on Aitix.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Dedicated Midas Host Operations Center:</strong> Real-time gate scanner and attendance telemetry at `/hosts/midas`.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Zero Platform Charge:</strong> 100% free pilot partnership for the August 29–30 weekend.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffcf38]/40 space-y-4">
+                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">
+                  2. What Midas Provides
+                </span>
+                <div className="space-y-3 text-xs text-stone-300">
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
+                    <span><strong>50 Express Entry Wristbands per event:</strong> Fast-lane door access allocated to verified voters.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
+                    <span><strong>30 Early Hosted Drinks Tokens:</strong> Redeemable strictly during early arrival hours (4:00 PM – 6:00 PM).</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-[#ffcf38] shrink-0 mt-0.5" />
+                    <span><strong>Link in Bio / Promo Tag:</strong> Adding `promorang.co/moments/sophisticated` alongside your Aitix links on Instagram.</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Direct Approval Action Box */}
+            <div className="p-8 rounded-sm bg-[#161310] border-2 border-[#ff5a1f] space-y-6 shadow-[10px_10px_0_#ff5a1f33]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
-                    One Official Venue Profile on Promorang
-                  </span>
-                  <h3 className="font-serif text-3xl font-bold text-white">Grizzly's Plantation Cove</h3>
-                  <p className="text-stone-300 text-xs sm:text-sm flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-[#10b981]" />
-                    Priory, St. Ann, Jamaica
-                  </p>
+                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase">Ready to lock in the activation?</span>
+                  <h3 className="font-serif text-2xl font-bold text-white">Approve Midas Summer 2026 Activation</h3>
+                  <p className="text-xs text-stone-300">Our engineering and cultural curation team will publish your campaign live within 2 hours.</p>
                 </div>
-                <Link
-                  to="/venues/plantation-cove"
-                  className="bg-[#10b981] hover:bg-[#059669] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000] flex items-center gap-2 self-start"
-                >
-                  <span>Open Venue Page on Promorang</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-              <p className="text-stone-300 text-xs leading-relaxed max-w-3xl">
-                Both Midas events live on this single official venue page. Partygoers can easily browse both days, share directions, and see upcoming events without confusing links.
-              </p>
-            </div>
-
-            {/* The Two Moments with Real Flyers & Aitix Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-              {/* Event 1: Sophisticated */}
-              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#ff5a1f] transition-colors flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="relative h-64 overflow-hidden border border-[#ffffff15] rounded-sm bg-black/40">
-                    <img
-                      src="/events/sophisticated-flyer.jpg"
-                      alt="Sophisticated Summer End Beach Party Official Flyer"
-                      className="w-full h-full object-contain"
-                    />
-                    <div className="absolute top-3 left-3 bg-[#ff5a1f] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
-                      SATURDAY, AUG 29 · 4PM–10PM
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-[#ff5a1f] uppercase font-bold">Midas × 8Rivaz Presents</span>
-                      <span className="text-[10px] font-mono bg-orange-500/20 text-orange-400 px-2 py-0.5 border border-orange-500/30">Powered by aitix</span>
-                    </div>
-                    <h4 className="font-serif text-2xl font-bold text-white">Sophisticated — Summer End Beach Party</h4>
-                    <p className="text-stone-300 text-xs leading-relaxed">
-                      <strong>Performance by:</strong> Vanessa Bling live in concert.<br />
-                      <strong>Entertainment by:</strong> Illusion Sound · Trippple X · Bishop Escobar · Fyah Prince.<br />
-                      <strong>Schedule:</strong> 4:00 PM – 10:00 PM (Hosted drinks 4:00 PM – 7:00 PM).<br />
-                      <strong>Admission:</strong> J$5,000 Pre-sold · J$6,000 at Gate.<br />
-                      <strong>Physical Outlets:</strong> Zarim, Di Trends, Fesco (Beechwood/Ferry/Ocho Rios/Golden Grove), 8Rivaz, Leven22, Greenhous Taj Mahal, 12:12, Grab N Go, Fontana Pharmacy.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#ffffff15] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts & Express Wristband</span>
-                    <a
-                      href="https://aitix.app/sophisticated"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-orange-600 hover:bg-orange-500 text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider rounded-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000]"
-                    >
-                      <Ticket className="w-3.5 h-3.5" />
-                      <span>Buy on Aitix ➔</span>
-                    </a>
-                  </div>
+                <div className="flex items-center gap-3">
                   <Link
-                    to="/moments/sophisticated"
-                    className="w-full bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs py-2 rounded-sm flex items-center justify-center gap-1.5 transition-colors border border-[#ffffff15]"
+                    to="/hosts/midas"
+                    className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3.5 rounded-sm uppercase tracking-wider shadow-md flex items-center gap-2"
                   >
-                    <span>View Promorang Moment Page</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Open Host Operations Center</span>
                   </Link>
                 </div>
               </div>
-
-              {/* Event 2: Capleton Encore Live */}
-              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#a855f7] transition-colors flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="relative h-64 overflow-hidden border border-[#ffffff15] rounded-sm bg-black/40">
-                    <img
-                      src="/events/encore-live-capleton-flyer.jpg"
-                      alt="Capleton Encore Live Culture Rising Official Flyer"
-                      className="w-full h-full object-contain"
-                    />
-                    <div className="absolute top-3 left-3 bg-[#a855f7] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
-                      SUNDAY, AUG 30 · 4PM–10PM
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-[#a855f7] uppercase font-bold">Midas × 8Rivaz Presents</span>
-                      <span className="text-[10px] font-mono bg-purple-500/20 text-purple-400 px-2 py-0.5 border border-purple-500/30">Powered by aitix</span>
-                    </div>
-                    <h4 className="font-serif text-2xl font-bold text-white">Capleton Encore Live — Culture Rising</h4>
-                    <p className="text-stone-300 text-xs leading-relaxed">
-                      <strong>Headliner:</strong> Capleton ("The Fireman" / King Shango) Live.<br />
-                      <strong>Featuring:</strong> Nesbeth · Dean Fraser.<br />
-                      <strong>Entertainment by:</strong> DJ Delano (Renaissance) · Bass Odyssey · DJ Rors.<br />
-                      <strong>Schedule:</strong> Sunday, August 30, 2026 • 4:00 PM – 10:00 PM.<br />
-                      <strong>Admission:</strong> J$5,000 Pre-sold · J$7,000 at Gate.<br />
-                      <strong>Venue:</strong> Plantation Cove, St. Ann, Jamaica.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#ffffff15] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts & Express Wristband</span>
-                    <a
-                      href="https://aitix.app/culturerising"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-purple-600 hover:bg-purple-500 text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider rounded-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000]"
-                    >
-                      <Ticket className="w-3.5 h-3.5" />
-                      <span>Buy on Aitix ➔</span>
-                    </a>
-                  </div>
-                  <Link
-                    to="/moments/encore-live-featuring-capleton"
-                    className="w-full bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs py-2 rounded-sm flex items-center justify-center gap-1.5 transition-colors border border-[#ffffff15]"
-                  >
-                    <span>View Promorang Moment Page</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
-              </div>
-
             </div>
 
-          </div>
-        )}
-
-        {/* TAB 4: THE PERKS MIDAS OFFERS */}
-        {activeTab === 'perks' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            
-            <div className="max-w-3xl space-y-2">
-              <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
-                Zero Cash Cost to Midas
-              </span>
-              <h3 className="font-serif text-3xl font-bold text-white">Perks That Cost You $0 but Excite Your Crowd</h3>
-              <p className="text-stone-300 text-sm">
-                You don't pay cash incentives. You simply allocate perks you already control to motivate ticket buyers to act early and invite their friends.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Perk 1</span>
-                <h4 className="font-serif text-lg font-bold text-white">50 Express Entry Wristbands</h4>
-                <p className="text-xs text-stone-300 leading-relaxed">
-                  Skip the long regular line at the gate. Rewarded to partygoers who complete the poll and invite 2 friends on WhatsApp.
-                </p>
-                <div className="text-[11px] font-mono text-emerald-400 pt-2 border-t border-[#ffffff15]">
-                  ✓ Cost: $0 (Just smooths your gate line)
-                </div>
-              </div>
-
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Perk 2</span>
-                <h4 className="font-serif text-lg font-bold text-white">10 VIP Deck Upgrades</h4>
-                <p className="text-xs text-stone-300 leading-relaxed">
-                  Elevated VIP deck access rewarded to top squad referrers who bring the most verified paying attendees.
-                </p>
-                <div className="text-[11px] font-mono text-emerald-400 pt-2 border-t border-[#ffffff15]">
-                  ✓ Cost: Uses existing VIP space
-                </div>
-              </div>
-
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">Perk 3</span>
-                <h4 className="font-serif text-lg font-bold text-white">2 Soundcheck Double Passes</h4>
-                <p className="text-xs text-stone-300 leading-relaxed">
-                  Exclusive backstage soundcheck meet-and-greet with Vanessa Bling or Capleton for the #1 squad builder.
-                </p>
-                <div className="text-[11px] font-mono text-emerald-400 pt-2 border-t border-[#ffffff15]">
-                  ✓ Cost: High prestige, $0 cash
-                </div>
-              </div>
-
-              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Perk 4</span>
-                <h4 className="font-serif text-lg font-bold text-white">30 Hosted Drink Tokens</h4>
-                <p className="text-xs text-stone-300 leading-relaxed">
-                  Extra drink pass for attendees who arrive and check in at Plantation Cove before 6:00 PM on Saturday.
-                </p>
-                <div className="text-[11px] font-mono text-emerald-400 pt-2 border-t border-[#ffffff15]">
-                  ✓ Benefit: Fills your venue early
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* TAB 5: REAL BUSINESS OUTCOMES */}
-        {activeTab === 'outcomes' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            
-            <div className="max-w-3xl space-y-2">
-              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                The Commercial Return
-              </span>
-              <h2 className="font-serif text-3xl font-bold text-white">What Midas Walks Away With</h2>
-              <p className="text-stone-300 text-sm">
-                Here is the real mathematical outcome of running your Summer 2026 activation on Promorang:
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              {/* Controls */}
-              <div className="lg:col-span-6 p-6 sm:p-8 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-6">
-                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-wider block">
-                  Simulate Your Numbers
-                </span>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-mono font-bold">
-                    <span>Express Gate Wristbands:</span>
-                    <span className="text-[#ff5a1f]">{expressPassCount} Passes</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="10"
-                    max="150"
-                    step="10"
-                    value={expressPassCount}
-                    onChange={(e) => setExpressPassCount(Number(e.target.value))}
-                    className="w-full accent-[#ff5a1f] bg-[#ffffff15] h-2 rounded-sm"
-                  />
-                  <span className="text-[11px] text-stone-400 block">Drives fast 2-friend WhatsApp shares.</span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-mono font-bold">
-                    <span>VIP Deck Upgrades:</span>
-                    <span className="text-[#a855f7]">{vipUpgradeCount} Upgrades</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="2"
-                    max="30"
-                    step="2"
-                    value={vipUpgradeCount}
-                    onChange={(e) => setVipUpgradeCount(Number(e.target.value))}
-                    className="w-full accent-[#a855f7] bg-[#ffffff15] h-2 rounded-sm"
-                  />
-                  <span className="text-[11px] text-stone-400 block">Rewards your biggest brand ambassadors.</span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-mono font-bold">
-                    <span>Hosted Drink Tokens (Early Arrival):</span>
-                    <span className="text-[#10b981]">{drinkTokenCount} Tokens</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="10"
-                    value={drinkTokenCount}
-                    onChange={(e) => setDrinkTokenCount(Number(e.target.value))}
-                    className="w-full accent-[#10b981] bg-[#ffffff15] h-2 rounded-sm"
-                  />
-                  <span className="text-[11px] text-stone-400 block">Packs the beach before 6:00 PM.</span>
-                </div>
-              </div>
-
-              {/* Projections Card */}
-              <div className="lg:col-span-6 p-6 sm:p-8 rounded-sm bg-[#1a1410] border-2 border-[#ff5a1f] space-y-6 shadow-[8px_8px_0_#ff5a1f22] flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider block">Your 3 Big Outcomes</span>
-                  <h4 className="font-serif text-2xl font-bold text-white mt-1">Guaranteed Campaign Results</h4>
-                </div>
-
-                <div className="space-y-4 text-xs sm:text-sm">
-                  <div className="p-3.5 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                    <span className="text-stone-400 text-xs">1. Verified Contact List (Phone & WhatsApp):</span>
-                    <strong className="text-2xl font-serif font-black text-white block">~{estimatedParticipants.toLocaleString()} partygoers</strong>
-                    <span className="text-[11px] text-emerald-400">People you can message for free next time</span>
-                  </div>
-
-                  <div className="p-3.5 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                    <span className="text-stone-400 text-xs">2. Free Word-of-Mouth WhatsApp Shares:</span>
-                    <strong className="text-2xl font-serif font-black text-[#ff5a1f] block">~{estimatedSquadReferrals.toLocaleString()} squad invites</strong>
-                    <span className="text-[11px] text-[#ffcf38]">Organic peer recommendations at $0 cost</span>
-                  </div>
-
-                  <div className="p-3.5 bg-black/40 border border-[#ffffff15] rounded-sm space-y-1">
-                    <span className="text-stone-400 text-xs">3. Reusable Audience for Future Events:</span>
-                    <strong className="text-2xl font-serif font-black text-[#10b981] block">~{estimatedRetainedAudience.toLocaleString()} loyal fans</strong>
-                    <span className="text-[11px] text-emerald-300">Ready to buy pre-sold tickets for Dream Weekend</span>
-                  </div>
-                </div>
-
-                <Link
-                  to="/hosts/midas"
-                  className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs py-3.5 rounded-sm flex items-center justify-center gap-2 uppercase tracking-wider shadow-[4px_4px_0_#000]"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Open Midas Host Operations Center</span>
-                </Link>
-              </div>
-
+            {/* Bottom Chapter Navigation */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentChapter(4)}
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                <span>Chapter 4</span>
+              </Button>
+              <Button
+                onClick={() => setCurrentChapter(1)}
+                variant="outline"
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <span>Return to Chapter 1</span>
+              </Button>
             </div>
 
           </div>
@@ -791,14 +757,20 @@ export default function MidasCommercialProposal() {
 
       </div>
 
-      {/* Signature Promorang Commercial Footer */}
+      {/* Footer */}
       <footer className="mt-24 border-t-2 border-[#ffffff15] bg-[#070605] py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <span className="font-serif font-bold text-lg text-white">PROMORANG <i className="text-[#ff5a1f] not-italic">PRESENTS</i></span>
-            <p className="text-xs text-[#887f74]">Midas Entertainment Summer 2026 Activation · Plantation Cove, Jamaica</p>
+            <span className="font-serif font-bold text-lg text-white">PROMORANG <i className="text-[#ff5a1f] not-italic">COMMERCIAL PROPOSAL</i></span>
+            <p className="text-xs text-[#887f74]">Midas Entertainment × 8Rivaz Ultra Lounge · Grizzly's Plantation Cove</p>
           </div>
           <div className="flex items-center gap-4">
+            <Link
+              to="/hosts/midas"
+              className="bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs px-5 py-3 rounded-sm border border-[#ffffff15]"
+            >
+              Host Operations Center
+            </Link>
             <button
               onClick={() => {
                 sessionStorage.setItem('promorang_midas_demo_active', 'true');
@@ -806,7 +778,7 @@ export default function MidasCommercialProposal() {
               }}
               className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000]"
             >
-              Start Live Demo Flow ➔
+              Launch Guided Tour
             </button>
           </div>
         </div>
