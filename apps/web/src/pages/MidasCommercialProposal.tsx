@@ -413,6 +413,72 @@ export default function MidasCommercialProposal() {
 
             </div>
 
+            {/* PHASE 3: THE POST-EVENT AFTERGLOW — MEMORY VAULT & MOMENT PIECES */}
+            <div className="rounded-sm border-2 border-[#a855f7]/40 bg-[#16121a] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#a855f722]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ffffff15] pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-[#a855f7] uppercase tracking-wider">
+                      Phase 3 · Post-Event Fan Retention
+                    </span>
+                    <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-2 py-0.5 border border-purple-500/30 rounded-sm">
+                      LIVING EVENT ARCHIVE
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    The Memory Vault & Official Moment Pieces
+                  </h3>
+                </div>
+                <Badge className="bg-[#a855f7] text-white font-mono text-xs px-3 py-1 uppercase tracking-wider self-start sm:self-auto">
+                  Post-Event Equity
+                </Badge>
+              </div>
+
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-3xl">
+                On Monday morning when the sound system turns off, the energy doesn't disappear. Promorang automatically seals the event into the <strong>Midas Memory Vault</strong>:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Layers className="w-4 h-4 text-[#a855f7]" />
+                    1. Verified Moment Pieces
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Official photo recaps, DJ live sets, and attendee crowd highlights are minted as digital <strong>Moment Pieces</strong> proving fans were physically in the crowd.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <Award className="w-4 h-4 text-[#ffcf38]" />
+                    2. Fan Status & Loyalty Rank
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Holding Midas Moment Pieces levels up partygoers' culture rank on Promorang, unlocking VIP perks for your upcoming December and Easter events.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
+                    <LockKeyhole className="w-4 h-4 text-emerald-400" />
+                    3. The Midas Memory Vault
+                  </strong>
+                  <p className="text-stone-400 text-xs leading-relaxed">
+                    Fans return to Promorang week after week to revisit the vibe, keeping your audience warm and engaged without spending a dollar on retargeting ads.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex items-center justify-between text-xs font-mono text-stone-300">
+                <span className="text-purple-300">✓ Keeps your audience active 365 days a year between major calendar events</span>
+                <Link to="/vault" className="text-[#ffcf38] hover:underline flex items-center gap-1">
+                  <span>Explore Vault Hub</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
             {/* Bottom Chapter Navigation */}
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
               <Button
