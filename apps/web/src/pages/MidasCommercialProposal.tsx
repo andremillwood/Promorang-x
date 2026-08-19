@@ -461,68 +461,109 @@ export default function MidasCommercialProposal() {
             {/* The Two Moments */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Event 1 */}
-              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#ff5a1f] transition-colors">
-                <div className="relative h-48 overflow-hidden border border-[#ffffff15]">
-                  <img
-                    src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&q=80&w=800"
-                    alt="Sophisticated Beach Party"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 left-3 bg-[#ff5a1f] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
-                    SATURDAY, AUG 29
+              {/* Event 1: Sophisticated */}
+              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#ff5a1f] transition-colors flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="relative h-64 overflow-hidden border border-[#ffffff15] rounded-sm bg-black/40">
+                    <img
+                      src="/events/sophisticated-flyer.jpg"
+                      alt="Sophisticated Summer End Beach Party Official Flyer"
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute top-3 left-3 bg-[#ff5a1f] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
+                      SATURDAY, AUG 29 · 4PM–10PM
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-[#ff5a1f] uppercase font-bold">Midas × 8Rivaz Presents</span>
+                      <span className="text-[10px] font-mono bg-orange-500/20 text-orange-400 px-2 py-0.5 border border-orange-500/30">Powered by aitix</span>
+                    </div>
+                    <h4 className="font-serif text-2xl font-bold text-white">Sophisticated — Summer End Beach Party</h4>
+                    <p className="text-stone-300 text-xs leading-relaxed">
+                      <strong>Performance by:</strong> Vanessa Bling live in concert.<br />
+                      <strong>Entertainment by:</strong> Illusion Sound · Trippple X · Bishop Escobar · Fyah Prince.<br />
+                      <strong>Schedule:</strong> 4:00 PM – 10:00 PM (Hosted drinks 4:00 PM – 7:00 PM).<br />
+                      <strong>Admission:</strong> J$5,000 Pre-sold · J$6,000 at Gate.<br />
+                      <strong>Physical Outlets:</strong> Zarim, Di Trends, Fesco (Beechwood/Ferry/Ocho Rios/Golden Grove), 8Rivaz, Leven22, Greenhous Taj Mahal, 12:12, Grab N Go, Fontana.
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-serif text-2xl font-bold text-white">Sophisticated — Summer End Beach Party</h4>
-                  <p className="text-stone-300 text-xs leading-relaxed">
-                    <strong>Featuring:</strong> Vanessa Bling live, Trippple X, Bishop Escobar, Illusion Sound.<br />
-                    <strong>Time:</strong> 4:00 PM – 10:00 PM (Hosted drinks segment 4–7 PM).<br />
-                    <strong>Admission:</strong> J$5,000 Pre-sold · J$6,000 at Gate.
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-[#ffffff15] flex items-center justify-between">
-                  <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts + PromoKey</span>
+                <div className="pt-4 border-t border-[#ffffff15] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts & Express Wristband</span>
+                    <a
+                      href="https://aitix.app/sophisticated"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-600 hover:bg-orange-500 text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider rounded-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000]"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Buy on Aitix ➔</span>
+                    </a>
+                  </div>
                   <Link
                     to="/moments/sophisticated"
-                    className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider"
+                    className="w-full bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs py-2 rounded-sm flex items-center justify-center gap-1.5 transition-colors border border-[#ffffff15]"
                   >
-                    View Live Moment ➔
+                    <span>View Promorang Moment Page</span>
+                    <ExternalLink className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
 
-              {/* Event 2 */}
-              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#a855f7] transition-colors">
-                <div className="relative h-48 overflow-hidden border border-[#ffffff15]">
-                  <img
-                    src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800"
-                    alt="Encore Live featuring Capleton"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 left-3 bg-[#a855f7] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
-                    SUNDAY, AUG 30
+              {/* Event 2: Capleton Encore Live */}
+              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#a855f7] transition-colors flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="relative h-64 overflow-hidden border border-[#ffffff15] rounded-sm bg-black/40">
+                    <img
+                      src="/events/encore-live-capleton-flyer.jpg"
+                      alt="Capleton Encore Live Culture Rising Official Flyer"
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute top-3 left-3 bg-[#a855f7] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
+                      SUNDAY, AUG 30 · 4PM–10PM
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-[#a855f7] uppercase font-bold">Midas × 8Rivaz Presents</span>
+                      <span className="text-[10px] font-mono bg-purple-500/20 text-purple-400 px-2 py-0.5 border border-purple-500/30">Powered by aitix</span>
+                    </div>
+                    <h4 className="font-serif text-2xl font-bold text-white">Capleton Encore Live — Culture Rising</h4>
+                    <p className="text-stone-300 text-xs leading-relaxed">
+                      <strong>Headliner:</strong> Capleton ("The Fireman" / King Shango) Live.<br />
+                      <strong>Featuring:</strong> Nesbeth · Dean Fraser.<br />
+                      <strong>Entertainment by:</strong> DJ Delano (Renaissance) · Bass Odyssey · DJ Rors.<br />
+                      <strong>Schedule:</strong> Sunday, August 30, 2026 • 4:00 PM – 10:00 PM.<br />
+                      <strong>Admission:</strong> J$5,000 Pre-sold · J$7,000 at Gate.<br />
+                      <strong>Venue:</strong> Plantation Cove, St. Ann, Jamaica.
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-serif text-2xl font-bold text-white">Encore Live featuring Capleton</h4>
-                  <p className="text-stone-300 text-xs leading-relaxed">
-                    <strong>Headliner:</strong> Capleton ("The Fireman") Live Band Concert.<br />
-                    <strong>Time:</strong> 6:00 PM – 1:00 AM.<br />
-                    <strong>Notice:</strong> 100% separate from any weekly Kingston club night.
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-[#ffffff15] flex items-center justify-between">
-                  <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts + PromoKey</span>
+                <div className="pt-4 border-t border-[#ffffff15] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts & Express Wristband</span>
+                    <a
+                      href="https://aitix.app/culturerising"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-purple-600 hover:bg-purple-500 text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider rounded-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000]"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Buy on Aitix ➔</span>
+                    </a>
+                  </div>
                   <Link
                     to="/moments/encore-live-featuring-capleton"
-                    className="bg-[#a855f7] hover:bg-[#9333ea] text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider"
+                    className="w-full bg-[#ffffff0a] hover:bg-[#ffffff15] text-stone-300 hover:text-white font-mono text-xs py-2 rounded-sm flex items-center justify-center gap-1.5 transition-colors border border-[#ffffff15]"
                   >
-                    View Live Moment ➔
+                    <span>View Promorang Moment Page</span>
+                    <ExternalLink className="w-3 h-3" />
                   </Link>
                 </div>
               </div>

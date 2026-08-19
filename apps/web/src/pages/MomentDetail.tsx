@@ -930,6 +930,103 @@ const MomentDetail = () => {
                     {moment.description || "Join us for an incredible experience with great music, community, and exclusive perks."}
                   </p>
 
+                  {/* Official Aitix Ticketing & Flyer Box */}
+                  {moment.title.toLowerCase().includes("sophisticated") && (
+                    <div className="rounded-3xl border-2 border-orange-500/40 bg-gradient-to-r from-orange-950/30 via-black to-orange-950/20 p-6 space-y-6 shadow-2xl">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                        <div className="space-y-1">
+                          <span className="bg-orange-500/20 text-orange-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-orange-500/30 font-mono tracking-wider">
+                            Official Ticket Partner · Powered by aitix
+                          </span>
+                          <h3 className="text-xl font-bold text-white">Buy Official Tickets Online</h3>
+                          <p className="text-xs text-stone-300">Pre-sold: J$5,000 · Gate: J$6,000 · Hosted Drinks 4–7 PM</p>
+                        </div>
+                        <a
+                          href="https://aitix.app/sophisticated"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-orange-600 hover:bg-orange-500 text-white font-black text-xs px-6 py-3.5 rounded-xl uppercase tracking-wider shadow-lg shadow-orange-950 flex items-center gap-2 self-start sm:self-auto transition-all"
+                        >
+                          <Ticket className="w-4 h-4" />
+                          <span>Buy Tickets on Aitix ➔</span>
+                        </a>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div className="md:col-span-4 overflow-hidden rounded-2xl border border-white/15 shadow-xl">
+                          <img
+                            src="/events/sophisticated-flyer.jpg"
+                            alt="Sophisticated Summer End Beach Party Official Flyer"
+                            className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                        <div className="md:col-span-8 space-y-3 text-xs text-stone-300">
+                          <div>
+                            <strong className="text-white block font-bold text-sm">Lineup & Performance:</strong>
+                            <p className="text-orange-300 font-semibold">Vanessa Bling Live in Concert</p>
+                            <p className="text-stone-400">Entertainment by: Illusion Sound · Trippple X · Bishop Escobar · Fyah Prince</p>
+                          </div>
+                          <div className="pt-2 border-t border-white/10">
+                            <strong className="text-white block font-bold">Official Physical Ticket Outlets:</strong>
+                            <p className="text-stone-400 mt-1">
+                              <strong>St. Andrew:</strong> Zarim (Barbican), Di Trends (Bargain Mall), Fesco (Beechwood Ave), Fesco (Ferry)<br />
+                              <strong>St. Ann:</strong> 8Rivaz Ultra Lounge, Leven22 Beauty Studio, Greenhous Taj Mahal, Fesco (Ocho Rios), 12:12 Ultra Lounge, Grab N Go (Discovery Bay), Fesco (Golden Grove)<br />
+                              <strong>Montego Bay:</strong> Fesco (Porto Bello), Fontana Pharmacy
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {moment.title.toLowerCase().includes("capleton") && (
+                    <div className="rounded-3xl border-2 border-purple-500/40 bg-gradient-to-r from-purple-950/30 via-black to-purple-950/20 p-6 space-y-6 shadow-2xl">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                        <div className="space-y-1">
+                          <span className="bg-purple-500/20 text-purple-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-purple-500/30 font-mono tracking-wider">
+                            Official Ticket Partner · Powered by aitix
+                          </span>
+                          <h3 className="text-xl font-bold text-white">Buy Official Tickets Online</h3>
+                          <p className="text-xs text-stone-300">Pre-sold: J$5,000 · Gate: J$7,000 · Sunday, Aug 30 (4:00 PM – 10:00 PM)</p>
+                        </div>
+                        <a
+                          href="https://aitix.app/culturerising"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs px-6 py-3.5 rounded-xl uppercase tracking-wider shadow-lg shadow-purple-950 flex items-center gap-2 self-start sm:self-auto transition-all"
+                        >
+                          <Ticket className="w-4 h-4" />
+                          <span>Buy Tickets on Aitix ➔</span>
+                        </a>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div className="md:col-span-4 overflow-hidden rounded-2xl border border-white/15 shadow-xl">
+                          <img
+                            src="/events/encore-live-capleton-flyer.jpg"
+                            alt="Capleton Encore Live Culture Rising Official Flyer"
+                            className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                        <div className="md:col-span-8 space-y-3 text-xs text-stone-300">
+                          <div>
+                            <strong className="text-white block font-bold text-sm">Headliner & Special Guests:</strong>
+                            <p className="text-purple-300 font-semibold text-sm">Capleton ("The Fireman" / King Shango) Live</p>
+                            <p className="text-white/80 font-medium">Featuring: Nesbeth · Dean Fraser</p>
+                            <p className="text-stone-400 mt-1">Entertainment by: DJ Delano (Renaissance) · Bass Odyssey · DJ Rors</p>
+                          </div>
+                          <div className="pt-2 border-t border-white/10">
+                            <strong className="text-white block font-bold">Venue & Schedule:</strong>
+                            <p className="text-stone-400 mt-0.5">
+                              Plantation Cove, St. Ann, Jamaica<br />
+                              Sunday, August 30, 2026 • Gates Open 4:00 PM to 10:00 PM
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Connected Scene Banner */}
                   {scene && (
                     <Link

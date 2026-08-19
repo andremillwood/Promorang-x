@@ -18,6 +18,7 @@ import MetaPixel from "@/components/MetaPixel";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 import { MidasDemonstrationTour } from "./components/demo/MidasDemonstrationTour";
+import { PromorangRolePilotHUD } from "./components/onboarding/PromorangRolePilotHUD";
 
 // Route-level code splitting — each page loads on demand
 const Index = lazy(() => import("./pages/Index"));
@@ -36,6 +37,7 @@ const ForAgencies = lazy(() => import("./pages/ForAgencies"));
 const ForEnterprise = lazy(() => import("./pages/ForEnterprise"));
 const ForCauses = lazy(() => import("./pages/ForCauses"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const WhatIsPromorang = lazy(() => import("./pages/WhatIsPromorang"));
 const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const Creators = lazy(() => import("./pages/Creators"));
@@ -182,6 +184,7 @@ const App = () => (
                 <ScrollToHash />
                 <RouteScrollManager />
                 <MidasDemonstrationTour />
+                <PromorangRolePilotHUD />
                 <ChunkErrorBoundary>
                   <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                   <Routes>
@@ -220,6 +223,10 @@ const App = () => (
                     <Route path="/for-enterprise" element={<ForEnterprise />} />
                     <Route path="/for-causes" element={<ForCauses />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/what-is-promorang" element={<WhatIsPromorang />} />
+                    <Route path="/about" element={<WhatIsPromorang />} />
+                    <Route path="/learn" element={<Help />} />
+                    <Route path="/faq" element={<Help />} />
                     <Route path="/scenes" element={<Communities />} />
                     <Route path="/scene/:slug" element={<CanonicalSceneRedirect />} />
                     <Route path="/action/:slug" element={<ActionDetail />} />

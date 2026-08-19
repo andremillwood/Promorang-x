@@ -23,13 +23,29 @@ const Onboarding = () => {
     }
   }, [hasCompleted, prefsLoading, navigate]);
 
-  const handleComplete = () => {
+  const handleComplete = (personaChoice?: string) => {
     void trackGrowthEvent({
       eventName: "onboarding_completed", journey: "participant", stage: "activated",
       entityType: "onboarding", entityId: "preferences",
       idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
     });
-    navigate("/dashboard");
+    
+    // Automatically trigger role pilot HUD co-pilot for the user's chosen persona
+    const roleMap: Record<string, string> = {
+      explorer: 'explorer',
+      creator: 'creator',
+      mayor: 'host',
+      merchant: 'merchant',
+      brand: 'brand',
+      agency: 'brand'
+    };
+    const roleId = (personaChoice && roleMap[personaChoice]) || 'explorer';
+    sessionStorage.setItem('promorang_role_pilot_active', 'true');
+    sessionStorage.setItem('promorang_role_pilot_role', roleId);
+    sessionStorage.setItem('promorang_role_pilot_step', '0');
+    
+    // Redirect directly to first step of the guided tour
+    navigate(`/discover?pilot=${roleId}&step=1`);
   };
 
   if (authLoading || prefsLoading) {

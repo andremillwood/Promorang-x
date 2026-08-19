@@ -481,6 +481,18 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('promorang:start-role-pilot', { detail: { role: 'explorer' } }));
+                    }}
+                    className="gap-1.5 font-mono text-xs text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 border border-amber-500/30"
+                    title="Start Interactive Role Guide"
+                  >
+                    <Compass className="h-3.5 w-3.5" />
+                    <span>Pilot Tour</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => navigate("/growth/referrals")}
                     className="gap-2 font-bold text-primary hover:bg-primary/10 hover:text-primary"
                   >

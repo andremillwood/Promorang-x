@@ -44,9 +44,9 @@ export const DEMO_STEPS = [
   {
     step: 3,
     stage: 'STAGE 03 · BRAND DISAMBIGUATION',
-    title: 'Encore Live featuring Capleton',
+    title: 'Capleton Encore Live — Culture Rising',
     path: '/moments/encore-live-featuring-capleton?demo=midas&step=3',
-    executiveInsight: 'Capleton\'s conscious concert is strictly separated from any weekly club night, protecting Midas\'s standalone event equity.',
+    executiveInsight: 'Capleton, Nesbeth, and Dean Fraser live at Plantation Cove (4–10 PM). Strictly separated from weekly club nights, protecting Midas\'s concert brand equity.',
     actionLabel: 'Next: View Canonical Venue Hub ➔',
     icon: Radio,
     badgeColor: 'text-[#a855f7] bg-[#a855f715] border-[#a855f733]'

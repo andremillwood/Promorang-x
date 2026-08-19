@@ -179,7 +179,7 @@ BEGIN
     longitude = EXCLUDED.longitude,
     updated_at = NOW();
 
-  -- 5. Seed Moment: Encore Live featuring Capleton
+  -- 5. Seed Moment: Capleton Encore Live — Culture Rising
   INSERT INTO public.moments (
     id,
     host_id,
@@ -206,16 +206,16 @@ BEGIN
     v_host_id,
     v_plantation_cove_id,
     'Plantation Cove',
-    'Encore Live featuring Capleton',
+    'Capleton Encore Live — Culture Rising',
     'encore-live-featuring-capleton',
-    'Presented by Midas Entertainment. The high-energy live reggae culture concert at Plantation Cove headlined by Capleton (The Fireman / King Shango). Authentic conscious sound, live band instrumentation, and premier festival energy.',
+    'Presented by Midas Entertainment & 8Rivaz Ultra Lounge. The high-energy live reggae concert at Plantation Cove headlined by Capleton (The Fireman / King Shango), featuring Nesbeth and Dean Fraser, with entertainment by DJ Delano (Renaissance), Bass Odyssey, and DJ Rors. Admission: J$5,000 Pre-sold | J$7,000 at Gate. Official tickets: aitix.app/culturerising.',
     'Music & Parties',
     'Plantation Cove, Priory, St. Ann, Jamaica',
-    '2026-08-30 18:00:00-05',
-    '2026-08-31 01:00:00-05',
+    '2026-08-30 16:00:00-05',
+    '2026-08-30 22:00:00-05',
     500,
     '200 Points + PromoKey',
-    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=1200',
+    '/events/encore-live-capleton-flyer.jpg',
     true,
     'open',
     18.45509,

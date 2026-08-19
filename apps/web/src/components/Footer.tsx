@@ -14,6 +14,8 @@ const footerLinks = {
     { label: "Genesis Season", href: "/pioneers" },
   ],
   how: [
+    { label: "What is Promorang?", href: "/what-is-promorang" },
+    { label: "How It Works", href: "/how-it-works" },
     { label: "Overview", href: "/economy" },
     { label: "Moments", href: "/economy/moments" },
     { label: "Points", href: "/economy/points" },
@@ -34,7 +36,8 @@ const footerLinks = {
     { label: "For Causes & Non-Profits", href: "/for-causes" },
   ],
   support: [
-    { label: "Help Center", href: "/help" },
+    { label: "Knowledge Base & FAQs", href: "/help" },
+    { label: "Support Tickets", href: "/support/tickets" },
     { label: "Contact Us", href: "/contact" },
     { label: "Terms", href: "/terms" },
     { label: "Privacy", href: "/privacy" },

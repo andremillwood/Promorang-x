@@ -44,7 +44,7 @@ const PREFERRED_TIMES = [
 ];
 
 interface OnboardingSurveyProps {
-  onComplete: () => void;
+  onComplete: (persona?: string) => void;
 }
 
 const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
@@ -148,7 +148,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     } else {
       // Complete onboarding
       await createPreferences.mutateAsync(preferences);
-      onComplete();
+      onComplete(persona || undefined);
     }
   };
 
