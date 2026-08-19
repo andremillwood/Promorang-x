@@ -213,14 +213,14 @@ export default function MidasCommercialProposal() {
                 </Link>
 
                 <Link
-                  to="/dashboard/merchant"
-                  className="p-3 rounded-sm bg-black/50 border border-[#ffffff15] flex items-center justify-between hover:border-[#3b82f6] transition-colors group"
+                  to="/hosts/midas"
+                  className="p-3 rounded-sm bg-black/50 border border-[#ffffff15] flex items-center justify-between hover:border-[#ff5a1f] transition-colors group"
                 >
                   <div>
-                    <strong className="text-white block">5. Promoter Intelligence Dashboard</strong>
-                    <span className="text-stone-400 text-[11px]">Live voter & attendance analytics</span>
+                    <strong className="text-white block">5. Midas Host Operations Center</strong>
+                    <span className="text-stone-400 text-[11px]">Live voter counters, attendee phone numbers & gate check-ins</span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#3b82f6]" />
+                  <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-[#ff5a1f]" />
                 </Link>
               </div>
 
@@ -401,8 +401,8 @@ export default function MidasCommercialProposal() {
                 <p className="text-xs text-stone-300 leading-relaxed">
                   At Plantation Cove, they show their digital pass for express entry. Midas sees live attendance numbers on their dashboard.
                 </p>
-                <Link to="/dashboard/merchant" className="text-[11px] font-mono text-[#10b981] hover:underline block pt-2 border-t border-[#ffffff15]">
-                  View Promoter Dashboard ➔
+                <Link to="/hosts/midas" className="text-[11px] font-mono text-[#10b981] hover:underline block pt-2 border-t border-[#ffffff15]">
+                  View Midas Host Portal ➔
                 </Link>
               </div>
 
@@ -740,11 +740,11 @@ export default function MidasCommercialProposal() {
                 </div>
 
                 <Link
-                  to="/dashboard/merchant"
+                  to="/hosts/midas"
                   className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs py-3.5 rounded-sm flex items-center justify-center gap-2 uppercase tracking-wider shadow-[4px_4px_0_#000]"
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span>Open Live Promoter Dashboard</span>
+                  <span>Open Midas Host Operations Center</span>
                 </Link>
               </div>
 

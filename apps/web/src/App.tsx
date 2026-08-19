@@ -160,6 +160,7 @@ const CampaignLanding = lazy(() => import("./pages/CampaignLanding"));
 const ArlaCampaignHub = lazy(() => import("./pages/ArlaCampaignHub"));
 const ArlaCommercialProposal = lazy(() => import("./pages/ArlaCommercialProposal"));
 const MidasCommercialProposal = lazy(() => import("./pages/MidasCommercialProposal"));
+const MidasHostPortal = lazy(() => import("./pages/MidasHostPortal"));
 const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
@@ -209,6 +210,10 @@ const App = () => (
                     <Route path="/proposals/midas" element={<MidasCommercialProposal />} />
                     <Route path="/proposals/midas-entertainment" element={<MidasCommercialProposal />} />
                     <Route path="/midas" element={<MidasCommercialProposal />} />
+                    <Route path="/hosts/midas" element={<MidasHostPortal />} />
+                    <Route path="/hosts/midas-entertainment" element={<MidasHostPortal />} />
+                    <Route path="/dashboard/hosts/midas" element={<MidasHostPortal />} />
+                    <Route path="/dashboard/host/midas" element={<MidasHostPortal />} />
                     <Route path="/campaigns/:campaign" element={<CampaignLanding />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />

@@ -57,19 +57,19 @@ export const DEMO_STEPS = [
     title: 'Plantation Cove Official Venue Hub',
     path: '/venues/plantation-cove?demo=midas&step=4',
     executiveInsight: 'Both Midas events sit under this single persistent venue profile, building long-term GPS authority and repeat check-in data.',
-    actionLabel: 'Next: View Promoter Intelligence Dashboard ➔',
+    actionLabel: 'Next: View Midas Host Command Center ➔',
     icon: MapPin,
     badgeColor: 'text-[#10b981] bg-[#10b98115] border-[#10b98133]'
   },
   {
     step: 5,
-    stage: 'STAGE 05 · PROMOTER CRM & ATTRIBUTION',
-    title: 'Promoter Intelligence Dashboard',
-    path: '/dashboard/merchant?demo=midas&step=5',
-    executiveInsight: 'Midas monitors real-time voter counts, verified attendee phone numbers, referral squad depth, and gate check-in throughput.',
+    stage: 'STAGE 05 · HOST INTELLIGENCE & ATTENDEE CRM',
+    title: 'Midas Entertainment Host Operations Center',
+    path: '/hosts/midas?demo=midas&step=5',
+    executiveInsight: 'Midas accesses their verified attendee directory (phone & WhatsApp numbers), live poll breakdown (240 votes), 1.8x squad referrals, and gate pass inventory.',
     actionLabel: 'Finish & Return to Midas Brief ➔',
     icon: BarChart3,
-    badgeColor: 'text-[#3b82f6] bg-[#3b82f615] border-[#3b82f633]'
+    badgeColor: 'text-[#ff5a1f] bg-[#ff5a1f15] border-[#ff5a1f33]'
   }
 ];
 
