@@ -4,14 +4,11 @@ import SEO from '@/components/SEO';
 import {
   ArrowRight,
   ArrowLeft,
-  CheckCircle2,
+  Check,
   Sparkles,
-  TrendingUp,
-  ShieldCheck,
   Zap,
   Target,
   BarChart3,
-  Layers,
   Users,
   Compass,
   FileText,
@@ -30,28 +27,29 @@ import {
   Smartphone,
   X,
   Play,
-  Check,
   Flame,
-  Music,
-  Activity,
   Sliders,
-  DollarSign,
-  Maximize2
+  KeyRound,
+  CheckCircle2,
+  LockKeyhole,
+  Music,
+  Send
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
 
 export default function MidasCommercialProposal() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'moments' | 'promopush' | 'incentives' | 'simulator'>('overview');
-  const [showDemoModal, setShowDemoModal] = useState(false);
-  const [demoStep, setDemoStep] = useState(1);
+  const [activeTab, setActiveTab] = useState<'proposal' | 'moments' | 'flywheel' | 'perks' | 'calculator'>('proposal');
   const [flywheelModel, setFlywheelModel] = useState<'traditional' | 'promorang'>('promorang');
   
   // Interactive Access Drop Simulator State
   const [expressPassCount, setExpressPassCount] = useState(50);
   const [vipUpgradeCount, setVipUpgradeCount] = useState(10);
   const [drinkTokenCount, setDrinkTokenCount] = useState(30);
+
+  // Interactive Guestpass Code Input Demo
+  const [demoCode, setDemoCode] = useState('MIDAS-VIP-2026');
+  const [codeUnlocked, setCodeUnlocked] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,156 +58,194 @@ export default function MidasCommercialProposal() {
   const estimatedSquadReferrals = Math.round(estimatedParticipants * 1.8);
   const estimatedRetainedAudience = Math.round(estimatedParticipants * 0.75);
 
+  const handleTestUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!demoCode.trim()) return;
+    setCodeUnlocked(true);
+    toast.success("Guest Pass Validated: +200 Points & Access Drop Unlocked!");
+  };
+
   return (
-    <main className="min-h-screen bg-[#070605] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white pb-28 font-sans antialiased">
+    <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased pb-32">
       <SEO
-        title="MIDAS ENTERTAINMENT × PROMORANG — Executive Activation Proposal"
+        title="PROMORANG PRESENTS × MIDAS ENTERTAINMENT — Commercial Activation"
         description="Turning event promotion into reusable audience growth for Midas Entertainment: Sophisticated & Encore Live featuring Capleton at Plantation Cove."
         url={getSiteUrl("/proposals/midas")}
       />
 
-      {/* Dynamic Background Glow Canvas */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-orange-600/15 via-amber-600/5 to-transparent rounded-full blur-3xl opacity-60" />
-        <div className="absolute top-1/3 right-10 w-[500px] h-[500px] bg-gradient-to-bl from-purple-700/15 via-indigo-600/5 to-transparent rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-gradient-to-tr from-emerald-600/10 to-transparent rounded-full blur-3xl opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
-      </div>
+      {/* Promorang Noise Texture Overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-10"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E")`
+        }}
+      />
 
-      {/* Top Brand Command Ribbon */}
-      <header className="relative z-20 border-b border-white/10 bg-[#070605]/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between">
+      {/* Top Promorang Presents Navigation Bar */}
+      <header className="relative z-20 border-b border-[#ffffff18] bg-[#0d0c0a]/90 backdrop-blur-xl">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-black tracking-widest uppercase bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
-              PROMORANG
-            </span>
-            <span className="text-white/30 text-xs">×</span>
-            <span className="font-serif text-sm font-bold text-white tracking-wider">
-              MIDAS ENTERTAINMENT
+            <Link to="/" className="flex items-center gap-2 text-white font-black tracking-widest text-sm hover:opacity-90 transition-opacity">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5a1f] shadow-[0_0_0_4px_#ff5a1f33]" />
+              <span className="font-serif tracking-normal text-base">PROMORANG <em className="text-[#ff5a1f] not-italic font-sans font-bold text-xs tracking-wider uppercase ml-1">PRESENTS</em></span>
+            </Link>
+            <span className="text-[#ffffff25] text-sm">/</span>
+            <span className="text-[#c9c0b5] text-xs font-mono font-bold uppercase tracking-wider">
+              Midas Partnership
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-[11px] font-mono text-orange-400 font-bold">
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-              Summer 2026 Season Executive Brief
-            </span>
             <button
               onClick={() => {
                 sessionStorage.setItem('promorang_midas_demo_active', 'true');
                 navigate('/discover?demo=midas&step=1');
               }}
-              className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-lg shadow-orange-950/60 flex items-center gap-1.5"
+              className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-black text-xs px-4 py-2.5 rounded-sm transition-all shadow-[4px_4px_0_#11100e] flex items-center gap-2 uppercase tracking-wider active:translate-x-[2px] active:translate-y-[2px]"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
-              <span>Launch Walkthrough</span>
+              <span>Launch Live Flow</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-16 pb-14 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-8">
+      {/* Hero Section with Physical 3D Ticket Stub */}
+      <section className="relative z-10 pt-16 pb-16 px-4 sm:px-6 overflow-hidden border-b border-[#ffffff15] bg-[radial-gradient(circle_at_80%_25%,#48200f_0,transparent_45%),linear-gradient(135deg,#0d0c0a_60%,#1f110a)]">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div className="space-y-4 max-w-3xl">
-              <div className="inline-flex items-center gap-2">
-                <span className="bg-orange-500/20 text-orange-400 text-xs font-black uppercase px-3 py-1 rounded-full border border-orange-500/30 font-mono tracking-wider">
-                  Audience Infrastructure Proposal
-                </span>
-                <span className="bg-white/5 text-white/70 text-xs font-medium px-3 py-1 rounded-full border border-white/10">
-                  Plantation Cove · St. Ann, Jamaica
-                </span>
-              </div>
-
-              <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.05]">
-                Turn Event Attention Into <span className="italic font-normal bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 bg-clip-text text-transparent">Reusable Audience Equity.</span>
-              </h1>
-              
-              <p className="text-base sm:text-lg text-stone-300 leading-relaxed max-w-2xl font-normal">
-                Midas already produces elite entertainment and captures Jamaican attention. Promorang installs the interactive participation and identity layer—transforming temporary ticket buyers into an owned, measurable audience asset.
-              </p>
+          {/* Left Editorial Copy */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="flex items-center gap-3 text-xs font-mono font-bold tracking-widest text-[#cfc5b7] uppercase">
+              <span className="w-6 h-[2px] bg-[#ff5a1f]" />
+              <span>Commercial Activation Proposal · Summer 2026</span>
             </div>
 
-            {/* Strategic KPI Stat Rail */}
-            <div className="grid grid-cols-2 gap-3 w-full lg:w-auto flex-shrink-0">
-              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md space-y-1">
-                <span className="text-white/40 text-[10px] font-mono font-bold uppercase tracking-wider block">Target Activations</span>
-                <strong className="text-2xl font-serif font-black text-white block">2 Moments</strong>
-                <span className="text-orange-400 text-xs font-semibold block">Sophisticated + Encore Live</span>
-              </div>
-              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md space-y-1">
-                <span className="text-white/40 text-[10px] font-mono font-bold uppercase tracking-wider block">Canonical Anchor</span>
-                <strong className="text-2xl font-serif font-black text-white block">Plantation Cove</strong>
-                <span className="text-emerald-400 text-xs font-semibold block">Single Location Graph Node</span>
-              </div>
-            </div>
-          </div>
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#f4efe5] leading-[0.95]">
+              Turning Event Promotion Into <i className="text-[#ff5a1f] font-serif not-italic">Reusable Equity.</i>
+            </h1>
 
-          {/* Quick Launch Control Bar */}
-          <div className="rounded-3xl border border-white/15 bg-gradient-to-r from-white/[0.06] via-white/[0.02] to-white/[0.06] p-4 sm:p-6 backdrop-blur-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                <Sparkles className="w-5 h-5" />
+            <p className="text-base sm:text-lg text-[#c9c0b5] leading-relaxed max-w-xl font-normal">
+              Midas already creates high-energy entertainment and commands Jamaican attention. Promorang installs the participation, discovery, and audience-capture layer around that attention—converting anonymous partygoers into an owned, measurable audience.
+            </p>
+
+            {/* Quick Badges */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="px-3.5 py-1.5 rounded-sm bg-[#ffffff08] border border-[#ffffff18] text-xs text-[#ddd1c1] font-mono">
+                📍 <strong>Plantation Cove</strong> · St. Ann, Jamaica
               </div>
-              <div>
-                <strong className="text-white text-sm font-bold block">Interactive Demonstration Ready</strong>
-                <span className="text-white/60 text-xs block">Experience the live attendee flow from poll vote to gate check-in</span>
+              <div className="px-3.5 py-1.5 rounded-sm bg-[#ffffff08] border border-[#ffffff18] text-xs text-[#ddd1c1] font-mono">
+                🎟️ <strong>2 Activations</strong> · Sophisticated & Encore Live
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            {/* CTA Group */}
+            <div className="flex flex-wrap items-center gap-4 pt-4">
               <button
                 onClick={() => {
                   sessionStorage.setItem('promorang_midas_demo_active', 'true');
                   navigate('/discover?demo=midas&step=1');
                 }}
-                className="flex-1 md:flex-initial bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-orange-950 flex items-center justify-center gap-2"
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-bold text-sm px-6 py-4 rounded-sm transition-all shadow-[6px_6px_0_#000000] flex items-center gap-2 uppercase tracking-wider"
               >
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span>Start Live Demo Flow</span>
+                <span>Launch Interactive Demo</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
               <Link
-                to="/discover"
-                className="flex-1 md:flex-initial bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-orange-400" />
-                <span>Discovery Polls</span>
-              </Link>
-              <Link
                 to="/venues/plantation-cove"
-                className="flex-1 md:flex-initial bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                className="bg-[#ffffff0d] hover:bg-[#ffffff18] border border-[#ffffff20] text-[#f4efe5] font-bold text-sm px-6 py-4 rounded-sm transition-all flex items-center gap-2"
               >
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Venue Hub</span>
+                <MapPin className="w-4 h-4 text-[#ffcf38]" />
+                <span>View Plantation Cove Hub</span>
               </Link>
+            </div>
+          </div>
+
+          {/* Right Signature Physical Promorang Ticket Stub */}
+          <div className="lg:col-span-5 flex justify-center">
+            <div className="w-full max-w-sm transform rotate-1 hover:rotate-0 transition-transform duration-300 bg-[#f4efe5] text-[#11100e] p-6 shadow-[14px_14px_0_#ff5a1f] border-2 border-[#11100e] relative space-y-4 font-sans">
+              
+              {/* Ticket Top Header */}
+              <div className="flex items-center justify-between border-b-2 border-[#11100e] pb-3 text-[11px] font-mono font-black uppercase tracking-widest">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#ff5a1f]" />
+                  PROMORANG PASS
+                </span>
+                <span className="text-[#ff5a1f]">MIDAS-2026</span>
+              </div>
+
+              {/* Ticket Center Display */}
+              <div className="text-center py-4 border-b-2 border-dashed border-[#898071] space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#776e62] block">
+                  Plantation Cove · St. Ann
+                </span>
+                <h3 className="font-serif text-3xl font-bold leading-tight text-[#11100e]">
+                  MIDAS WEEKEND
+                </h3>
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-wider block">
+                  Aug 29 (Sophisticated) + Aug 30 (Capleton)
+                </span>
+              </div>
+
+              {/* Ticket Meta Grid */}
+              <div className="grid grid-cols-2 text-left text-xs border-b-2 border-[#11100e] pb-3">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#776e62] block">Perk Reward</span>
+                  <strong className="font-bold text-sm block">+200 Pts + PromoKey</strong>
+                </div>
+                <div className="space-y-0.5 pl-3 border-l-2 border-[#11100e]">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#776e62] block">Gate Status</span>
+                  <strong className="font-bold text-sm text-[#008744] block">Verified Node</strong>
+                </div>
+              </div>
+
+              {/* Ticket Simulated Barcode & Stamp */}
+              <div className="pt-2 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="flex gap-[2px] h-6 items-center opacity-80">
+                    <span className="w-1 h-full bg-[#11100e]" />
+                    <span className="w-[2px] h-full bg-[#11100e]" />
+                    <span className="w-1.5 h-full bg-[#11100e]" />
+                    <span className="w-[1px] h-full bg-[#11100e]" />
+                    <span className="w-2 h-full bg-[#11100e]" />
+                    <span className="w-1 h-full bg-[#11100e]" />
+                    <span className="w-[3px] h-full bg-[#11100e]" />
+                    <span className="w-1 h-full bg-[#11100e]" />
+                    <span className="w-2 h-full bg-[#11100e]" />
+                  </div>
+                  <span className="text-[9px] font-mono text-[#776e62]">876-MIDAS-PLANTATION-COVE</span>
+                </div>
+                <span className="border-2 border-[#ff5a1f] text-[#ff5a1f] font-mono font-black text-[10px] px-2 py-0.5 uppercase transform -rotate-6">
+                  OFFICIAL PARTNER
+                </span>
+              </div>
+
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Navigation Tab Spine */}
-      <div className="sticky top-0 z-30 border-b border-white/10 bg-[#070605]/95 backdrop-blur-2xl">
+      {/* Promorang Tactical Navigation Tabs */}
+      <div className="sticky top-0 z-30 border-b border-[#ffffff15] bg-[#0d0c0a]/95 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex space-x-2 sm:space-x-8 overflow-x-auto py-3 text-xs sm:text-sm font-bold scrollbar-none">
+          <div className="flex space-x-1 sm:space-x-3 overflow-x-auto py-3 text-xs sm:text-sm font-bold scrollbar-none">
             {[
-              { id: 'overview', label: '1. Commercial Problem & Value Model', icon: Target },
+              { id: 'proposal', label: '1. Executive Brief & Value', icon: Target },
               { id: 'moments', label: '2. Curated Moments & Venue', icon: Ticket },
-              { id: 'promopush', label: '3. PromoPush Geo & Field Activation', icon: Smartphone },
-              { id: 'incentives', label: '4. Midas Access Drop (Perk Tiers)', icon: Award },
-              { id: 'simulator', label: '5. Interactive Audience ROI Simulator', icon: Sliders }
+              { id: 'flywheel', label: '3. The 10-Stage Flywheel', icon: Zap },
+              { id: 'perks', label: '4. Midas Access Drop (Perks)', icon: KeyRound },
+              { id: 'calculator', label: '5. Dynamic ROI Calculator', icon: Sliders }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 whitespace-nowrap px-3.5 py-2 rounded-xl transition-all ${
+                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-sm transition-all text-xs font-mono uppercase tracking-wider ${
                     activeTab === tab.id
-                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 font-black shadow-sm'
-                      : 'text-stone-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#ff5a1f] text-white font-black shadow-[3px_3px_0_#000]'
+                      : 'text-[#a89f91] hover:text-white hover:bg-[#ffffff0a]'
                   }`}
                 >
                   <TabIcon className="w-3.5 h-3.5" />
@@ -221,120 +257,96 @@ export default function MidasCommercialProposal() {
         </div>
       </div>
 
-      {/* Main Content Container */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-10 space-y-12">
+      {/* Main Content Area */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-12 space-y-16">
 
-        {/* TAB 1: OVERVIEW & COMMERCIAL PROBLEM */}
-        {activeTab === 'overview' && (
+        {/* TAB 1: PROPOSAL & VALUE */}
+        {activeTab === 'proposal' && (
           <div className="space-y-12 animate-in fade-in duration-300">
             
-            {/* Interactive Model Toggle (Traditional vs Promorang) */}
-            <div className="rounded-3xl border border-white/15 bg-white/[0.02] p-6 sm:p-8 backdrop-blur-xl space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-widest">Model Comparison</span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">Why Current Promotion Leaks Value</h3>
-                </div>
-                <div className="flex p-1 rounded-2xl bg-black/60 border border-white/15 self-start">
-                  <button
-                    onClick={() => setFlywheelModel('traditional')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                      flywheelModel === 'traditional'
-                        ? 'bg-red-500/20 text-red-300 border border-red-500/30 font-black'
-                        : 'text-white/50 hover:text-white'
-                    }`}
-                  >
-                    Traditional Event Marketing
-                  </button>
-                  <button
-                    onClick={() => setFlywheelModel('promorang')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                      flywheelModel === 'promorang'
-                        ? 'bg-orange-500 text-white font-black shadow-lg shadow-orange-950'
-                        : 'text-white/50 hover:text-white'
-                    }`}
-                  >
-                    The Promorang Engine ✨
-                  </button>
+            {/* Value Proposition Core */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="lg:col-span-5 space-y-4">
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                  The Commercial Opportunity
+                </span>
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">
+                  Stop Rebuying the Same Attention.
+                </h2>
+                <p className="text-stone-300 text-sm leading-relaxed">
+                  Every entertainment brand in Jamaica faces the same dilemma: huge Instagram hype, sold-out venues, but zero persistent customer relationship once the music stops.
+                </p>
+                <div className="p-4 rounded-sm bg-[#ffffff06] border border-[#ffffff15] space-y-2">
+                  <span className="text-[11px] font-mono text-[#ffcf38] font-bold uppercase">The Promorang Standard:</span>
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    We turn Midas event attention into an identifiable, measurable, and reusable audience graph that fuels pre-sales for every future event.
+                  </p>
                 </div>
               </div>
 
-              {flywheelModel === 'traditional' ? (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
-                  <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/30 space-y-2">
-                    <span className="text-[11px] font-mono text-red-400 font-bold block">01. Attention Spend</span>
-                    <strong className="text-white text-base block">Flyers & Ad Blasts</strong>
-                    <p className="text-stone-400 text-xs leading-relaxed">Midas pays for Meta ads, WhatsApp blasts, and DJ mentions. High noise, low attribution.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/30 space-y-2">
-                    <span className="text-[11px] font-mono text-red-400 font-bold block">02. Fragmented Sales</span>
-                    <strong className="text-white text-base block">Anonymous Purchase</strong>
-                    <p className="text-stone-400 text-xs leading-relaxed">Ticket buyers purchase through cash outlets or ticket sites with no social graph captured.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/30 space-y-2">
-                    <span className="text-[11px] font-mono text-red-400 font-bold block">03. Physical Attendance</span>
-                    <strong className="text-white text-base block">Night of Event</strong>
-                    <p className="text-stone-400 text-xs leading-relaxed">Crowd dances and leaves. No contact captured, no squad mapping, zero viral multiplier.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/30 space-y-2">
-                    <span className="text-[11px] font-mono text-red-400 font-bold block">04. The Reset Trap</span>
-                    <strong className="text-red-400 text-base block">Audience Disappears</strong>
-                    <p className="text-stone-400 text-xs leading-relaxed">For the next event, Midas starts from zero, rebuying the exact same audience attention.</p>
-                  </div>
+              {/* Comparison Matrix */}
+              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-6 rounded-sm bg-[#161210] border border-[#ff5a1f33] space-y-3">
+                  <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider block">Traditional Model</span>
+                  <h4 className="font-serif text-lg font-bold text-white">Temporary Attention</h4>
+                  <ul className="space-y-2 text-xs text-stone-400 leading-relaxed">
+                    <li className="flex items-start gap-2">✕ Anonymous flyer & social ad clicks</li>
+                    <li className="flex items-start gap-2">✕ No contact or squad mapping</li>
+                    <li className="flex items-start gap-2">✕ Attendee database resets to zero on Monday</li>
+                  </ul>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
-                  <div className="p-5 rounded-2xl bg-orange-950/20 border border-orange-500/40 space-y-2">
-                    <span className="text-[11px] font-mono text-orange-400 font-bold block">01. Discovery Polls</span>
-                    <strong className="text-white text-base block">Interactive Hooks</strong>
-                    <p className="text-stone-300 text-xs leading-relaxed">Culturally tailored polls capture attendee preferences and intent without long surveys.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-orange-950/20 border border-orange-500/40 space-y-2">
-                    <span className="text-[11px] font-mono text-orange-400 font-bold block">02. Verified Fast ID</span>
-                    <strong className="text-white text-base block">Moment Participation</strong>
-                    <p className="text-stone-300 text-xs leading-relaxed">User unlocks Access Drops (express entry, drink perks) and becomes an identifiable contact.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-orange-950/20 border border-orange-500/40 space-y-2">
-                    <span className="text-[11px] font-mono text-orange-400 font-bold block">03. Squad Growth</span>
-                    <strong className="text-white text-base block">WhatsApp Crew Passes</strong>
-                    <p className="text-stone-300 text-xs leading-relaxed">Attendees invite their squad to unlock group upgrades, creating an organic referral wave.</p>
-                  </div>
-                  <div className="p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/40 space-y-2">
-                    <span className="text-[11px] font-mono text-emerald-400 font-bold block">04. Retained Equity</span>
-                    <strong className="text-emerald-400 text-base block">Owned Audience Graph</strong>
-                    <p className="text-stone-300 text-xs leading-relaxed">Midas builds an identified, retargetable audience database for every future booking.</p>
-                  </div>
+
+                <div className="p-6 rounded-sm bg-[#1b1510] border-2 border-[#ff5a1f] space-y-3 shadow-[6px_6px_0_#ff5a1f33]">
+                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-wider block">Promorang Presents</span>
+                  <h4 className="font-serif text-lg font-bold text-white">Audience Equity</h4>
+                  <ul className="space-y-2 text-xs text-stone-200 leading-relaxed">
+                    <li className="flex items-start gap-2">✓ Cultural poll voting with instant contact capture</li>
+                    <li className="flex items-start gap-2">✓ WhatsApp crew referrals with 1.8x multiplier</li>
+                    <li className="flex items-start gap-2">✓ Reusable audience for Dream Weekend & future drops</li>
+                  </ul>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* 10-Stage Visual Growth Loop */}
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8 space-y-6">
-              <div className="max-w-2xl">
-                <span className="text-xs font-mono font-bold text-orange-400 tracking-wider uppercase">End-to-End Flywheel</span>
-                <h3 className="font-serif text-2xl font-bold text-white mt-1">The Midas × Promorang Conversion Pipeline</h3>
+            {/* Interactive Guest Pass Sandbox */}
+            <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 sm:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">Live Sandbox</span>
+                  <h3 className="font-serif text-2xl font-bold text-white mt-1">Test the Midas Access Drop Code Mechanic</h3>
+                </div>
+                <span className="text-xs font-mono bg-[#ffffff0a] text-stone-300 px-3 py-1 border border-[#ffffff15]">
+                  Fast-Path Verification
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
-                {[
-                  { step: '01', name: 'Promotion', desc: 'Midas IG, WhatsApp, DJs' },
-                  { step: '02', name: 'Attention', desc: 'Attributable QRs & Links' },
-                  { step: '03', name: 'Discovery', desc: 'Summer & Live Polls' },
-                  { step: '04', name: 'Participation', desc: 'Vote + Earn Points' },
-                  { step: '05', name: 'Identification', desc: 'Fast-Path Member ID' },
-                  { step: '06', name: 'Sharing', desc: 'Invite Squad on WhatsApp' },
-                  { step: '07', name: 'Conversion', desc: 'Ticket Passes & Pre-sales' },
-                  { step: '08', name: 'Attendance', desc: 'Plantation Cove Check-In' },
-                  { step: '09', name: 'Perk Unlock', desc: 'Access Drops & Upgrades' },
-                  { step: '10', name: 'Retention', desc: 'Future Midas Productions' }
-                ].map((item) => (
-                  <div key={item.step} className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-1.5 hover:border-orange-500/40 transition-colors">
-                    <span className="text-[11px] font-mono font-black text-orange-400 block">{item.step}</span>
-                    <strong className="text-white text-xs font-bold block">{item.name}</strong>
-                    <span className="text-[10px] text-stone-400 block leading-tight">{item.desc}</span>
+              <form onSubmit={handleTestUnlock} className="flex flex-col sm:flex-row gap-3 max-w-xl">
+                <input
+                  type="text"
+                  value={demoCode}
+                  onChange={(e) => setDemoCode(e.target.value.toUpperCase())}
+                  placeholder="ENTER ACCESS CODE"
+                  className="flex-1 bg-[#0a0908] border-2 border-[#898071] text-white px-4 py-3 font-mono font-bold text-sm tracking-wider uppercase focus:border-[#ff5a1f] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-6 py-3 uppercase tracking-wider shadow-[4px_4px_0_#000000]"
+                >
+                  Verify Access Code
+                </button>
+              </form>
+
+              {codeUnlocked && (
+                <div className="p-4 rounded-sm bg-[#0e2a1b] border border-[#10b981] text-xs text-emerald-300 space-y-1 animate-in fade-in">
+                  <div className="font-bold flex items-center gap-1.5 text-sm text-emerald-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Midas Founding VIP Access Pass Activated!</span>
                   </div>
-                ))}
-              </div>
+                  <p className="text-emerald-300/80">
+                    User receives +200 PromoPoints, express gate entry perk, and a WhatsApp crew invite link.
+                  </p>
+                </div>
+              )}
             </div>
 
           </div>
@@ -342,124 +354,98 @@ export default function MidasCommercialProposal() {
 
         {/* TAB 2: CURATED MOMENTS & VENUE */}
         {activeTab === 'moments' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
+          <div className="space-y-12 animate-in fade-in duration-300">
             
-            {/* Canonical Venue Hub Anchor */}
-            <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/20 via-black to-emerald-950/10 p-8 space-y-6">
+            {/* Canonical Venue Card */}
+            <div className="rounded-sm border-2 border-[#10b981] bg-[#0d1611] p-6 sm:p-8 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-2">
-                  <span className="bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30 font-mono">
-                    Canonical Verified Venue Entity
+                <div className="space-y-1">
+                  <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
+                    Canonical Verified Venue
                   </span>
                   <h3 className="font-serif text-3xl font-bold text-white">Grizzly's Plantation Cove</h3>
-                  <p className="text-stone-300 text-sm flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-emerald-400" />
-                    A1 North Coast Highway, Priory, St. Ann, Jamaica (18.45509° N, -77.23241° W)
+                  <p className="text-stone-300 text-xs sm:text-sm flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-[#10b981]" />
+                    Priory, St. Ann, Jamaica (18.45509° N, -77.23241° W)
                   </p>
                 </div>
                 <Link
                   to="/venues/plantation-cove"
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors self-start sm:self-auto shadow-lg shadow-emerald-950"
+                  className="bg-[#10b981] hover:bg-[#059669] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000] flex items-center gap-2 self-start"
                 >
-                  <span>Explore Canonical Venue Hub</span>
+                  <span>Open Venue Node</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-              <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-w-3xl">
-                Plantation Cove is registered as a single persistent venue node. Both Midas events reference this identical record, consolidating check-ins, participant heatmaps, and search indexing without duplicate data.
+              <p className="text-stone-300 text-xs leading-relaxed max-w-3xl">
+                Both Midas activations sit under this identical canonical node. Check-ins, traffic metrics, and participant points are consolidated into a persistent location graph without fragmenting data.
               </p>
             </div>
 
-            {/* The Two Moments Grid */}
+            {/* Moments Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Moment 1: Sophisticated */}
-              <div className="rounded-3xl border border-white/15 bg-white/[0.02] overflow-hidden flex flex-col justify-between group hover:border-orange-500/40 transition-all shadow-xl">
-                <div className="relative h-60 overflow-hidden">
+              {/* Moment 1 */}
+              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#ff5a1f] transition-colors">
+                <div className="relative h-48 overflow-hidden border border-[#ffffff15]">
                   <img
                     src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&q=80&w=800"
                     alt="Sophisticated Beach Party"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070605] via-transparent to-black/60" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-orange-600 text-white font-black text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                      PROMORANG PRESENTS
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <span className="text-orange-400 font-mono text-xs font-bold block">Saturday, August 29, 2026</span>
-                    <h4 className="font-serif text-2xl font-bold text-white leading-tight">
-                      Sophisticated — The Summer End Beach Party
-                    </h4>
+                  <div className="absolute top-3 left-3 bg-[#ff5a1f] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
+                    PROMORANG PRESENTS
                   </div>
                 </div>
 
-                <div className="p-6 space-y-4 text-xs sm:text-sm flex-1 flex flex-col justify-between">
-                  <div className="space-y-2.5 text-stone-300">
-                    <p><strong className="text-white">Headliner:</strong> Vanessa Bling Live in Concert</p>
-                    <p><strong className="text-white">DJ Lineup:</strong> Trippple X, Bishop Escobar, Illusion Sound</p>
-                    <p><strong className="text-white">Schedule:</strong> 4:00 PM – 10:00 PM (Hosted drinks segment 4–7 PM)</p>
-                    <p><strong className="text-white">Admission:</strong> J$5,000 Pre-sold · J$6,000 at Gate</p>
-                    <p><strong className="text-white">Promoter:</strong> Midas Entertainment & 8 Rivaz Ultra Lounge</p>
-                  </div>
+                <div className="space-y-2">
+                  <span className="text-[#ff5a1f] font-mono text-xs font-bold block">Saturday, Aug 29, 2026 · 4PM–10PM</span>
+                  <h4 className="font-serif text-2xl font-bold text-white">Sophisticated — Summer End Beach Party</h4>
+                  <p className="text-stone-300 text-xs leading-relaxed">
+                    Featuring Vanessa Bling live, Trippple X, Bishop Escobar, and Illusion Sound. Hosted drinks segment from 4:00 PM to 7:00 PM.
+                  </p>
+                </div>
 
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-orange-400 font-bold text-xs">+200 Points & PromoKey</span>
-                    <Link
-                      to="/moments/sophisticated"
-                      className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-md shadow-orange-950"
-                    >
-                      <span>Explore Moment Page</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
+                <div className="pt-3 border-t border-[#ffffff15] flex items-center justify-between">
+                  <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts + PromoKey</span>
+                  <Link
+                    to="/moments/sophisticated"
+                    className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider"
+                  >
+                    View Moment ➔
+                  </Link>
                 </div>
               </div>
 
-              {/* Moment 2: Encore Live featuring Capleton */}
-              <div className="rounded-3xl border border-white/15 bg-white/[0.02] overflow-hidden flex flex-col justify-between group hover:border-purple-500/40 transition-all shadow-xl">
-                <div className="relative h-60 overflow-hidden">
+              {/* Moment 2 */}
+              <div className="rounded-sm border-2 border-[#ffffff15] bg-[#141210] p-6 space-y-5 hover:border-[#a855f7] transition-colors">
+                <div className="relative h-48 overflow-hidden border border-[#ffffff15]">
                   <img
                     src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800"
                     alt="Encore Live featuring Capleton"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070605] via-transparent to-black/60" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-purple-600 text-white font-black text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                      PROMORANG PRESENTS
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <span className="text-purple-400 font-mono text-xs font-bold block">Sunday, August 30, 2026</span>
-                    <h4 className="font-serif text-2xl font-bold text-white leading-tight">
-                      Encore Live featuring Capleton
-                    </h4>
+                  <div className="absolute top-3 left-3 bg-[#a855f7] text-white font-mono font-black text-[10px] uppercase px-2.5 py-1">
+                    PROMORANG PRESENTS
                   </div>
                 </div>
 
-                <div className="p-6 space-y-4 text-xs sm:text-sm flex-1 flex flex-col justify-between">
-                  <div className="space-y-2.5 text-stone-300">
-                    <p><strong className="text-white">Headliner:</strong> Capleton ("The Fireman" / King Shango) Live</p>
-                    <p><strong className="text-white">Format:</strong> Conscious Reggae Live Band Concert Experience</p>
-                    <p><strong className="text-white">Schedule:</strong> 6:00 PM – 1:00 AM at Plantation Cove</p>
-                    <p><strong className="text-white">Promoter:</strong> Midas Entertainment</p>
-                    <p className="text-amber-300 font-semibold text-[11px]">
-                      *Strictly disambiguated from "Encore Ladies Playground" or Kingston club nights.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <span className="text-[#a855f7] font-mono text-xs font-bold block">Sunday, Aug 30, 2026 · 6PM–1AM</span>
+                  <h4 className="font-serif text-2xl font-bold text-white">Encore Live featuring Capleton</h4>
+                  <p className="text-stone-300 text-xs leading-relaxed">
+                    High-energy conscious reggae live concert at Plantation Cove. Strictly disambiguated from weekly Kingston club nights.
+                  </p>
+                </div>
 
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-purple-400 font-bold text-xs">+200 Points & PromoKey</span>
-                    <Link
-                      to="/moments/encore-live-featuring-capleton"
-                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-md shadow-purple-950"
-                    >
-                      <span>Explore Moment Page</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
+                <div className="pt-3 border-t border-[#ffffff15] flex items-center justify-between">
+                  <span className="text-[#ffcf38] font-mono text-xs font-bold">+200 Pts + PromoKey</span>
+                  <Link
+                    to="/moments/encore-live-featuring-capleton"
+                    className="bg-[#a855f7] hover:bg-[#9333ea] text-white font-mono font-bold text-xs px-4 py-2 uppercase tracking-wider"
+                  >
+                    View Moment ➔
+                  </Link>
                 </div>
               </div>
 
@@ -468,162 +454,107 @@ export default function MidasCommercialProposal() {
           </div>
         )}
 
-        {/* TAB 3: PROMOPUSH GEO & FIELD ACTIVATION */}
-        {activeTab === 'promopush' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
-            
-            <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-orange-950/25 via-black to-black p-8 space-y-6">
-              <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-widest">Digital Push + Physical Pull</span>
-              <h3 className="font-serif text-3xl font-bold text-white">PromoPush: Geo-Triggered Input Engine</h3>
-              <p className="text-stone-300 text-sm sm:text-base leading-relaxed max-w-3xl">
-                PromoPush turns physical foot traffic and geo-targeted social attention into verified Promorang participants. It bridges online ads directly with on-ground ambassadors stationed at Plantation Cove.
+        {/* TAB 3: THE 10-STAGE FLYWHEEL */}
+        {activeTab === 'flywheel' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="max-w-2xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                System Architecture
+              </span>
+              <h3 className="font-serif text-3xl font-bold text-white">The 10-Stage Audience Engine</h3>
+              <p className="text-stone-300 text-sm">
+                How Promorang turns standard flyer distribution into an owned community graph.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Digital Push */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8 space-y-4">
-                <div className="p-3 bg-orange-500/20 text-orange-400 rounded-2xl w-fit">
-                  <Smartphone className="w-6 h-6" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {[
+                { num: '01', title: 'Attention Spend', desc: 'Midas posts IG, WhatsApp, DJs, and outdoor ads with custom Promorang QR/links.' },
+                { num: '02', title: 'Discovery Poll', desc: 'User lands on Jamaican summer poll; votes in 1 click without answering boring surveys.' },
+                { num: '03', title: 'Presents Match', desc: 'Promorang Presents delivers curated Sophisticated / Encore recommendation.' },
+                { num: '04', title: 'Instant Reward', desc: 'User claims +200 Points and an initial PromoKey to lock in their spot.' },
+                { num: '05', title: 'Identity Capture', desc: 'Fast phone/WhatsApp verification converts anonymous visitor into an identified member.' },
+                { num: '06', title: 'Squad Multiplier', desc: 'Attendee receives a custom WhatsApp pass to invite 2 friends for Express Entry.' },
+                { num: '07', title: 'Perk Drops', desc: 'Top squad referrers unlock VIP upgrades, soundcheck passes, and hosted drink tokens.' },
+                { num: '08', title: 'Gate Check-In', desc: 'Attendee scans QR at Plantation Cove gate; attendance is cryptographically verified.' },
+                { num: '09', title: 'Live Dashboard', desc: 'Midas tracks attendee counts, referral tree depth, and gate throughput in real time.' },
+                { num: '10', title: 'Audience Reuse', desc: 'Direct broadcast access to this proven crowd for Dream Weekend and future shows.' }
+              ].map(stage => (
+                <div key={stage.num} className="p-4 rounded-sm bg-[#141210] border border-[#ffffff15] space-y-2 hover:border-[#ff5a1f] transition-colors">
+                  <span className="font-mono text-xs font-black text-[#ff5a1f] block">{stage.num}.</span>
+                  <strong className="text-white text-xs font-bold block">{stage.title}</strong>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">{stage.desc}</p>
                 </div>
-                <h4 className="font-serif text-xl font-bold text-white">1. Digital Push (Corridor Ads)</h4>
-                <ul className="space-y-3 text-xs sm:text-sm text-stone-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-orange-400 font-bold">•</span>
-                    <span><strong>Pre-Event Travel Corridor:</strong> Meta/Google ads targeted across Ocho Rios, St. Ann, Kingston, and the North-South Highway.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-orange-400 font-bold">•</span>
-                    <span><strong>Direct Poll CTA:</strong> <em>"How are you ending summer? Vote & unlock private access at Plantation Cove."</em> Direct to poll (no generic detour).</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-orange-400 font-bold">•</span>
-                    <span><strong>Event-Day 15km Fence:</strong> Geo-targeted alerts reaching nearby tourists and travelers heading along the north coast.</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Physical Pull */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8 space-y-4">
-                <div className="p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl w-fit">
-                  <Users className="w-6 h-6" />
-                </div>
-                <h4 className="font-serif text-xl font-bold text-white">2. Physical Pull (Brand Ambassadors)</h4>
-                <ul className="space-y-3 text-xs sm:text-sm text-stone-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold">•</span>
-                    <span><strong>4 Trained Promorang Staff:</strong> Stationed at approved box office, entry gates, and lounge perimeters.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold">•</span>
-                    <span><strong>10-Second Tablet Script:</strong> <em>"Quick one—what brought you out tonight?"</em> Attendee taps choice $\rightarrow$ instant ID capture.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold">•</span>
-                    <span><strong>Instant Unlock + Squad Loop:</strong> Attendee receives instant unlock perk and is prompted to WhatsApp their crew.</span>
-                  </li>
-                </ul>
-              </div>
+              ))}
             </div>
-
           </div>
         )}
 
-        {/* TAB 4: MIDAS ACCESS DROP */}
-        {activeTab === 'incentives' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
-            
-            <div className="rounded-3xl border border-amber-500/30 bg-amber-950/15 p-8 space-y-4">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest">Incentive Economics</span>
-              <h3 className="font-serif text-3xl font-bold text-white">Midas × Promorang Access Drop Proposal</h3>
-              <p className="text-stone-300 text-sm sm:text-base leading-relaxed max-w-3xl">
-                Midas contributes a controlled, high-perceived-value perk inventory with near-zero marginal cash cost. This turns attendees into active promoters who bring their friends.
+        {/* TAB 4: MIDAS ACCESS DROP (PERKS) */}
+        {activeTab === 'perks' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="max-w-2xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-widest">
+                Incentive Economics
+              </span>
+              <h3 className="font-serif text-3xl font-bold text-white">Midas Access Drop Proposal</h3>
+              <p className="text-stone-300 text-sm">
+                High perceived-value perks with zero marginal cash cost to Midas Entertainment.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
-              <div className="p-6 rounded-3xl border border-white/10 bg-white/[0.02] space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <span className="text-orange-400 font-mono text-[11px] font-black uppercase">Tier 1 · Speed Access</span>
-                  <h4 className="text-lg font-serif font-bold text-white">Express Entry Passes</h4>
-                  <p className="text-stone-400 text-xs">50 Fast-track gate wristbands allocated for participants who complete the Discovery Poll and invite 2 friends.</p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-black/40 border border-white/10 text-[11px] text-emerald-400 font-semibold">
-                  Cost to Midas: $0 (Smooths gate flow)
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase block">Tier 1 · Speed</span>
+                <h4 className="font-serif text-lg font-bold text-white">50 Express Entry Passes</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">Fast-track gate wristbands rewarded to attendees who complete the poll and invite 2 friends.</p>
+                <span className="text-[11px] font-mono text-emerald-400 block pt-2 border-t border-[#ffffff15]">Cost to Midas: $0</span>
               </div>
 
-              <div className="p-6 rounded-3xl border border-white/10 bg-white/[0.02] space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <span className="text-purple-400 font-mono text-[11px] font-black uppercase">Tier 2 · High Value</span>
-                  <h4 className="text-lg font-serif font-bold text-white">VIP Viewing Upgrades</h4>
-                  <p className="text-stone-400 text-xs">10 VIP deck upgrades rewarded to top referrers who bring verified ticket holders into the Moment.</p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-black/40 border border-white/10 text-[11px] text-emerald-400 font-semibold">
-                  Cost to Midas: Utilizes VIP buffer
-                </div>
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
+                <span className="text-xs font-mono font-bold text-[#a855f7] uppercase block">Tier 2 · High Value</span>
+                <h4 className="font-serif text-lg font-bold text-white">10 VIP Deck Upgrades</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">VIP viewing deck access rewarded to top squad builders who bring verified ticket holders.</p>
+                <span className="text-[11px] font-mono text-emerald-400 block pt-2 border-t border-[#ffffff15]">Cost to Midas: Utilizes buffer</span>
               </div>
 
-              <div className="p-6 rounded-3xl border border-white/10 bg-white/[0.02] space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <span className="text-amber-400 font-mono text-[11px] font-black uppercase">Tier 3 · Exclusive</span>
-                  <h4 className="text-lg font-serif font-bold text-white">Backstage Soundcheck Pass</h4>
-                  <p className="text-stone-400 text-xs">2 Double passes for the highest crew builder to experience soundcheck with Vanessa Bling / Capleton.</p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-black/40 border border-white/10 text-[11px] text-emerald-400 font-semibold">
-                  Cost to Midas: High prestige, $0 cash
-                </div>
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
+                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase block">Tier 3 · Exclusive</span>
+                <h4 className="font-serif text-lg font-bold text-white">2 Soundcheck Double Passes</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">Exclusive backstage soundcheck access with Vanessa Bling or Capleton for the top referrer.</p>
+                <span className="text-[11px] font-mono text-emerald-400 block pt-2 border-t border-[#ffffff15]">Cost to Midas: High prestige, $0 cash</span>
               </div>
 
-              <div className="p-6 rounded-3xl border border-white/10 bg-white/[0.02] space-y-3 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <span className="text-emerald-400 font-mono text-[11px] font-black uppercase">Tier 4 · Early Arrival</span>
-                  <h4 className="text-lg font-serif font-bold text-white">Hosted Drinks Passes</h4>
-                  <p className="text-stone-400 text-xs">30 Extra hosted drink tokens for participants who check in at Plantation Cove before 6:00 PM on August 29.</p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-black/40 border border-white/10 text-[11px] text-emerald-400 font-semibold">
-                  Benefit: Drives early venue arrival
-                </div>
+              <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
+                <span className="text-xs font-mono font-bold text-[#10b981] uppercase block">Tier 4 · Early Arrival</span>
+                <h4 className="font-serif text-lg font-bold text-white">30 Hosted Drinks Passes</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">Extra drink tokens for participants who check in at Plantation Cove before 6:00 PM.</p>
+                <span className="text-[11px] font-mono text-emerald-400 block pt-2 border-t border-[#ffffff15]">Benefit: Drives early venue arrival</span>
               </div>
             </div>
-
           </div>
         )}
 
-        {/* TAB 5: AUDIENCE ROI SIMULATOR */}
-        {activeTab === 'simulator' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
-            
-            <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-r from-orange-950/20 via-black to-purple-950/20 p-8 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-widest">Interactive Modeler</span>
-                  <h3 className="font-serif text-3xl font-bold text-white mt-1">Midas Audience Growth & Retention Calculator</h3>
-                </div>
-                <Badge className="bg-orange-500 text-black font-black text-xs px-3 py-1 self-start">
-                  Live Dynamic Simulation
-                </Badge>
-              </div>
-              <p className="text-stone-300 text-sm leading-relaxed max-w-3xl">
-                Adjust the proposed perk inventory allocation below to simulate the projected participant capture, viral squad multiplier, and retained audience base for future Midas productions.
+        {/* TAB 5: DYNAMIC ROI CALCULATOR */}
+        {activeTab === 'calculator' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="max-w-2xl space-y-2">
+              <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                Interactive Modeler
+              </span>
+              <h3 className="font-serif text-3xl font-bold text-white">Audience Growth Calculator</h3>
+              <p className="text-stone-300 text-sm">
+                Adjust the perk allocations below to model projected attendee captures and squad virality.
               </p>
             </div>
 
-            {/* Interactive Sliders & Live Projections */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              {/* Sliders Column */}
-              <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8 space-y-6">
-                <h4 className="font-serif text-xl font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-orange-400" />
-                  <span>Configure Midas Access Drop Allocation</span>
-                </h4>
-
-                {/* Slider 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Controls */}
+              <div className="lg:col-span-7 p-6 sm:p-8 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-6">
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-white">Express Entry Wristbands:</span>
-                    <span className="text-orange-400 font-mono">{expressPassCount} Passes</span>
+                  <div className="flex justify-between text-xs font-mono font-bold">
+                    <span>Express Entry Allocation:</span>
+                    <span className="text-[#ff5a1f]">{expressPassCount} Passes</span>
                   </div>
                   <input
                     type="range"
@@ -632,16 +563,14 @@ export default function MidasCommercialProposal() {
                     step="10"
                     value={expressPassCount}
                     onChange={(e) => setExpressPassCount(Number(e.target.value))}
-                    className="w-full accent-orange-500 bg-white/10 rounded-lg h-2"
+                    className="w-full accent-[#ff5a1f] bg-[#ffffff15] h-2 rounded-sm"
                   />
-                  <span className="text-[11px] text-stone-400 block">Drives early Discovery completions & viral 2-friend referrals.</span>
                 </div>
 
-                {/* Slider 2 */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-white">VIP Viewing Deck Upgrades:</span>
-                    <span className="text-purple-400 font-mono">{vipUpgradeCount} Upgrades</span>
+                  <div className="flex justify-between text-xs font-mono font-bold">
+                    <span>VIP Viewing Deck Upgrades:</span>
+                    <span className="text-[#a855f7]">{vipUpgradeCount} Upgrades</span>
                   </div>
                   <input
                     type="range"
@@ -650,16 +579,14 @@ export default function MidasCommercialProposal() {
                     step="2"
                     value={vipUpgradeCount}
                     onChange={(e) => setVipUpgradeCount(Number(e.target.value))}
-                    className="w-full accent-purple-500 bg-white/10 rounded-lg h-2"
+                    className="w-full accent-[#a855f7] bg-[#ffffff15] h-2 rounded-sm"
                   />
-                  <span className="text-[11px] text-stone-400 block">Rewards top squad builders who bring verified ticket buyers.</span>
                 </div>
 
-                {/* Slider 3 */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span className="text-white">Hosted Drinks Passes (Early Arrival):</span>
-                    <span className="text-emerald-400 font-mono">{drinkTokenCount} Tokens</span>
+                  <div className="flex justify-between text-xs font-mono font-bold">
+                    <span>Hosted Drink Tokens (Early Arrival):</span>
+                    <span className="text-[#10b981]">{drinkTokenCount} Tokens</span>
                   </div>
                   <input
                     type="range"
@@ -668,88 +595,65 @@ export default function MidasCommercialProposal() {
                     step="10"
                     value={drinkTokenCount}
                     onChange={(e) => setDrinkTokenCount(Number(e.target.value))}
-                    className="w-full accent-emerald-500 bg-white/10 rounded-lg h-2"
+                    className="w-full accent-[#10b981] bg-[#ffffff15] h-2 rounded-sm"
                   />
-                  <span className="text-[11px] text-stone-400 block">Incentivizes early check-ins at Plantation Cove before 6:00 PM.</span>
                 </div>
               </div>
 
-              {/* Live Output Cards */}
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-6 sm:p-8 space-y-5 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-mono text-orange-400 font-bold uppercase tracking-wider block">Projected Campaign Yield</span>
-                  <h4 className="font-serif text-2xl font-bold text-white mt-1">Audience Output</h4>
-                </div>
-
+              {/* Projections Card */}
+              <div className="lg:col-span-5 p-6 sm:p-8 rounded-sm bg-[#1a1410] border-2 border-[#ff5a1f] space-y-5 shadow-[8px_8px_0_#ff5a1f22]">
+                <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider block">Projected Campaign Yield</span>
+                
                 <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                    <span className="text-stone-400 text-xs block">Identified Participants:</span>
-                    <strong className="text-2xl font-mono font-black text-white block">{estimatedParticipants.toLocaleString()} attendees</strong>
-                    <span className="text-[10px] text-orange-300 block">Direct verified contact captures</span>
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-stone-400">Identified Attendees:</span>
+                    <strong className="text-3xl font-serif font-black text-white block">{estimatedParticipants.toLocaleString()}</strong>
                   </div>
-
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                    <span className="text-stone-400 text-xs block">Viral Squad Multiplier:</span>
-                    <strong className="text-2xl font-mono font-black text-purple-400 block">{estimatedSquadReferrals.toLocaleString()} touchpoints</strong>
-                    <span className="text-[10px] text-purple-300 block">Secondary reach via WhatsApp crew loops</span>
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-stone-400">Viral WhatsApp Multiplier:</span>
+                    <strong className="text-3xl font-serif font-black text-[#ff5a1f] block">{estimatedSquadReferrals.toLocaleString()} touchpoints</strong>
                   </div>
-
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-                    <span className="text-stone-400 text-xs block">Retained Midas Audience:</span>
-                    <strong className="text-2xl font-mono font-black text-emerald-400 block">{estimatedRetainedAudience.toLocaleString()} members</strong>
-                    <span className="text-[10px] text-emerald-300 block">Direct access for Dream Weekend / future drops</span>
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-stone-400">Retained Midas Audience:</span>
+                    <strong className="text-3xl font-serif font-black text-[#10b981] block">{estimatedRetainedAudience.toLocaleString()} members</strong>
                   </div>
                 </div>
 
                 <Link
                   to="/dashboard/merchant"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg"
+                  className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs py-3 rounded-sm flex items-center justify-center gap-2 uppercase tracking-wider shadow-[4px_4px_0_#000]"
                 >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>Preview Live Analytics Dashboard</span>
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Preview Live Dashboard</span>
                 </Link>
               </div>
-
             </div>
-
           </div>
         )}
 
       </div>
 
-      {/* Commercial Next Steps & CTA Bar */}
-      <section className="mt-16 border-t border-white/10 bg-gradient-to-b from-[#070605] to-[#140a05] pt-12 pb-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center space-y-6">
-          <span className="bg-orange-500/20 text-orange-400 text-xs font-black uppercase px-3.5 py-1.5 rounded-full border border-orange-500/30 font-mono">
-            Commercial Next Action
-          </span>
-          <h2 className="font-serif text-3xl sm:text-5xl font-black text-white">
-            Activate Midas on Promorang
-          </h2>
-          <p className="text-sm sm:text-base text-stone-300 max-w-2xl mx-auto leading-relaxed">
-            Walk through the live interactive demonstration or explore the Plantation Cove venue hub to confirm our Summer 2026 activation.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+      {/* Signature Promorang Commercial Footer */}
+      <footer className="mt-24 border-t-2 border-[#ffffff15] bg-[#070605] py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center sm:text-left">
+            <span className="font-serif font-bold text-lg text-white">PROMORANG <i className="text-[#ff5a1f] not-italic">PRESENTS</i></span>
+            <p className="text-xs text-[#887f74]">Official Activation Protocol · Midas Entertainment Summer 2026</p>
+          </div>
+          <div className="flex items-center gap-4">
             <button
               onClick={() => {
                 sessionStorage.setItem('promorang_midas_demo_active', 'true');
                 navigate('/discover?demo=midas&step=1');
               }}
-              className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all shadow-xl shadow-orange-950 flex items-center gap-2"
+              className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs px-5 py-3 rounded-sm uppercase tracking-wider shadow-[4px_4px_0_#000]"
             >
-              <Play className="w-4 h-4 fill-white" />
-              <span>Start Live Guided Demonstration ➔</span>
+              Start Live Demo Flow ➔
             </button>
-            <Link
-              to="/venues/plantation-cove"
-              className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-6 py-3.5 rounded-2xl text-sm transition-all flex items-center gap-2"
-            >
-              <span>View Plantation Cove Hub</span>
-              <MapPin className="w-4 h-4 text-emerald-400" />
-            </Link>
           </div>
         </div>
-      </section>
+      </footer>
+
     </main>
   );
 }
