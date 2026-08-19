@@ -36,6 +36,7 @@ import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { DiscoveryWidget, DiscoveryProps } from "@/components/radar/DiscoveryWidget";
 import { AskQuestionModal } from "@/components/discovery/AskQuestionModal";
+import { DISCOVERY_POLLS } from "@/data/discoveriesData";
 import { HelpCircle, MessageSquare } from "lucide-react";
 
 type PublicMoment = Tables<"view_public_moment_directory">;
@@ -48,119 +49,7 @@ const categoryFilters = [
   { id: "community", label: "Gatherings & Culture", icon: Users },
 ];
 
-const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [
-  {
-    id: 'disc-arla-tasteoff-001',
-    question: 'Rasta Pasta or Chocolate Chip Mousse: Which one wins the PriceSmart Taste-Off?',
-    category: 'Arla Taste-Off 🍝🍫',
-    authorName: 'Arla Pro × Promorang Scout',
-    totalVotes: 184,
-    thresholdForMoment: 200,
-    options: [
-      { id: 'opt-arla-pasta', text: '🍝 Team Rasta Pasta (Hot & Savoury)', votes: 98 },
-      { id: 'opt-arla-mousse', text: '🍫 Team Chocolate Chip Mousse (Cold & Whipped)', votes: 86 }
-    ]
-  },
-  {
-    id: 'disc-arla-mode-002',
-    question: 'Whip It, Cook It, or Drink It: If you get one carton of Arla Whip & Cook right now, what happens first?',
-    category: 'Product Mode 🍳🍰🥤',
-    authorName: 'Taste Collective Jamaica',
-    totalVotes: 126,
-    thresholdForMoment: 150,
-    options: [
-      { id: 'opt-arla-cook', text: '🍳 Cook It (Alfredo, creamy chicken, seafood pasta)', votes: 58 },
-      { id: 'opt-arla-whip', text: '🍰 Whip It (Mousse, cheesecake, cake toppings)', votes: 46 },
-      { id: 'opt-arla-drink', text: '🥤 Drink It (Strong Back punch, specialty coffee)', votes: 22 }
-    ]
-  },
-  {
-    id: 'disc-arla-price-003',
-    question: 'What would you expect to pay for a 1L cream designed for both cooking AND whipping?',
-    category: 'Price Perception 💡',
-    authorName: 'Retail Intelligence Scout',
-    totalVotes: 158,
-    thresholdForMoment: 160,
-    options: [
-      { id: 'opt-p1', text: 'Under J$1,000', votes: 14 },
-      { id: 'opt-p2', text: 'J$1,000 – J$1,499 (Roadshow Price approx. J$1,200)', votes: 48 },
-      { id: 'opt-p3', text: 'J$1,500 – J$1,999', votes: 52 },
-      { id: 'opt-p4', text: 'J$2,000 – J$2,499', votes: 28 },
-      { id: 'opt-p5', text: 'J$2,500+ (Stated Regular approx. J$2,700)', votes: 16 }
-    ]
-  },
-  {
-    id: 'disc-summer-end-001',
-    question: 'How are you ending summer 2026 in Jamaica?',
-    category: 'Summer Finale ☀️',
-    authorName: 'Promorang Culture Guild',
-    totalVotes: 142,
-    thresholdForMoment: 150,
-    options: [
-      { id: 'opt-se1', text: 'Beach party & oceanfront vibes', votes: 68 },
-      { id: 'opt-se2', text: 'Live concert & conscious stage show', votes: 42 },
-      { id: 'opt-se3', text: 'Club night & high-energy indoor party', votes: 19 },
-      { id: 'opt-se4', text: 'Something chill & food/lounge lyme', votes: 9 },
-      { id: 'opt-se5', text: 'Haven’t decided yet', votes: 4 }
-    ]
-  },
-  {
-    id: 'disc-live-music-002',
-    question: 'What gets you out for a live experience?',
-    category: 'Live Culture 🎤',
-    authorName: 'Midas Live Scout',
-    totalVotes: 98,
-    thresholdForMoment: 100,
-    options: [
-      { id: 'opt-lm1', text: 'Reggae & conscious roots vibration', votes: 44 },
-      { id: 'opt-lm2', text: 'Dancehall energy & top selectors', votes: 29 },
-      { id: 'opt-lm3', text: 'Afrobeats & crossover rhythm', votes: 12 },
-      { id: 'opt-lm4', text: 'Hip Hop & sound clashes', votes: 7 },
-      { id: 'opt-lm5', text: 'Depends strictly on who is performing', votes: 6 }
-    ]
-  },
-  {
-    id: 'disc-debate-001',
-    question: 'Which Kingston jerk spot is undisputed King on a Friday evening?',
-    category: 'Cultural Debate 🔥',
-    authorName: 'Food Scout Jules (@KingstonFoodies)',
-    totalVotes: 112,
-    thresholdForMoment: 120,
-    options: [
-      { id: 'opt-j1', text: 'Sweetwood Jerk Joint (Liguanea)', votes: 48 },
-      { id: 'opt-j2', text: 'Scotchies Jerk Center (Chelsea Ave)', votes: 39 },
-      { id: 'opt-j3', text: 'Boston Jerk Table (Downtown Waterfront)', votes: 16 },
-      { id: 'opt-j4', text: 'Pepperwood Jerk Center (New Kingston)', votes: 9 }
-    ]
-  },
-  {
-    id: 'disc-demand-002',
-    question: 'What should Promorang fund and unlock in Kingston next?',
-    category: 'Demand-to-Supply 🎯',
-    authorName: 'Promorang Kingston Guild',
-    totalVotes: 46,
-    thresholdForMoment: 50,
-    options: [
-      { id: 'opt-1', text: 'Secret Jamaican Food Crawl (Barbican)', votes: 23 },
-      { id: 'opt-2', text: 'Clay & Sip Pottery Workshop (New Kingston)', votes: 12 },
-      { id: 'opt-3', text: 'Sunset Vinyl & High Tea (Strawberry Hill)', votes: 7 },
-      { id: 'opt-4', text: 'Beginner Boxing & Coffee Morning', votes: 4 }
-    ]
-  },
-  {
-    id: 'disc-nightlife-004',
-    question: 'Which Wednesday after-work hangout spot needs exclusive table perks?',
-    category: 'Kingston After Dark 🍸',
-    authorName: 'Fiction Resident DJ & Host',
-    totalVotes: 58,
-    thresholdForMoment: 60,
-    options: [
-      { id: 'opt-n1', text: 'FAT Wednesdays at Tracks & Records', votes: 27 },
-      { id: 'opt-n2', text: 'Tacbar Courtyard Margaritas (Devon House)', votes: 18 },
-      { id: 'opt-n3', text: 'AC Lounge Mixology & Tapas Bar', votes: 13 }
-    ]
-  }
-];
+const DISCOVERY_QUESTIONS_FEED: DiscoveryProps[] = [...DISCOVERY_POLLS];
 
 const formatMomentDate = (value?: string | null) => {
   if (!value) return "TBA";
