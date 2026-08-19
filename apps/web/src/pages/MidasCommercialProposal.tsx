@@ -27,7 +27,11 @@ import {
   Eye,
   Info,
   Clock,
-  Download
+  Download,
+  Megaphone,
+  DollarSign,
+  Coins,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,21 +41,22 @@ export default function MidasCommercialProposal() {
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const navigate = useNavigate();
 
-  const totalChapters = 5;
+  const totalChapters = 6;
 
   const chapterTitles = [
     { num: 1, id: 'why', title: 'Why Look at This', subtitle: 'The $0 Monday Problem' },
     { num: 2, id: 'how', title: 'How It Works', subtitle: 'The 4-Step Fan Journey' },
     { num: 3, id: 'events', title: 'Your Two Events', subtitle: 'Flyers & Aitix Ticketing' },
-    { num: 4, id: 'tour', title: 'Interactive Tour', subtitle: '5-Minute Live Preview' },
-    { num: 5, id: 'deal', title: 'Host Operations & Terms', subtitle: 'Zero Risk Promoter Deal' }
+    { num: 4, id: 'promopush', title: 'PromoPush & Sponsor Revenue', subtitle: 'Host Commissions & Brand ROI' },
+    { num: 5, id: 'tour', title: 'Interactive Tour', subtitle: '5-Minute Live Preview' },
+    { num: 6, id: 'deal', title: 'Host Operations & Terms', subtitle: 'Zero Risk Pilot Deal' }
   ];
 
   return (
     <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans antialiased pb-32">
       <SEO
         title="MIDAS ENTERTAINMENT × PROMORANG — Executive Brief & Commercial Proposal"
-        description="Executive proposal for Midas Entertainment: How Promorang turns event promotion into an owned audience database for Sophisticated and Capleton Encore Live at Plantation Cove."
+        description="Executive proposal for Midas Entertainment: How Promorang turns event promotion into an owned audience database and sponsor revenue engine for Sophisticated and Capleton Encore Live."
         url={getSiteUrl("/proposals/midas")}
       />
 
@@ -153,10 +158,10 @@ export default function MidasCommercialProposal() {
                   The Bottom Line for Midas Leadership
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#f4efe5] leading-[1.08]">
-                  Stop renting attention. <i className="text-[#ff5a1f] font-serif not-italic">Own your crowd forever.</i>
+                  Stop renting attention. <i className="text-[#ff5a1f] font-serif not-italic">Own your crowd & monetize your sponsors.</i>
                 </h1>
                 <p className="text-sm sm:text-base text-stone-300 leading-relaxed max-w-2xl font-normal">
-                  Midas is investing heavily into <strong>Vanessa Bling</strong> and <strong>Capleton</strong> for August 29–30 at Plantation Cove. Once the music stops, Instagram and ticket outlets keep your crowd's contact info. Promorang captures <strong>100% verified phone numbers</strong> and turns one-time ticket buyers into your permanent promoter asset.
+                  Midas is investing heavily into <strong>Vanessa Bling</strong> and <strong>Capleton</strong> for August 29–30 at Plantation Cove. Once the music stops, Instagram and ticket outlets keep your customer data. Promorang captures <strong>100% verified phone numbers</strong>, turns one-time ticket buyers into repeat buyers, and unlocks <strong>host commission revenue</strong> on brand sponsorships through PromoPush.
                 </p>
               </div>
 
@@ -167,7 +172,7 @@ export default function MidasCommercialProposal() {
                     <Info className="w-3.5 h-3.5 text-[#ff5a1f]" /> 1. What is this?
                   </span>
                   <p className="text-xs text-stone-300 leading-relaxed">
-                    A zero-cost audience capture engine that runs alongside your existing flyers and <strong>Aitix ticket links</strong> without changing your operations.
+                    A zero-cost audience capture & sponsor monetization engine that runs alongside your flyers and <strong>Aitix ticket links</strong>.
                   </p>
                 </div>
 
@@ -176,7 +181,7 @@ export default function MidasCommercialProposal() {
                     <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> 2. Why do we need it?
                   </span>
                   <p className="text-xs text-stone-300 leading-relaxed">
-                    On Monday morning, you won't reset to zero. You get a downloadable directory of phone numbers and a <strong>1.8x WhatsApp viral squad multiplier</strong>.
+                    On Monday morning, you won't reset to zero. You get a downloadable directory of phone numbers, a <strong>1.8x viral squad multiplier</strong>, and <strong>PromoPush sponsor commissions</strong>.
                   </p>
                 </div>
 
@@ -556,7 +561,7 @@ export default function MidasCommercialProposal() {
                 onClick={() => setCurrentChapter(4)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 4: Interactive Live Tour</span>
+                <span>Chapter 4: PromoPush & Sponsor Revenue</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -564,13 +569,168 @@ export default function MidasCommercialProposal() {
           </div>
         )}
 
-        {/* CHAPTER 4: INTERACTIVE 5-MINUTE LIVE TOUR */}
+        {/* CHAPTER 4: PROMOPUSH & SPONSOR REVENUE (MONETIZATION & COMMISSIONS) */}
         {currentChapter === 4 && (
           <div className="space-y-10 animate-in fade-in duration-200">
             
             <div className="max-w-3xl space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                  Chapter 4 · Commercial Monetization Engine
+                </span>
+                <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 border border-emerald-500/30 rounded-sm">
+                  REVENUE FOR MIDAS & PROMORANG
+                </span>
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                How PromoPush Monetizes Midas Sponsors
+              </h2>
+              <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
+                Why corporate sponsors (beverage, telecom, lifestyle brands) pay more for Promorang-powered events, and how Midas earns direct commission on every sponsor dollar.
+              </p>
+            </div>
+
+            {/* The 3-Way Value Engine */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* 1. The Sponsor Problem */}
+              <div className="p-6 rounded-sm bg-[#161210] border-2 border-[#ffffff15] space-y-3">
+                <div className="w-9 h-9 rounded-sm bg-[#ff5a1f]/20 text-[#ff5a1f] flex items-center justify-center">
+                  <Megaphone className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white">1. The Sponsor Problem</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Beverage brands (Campari, Wray & Nephew, Red Bull, Heineken) spend millions on static banner logos. They get zero data on who actually drank or visited their booth.
+                </p>
+                <span className="text-[10px] font-mono text-stone-400 block pt-2 border-t border-white/10">Sponsors want proof of foot traffic</span>
+              </div>
+
+              {/* 2. The PromoPush Solution */}
+              <div className="p-6 rounded-sm bg-[#161210] border-2 border-[#ff5a1f]/40 space-y-3">
+                <div className="w-9 h-9 rounded-sm bg-[#ffcf38]/20 text-[#ffcf38] flex items-center justify-center">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white">2. Creator & Attendee Missions</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Sponsors launch performance bounties: partygoers post TikToks/Reels with the cocktail or check in at the sponsor tent to earn cash rewards & points.
+                </p>
+                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">100+ organic UGC videos per event</span>
+              </div>
+
+              {/* 3. Host Commission & Revenue */}
+              <div className="p-6 rounded-sm bg-[#141812] border-2 border-[#10b981]/50 space-y-3 shadow-[6px_6px_0_#10b98122]">
+                <div className="w-9 h-9 rounded-sm bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white">3. 15%–20% Host Commission</h4>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Midas earns a <strong>15%–20% co-revenue commission</strong> on all brand campaign budgets deployed through PromoPush for Sophisticated & Capleton.
+                </p>
+                <span className="text-[10px] font-mono text-emerald-300 block pt-2 border-t border-white/10">Pure incremental revenue for Midas</span>
+              </div>
+
+            </div>
+
+            {/* Prospective Revenue Model Box: How We Both Win */}
+            <div className="rounded-sm border-2 border-[#ff5a1f] bg-[#1a1410] p-6 sm:p-8 space-y-6 shadow-[8px_8px_0_#ff5a1f33]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ffffff15] pb-4">
+                <div>
+                  <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase tracking-wider block">
+                    Financial Economics & ROI Breakdown
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">
+                    "How Does This Make Prospective Revenue For Us?"
+                  </h3>
+                </div>
+                <Badge className="bg-[#ff5a1f] text-white font-mono text-xs px-3 py-1 uppercase tracking-wider self-start sm:self-auto">
+                  Win-Win Economics
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
+                    <Coins className="w-4 h-4 text-[#ffcf38]" />
+                    For Midas (The Event Host)
+                  </strong>
+                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
+                    <li><strong>New Sponsor Pitch Asset:</strong> Sell tech-enabled sampling & UGC packages at 30% higher rates.</li>
+                    <li><strong>15%–20% Revenue Share:</strong> e.g. J$1M sponsor bounty pool = <strong>J$150,000–J$200,000</strong> direct profit to Midas.</li>
+                    <li><strong>Pre-Sold Ticket Velocity:</strong> Squad referral pass codes drive direct ticket buying on Aitix.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
+                    <Award className="w-4 h-4 text-[#10b981]" />
+                    For Corporate Sponsors
+                  </strong>
+                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
+                    <li><strong>Guaranteed Foot Traffic:</strong> Pay only when partygoers actually visit their booth and scan in.</li>
+                    <li><strong>Viral UGC Content:</strong> Hundreds of organic video stories on TikTok, IG Reels & WhatsApp status.</li>
+                    <li><strong>Real Analytics:</strong> Live dashboard showing exact redemptions and reach.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
+                  <strong className="text-white text-sm font-bold block flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#ff5a1f]" />
+                    For Promorang (The Platform)
+                  </strong>
+                  <ul className="space-y-1.5 text-stone-300 list-disc list-inside">
+                    <li><strong>15% Platform Take-Rate:</strong> Earned from sponsor brand budgets deployed through the escrow.</li>
+                    <li><strong>Audience Liquidity:</strong> Active partygoers engaging with Jamaican polls and discovering events.</li>
+                    <li><strong>Long-Term Enterprise Partnership:</strong> Annual multi-event promoter contract with Midas.</li>
+                  </ul>
+                </div>
+
+              </div>
+
+              <div className="p-4 bg-[#0d0c0a] border border-[#ffcf38]/30 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-white block">Want to explore the live PromoPush ecosystem?</span>
+                  <span className="text-[11px] text-stone-400 font-mono">View the promoter commission portal & creator campaigns.</span>
+                </div>
+                <Link
+                  to="/promopush/info"
+                  className="bg-[#ffcf38] hover:bg-[#ffe066] text-black font-mono font-bold text-xs px-4 py-2 rounded-sm uppercase tracking-wider flex items-center gap-1.5 shrink-0"
+                >
+                  <span>Explore PromoPush Hub</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Bottom Chapter Navigation */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentChapter(3)}
+                className="border-white/20 font-mono text-xs uppercase"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                <span>Chapter 3</span>
+              </Button>
+              <Button
+                onClick={() => setCurrentChapter(5)}
+                className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
+              >
+                <span>Chapter 5: Interactive Tour</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+          </div>
+        )}
+
+        {/* CHAPTER 5: INTERACTIVE 5-MINUTE LIVE TOUR */}
+        {currentChapter === 5 && (
+          <div className="space-y-10 animate-in fade-in duration-200">
+            
+            <div className="max-w-3xl space-y-2">
               <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
-                Chapter 4 · Interactive Walkthrough
+                Chapter 5 · Interactive Walkthrough
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
                 Test the 5 Live Platform Nodes Right Now
@@ -630,17 +790,17 @@ export default function MidasCommercialProposal() {
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
               <Button
                 variant="outline"
-                onClick={() => setCurrentChapter(3)}
+                onClick={() => setCurrentChapter(4)}
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 3</span>
+                <span>Chapter 4</span>
               </Button>
               <Button
-                onClick={() => setCurrentChapter(5)}
+                onClick={() => setCurrentChapter(6)}
                 className="bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase px-5 py-3 rounded-sm flex items-center gap-1.5"
               >
-                <span>Chapter 5: Terms & Next Steps</span>
+                <span>Chapter 6: Terms & Next Steps</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -648,13 +808,13 @@ export default function MidasCommercialProposal() {
           </div>
         )}
 
-        {/* CHAPTER 5: HOST OPERATIONS & TERMS (ZERO RISK PILOT) */}
-        {currentChapter === 5 && (
+        {/* CHAPTER 6: HOST OPERATIONS & TERMS (ZERO RISK PILOT) */}
+        {currentChapter === 6 && (
           <div className="space-y-10 animate-in fade-in duration-200">
             
             <div className="max-w-3xl space-y-2">
               <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
-                Chapter 5 · Commercial Agreement & Next Steps
+                Chapter 6 · Commercial Agreement & Next Steps
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
                 Zero-Risk Pilot Terms for August 29–30
@@ -679,6 +839,10 @@ export default function MidasCommercialProposal() {
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                     <span><strong>1.8x WhatsApp Referral Engine:</strong> Native pass forwarding driving direct ticket sales on Aitix.</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>PromoPush Sponsor Monetization:</strong> 15%–20% commission on corporate brand activation budgets.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -737,11 +901,11 @@ export default function MidasCommercialProposal() {
             <div className="pt-4 flex items-center justify-between border-t border-white/10">
               <Button
                 variant="outline"
-                onClick={() => setCurrentChapter(4)}
+                onClick={() => setCurrentChapter(5)}
                 className="border-white/20 font-mono text-xs uppercase"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                <span>Chapter 4</span>
+                <span>Chapter 5</span>
               </Button>
               <Button
                 onClick={() => setCurrentChapter(1)}
