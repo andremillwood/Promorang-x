@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   AlertTriangle,
   Ban,
+  ChevronLeft,
+  ChevronRight,
   Mail,
   MoreHorizontal,
   Search,
@@ -109,6 +111,59 @@ export function AdminUsersTab() {
   const [roleDialog, setRoleDialog] = useState<{ userId: string; action: "add" | "remove" } | null>(null);
   const [suspensionDialog, setSuspensionDialog] = useState<{ user: UserWithProfile; nextSuspended: boolean } | null>(null);
   const [suspensionReason, setSuspensionReason] = useState("");
+
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const stickyScrollRef = useRef<HTMLDivElement>(null);
+  const [tableScrollWidth, setTableScrollWidth] = useState(1020);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Synchronize table scroll to sticky scrollbar
+  const handleTableScroll = () => {
+    if (!tableScrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
+    if (stickyScrollRef.current && Math.abs(stickyScrollRef.current.scrollLeft - scrollLeft) > 1) {
+      stickyScrollRef.current.scrollLeft = scrollLeft;
+    }
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  // Synchronize sticky scrollbar to table
+  const handleStickyScroll = () => {
+    if (!stickyScrollRef.current || !tableScrollRef.current) return;
+    const { scrollLeft } = stickyScrollRef.current;
+    if (Math.abs(tableScrollRef.current.scrollLeft - scrollLeft) > 1) {
+      tableScrollRef.current.scrollLeft = scrollLeft;
+    }
+  };
+
+  const scrollTable = (direction: "left" | "right") => {
+    if (!tableScrollRef.current) return;
+    const amount = 320;
+    tableScrollRef.current.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (tableScrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
+        setTableScrollWidth(scrollWidth);
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+    updateWidth();
+    const timer = setTimeout(updateWidth, 100);
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [filteredUsers]);
 
   const filteredUsers = useMemo(() => {
     return (users || []).filter((user) => {
@@ -255,8 +310,12 @@ export function AdminUsersTab() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="hidden overflow-x-auto lg:block">
+      <div className="relative rounded-xl border border-border bg-card shadow-sm">
+        <div
+          ref={tableScrollRef}
+          onScroll={handleTableScroll}
+          className="hidden overflow-x-auto rounded-t-xl lg:block scrollbar-none"
+        >
           <table className="w-full min-w-[1020px]">
             <thead>
               <tr className="border-b border-border bg-muted/30">
@@ -403,6 +462,61 @@ export function AdminUsersTab() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Sticky floating horizontal scroll toolbar pinned to the bottom of the viewport */}
+        <div className="sticky bottom-0 z-30 hidden items-center justify-between gap-4 rounded-b-xl border-t border-border/80 bg-card/95 px-4 py-2 backdrop-blur shadow-[0_-6px_16px_rgba(0,0,0,0.25)] lg:flex">
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2.5 text-xs font-semibold"
+              onClick={() => scrollTable("left")}
+              disabled={!canScrollLeft}
+              title="Scroll left"
+            >
+              <ChevronLeft className="mr-1 h-3.5 w-3.5" />
+              Left
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2.5 text-xs font-semibold"
+              onClick={() => scrollTable("right")}
+              disabled={!canScrollRight}
+              title="Scroll right"
+            >
+              Right
+              <ChevronRight className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <div
+            ref={stickyScrollRef}
+            onScroll={handleStickyScroll}
+            className="flex-1 overflow-x-auto py-1"
+          >
+            <div style={{ width: `${tableScrollWidth}px` }} className="h-1" />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-medium text-[11px] hidden xl:inline">User pinned left</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-semibold text-primary hover:bg-primary/10 hover:text-primary"
+              onClick={() => {
+                if (tableScrollRef.current) {
+                  tableScrollRef.current.scrollTo({
+                    left: canScrollRight ? tableScrollWidth : 0,
+                    behavior: "smooth",
+                  });
+                }
+              }}
+            >
+              {canScrollRight ? "Actions →" : "← Reset"}
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-3 p-4 lg:hidden">
