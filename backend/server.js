@@ -79,39 +79,47 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
     'https://promorang.co',
     'https://www.promorang.co',
     'https://promorang-alt.vercel.app',
+    'https://promorang-alt-andremillwood.vercel.app',
     process.env.FRONTEND_URL,
-    ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : [])
+    ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim()) : [])
   ].filter(Boolean);
 
   const origin = req.headers.origin;
 
-  // In development mode, allow any origin (for Replit proxy support)
-  // In production, only allow whitelisted origins
-  if (process.env.NODE_ENV === 'development') {
-    // When there's an origin header, echo it back
-    // When there's no origin (same-origin requests), use '*'
-    if (origin) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    } else {
-      res.setHeader('Access-Control-Allow-Origin', '*');
+  const isAllowedOrigin = (orig) => {
+    if (!orig) return true;
+    if (allowedOrigins.includes(orig)) return true;
+    try {
+      const parsed = new URL(orig);
+      if (parsed.hostname === 'promorang.co' || parsed.hostname.endsWith('.promorang.co')) return true;
+      if (parsed.hostname.endsWith('.vercel.app')) return true;
+    } catch {
+      // invalid url
     }
-  } else if (origin && allowedOrigins.includes(origin)) {
+    return false;
+  };
+
+  if (origin && (process.env.NODE_ENV === 'development' || isAllowedOrigin(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Version, X-Advertiser-Account-Id, X-Merchant-Account-Id');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   next();
@@ -144,7 +152,9 @@ app.use(express.urlencoded({
 
 // Log request body for debugging
 app.use((req, res, next) => {
-  console.log('Request body:', req.body);
+  const safeBody = req.body && typeof req.body === 'object' ? { ...req.body } : req.body;
+  for (const key of ['manage_token', 'password', 'token', 'secret', 'email', 'phone', 'answers']) if (safeBody?.[key]) safeBody[key] = '[REDACTED]';
+  console.log('Request body:', safeBody);
   next();
 });
 
@@ -170,6 +180,8 @@ app.use('/api/maturity', require('./api/maturity'));
 app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/growth-ops', require('./api/growth-ops'));
+app.use('/api/leads', require('./api/leads'));
+app.use('/api/presents', require('./api/presents'));
 // app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/platform-drops', require('./api/platform-drops'));
 // app.use('/api/shares', shares);
@@ -181,6 +193,7 @@ app.use('/api/commerce', require('./api/commerce'));
 app.use('/api/telemetry', require('./api/telemetry'));
 app.use('/api/feed', require('./api/feed'));
 app.use('/api/events', require('./api/events'));
+app.use('/api/guest-rsvp', require('./api/guest-rsvp'));
 
 app.use('/api/rewards', require('./api/rewards'));
 app.use('/api/pioneer-points', require('./api/pioneer-points'));
@@ -197,10 +210,16 @@ app.use('/api/search', require('./api/search'));
 app.use('/api/matchmaking', require('./api/matchmaking'));
 app.use('/api/operator', require('./api/operator'));
 app.use('/api/campaigns', require('./api/campaigns'));
+app.use('/api/demand-plans', require('./api/demand-plans'));
 app.use('/api/manychat', require('./api/manychat'));
+app.use('/api/merchant', require('./api/merchant'));
 
 app.use('/api/kyc', require('./api/kyc'));
 app.use('/api/admin', require('./api/admin'));
+app.use('/api/roles', require('./api/roles'));
+app.use('/api/host-applications', require('./api/host-applications'));
+app.use('/api/promopush', require('./api/promopush'));
+app.use('/api/payouts', require('./api/payouts'));
 app.use('/api/support', require('./api/support'));
 app.use('/api/moments', require('./api/moments'));
 app.use('/api/moments', require('./api/moment-pricing')); // Moment SKU pricing endpoints
@@ -211,6 +230,7 @@ app.use('/api/participation', require('./api/participation'));
 app.use('/api/pulse', require('./api/pulse'));
 app.use('/api/proof', require('./api/proof'));
 app.use('/api/memories', require('./api/memories'));
+app.use('/api/vault', require('./api/memories'));
 app.use('/api/impact', require('./api/impact'));
 app.use('/api/creator-economics', require('./api/creator-economics'));
 app.use('/api/analytics', require('./api/analytics'));
@@ -219,6 +239,7 @@ app.use('/api/promoshare', require('./api/promoshare'));
 app.use('/api/content-distribution', require('./api/content-distribution'));
 app.use('/api/featured-marketplace', require('./api/featured-marketplace'));
 app.use('/api/today', require('./api/today')); // Daily Layer Today Screen
+app.use('/api/market-construction', require('./api/market-construction')); // Market construction & persistent scenes
 app.use('/api/cron', require('./api/cron')); // Serverless cron entrypoints
 app.use('/api/email', require('./api/email')); // Email event entrypoints
 const errorHandlers = require('./api/errors');

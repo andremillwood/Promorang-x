@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,10 +16,6 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { cultureEvents } from "@/data/culture-demo";
-import ForYou from "@/pages/ForYou";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 type PulseMoment = {
   id: string;
@@ -32,27 +29,9 @@ type PulseMoment = {
   city?: string | null;
   slug?: string;
   isSample?: boolean;
+  image_url?: string | null;
+  public_path?: string | null;
 };
-
-const publicPulseMoments: PulseMoment[] = cultureEvents.slice(0, 5).map((event, index) => {
-  const states = ["live", "forming", "forming", "cooling", "forming"] as const;
-  const targets = [180, 120, 90, 140, 75];
-  const progress = [180, 82, 54, 126, 31];
-
-  return {
-    id: event.momentId,
-    slug: event.slug,
-    title: event.title,
-    venue_name: event.place,
-    pulse_state: states[index],
-    gathering_threshold: targets[index],
-    threshold_progress: progress[index],
-    starts_at: new Date(Date.now() + index * 3_600_000).toISOString(),
-    reward: event.reward,
-    city: event.city,
-    isSample: true,
-  };
-});
 
 const pulseTone = {
   dormant: "border-border/70 bg-card text-muted-foreground",
@@ -97,7 +76,7 @@ const getProgressPercent = (moment: PulseMoment) => {
   return Math.min((progress / threshold) * 100, 100);
 };
 
-const PulseCard = ({ moment, featured = false, image }: { moment: PulseMoment; featured?: boolean; image?: string }) => {
+const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured?: boolean }) => {
   const pulseState = (moment.pulse_state || "dormant") as keyof typeof pulseTone;
   const stateClasses = pulseTone[pulseState] || pulseTone.dormant;
   const progressPercent = getProgressPercent(moment);
@@ -107,14 +86,14 @@ const PulseCard = ({ moment, featured = false, image }: { moment: PulseMoment; f
 
   return (
     <Link
-      to={moment.isSample && moment.slug ? `/events/${moment.slug}` : `/moments/${moment.id}`}
-      className={`group block overflow-hidden rounded-2xl border bg-black text-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 ${
+      to={moment.public_path || (moment.isSample && moment.slug ? `/events/${moment.slug}` : `/moments/${moment.id}`)}
+      className={`group block overflow-hidden rounded-2xl border bg-black text-white transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 hover:-translate-y-1 hover:border-primary/50 ${
         featured ? "border-primary/35 shadow-[0_24px_80px_rgba(0,0,0,.35)]" : "border-white/10"
       }`}
     >
       <div className={featured ? "grid md:grid-cols-[1.05fr_.95fr]" : ""}>
         <div className={featured ? "relative min-h-72 overflow-hidden" : "relative aspect-[16/9] overflow-hidden"}>
-          <img src={image || cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" />
+          {moment.image_url ? <img src={moment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.28),transparent_36%),linear-gradient(145deg,#251811,#090909_64%)]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute left-4 top-4 flex items-center gap-2">
             <Badge className={stateClasses}>{moment.pulse_state || "dormant"}</Badge>
@@ -161,7 +140,7 @@ const PulseCard = ({ moment, featured = false, image }: { moment: PulseMoment; f
 
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${
+                className={`h-full rounded-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500 ${
                   isLive ? "bg-emerald-500" : "bg-gradient-primary"
                 }`}
                 style={{ width: `${progressPercent}%` }}
@@ -221,7 +200,7 @@ const PulseSection = ({
 
       <div className="grid gap-4 xl:grid-cols-2">
         {moments.map((moment, index) => (
-          <PulseCard key={moment.id} moment={moment} featured={index === 0} image={cultureEvents[index % cultureEvents.length]?.image} />
+          <PulseCard key={moment.id} moment={moment} featured={index === 0} />
         ))}
       </div>
     </section>
@@ -229,31 +208,48 @@ const PulseSection = ({
 };
 
 const Pulse = () => {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery<PulseMoment[]>({
     queryKey: ["pulse-live", user?.id],
-    enabled: !!user && !!session,
     queryFn: async () => {
-      const response = await fetch(`${API_URL}/api/pulse/live?limit=24`, {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to load pulse feed");
-      }
-
-      return payload?.moments || [];
+      const [momentResult, publicationResult] = await Promise.all([
+        supabase
+          .from("moments")
+          .select("id,title,venue_name,pulse_state,gathering_threshold,starts_at,reward,city,image_url,content_origin")
+          .in("pulse_state", ["forming", "live", "cooling"])
+          .eq("is_active", true)
+          .eq("content_origin", "stakeholder_created")
+          .order("starts_at", { ascending: true })
+          .limit(24),
+        (supabase as any)
+          .from("promopilot_publications")
+          .select("id,campaign_id,title,location,starts_at,participant_limit,public_path,status,metadata")
+          .eq("surface", "pulse")
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(24),
+      ]);
+      const { data: moments, error: pulseError } = momentResult;
+      if (pulseError) throw pulseError;
+      if (publicationResult.error && publicationResult.error.code !== "42P01") throw publicationResult.error;
+      const publications = (publicationResult.data || []).map((item: any) => ({
+        id: `campaign:${item.campaign_id}`,
+        title: item.title,
+        venue_name: item.location,
+        city: item.location,
+        starts_at: item.starts_at,
+        gathering_threshold: item.participant_limit,
+        threshold_progress: 0,
+        pulse_state: "forming",
+        public_path: item.public_path,
+        content_origin: "promopilot",
+      }));
+      return [...publications, ...((moments || []) as PulseMoment[])];
     },
   });
 
-  const pulseMoments = useMemo(
-    () => (user ? data || [] : publicPulseMoments),
-    [data, user],
-  );
+  const pulseMoments = useMemo(() => (data || []).filter((moment) => !moment.isSample && !String(moment.id).startsWith("demo-")), [data]);
   const liveMoments = useMemo(
     () => pulseMoments.filter((moment) => moment.pulse_state === "live"),
     [pulseMoments],
@@ -275,13 +271,10 @@ const Pulse = () => {
     0,
   );
 
-  // Pulse remains a public window; once signed in, the ranked living feed is home.
-  if (user) return <ForYou />;
-
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-5 text-white sm:space-y-10 sm:px-6 sm:py-8">
       <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black">
-        <img src={cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(255,105,0,.24),transparent_30%),linear-gradient(135deg,#24150e,#050505_62%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(255,105,0,.22),transparent_28%),linear-gradient(90deg,#050505_8%,rgba(5,5,5,.88)_48%,rgba(5,5,5,.36))]" />
         <div className="relative grid min-h-[460px] gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_390px] lg:items-end lg:p-12">
           <div>

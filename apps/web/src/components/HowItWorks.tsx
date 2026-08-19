@@ -57,7 +57,7 @@ const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative overflow-hidden text-center p-8 rounded-2xl bg-card border border-border/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated"
+              className="group relative overflow-hidden text-center p-8 rounded-2xl bg-card border border-border/60 shadow-sm transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 hover:-translate-y-1 hover:shadow-elevated"
             >
               <div className="absolute inset-x-8 top-0 h-1 rounded-b-full bg-gradient-primary opacity-80" />
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary text-primary-foreground mb-6 shadow-lg shadow-primary/20 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">

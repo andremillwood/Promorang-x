@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Coins, Gift, KeyRound, MapPin, Search, ShieldCheck, Sparkles, Tag } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
@@ -160,9 +161,18 @@ const ExploreRewards = () => {
                 <h1 className="font-serif text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                   Explore the reward economy behind the moments.
                 </h1>
-                <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-                  Promorang rewards are not a generic coupon list. They sit inside proof loops, keys, points, and eligibility rules that connect action to value.
-                </p>
+                <GuidanceDisclosure
+                  id="explore-rewards:reward-economy"
+                  eyebrow="Reward guide"
+                  title="How rewards connect action to value"
+                  summary="Rewards sit inside proof loops, keys, points, and eligibility rules rather than a generic coupon list."
+                  className="mt-4"
+                  tone="light"
+                >
+                  <p className="text-sm text-muted-foreground sm:text-base">
+                    Promorang rewards are not a generic coupon list. They sit inside proof loops, keys, points, and eligibility rules that connect action to value.
+                  </p>
+                </GuidanceDisclosure>
               </div>
               <div className="rounded-2xl border border-emerald-500/15 bg-background/80 p-4 text-sm text-muted-foreground shadow-soft">
                 <p className="font-semibold text-foreground">{user ? "Signed in" : "Guest mode"}</p>
@@ -194,29 +204,38 @@ const ExploreRewards = () => {
             ))}
           </div>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <Card className="shadow-soft">
-              <CardContent className="p-5">
-                <Coins className="mb-3 h-5 w-5 text-amber-500" />
-                <p className="font-semibold text-foreground">Points</p>
-                <p className="mt-2 text-sm text-muted-foreground">Activity can earn points. Those points contribute to access and progression rather than acting like raw cash.</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-soft">
-              <CardContent className="p-5">
-                <KeyRound className="mb-3 h-5 w-5 text-primary" />
-                <p className="font-semibold text-foreground">Keys</p>
-                <p className="mt-2 text-sm text-muted-foreground">Keys gate higher-value opportunities and turn participation history into selective access.</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-soft">
-              <CardContent className="p-5">
-                <ShieldCheck className="mb-3 h-5 w-5 text-emerald-600" />
-                <p className="font-semibold text-foreground">Proof and Eligibility</p>
-                <p className="mt-2 text-sm text-muted-foreground">Some rewards are instant, some depend on proof review, and some depend on longer maturity or redemption controls.</p>
-              </CardContent>
-            </Card>
-          </div>
+          <GuidanceDisclosure
+            id="explore-rewards:points-keys-proof"
+            eyebrow="Eligibility guide"
+            title="How points, keys, and proof shape rewards"
+            summary="Some rewards are instant; others depend on proof review, maturity, or redemption controls."
+            className="mt-8"
+            tone="light"
+          >
+            <div className="grid gap-5 md:grid-cols-3">
+              <Card className="shadow-soft">
+                <CardContent className="p-5">
+                  <Coins className="mb-3 h-5 w-5 text-amber-500" />
+                  <p className="font-semibold text-foreground">Points</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Activity can earn points. Those points contribute to access and progression rather than acting like raw cash.</p>
+                </CardContent>
+              </Card>
+              <Card className="shadow-soft">
+                <CardContent className="p-5">
+                  <KeyRound className="mb-3 h-5 w-5 text-primary" />
+                  <p className="font-semibold text-foreground">Keys</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Keys gate higher-value opportunities and turn participation history into selective access.</p>
+                </CardContent>
+              </Card>
+              <Card className="shadow-soft">
+                <CardContent className="p-5">
+                  <ShieldCheck className="mb-3 h-5 w-5 text-emerald-600" />
+                  <p className="font-semibold text-foreground">Proof and Eligibility</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Some rewards are instant, some depend on proof review, and some depend on longer maturity or redemption controls.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </GuidanceDisclosure>
 
           <div className="mt-8 rounded-[1.5rem] border border-border bg-card/80 p-4 shadow-soft">
             <div className="relative">
@@ -234,7 +253,7 @@ const ExploreRewards = () => {
                   key={type.value}
                   type="button"
                   onClick={() => setActiveRewardType(type.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     activeRewardType === type.value
                       ? "bg-emerald-600 text-white"
                       : "bg-secondary hover:bg-secondary/80"
@@ -250,7 +269,7 @@ const ExploreRewards = () => {
                   key={source.value}
                   type="button"
                   onClick={() => setActiveSource(source.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     activeSource === source.value
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary hover:bg-secondary/80"

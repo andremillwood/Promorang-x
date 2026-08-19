@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
 
 interface AppLayoutProps {
@@ -37,18 +38,27 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     // Define routes that should always use the marketing layout or NO layout
     const marketingRoutes = [
-        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants",
+        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
-        "/economy", "/promopush/info", "/careers", "/go"
+        "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
     ) || ["/growth", "/organizer"].includes(location.pathname);
 
+    // Organizer sub-routes provide their own full workspace shell. Rendering them
+    // inside DashboardLayout creates a participant sidebar/header around the
+    // organizer sidebar and constrains the workspace inside a second container.
+    const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
+
     // Auth and Onboarding are special "clean" pages
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname);
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
+
+    if (isOrganizerWorkspace) {
+        return <>{children || <Outlet />}</>;
+    }
 
     // If we are on a marketing route, we MUST NOT wrap with DashboardLayout
     // DashboardLayout contains its own Header/Footer logic which might be conflicting
@@ -76,6 +86,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return (
             <DashboardLayout currentRole={(activeRole || "participant") as any}>
                 {children || <Outlet />}
+                <PWAInstallPrompt />
             </DashboardLayout>
         );
     }
@@ -94,6 +105,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 currentRank={currentRank || 0}
                 onClose={() => setShowRankCelebration(false)}
             />
+            <PWAInstallPrompt />
         </div>
     );
 };

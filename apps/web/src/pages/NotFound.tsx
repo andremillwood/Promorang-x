@@ -25,13 +25,13 @@ const NotFound = () => {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Button asChild variant="hero" size="lg" className="w-full rounded-2xl shadow-soft hover:shadow-primary/20 transition-all duration-300">
+          <Button asChild variant="hero" size="lg" className="w-full rounded-2xl shadow-soft hover:shadow-primary/20 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300">
             <Link to="/explore/moments">
               <Compass className="w-4 h-4 mr-2" />
               Explore Moments
             </Link>
           </Button>
-          <Button variant="outline" size="lg" className="w-full rounded-2xl bg-background/50 backdrop-blur-sm border-border/50 hover:bg-muted/50 transition-all duration-200" onClick={() => navigate(-1)}>
+          <Button variant="outline" size="lg" className="w-full rounded-2xl bg-background/50 backdrop-blur-sm border-border/50 hover:bg-muted/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
           </Button>

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { supabase } = require('../lib/supabase');
 const contentDistributionService = require('../services/contentDistributionService');
 
 router.get('/campaigns', async (req, res) => {
@@ -26,6 +27,40 @@ router.get('/campaigns/:campaignId', async (req, res) => {
   } catch (error) {
     console.error('[Content Distribution] get campaign failed:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch content distribution campaign' });
+  }
+});
+
+router.get('/campaigns/:campaignId/context', optionalAuth, async (req, res) => {
+  try {
+    const campaign = await contentDistributionService.getCampaignDetail(req.params.campaignId);
+    if (!campaign) return res.status(404).json({ success: false, error: 'Content drop not found' });
+    const primary = campaign.content_distribution_assets?.[0] || null;
+    const contentId = primary?.content_item_id || null;
+    const userId = req.user?.id || null;
+    const [momentResult, ownerResult, sponsorResult, productsResult, statsResult, positionResult] = await Promise.all([
+      campaign.linked_moment_id ? supabase.from('moments').select('id,title,location,image_url,starts_at,host_id').eq('id', campaign.linked_moment_id).maybeSingle() : Promise.resolve({ data: null }),
+      campaign.owner_id ? supabase.from('profiles').select('id,display_name,username,avatar_url').eq('id', campaign.owner_id).maybeSingle() : Promise.resolve({ data: null }),
+      campaign.sponsor_id ? supabase.from('brand_profiles').select('id,company_name,logo_url').eq('id', campaign.sponsor_id).maybeSingle() : Promise.resolve({ data: null }),
+      campaign.linked_moment_id ? supabase.from('merchant_products').select('id,name,image_url,price,currency').eq('linked_moment_id', campaign.linked_moment_id).eq('is_active', true).limit(8) : Promise.resolve({ data: [] }),
+      contentId ? supabase.from('content_piece_stats').select('current_price,change_24h,volume_24h').eq('content_id', contentId).maybeSingle() : Promise.resolve({ data: null }),
+      contentId && userId ? supabase.from('content_piece_positions').select('pieces_owned').eq('content_id', contentId).eq('holder_id', userId).maybeSingle() : Promise.resolve({ data: null }),
+    ]);
+    const stakeholders = [];
+    if (ownerResult.data) stakeholders.push({ id: ownerResult.data.id, role: 'creator', name: ownerResult.data.display_name || ownerResult.data.username || 'Creator', image_url: ownerResult.data.avatar_url });
+    if (sponsorResult.data) stakeholders.push({ id: sponsorResult.data.id, role: 'brand', name: sponsorResult.data.company_name || 'Brand partner', image_url: sponsorResult.data.logo_url });
+    res.json({ success: true, data: {
+      campaign_id: campaign.id,
+      content_id: contentId,
+      original_url: primary?.target_url || null,
+      moment: momentResult.data || null,
+      stakeholders,
+      commerce: productsResult.data || [],
+      piece: statsResult.data ? { ...statsResult.data, user_quantity: Number(positionResult.data?.pieces_owned || 0) } : null,
+      promoshare: { enabled: campaign.promoshare_config?.enabled !== false, entries_per_action: Number(campaign.promoshare_config?.entries_per_action || 1) },
+    } });
+  } catch (error) {
+    console.error('[Content Distribution] context failed:', error);
+    res.status(500).json({ success: false, error: 'Failed to load content context' });
   }
 });
 

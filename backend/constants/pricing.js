@@ -23,6 +23,8 @@ const CREATOR_TIERS = {
             'Basic analytics',
         ],
         constraints: {
+            pointsMultiplier: 1,
+            dailyMasterKeyProofs: 5,
             promoKeysLimited: true,
             monthlyGemCeiling: 300,
             withdrawalsEnabled: false,
@@ -43,6 +45,8 @@ const CREATOR_TIERS = {
             'Advanced analytics',
         ],
         constraints: {
+            pointsMultiplier: 1.5,
+            dailyMasterKeyProofs: 2,
             promoKeysLimited: false,
             monthlyGemCeiling: null,
             withdrawalsEnabled: true,
@@ -63,6 +67,8 @@ const CREATOR_TIERS = {
             'Highest PromoShare yield',
         ],
         constraints: {
+            pointsMultiplier: 2,
+            dailyMasterKeyProofs: 1,
             promoKeysLimited: false,
             monthlyGemCeiling: null,
             withdrawalsEnabled: true,
@@ -70,6 +76,20 @@ const CREATOR_TIERS = {
         },
     },
 };
+
+// Historical labels remain accepted so existing accounts keep the same economics.
+const CREATOR_TIER_ALIASES = Object.freeze({
+    free: 'starter',
+    starter: 'starter',
+    plus: 'professional',
+    premium: 'professional',
+    pro: 'professional',
+    professional: 'professional',
+    elite: 'power_user',
+    super: 'power_user',
+    power: 'power_user',
+    power_user: 'power_user',
+});
 
 // ============================================================================
 // ADVERTISER SUBSCRIPTION TIERS (Move-Based)
@@ -281,7 +301,8 @@ const MOVE_RULES = {
 // HELPERS
 // ============================================================================
 
-const getCreatorTier = (tierId) => CREATOR_TIERS[tierId] || CREATOR_TIERS.starter;
+const normalizeCreatorTier = (tierId) => CREATOR_TIER_ALIASES[String(tierId || '').toLowerCase()] || 'starter';
+const getCreatorTier = (tierId) => CREATOR_TIERS[normalizeCreatorTier(tierId)];
 const getAdvertiserTier = (tierId) => ADVERTISER_TIERS[tierId] || ADVERTISER_TIERS.free;
 
 const getCreatorTierList = () => Object.values(CREATOR_TIERS);
@@ -293,10 +314,12 @@ const getAdvertiserTierList = () => Object.values(ADVERTISER_TIERS);
 
 module.exports = {
     CREATOR_TIERS,
+    CREATOR_TIER_ALIASES,
     ADVERTISER_TIERS,
     ESCROW_RULES,
     MOVE_RULES,
     getCreatorTier,
+    normalizeCreatorTier,
     getAdvertiserTier,
     getCreatorTierList,
     getAdvertiserTierList,

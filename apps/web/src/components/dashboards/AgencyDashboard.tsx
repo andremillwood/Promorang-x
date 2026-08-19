@@ -4,6 +4,7 @@ import { BrandImpactDashboard } from "@/components/brand/BrandImpactDashboard";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { QuickAddClient } from "@/components/agency/QuickAddClient";
 import { DashboardHero } from "@/components/dashboard/DashboardSurface";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useDeleteAgencyRelationship, useAgencyRelationships } from "@/hooks/useAgencyClients";
@@ -11,14 +12,13 @@ import {
   ArrowRight,
   Briefcase,
   Building2,
-  Link2,
-  Plus,
   Sparkles,
   Store,
   TrendingUp,
-  Users,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const roleTone = {
   brand: {
@@ -33,7 +33,17 @@ const roleTone = {
   },
 } as const;
 
+type ClientCampaign = {
+  id: string;
+  title: string;
+  organization_id: string | null;
+  is_active: boolean;
+  redemptions: number;
+  updated_at: string;
+};
+
 const AgencyDashboard = () => {
+  const [activeTab, setActiveTab] = useState("clients");
   const { agencyClients, organizations, activeOrgId, setActiveOrgId, setActiveRole, refreshWorkspaceContext } = useAuth();
   const { toast } = useToast();
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
@@ -45,6 +55,26 @@ const AgencyDashboard = () => {
 
   const brandClients = agencyClients.filter((client) => client.type === "brand").length;
   const venueClients = agencyClients.filter((client) => client.type === "merchant").length;
+  const brandClientIds = agencyClients.filter((client) => client.type === "brand").map((client) => client.id);
+  const clientCampaignQuery = useQuery({
+    queryKey: ["agency-client-campaigns", activeOrgId, brandClientIds.join(",")],
+    enabled: brandClientIds.length > 0,
+    queryFn: async () => {
+      // Generated client types lag the organization_id campaign migration.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from("campaigns")
+        .select("id, title, organization_id, is_active, redemptions, updated_at")
+        .in("organization_id", brandClientIds)
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as ClientCampaign[];
+    },
+  });
+  const clientCampaigns = clientCampaignQuery.data || [];
+  const activeClientCampaigns = clientCampaigns.filter((campaign) => campaign.is_active);
+  const provenClientCampaigns = clientCampaigns.filter((campaign) => Number(campaign.redemptions || 0) > 0);
+  const pendingRelationships = (relationshipQuery.data?.relationships || []).filter((relationship) => relationship.status === "pending").length;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -53,18 +83,59 @@ const AgencyDashboard = () => {
         title="Operate multi-client work from one proof layer"
         description={`${activeOrg?.name || "Agency portfolio"} brings client activations, collaborator matching, and verified outcomes into one client-ready view.`}
         actions={[
-          { label: "Agency story", href: "/for-agencies", icon: Sparkles },
-          { label: "Create campaign", href: "/create/campaign", icon: Plus },
+          agencyClients.length === 0
+            ? { label: "Connect your first client", onClick: () => setActiveTab("clients"), icon: Building2 }
+            : clientCampaigns.length === 0
+              ? { label: "Choose a client to activate", onClick: () => setActiveTab("clients"), icon: Building2 }
+              : provenClientCampaigns.length > 0
+                ? { label: "Package client proof", onClick: () => setActiveTab("impact"), icon: TrendingUp }
+                : { label: "Review active client work", onClick: () => setActiveTab("activations"), icon: Sparkles },
+          { label: "Open client portfolio", onClick: () => setActiveTab("clients"), icon: Briefcase },
+          { label: "Choose client workspace", onClick: () => setActiveTab("clients"), icon: Building2 },
+          { label: "Review client impact", onClick: () => setActiveTab("impact"), icon: TrendingUp },
         ]}
         stats={[
           { label: "Client Accounts", value: agencyClients.length.toString(), helper: "Managed directly", icon: Briefcase, accentClass: "text-primary-light" },
           { label: "Brand Clients", value: brandClients.toString(), helper: "Brand relationships", icon: Building2, accentClass: "text-sky-300" },
           { label: "Venue Clients", value: venueClients.toString(), helper: "Venue relationships", icon: Store, accentClass: "text-emerald-300" },
-          { label: "Operating Mode", value: "Managed", helper: "Agency-led operations", icon: Link2, accentClass: "text-amber-300" },
+          { label: "Live Activations", value: activeClientCampaigns.length.toString(), helper: "Across connected clients", icon: Sparkles, accentClass: "text-amber-300" },
+          { label: "Proven Results", value: provenClientCampaigns.length.toString(), helper: "Ready for client review", icon: TrendingUp, accentClass: "text-emerald-300" },
+        ]}
+        isLoading={clientCampaignQuery.isLoading}
+      />
+
+      <DashboardWorkspaceNav
+        eyebrow="Agency workspace"
+        title="Move between accounts, activations, and proof"
+        activeValue={activeTab}
+        onValueChange={setActiveTab}
+        anchorId="agency-workspace"
+        items={[
+          { value: "clients", label: "Client accounts", icon: Building2 },
+          { value: "activations", label: "Activations", icon: Sparkles },
+          { value: "impact", label: "Impact", icon: TrendingUp },
         ]}
       />
 
-      <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+      <section aria-labelledby="agency-attention-heading" className="grid gap-3 rounded-3xl border border-border/70 bg-card/55 p-5 sm:grid-cols-3 sm:p-6">
+        <div className="sm:col-span-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Portfolio attention</p>
+          <h2 id="agency-attention-heading" className="mt-2 font-serif text-2xl font-semibold">What needs an operator now</h2>
+        </div>
+        {[
+          { label: "Relationship requests", value: pendingRelationships, detail: pendingRelationships ? "Approve or decline client access." : "No access requests waiting.", action: "clients" },
+          { label: "Activations in motion", value: activeClientCampaigns.length, detail: activeClientCampaigns.length ? "Check execution and unblock delivery." : "No client activations are live.", action: "activations" },
+          { label: "Results ready", value: provenClientCampaigns.length, detail: provenClientCampaigns.length ? "Turn verified outcomes into a client decision." : "No proven result is ready yet.", action: "impact" },
+        ].map((item) => (
+          <button key={item.label} type="button" onClick={() => setActiveTab(item.action)} className="group rounded-2xl border border-border/60 bg-background/60 p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <div className="flex items-start justify-between gap-3"><p className="text-sm font-bold">{item.label}</p><span className="font-serif text-3xl font-semibold text-primary">{item.value}</span></div>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">{item.detail}</p>
+            <span className="mt-4 inline-flex items-center text-xs font-bold text-primary">Open workspace <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
+          </button>
+        ))}
+      </section>
+
+      <div id="agency-workspace" className={`${activeTab === "clients" ? "scroll-mt-28" : "hidden"} rounded-3xl border border-border bg-card p-5 sm:p-6`}>
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Current Account</p>
@@ -77,8 +148,8 @@ const AgencyDashboard = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_360px]">
-        <div>
+      <div className={`${activeTab === "activations" ? "scroll-mt-28" : "hidden"} grid gap-6`}>
+        <div className="min-w-0">
       <RoleActivationPanel
         eyebrow="Agency Today"
         title="Prove one client outcome end to end."
@@ -93,10 +164,10 @@ const AgencyDashboard = () => {
           },
           {
             title: "Launch first activation",
-            description: "Create the campaign that turns agency strategy into a live field program.",
+            description: "Open the client account first so ownership, budget, and results stay attached to the correct workspace.",
             status: "todo",
-            href: "/create/campaign",
-            ctaLabel: "Create campaign",
+            onClick: () => setActiveTab("clients"),
+            ctaLabel: "Choose client",
           },
           {
             title: "Export first result",
@@ -108,19 +179,9 @@ const AgencyDashboard = () => {
         ]}
       />
         </div>
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">How This Works</p>
-            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <p>Connect a brand or venue account to your agency portfolio.</p>
-              <p>Open that account when you need to manage campaigns or reporting from the client perspective.</p>
-              <p>The client can remove the agency connection later from their own account settings.</p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <div className={`${activeTab === "clients" ? "" : "hidden"} grid gap-6`}>
         <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -211,43 +272,9 @@ const AgencyDashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Why agency mode matters</p>
-          </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {[
-              "Operate multiple client accounts from one Promorang portfolio.",
-              "Use creator-to-footfall attribution as the proof layer for client reporting.",
-              "Coordinate brand, venue, creator, and participant outcomes in one loop.",
-              "Package Founder, Mayor, Catalyst, and Memory mechanics as managed campaigns.",
-            ].map((line) => (
-              <div key={line} className="rounded-2xl border border-border/60 bg-background/60 p-4 text-sm text-muted-foreground">
-                <div className="mb-2 flex items-center gap-2 text-primary">
-                  <Users className="h-4 w-4" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">Agency Play</span>
-                </div>
-                {line}
-              </div>
-            ))}
-          </div>
-          <div className="mt-5 rounded-2xl border border-primary/10 bg-primary/5 p-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary/80">Client accounts</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Use the account switcher or the “Open account” action above to move into a specific brand or venue before managing their campaigns.
-            </p>
-            <Button asChild size="sm" variant="ghost" className="mt-3">
-              <Link to="/dashboard">
-                Open account switcher
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
       </div>
 
-      <div id="agency-impact">
+      <div id="agency-impact" className={activeTab === "impact" ? "scroll-mt-28" : "hidden"}>
         <BrandImpactDashboard />
       </div>
     </div>

@@ -1,40 +1,37 @@
 import { Suspense, lazy, useMemo, useState } from "react";
-import { 
-  BarChart3, 
-  Users, 
-  Gift, 
-  Eye, 
-  Building2, 
-  Sparkles, 
-  Handshake, 
-  Award, 
-  Coins, 
-  TrendingUp, 
-  Zap,
+import {
+  BarChart3,
+  Users,
+  Gift,
+  Eye,
+  Building2,
+  Sparkles,
+  Handshake,
+  Coins,
+  TrendingUp,
   Target,
   Plus,
-  CheckCircle2,
   ArrowRight,
   MapPin,
   Clock3,
   Link2,
   ExternalLink,
   Layers3,
+  Megaphone,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBrandCampaigns, useBrandStats } from "@/hooks/useCampaigns";
-import { useBrandEconomy } from "@/hooks/useStakeholderEconomy";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
-import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useCampaignProofOutcome } from "@/hooks/useProofOutcome";
 import { useQuery } from "@tanstack/react-query";
@@ -43,12 +40,16 @@ import type { Tables } from "@/integrations/supabase/types";
 import { QuickAddClient } from "@/components/agency/QuickAddClient";
 import { useAgencyRelationships, useDeleteAgencyRelationship, useUpdateAgencyRelationship } from "@/hooks/useAgencyClients";
 import { useToast } from "@/hooks/use-toast";
+import { rankBrandOpportunities } from "@promorang/shared";
+import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
+import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { RightUtilityRail } from "@/components/RightUtilityRail";
+import { SpinWheelModal } from "@/components/SpinWheelModal";
+import { TeamSlashModal } from "@/components/TeamSlashModal";
+import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 
 const BrandSponsorshipTab = lazy(() =>
   import("@/components/brand/BrandSponsorshipTab").then((module) => ({ default: module.BrandSponsorshipTab })),
-);
-const FlashCampaignCompiler = lazy(() =>
-  import("@/components/campaigns/FlashCampaignCompiler").then((module) => ({ default: module.FlashCampaignCompiler })),
 );
 const BrandEstimator = lazy(() =>
   import("@/components/brand/BrandEstimator").then((module) => ({ default: module.BrandEstimator })),
@@ -79,11 +80,13 @@ const BrandDashboardV2 = () => {
   const { toast } = useToast();
   const { data: campaigns, isLoading: campaignsLoading } = useBrandCampaigns();
   const { isLoading: statsLoading } = useBrandStats();
-  const { data: economy, isLoading: economyLoading } = useBrandEconomy();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "campaigns";
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const [isFlashCompilerOpen, setIsFlashCompilerOpen] = useState(false);
+
+  const [wheelOpen, setWheelOpen] = useState(false);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
   const activeBrandName = activeOrg?.name || profile?.display_name || user?.user_metadata?.full_name || user?.email || "Your brand";
   const activeBrandSlug = activeOrg?.slug || null;
@@ -91,7 +94,6 @@ const BrandDashboardV2 = () => {
   // Calculate brand maturity
   const activeCampaigns = campaigns?.filter((c) => c.is_active) || [];
   const isNewBrand = !campaigns || campaigns.length === 0;
-  const isActiveBrand = campaigns && campaigns.length > 0 && campaigns.length < 3;
   const isEstablishedBrand = campaigns && campaigns.length >= 3;
   const featuredCampaign = activeCampaigns[0] || campaigns?.[0] || null;
   const proofOutcomeQuery = useCampaignProofOutcome(featuredCampaign?.id);
@@ -134,6 +136,7 @@ const BrandDashboardV2 = () => {
   // Calculate total impact
   const totalImpressions = campaigns?.reduce((sum, c) => sum + (c.impressions || 0), 0) || 0;
   const totalRedemptions = campaigns?.reduce((sum, c) => sum + (c.redemptions || 0), 0) || 0;
+  const totalBudget = campaigns?.reduce((sum, campaign) => sum + Number(campaign.budget || 0), 0) || 0;
   const agencyRelationshipQuery = useAgencyRelationships({
     clientId: activeOrgId,
     enabled: !!activeOrgId && activeOrg?.type === "brand",
@@ -215,231 +218,208 @@ const BrandDashboardV2 = () => {
     };
   }, [workspaceMoments, workspaceContent, activeBrandName, activeBrandSlug]);
 
-  const opportunitiesMoments = directlyAssociatedMoments.length > 0 ? directlyAssociatedMoments.slice(0, 4) : openMoments.slice(0, 4);
-  const opportunitiesContent = directlyAssociatedContent.length > 0 ? directlyAssociatedContent.slice(0, 4) : openContent.slice(0, 4);
-  const opportunitiesVenues = workspaceVenues
-    .slice()
-    .sort((a, b) => Number(b.active_moments_count || 0) - Number(a.active_moments_count || 0))
-    .slice(0, 4);
+  const rankedOpportunities = useMemo(() => {
+    const connectedMomentIds = new Set(directlyAssociatedMoments.map((item) => item.id));
+    const connectedContentIds = new Set(directlyAssociatedContent.map((item) => item.id));
+    const objectives = (campaigns || []).flatMap((campaign: any) => [campaign.objective_type, campaign.objective, campaign.name, campaign.description].filter(Boolean));
+    const profileLocation = (profile as any)?.location || (profile as any)?.city || user?.user_metadata?.location;
+    return rankBrandOpportunities({
+      name: activeBrandName,
+      industries: [(activeOrg as any)?.industry, (activeOrg as any)?.category].filter(Boolean),
+      interests: [(activeOrg as any)?.description, ...(user?.user_metadata?.interests || [])].filter(Boolean),
+      geographies: [profileLocation, (activeOrg as any)?.city, (activeOrg as any)?.country].filter(Boolean),
+      objectives,
+    }, [
+      ...workspaceMoments.filter((item) => item.id).map((item) => ({ id: item.id!, kind: "moment" as const, title: item.title || "Untitled Moment", description: item.description, category: item.category, city: item.city, country: item.country, starts_at: item.starts_at, momentum: item.participant_count, already_connected: connectedMomentIds.has(item.id), data: item })),
+      ...workspaceContent.filter((item) => item.id).map((item) => ({ id: item.id!, kind: "content" as const, title: item.title || "Untitled Content", description: item.description, category: item.category, city: item.city, country: item.country, starts_at: item.posted_at, already_connected: connectedContentIds.has(item.id), data: item })),
+      ...workspaceVenues.filter((item) => item.id).map((item) => ({ id: item.id!, kind: "venue" as const, title: item.name || "Untitled Venue", description: item.description, category: item.venue_type, city: item.city, country: item.country, momentum: Number(item.popularity_score || 0) + Number(item.total_checkins || 0), verified: item.verification_status === "verified", data: item })),
+    ]);
+  }, [activeBrandName, activeOrg, campaigns, directlyAssociatedContent, directlyAssociatedMoments, profile, user?.user_metadata, workspaceContent, workspaceMoments, workspaceVenues]);
+  const opportunitiesMoments = rankedOpportunities.filter((item) => item.kind === "moment").slice(0, 4);
+  const opportunitiesContent = rankedOpportunities.filter((item) => item.kind === "content").slice(0, 4);
+  const opportunitiesVenues = rankedOpportunities.filter((item) => item.kind === "venue").slice(0, 4);
   const topCorrelationRows = correlationRows.slice(0, 6);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-8 pb-20 xl:space-y-10">
+      {/* Top Story & Action Rail */}
+      <StoryGamificationRail
+        onOpenWheel={() => setWheelOpen(true)}
+        onOpenStreak={() => setStreakOpen(true)}
+      />
+
       <DashboardHero
-        badge="Brand Control Room"
+        badge="Brand studio"
         title={isNewBrand ? "Launch the first campaign people can feel and you can trust" : "Turn campaign attention into verified movement"}
         description="Fund a moment, drop, or reward people actually want, see who acted, understand what happened, then scale the scenes that moved."
         actions={[
-          { label: "Quick launch", icon: Zap, onClick: () => setIsFlashCompilerOpen(!isFlashCompilerOpen) },
+          isNewBrand
+            ? { label: "Create your first activation", icon: Plus, href: "/create/campaign" }
+            : activeCampaigns.length > 0
+              ? { label: "Review live campaign performance", icon: BarChart3, onClick: () => setActiveTab("campaigns") }
+              : { label: "Activate the next campaign", icon: Calendar, onClick: () => setActiveTab("planner") },
+          { label: "Create activation", icon: Plus, href: "/create/campaign" },
           { label: "Create offer", icon: Gift, href: "/dashboard/offers" },
           { label: isEstablishedBrand ? "Insights" : "Planner", icon: BarChart3, onClick: () => setActiveTab(isEstablishedBrand ? "insights" : "planner") },
         ]}
         stats={[
           { label: "Active campaigns", value: activeCampaigns.length.toLocaleString(), helper: "Live movement loops", icon: Target },
-          { label: "Participants", value: totalImpressions.toLocaleString(), helper: "Attributed actions", icon: Users },
-          { label: "Redemptions", value: totalRedemptions.toLocaleString(), helper: "Outcome signals", icon: Gift },
-          { label: "Points given", value: economy?.totalPointsDistributed?.toLocaleString() || "0", helper: "Distributed through campaigns", icon: Coins },
+          { label: "Recorded attention", value: totalImpressions.toLocaleString(), helper: "Campaign impressions", icon: Users },
+          { label: "Verified actions", value: totalRedemptions.toLocaleString(), helper: "Campaign redemptions", icon: Gift },
+          { label: "Planned budget", value: totalBudget.toLocaleString(), helper: "Across current activations", icon: Coins },
         ]}
-        isLoading={statsLoading || economyLoading}
+        isLoading={statsLoading}
       />
 
-      <StakeholderReturnPanel role="brand" />
+      <DashboardWorkspaceNav
+        eyebrow="Inside your brand studio"
+        title="Choose the culture to support, then see what truly moved"
+        activeValue={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "opportunities", label: "Opportunities", icon: Target },
+          { value: "correlation", label: "Signals", icon: Link2 },
+          { value: "campaigns", label: "Campaigns", icon: Megaphone },
+          { value: "planner", label: "Planner", icon: Calendar },
+          { value: "sponsorships", label: "Sponsorships", icon: Handshake, hidden: !isEstablishedBrand },
+          { value: "insights", label: "Insights", icon: BarChart3, hidden: !isEstablishedBrand },
+        ]}
+      />
 
-      {/* =====================================================================
-          FLASH COMPILER: Collapsible quick create
-          ===================================================================== */}
-      {isFlashCompilerOpen && (
-        <div className="animate-in slide-in-from-top-4 rounded-2xl border-2 border-primary/20 bg-primary/5 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Zap className="w-5 h-5 text-primary" />
-              <h3 className="font-bold">Flash Launchpad</h3>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setIsFlashCompilerOpen(false)}>
-              Close
-            </Button>
-          </div>
-          <Suspense fallback={tabFallback}>
-            <FlashCampaignCompiler onSuccess={() => setIsFlashCompilerOpen(false)} />
-          </Suspense>
-        </div>
-      )}
+      {/* 3-Column Desktop Layout */}
+      <div className="flex gap-8 items-start">
+        <div className="flex-1 min-w-0 space-y-8">
 
-      {/* =====================================================================
-          NEW BRAND: First Campaign Guidance
-          ===================================================================== */}
-      {isNewBrand && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Target className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first movement-backed PromoPush</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and counted outcomes.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <Link to="/create/campaign">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create PromoPush
-                    </Link>
-                  </Button>
-                  <Button variant="outline" onClick={() => setActiveTab("planner")}>
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Plan First
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28 space-y-6">
+        <TabsList className="sr-only">
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
+          <TabsTrigger value="correlation">Signals</TabsTrigger>
+          <TabsTrigger value="insights">Analytics & Agency</TabsTrigger>
+        </TabsList>
 
-      {!isNewBrand && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <span className="font-medium text-sm">Brand Journey</span>
-              </div>
-              <Badge variant="outline" className="text-[10px]">
-                {isEstablishedBrand ? "3/3" : isActiveBrand ? "2/3" : "1/3"}
-              </Badge>
-            </div>
-            <Progress 
-              value={isEstablishedBrand ? 100 : isActiveBrand ? 66 : 33} 
-              className="h-2 mb-3" 
-            />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {[
-                { 
-                  label: "First campaign", 
-                  done: campaigns && campaigns.length > 0,
-                  icon: Target
-                },
-                { 
-                  label: "Get participants", 
-                  done: totalImpressions > 0,
-                  icon: Users
-                },
-                { 
-                  label: "3+ campaigns", 
-                  done: isEstablishedBrand,
-                  icon: Award
-                },
-              ].map((step, i) => (
-                <div 
-                  key={i} 
-                  className={`flex flex-col items-center p-3 rounded-xl text-center ${
-                    step.done ? "bg-emerald-500/5" : "bg-muted/30"
-                  }`}
-                >
-                  <step.icon className={`w-4 h-4 mb-1 ${step.done ? "text-emerald-500" : "text-muted-foreground"}`} />
-                  <span className={`text-xs ${step.done ? "text-emerald-600 font-medium" : "text-muted-foreground"}`}>
-                    {step.label}
-                  </span>
-                  {step.done && (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-1" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card className="border-primary/10">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Agency Access</p>
-              <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Who is moving this brand?</h3>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Connect the agencies allowed to operate this workspace, review pending requests, and remove an agency when the relationship ends.
-              </p>
-            </div>
-            <QuickAddClient mode="brand" organizationId={activeOrgId} />
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {connectedAgencies.length > 0 ? (
-              connectedAgencies.map((relationship) => (
-                <div key={relationship.id} className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-primary" />
-                        <p className="font-semibold text-foreground">{relationship.agency?.name || "Agency workspace"}</p>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {relationship.relationship_type} relationship
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px] uppercase">
-                        {relationship.status}
-                      </Badge>
-                      {relationship.status === "pending" ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={async () => {
-                            try {
-                              await updateAgencyRelationship.mutateAsync({ id: relationship.id, status: "active" });
-                              toast({ title: "Agency approved", description: "The workspace connection is now live." });
-                            } catch (error: unknown) {
-                              toast({
-                                title: "Approval failed",
-                                description: error instanceof Error ? error.message : "Try again.",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        >
-                          Approve
-                        </Button>
-                      ) : null}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={async () => {
-                          try {
-                            await deleteAgencyRelationship.mutateAsync(relationship.id);
-                            await refreshWorkspaceContext();
-                            toast({
-                              title: "Agency removed",
-                              description: `${relationship.agency?.name || "Agency"} no longer manages this brand.`,
-                            });
-                          } catch (error: unknown) {
-                            toast({
-                              title: "Removal failed",
-                              description: error instanceof Error ? error.message : "Try again.",
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                      >
-                        Remove
+        {/* TAB 1: CAMPAIGNS & OVERVIEW */}
+        <TabsContent value="campaigns" className="mt-0 space-y-6">
+          {/* New Brand Launch Card */}
+          {isNewBrand && (
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-amber-500/10 shadow-soft">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Target className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-1 text-xl font-black tracking-[-0.03em]">Launch your first movement-backed PromoPush</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Start with one live Moment, one clear participant action, and one distribution zone. Then review joins, redemptions, content, and counted outcomes.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <Button asChild>
+                        <Link to="/create/campaign">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create PromoPush
+                        </Link>
+                      </Button>
+                      <Button variant="outline" onClick={() => setActiveTab("planner")}>
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        Plan First
                       </Button>
                     </div>
                   </div>
                 </div>
-              ))
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Active Campaigns List */}
+          <section>
+            <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-black tracking-[-0.04em]">
+                  {activeCampaigns.length > 0 ? "Active Campaigns" : "Your Campaigns"}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Track live movement loops and measure real participant redemptions.
+                </p>
+              </div>
+              <Button asChild size="sm">
+                <Link to="/create/campaign">
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  New Campaign
+                </Link>
+              </Button>
+            </div>
+
+            {campaignsLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
+              </div>
+            ) : campaigns && campaigns.length === 0 ? (
+              <Card className="border-dashed shadow-none">
+                <CardContent className="p-8 text-center">
+                  <Building2 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+                  <p className="text-muted-foreground mb-4">No campaigns created yet</p>
+                  <Button asChild>
+                    <Link to="/create/campaign">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Proof Loop
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No agencies are connected to this brand account yet.
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {(activeCampaigns.length > 0 ? activeCampaigns : campaigns || []).map((campaign) => (
+                  <Card key={campaign.id} className="group hover:shadow-soft transition-all border-border/80">
+                    <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <Badge
+                            variant={campaign.is_active ? "default" : "outline"}
+                            className="text-[10px]"
+                          >
+                            {campaign.is_active ? "Live" : "Draft"}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground font-mono">
+                            ${Number(campaign.budget || 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-1">
+                          {campaign.title}
+                        </h3>
+                        {campaign.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                            {campaign.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="pt-2 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5 text-primary" />
+                            {campaign.impressions.toLocaleString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Gift className="w-3.5 h-3.5 text-emerald-500" />
+                            {campaign.redemptions.toLocaleString()}
+                          </span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" asChild>
+                          <Link to={`/dashboard/campaigns/${campaign.id}`}>
+                            Manage <ArrowRight className="w-3 h-3 ml-1" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
+          </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
-        <div className="space-y-6">
           <DashboardNextStepsSection
             description="Keep brand work focused on one provable operating loop before broadening the surface area."
             ctaLabel="Open planner"
@@ -471,166 +451,7 @@ const BrandDashboardV2 = () => {
               },
             ]}
           />
-
-          <CommercialProofLoop
-        eyebrow="Commercial Narrative"
-        title="Reduce the story to one repeatable proof loop"
-        action={
-          activeCampaigns.length > 0
-            ? `${activeCampaigns.length} active campaign${activeCampaigns.length === 1 ? "" : "s"} drove real-world participant movement.`
-            : "Launch one activation that asks people to show up, check in, redeem, or submit proof."
-        }
-        verification={
-          totalImpressions > 0
-            ? `${totalImpressions.toLocaleString()} attributed participant actions and ${totalRedemptions.toLocaleString()} redemption signals are visible in-platform.`
-            : "Use joins, check-ins, proof submissions, and redemptions as the validation layer."
-        }
-        outcome={
-          totalRedemptions > 0
-            ? `${totalRedemptions.toLocaleString()} measured redemption outcomes show the campaign produced behavior, not just attention.`
-            : "Report turnout, proof completion, redemption rate, and attributed sales lift as the outcome."
-        }
-        repeatability={
-          isEstablishedBrand
-            ? "Reuse the same targeting, proof, and reward structure across markets with better benchmark confidence."
-            : "Once one activation works, repeat the same verified pattern with tighter targeting and stronger reward design."
-        }
-          />
-
-          {featuredCampaign && (
-            <ProofOutcomeRail
-          eyebrow="Shared Proof Layer"
-          title={`See the verified chain for ${featuredCampaign.title}`}
-          data={proofOutcomeQuery.data}
-          isLoading={proofOutcomeQuery.isLoading}
-          ctaHref={`/dashboard/campaigns/${featuredCampaign.id}`}
-          ctaLabel="Open campaign detail"
-            />
-          )}
-
-          {!isNewBrand && (
-            <section>
-              <div className="flex min-w-0 flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-black tracking-[-0.04em]">
-                    {activeCampaigns.length > 0 ? "Active Campaigns" : "Your Campaigns"}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Keep the current operating slate visible without turning the dashboard into a reporting maze.
-                  </p>
-                </div>
-                {campaigns && campaigns.length > 3 && (
-                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("campaigns")}>
-                    View all
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                )}
-              </div>
-
-              {campaignsLoading ? (
-            <div className="space-y-3">
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-24 rounded-xl" />
-              ))}
-            </div>
-          ) : campaigns && campaigns.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="p-8 text-center">
-                <Building2 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">No campaigns yet</p>
-                <Button asChild>
-                  <Link to="/create/campaign">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Proof Loop
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {(activeCampaigns.length > 0 ? activeCampaigns : campaigns.slice(0, 3)).map((campaign) => (
-                <Card key={campaign.id} className="group hover:shadow-soft transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex min-w-0 flex-wrap items-center gap-2 mb-1">
-                          <h3 className="font-medium truncate group-hover:text-primary transition-colors">
-                            {campaign.title}
-                          </h3>
-                          <Badge 
-                            variant={campaign.is_active ? "default" : "outline"}
-                            className="text-[10px] flex-shrink-0"
-                          >
-                            {campaign.is_active ? "Active" : "Paused"}
-                          </Badge>
-                        </div>
-                        {campaign.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-                            {campaign.description}
-                          </p>
-                        )}
-                        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                          <span className="flex min-w-0 items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            {campaign.impressions.toLocaleString()} views
-                          </span>
-                          <span className="flex min-w-0 items-center gap-1">
-                            <Gift className="w-3 h-3" />
-                            {campaign.redemptions.toLocaleString()} redemptions
-                          </span>
-                          {campaign.impressions > 0 && (
-                            <span className="text-emerald-500">
-                              {((campaign.redemptions / campaign.impressions) * 100).toFixed(1)}% rate
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" className="self-start sm:self-center" asChild>
-                        <Link to={`/dashboard/campaigns/${campaign.id}`}>
-                          Manage
-                          <ArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-              )}
-            </section>
-          )}
-
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="opportunities" className="gap-2">
-            <Sparkles className="w-4 h-4" />
-            Opportunities
-          </TabsTrigger>
-          <TabsTrigger value="correlation" className="gap-2">
-            <Layers3 className="w-4 h-4" />
-            Correlation
-          </TabsTrigger>
-          <TabsTrigger value="campaigns" className="gap-2">
-            <Building2 className="w-4 h-4" />
-            Campaigns
-          </TabsTrigger>
-          <TabsTrigger value="planner" className="gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Planner
-          </TabsTrigger>
-          {!isNewBrand && (
-            <TabsTrigger value="sponsorships" className="gap-2">
-              <Handshake className="w-4 h-4" />
-              Sponsors
-            </TabsTrigger>
-          )}
-          {isEstablishedBrand && (
-            <TabsTrigger value="insights" className="gap-2">
-              <Sparkles className="w-4 h-4" />
-              Insights
-            </TabsTrigger>
-          )}
-        </TabsList>
+        </TabsContent>
 
         <TabsContent value="opportunities" className="mt-0 space-y-6">
           <Card className="shadow-soft">
@@ -638,9 +459,9 @@ const BrandDashboardV2 = () => {
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Brand Opportunities</p>
-                  <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">See moments and creator content in the same workspace</h3>
+                  <h3 className="mt-2 font-sans text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">See what fits—and why—before you spend</h3>
                   <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                    Brands should not have to jump between unrelated browse pages. This view surfaces active moments and public creator media together so you can decide what to sponsor, join, or turn into campaign input.
+                    Opportunities are ranked from your market, industry, objectives, existing relationships, timing, and visible momentum. Every recommendation explains the signals behind its position.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -682,13 +503,14 @@ const BrandDashboardV2 = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {opportunitiesMoments.map((moment) => (
-                      <div key={moment.id || moment.slug || moment.title} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                    {opportunitiesMoments.map((opportunity) => { const moment = opportunity.data as PublicMomentRow; return (
+                      <div key={opportunity.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
                         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="font-semibold text-foreground">{moment.title || "Untitled moment"}</p>
-                              {moment.associated_brand_names?.length ? (
+                              <Badge className="bg-primary text-primary-foreground">{opportunity.match_score}% fit</Badge>
+                              {opportunity.already_connected ? (
                                 <Badge className="bg-primary/10 text-primary border border-primary/20">
                                   Associated
                                 </Badge>
@@ -717,6 +539,7 @@ const BrandDashboardV2 = () => {
                             <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
                               {moment.reward || moment.description || "A live physical moment that can be matched to campaign objectives."}
                             </p>
+                            <div className="mt-3 flex flex-wrap gap-1.5">{opportunity.reasons.map((reason)=><span key={reason} className="rounded-full bg-primary/8 px-2 py-1 text-[10px] font-semibold text-primary">{reason}</span>)}</div>
                           </div>
                           <Button variant="ghost" size="sm" asChild>
                             <Link to={`/moments/${moment.slug || moment.id}`}>
@@ -726,7 +549,7 @@ const BrandDashboardV2 = () => {
                           </Button>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 )}
               </CardContent>
@@ -754,12 +577,13 @@ const BrandDashboardV2 = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {opportunitiesContent.map((item) => (
-                      <div key={item.id || item.slug || item.title} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                    {opportunitiesContent.map((opportunity) => { const item = opportunity.data as PublicContentRow; return (
+                      <div key={opportunity.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
                         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="font-semibold text-foreground">{item.title || "Untitled content"}</p>
+                              <Badge className="bg-primary text-primary-foreground">{opportunity.match_score}% fit</Badge>
                               {item.platform ? <Badge variant="outline">{item.platform}</Badge> : null}
                             </div>
                             <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
@@ -779,6 +603,7 @@ const BrandDashboardV2 = () => {
                                 </span>
                               ) : null}
                             </div>
+                            <div className="mt-3 flex flex-wrap gap-1.5">{opportunity.reasons.map((reason)=><span key={reason} className="rounded-full bg-primary/8 px-2 py-1 text-[10px] font-semibold text-primary">{reason}</span>)}</div>
                           </div>
                           <Button variant="ghost" size="sm" asChild>
                             <Link to={item.linked_moment_slug || item.linked_moment_id ? `/moments/${item.linked_moment_slug || item.linked_moment_id}` : "/explore/content"}>
@@ -788,7 +613,7 @@ const BrandDashboardV2 = () => {
                           </Button>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 )}
               </CardContent>
@@ -814,12 +639,13 @@ const BrandDashboardV2 = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {opportunitiesVenues.map((venue) => (
-                      <div key={venue.id || venue.slug || venue.name} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                    {opportunitiesVenues.map((opportunity) => { const venue = opportunity.data as PublicVenueRow; return (
+                      <div key={opportunity.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
                         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="font-semibold text-foreground">{venue.name || "Untitled venue"}</p>
+                              <Badge className="bg-primary text-primary-foreground">{opportunity.match_score}% fit</Badge>
                               <Badge variant="outline">{venue.venue_type || "venue"}</Badge>
                             </div>
                             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -835,6 +661,7 @@ const BrandDashboardV2 = () => {
                             <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
                               {venue.description || "A physical place a brand can sponsor, activate, or match to an existing proof loop."}
                             </p>
+                            <div className="mt-3 flex flex-wrap gap-1.5">{opportunity.reasons.map((reason)=><span key={reason} className="rounded-full bg-primary/8 px-2 py-1 text-[10px] font-semibold text-primary">{reason}</span>)}</div>
                           </div>
                           <Button variant="ghost" size="sm" asChild>
                             <Link to={`/venues/${venue.slug || venue.id}`}>
@@ -844,7 +671,7 @@ const BrandDashboardV2 = () => {
                           </Button>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 )}
               </CardContent>
@@ -966,25 +793,26 @@ const BrandDashboardV2 = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+              <div className="flex flex-col gap-4 border-b border-border/60 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+                <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Work in the world</p><h2 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em]">Your activations</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">See where the brand is participating, whether people responded, and which relationship deserves another investment.</p></div>
+                <Button asChild className="rounded-full"><Link to="/create/campaign"><Plus className="mr-2 h-4 w-4" />Create Activation</Link></Button>
+              </div>
+              <div>
               {campaigns.map((campaign) => (
-                <Card key={campaign.id} className="hover:shadow-soft transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <Link key={campaign.id} to={`/dashboard/campaigns/${campaign.id}`} className="group grid min-w-0 gap-5 border-b border-border/60 p-6 last:border-b-0 hover:bg-muted/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center">
                       <div className="min-w-0">
-                        <h4 className="font-medium">{campaign.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {campaign.impressions.toLocaleString()} impressions • {campaign.redemptions.toLocaleString()} redemptions
-                        </p>
+                        <h4 className="font-serif text-2xl font-semibold transition-colors group-hover:text-primary">{campaign.title}</h4>
+                        <p className="mt-2 text-sm text-muted-foreground">{campaign.is_active ? `${campaign.impressions.toLocaleString()} people reached · ${campaign.redemptions.toLocaleString()} accepted actions` : "A saved activation plan awaiting Scene, people, terms, and secured Gems."}</p>
                       </div>
                       <Badge variant={campaign.is_active ? "default" : "outline"}>
-                        {campaign.is_active ? "Active" : "Paused"}
+                        {campaign.is_active ? "Live" : "Plan · not live"}
                       </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                </Link>
               ))}
-            </div>
+              </div>
+            </section>
           )}
         </TabsContent>
 
@@ -1010,7 +838,6 @@ const BrandDashboardV2 = () => {
           </TabsContent>
         )}
           </Tabs>
-        </div>
 
         <div className="space-y-6">
           <Card className="border-border/60">
@@ -1078,7 +905,7 @@ const BrandDashboardV2 = () => {
             eyebrow="Brand Today"
             title={isNewBrand ? "Fund one moment people can feel" : "Turn spend into proof you can stand behind"}
             description={
-              isNewBrand 
+              isNewBrand
                 ? "Start with one campaign tied to a real action: a visit, join, post, sample, purchase, or check-in. Then use creators, venues, and proof to see what actually moved."
                 : "Keep the loop honest: fund the action, connect the people who can carry it, compare moments with content, then scale what has proof."
             }
@@ -1128,6 +955,18 @@ const BrandDashboardV2 = () => {
             ]}
           />
         </div>
+
+        {/* Right Utility Sidebar (Desktop) */}
+        <RightUtilityRail
+          onOpenSlashModal={() => setSlashOpen(true)}
+          onOpenStreakModal={() => setStreakOpen(true)}
+        />
+      </div>
+
+      {/* Gamification Modals */}
+      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
+      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
+      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
       </div>
     </div>
   );

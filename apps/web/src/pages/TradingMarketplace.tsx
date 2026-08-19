@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { Search, Filter, TrendingUp, Gem, Loader2, TriangleAlert, Route, WalletCards } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { cultureImages } from '@/data/culture-demo';
@@ -167,9 +168,17 @@ export function TradingMarketplace() {
               <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
                 Back the culture already proving itself.
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
-                Explore active positions tied to moments, stories, hosts, and places with visible market signal.
-              </p>
+              <GuidanceDisclosure
+                id="trading-marketplace:piece-market-context"
+                eyebrow="Market guide"
+                title="How to read active Piece markets"
+                summary="Pieces connect moments, stories, hosts, and places to visible market signal."
+                className="mt-5 max-w-2xl"
+              >
+                <p className="text-base leading-7 text-white/55">
+                  Explore active positions tied to moments, stories, hosts, and places with visible market signal.
+                </p>
+              </GuidanceDisclosure>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="sm">
                   <Link to="/portfolio">Portfolio</Link>
@@ -230,29 +239,38 @@ export function TradingMarketplace() {
 
       {/* Market Stats */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="mb-8 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-lg border bg-card p-4">
-            <Route className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Earn through proof</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Join a moment for early participant pieces. Check in for verified attendance pieces. Invite people who show up to earn contributor pieces.
-            </p>
+        <GuidanceDisclosure
+          id="trading-marketplace:earning-pieces"
+          eyebrow="Piece guide"
+          title="How people earn and hold Pieces"
+          summary="Proof, attendance, referrals, and content-attributed activity can create Piece positions."
+          className="mb-8"
+          tone="light"
+        >
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="rounded-lg border bg-card p-4">
+              <Route className="mb-3 h-5 w-5 text-primary" />
+              <h2 className="font-semibold">Earn through proof</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Join a moment for early participant pieces. Check in for verified attendance pieces. Invite people who show up to earn contributor pieces.
+              </p>
+            </div>
+            <div className="rounded-lg border bg-card p-4">
+              <WalletCards className="mb-3 h-5 w-5 text-primary" />
+              <h2 className="font-semibold">Keep your positions</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Your portfolio shows piece holdings across content, moments, hosts, and venues with links to each profile.
+              </p>
+            </div>
+            <div className="rounded-lg border bg-card p-4">
+              <TrendingUp className="mb-3 h-5 w-5 text-primary" />
+              <h2 className="font-semibold">Back active signal</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Content-attributed joins, check-ins, and verified proof can award pieces when distribution turns into real activity.
+              </p>
+            </div>
           </div>
-          <div className="rounded-lg border bg-card p-4">
-            <WalletCards className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Keep your positions</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your portfolio shows piece holdings across content, moments, hosts, and venues with links to each profile.
-            </p>
-          </div>
-          <div className="rounded-lg border bg-card p-4">
-            <TrendingUp className="mb-3 h-5 w-5 text-primary" />
-            <h2 className="font-semibold">Back active signal</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Content-attributed joins, check-ins, and verified proof can award pieces when distribution turns into real activity.
-            </p>
-          </div>
-        </div>
+        </GuidanceDisclosure>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="rounded-lg border bg-card p-4 shadow-sm">

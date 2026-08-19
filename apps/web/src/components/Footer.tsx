@@ -16,11 +16,12 @@ const footerLinks = {
   how: [
     { label: "Overview", href: "/economy" },
     { label: "Moments", href: "/economy/moments" },
-    { label: "Marks & Points", href: "/economy/points" },
-    { label: "Keys", href: "/economy/keys" },
+    { label: "Points", href: "/economy/points" },
+    { label: "PromoKeys", href: "/economy/keys" },
+    { label: "Master Key", href: "/economy/master-key" },
     { label: "Pieces", href: "/economy/pieces" },
     { label: "Content", href: "/economy/content" },
-    { label: "PromoShare & Gems", href: "/economy/promoshare-gems" },
+    { label: "Tickets & Gems", href: "/economy/promoshare-gems" },
     { label: "Network value", href: "/economy/network" },
   ],
   partners: [
@@ -29,12 +30,21 @@ const footerLinks = {
     { label: "For Merchants", href: "/for-merchants" },
     { label: "For Hosts", href: "/for-communities" },
     { label: "For Agencies", href: "/for-agencies" },
+    { label: "For Enterprise", href: "/for-enterprise" },
+    { label: "For Causes & Non-Profits", href: "/for-causes" },
   ],
   support: [
     { label: "Help Center", href: "/help" },
     { label: "Contact Us", href: "/contact" },
     { label: "Terms", href: "/terms" },
     { label: "Privacy", href: "/privacy" },
+  ],
+  tools: [
+    { label: "Find Your Scene", href: "/free/scene" },
+    { label: "Score Your Moment", href: "/free/moment" },
+    { label: "Reveal Nearby Demand", href: "/free/demand" },
+    { label: "Audit Your Influence", href: "/free/creator" },
+    { label: "Build an Activation Brief", href: "/free/sponsor" },
   ],
 };
 
@@ -52,8 +62,8 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
-              <Link to="/auth">
-                Get Started
+              <Link to="/free/scene">
+                Find Your Scene
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
@@ -64,7 +74,7 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
       {/* Footer Links */}
       <div className="border-t border-border">
         <div className="container px-4 py-12 sm:px-6">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
             {/* Brand Column */}
             <div className="col-span-2 md:col-span-1">
               <Link to="/">
@@ -124,6 +134,11 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
                   </li>
                 ))}
               </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Free tools</h4>
+              <ul className="space-y-3">{footerLinks.tools.map(link=><li key={link.label}><Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link></li>)}</ul>
             </div>
 
             {/* Support Links */}

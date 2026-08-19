@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@getmocha/users-service/react';
-import { 
-  BarChart3, 
-  Users, 
-  Diamond, 
-  TrendingUp, 
+import {
+  BarChart3,
+  Users,
+  Diamond,
+  TrendingUp,
   Calendar,
   Plus,
   Target,
@@ -21,12 +21,12 @@ import {
   Edit
 } from 'lucide-react';
 import { type DropType, type AdvertiserAnalyticsType } from '@/shared/types';
-import { 
-  PerformanceMetrics, 
-  ActivityBreakdown, 
+import {
+  PerformanceMetrics,
+  ActivityBreakdown,
   TrendLine,
   MultiMetricChart,
-  KPICard 
+  KPICard
 } from '@/react-app/components/AnalyticsCharts';
 import SponsorshipModal from '@/react-app/components/SponsorshipModal';
 import BrandProfileModal from '@/react-app/components/BrandProfileModal';
@@ -207,7 +207,7 @@ export default function AdvertiserDashboard() {
 
   const calculateTotals = () => {
     if (!dashboardData?.drops) return { totalDrops: 0, totalParticipants: 0, totalGems: 0 };
-    
+
     return dashboardData.drops.reduce((acc, drop: any) => ({
       totalDrops: acc.totalDrops + 1,
       totalParticipants: acc.totalParticipants + (drop.total_applications || 0),
@@ -234,7 +234,7 @@ export default function AdvertiserDashboard() {
   };
 
   const analyticsData = generateAnalyticsData();
-  
+
   const campaignPerformance = [
     { metric: 'Click-through Rate', value: 4.2 },
     { metric: 'Conversion Rate', value: 12.8 },
@@ -365,9 +365,9 @@ export default function AdvertiserDashboard() {
               <div className="flex items-center space-x-3 mb-2">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
                   {(userData as any)?.brand_logo_url ? (
-                    <img 
-                      src={(userData as any).brand_logo_url} 
-                      alt="Brand logo" 
+                    <img
+                      src={(userData as any).brand_logo_url}
+                      alt="Brand logo"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -405,19 +405,102 @@ export default function AdvertiserDashboard() {
                 <p className="text-gray-600 mt-2">Manage your campaigns and track performance</p>
               </div>
             )}
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Merchant Growth Hub</h1>
+          <p className="text-gray-600 mt-1">Drive foot traffic, launch high-scarcity moments, and measure real-time ROI.</p>
         </div>
+
         <div className="flex items-center space-x-3">
-          <div className={`px-4 py-2 rounded-lg ${tierInfo.color}`}>
-            <span className="font-medium">{tierInfo.name}</span>
-          </div>
           <button
             onClick={() => setShowBrandModal(true)}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
-            title="Brand settings"
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition"
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-4 h-4" />
+            <span>Brand Profile</span>
           </button>
+
+          <Link
+            to="/create"
+            className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-md transition"
+          >
+            <Plus className="w-5 h-5" />
+            <span>New Campaign</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* 1-Click PromoPush Growth Suite */}
+      <div className="bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Megaphone className="w-3.5 h-3.5" /> PromoPush Instant Demand Engine
+            </span>
+            <h2 className="text-2xl font-extrabold">Broadcast 5-Mile Local Activation</h2>
+            <p className="text-slate-300 text-xs sm:text-sm max-w-xl">
+              Push an urgent high-scarcity offer to all verified users within 5 miles. Guaranteed local foot-traffic drive.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => alert('PromoPush Broadcast Initiated! Target: 1,240 nearby participants.')}
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-extrabold rounded-2xl text-sm shadow-lg transition-all"
+            >
+              🚀 Launch PromoPush Blast ($49)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Labor & Staffing Marketplace Hub */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Event Staff & Ambassador Recruitment</h3>
+            <p className="text-xs text-gray-500">Hire verified local promo models, brand ambassadors, and event photographers.</p>
+          </div>
+          <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-bold rounded-full border border-purple-200">
+            Marketplace Ready
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+            <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Role 1</span>
+            <h4 className="font-bold text-sm text-slate-900">Promo Models & Reps</h4>
+            <p className="text-xs text-slate-500">On-site event check-in & sampling staff ($25/hr)</p>
+            <button
+              onClick={() => alert('Recruitment brief submitted to 48 verified local Promo Models!')}
+              className="w-full py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold mt-2"
+            >
+              Hire Promo Staff
+            </button>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+            <span className="text-xs font-bold text-purple-600 uppercase tracking-wide">Role 2</span>
+            <h4 className="font-bold text-sm text-slate-900">Event Photographers</h4>
+            <p className="text-xs text-slate-500">Real-time event coverage & UGC proof ($40/hr)</p>
+            <button
+              onClick={() => alert('Recruitment brief submitted to 18 local photographers!')}
+              className="w-full py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold mt-2"
+            >
+              Hire Photographers
+            </button>
+          </div>
+
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">Role 3</span>
+            <h4 className="font-bold text-sm text-slate-900">Elite City Ambassadors</h4>
+            <p className="text-xs text-slate-500">Top 1% viral advocates for city launches</p>
+            <button
+              onClick={() => alert('Recruitment brief submitted to 12 City Champions!')}
+              className="w-full py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold mt-2"
+            >
+              Recruit Ambassadors
+            </button>
+          </div>
         </div>
       </div>
 
@@ -438,8 +521,8 @@ export default function AdvertiserDashboard() {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full" 
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
                   style={{width: `${(dashboardData.monthly_inventory.moves_used / dashboardData.monthly_inventory.moves_allocated) * 100}%`}}
                 />
               </div>
@@ -450,8 +533,8 @@ export default function AdvertiserDashboard() {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-green-500 h-2 rounded-full" 
+                <div
+                  className="bg-green-500 h-2 rounded-full"
                   style={{width: `${(dashboardData.monthly_inventory.proof_drops_used / dashboardData.monthly_inventory.proof_drops_allocated) * 100}%`}}
                 />
               </div>
@@ -477,8 +560,8 @@ export default function AdvertiserDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full" 
+                  <div
+                    className="bg-blue-500 h-2 rounded-full"
                     style={{width: `${(dashboardData.weekly_inventory.moves_used / dashboardData.weekly_inventory.moves_allocated) * 100}%`}}
                   />
                 </div>
@@ -489,8 +572,8 @@ export default function AdvertiserDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full" 
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
                     style={{width: `${(dashboardData.weekly_inventory.proof_drops_used / dashboardData.weekly_inventory.proof_drops_allocated) * 100}%`}}
                   />
                 </div>
@@ -501,8 +584,8 @@ export default function AdvertiserDashboard() {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-purple-500 h-2 rounded-full" 
+                  <div
+                    className="bg-purple-500 h-2 rounded-full"
                     style={{width: `${(dashboardData.weekly_inventory.paid_drops_used / dashboardData.weekly_inventory.paid_drops_allocated) * 100}%`}}
                   />
                 </div>
@@ -561,7 +644,7 @@ export default function AdvertiserDashboard() {
           icon={<BarChart3 className="w-5 h-5" />}
           trend={analyticsData.slice(-7).map(d => ({ date: d.date, value: Math.floor(Math.random() * 20) + 5 }))}
         />
-        
+
         <KPICard
           title="Total Participants"
           value={totals.totalParticipants.toLocaleString()}
@@ -570,7 +653,7 @@ export default function AdvertiserDashboard() {
           icon={<Users className="w-5 h-5" />}
           trend={analyticsData.slice(-7).map(d => ({ date: d.date, value: d.participants }))}
         />
-        
+
         <KPICard
           title="Gems Distributed"
           value={totals.totalGems.toFixed(1)}
@@ -579,10 +662,10 @@ export default function AdvertiserDashboard() {
           icon={<Diamond className="w-5 h-5" />}
           trend={analyticsData.slice(-7).map(d => ({ date: d.date, value: d.spent }))}
         />
-        
+
         <KPICard
           title="Avg. Engagement"
-          value={`${dashboardData.analytics.length > 0 
+          value={`${dashboardData.analytics.length > 0
             ? (dashboardData.analytics.reduce((sum, a) => sum + a.engagement_rate, 0) / dashboardData.analytics.length).toFixed(1)
             : '8.5'}%`}
           change={3}
@@ -611,7 +694,7 @@ export default function AdvertiserDashboard() {
             </div>
           </div>
         </div>
-        
+
         <div className="p-6">
           {loadingSuggestions ? (
             <div className="flex items-center justify-center py-8">
@@ -648,9 +731,9 @@ export default function AdvertiserDashboard() {
                         <p className="text-sm text-gray-600 mb-2">by @{content.creator_name}</p>
                       </div>
                       <div className="flex items-center space-x-1 ml-3">
-                        <a 
-                          href={content.platform_url} 
-                          target="_blank" 
+                        <a
+                          href={content.platform_url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
@@ -658,7 +741,7 @@ export default function AdvertiserDashboard() {
                         </a>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
                       <div className="bg-blue-50 rounded-lg p-2 text-center">
                         <div className="font-semibold text-blue-600">{content.total_engagement}</div>
@@ -681,7 +764,7 @@ export default function AdvertiserDashboard() {
                           <span>~{content.estimated_views.toLocaleString()} views</span>
                         </div>
                       </div>
-                      
+
                       {content.current_sponsor_count > 0 && (
                         <div className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">
                           {content.current_sponsor_count} other sponsor{content.current_sponsor_count > 1 ? 's' : ''}
@@ -769,10 +852,10 @@ export default function AdvertiserDashboard() {
         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibant text-gray-900 mb-6">Spending & Engagement Trends</h3>
           <TrendLine
-            data={analyticsData.map(d => ({ 
-              date: d.date, 
-              value: d.spent, 
-              secondary: d.impressions / 10 
+            data={analyticsData.map(d => ({
+              date: d.date,
+              value: d.spent,
+              secondary: d.impressions / 10
             }))}
             height={300}
             primaryKey="value"
@@ -882,8 +965,8 @@ export default function AdvertiserDashboard() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      drop.status === 'active' 
-                        ? 'text-green-600 bg-green-100' 
+                      drop.status === 'active'
+                        ? 'text-green-600 bg-green-100'
                         : 'text-gray-600 bg-gray-100'
                     }`}>
                       {drop.status}
@@ -965,7 +1048,7 @@ export default function AdvertiserDashboard() {
                   durationHours
                 })
               });
-              
+
               if (response.ok) {
                 setSelectedContentForSponsorship(null);
                 fetchSuggestedContent();

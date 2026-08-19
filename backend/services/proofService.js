@@ -6,7 +6,7 @@ const pieceEarningService = require('./pieceEarningService');
 const promoPushTrackingService = require('./promoPushTrackingService');
 const experienceAutomationService = require('./experienceAutomationService');
 const growthOperatingService = require('./growthOperatingService');
-const { geoProperties, toMomentProofEnum } = require('../lib/jamaicaGeo');
+const masterKeyService = require('./masterKeyService');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -46,8 +46,11 @@ function isAdminReviewer(user = {}) {
   return adminRoles.includes(user.role) || adminRoles.includes(user.user_type) || adminEmails.includes(user.email);
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 async function getProofRequirements(momentId) {
   if (!supabase) throw new Error('Database not available');
+  if (!momentId || !UUID_PATTERN.test(momentId)) return [];
 
   const { data, error } = await supabase
     .from('proof_requirements')
@@ -73,8 +76,7 @@ async function getPendingProofSubmissions(viewer = {}) {
         memory_rarity,
         venue_name,
         category,
-        host_id,
-        organizer_id
+        host_id
       )
     `)
     .eq('submission_state', 'pending')
@@ -82,7 +84,7 @@ async function getPendingProofSubmissions(viewer = {}) {
 
   if (error) throw error;
   const rows = data || [];
-  const scopedRows = isAdminReviewer(viewer) ? rows : rows.filter((row) => row.moment?.host_id === viewer.id || row.moment?.organizer_id === viewer.id);
+  const scopedRows = isAdminReviewer(viewer) ? rows : rows.filter((row) => row.moment?.host_id === viewer.id);
   return attachMissionAttribution(scopedRows);
 }
 
@@ -101,8 +103,7 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
         memory_rarity,
         venue_name,
         category,
-        host_id,
-        organizer_id
+        host_id
       )
     `)
     .neq('submission_state', 'pending')
@@ -113,7 +114,7 @@ async function getProofSubmissionHistory(viewer = {}, limit = 50) {
 
   const scopedSubmissions = isAdminReviewer(viewer)
     ? (data || [])
-    : (data || []).filter((row) => row.moment?.host_id === viewer.id || row.moment?.organizer_id === viewer.id);
+    : (data || []).filter((row) => row.moment?.host_id === viewer.id);
   const submissions = scopedSubmissions;
   if (submissions.length === 0) return [];
 
@@ -214,8 +215,7 @@ async function getProofSubmissionById(submissionId) {
       moment:moments (
         id,
         title,
-        host_id,
-        organizer_id
+        host_id
       )
     `)
     .eq('id', submissionId)
@@ -394,10 +394,7 @@ async function getProofSubmissionAudit(submissionId) {
 async function submitProofSubmission({ momentId, userId, proofBundle, momentMoveId = null }) {
   if (!supabase) throw new Error('Database not available');
 
-  const normalizedBundle = {
-    ...(proofBundle || {}),
-    proof_type: proofBundle?.proof_type ? toMomentProofEnum(proofBundle.proof_type) : (proofBundle?.proof_type || null),
-  };
+  const normalizedBundle = proofBundle || {};
   const uniqueKey = await momentEconomyService.validateUniqueProof({
     momentId,
     userId,
@@ -418,22 +415,24 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
     .single();
 
   if (error) throw error;
-  let momentRow = {};
   try {
-    const { data: moment } = await supabase
-      .from('moments')
-      .select('id, city, country, country_code, location, proof_type')
-      .eq('id', momentId)
-      .maybeSingle();
-    momentRow = moment || {};
-  } catch (momentError) {
-    console.warn('[Proof Service] moment geo lookup skipped:', momentError.message);
+    const demandEventService = require('./demandEventService');
+    await demandEventService.recordEvent({
+      idempotencyKey: `demand:proof-submitted:${data.id}`,
+      campaignId: normalizedBundle?.campaign_id || null,
+      promoPushCampaignId: normalizedBundle?.promopush_campaign_id || null,
+      momentId,
+      actorUserId: userId,
+      eventType: 'proof_submitted',
+      sourceSystem: 'proof_submissions',
+      sourceReference: data.id,
+      channel: normalizedBundle?.utm_medium || (normalizedBundle?.promopush_tracking_code ? 'promopush' : 'promorang'),
+      verified: false,
+      properties: { moment_move_id: momentMoveId || null },
+    });
+  } catch (demandError) {
+    console.warn('[Proof Service] demand proof submission mirror skipped:', demandError.message);
   }
-  const proofKind = String(normalizedBundle?.proof_type || momentRow.proof_type || '').toLowerCase();
-  const geoProps = geoProperties(momentRow, {
-    moment_move_id: momentMoveId || null,
-    proof_type: normalizedBundle?.proof_type || momentRow.proof_type || null,
-  });
   try {
     await growthOperatingService.recordEvent({
       eventName: 'proof_submitted', journey: 'participant', stage: 'outcome',
@@ -445,24 +444,10 @@ async function submitProofSubmission({ momentId, userId, proofBundle, momentMove
       promoPushCampaignId: normalizedBundle?.promopush_campaign_id || null,
       promoPushChannelId: normalizedBundle?.promopush_channel_id || null,
       idempotencyKey: `growth:proof-submitted:${data.id}`,
-      properties: geoProps,
+      properties: { moment_move_id: momentMoveId || null },
     });
   } catch (growthError) {
     console.warn('[Proof Service] growth proof submission mirror skipped:', growthError.message);
-  }
-  if (proofKind === 'share' || proofKind === 'screenshot' || proofKind === 'link') {
-    try {
-      await growthOperatingService.recordEvent({
-        eventName: 'share_completed', journey: 'shared', stage: 'amplified',
-        userId, momentId, entityType: 'proof_submission', entityId: data.id,
-        source: 'product',
-        medium: proofKind,
-        idempotencyKey: `growth:share-completed:${data.id}`,
-        properties: geoProps,
-      });
-    } catch (growthError) {
-      console.warn('[Proof Service] growth share_completed skipped:', growthError.message);
-    }
   }
   return data;
 }
@@ -520,6 +505,24 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     .eq('user_id', userId);
 
   try {
+    const demandEventService = require('./demandEventService');
+    await demandEventService.recordEvent({
+      idempotencyKey: `demand:proof-verified:${proofSubmissionId}`,
+      campaignId: proofBundle?.campaign_id || null,
+      momentId,
+      actorUserId: userId,
+      eventType: 'proof_verified',
+      sourceSystem: 'proof_submissions',
+      sourceReference: proofSubmissionId,
+      channel: proofBundle?.utm_medium || (proofBundle?.promopush_tracking_code ? 'promopush' : 'promorang'),
+      verified: true,
+      properties: { reviewer_id: reviewerId },
+    });
+  } catch (demandError) {
+    console.warn('[Proof Service] demand proof mirror skipped:', demandError.message);
+  }
+
+  try {
     await supabase.from('participation_events').insert({
       moment_id: momentId,
       user_id: userId,
@@ -535,6 +538,21 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     console.warn('[Proof Service] approval participation event skipped:', eventError.message);
   }
 
+  try {
+    await masterKeyService.recordVerifiedFreeProof({
+      userId,
+      sourceType: 'proof_submission',
+      sourceId: proofSubmissionId,
+      metadata: {
+        ...proofBundle,
+        moment_id: momentId,
+        reviewer_id: reviewerId,
+      },
+    });
+  } catch (masterKeyError) {
+    console.warn('[Proof Service] daily Master Key credit skipped:', masterKeyError.message);
+  }
+
   const reward = await ensureMomentReward(momentId, userId);
   await promoPushTrackingService.trackPromoPushEvent({
     eventType: 'proof_verified',
@@ -548,22 +566,6 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
     },
   });
 
-  let momentRow = {};
-  try {
-    const { data: moment } = await supabase
-      .from('moments')
-      .select('id, city, country, country_code, location, proof_type')
-      .eq('id', momentId)
-      .maybeSingle();
-    momentRow = moment || {};
-  } catch (momentError) {
-    console.warn('[Proof Service] moment geo lookup skipped:', momentError.message);
-  }
-  const geoProps = geoProperties(momentRow, {
-    reviewer_id: reviewerId,
-    reward_id: reward?.id || null,
-    proof_type: proofBundle?.proof_type || momentRow.proof_type || null,
-  });
   try {
     await growthOperatingService.recordEvent({
       eventName: 'verified_outcome', journey: 'participant', stage: 'outcome',
@@ -575,26 +577,10 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
       promoPushCampaignId: proofBundle?.promopush_campaign_id || null,
       promoPushChannelId: proofBundle?.promopush_channel_id || null,
       idempotencyKey: `growth:verified-proof:${proofSubmissionId}`,
-      properties: geoProps,
+      properties: { reviewer_id: reviewerId, reward_id: reward?.id || null },
     });
   } catch (growthError) {
     console.warn('[Proof Service] growth outcome mirror skipped:', growthError.message);
-  }
-  try {
-    await growthOperatingService.recordEvent({
-      eventName: 'proof_approved', journey: 'participant', stage: 'outcome',
-      userId, momentId, entityType: 'proof_submission', entityId: proofSubmissionId,
-      source: proofBundle?.utm_source || (proofBundle?.promopush_tracking_code ? 'promopush' : 'product'),
-      medium: proofBundle?.utm_medium || (proofBundle?.promopush_tracking_code ? 'attributed_link' : 'organic'),
-      campaign: proofBundle?.utm_campaign || null,
-      referralCode: proofBundle?.referral_code || null,
-      promoPushCampaignId: proofBundle?.promopush_campaign_id || null,
-      promoPushChannelId: proofBundle?.promopush_channel_id || null,
-      idempotencyKey: `growth:proof-approved:${proofSubmissionId}`,
-      properties: geoProps,
-    });
-  } catch (growthError) {
-    console.warn('[Proof Service] growth proof_approved skipped:', growthError.message);
   }
 
   if (reward?.id) {
@@ -631,7 +617,7 @@ async function finalizeVerifiedAttendance({ momentId, userId, proofSubmissionId,
   return { reward, piece_awards: pieceAwards };
 }
 
-async function reviewProofSubmission({ submissionId, reviewerId, reviewer = null, action, reviewReason }) {
+async function reviewProofSubmission({ submissionId, reviewerId, action, reviewReason }) {
   if (!supabase) throw new Error('Database not available');
 
   const nextState = action === 'approve' ? 'verified' : 'rejected';
@@ -676,7 +662,7 @@ async function reviewProofSubmission({ submissionId, reviewerId, reviewer = null
       reviewerId,
     });
 
-    payout = await momentEconomyService.executePayoutForProof(data.id, reviewerId, reviewer);
+    payout = await momentEconomyService.executePayoutForProof(data.id, reviewerId);
 
     const sourceContentId = data.proof_bundle?.source_content_id || data.proof_bundle?.content_id || null;
     if (sourceContentId) {

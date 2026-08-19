@@ -26,6 +26,7 @@ import ConfirmationModal from '@/react-app/components/ConfirmationModal';
 import type { DropType, DropApplicationType, UserType } from '../../shared/types';
 import api from '@/react-app/lib/api';
 import BuyMissionSubmitModal from '@/react-app/components/BuyMissionSubmitModal';
+import ClipMissionSubmitModal from '@/react-app/components/ClipMissionSubmitModal';
 
 interface MomentReflection {
   id: string;
@@ -54,6 +55,7 @@ export default function TaskDetail() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBuyProofModal, setShowBuyProofModal] = useState(false);
+  const [showClipModal, setShowClipModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reflections, setReflections] = useState<MomentReflection[]>([]);
 
@@ -898,6 +900,23 @@ export default function TaskDetail() {
           dropId={drop.id}
           dropTitle={drop.title}
           verified_creditsReward={drop.gem_reward_base || 0}
+          onSuccess={() => {
+            checkApplication();
+            fetchUserData();
+          }}
+        />
+      )}
+
+      {/* Clip Mission Submission Modal */}
+      {drop && (
+        <ClipMissionSubmitModal
+          isOpen={showClipModal}
+          onClose={() => setShowClipModal(false)}
+          missionId={drop.id}
+          missionTitle={drop.title}
+          creatorName={drop.creator?.full_name || 'Promorang Creator'}
+          sourceVideoUrl={drop.content_url || 'https://www.youtube.com'}
+          cpmRate={drop.gem_reward_base || 500}
           onSuccess={() => {
             checkApplication();
             fetchUserData();

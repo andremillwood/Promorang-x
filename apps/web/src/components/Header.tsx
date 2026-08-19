@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo-full.png";
-import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket, ShieldCheck, UserRoundPlus } from "lucide-react";
+import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
+import { Menu, X, ChevronDown, Building2, Store, Users, Search, Bell, Check, Building, PlayCircle, KeyRound, Sparkles, Compass, Coins, FileText, Gem, Ticket, ShieldCheck, UserRoundPlus, Globe2, Heart, Bot } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -29,10 +30,14 @@ const Header = () => {
     location.pathname === "/pioneers" ||
     location.pathname === "/organizer" ||
     location.pathname === "/live" ||
+    location.pathname.startsWith("/radar") ||
+    location.pathname.startsWith("/opportunity-radar") ||
     location.pathname.startsWith("/scenes") ||
     location.pathname.startsWith("/communities") ||
     location.pathname.startsWith("/creators") ||
     location.pathname.startsWith("/events");
+  const isLeadMagnetPage = location.pathname.startsWith("/free/");
+  const hasDarkHeader = isCinematicPublicPage || isLeadMagnetPage;
 
   const handleSignOut = async () => {
     await signOut();
@@ -43,7 +48,7 @@ const Header = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-lg transition-colors ${
-      isCinematicPublicPage
+      hasDarkHeader
         ? "border-b border-white/10 bg-black/25 text-white"
         : "border-b border-border bg-background/80"
     }`}>
@@ -64,42 +69,59 @@ const Header = () => {
           <div className="hidden lg:flex items-center gap-3 xl:gap-5 shrink-0 whitespace-nowrap">
             <Link
               to="/"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Home
             </Link>
             <Link
               to="/discover"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Discover
             </Link>
             <Link
               to="/live"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Live
             </Link>
             <Link
               to="/scenes"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Scenes
             </Link>
             <Link
               to="/creators"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               Creators
             </Link>
             <Link
               to="/promoshare"
-              className={`${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
+              className={`${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"} transition-colors font-medium text-sm whitespace-nowrap shrink-0`}
             >
               PromoShare
             </Link>
             <DropdownMenu>
-              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+                Free tools <ChevronDown className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[25rem] p-2 rounded-2xl shadow-elevated border-border/50">
+                {[
+                  ["/free/scene", Compass, "Find Your Scene", "Find the room and Moment that fits"],
+                  ["/free/moment", Users, "Score Your Moment", "Test attendance and repeat potential"],
+                  ["/free/demand", Store, "Reveal Nearby Demand", "Find a valuable quiet-hours opening"],
+                  ["/free/creator", PlayCircle, "Audit Your Influence", "See what your taste can move"],
+                  ["/free/sponsor", Building2, "Build an Activation Brief", "Turn budget into measurable action"],
+                ].map(([href, Icon, title, description]) => {
+                  const ToolIcon = Icon as typeof Compass;
+                  return <DropdownMenuItem asChild key={href as string}><Link to={href as string} className="flex items-center gap-3 rounded-xl p-3 cursor-pointer"><div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><ToolIcon className="h-4 w-4" /></div><div><p className="text-sm font-bold">{title as string}</p><p className="text-[10px] text-muted-foreground">{description as string}</p></div></Link></DropdownMenuItem>;
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 More <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[34rem] p-2 rounded-2xl shadow-elevated border-border/50">
@@ -145,6 +167,17 @@ const Header = () => {
                       <div>
                         <p className="font-bold text-sm">Organizer Workspace</p>
                         <p className="text-[10px] text-muted-foreground">Manage moments, check-ins, revenue, and proof</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/campaign-intelligence" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600">
+                        <Bot className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Campaign Intelligence</p>
+                        <p className="text-[10px] text-muted-foreground">AI Operator campaign planning & drafts</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -261,7 +294,7 @@ const Header = () => {
 
             {/* Stakeholder Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${isCinematicPublicPage ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
+              <DropdownMenuTrigger className={`flex items-center gap-1 transition-colors font-medium text-sm outline-none whitespace-nowrap shrink-0 ${hasDarkHeader ? "text-white/75 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}>
                 For partners <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-elevated border-border/50">
@@ -309,17 +342,33 @@ const Header = () => {
                     </div>
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/for-enterprise" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600">
+                      <Globe2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">For Enterprise</p>
+                      <p className="text-[10px] text-muted-foreground">Scaled brand activation</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/for-causes" className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
+                    <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
+                      <Heart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">For Causes</p>
+                      <p className="text-[10px] text-muted-foreground">Action-backed impact</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Search Icon */}
-            <Link
-              to="/search"
-              className={`p-2 rounded-full transition-colors shrink-0 ${isCinematicPublicPage ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </Link>
+            {/* Command Palette & Instant Search */}
+            <HeaderSearchPreview />
           </div>
 
           {/* Right Side */}
@@ -541,6 +590,15 @@ const Header = () => {
                   >
                     Search
                   </Link>
+                </div>
+              </div>
+
+              <div className="h-px bg-border/50" />
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Start with a free result</h4>
+                <div className="grid gap-2">
+                  {[["/free/scene","Find Your Scene"],["/free/moment","Score Your Moment"],["/free/demand","Reveal Nearby Demand"],["/free/creator","Audit Your Influence"],["/free/sponsor","Build an Activation Brief"]].map(([href,label])=><Link key={href} to={href} className="text-foreground transition-colors font-medium" onClick={closeMobileMenu}>{label}</Link>)}
                 </div>
               </div>
 

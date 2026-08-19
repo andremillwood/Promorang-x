@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -237,9 +238,18 @@ export function AdminProofBuilderTab() {
             <ShieldCheck className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold">Proof Builder</h2>
           </div>
-          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            Use this superadmin workspace to move Promorang from product capability into visible market proof: moment supply, funded incentives, verified participation, and stakeholder reports.
-          </p>
+          <GuidanceDisclosure
+            id="admin-proof-builder:workspace-context"
+            eyebrow="Proof guide"
+            title="What this workspace is for"
+            summary="Move from product capability into visible market proof: supply, incentives, verified participation, and reports."
+            className="mt-3 max-w-3xl"
+            tone="light"
+          >
+            <p className="text-sm text-muted-foreground">
+              Use this superadmin workspace to move Promorang from product capability into visible market proof: moment supply, funded incentives, verified participation, and stakeholder reports.
+            </p>
+          </GuidanceDisclosure>
         </div>
         <Button variant="outline" onClick={() => proofQuery.refetch()} disabled={proofQuery.isFetching}>
           {proofQuery.isFetching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -252,9 +262,18 @@ export function AdminProofBuilderTab() {
           <div>
             <Badge variant="outline" className="border-primary/30 text-primary">Activation bridge</Badge>
             <h3 className="mt-4 font-serif text-3xl font-bold text-foreground">Build the proof that makes Promorang obvious.</h3>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              The target is not more abstract features. The target is a repeatable evidence packet: people showed up, value was issued, rewards were redeemed, and a venue or brand can see what happened.
-            </p>
+            <GuidanceDisclosure
+              id="admin-proof-builder:activation-bridge"
+              eyebrow="Activation guide"
+              title="What evidence should prove"
+              summary="The useful packet is simple: people showed up, value issued, rewards redeemed, and stakeholders can see what happened."
+              className="mt-3"
+              tone="light"
+            >
+              <p className="text-sm leading-6 text-muted-foreground">
+                The target is not more abstract features. The target is a repeatable evidence packet: people showed up, value was issued, rewards were redeemed, and a venue or brand can see what happened.
+              </p>
+            </GuidanceDisclosure>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button asChild>
                 <Link to="/create/moment">
@@ -319,7 +338,16 @@ export function AdminProofBuilderTab() {
             <Card>
               <CardHeader>
                 <CardTitle>Operator Playbook</CardTitle>
-                <CardDescription>Use these actions to stop the loop from depending on you manually keeping events alive.</CardDescription>
+                <GuidanceDisclosure
+                  id="admin-proof-builder:operator-playbook"
+                  eyebrow="Playbook guide"
+                  title="How to make proof repeatable"
+                  summary="Use these actions to stop the loop from depending on manual event maintenance."
+                  className="mt-3"
+                  tone="light"
+                >
+                  <CardDescription>Use these actions to stop the loop from depending on you manually keeping events alive.</CardDescription>
+                </GuidanceDisclosure>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[

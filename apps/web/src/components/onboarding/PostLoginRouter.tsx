@@ -71,20 +71,13 @@ export function PostLoginRouter() {
         .select('id', { count: 'exact', head: true })
         .eq('owner_user_id', user.id);
 
-      const creatorFilters = [
-        profile?.username ? `creator_username.eq.${profile.username}` : null,
-        user.user_metadata?.username ? `creator_username.eq.${user.user_metadata.username}` : null,
-        profile?.display_name ? `creator_name.eq.${profile.display_name}` : null,
-        user.user_metadata?.full_name ? `creator_name.eq.${user.user_metadata.full_name}` : null,
-        user.email ? `creator_name.eq.${user.email}` : null,
-      ].filter(Boolean);
-
-      const { count: creatorContentCount } = creatorFilters.length
-        ? await supabase
-            .from('content_pieces')
-            .select('id', { count: 'exact', head: true })
-            .or(creatorFilters.join(','))
-        : { count: 0 };
+      // Content ownership is keyed by the authenticated user. Avoid building a
+      // PostgREST expression from display names or email addresses: punctuation
+      // in those values can make the entire request invalid.
+      const { count: creatorContentCount } = await supabase
+        .from('content_pieces')
+        .select('id', { count: 'exact', head: true })
+        .eq('creator_id', user.id);
 
       const hasCreatedContent = (momentCount || 0) > 0;
       const hasJoinedContent = (joinedCount || 0) > 0;

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
+import type { DemandPlan } from "@promorang/shared";
 
 // --- CORE INTERFACES ---
 export type CampaignType = "CONTENT" | "PURCHASE" | "REFERRAL" | "VISIT";
@@ -36,6 +38,7 @@ export interface CompilerMetadata {
   type: CampaignType;
   normalizedIntent: NormalizedIntent;
   generatedAt: string;
+  demandPlan?: DemandPlan;
 }
 
 export function useCampaignCompiler() {
@@ -189,9 +192,47 @@ export function useCampaignCompiler() {
     prompt: string
   ): Promise<{ campaign: CompiledCampaign; metadata: CompilerMetadata }> => {
     setIsCompiling(true);
-    
-    // Simulate delay for feel of generation
-    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/demand-plans/compile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statement: prompt }),
+      });
+
+      if (response.ok) {
+        const payload = await response.json() as { plan: DemandPlan };
+        const demandPlan = payload.plan;
+        const requiredAction = demandPlan.experience.actions.find((action) => action.required) || demandPlan.experience.actions[0];
+        const proofMap: Record<string, ProofType> = { link: "LINK", api: "LINK", receipt: "OCR", photo: "UPLOAD", qr: "UPLOAD", check_in: "UPLOAD", human_review: "UPLOAD" };
+        const typeMap: Record<string, CampaignType> = { create_content: "CONTENT", drive_sales: "PURCHASE", grow_referrals: "REFERRAL", bring_people: "VISIT", build_loyalty: "VISIT", mobilize_community: "VISIT" };
+        const type = typeMap[demandPlan.intent.goal] || "VISIT";
+        const proof = proofMap[requiredAction?.proof || "link"] || "LINK";
+        const gemValue = demandPlan.sharedValue.find((value) => value.type === "gems")?.amount || 0;
+
+        return {
+          campaign: {
+            moment: { name: demandPlan.title, description: demandPlan.promise, tier: "A3" },
+            drop: requiredAction?.label || demandPlan.experience.invitation,
+            moves: demandPlan.experience.actions.filter((action) => action.type !== "discover").slice(0, 3).map((action) => action.label),
+            proof,
+            verificationType: proof,
+            reward: { baseGems: gemValue },
+            outcome: {
+              volume: demandPlan.measurement.forecast.expected ? `${demandPlan.measurement.forecast.low}–${demandPlan.measurement.forecast.high} ${demandPlan.measurement.forecast.unit}` : "Set a target to forecast",
+              reach: "Planned across Pulse and selected channels",
+              conversionIntent: demandPlan.measurement.primaryOutcome,
+            },
+          },
+          metadata: { type, normalizedIntent: { primaryAction: type, cleanedInput: prompt.trim() }, generatedAt: demandPlan.generatedAt, demandPlan },
+        };
+      }
+    } catch {
+      // Continue with the deterministic local compiler when the API is unavailable.
+    }
+
+    // Offline-safe deterministic fallback.
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Pipeline Execution
     const normalizedIntent = normalizeIntent(prompt);
@@ -206,9 +247,17 @@ export function useCampaignCompiler() {
       generatedAt: new Date().toISOString(),
     };
 
-    setIsCompiling(false);
     return { campaign: enforcedCampaign, metadata: compilerMetadata };
   };
 
-  return { compile, isCompiling };
+  const compileWithState = async (prompt: string) => {
+    setIsCompiling(true);
+    try {
+      return await compile(prompt);
+    } finally {
+      setIsCompiling(false);
+    }
+  };
+
+  return { compile: compileWithState, isCompiling };
 }

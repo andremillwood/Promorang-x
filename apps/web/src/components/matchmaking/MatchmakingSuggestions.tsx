@@ -94,7 +94,7 @@ export const MatchmakingSuggestions = ({
                         <Card
                             key={item.id}
                             className={cn(
-                                "p-3 group hover:border-primary/50 transition-all duration-300 relative overflow-hidden",
+                                "p-3 group hover:border-primary/50 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 relative overflow-hidden",
                                 isSelected && "border-primary bg-primary/5"
                             )}
                         >
@@ -123,7 +123,7 @@ export const MatchmakingSuggestions = ({
                                     size="icon"
                                     variant={isSelected ? "default" : "outline"}
                                     className={cn(
-                                        "w-8 h-8 rounded-full flex-shrink-0 transition-all",
+                                        "w-8 h-8 rounded-full flex-shrink-0 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                                         !isSelected && "opacity-0 group-hover:opacity-100"
                                     )}
                                     onClick={() => onSelect?.(item.id, item.name)}

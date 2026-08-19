@@ -109,18 +109,15 @@ export function MomentSocialArtifact({
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               The goal is not just attendance. It is a visible receipt that says who showed up, what happened, what was earned, and why the next moment matters.
             </p>
-            <div className="mt-5 flex -space-x-2">
-              {Array.from({ length: Math.min(4, Math.max(3, participantCount || 0)) }).map((_, index) => (
-                <div key={index} className="h-9 w-9 overflow-hidden rounded-full border-2 border-card bg-muted">
-                  <img
-                    src={`https://i.pravatar.cc/100?u=${momentId}-artifact-${index}`}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ))}
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-card bg-primary text-xs font-bold text-primary-foreground">
-                +{Math.max(0, participantCount - 4)}
+            <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border border-border bg-background/70 px-4 py-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Users className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-lg font-black text-foreground">{participantCount}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                  {participantCount === 1 ? "guest joined" : "guests joined"}
+                </p>
               </div>
             </div>
           </div>

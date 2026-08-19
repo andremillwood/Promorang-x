@@ -62,12 +62,15 @@ async function fetchProofOutcome(path: string, token: string) {
   return payload as ProofOutcomeData;
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function useMomentProofOutcome(momentId?: string | null) {
   const { session } = useAuth();
+  const isValidUuid = Boolean(momentId && UUID_PATTERN.test(momentId));
 
   return useQuery({
     queryKey: ["proof-outcome", "moment", momentId],
-    enabled: !!session?.access_token && !!momentId,
+    enabled: Boolean(session?.access_token && isValidUuid),
     queryFn: () => fetchProofOutcome(`/api/analytics/proof-outcome/moments/${momentId}`, session!.access_token),
   });
 }

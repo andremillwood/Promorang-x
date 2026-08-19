@@ -217,8 +217,7 @@ export function useHostStats() {
         .from("moments")
         .select("*", { count: "exact", head: true })
         .eq("host_id", user.id)
-        .eq("is_active", true)
-        .gte("starts_at", new Date().toISOString());
+        .eq("is_active", true);
 
       // Get total participants across all moments
       const { data: hostedMoments } = await supabase

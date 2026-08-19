@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Briefcase,
     TrendingUp,
@@ -46,7 +48,12 @@ const features = [
 
 const ForAgencies = () => {
     return (
-        <div className="min-h-screen bg-background">
+        <>
+            <SEO
+                title="Promorang for Agencies | Return of Work Studio"
+                description="Empower marketing agencies and campaign managers to launch multi-client campaigns, track verified foot-traffic ROI, and generate automated client recap reports."
+            />
+            <div className="min-h-screen bg-background">
             {/* Hero Section */}
             <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-brand">
                 <div className="container px-6">
@@ -77,6 +84,8 @@ const ForAgencies = () => {
                     </div>
                 </div>
             </section>
+
+            <LeadMagnetGateway audience="brand" />
 
             {/* Features Section */}
             <section className="py-20 md:py-32">
@@ -133,6 +142,7 @@ const ForAgencies = () => {
                 </div>
             </section>
         </div>
+        </>
     );
 };
 

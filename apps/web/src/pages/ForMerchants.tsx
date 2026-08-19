@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import PioneerCallout from "@/components/pioneer/PioneerCallout";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Store,
     Users,
@@ -16,6 +17,7 @@ import {
     Clock,
     ShieldCheck,
     Lock,
+    Sparkles,
 } from "lucide-react";
 
 const merchantBenefits = [
@@ -54,10 +56,13 @@ const stats = [
 
 const ForMerchants = () => {
     const { user } = useAuth();
+    const [searchParams] = useSearchParams();
+    const claimVenue = searchParams.get("claimVenue") || searchParams.get("venue");
+
     return (
         <div className="min-h-screen bg-background">
             <SEO
-                title="Promorang for Merchants - Your Space is the Stage"
+                title={claimVenue ? `Claim ${claimVenue} - Promorang for Merchants` : "Promorang for Merchants - Your Space is the Stage"}
                 description="Become a trusted destination for Scene moments. Attract storytellers, welcome them personally, and build real activity in your space."
                 type="website"
             />
@@ -67,10 +72,32 @@ const ForMerchants = () => {
                 <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full -top-24 -left-24" />
                 <div className="container relative z-10 px-4 sm:px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-8">
-                            <Store className="w-4 h-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">A space for every story</span>
-                        </div>
+                        {claimVenue ? (
+                            <div className="mb-8 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 mb-3">
+                                    <ShieldCheck className="w-4 h-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Unclaimed Editorial Listing</span>
+                                </div>
+                                <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">
+                                    Are you the owner or manager of <span className="text-amber-400">{claimVenue}</span>?
+                                </h2>
+                                <p className="text-sm text-white/70 max-w-xl mx-auto mb-5">
+                                    Patrons in Kingston are discovering and saving your space on Promorang. Claim your official venue profile to host verified drops, control your listing, and track foot traffic.
+                                </p>
+                                <Button variant="hero" size="lg" className="bg-amber-500 hover:bg-amber-600 text-gray-950 font-black shadow-lg shadow-amber-500/20" asChild>
+                                    <Link to={`/dashboard/venues/add?name=${encodeURIComponent(claimVenue)}`}>
+                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        Claim & Verify {claimVenue}
+                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                    </Link>
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-8">
+                                <Store className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">A space for every story</span>
+                            </div>
+                        )}
 
                         <h1 className="mx-auto mb-6 max-w-[20rem] break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-white sm:max-w-4xl sm:text-6xl md:text-7xl">
                             Become the Place <span className="text-primary">People Return To.</span>
@@ -119,6 +146,8 @@ const ForMerchants = () => {
                     </div>
                 </div>
             </section>
+
+            <LeadMagnetGateway audience="merchant" />
 
             <MissionRoleValue audience="merchant" />
 

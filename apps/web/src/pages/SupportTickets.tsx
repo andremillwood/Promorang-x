@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,16 +31,20 @@ const statusTone: Record<string, string> = {
 
 export default function SupportTickets() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const receiptId = searchParams.get("receipt");
+  const receiptProduct = searchParams.get("product");
   const { toast } = useToast();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    subject: "",
+    subject: receiptProduct ? `Problem with ${receiptProduct}` : "",
     category: "other",
     message: "",
     priority: "medium",
+    reason: "reward_not_honoured",
   });
 
   useEffect(() => {
@@ -80,10 +84,10 @@ export default function SupportTickets() {
     setError("");
 
     try {
-      const response = await fetch(`${apiBase}/api/support`, {
+      const response = await fetch(`${apiBase}/api/support${receiptId ? "/commerce-cases" : ""}`, {
         method: "POST",
         headers: await getAuthHeaders(),
-        body: JSON.stringify(form),
+        body: JSON.stringify(receiptId ? { receipt_id: receiptId, reason: form.reason, message: form.message, evidence: [] } : form),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || payload.success === false) {
@@ -100,6 +104,7 @@ export default function SupportTickets() {
         category: "other",
         message: "",
         priority: "medium",
+        reason: "reward_not_honoured",
       });
 
       await fetchTickets();
@@ -196,12 +201,13 @@ export default function SupportTickets() {
                   <Plus className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">New support request</h2>
-                  <p className="text-sm text-muted-foreground">Use this for account-specific issues that need follow-up.</p>
+                  <h2 className="text-xl font-semibold">{receiptId ? "Report a commerce problem" : "New support request"}</h2>
+                  <p className="text-sm text-muted-foreground">{receiptId ? `This case will be attached to ${receiptProduct || "your receipt"} and routed to the merchant.` : "Use this for account-specific issues that need follow-up."}</p>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {receiptId ? <div className="space-y-2"><label htmlFor="reason" className="text-sm font-medium">What went wrong?</label><select id="reason" value={form.reason} onChange={(event)=>setForm((current)=>({...current,reason:event.target.value}))} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="reward_not_honoured">Reward not honoured</option><option value="code_failed">Code failed</option><option value="merchant_closed">Merchant was closed</option><option value="offer_differed">Offer differed</option><option value="purchase_problem">Purchase problem</option><option value="other">Something else</option></select><p className="text-xs text-muted-foreground">Receipt #{receiptId.slice(0,8)} · Merchant response due within 18 hours.</p></div> : null}
                 <div className="space-y-2">
                   <label htmlFor="subject" className="text-sm font-medium">Subject</label>
                   <Input

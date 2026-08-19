@@ -14,13 +14,42 @@ router.get('/me/history', requireAuth, async (req, res) => {
     }
 });
 
+// GET /api/moments/:id - Get a specific moment by UUID, slug, or title search
+router.get('/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        let moment = null;
+
+        if (UUID_PATTERN.test(id)) {
+            const { data } = await supabase.from('moments').select('*').eq('id', id).maybeSingle();
+            moment = data;
+        } else {
+            const { data: slugData } = await supabase.from('moments').select('*').eq('slug', id).maybeSingle();
+            if (slugData) {
+                moment = slugData;
+            } else {
+                const { data: titleData } = await supabase.from('moments').select('*').ilike('title', `%${id.replace(/-/g, ' ')}%`).maybeSingle();
+                moment = titleData;
+            }
+        }
+
+        if (!moment) {
+            return res.status(404).json({ error: 'Moment not found' });
+        }
+
+        res.json(moment);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // GET /api/moments - List active moments
 router.get('/', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('moments')
             .select('*')
-            .eq('status', 'live')
             .order('starts_at', { ascending: true });
 
         if (error) throw error;

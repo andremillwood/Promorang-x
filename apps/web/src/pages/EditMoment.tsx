@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import {
   Select,
   SelectContent,
@@ -33,7 +35,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Save, Loader2, Trash2, Calendar, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Trash2, Calendar, ShieldCheck, Sparkles, Image as ImageIcon, MapPin } from "lucide-react";
 import {
   momentCategories,
   venueCategories,
@@ -57,6 +59,7 @@ const recurrenceWeekdayOptions = [
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 
 const EditMoment = () => {
+  const [activeSection, setActiveSection] = useState("story");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
@@ -349,9 +352,18 @@ const EditMoment = () => {
         <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-foreground">
           Keep the moment sharp.
         </h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-          Update the promise, place, schedule, proof signal, and reward so participants know exactly why to show up and what their action unlocks.
-        </p>
+        <GuidanceDisclosure
+          id="edit-moment:control-context"
+          eyebrow="Edit guide"
+          title="What to keep sharp when editing"
+          summary="Update the promise, place, schedule, proof signal, and reward without muddying why people should show up."
+          className="mt-4 max-w-2xl"
+          tone="light"
+        >
+          <p className="text-base leading-7 text-muted-foreground">
+            Update the promise, place, schedule, proof signal, and reward so participants know exactly why to show up and what their action unlocks.
+          </p>
+        </GuidanceDisclosure>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
             { icon: Calendar, label: "Timing", copy: "Keep the room current" },
@@ -367,6 +379,20 @@ const EditMoment = () => {
         </div>
       </div>
 
+      <DashboardWorkspaceNav
+        eyebrow="Edit moment"
+        title="Change one part without losing your place"
+        activeValue={activeSection}
+        onValueChange={setActiveSection}
+        anchorId="edit-moment-workspace"
+        items={[
+          { value: "story", label: "Promise", icon: Sparkles },
+          { value: "place", label: "Place & timing", icon: MapPin },
+          { value: "proof", label: "Proof & unlock", icon: ShieldCheck },
+          { value: "media", label: "Media", icon: ImageIcon },
+        ]}
+      />
+
       {isLoading ? (
         <div className="space-y-6">
           <Skeleton className="h-48 rounded-xl" />
@@ -374,9 +400,9 @@ const EditMoment = () => {
           <Skeleton className="h-32 rounded-xl" />
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id="edit-moment-workspace" onSubmit={handleSubmit} className="scroll-mt-28 space-y-6">
           {/* Cover Image */}
-          <div className="bg-card border border-border rounded-2xl p-6">
+          <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
             <Label className="mb-3 block">Display Picture</Label>
             <ImageUpload
               value={formData.imageUrl}
@@ -388,7 +414,7 @@ const EditMoment = () => {
             <p className="mt-2 text-sm text-muted-foreground">Used on cards, compact previews, and public listings.</p>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6">
+          <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
             <Label className="mb-3 block">Banner Image</Label>
             <ImageUpload
               value={formData.bannerImageUrl}
@@ -400,7 +426,7 @@ const EditMoment = () => {
             <p className="mt-2 text-sm text-muted-foreground">Wide image for the moment page hero and featured banners.</p>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6">
+          <div className={`${activeSection === "media" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6`}>
             <Label className="mb-3 block">Supporting Moment Images</Label>
             <MediaGalleryUpload
               value={formData.galleryImages}
@@ -411,7 +437,7 @@ const EditMoment = () => {
           </div>
 
           {/* Basic Info */}
-          <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className={`${activeSection === "story" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Promise</h2>
 
             <div>
@@ -514,7 +540,7 @@ const EditMoment = () => {
           </div>
 
           {/* Location */}
-          <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className={`${activeSection === "place" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Place</h2>
 
             <div>
@@ -538,7 +564,7 @@ const EditMoment = () => {
           </div>
 
           {/* Date & Time */}
-          <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className={`${activeSection === "place" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Timing</h2>
 
             <div className="grid grid-cols-2 gap-4">
@@ -677,7 +703,7 @@ const EditMoment = () => {
           </div>
 
           {/* Additional Details */}
-          <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className={`${activeSection === "proof" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">Proof, Capacity, Unlock</h2>
 
             <div>
@@ -725,7 +751,7 @@ const EditMoment = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4">
+          <div className="sticky bottom-3 z-20 flex gap-4 rounded-2xl border border-border/80 bg-background/90 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button type="button" variant="destructive">

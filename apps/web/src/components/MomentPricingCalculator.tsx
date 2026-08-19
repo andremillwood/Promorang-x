@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Calculator, Info } from 'lucide-react';
+import { CommercialCTA } from '@/components/commercial/CommercialCTA';
 
 const SKU_TYPES = [
     { value: 'A1', label: 'Community Moment', range: '$0-$150' },
@@ -149,6 +150,17 @@ export function MomentPricingCalculator() {
                             </p>
                         </div>
                     </div>
+                    <CommercialCTA
+                        variant="hero"
+                        size="lg"
+                        className="mt-5 w-full"
+                        to={`/auth?mode=signup&role=brand&intent=fund_moment&sku=${skuType}&next=/create/campaign`}
+                        action="pricing_calculator_continue"
+                        audience="brand"
+                        metadata={{ sku: skuType, participants, reward_per_participant: rewardPerParticipant, estimated_total: pricing.brand_cost }}
+                    >
+                        Continue with this estimate
+                    </CommercialCTA>
                 </div>
             )}
 

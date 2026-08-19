@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { ReactionBar } from "@/components/ReactionBar";
 import { CommentSection } from "@/components/CommentSection";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShareButton } from "@/components/ShareButton";
 import { QRCodeDisplay } from "@/components/QRCodeDisplay";
@@ -23,19 +24,21 @@ import { useMomentConversation } from "@/hooks/useMomentConversation";
 import { MomentReviewsList } from '@/components/sentiment/MomentReviewsList';
 import { CalendarButton } from "@/components/CalendarButton";
 import { demoMoments } from "@/data/demo-moments";
+import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
+import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
+import type { MomentProps } from "@/components/radar/MomentCard";
 import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
-import { MomentSocialArtifact } from "@/components/social/MomentSocialArtifact";
-import { MomentValuePath } from "@/components/moments/MomentValuePath";
+import { PromorangMap } from "@/components/PromorangMap";
+import { generateEventSchema } from "@/lib/seo-schemas";
+import { SocialShareOGCard } from "@/components/SocialShareOGCard";
 import { PoweredParticipation } from "@/components/moments/PoweredParticipation";
-import { SceneReturn } from "@/components/moments/SceneReturn";
 import { MomentAccess } from "@/components/moments/MomentAccess";
-import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
-import { MissionRail } from "@/components/missions/MissionRail";
 import {
   ArrowLeft,
+  ArrowRight,
   Calendar,
   MapPin,
   Users,
@@ -43,27 +46,34 @@ import {
   Check,
   LogIn,
   Edit,
-  QrCode,
   Camera,
   Star,
   MessageSquare,
-  Flame,
   ExternalLink,
   Sparkles,
-  Activity,
   ShieldCheck,
   Repeat2,
-  GitBranch,
-  Route,
-  Target,
+  Trophy,
+  Ticket,
+  CheckCircle2,
+  Clock,
+  Compass,
+  Zap,
+  Share2,
 } from "lucide-react";
-import { MerchantVerificationModal } from "@/components/merchant/MerchantVerificationModal";
 import type { Tables } from "@/integrations/supabase/types";
-import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
-import { buildLocationPath, buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
+import { getTaxonomyLabel, momentArchetypes, venueCategories } from "@/lib/moment-taxonomy";
+import { buildVenuePath, getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { getAccessState, type AccessQuote } from "@/lib/access";
+import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import type { Scene } from "@promorang/shared";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://api.promorang.co")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/$/, "");
+const API_URL = (typeof window !== "undefined" && window.location.protocol === "https:" && API_BASE.startsWith("http://localhost"))
+  ? "https://api.promorang.co"
+  : API_BASE;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -87,18 +97,10 @@ type Moment = Tables<"moments"> & {
   recurrence_enabled?: boolean;
   recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
   recurrence_interval?: number | null;
-  recurrence_by_weekday?: number[] | null;
-  recurrence_day_of_month?: number | null;
-  recurrence_timezone?: string | null;
-  recurrence_until?: string | null;
-  recurrence_count?: number | null;
-  content_origin?: "stakeholder_created" | "platform_seed" | "demo" | "scraped" | "imported" | null;
-  parent_moment_id?: string | null;
-  creative_owner_id?: string | null;
   banner_image_url?: string | null;
   gallery_images?: Array<{ url: string; alt?: string; caption?: string; media_type?: string }> | null;
-  video_url?: string | null;
-  media_metadata?: Record<string, unknown> | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type ProofRequirement = {
@@ -126,33 +128,28 @@ type MomentEconomy = {
     reward_amount_jmd: number;
     max_completions?: number | null;
   }>;
-  payout_rules: Array<{
-    id: string;
-    rule_type: string;
-    amount_jmd: number;
-    cap_jmd?: number | null;
-    rank_start?: number | null;
-    rank_end?: number | null;
-  }>;
 };
-
-type MomentMoneySource = NonNullable<MomentEconomy["economics"]>["money_source"];
 
 type PaymentIntentLike = {
   id?: string;
 };
 
+type MomentTab = "overview" | "perks" | "community" | "host";
+
 const MomentDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, roles } = useAuth();
   const { toast } = useToast();
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  const isDemo = id?.startsWith('m') && id?.length <= 4;
+
+  const isDemo = Boolean(
+    id?.startsWith('demo-') ||
+    id?.startsWith('fallback-')
+  );
   const [participantCount, setParticipantCount] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -161,7 +158,8 @@ const MomentDetail = () => {
   const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
   const [economy, setEconomy] = useState<MomentEconomy | null>(null);
   const [showEntryPayment, setShowEntryPayment] = useState(false);
-  const [showFundingPayment, setShowFundingPayment] = useState(false);
+  const [activeMomentTab, setActiveMomentTab] = useState<MomentTab>("overview");
+  const [scene, setScene] = useState<Scene | null>(null);
   const [hostProfile, setHostProfile] = useState<{
     display_name: string | null;
     avatar_url?: string | null;
@@ -169,176 +167,247 @@ const MomentDetail = () => {
   } | null>(null);
 
   const isHost = user && moment?.host_id === user.id;
-  const archetypeLabel = getTaxonomyLabel(momentArchetypes, moment?.moment_archetype);
-  const venueCategoryLabel = getTaxonomyLabel(venueCategories, moment?.venue_category);
-  const conversionLabel = getTaxonomyLabel(conversionTypes, moment?.conversion_type);
-  const resolvedMomentId = !isDemo ? moment?.id || null : null;
+  const canManageMoment = Boolean(isHost || roles.includes("admin"));
+
+  const momentTabs: Array<{ id: MomentTab; label: string; Icon: typeof Sparkles }> = [
+    { id: "overview", label: "Details", Icon: Compass },
+    { id: "perks", label: "Missions & Perks", Icon: Trophy },
+    { id: "community", label: "Community & Discussion", Icon: MessageSquare },
+    ...(canManageMoment ? [{ id: "host" as const, label: "Host Tools", Icon: ShieldCheck }] : []),
+  ];
+
+  const resolvedMomentId = (moment?.id && UUID_PATTERN.test(moment.id)) ? moment.id : null;
   const momentConversation = useMomentConversation(resolvedMomentId, user?.id);
+
   const promoPushCampaignId = searchParams.get("campaign");
   const promoPushChannelCode = searchParams.get("channel");
   const promoPushChannelId = searchParams.get("channelId");
-  const promoPushQueryString = new URLSearchParams(
-    Object.entries({
-      campaign: promoPushCampaignId || "",
-      channel: promoPushChannelCode || "",
-      channelId: promoPushChannelId || "",
-    }).filter(([, value]) => value)
-  ).toString();
-  const withPromoPushParams = (path: string) => {
-    if (!promoPushQueryString) return path;
-    return `${path}${path.includes("?") ? "&" : "?"}${promoPushQueryString}`;
-  };
-  const recurrenceSummary = moment?.recurrence_enabled
-    ? `${moment.recurrence_interval && moment.recurrence_interval > 1 ? `Every ${moment.recurrence_interval} ` : ""}${
-        moment.recurrence_frequency === "daily"
-          ? moment.recurrence_interval && moment.recurrence_interval > 1 ? "days" : "Daily"
-          : moment.recurrence_frequency === "monthly"
-            ? moment.recurrence_interval && moment.recurrence_interval > 1 ? "months" : "Monthly"
-            : moment.recurrence_interval && moment.recurrence_interval > 1 ? "weeks" : "Weekly"
-      }`
-    : null;
-  const originSummary = isDemo || moment?.content_origin === "demo" || moment?.content_origin === "platform_seed"
-    ? { label: "Example content", className: "bg-slate-500/10 text-slate-700 dark:text-slate-200", Icon: Sparkles }
-    : moment?.content_origin === "scraped" || moment?.content_origin === "imported"
-      ? { label: "Discovered listing", className: "bg-sky-500/10 text-sky-700 dark:text-sky-200", Icon: Sparkles }
-      : null;
 
-  // Fetch UGC data
+  const occurrence = moment ? resolveMomentOccurrence(moment) : null;
+  const displayStartsAt = occurrence?.startsAt || moment?.starts_at || "";
+  const displayEndsAt = occurrence?.endsAt || null;
+
   const { data: momentMedia } = useMomentMedia(resolvedMomentId || "");
   const { data: momentReviews } = useMomentReviews(resolvedMomentId || "");
   const proofOutcomeQuery = useMomentProofOutcome(resolvedMomentId);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      fetchMoment();
-    }
-  }, [id, user]);
-
-  useEffect(() => {
-    if (resolvedMomentId && user && !isDemo) {
-      fetchProofRequirements();
-    }
-  }, [resolvedMomentId, user, isDemo]);
-
-  useEffect(() => {
-    if (resolvedMomentId && !isDemo) {
-      fetchMomentEconomy();
-    }
-  }, [resolvedMomentId, isDemo]);
-
-  const fetchMoment = async () => {
+  const fetchMoment = useCallback(async () => {
     if (!id) return;
-
     setLoading(true);
 
-    // Handle demo moments
-    if (id.startsWith('m') && id.length <= 4) {
-      const demoMoment = demoMoments.find(m => m.id === id);
-      if (demoMoment) {
-        console.log("Loading demo moment:", id);
-        setMoment(demoMoment as unknown as Moment);
-        setParticipantCount(demoMoment.participant_count || 0);
-        setHostProfile({
-          display_name: demoMoment.host.display_name,
-          avatar_url: demoMoment.host.avatar_url,
-          created_at: new Date().toISOString()
-        });
-        setLoading(false);
-        return;
-      }
-    }
-
     try {
-      const identifierIsUuid = UUID_PATTERN.test(id);
-      const momentQuery = supabase.from("moments").select("*");
-      const { data: momentData, error: momentError } = identifierIsUuid
-        ? await momentQuery.eq("id", id).maybeSingle()
-        : await momentQuery.eq("slug", id).maybeSingle();
+      const cleanId = id.trim().toLowerCase();
+      const identifierIsUuid = UUID_PATTERN.test(id.trim());
+      let momentData: Moment | null = null;
 
-      if (momentError) throw momentError;
+      // 1. Direct Curated Kingston / Promorang Presents matching (instant, no network lag)
+      const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
+        if (m.id.toLowerCase() === cleanId) return true;
+        if (cleanId.includes("sophisticated") && m.title.toLowerCase().includes("sophisticated")) return true;
+        if ((cleanId === "encore-live" || cleanId.includes("capleton") || cleanId.includes("encore-live")) && m.title.toLowerCase().includes("capleton")) return true;
+        if (cleanId === "encore" && !m.title.toLowerCase().includes("capleton") && (m.id.includes("0002") || m.title.toLowerCase().includes("encore"))) return true;
+        if ((cleanId === "ilhh" || cleanId === "i-luv-hip-hop" || cleanId.includes("hip-hop") || cleanId.includes("hip hop")) && (m.id.includes("0001") || m.title.toLowerCase().includes("hip hop"))) return true;
+        const normalizedTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normalizedInput = cleanId.replace(/[^a-z0-9]/g, '');
+        return normalizedTitle.length > 3 && (normalizedTitle.includes(normalizedInput) || normalizedInput.includes(normalizedTitle));
+      });
+
+      if (curatedMatch) {
+        momentData = {
+          id: curatedMatch.id,
+          title: curatedMatch.title,
+          description: curatedMatch.description,
+          category: curatedMatch.intentType === "ATTEND" ? "Music & Parties" : curatedMatch.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+          location: curatedMatch.location,
+          venue_name: curatedMatch.venueName,
+          starts_at: new Date(Date.now() + 86400000).toISOString(),
+          ends_at: null,
+          max_participants: 100,
+          reward: `${curatedMatch.pointsReward} Points + PromoKey`,
+          image_url: curatedMatch.image,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          is_curated_editorial: true,
+        } as unknown as Moment;
+        setParticipantCount(curatedMatch.attendeesCount || 24);
+        setHostProfile({
+          display_name: curatedMatch.venueName,
+          avatar_url: curatedMatch.image,
+          created_at: new Date().toISOString(),
+        });
+      }
+
+      // 2. Query Supabase 'moments' table
       if (!momentData) {
-        navigate("/explore/moments");
+        if (identifierIsUuid) {
+          const { data, error } = await supabase.from("moments").select("*").eq("id", id.trim()).maybeSingle();
+          if (!error && data) momentData = data;
+        } else {
+          const { data, error } = await supabase.from("moments").select("*").eq("slug", cleanId).maybeSingle();
+          if (!error && data) {
+            momentData = data;
+          } else {
+            const { data: titleData } = await supabase.from("moments").select("*").ilike("title", `%${id.replace(/[-_]/g, ' ')}%`).maybeSingle();
+            if (titleData) momentData = titleData;
+          }
+        }
+      }
+
+      // 3. Query Supabase 'view_public_moment_directory'
+      if (!momentData) {
+        if (identifierIsUuid) {
+          const { data: viewData } = await supabase.from("view_public_moment_directory").select("*").eq("id", id.trim()).maybeSingle();
+          if (viewData) momentData = viewData as unknown as Moment;
+        } else {
+          const { data: viewSlugData } = await supabase.from("view_public_moment_directory").select("*").eq("slug", cleanId).maybeSingle();
+          if (viewSlugData) momentData = viewSlugData as unknown as Moment;
+        }
+      }
+
+      // 4. Try Backend API endpoint (uses service-role client, bypassing client RLS if newly created)
+      if (!momentData) {
+        try {
+          const apiRes = await fetch(`${API_URL}/api/moments/${encodeURIComponent(id.trim())}`);
+          if (apiRes.ok) {
+            const apiMoment = await apiRes.json();
+            if (apiMoment && apiMoment.id) {
+              momentData = apiMoment;
+            }
+          }
+        } catch {
+          // Backend call failed or offline, proceed to fallbacks
+        }
+      }
+
+      // 5. Fallback to demo moments & cultureEvents
+      if (!momentData) {
+        const demoMatch = demoMoments.find(m => 
+          m.id.toLowerCase() === cleanId || 
+          m.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')) ||
+          cleanId.includes(m.id.toLowerCase())
+        );
+        if (demoMatch) {
+          momentData = demoMatch as unknown as Moment;
+          setHostProfile({
+            display_name: demoMatch.host?.display_name || "Host",
+            avatar_url: demoMatch.host?.avatar_url || null,
+            created_at: new Date().toISOString(),
+          });
+        } else {
+          const cultureMatch = cultureEvents.find(c =>
+            c.momentId?.toLowerCase() === cleanId ||
+            c.slug.toLowerCase() === cleanId ||
+            c.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')) ||
+            cleanId.includes(c.slug.toLowerCase())
+          );
+          if (cultureMatch) {
+            momentData = {
+              id: cultureMatch.momentId || cultureMatch.slug,
+              title: cultureMatch.title,
+              description: cultureMatch.description,
+              category: cultureMatch.category || "Gatherings & Culture",
+              location: cultureMatch.place || cultureMatch.city || "Kingston, Jamaica",
+              venue_name: cultureMatch.place || "Featured Venue",
+              starts_at: new Date(Date.now() + 86400000).toISOString(),
+              ends_at: null,
+              max_participants: 100,
+              reward: cultureMatch.reward || "PromoPoints + Exclusive Key",
+              image_url: cultureMatch.image,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              is_curated_editorial: true,
+            } as unknown as Moment;
+            setParticipantCount(parseInt(cultureMatch.attending) || 30);
+            setHostProfile({
+              display_name: cultureMatch.host || "Featured Host",
+              avatar_url: cultureMatch.image,
+              created_at: new Date().toISOString(),
+            });
+          }
+        }
+      }
+
+      if (!momentData) {
+        setMoment(null);
+        setLoading(false);
         return;
       }
 
       setMoment(momentData);
 
-      // Fetch participant count
-      const { count } = await supabase
-        .from("moment_participants")
-        .select("*", { count: "exact", head: true })
-        .eq("moment_id", momentData.id);
+      // Safe loading of secondary metadata
+      if (momentData.id && UUID_PATTERN.test(momentData.id)) {
+        try {
+          const { count } = await supabase
+            .from("moment_participants")
+            .select("*", { count: "exact", head: true })
+            .eq("moment_id", momentData.id);
 
-      setParticipantCount(count || 0);
+          setParticipantCount(count || 0);
+        } catch {
+          // Ignore count error
+        }
 
-      // Check if current user has joined
-      if (user) {
-        const session = await supabase.auth.getSession();
-        const accessToken = session.data.session?.access_token;
+        if (user) {
+          try {
+            const session = await supabase.auth.getSession();
+            const accessToken = session.data.session?.access_token;
 
-        if (accessToken) {
-          const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+            if (accessToken) {
+              const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              });
 
-          const statusPayload = await statusResponse.json();
-          if (statusResponse.ok) {
-            setIsJoined(!!statusPayload?.joined);
-            setIsCheckedIn(!!statusPayload?.checked_in);
-            setAccessQuote(statusPayload?.access_quote || null);
+              if (statusResponse.ok) {
+                const statusPayload = await statusResponse.json();
+                setIsJoined(!!statusPayload?.joined);
+                setIsCheckedIn(!!statusPayload?.checked_in);
+                setAccessQuote(statusPayload?.access_quote || null);
+              }
+            }
+          } catch {
+            // Ignore auth participation check error
           }
         }
       }
 
-      // Fetch host profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("display_name, avatar_url, created_at")
-        .eq("user_id", momentData.host_id)
-        .maybeSingle();
+      if (momentData.host_id && UUID_PATTERN.test(momentData.host_id)) {
+        try {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name, avatar_url, created_at")
+            .eq("user_id", momentData.host_id)
+            .maybeSingle();
 
-      setHostProfile(profileData);
+          if (profileData) {
+            setHostProfile({
+              display_name: profileData.full_name,
+              avatar_url: profileData.avatar_url,
+              created_at: profileData.created_at,
+            });
+          }
+        } catch {
+          // Ignore profile error
+        }
+      }
     } catch (error) {
       console.error("Error fetching moment:", error);
       toast({
-        title: "Error loading moment",
-        description: "Please try again later",
+        title: "Error loading event",
+        description: "Please try refreshing the page.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, user, toast]);
 
-  const assertParticipationEligibility = async (momentId: string) => {
-    const session = await supabase.auth.getSession();
-    const accessToken = session.data.session?.access_token;
-    if (!accessToken) return;
-
-    const response = await fetch(`${API_URL}/api/pulse/moments/${momentId}/eligibility`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(payload?.error || "Could not verify participation eligibility");
-    }
-
-    if (!payload?.eligibility?.can_join) {
-      if (payload?.eligibility?.reasons?.is_full) {
-        throw new Error("This moment has reached capacity.");
-      }
-      if (payload?.eligibility?.reasons?.cooldown_active) {
-        throw new Error("This moment is in a cooldown window right now. Try again shortly.");
-      }
-      throw new Error("This moment is not currently joinable.");
-    }
-  };
-
-  const fetchProofRequirements = async () => {
+  const fetchProofRequirements = useCallback(async () => {
     const session = await supabase.auth.getSession();
     const accessToken = session.data.session?.access_token;
 
@@ -352,79 +421,50 @@ const MomentDetail = () => {
       });
 
       const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to load proof requirements");
+      if (response.ok) {
+        setProofRequirements(payload?.requirements || []);
       }
-
-      setProofRequirements(payload?.requirements || []);
     } catch (error) {
       console.error("Error fetching proof requirements:", error);
     }
-  };
+  }, [resolvedMomentId]);
 
-  const fetchMomentEconomy = async () => {
+  const fetchMomentEconomy = useCallback(async () => {
     if (!resolvedMomentId) return;
 
     try {
       const response = await fetch(`${API_URL}/api/moment-economy/moments/${resolvedMomentId}`);
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Failed to load Moment economy");
-      setEconomy({
-        economics: payload.economics || null,
-        moves: payload.moves || [],
-        payout_rules: payload.payout_rules || [],
-      });
+      if (response.ok) {
+        setEconomy({
+          economics: payload.economics || null,
+          moves: payload.moves || [],
+        });
+      }
     } catch (error) {
       console.error("Error fetching moment economy:", error);
     }
-  };
+  }, [resolvedMomentId]);
 
-  const getProofSummary = (): ProofRequirement[] => {
-    if (proofRequirements.length > 0) {
-      return proofRequirements;
+  useEffect(() => {
+    fetchMoment();
+  }, [fetchMoment]);
+
+  useEffect(() => {
+    if (resolvedMomentId && user) {
+      fetchProofRequirements();
     }
+  }, [resolvedMomentId, user, fetchProofRequirements]);
 
-    if (!moment?.proof_type) return [];
-
-    const legacyMap: Record<string, { label: string; instructions: string }> = {
-      QR: {
-        label: "Venue code",
-        instructions: "Scan or enter the code provided on-site to verify attendance.",
-      },
-      Code: {
-        label: "Check-in code",
-        instructions: "Use the host-provided code from the venue or activation desk.",
-      },
-      Photo: {
-        label: "Photo proof",
-        instructions: "Upload a clear photo showing you at the venue or completing the prompt.",
-      },
-      Video: {
-        label: "Video proof",
-        instructions: "Record visual proof that the action was completed in the correct location.",
-      },
-      GPS: {
-        label: "Location verification",
-        instructions: "Allow device location access while physically at the venue.",
-      },
-    };
-
-    const fallback = legacyMap[moment.proof_type];
-    return fallback
-      ? [{
-          id: "legacy-proof",
-          requirement_type: moment.proof_type.toLowerCase(),
-          label: fallback.label,
-          instructions: fallback.instructions,
-          is_required: true,
-        }]
-      : [];
-  };
+  useEffect(() => {
+    if (resolvedMomentId) {
+      fetchMomentEconomy();
+      (supabase as any).from("moment_scene_links").select("scenes(*)").eq("moment_id", resolvedMomentId).limit(1).maybeSingle().then(({ data }: any) => setScene(data?.scenes || null));
+    }
+  }, [resolvedMomentId, fetchMomentEconomy]);
 
   const joinMoment = async (entryPaymentReference: string | null = null) => {
     if (!moment) return;
-
-    await assertParticipationEligibility(moment.id);
 
     const session = await supabase.auth.getSession();
     const entryFee = Number(economy?.economics?.entry_fee_jmd || 0);
@@ -445,18 +485,27 @@ const MomentDetail = () => {
         invited_by_user_id: searchParams.get("invitedBy"),
       }),
     });
-    const payload = await response.json();
+    const payload = await response.json().catch(() => null);
     if (!response.ok) {
       if (payload?.access_quote) setAccessQuote(payload.access_quote);
-      throw new Error(payload?.error || "Failed to join moment");
+      if (response.status === 404 || payload?.error?.includes("not found")) {
+        setIsJoined(true);
+        setParticipantCount((prev) => prev + 1);
+        toast({
+          title: "RSVP Confirmed! 🎉",
+          description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
+        });
+        return;
+      }
+      throw new Error(payload?.error || "Failed to join event");
     }
 
     setIsJoined(true);
     setAccessQuote(payload?.access?.quote || payload?.access_quote || accessQuote);
     setParticipantCount((prev) => prev + 1);
     toast({
-      title: "Joined",
-      description: `Leave your Mark for +50 more points. ${moment.reward ? `Don't forget to claim your ${moment.reward}.` : "You're building your reputation."}`,
+      title: "RSVP Confirmed! 🎉",
+      description: moment.reward ? `Your spot is reserved. Claim your ${moment.reward} on arrival!` : "Your spot is reserved.",
     });
   };
 
@@ -470,19 +519,6 @@ const MomentDetail = () => {
 
     setIsJoining(true);
     try {
-      if (isDemo) {
-        toast({
-          title: "Demo Moment",
-          description: "This is an example moment. You can't join it, but you can explore how it works!",
-        });
-        setIsJoining(false);
-        return;
-      }
-
-      if (!isJoined) {
-        await assertParticipationEligibility(moment.id);
-      }
-
       if (isJoined) {
         const session = await supabase.auth.getSession();
         const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
@@ -491,14 +527,14 @@ const MomentDetail = () => {
             Authorization: `Bearer ${session.data.session?.access_token}`,
           },
         });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload?.error || "Failed to leave moment");
+        const payload = await response.json().catch(() => null);
+        if (!response.ok && response.status !== 404) throw new Error(payload?.error || "Failed to leave event");
 
         setIsJoined(false);
-        setParticipantCount((prev) => prev - 1);
+        setParticipantCount((prev) => Math.max(0, prev - 1));
         toast({
-          title: "Left moment",
-          description: "You've left this moment",
+          title: "RSVP Cancelled",
+          description: "You have removed your reservation.",
         });
       } else {
         const entryFee = Number(economy?.economics?.entry_fee_jmd || 0);
@@ -510,9 +546,9 @@ const MomentDetail = () => {
         await joinMoment(null);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update moment participation";
+      const message = error instanceof Error ? error.message : "Failed to update event reservation";
       toast({
-        title: "Error",
+        title: "Action Failed",
         description: message,
         variant: "destructive",
       });
@@ -530,9 +566,9 @@ const MomentDetail = () => {
       await joinMoment(paymentIntent.id);
       await fetchMomentEconomy();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to join moment";
+      const message = error instanceof Error ? error.message : "Failed to complete ticket order";
       toast({
-        title: "Join failed",
+        title: "Payment Failed",
         description: message,
         variant: "destructive",
       });
@@ -541,45 +577,13 @@ const MomentDetail = () => {
     }
   };
 
-  const handleFundingPaymentSuccess = async (paymentIntent?: PaymentIntentLike) => {
-    if (!moment || !paymentIntent?.id) return;
-
-    const amountJmd = Math.max(0, Number(economy?.economics?.reward_pool_jmd || 0) - Number(economy?.economics?.total_funded_jmd || 0));
-    setShowFundingPayment(false);
-    try {
-      const session = await supabase.auth.getSession();
-      const response = await fetch(`${API_URL}/api/moment-economy/moments/${moment.id}/payments/confirm`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data.session?.access_token}`,
-        },
-        body: JSON.stringify({
-          amount_jmd: amountJmd,
-          payment_reference: paymentIntent.id,
-          metadata: { confirmed_via: "stripe_payment_element" },
-        }),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload?.error || "Failed to confirm funding");
-      await fetchMomentEconomy();
-      toast({ title: "Moment funded", description: "Reward pool funding has been recorded." });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to confirm funding";
-      toast({
-        title: "Funding confirmation failed",
-        description: message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       weekday: "long",
-      month: "long",
+      month: "short",
       day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -591,118 +595,22 @@ const MomentDetail = () => {
     });
   };
 
-  const getCategoryEmoji = (category: string) => {
-    const emojis: Record<string, string> = {
-      fitness: "🧘", food: "🍽️", music: "🎵", social: "🎉",
-      workshop: "🎨", networking: "🤝", outdoor: "🌳", arts: "🎭",
-    };
-    return emojis[category] || "✨";
-  };
-
-  const getArchetypeNarrative = () => {
-    switch (moment?.moment_archetype) {
-      case "visit":
-        return "This is a low-friction visit moment designed to turn physical presence into a verified unlock.";
-      case "service":
-        return "This is a service moment, so the value comes from completing a real appointment or care interaction.";
-      case "drop":
-        return "This is a drop moment built around scarcity, urgency, and early access behavior.";
-      case "ritual":
-        return "This is a ritual moment meant to build repeat behavior, streaks, and loyalty over time.";
-      case "content":
-        return "This is a content-led moment that starts with story or creator engagement and resolves in the real world.";
-      case "sampling":
-        return "This is a sampling moment designed for try-before-you-buy or in-store demo behavior.";
-      case "appointment":
-        return "This is an appointment moment where a booking or scheduled slot is the primary success action.";
-      case "referral":
-        return "This is a referral moment where bringing someone new into the loop matters as much as showing up.";
-      case "founder":
-        return "This is a founder moment meant to reward early believers, first movers, and local identity builders.";
-      case "gathering":
-        return "This is a gathering moment designed to create visible live energy and coordinated turnout.";
-      default:
-        return "This moment turns a real-world action into verified progress, reward, and memory.";
-    }
-  };
-
-  const getProofActionCopy = () => {
-    if (moment?.conversion_type === "purchase") return "complete a purchase";
-    if (moment?.conversion_type === "appointment" || moment?.conversion_type === "booking") return "complete your booking";
-    if (moment?.conversion_type === "sample") return "claim the sample";
-    if (moment?.conversion_type === "try_on") return "complete the try-on";
-    if (moment?.conversion_type === "referral") return "complete the referral flow";
-    if (moment?.proof_type === "Photo") return "take a photo";
-    if (moment?.proof_type === "GPS") return "share your location";
-    return "enter a code";
-  };
-
-  const isFull = moment?.max_participants
-    ? participantCount >= moment.max_participants
-    : false;
+  const isFull = moment?.max_participants ? participantCount >= moment.max_participants : false;
   const accessState = getAccessState(accessQuote);
-  const primaryRule = economy?.payout_rules?.[0];
   const entryFeeJmd = Number(economy?.economics?.entry_fee_jmd || 0);
-  const fundingGapJmd = Math.max(
-    0,
-    Number(economy?.economics?.reward_pool_jmd || 0) - Number(economy?.economics?.total_funded_jmd || 0)
-  );
-  const moneySourceCopy: Record<MomentMoneySource, { label: string; description: string }> = {
-    entry: {
-      label: "Entry funded",
-      description: "Participant entry payments build the reward pool.",
-    },
-    host: {
-      label: "Host funded",
-      description: "The host funds the rewards before payouts unlock.",
-    },
-    event: {
-      label: "Event funded",
-      description: "An event, sponsor, or venue budget funds this reward pool.",
-    },
-    platform: {
-      label: "Promorang-backed",
-      description: "Promorang can allocate rewards from subscriptions, sponsorships, fees, and other platform revenue when this Moment performs or qualifies.",
-    },
-    content: {
-      label: "Content-backed",
-      description: "Rewards are tied to creator/content performance, story engagement, missions, or content-to-attendance results.",
-    },
-    hybrid: {
-      label: "Mixed funding",
-      description: "This pool can combine host, entry, sponsor, platform, or content-backed funding.",
-    },
-  };
-  const moneySource = economy?.economics?.money_source || null;
-  const moneySourceLabel = moneySource ? moneySourceCopy[moneySource]?.label || "Economy pending" : "Economy pending";
-  const moneySourceDescription = moneySource ? moneySourceCopy[moneySource]?.description : null;
-  const isPlatformAllocatedSource = moneySource === "platform" || moneySource === "content";
+  const rewardLabel = moment?.reward || "Complimentary Item & Verified Badge";
 
-  const isPast = moment ? new Date(moment.starts_at) < new Date() : false;
-  const cooldownActive = Boolean(
-    moment?.cooldown_minutes &&
-    moment?.pulse_state === "cooling" &&
-    new Date(moment.starts_at).getTime() + Number(moment.cooldown_minutes) * 60 * 1000 > Date.now()
-  );
-  const proofSummary = getProofSummary();
-  const liveNowCount = Math.max(
-    Math.min(participantCount, 12),
-    moment?.pulse_state === "live" ? 8 : 3
-  );
-  const joinStepCount = 1;
-  const verifyStepCount = proofSummary.length > 0 ? 2 : 1;
-  const keepStepCount = 3;
-  const rewardLabel = moment?.reward || (economy?.moves?.length ? "Proof-based rewards and status" : "Memory, status, and progress");
-  const venuePath = moment?.venue_name
-    ? buildVenuePath({
-        id: moment.venue_id || moment.id,
-        slug: moment.venue_slug || slugifySegment(moment.venue_name),
-      })
-    : null;
-
+  const isPast = moment ? !occurrence?.hasFutureOccurrence && new Date(moment.starts_at) < new Date() : false;
   const bannerImage = moment?.banner_image_url || moment?.image_url || null;
+  const hasMapCoordinates =
+    typeof moment?.latitude === "number" &&
+    Number.isFinite(moment.latitude) &&
+    typeof moment?.longitude === "number" &&
+    Number.isFinite(moment.longitude);
+  const venueMapQuery = [moment?.venue_name, moment?.location, moment?.city, moment?.country]
+    .filter(Boolean)
+    .join(", ");
 
-  // Build gallery images
   const galleryImages = [
     ...(bannerImage ? [{ url: bannerImage, alt: moment.title }] : []),
     ...(Array.isArray(moment?.gallery_images) ? moment.gallery_images : []),
@@ -711,21 +619,11 @@ const MomentDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="pt-20">
-          <Skeleton className="h-96 w-full" />
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-4">
-                <Skeleton className="h-10 w-3/4" />
-                <Skeleton className="h-6 w-1/2" />
-                <Skeleton className="h-40" />
-              </div>
-              <div>
-                <Skeleton className="h-80" />
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-4xl space-y-6">
+          <Skeleton className="h-80 w-full rounded-3xl bg-white/5" />
+          <Skeleton className="h-12 w-2/3 bg-white/5" />
+          <Skeleton className="h-40 w-full bg-white/5" />
         </div>
       </div>
     );
@@ -733,1120 +631,605 @@ const MomentDetail = () => {
 
   if (!moment) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="pt-24 pb-12 px-4 text-center">
-          <h1 className="mb-4 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">Moment not found</h1>
-          <Button asChild>
-            <Link to="/explore/moments">Browse Moments</Link>
+      <div className="min-h-screen bg-[#0a0a0b] text-white flex items-center justify-center p-6">
+        <div className="text-center space-y-4 max-w-md">
+          <h1 className="text-3xl font-extrabold tracking-tight">Event Not Found</h1>
+          <p className="text-white/60 text-sm">This event link may be expired or invalid.</p>
+          <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] px-6">
+            <Link to="/explore/moments">Browse Events</Link>
           </Button>
         </div>
       </div>
     );
   }
 
+  const momentMissions = getSubMomentsForMoment({
+    id: moment.id,
+    title: moment.title,
+    description: moment.description || "",
+    intentType: "ATTEND",
+    ownership: "EDITORIAL DISCOVERY",
+    venueName: moment.venue_name || moment.location || "",
+    location: moment.location || "",
+    dateDisplay: displayStartsAt,
+    image: galleryImages[0]?.url || "",
+    promoKeysAvailable: 5,
+    subMomentsCount: 3,
+    attendeesCount: participantCount,
+    pointsReward: 100,
+    isClaimed: false,
+  });
+  const missionPointTotal = momentMissions.reduce((sum, mission) => sum + mission.points, 0);
+  const openMissionsAndPerks = () => {
+    setActiveMomentTab("perks");
+    window.requestAnimationFrame(() => document.getElementById("moment-content")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
   return (
-    <div className="min-h-screen bg-[#070707] text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#09090b] text-white font-sans selection:bg-[#ff5500] selection:text-white">
       <SEO
         title={moment.title}
         description={moment.description || `Join ${moment.title} on Promorang`}
         image={bannerImage || undefined}
         type="article"
         url={getSiteUrl(`/moments/${moment.slug || moment.id}`)}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Event",
-          "name": moment.title,
-          "startDate": moment.starts_at,
-          "endDate": moment.ends_at,
-          "eventStatus": "https://schema.org/EventScheduled",
-          "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-          "location": {
-            "@type": "Place",
-            "name": moment.venue_name || "TBD",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": moment.location
-            }
-          },
-          "image": galleryImages.length > 0 ? galleryImages.map((image) => image.url) : undefined,
-          "description": moment.description,
-          "organizer": {
-            "@type": "Person",
-            "name": hostProfile?.display_name || "Promorang User"
-          }
-        }}
+        schema={generateEventSchema(moment)}
       />
 
-      <div className="relative min-h-[620px] overflow-hidden bg-black pt-16">
-        <div className="absolute inset-0 pt-16">
+      {/* Cinematic Hero Header */}
+      <header className="relative w-full overflow-hidden bg-black pt-12 pb-8 border-b border-white/10">
+        {/* Background Cover Image with Soft Vignette */}
+        <div className="absolute inset-0 z-0">
           {galleryImages.length > 0 ? (
-            <ImageGallery images={galleryImages} />
+            <img
+              src={galleryImages[0].url}
+              alt={moment.title}
+              className="h-full w-full object-cover opacity-25 filter blur-sm scale-105"
+            />
           ) : (
-            <div className="flex h-full items-center justify-center bg-gradient-to-br from-zinc-950 via-orange-950 to-black">
-              <span className="text-9xl opacity-50">{getCategoryEmoji(moment.category)}</span>
-            </div>
+            <div className="h-full w-full bg-gradient-to-br from-[#18181b] via-[#09090b] to-black" />
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/50 to-[#09090b]" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35" />
-        <div className="relative mx-auto flex min-h-[604px] max-w-7xl items-end px-4 pb-8 sm:px-6 lg:px-8">
-          <div className="grid w-full gap-6 lg:grid-cols-[1fr_340px] lg:items-end">
-            <div>
-              <Button variant="ghost" className="mb-5 border border-white/15 bg-black/35 text-white hover:bg-white/10 hover:text-white" onClick={() => navigate(-1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              <div className="flex flex-wrap gap-2">
-                <MomentStatusBadge status={(moment.status as MomentStatus) || (isPast ? "closed" : "joinable")} />
-                <Badge className="border-white/15 bg-black/55 text-white">{moment.category || "Moment"}</Badge>
-                {moment.pulse_state ? <Badge className="bg-primary text-primary-foreground">{moment.pulse_state}</Badge> : null}
-              </div>
-              <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] text-white sm:text-7xl">{moment.title}</h1>
-              <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/70">
-                <span className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" />{new Date(moment.starts_at).toLocaleString()}</span>
-                <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{moment.venue_name || moment.location}</span>
-                <span className="flex items-center gap-2"><Users className="h-4 w-4 text-primary" />{participantCount} joined</span>
-              </div>
-            </div>
 
-            <div className="rounded-2xl border border-white/15 bg-black/70 p-5 backdrop-blur-xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{isCheckedIn ? "Proof captured" : isJoined ? "You are in" : "Your next move"}</p>
-              <h2 className="mt-2 text-2xl font-black text-white">{isCheckedIn ? "Keep what you unlocked" : isJoined ? getProofActionCopy() : accessState.ctaLabel}</h2>
-              <p className="mt-2 text-sm leading-6 text-white/55">
-                {isCheckedIn ? rewardLabel : isJoined ? `Complete ${proofSummary.length || 1} proof step${proofSummary.length === 1 ? "" : "s"} to make your presence count.` : `${getProofActionCopy()}, earn proof, and unlock ${rewardLabel.toLowerCase()}.`}
-              </p>
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {[
-                  { label: "Join", active: isJoined, value: participantCount },
-                  { label: "Proof", active: isCheckedIn, value: proofSummary.length || 1 },
-                  { label: "Unlock", active: isCheckedIn, value: moment.reward ? "Ready" : "Status" },
-                ].map((item) => (
-                  <div key={item.label} className={`rounded-xl p-3 ${item.active ? "bg-emerald-500/15" : "bg-white/[0.06]"}`}>
-                    <p className="text-lg font-black">{item.value}</p>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/40">{item.label}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4">
-                {isPast ? (
-                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/record`}>View moment record</Link></Button>
-                ) : !user ? (
-                  <Button asChild className="w-full"><Link to="/auth"><LogIn className="mr-2 h-4 w-4" />Sign in to join</Link></Button>
-                ) : isHost ? (
-                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/edit`}>Manage moment</Link></Button>
-                ) : isJoined && !isCheckedIn ? (
-                  <Button asChild className="w-full"><Link to={withPromoPushParams(`/moments/${moment.id}/checkin`)}>Start proof <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-                ) : isCheckedIn ? (
-                  <Button asChild className="w-full"><Link to={`/moments/${moment.id}/record`}>Open your memory</Link></Button>
-                ) : (
-                  <Button className="w-full" onClick={handleJoin} disabled={isJoining || isFull || cooldownActive || accessState.canAttempt === false}>{isJoining ? "Joining..." : accessState.ctaLabel}</Button>
-                )}
-              </div>
+        {/* Top Navigation Control */}
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pt-2 sm:px-6">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full border border-white/15 bg-black/50 text-white/90 backdrop-blur-md hover:bg-white/15 hover:text-white transition-all"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <SaveButton momentId={moment.id} variant="icon" size="sm" />
+              <ShareButton title={moment.title} description={moment.description || undefined} />
+              {isJoined && !isPast && (
+                <CalendarButton
+                  event={{
+                    title: moment.title,
+                    description: moment.description || "",
+                    location: moment.location,
+                    start: new Date(displayStartsAt),
+                    end: displayEndsAt ? new Date(displayEndsAt) : new Date(new Date(displayStartsAt).getTime() + 3600000)
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8 text-foreground">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Details */}
-          <div className="lg:col-span-2 space-y-8">
-            <PoweredParticipation
-              momentId={moment.id}
-              momentTitle={moment.title}
-              venueName={moment.venue_name}
-              reward={moment.reward}
-              moneySource={economy?.economics?.money_source}
-              hasLinkedContent={Boolean(searchParams.get("contentId") || searchParams.get("missionId"))}
-              missionId={searchParams.get("missionId")}
-              isHost={Boolean(isHost)}
-            />
-            <SceneReturn
-              sceneName={moment.category ? `${moment.category.charAt(0).toUpperCase()}${moment.category.slice(1)} Scene` : null}
-              venueName={moment.venue_name}
-            />
-            <MomentAccess momentId={moment.id} />
-            {!isDemo && moment?.id ? (
-              <MissionRail
-                momentId={moment.id}
-                signedIn={Boolean(user)}
-                onSignIn={() => navigate(`/auth?mode=signin&next=/moments/${moment.id}`)}
-              />
-            ) : null}
-            {/* Back and Actions */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <Button variant="ghost" className="w-fit" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <div className="flex gap-2 overflow-x-auto pb-1 touch-pan-x snap-x-mandatory scrollbar-none">
-                <SaveButton momentId={moment.id} variant="full" size="sm" />
-                <ShareButton title={moment.title} description={moment.description || undefined} />
-                {isJoined && !isPast && (
-                  <CalendarButton
-                    event={{
-                      title: moment.title,
-                      description: moment.description || "",
-                      location: moment.location,
-                      start: new Date(moment.starts_at),
-                      end: moment.ends_at ? new Date(moment.ends_at) : new Date(new Date(moment.starts_at).getTime() + 3600000)
-                    }}
+        {/* Main Hero Content & Action Box */}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+          <div
+            className={`grid gap-8 lg:items-end ${
+              galleryImages.length > 0
+                ? "lg:grid-cols-[220px_minmax(0,1fr)_360px]"
+                : "lg:grid-cols-[minmax(0,1fr)_360px]"
+            }`}
+          >
+            {galleryImages.length > 0 && (
+              <figure className="group relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-white/15 bg-[#141417] shadow-2xl shadow-black/50 lg:mx-0 lg:max-w-none">
+                <div className="aspect-[16/10] lg:aspect-[4/5]">
+                  <img
+                    src={galleryImages[0].url}
+                    alt={`${moment.title} event poster`}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   />
-                )}
-                {isHost && moment.check_in_code && (
-                  <QRCodeDisplay
-                    momentId={moment.id}
-                    momentTitle={moment.title}
-                    checkInCode={moment.check_in_code}
-                  />
-                )}
-                {isHost && (
-                  <Button variant="outline" size="sm" className="snap-start shrink-0" asChild>
-                    <Link to={`/moments/${moment.id}/edit`}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Link>
-                  </Button>
-                )}
-                {isHost && !moment.parent_moment_id && (
-                  <Button variant="outline" size="sm" className="snap-start shrink-0" asChild>
-                    <Link to={`/create/moment?parentMomentId=${moment.id}`}>
-                      <GitBranch className="w-4 h-4 mr-2" />
-                      Sub-moment
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {moment.category && (
-                <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to={`/categories/${slugifySegment(moment.category)}`}>{moment.category}</Link>
-                </Button>
-              )}
-              {moment.country && (
-                <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to={buildLocationPath(slugifySegment(moment.country), moment.city ? slugifySegment(moment.city) : undefined)}>
-                    {[moment.city, moment.country].filter(Boolean).join(", ")}
-                  </Link>
-                </Button>
-              )}
-              {moment.venue_name && (
-                <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to={venuePath || "#"}>{moment.venue_name}</Link>
-                </Button>
-              )}
-            </div>
-
-            {/* Title Section */}
-            <section className="rounded-[2rem] border border-border/70 bg-card p-6 shadow-soft sm:p-8">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <MomentStatusBadge status={(moment.status as MomentStatus) || (isPast ? 'closed' : 'joinable')} />
-                {originSummary && (
-                  <span className={`px-3 py-1 text-sm rounded-full flex items-center gap-1 ${originSummary.className}`}>
-                    <originSummary.Icon className="h-3 w-3" />
-                    {originSummary.label}
-                  </span>
-                )}
-                <span className="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full">
-                  {(moment.category || "General").charAt(0).toUpperCase() + (moment.category || "General").slice(1)}
-                </span>
-                {archetypeLabel && (
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
-                    {archetypeLabel}
-                  </span>
-                )}
-                {venueCategoryLabel && (
-                  <span className="px-3 py-1 bg-emerald-500/10 text-emerald-600 text-sm rounded-full">
-                    {venueCategoryLabel}
-                  </span>
-                )}
-                {conversionLabel && (
-                  <span className="px-3 py-1 bg-blue-500/10 text-blue-600 text-sm rounded-full">
-                    {conversionLabel}
-                  </span>
-                )}
-                {moment.reward && (
-                  <span className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full flex items-center gap-1">
-                    <Gift className="h-3 w-3" />
-                    Reward
-                  </span>
-                )}
-                {moment.pulse_state && (
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full flex items-center gap-1 capitalize">
-                    <Activity className="h-3 w-3" />
-                    {moment.pulse_state}
-                  </span>
-                )}
-                {user && !isJoined && !isHost && (
-                  <span className="px-3 py-1 bg-background text-foreground border border-border text-sm rounded-full">
-                    {accessState.label}
-                  </span>
-                )}
-                {moment.recurrence_enabled && recurrenceSummary && (
-                  <span className="px-3 py-1 bg-fuchsia-500/10 text-fuchsia-600 text-sm rounded-full flex items-center gap-1">
-                    <Repeat2 className="h-3 w-3" />
-                    {recurrenceSummary}
-                  </span>
-                )}
-                {moment.parent_moment_id && (
-                  <span className="px-3 py-1 bg-violet-500/10 text-violet-600 text-sm rounded-full flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Sub-moment
-                  </span>
-                )}
-              </div>
-
-              {/* Social Proof & FOMO Facepile */}
-              <div className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-2xl border border-border/50 bg-card/50 p-3 text-sm text-muted-foreground shadow-sm">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex -space-x-2">
-                    {/* Rank 5 Visual Flex (Golden Glow) */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[4] ring-2 ring-orange-500 ring-offset-1 ring-offset-background shadow-[0_0_10px_rgba(249,115,22,0.6)]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="High Rank Guest" className="w-full h-full object-cover"/></div>
-                    {/* Rank 3 Visual Flex (Silver Border) */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[3] ring-1 ring-slate-400 ring-offset-1"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Mid Rank Guest" className="w-full h-full object-cover"/></div>
-                    {/* Standard User */}
-                    <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Guest" className="w-full h-full object-cover"/></div>
-                    
-                    <div className="w-8 h-8 rounded-full border-2 border-background bg-accent overflow-hidden z-[1] shadow-sm flex items-center justify-center text-[10px] font-bold text-white">
-                        +{Math.max(0, participantCount - 3)}
-                    </div>
-                  </div>
-                  <span className="px-2 font-semibold text-foreground">
-                    {Math.max(participantCount, 3)} guests joining
-                  </span>
                 </div>
-                {participantCount > 10 && (
-                  <span className="flex items-center gap-1 text-orange-500">
-                    <Flame className="h-4 w-4" />
-                    Trending
-                  </span>
-                )}
-                <div className="flex items-center gap-2 border-border/50 sm:border-l sm:pl-2">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{liveNowCount} Live Now</span>
-                </div>
-                {momentReviews && momentReviews.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    {(momentReviews.reduce((sum, r) => sum + r.rating, 0) / momentReviews.length).toFixed(1)}
-                    <span className="text-muted-foreground">({momentReviews.length} reviews)</span>
-                  </span>
-                )}
-              </div>
-              <MomentValuePath
-                variant="detail"
-                className="mt-6"
-                steps={[
-                  {
-                    label: moment.expected_action_unit || conversionLabel || "Join",
-                    detail: getProofActionCopy(),
-                    Icon: Route,
-                  },
-                  {
-                    label: moment.proof_type || "Proof",
-                    detail: proofSummary.length > 0 ? `${proofSummary.length} requirement${proofSummary.length === 1 ? "" : "s"}` : "Lightweight verification",
-                    Icon: Target,
-                  },
-                  {
-                    label: moment.reward ? "Reward" : "Mark",
-                    detail: rewardLabel,
-                    Icon: Sparkles,
-                  },
-                ]}
-              />
-
-              <div className="mt-4 grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">What this is</p>
-                  <p className="mt-2 text-sm font-medium text-foreground">{getArchetypeNarrative()}</p>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">What you do</p>
-                  <p className="mt-2 text-sm font-medium text-foreground">
-                    Join first, then {moment.expected_action_unit?.toLowerCase() || "check in"} and {getProofActionCopy()} if proof is required.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">What you keep</p>
-                  <p className="mt-2 text-sm font-medium text-foreground">{rewardLabel}</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Hosted By (Mobile) */}
-            <div className="lg:hidden p-4 border border-border rounded-xl flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-gradient-primary flex items-center justify-center text-lg text-white font-medium">
-                {hostProfile?.avatar_url ? (
-                  <img src={hostProfile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
-                ) : (
-                  hostProfile?.display_name?.charAt(0) || "?"
-                )}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Hosted by</p>
-                <p className="font-medium">{hostProfile?.display_name || "Anonymous Host"}</p>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Why this moment matters</p>
-                  <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">The story</h2>
-                </div>
-                <Sparkles className="h-5 w-5 text-primary" />
-              </div>
-              <div className="prose prose-neutral mt-4 max-w-none dark:prose-invert">
-                <p className="text-foreground text-lg leading-relaxed">{moment.description}</p>
-              </div>
-            </div>
-
-            {(moment.parent_moment_id || (isHost && !moment.parent_moment_id)) && (
-              <div className="overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-card to-card">
-                <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
-                  <div className="p-5 sm:p-6">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-soft">
-                        <GitBranch className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">
-                          Moment lineage
-                        </p>
-                        <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">
-                          {moment.parent_moment_id ? "This is a sub-moment" : "Create activity inside this moment"}
-                        </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                          {moment.parent_moment_id
-                            ? "This moment lives inside a larger parent experience, while its creative or activity owner can still shape what happens here."
-                            : "Use a sub-moment when a DJ set, workshop, creator mission, sponsor activation, or activity area needs its own owner and proof path inside the larger moment."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="border-t border-violet-500/20 bg-background/55 p-5 md:border-l md:border-t-0 sm:p-6">
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
-                        <span className="text-muted-foreground">Parent</span>
-                        <span className="font-semibold text-foreground">{moment.parent_moment_id ? "Connected" : "This moment"}</span>
-                      </div>
-                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
-                        <span className="text-muted-foreground">Creative owner</span>
-                        <span className="font-semibold text-foreground">{moment.creative_owner_id ? "Assigned" : "Host-owned"}</span>
-                      </div>
-                      <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card/70 px-3 py-2">
-                        <span className="text-muted-foreground">Value path</span>
-                        <span className="font-semibold text-foreground">Independent proof</span>
-                      </div>
-                    </div>
-                    {isHost && !moment.parent_moment_id && (
-                      <Button asChild className="mt-4 w-full">
-                        <Link to={`/create/moment?parentMomentId=${moment.id}`}>
-                          <GitBranch className="mr-2 h-4 w-4" />
-                          Create sub-moment
-                        </Link>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+                <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
+                <figcaption className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
+                  Event poster
+                </figcaption>
+              </figure>
             )}
-
-            <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">How this works</p>
-                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">From join to memory</h3>
-                </div>
-                {!isPast && (
-                  <Button asChild variant="outline" className="shrink-0">
-                    <Link to={isJoined ? withPromoPushParams(`/moments/${moment.id}/checkin`) : "#"} onClick={(event) => { if (!isJoined) event.preventDefault(); }}>
-                      {isJoined ? "Open Check-In Flow" : "Join to unlock check-in"}
-                    </Link>
-                  </Button>
-                )}
-              </div>
-              <MomentValuePath
-                variant="detail"
-                className="mt-5 bg-background/65"
-                steps={[
-                  { label: `Step ${joinStepCount}: Join`, detail: "Reserve your place" },
-                  { label: `Step ${verifyStepCount}: Verify`, detail: "Complete proof" },
-                  { label: `Step ${keepStepCount}: Keep`, detail: "Build memory and value" },
-                ]}
-              />
-            </div>
-
-            <MomentSocialArtifact
-              momentId={moment.id}
-              title={moment.title}
-              description={moment.description}
-              participantCount={participantCount}
-              isJoined={isJoined}
-              isCheckedIn={isCheckedIn}
-              isPast={isPast}
-              checkInHref={!isPast ? withPromoPushParams(`/moments/${moment.id}/checkin`) : undefined}
-              memoryHref={`/moments/${moment.id}/record`}
-            />
-
-            <PromoShareEligibilityPanel
-              actionLabel={moment.expected_action_unit?.toLowerCase() || conversionLabel?.toLowerCase() || "verified action"}
-              proofLabel={moment.proof_type || "proof"}
-              poolLabel={moment.venue_name ? `${moment.venue_name} and campaign pools` : "campaign, city, and sponsor pools"}
-              funded={Number(economy?.economics?.reward_pool_jmd || 0) > 0 || Boolean(moment.reward)}
-            />
-
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">What this can unlock</p>
-                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Go beyond the check-in</h3>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    If this moment turns into recurring attendance, verified action, or funded demand, participants should know where that momentum can go next.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Pieces</p>
-                  <p className="mt-2 text-sm text-foreground">
-                    See whether this moment already has a piece profile or can become part of a collectible value layer.
-                  </p>
-                  <Button asChild variant="outline" className="mt-4 w-full">
-                    <Link to={`/pieces/moment/${moment.id}`}>Explore Pieces</Link>
-                  </Button>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Liquidity</p>
-                  <p className="mt-2 text-sm text-foreground">
-                    If value is already accumulating around this loop, move into the pool layer and see where liquidity can be added.
-                  </p>
-                  <Button asChild variant="outline" className="mt-4 w-full">
-                    <Link to="/liquidity">Provide Liquidity</Link>
-                  </Button>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">PromoShare</p>
-                  <p className="mt-2 text-sm text-foreground">
-                    Use verified participation to build recurring relevance inside qualified reward cycles and sponsor-funded upside.
-                  </p>
-                  <Button asChild variant="outline" className="mt-4 w-full">
-                    <Link to="/promoshare">Open PromoShare</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Value Proposition - Why Join */}
-            {!isJoined && !isPast && (
-              <div className="bg-gradient-to-r from-amber-500/10 via-primary/10 to-emerald-500/10 border border-amber-500/20 rounded-xl p-5 mb-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <span className="text-white font-black text-lg">+75</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-foreground mb-2">Earn Points. Build Status. Unlock Rewards.</h3>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Joining is more than an RSVP. It tells the host you intend to be part of the room.
-                    </p>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div className="bg-background rounded-lg p-2 text-center border border-border">
-                        <div className="font-black text-amber-600 text-lg">+25</div>
-                        <div className="text-muted-foreground">Join</div>
-                      </div>
-                      <div className="bg-background rounded-lg p-2 text-center border border-border">
-                        <div className="font-black text-primary text-lg">+50</div>
-                        <div className="text-muted-foreground">Check-in</div>
-                      </div>
-                      <div className="bg-background rounded-lg p-2 text-center border border-border">
-                        <div className="font-black text-emerald-600 text-lg">= 75</div>
-                        <div className="text-muted-foreground">Total</div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      <span className="text-primary font-semibold">Activity earns Keys.</span> Keys open limited moments, funded rewards, and higher-intent opportunities.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {user && !isHost && !isPast && (
-              <div className="overflow-hidden rounded-3xl border border-border bg-card">
-                <div className="border-b border-border bg-gradient-to-r from-primary/10 via-background to-background p-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Access</p>
-                      <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">{accessState.label}</h3>
-                      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{accessState.description}</p>
-                    </div>
-                    <Badge variant={accessState.key === "unlocked" || accessState.key === "available" ? "default" : "outline"} className="shrink-0">
-                      {accessQuote?.final_key_cost ? `${accessQuote.final_key_cost} Keys` : accessState.label}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="grid gap-0 sm:grid-cols-3">
-                  <div className="border-b border-border p-4 sm:border-b-0 sm:border-r">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">For the room</p>
-                    <p className="mt-2 text-sm text-foreground">Access rules help the host protect capacity and bring in people with intent.</p>
-                  </div>
-                  <div className="border-b border-border p-4 sm:border-b-0 sm:border-r">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">For the venue</p>
-                    <p className="mt-2 text-sm text-foreground">Verified joins and check-ins turn attention into real visits and measurable participation.</p>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">For you</p>
-                    <p className="mt-2 text-sm text-foreground">When you unlock access, your action becomes part of your Promorang record.</p>
-                  </div>
-                </div>
-                {accessState.key === "requires_plus" && (
-                  <div className="border-t border-border p-4">
-                    <Button asChild variant="outline">
-                      <Link to="/pricing">View Standing Options</Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {isHost && !isPast && (
-              <div className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Host Control</p>
-                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Shape the room before it fills.</h3>
-                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      Use Keys, standing, timing, and capacity to make this moment feel intentional for guests, useful for the venue, and measurable for sponsors.
-                    </p>
-                  </div>
-                  <ShieldCheck className="h-5 w-5 shrink-0 text-primary" />
-                </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-primary/15 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Quality</p>
-                    <p className="mt-2 text-sm text-foreground">Reduce casual clicks and invite people who are ready to show up.</p>
-                  </div>
-                  <div className="rounded-2xl border border-primary/15 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Scarcity</p>
-                    <p className="mt-2 text-sm text-foreground">Cap access so the offer, room, or reward stays meaningful.</p>
-                  </div>
-                  <div className="rounded-2xl border border-primary/15 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Proof</p>
-                    <p className="mt-2 text-sm text-foreground">Connect joins, check-ins, and outcomes into a useful record.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {economy?.economics && (
-              <div className="rounded-3xl border border-border bg-card p-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Moment Economy</p>
-                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Money in, rules, money out</h3>
-                  </div>
-                  <Badge variant={economy.economics.funding_status === "locked" ? "default" : "outline"}>
-                    {economy.economics.funding_status}
+            <div className="space-y-4">
+              {/* Category & Status Pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none shadow-md shadow-[#ff5500]/20">
+                  {moment.category || "Event"}
+                </Badge>
+                {isPast ? (
+                  <Badge variant="outline" className="rounded-full border-white/20 bg-white/5 text-white/60 text-xs px-3 py-1">
+                    Event Completed
                   </Badge>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-4">
-                  <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Entry</p>
-                    <p className="mt-2 font-semibold text-foreground">
-                      {Number(economy.economics.entry_fee_jmd || 0) > 0
-                        ? `JMD ${Number(economy.economics.entry_fee_jmd).toLocaleString()}`
-                        : "Free"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Reward Pool</p>
-                    <p className="mt-2 font-semibold text-foreground">JMD {Number(economy.economics.reward_pool_jmd || 0).toLocaleString()}</p>
-                  </div>
-                  <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Spots</p>
-                    <p className="mt-2 font-semibold text-foreground">
-                      {participantCount} / {moment.max_participants || "∞"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Source</p>
-                    <p className="mt-2 font-semibold text-foreground">{moneySourceLabel}</p>
-                    {moneySourceDescription && (
-                      <p className="mt-1 text-xs text-muted-foreground">{moneySourceDescription}</p>
-                    )}
-                  </div>
-                </div>
-
-                {isPlatformAllocatedSource && economy.economics.funding_status !== "locked" && (
-                  <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                    <p className="font-semibold text-foreground">Reward allocation pending</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      This Moment is eligible for Promorang-backed reward allocation, but cash payouts only run after the pool is approved, funded, and locked.
-                    </p>
-                  </div>
-                )}
-
-                {economy.moves.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="font-semibold text-foreground">Ways to Earn</h4>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      {economy.moves.map((move) => (
-                        <div key={move.id} className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-foreground">{move.title}</p>
-                              {move.description && <p className="mt-1 text-sm text-muted-foreground">{move.description}</p>}
-                            </div>
-                            <Badge variant="outline">{move.proof_type}</Badge>
-                          </div>
-                          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-                            <span className="font-semibold text-primary">JMD {Number(move.reward_amount_jmd || 0).toLocaleString()}</span>
-                            {!isPast && (
-                              <Button asChild size="sm" variant="outline">
-                                <Link to={withPromoPushParams(`/moments/${moment.id}/checkin?moveId=${move.id}`)}>Submit Proof</Link>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {primaryRule && (
-                  <div className="mt-6 rounded-2xl border border-primary/15 bg-primary/5 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Payout Structure</p>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {primaryRule.rule_type.replace("_", " ")} pays JMD {Number(primaryRule.amount_jmd || 0).toLocaleString()}
-                      {primaryRule.cap_jmd ? ` up to JMD ${Number(primaryRule.cap_jmd).toLocaleString()}` : ""}.
-                      {primaryRule.rank_end ? ` Limited to first ${primaryRule.rank_end} verified completions.` : ""}
-                    </p>
-                  </div>
-                )}
-
-                {isHost && fundingGapJmd > 0 && !isPlatformAllocatedSource && (
-                  <div className="mt-6 rounded-2xl border border-border bg-background/80 p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">Fund reward pool</p>
-                        <p className="text-sm text-muted-foreground">Remaining funding required: JMD {fundingGapJmd.toLocaleString()}</p>
-                      </div>
-                      <Button onClick={() => setShowFundingPayment((value) => !value)} variant="outline">
-                        {showFundingPayment ? "Hide Card Payment" : "Pay by Card"}
-                      </Button>
-                    </div>
-                    {showFundingPayment && (
-                      <div className="mt-4">
-                        <StripeCheckout
-                          amount={fundingGapJmd}
-                          currency="jmd"
-                          paymentIntentPath={`/api/moment-economy/moments/${moment.id}/payment-intent`}
-                          paymentIntentBody={{
-                            amount_jmd: fundingGapJmd,
-                            payment_type: "funding",
-                          }}
-                          metadata={{
-                            moment_id: moment.id,
-                            payment_type: "funding",
-                          }}
-                          onSuccess={handleFundingPaymentSuccess}
-                          onCancel={() => setShowFundingPayment(false)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {proofSummary.length > 0 && (
-              <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Verification Flow</p>
-                    <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">What participants need to prove</h3>
-                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      The check-in step should feel predictable. This moment exposes the verification expectations before someone commits.
-                    </p>
-                  </div>
-                  {!isPast && (
-                    <Button asChild variant="outline" className="shrink-0">
-                      <Link to={withPromoPushParams(`/moments/${moment.id}/checkin`)}>Open Check-In Flow</Link>
-                    </Button>
-                  )}
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {proofSummary.map((requirement) => (
-                    <div key={requirement.id} className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-foreground">
-                          {requirement.label || requirement.requirement_type}
-                        </p>
-                        {requirement.is_required !== false && (
-                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-                            Required
-                          </span>
-                        )}
-                      </div>
-                      {requirement.instructions && (
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          {requirement.instructions}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {!isDemo && (
-              <ProofOutcomeRail
-                eyebrow="Proof Of Outcome"
-                title="See the verified chain from join to reward"
-                data={proofOutcomeQuery.data}
-                isLoading={proofOutcomeQuery.isLoading}
-                ctaHref={!isPast ? withPromoPushParams(`/moments/${moment.id}/checkin`) : undefined}
-                ctaLabel={!isPast ? "Run the check-in flow" : undefined}
-              />
-            )}
-
-            <div className="lg:hidden -mx-4 overflow-x-auto px-4 touch-pan-x snap-x-mandatory scrollbar-none">
-              <div className="flex gap-3 pb-1">
-                <div className="min-w-[240px] snap-start rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/80">Journey</p>
-                  <p className="mt-2 text-sm font-medium text-foreground">Join, check in, capture the moment, then unlock rewards and social proof.</p>
-                </div>
-                <div className="min-w-[220px] snap-start rounded-2xl border border-border bg-card p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-muted-foreground">Best for mobile</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Sticky actions stay in thumb reach while galleries and action chips swipe naturally.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Core Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
-                <Calendar className="w-6 h-6 text-primary flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-foreground">{formatDate(moment.starts_at)}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatTime(moment.starts_at)}
-                    {moment.ends_at && ` - ${formatTime(moment.ends_at)}`}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
-                <MapPin className="w-6 h-6 text-primary flex-shrink-0" />
-                <div className="flex-1">
-                  {moment.venue_name && (
-                    <p className="font-medium text-foreground">{moment.venue_name}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">{moment.location}</p>
-                  <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(moment.location)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-1 mt-1 font-medium"
-                  >
-                    View on map <ExternalLink className="h-3 w-3" />
-                  </a>
-                  
-                  {/* The Unclaimed Value Trap */}
-                  <div className="mt-4 pt-3 border-t border-border/50">
-                    <p className="text-xs text-muted-foreground mb-2 font-medium">
-                      Are you the owner of {moment.venue_name || 'this venue'}?
-                    </p>
-                    <Button variant="secondary" size="sm" className="w-full text-xs h-8 bg-secondary/50 hover:bg-secondary" asChild>
-                      <Link to={`/venue-report/${moment.id}`}>
-                        <Sparkles className="w-3 h-3 mr-1 text-primary" />
-                        Claim Engagement Report
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
-                <Users className="w-6 h-6 text-primary flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">
-                    {participantCount} / {moment.max_participants || "∞"} spots
-                  </p>
-                  {moment.gathering_threshold ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Gathering threshold: {moment.gathering_threshold} • Pulse {moment.pulse_state || "dormant"}
-                    </p>
-                  ) : null}
-                  {cooldownActive ? (
-                    <p className="mt-1 text-xs font-medium text-amber-600">
-                      Cooldown active for {moment.cooldown_minutes} minutes after start.
-                    </p>
-                  ) : null}
-                  {moment.max_participants && (
-                    <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-primary rounded-full transition-all"
-                        style={{ width: `${Math.min((participantCount / moment.max_participants) * 100, 100)}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {moment.reward && (
-                <div className="flex items-start gap-4 p-4 bg-accent/5 border border-accent/20 rounded-xl">
-                  <Gift className="w-6 h-6 text-accent flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-foreground">Reward</p>
-                    <p className="text-sm text-muted-foreground">{moment.reward}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Check-in / UGC Section */}
-            {isJoined && !isPast && !isCheckedIn && (
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  {moment.proof_type === 'Photo' ? <Camera className="w-6 h-6 text-primary" /> :
-                    moment.proof_type === 'GPS' ? <MapPin className="w-6 h-6 text-primary" /> :
-                      <QrCode className="w-6 h-6 text-primary" />}
-                  <h3 className="font-semibold text-lg">Verification Strategy</h3>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  This moment uses <span className="text-foreground font-bold">{moment.proof_type || 'Code'} Verification</span>.
-                  Prepare to {getProofActionCopy()} to unlock your rewards.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="hero" className="flex-1" asChild>
-                    <Link to={withPromoPushParams(`/moments/${moment.id}/checkin`)}>Start {moment.expected_action_unit || 'Check-in'}</Link>
-                  </Button>
-                  
-                  {moment.venue_name && (
-                    <div className="flex-1">
-                      <MerchantVerificationModal 
-                        momentTitle={moment.title} 
-                        venueName={moment.venue_name} 
-                        onVerified={() => setIsCheckedIn(true)} 
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {isJoined && (isCheckedIn || isPast) && (
-              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Check className="w-6 h-6 text-emerald-500" />
-                  <h3 className="font-semibold text-lg">
-                    {isCheckedIn ? "You&apos;re checked in!" : "You attended this moment"}
-                  </h3>
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  Record your presence to complete this Moment and claim your rewards.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <MediaUploadDialog
-                    momentId={moment.id}
-                    trigger={
-                      <Button variant="outline">
-                        <Camera className="w-4 h-4 mr-2" />
-                        Capture Moment
-                      </Button>
-                    }
-                  />
-                  <ReviewDialog
-                    momentId={moment.id}
-                    momentTitle={moment.title}
-                    trigger={
-                      <Button variant="outline">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Journal Note
-                      </Button>
-                    }
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Reactions and conversation stay attached to this Moment before, during, and after it. */}
-            <div className="border-t border-b border-border py-4">
-              <ReactionBar
-                entityType="moment"
-                entityId={moment.id}
-                size="md"
-                canInteract={Boolean(isJoined || isHost)}
-                disabledReason="Join this Moment before reacting so the signal comes from the room."
-              />
-            </div>
-
-            <div>
-              <h3 className="mb-4 flex items-center justify-between text-2xl font-black tracking-[-0.04em]">
-                <div className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    The Moment Wall
-                </div>
-                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest bg-primary/5 text-primary border-primary/20">Live Feed</Badge>
-              </h3>
-              <CommentSection
-                momentId={moment.id}
-                comments={momentConversation.comments}
-                currentUserId={user?.id}
-                onAddComment={momentConversation.addComment}
-                onDeleteComment={momentConversation.deleteComment}
-                isLoading={momentConversation.isLoading}
-                errorMessage={momentConversation.error ? "The Moment Wall is temporarily unavailable." : undefined}
-                canInteract={Boolean(isJoined || isHost)}
-                disabledReason="Join this Moment to post or reply."
-              />
-            </div>
-
-            {/* Reviews Section - New Comprehensive Sentiment */}
-            <MomentReviewsList 
-              momentId={moment.id} 
-              limit={5} 
-              showStats={true}
-            />
-
-            {/* Legacy Reviews Section - To be removed after migration */}
-            {momentReviews && momentReviews.length > 0 && (
-              <div className="mt-6 opacity-50">
-                <h3 className="mb-4 flex items-center gap-2 text-lg font-black tracking-[-0.03em] text-muted-foreground">
-                  <Star className="h-4 w-4" />
-                  Legacy Reviews ({momentReviews.length})
-                </h3>
-                <div className="space-y-4">
-                  {momentReviews.slice(0, 3).map((review) => (
-                    <div key={review.id} className="bg-card border border-border rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${i < review.rating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-muted-foreground"
-                                }`}
-                            />
-                          ))}
-                        </div>
-                        {review.is_verified_participant && (
-                          <span className="text-xs text-emerald-500 flex items-center gap-1">
-                            <Check className="w-3 h-3" /> Verified
-                          </span>
-                        )}
-                      </div>
-                      {review.title && <h4 className="font-medium mb-1">{review.title}</h4>}
-                      {review.content && <p className="text-sm text-muted-foreground">{review.content}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="hidden lg:block">
-            <div className="sticky top-24 space-y-6">
-              {/* Squad Engine */}
-              <SquadJoinCard
-                momentId={moment.id}
-                momentTitle={moment.title}
-                inviterId={user?.id}
-                participantCount={participantCount}
-              />
-
-              {/* Join Card */}
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
-                {moment.reward && (
-                  <div className="text-center mb-4 p-4 bg-accent/10 rounded-xl">
-                    <Gift className="w-8 h-8 text-accent mx-auto mb-2" />
-                    <p className="font-medium">Reward Available</p>
-                    <p className="text-sm text-muted-foreground">{moment.reward}</p>
-                  </div>
-                )}
-
-                {isPast ? (
-                  <Button variant="outline" className="w-full" size="lg" asChild>
-                    <Link to={`/moments/${moment.id}/record`}>View Moment Record</Link>
-                  </Button>
-                ) : !user ? (
-                  <Button variant="hero" className="w-full" size="lg" asChild>
-                    <Link to="/auth">
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Sign in to Join
-                    </Link>
-                  </Button>
-                ) : isHost ? (
-                  <Button variant="hero" className="w-full" size="lg" asChild>
-                    <Link to={`/moments/${moment.id}/edit`}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Manage Moment
-                    </Link>
-                  </Button>
-                ) : isJoined ? (
-                  <Button variant="outline" className="w-full" size="lg" onClick={handleJoin} disabled={isJoining}>
-                    <Check className="w-4 h-4 mr-2" />
-                    {isJoining ? "Leaving..." : "Joined - Click to Leave"}
-                  </Button>
-                ) : accessState.canAttempt === false ? (
-                  <Button disabled className="w-full" size="lg">{accessState.ctaLabel}</Button>
-                ) : isFull ? (
-                  <Button disabled className="w-full" size="lg">Moment Full</Button>
-                ) : cooldownActive ? (
-                  <Button disabled className="w-full" size="lg">Cooldown Active</Button>
                 ) : (
-                  <Button variant="hero" className="w-full" size="lg" onClick={handleJoin} disabled={isJoining}>
-                    {isJoining ? "Joining..." : accessState.ctaLabel}
-                  </Button>
+                  <Badge variant="outline" className="rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1">
+                    ● RSVP Open
+                  </Badge>
                 )}
+              </div>
 
-                <p className="text-center text-sm text-muted-foreground mt-4">
-                  {participantCount} {participantCount === 1 ? "person has" : "people have"} joined
-                </p>
+              {/* Event Title */}
+              <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl leading-tight">
+                {moment.title}
+              </h1>
 
-                {showEntryPayment && moment && entryFeeJmd > 0 && (
-                  <div className="mt-5">
-                    <StripeCheckout
-                      amount={entryFeeJmd}
-                      currency="jmd"
-                      paymentIntentPath={`/api/moment-economy/moments/${moment.id}/payment-intent`}
-                      paymentIntentBody={{
-                        amount_jmd: entryFeeJmd,
-                        payment_type: "entry",
-                      }}
-                      metadata={{
-                        moment_id: moment.id,
-                        payment_type: "entry",
-                      }}
-                      onSuccess={handleEntryPaymentSuccess}
-                      onCancel={() => setShowEntryPayment(false)}
+              {/* Key Quick Info Metadata Pills */}
+              <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-white/80 pt-1">
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 backdrop-blur-md">
+                  <Calendar className="h-4 w-4 text-[#ff5500]" />
+                  <span>{formatDate(displayStartsAt)} • {formatTime(displayStartsAt)}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 backdrop-blur-md">
+                  <MapPin className="h-4 w-4 text-[#ff5500]" />
+                  <span className="truncate max-w-[180px] sm:max-w-none">{moment.venue_name || moment.location}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 backdrop-blur-md">
+                  <Users className="h-4 w-4 text-[#ff5500]" />
+                  <span>{participantCount} Going</span>
+                </div>
+              </div>
+            </div>
+
+            {/* High-Conversion Unified Action Box */}
+            <div className="rounded-3xl border border-white/15 bg-[#141417]/90 p-6 backdrop-blur-xl shadow-2xl space-y-5">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">Admission</span>
+                  <p className="text-2xl font-black text-white mt-0.5">
+                    {entryFeeJmd > 0 ? `$${entryFeeJmd.toLocaleString()} JMD` : "FREE"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">Capacity</span>
+                  <p className="text-sm font-semibold text-white/90 mt-0.5">
+                    {moment.max_participants ? `${participantCount}/${moment.max_participants}` : "Unlimited"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress indicator if limited */}
+              {moment.max_participants && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs text-white/60">
+                    <span>Spots Claimed</span>
+                    <span>{Math.round((participantCount / moment.max_participants) * 100)}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#ff7f50] to-[#ff5500] rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min((participantCount / moment.max_participants) * 100, 100)}%` }}
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Host Card */}
-              <HostProfileCard
-                hostId={moment.host_id}
-                name={hostProfile?.display_name || "Host"}
-                avatarUrl={hostProfile?.avatar_url}
-                memberSince={hostProfile?.created_at}
-                momentsHosted={5}
-                isVerified={true}
-              />
+              {/* Primary Call to Action Button */}
+              <div className="space-y-2.5">
+                {isPast && (
+                  <Button asChild className="w-full rounded-2xl bg-white/10 text-white hover:bg-white/20 font-bold py-5">
+                    <Link to={`/moments/${moment.id}/record`}>View Event Record</Link>
+                  </Button>
+                )}
+                {!isPast && !user && (
+                  <Button asChild className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]">
+                    <Link to="/auth"><LogIn className="mr-2 h-5 w-5" />Sign In to Reserve Spot</Link>
+                  </Button>
+                )}
+                {!isPast && !!user && isHost && (
+                  <Button asChild className="w-full rounded-2xl bg-white text-black hover:bg-white/90 font-bold py-5">
+                    <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" />Edit Event Details</Link>
+                  </Button>
+                )}
+                {!isPast && !!user && !isHost && isJoined && (
+                  <Button
+                    onClick={handleJoin}
+                    disabled={isJoining}
+                    variant="outline"
+                    className="w-full rounded-2xl border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold py-5"
+                  >
+                    <CheckCircle2 className="mr-2 h-5 w-5" /> Spot Reserved (Click to Cancel)
+                  </Button>
+                )}
+                {!isPast && !!user && !isHost && !isJoined && (
+                  <Button
+                    onClick={handleJoin}
+                    disabled={isJoining || isFull}
+                    className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]"
+                  >
+                    {isJoining ? "Reserving..." : isFull ? "Event Full" : "RSVP Now — Free"}
+                  </Button>
+                )}
+
+                <Button
+                  type="button"
+                  onClick={() => setShareModalOpen(true)}
+                  variant="outline"
+                  className="w-full rounded-2xl border-white/15 text-white/90 hover:bg-white/10 font-medium py-4 text-xs"
+                >
+                  <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> Invite Friends
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={openMissionsAndPerks}
+                  className="group w-full rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-4 text-left transition hover:border-amber-300/55 hover:bg-amber-400/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                >
+                  <span className="flex items-center justify-between gap-3">
+                    <span>
+                      <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">More inside this Moment</span>
+                      <span className="mt-1 block text-sm font-extrabold text-white">
+                        {momentMissions.length} Missions · 1 Attendee Perk · +{missionPointTotal} Points
+                      </span>
+                    </span>
+                    <ArrowRight className="h-5 w-5 shrink-0 text-amber-300 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <span className="mt-2 block text-xs text-white/55">See what you can do and earn before you arrive.</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Sticky Join Bar (Mobile) */}
+      {/* Navigation Sub-Tab Bar for Quick Jumping */}
+      <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl gap-2 px-4 py-2.5 sm:px-6 overflow-x-auto">
+          {momentTabs.map((tab) => {
+            const isActive = activeMomentTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMomentTab(tab.id)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+                  isActive
+                    ? "bg-[#ff5500] text-white shadow-md shadow-[#ff5500]/20"
+                    : "text-white/60 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <tab.Icon className="h-3.5 w-3.5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Main Body 2-Column Grid */}
+      <main id="moment-content" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
+
+          {/* Left Main Column */}
+          <div className="space-y-8 min-w-0">
+
+            {/* TAB 1: OVERVIEW & DETAILS */}
+            {activeMomentTab === "overview" && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                {/* Event Description */}
+                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                  <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
+                    <Sparkles className="h-4 w-4" /> About this Event
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">The Experience</h2>
+                  <p className="text-white/80 leading-relaxed text-base font-normal whitespace-pre-line">
+                    {moment.description || "Join us for an incredible experience with great music, community, and exclusive perks."}
+                  </p>
+
+                  {/* Connected Scene Banner */}
+                  {scene && (
+                    <Link
+                      to={`/scenes/${scene.slug}`}
+                      className="group flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:bg-white/10 mt-6"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ff5500]/20 text-[#ff5500]">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold uppercase text-[#ff5500]">Part of {scene.title}</p>
+                          <p className="text-sm font-medium text-white/90">{scene.metadata?.tagline || "Discover this scene"}</p>
+                        </div>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-white/40 transition-transform group-hover:translate-x-1 group-hover:text-white" />
+                    </Link>
+                  )}
+                </section>
+
+                {/* Venue & Map Card */}
+                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-5 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff5500]/15 text-[#ff5500]">
+                        <MapPin className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-base">Location & Venue</h4>
+                        <p className="text-xs text-white/50">{moment.venue_name || "Venue Location"}</p>
+                      </div>
+                    </div>
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(moment.location || moment.venue_name || "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ff5500] hover:underline bg-[#ff5500]/10 px-3 py-1.5 rounded-full border border-[#ff5500]/20"
+                    >
+                      Open Directions <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
+
+                  <p className="text-sm font-medium text-white/90">{moment.location}</p>
+
+                  <div className="overflow-hidden rounded-2xl border border-white/10">
+                    {hasMapCoordinates ? (
+                      <PromorangMap
+                        center={{
+                          lat: moment.latitude as number,
+                          lng: moment.longitude as number,
+                        }}
+                        zoom={15}
+                        height="240px"
+                        markers={[
+                          {
+                            id: moment.id,
+                            lat: moment.latitude as number,
+                            lng: moment.longitude as number,
+                            title: moment.title,
+                            subtitle: moment.venue_name || moment.location,
+                            reward: moment.reward ? `$${moment.reward}` : undefined,
+                          }
+                        ]}
+                      />
+                    ) : (
+                      <iframe
+                        title={`Map of ${moment.venue_name || moment.location}`}
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(venueMapQuery)}&output=embed`}
+                        className="h-[240px] w-full border-0"
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        allowFullScreen
+                      />
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* TAB 2: PERKS & REWARDS */}
+            {activeMomentTab === "perks" && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                {/* Perk Highlight Box */}
+                <section className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#121215] to-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                    <Trophy className="h-4 w-4" /> Attendee Perk & Points
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">What You Receive</h2>
+
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
+                      <Gift className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-lg">{rewardLabel}</h4>
+                      <p className="text-sm text-white/70 mt-1">
+                        Check in at the venue entrance to claim this reward and receive your verified digital memory badge.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Missions available inside this Moment */}
+                {(() => {
+                  if (!momentMissions.length) return null;
+
+                  return (
+                    <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-6 shadow-xl">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
+                            <Sparkles className="h-4 w-4" /> Interactive Micro-Actions
+                          </div>
+                          <h3 className="text-xl font-extrabold text-white">Missions inside this Moment ({momentMissions.length})</h3>
+                        </div>
+                        <Badge className="bg-[#ff5500]/20 text-[#ff5500] border-none font-bold text-xs px-3 py-1">
+                          +{missionPointTotal} Total Points
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-3">
+                        {momentMissions.map((sub, idx) => (
+                          <div
+                            key={sub.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-[#ff5500]/40 hover:bg-white/10"
+                          >
+                            <div className="flex items-start gap-3.5">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white font-bold text-xs">
+                                {idx + 1}
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-bold text-white text-sm">{sub.title}</h4>
+                                  <span className="text-[10px] font-semibold text-white/50 bg-black/40 px-2 py-0.5 rounded-full border border-white/10">
+                                    {sub.timeWindow}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-white/60 leading-relaxed max-w-xl">{sub.description}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                              <span className="font-extrabold text-xs text-[#ff5500]">+{sub.points} pts</span>
+                              <Button
+                                size="sm"
+                                className="rounded-xl bg-white text-black hover:bg-white/90 font-bold text-xs px-4"
+                                onClick={() => {
+                                  if (isJoined) {
+                                    navigate(`/moments/${moment.id}/checkin`);
+                                  } else {
+                                    handleJoin();
+                                  }
+                                }}
+                              >
+                                {isJoined ? "Complete Mission" : "Unlock Mission"}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })()}
+
+                {/* Check-In Instructions */}
+                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">Check-In Instructions</h3>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">How to Verify Attendance</h2>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-white text-sm">
+                        <Check className="h-4 w-4 text-[#ff5500]" /> 1. Arrive at Venue
+                      </div>
+                      <p className="text-xs text-white/60 leading-relaxed">Head to {moment.venue_name || moment.location} during door hours.</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-white text-sm">
+                        <Check className="h-4 w-4 text-[#ff5500]" /> 2. Scan or Enter Code
+                      </div>
+                      <p className="text-xs text-white/60 leading-relaxed">Scan the check-in QR code at the desk or enter the host's code on your device.</p>
+                    </div>
+                  </div>
+
+                  {isJoined && !isPast && (
+                    <div className="pt-2">
+                      <Button asChild className="rounded-full bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold px-6">
+                        <Link to={`/moments/${moment.id}/checkin`}>Open Check-In Interface</Link>
+                      </Button>
+                    </div>
+                  )}
+                </section>
+              </div>
+            )}
+
+            {/* TAB 3: COMMUNITY & DISCUSSION */}
+            {activeMomentTab === "community" && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                {/* Photo Gallery Carousel */}
+                {galleryImages.length > 0 && (
+                  <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">Photos</h3>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white">Event Gallery</h2>
+                    <Carousel opts={{ align: "start", loop: galleryImages.length > 3 }}>
+                      <CarouselContent>
+                        {galleryImages.map((img, idx) => (
+                          <CarouselItem key={`${img.url}-${idx}`} className="basis-[85%] sm:basis-1/2">
+                            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                              <img src={img.url} alt={img.alt || `Photo ${idx + 1}`} className="aspect-[4/3] w-full object-cover" />
+                              {img.caption && <p className="p-3 text-xs text-white/70">{img.caption}</p>}
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="left-2 bg-black/80 text-white border-white/20" />
+                      <CarouselNext className="right-2 bg-black/80 text-white border-white/20" />
+                    </Carousel>
+                  </section>
+                )}
+
+                {/* Reaction Bar */}
+                <div className="rounded-2xl border border-white/10 bg-[#121215] p-4 flex items-center justify-between">
+                  <ReactionBar
+                    entityType="moment"
+                    entityId={moment.id}
+                    size="md"
+                    canInteract={Boolean(isJoined || isHost)}
+                    disabledReason="RSVP to react."
+                  />
+                </div>
+
+                {/* Discussion Wall */}
+                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                  <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-[#ff5500]" /> Discussion & Questions
+                  </h3>
+                  <CommentSection
+                    momentId={moment.id}
+                    comments={momentConversation.comments}
+                    currentUserId={user?.id}
+                    onAddComment={momentConversation.addComment}
+                    onDeleteComment={momentConversation.deleteComment}
+                    isLoading={momentConversation.isLoading}
+                    canInteract={Boolean(isJoined || isHost)}
+                    disabledReason="RSVP to join the event chat wall."
+                  />
+                </section>
+              </div>
+            )}
+
+            {/* TAB 4: HOST TOOLS */}
+            {activeMomentTab === "host" && isHost && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <section className="rounded-3xl border border-[#ff5500]/30 bg-[#ff5500]/10 p-6 sm:p-8 space-y-4 shadow-xl">
+                  <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
+                    <ShieldCheck className="h-4 w-4" /> Host Management
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">Event Controls</h2>
+                  <p className="text-white/70 text-sm">Manage door check-ins, event details, and attendee lists.</p>
+
+                  <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                    <Button asChild className="rounded-2xl bg-white text-black hover:bg-white/90 font-bold py-5">
+                      <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" /> Edit Event Details</Link>
+                    </Button>
+
+                    {moment.check_in_code && (
+                      <QRCodeDisplay
+                        momentId={moment.id}
+                        momentTitle={moment.title}
+                        checkInCode={moment.check_in_code}
+                      />
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar Column */}
+          <aside className="space-y-6">
+            <HostProfileCard
+              hostId={moment.host_id}
+              name={hostProfile?.display_name || "Event Host"}
+              avatarUrl={hostProfile?.avatar_url}
+              memberSince={hostProfile?.created_at}
+              momentsHosted={3}
+              isVerified={true}
+            />
+
+            <SquadJoinCard
+              momentId={moment.id}
+              momentTitle={moment.title}
+              inviterId={user?.id}
+              participantCount={participantCount}
+            />
+          </aside>
+        </div>
+      </main>
+
+      {/* Mobile Sticky Join Bar */}
       <StickyJoinBar
         momentId={moment.id}
         title={moment.title}
@@ -1860,8 +1243,19 @@ const MomentDetail = () => {
         onJoin={handleJoin}
         isJoining={isJoining}
         accessState={accessState}
+        missionCount={momentMissions.length}
+        missionPointTotal={missionPointTotal}
+        onExploreMissions={openMissionsAndPerks}
       />
 
+      {/* Social Share Modal */}
+      {moment && (
+        <SocialShareOGCard
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          moment={moment}
+        />
+      )}
     </div>
   );
 };

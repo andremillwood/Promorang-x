@@ -1,125 +1,89 @@
 import { useMemo, useState } from "react";
-import { Compass, MapPin, MoonStar, Coins, Layers3, ShoppingBag, Sparkles } from "lucide-react";
+import { Compass, Coins, MapPin, MoonStar, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useForYouFeed } from "@/hooks/useFeed";
-import { FeedIntent, logFeedInteraction } from "@/services/feed";
+import type { FeedIntent } from "@/services/feed";
 import { FeedStream } from "@/components/feed/FeedStream";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
+import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
+import { cn } from "@/lib/utils";
 
-const intentOptions: Array<{
+const lenses: Array<{
   value: FeedIntent | null;
   label: string;
   icon: typeof Compass;
   description: string;
 }> = [
-  { value: null, label: "For You", icon: Compass, description: "A mixed stream of moments, proofs, and rewards." },
-  { value: "nearby", label: "Near You", icon: MapPin, description: "Local movement worth acting on soon." },
-  { value: "tonight", label: "Tonight", icon: MoonStar, description: "Experiences and prompts with immediate urgency." },
-  { value: "earn", label: "Earn", icon: Coins, description: "Proof-based actions and rewards with value attached." },
+  { value: null, label: "For You", icon: Compass, description: "Your strongest mix" },
+  { value: "nearby", label: "Near You", icon: MapPin, description: "Within reach" },
+  { value: "tonight", label: "Tonight", icon: MoonStar, description: "Live and starting soon" },
+  { value: "earn", label: "Earn", icon: Coins, description: "Value you can unlock" },
 ];
 
 const ForYou = () => {
   const { user } = useAuth();
   const [activeIntent, setActiveIntent] = useState<FeedIntent | null>(null);
   const feedQuery = useForYouFeed(activeIntent);
-
-  const feedItems = useMemo(() => feedQuery.data?.feed || [], [feedQuery.data]);
-  const rankingProfile = feedQuery.data?.meta.ranking_profile || "participant";
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || "Explorer";
+  const rankedItems = useMemo(
+    () => feedQuery.data?.feed || [],
+    [feedQuery.data],
+  );
 
   return (
-    <main className="mx-auto max-w-6xl space-y-7 px-4 py-6 sm:px-6">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_85%_10%,rgba(255,106,26,.25),transparent_30%),linear-gradient(135deg,#080808,#18130f)] p-6 text-white shadow-2xl sm:p-9">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <Badge className="mb-4 rounded-full bg-primary px-3 py-1 text-black">
-              Your living market
-            </Badge>
-            <h1 className="max-w-3xl text-5xl font-black uppercase leading-[.86] tracking-[-.06em] sm:text-7xl">
-              Everything moving <span className="text-primary">toward you.</span>
-            </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/60 sm:text-base">
-              Moments, proof, products, offers and Pieces—ranked by what you can do now and what can return to you later.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 text-white">
-            {[{icon:Sparkles,label:"Experience"},{icon:ShoppingBag,label:"Commerce"},{icon:Layers3,label:"Pieces"}].map(({icon:Icon,label})=><div key={label} className="bg-black/55 p-4"><Icon className="h-4 w-4 text-primary"/><p className="mt-5 text-xs font-black uppercase tracking-wider">{label}</p></div>)}
-            <p className="col-span-3 bg-black/55 p-4 text-xs text-white/50">
-              {user?.user_metadata?.full_name?.split(" ")[0] || "You"} are viewing the <span className="capitalize">{rankingProfile}</span> profile.
-            </p>
-          </div>
-        </div>
-      </section>
+    <main className="relative min-h-screen bg-black pb-20 text-white">
+      <HomeFeedToggle />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.11),transparent_38%)]" />
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
+      <header className="relative border-b border-white/10 pb-8 pt-3 sm:pb-10 sm:pt-6">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
           <div>
-            <h2 className="font-serif text-2xl font-bold">Intent</h2>
-            <p className="text-sm text-muted-foreground">Choose the lens that should bias the feed.</p>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.26em] text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Curated for {firstName}
+            </div>
+            <h1 className="mt-4 max-w-4xl font-sans text-[clamp(3rem,6vw,5.8rem)] font-semibold leading-[0.94] tracking-[-0.065em]">Everything moving<br className="hidden sm:block" /> toward you.</h1>
+            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-white/52">A considered mix of Moments, stories, rewards, and things worth keeping—ranked around what you can do next.</p>
+          </div>
+          <div className="max-w-xs rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 backdrop-blur-sm">
+            <div className="flex items-center gap-2 text-xs font-semibold text-white/72"><SlidersHorizontal className="h-4 w-4 text-primary" /> Your ranking is personal</div>
+            <p className="mt-1.5 text-[11px] leading-5 text-white/35">It adapts to what you view, save, join, and pass.</p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {intentOptions.map((option) => {
-            const isActive = activeIntent === option.value;
+      </header>
+
+      <DiscoveriesFeedSection />
+
+      <section aria-label="Choose a feed lens" className="sticky top-[72px] z-20 border-b border-white/10 bg-black/88 py-3 backdrop-blur-2xl lg:top-0">
+        <div className="grid gap-1.5 rounded-[1.35rem] border border-white/10 bg-white/[0.035] p-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          {lenses.map((lens) => {
+            const isActive = activeIntent === lens.value;
             return (
               <button
-                key={option.label}
+                key={lens.label}
                 type="button"
-                onClick={() => setActiveIntent(option.value)}
-                className={`flex min-w-[180px] flex-1 items-start gap-3 rounded-2xl border p-4 text-left transition-all ${
-                  isActive
-                    ? "border-primary bg-primary/5 shadow-soft"
-                    : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
-                }`}
+                aria-pressed={isActive}
+                onClick={() => setActiveIntent(lens.value)}
+                className={cn(
+                  "flex min-h-14 items-center gap-3 rounded-2xl border px-4 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black",
+                  isActive ? "border-white bg-white text-black shadow-[0_8px_30px_rgba(0,0,0,.24)]" : "border-transparent text-white/70 hover:bg-white/[0.055] hover:text-white",
+                )}
               >
-                <div className={`rounded-xl p-2 ${isActive ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
-                  <option.icon className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-foreground">{option.label}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{option.description}</p>
-                </div>
+                <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full", isActive ? "bg-primary text-black" : "bg-white/[0.06] text-white/55")}><lens.icon className="h-3.5 w-3.5" /></span>
+                <span><span className="block text-xs font-black">{lens.label}</span><span className={cn("mt-0.5 block text-[10px]", isActive ? "text-black/55" : "text-white/35")}>{lens.description}</span></span>
               </button>
             );
           })}
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="font-serif text-2xl font-bold">Ranked Stream</h2>
-          {feedQuery.data?.meta.active_intent ? (
-            <Badge variant="outline" className="rounded-full">
-              Intent: {feedQuery.data.meta.active_intent}
-            </Badge>
-          ) : null}
-        </div>
-        <FeedStream items={feedItems} isLoading={feedQuery.isLoading} />
+      <section className="relative pt-8 sm:pt-10" aria-label="Ranked feed">
+        <FeedStream
+          items={rankedItems}
+          isLoading={feedQuery.isLoading && !rankedItems.length}
+          isRefreshing={feedQuery.isFetching}
+          onRefresh={() => void feedQuery.refetch()}
+        />
       </section>
-
-      {!feedQuery.isLoading && feedItems.length > 0 ? (
-        <div className="flex justify-center">
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (feedItems[0]) {
-                void logFeedInteraction({
-                  itemType: feedItems[0].object_type,
-                  itemId: feedItems[0].entity_id,
-                  interactionType: "click",
-                  metaData: {
-                    source: "for_you_refresh",
-                    intent: activeIntent,
-                  },
-                });
-              }
-              void feedQuery.refetch();
-            }}
-          >
-            Refresh ranking
-          </Button>
-        </div>
-      ) : null}
     </main>
   );
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { supabase, admin } = require('../lib/supabase');
-const { requireAuth, requireAdmin, requireMasterAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requirePlatformAdmin, requireMasterAdmin } = require('../middleware/auth');
 const { getUserProfile } = require('./mockStore');
 const { sendSupportTicketResponseEmail } = require('../services/resendService');
 const simpleKYCService = require('../services/simpleKYCService');
@@ -536,6 +536,59 @@ router.post('/support/:id/reply', async (req, res) => {
     } catch (error) {
         console.error('Admin Reply Error:', error);
         res.status(500).json({ error: 'Failed to update ticket' });
+    }
+});
+
+/** POST /api/admin/support/:id/resolve-commerce — execute and record a customer remedy. */
+router.post('/support/:id/resolve-commerce', async (req, res) => {
+    try {
+        const { remedy, gems = 0, notes, coupon_assignment_id = null } = req.body || {};
+        const allowed = ['refund', 'restore_reward', 'gems_credit', 'no_adjustment'];
+        if (!allowed.includes(remedy) || !String(notes || '').trim()) return res.status(422).json({ error: 'A valid remedy and decision notes are required' });
+        const { data: ticket, error: ticketError } = await supabase.from('support_tickets').select('*').eq('id', req.params.id).single();
+        if (ticketError || !ticket || !ticket.receipt_id) return res.status(404).json({ error: 'Commerce case not found' });
+        if (ticket.resolution?.executed_at) {
+            if (!ticket.resolution?.appealed_at) return res.json({ success: true, ticket, idempotent: true });
+            const reviewedAt = new Date().toISOString();
+            const resolution = { ...ticket.resolution, appeal_reviewed_at: reviewedAt, appeal_decision_notes: notes.trim() };
+            const { data, error } = await supabase.from('support_tickets').update({ status: 'resolved', resolution, admin_notes: notes.trim(), resolved_at: reviewedAt, updated_at: reviewedAt }).eq('id', ticket.id).select().single();
+            if (error) throw error;
+            await supabase.from('support_ticket_events').insert({ ticket_id: ticket.id, actor_id: req.user.id, actor_type: 'admin', event_type: 'status_changed', previous_status: ticket.status, new_status: 'resolved', message: notes.trim(), metadata: { appeal_review: true, original_remedy: ticket.resolution.remedy } });
+            await supabase.from('notifications').insert({ user_id: ticket.user_id, type: 'commerce_appeal_resolved', title: 'Your appeal was reviewed', message: notes.trim(), related_id: ticket.receipt_id });
+            return res.json({ success: true, ticket: data, idempotent: true, appeal_reviewed: true });
+        }
+
+        let consequence = {};
+        if (remedy === 'refund') {
+            const marketplaceService = require('../services/marketplaceService');
+            const result = await marketplaceService.refundCommerceReceipt({ receiptId: ticket.receipt_id, actorId: req.user.id, reason: notes.trim() });
+            consequence = { receipt_status: result.receipt.status, stripe_refund_id: result.stripe_refund?.id || null };
+        } else if (remedy === 'gems_credit') {
+            const amount = Number(gems);
+            if (!Number.isFinite(amount) || amount <= 0 || amount > 100000) return res.status(422).json({ error: 'Gems must be between 1 and 100,000' });
+            const { data: transaction, error } = await supabase.rpc('post_economy_transaction', { p_user_id: ticket.user_id, p_currency: 'gems', p_amount: amount, p_transaction_type: 'refund', p_source: 'commerce_case_resolution', p_idempotency_key: `commerce-case:${ticket.id}:gems`, p_reference_id: ticket.id, p_reference_table: 'support_tickets', p_description: `Commerce case resolution: ${notes.trim()}`, p_metadata: { receipt_id: ticket.receipt_id } });
+            if (error) throw error;
+            consequence = { gems_credited: amount, transaction_id: transaction?.id || null };
+        } else if (remedy === 'restore_reward') {
+            const assignmentId = coupon_assignment_id || ticket.resolution?.coupon_assignment_id;
+            if (!assignmentId) return res.status(422).json({ error: 'Coupon assignment is required to restore a reward' });
+            const { data: assignment, error } = await supabase.from('advertiser_coupon_assignments').update({ is_redeemed: false, redeemed_at: null, status: 'available' }).eq('id', assignmentId).eq('user_id', ticket.user_id).select('id').single();
+            if (error) throw error;
+            consequence = { reward_restored: true, coupon_assignment_id: assignment.id };
+        }
+
+        const now = new Date().toISOString();
+        const resolution = { ...(ticket.resolution || {}), remedy, notes: notes.trim(), ...consequence, executed_at: now, executed_by: req.user.id };
+        const { data: updated, error: updateError } = await supabase.from('support_tickets').update({ status: 'resolved', resolution, admin_notes: notes.trim(), resolved_at: now, last_admin_reply_at: now, updated_at: now }).eq('id', ticket.id).select().single();
+        if (updateError) throw updateError;
+        await Promise.all([
+            supabase.from('support_ticket_events').insert({ ticket_id: ticket.id, actor_id: req.user.id, actor_type: 'admin', event_type: 'status_changed', previous_status: ticket.status, new_status: 'resolved', message: notes.trim(), metadata: { remedy, ...consequence } }),
+            supabase.from('notifications').insert({ user_id: ticket.user_id, type: 'commerce_case_resolved', title: remedy === 'refund' ? 'Your purchase was refunded' : remedy === 'restore_reward' ? 'Your reward was restored' : remedy === 'gems_credit' ? `${Number(gems).toLocaleString()} Gems returned to you` : 'Your commerce case was resolved', message: notes.trim(), related_id: ticket.receipt_id }),
+        ]);
+        res.json({ success: true, ticket: updated, consequence });
+    } catch (error) {
+        console.error('Commerce case resolution error:', error);
+        res.status(500).json({ error: error.message || 'Failed to resolve commerce case' });
     }
 });
 
@@ -1220,27 +1273,39 @@ router.patch('/moderation/content/:type/:id', async (req, res) => {
 });
 
 const CATALOG_CONFIG = {
+    brands: {
+        table: 'organizations',
+        allowedUpdates: ['name', 'slug', 'industry', 'billing_email', 'contact_email', 'website', 'avatar_url', 'owner_id', 'status', 'claim_status', 'verification_status'],
+        allowedCreates: ['name', 'slug', 'industry', 'billing_email', 'contact_email', 'website', 'avatar_url', 'owner_id', 'status', 'claim_status', 'verification_status'],
+        orderBy: 'created_at',
+        searchColumns: ['name', 'slug', 'industry', 'contact_email'],
+        filters: { type: 'brand' },
+    },
     venues: {
         table: 'venues',
         allowedUpdates: ['name', 'description', 'address', 'category', 'phone', 'website', 'image_url', 'is_active', 'owner_id'],
+        allowedCreates: ['name', 'description', 'address', 'category', 'phone', 'website', 'image_url', 'is_active', 'owner_id'],
         orderBy: 'created_at',
         searchColumns: ['name', 'address', 'category'],
     },
     products: {
         table: 'merchant_products',
         allowedUpdates: ['name', 'description', 'category', 'price', 'currency', 'inventory_quantity', 'inventory_count', 'is_active', 'is_redeemable_with_points', 'points_cost', 'venue_id', 'merchant_id'],
+        allowedCreates: ['name', 'description', 'category', 'price', 'currency', 'inventory_quantity', 'inventory_count', 'is_active', 'is_redeemable_with_points', 'points_cost', 'venue_id', 'merchant_id'],
         orderBy: 'created_at',
         searchColumns: ['name', 'category', 'sku'],
     },
     offers: {
         table: 'offers',
         allowedUpdates: ['title', 'description', 'terms', 'image_url', 'reward_type', 'fulfillment_type', 'value_amount', 'value_currency', 'venue_id', 'quantity_total', 'per_user_limit', 'starts_at', 'ends_at', 'status'],
+        allowedCreates: ['title', 'description', 'terms', 'image_url', 'reward_type', 'fulfillment_type', 'value_amount', 'value_currency', 'venue_id', 'quantity_total', 'per_user_limit', 'starts_at', 'ends_at', 'status'],
         orderBy: 'created_at',
         searchColumns: ['title', 'description', 'reward_type', 'status'],
     },
     campaigns: {
         table: 'campaigns',
-        allowedUpdates: ['title', 'description', 'brand_id', 'budget', 'reward_type', 'reward_value', 'start_date', 'end_date', 'is_active', 'featured', 'featured_until'],
+        allowedUpdates: ['title', 'description', 'brand_id', 'organization_id', 'budget', 'reward_type', 'reward_value', 'start_date', 'end_date', 'is_active', 'featured', 'featured_until'],
+        allowedCreates: ['title', 'description', 'brand_id', 'organization_id', 'budget', 'reward_type', 'reward_value', 'start_date', 'end_date', 'is_active', 'featured', 'featured_until'],
         orderBy: 'created_at',
         searchColumns: ['title', 'description', 'reward_type'],
     },
@@ -1265,6 +1330,42 @@ function normalizeCatalogUpdates(type, body = {}) {
 
     patch.updated_at = new Date().toISOString();
     return patch;
+}
+
+function normalizeCatalogCreate(type, body = {}) {
+    const config = CATALOG_CONFIG[type];
+    const record = {};
+    for (const field of config.allowedCreates || []) {
+        if (body[field] !== undefined) record[field] = body[field];
+    }
+
+    if (type === 'brands') {
+        record.type = 'brand';
+        record.name = String(record.name || '').trim();
+        if (!record.name) throw new Error('Brand name is required');
+        record.slug = String(record.slug || record.name)
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+        record.created_by = body.created_by || null;
+    }
+    if (type === 'venues' && !String(record.name || '').trim()) throw new Error('Venue name is required');
+    if (type === 'products') {
+        if (!String(record.name || '').trim()) throw new Error('Product name is required');
+        if (!Number.isFinite(Number(record.price))) throw new Error('A valid product price is required');
+    }
+    if (['offers', 'campaigns'].includes(type) && !String(record.title || '').trim()) {
+        throw new Error(`${type === 'offers' ? 'Offer' : 'Campaign'} title is required`);
+    }
+    if (type === 'campaigns' && !record.brand_id && !record.organization_id) {
+        throw new Error('A brand or organization ID is required');
+    }
+    if (type === 'products') {
+        if (record.inventory_quantity !== undefined && record.inventory_count === undefined) record.inventory_count = record.inventory_quantity;
+        if (record.inventory_count !== undefined && record.inventory_quantity === undefined) record.inventory_quantity = record.inventory_count;
+    }
+    return record;
 }
 
 async function recordAdminAudit({ actorId, action, targetType, targetId, reason, metadata = {} }) {
@@ -1305,6 +1406,10 @@ router.get('/catalog/:type', async (req, res) => {
             .order(config.orderBy, { ascending: false })
             .limit(limit);
 
+        for (const [column, value] of Object.entries(config.filters || {})) {
+            query = query.eq(column, value);
+        }
+
         if (req.query.active === 'true') query = query.eq('is_active', true);
         if (req.query.active === 'false') query = query.eq('is_active', false);
         if (req.query.status && type === 'offers') query = query.eq('status', req.query.status);
@@ -1325,10 +1430,42 @@ router.get('/catalog/:type', async (req, res) => {
 });
 
 /**
+ * POST /api/admin/catalog/:type
+ * Platform-admin creation for managed catalog objects.
+ */
+router.post('/catalog/:type', requirePlatformAdmin, async (req, res) => {
+    try {
+        const { type } = req.params;
+        const config = CATALOG_CONFIG[type];
+        if (!config) return res.status(400).json({ success: false, error: 'Unknown catalog type' });
+
+        const { reason = null, ...body } = req.body || {};
+        const record = normalizeCatalogCreate(type, { ...body, created_by: req.user.id });
+        if (!supabase) return res.status(201).json({ success: true, item: { id: `mock-${Date.now()}`, ...record } });
+
+        const { data, error } = await supabase.from(config.table).insert(record).select().single();
+        if (error) throw error;
+
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'catalog.create',
+            targetType: type,
+            targetId: data.id,
+            reason,
+            metadata: { fields: Object.keys(record) },
+        });
+        res.status(201).json({ success: true, item: data });
+    } catch (error) {
+        console.error('Admin Catalog Create Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to create catalog item' });
+    }
+});
+
+/**
  * PATCH /api/admin/catalog/:type/:id
  * Admin update for venues, merchant products, and offers.
  */
-router.patch('/catalog/:type/:id', async (req, res) => {
+router.patch('/catalog/:type/:id', requirePlatformAdmin, async (req, res) => {
     try {
         const { type, id } = req.params;
         const config = CATALOG_CONFIG[type];
@@ -1364,6 +1501,96 @@ router.patch('/catalog/:type/:id', async (req, res) => {
     } catch (error) {
         console.error('Admin Catalog Update Error:', error);
         res.status(400).json({ success: false, error: error.message || 'Failed to update catalog item' });
+    }
+});
+
+/**
+ * PATCH /api/admin/catalog/:type/:id/moderate
+ * Audited moderation for brands and campaigns. Both moderators and platform
+ * admins may use this route; arbitrary field edits remain platform-admin only.
+ */
+router.patch('/catalog/:type/:id/moderate', async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        if (!['brands', 'campaigns'].includes(type)) {
+            return res.status(400).json({ success: false, error: 'Moderation is only supported for brands and campaigns' });
+        }
+        const { action, reason = null } = req.body || {};
+        const allowedActions = ['approve', 'pause', 'reject', 'archive', 'restore'];
+        if (!allowedActions.includes(action)) {
+            return res.status(422).json({ success: false, error: 'Invalid moderation action' });
+        }
+        if (['pause', 'reject', 'archive'].includes(action) && !String(reason || '').trim()) {
+            return res.status(400).json({ success: false, error: 'A reason is required for this moderation action' });
+        }
+
+        const patch = type === 'brands'
+            ? action === 'approve'
+                ? { status: 'active', verification_status: 'verified', verified_at: new Date().toISOString(), verified_by: req.user.id }
+                : action === 'reject'
+                    ? { status: 'suspended', verification_status: 'rejected' }
+                    : action === 'archive'
+                        ? { status: 'archived' }
+                        : action === 'restore'
+                            ? { status: 'active' }
+                            : { status: 'suspended' }
+            : { is_active: ['approve', 'restore'].includes(action) };
+
+        if (!supabase) return res.json({ success: true, item: { id, ...patch } });
+        const config = CATALOG_CONFIG[type];
+        const { data, error } = await supabase.from(config.table).update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id).select().single();
+        if (error) throw error;
+
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: `catalog.${type}.${action}`,
+            targetType: type,
+            targetId: id,
+            reason,
+            metadata: { patch },
+        });
+        res.json({ success: true, item: data });
+    } catch (error) {
+        console.error('Admin Catalog Moderation Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to moderate catalog item' });
+    }
+});
+
+/**
+ * DELETE /api/admin/catalog/:type/:id
+ * Recoverable admin deletion. Records are archived/disabled so audit and
+ * relationship history remain intact.
+ */
+router.delete('/catalog/:type/:id', requirePlatformAdmin, async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        const config = CATALOG_CONFIG[type];
+        if (!config) return res.status(400).json({ success: false, error: 'Unknown catalog type' });
+        const reason = String(req.body?.reason || '').trim();
+        if (!reason) return res.status(400).json({ success: false, error: 'A reason is required to archive an item' });
+
+        const patch = type === 'brands'
+            ? { status: 'archived' }
+            : type === 'offers'
+                ? { status: 'archived' }
+                : { is_active: false };
+        patch.updated_at = new Date().toISOString();
+
+        if (!supabase) return res.json({ success: true, item: { id, ...patch }, archived: true });
+        const { data, error } = await supabase.from(config.table).update(patch).eq('id', id).select().single();
+        if (error) throw error;
+        await recordAdminAudit({
+            actorId: req.user.id,
+            action: 'catalog.archive',
+            targetType: type,
+            targetId: id,
+            reason,
+            metadata: { recoverable: true },
+        });
+        res.json({ success: true, item: data, archived: true });
+    } catch (error) {
+        console.error('Admin Catalog Archive Error:', error);
+        res.status(400).json({ success: false, error: error.message || 'Failed to archive catalog item' });
     }
 });
 
@@ -2231,7 +2458,7 @@ router.post('/users/:id/suspend', async (req, res) => {
 
 /**
  * POST /api/admin/campaigns/compiler-launch
- * Launch a campaign compiled by the deterministic rule engine
+ * Save a campaign plan compiled by the deterministic rule engine
  */
 router.post('/campaigns/compiler-launch', async (req, res) => {
     try {
@@ -2243,7 +2470,7 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
         const { moment, proof, compiler_metadata } = compiled;
 
         if (!supabase) {
-            return res.json({ success: true, message: 'Mock launch successful (No DB)', compiled });
+            return res.json({ success: true, message: 'Mock activation plan saved (No DB)', compiled });
         }
 
         const adminId = req.user.id;
@@ -2255,10 +2482,16 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
                 advertiser_id: adminId,
                 name: moment.name,
                 description: moment.description,
-                reward_value: `${compiled.reward.baseGems} Gems`,
+                reward_value: `${compiled.reward.baseGems} Gems proposed per accepted action`,
                 campaign_type: 'activation',
-                status: 'active',
-                compiler_metadata: compiler_metadata,
+                status: 'draft',
+                compiler_metadata: {
+                    ...compiler_metadata,
+                    planned_reward_per_action_gems: compiled.reward.baseGems,
+                    value_unit: 'GEM',
+                    funding_status: 'unfunded',
+                    activation_status: 'draft'
+                },
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             })
@@ -2281,7 +2514,7 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
                 title: moment.name,
                 description: moment.description,
                 type: 'digital_drop',
-                status: 'live',
+                status: 'draft',
                 sku_type: moment.tier || 'A3',
                 proof_type: proofMapping[proof] || 'Photo',
                 expected_action_unit: 'Submission',
@@ -2297,7 +2530,7 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
             await supabase.from('campaign_sponsorships').insert({
                 campaign_id: campaign.id,
                 moment_id: newMoment.id,
-                status: 'active',
+                status: 'pending',
                 sponsorship_amount: 0
             });
         } catch (e) {
@@ -2308,7 +2541,7 @@ router.post('/campaigns/compiler-launch', async (req, res) => {
             success: true,
             campaign_id: campaign.id,
             moment_id: newMoment.id,
-            message: 'Campaign compiled and launched successfully.',
+            message: 'Activation plan saved. Nothing is live or funded yet.',
             compiled
         });
 

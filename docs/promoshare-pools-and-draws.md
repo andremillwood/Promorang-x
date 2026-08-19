@@ -2,6 +2,8 @@
 
 Last updated: 2026-06-17
 
+Participant currency, subscription boost, and Master Key rules are governed by `PARTICIPANT_ECONOMY_AUTHORITY.md`.
+
 ## Product Principle
 
 PromoShare should make verified participation feel valuable without turning Promorang into an open-ended payout liability.
@@ -102,6 +104,8 @@ Always-on progression may run without a funded pool:
 - streaks
 - leaderboard rank
 - access eligibility
+
+Participant-facing name: **Community Draw**. Do not label these experiences "non-funded draws" in product copy.
 
 Gems must come only from funded pools, revenue-backed allocations, or explicitly approved platform budgets.
 

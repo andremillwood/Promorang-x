@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         backgroundColor: BRAND_ORANGE,
     },
     eyebrowText: {
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: '800',
         letterSpacing: 1.6,
     },
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     legal: {
-        fontSize: 11,
+        fontSize: 13,
         lineHeight: 16,
         textAlign: 'center',
         marginTop: 14,
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     },
     demoPillText: {
         color: BRAND_ORANGE,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: '900',
         letterSpacing: 1.1,
     },

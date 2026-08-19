@@ -9,6 +9,8 @@ export interface Proposal {
     title: string;
     description: string | null;
     budget: number | null;
+    funding_goal_gems?: number | null;
+    lifecycle_state?: string | null;
     status: 'draft' | 'sent' | 'accepted' | 'declined';
     target_moment_id: string | null;
     metadata: Record<string, unknown>;

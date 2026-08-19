@@ -8,30 +8,60 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Promorang" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <title>Promorang - Life is made of moments worth sharing</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <script>
+      (function() {
+        var CURRENT_VER = "v2026_08_09_06";
+        if (localStorage.getItem("promorang_ver") !== CURRENT_VER) {
+          localStorage.setItem("promorang_ver", CURRENT_VER);
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              keys.forEach(function(k) { caches.delete(k); });
+            });
+          }
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(r) { r.unregister(); });
+            });
+          }
+        }
+      })();
+    </script>
     <meta name="description" content="Discover experiences that matter. Join gatherings that bring people together. Remember the moments that define your story.">
     <meta name="author" content="Promorang" />
     
     <!-- Favicon -->
-    <link rel="shortcut icon" href="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png" type="image/png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="https://mocha-cdn.com/0198f6f0-5737-78cb-955a-4b0907aa1065/Promorang_logo_FULL-02.png" type="image/png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href="https://www.promorang.co/" />
     
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Promorang" />
+    <meta property="og:url" content="https://www.promorang.co/" />
     <meta property="og:title" content="Promorang - Life is made of moments worth sharing">
     <meta property="og:description" content="Discover experiences that matter. Join gatherings that bring people together. Remember the moments that define your story.">
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="https://www.promorang.co/og-image.png" />
+    <meta property="og:image:alt" content="Promorang" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@promorang" />
     <meta name="twitter:title" content="Promorang - Life is made of moments worth sharing">
     <meta name="twitter:description" content="Discover experiences that matter. Join gatherings that bring people together. Remember the moments that define your story.">
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:image" content="https://www.promorang.co/og-image.png" />
+    <meta name="twitter:image:alt" content="Promorang" />
 </head>
 
   <body>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1016273502380998&ev=PageView&noscript=1"
+      alt=""
+    /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

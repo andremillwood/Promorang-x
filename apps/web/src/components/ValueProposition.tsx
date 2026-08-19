@@ -231,7 +231,7 @@ export function ValueProposition() {
                     type="button"
                     onClick={() => setActiveReward(index)}
                     className={cn(
-                      "flex items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all",
+                      "flex items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                       activeReward === index
                         ? "border-primary bg-primary text-primary-foreground shadow-glow"
                         : "border-white/10 bg-black/20 text-white hover:border-primary/40 hover:bg-white/[0.08]"
@@ -322,7 +322,7 @@ export function ValueProposition() {
                       aria-controls="active-tier-panel"
                       onClick={() => setActiveTier(index)}
                       className={cn(
-                        "rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         activeTier === index
                           ? "border-primary bg-primary text-primary-foreground shadow-glow"
                           : "border-white/10 bg-black/20 text-white hover:border-primary/40 hover:bg-white/[0.08]"
@@ -371,7 +371,7 @@ export function ValueProposition() {
                         </div>
                         <div className="h-3 overflow-hidden rounded-full bg-white/10">
                           <div
-                            className="h-full rounded-full bg-gradient-primary transition-all duration-500"
+                            className="h-full rounded-full bg-gradient-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500"
                             style={{ width: `${tiers[activeTier].progress}%` }}
                           />
                         </div>

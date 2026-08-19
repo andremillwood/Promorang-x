@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClaimIssuance, useCreateOffer, useDirectOfferClaim, useOfferWallet, useOwnerOffers, usePublicOffers, useRedeemOffer, useUpdateOffer } from "@/hooks/useOffers";
 import { ArrowRight, Banknote, CheckCircle2, ChevronDown, Gift, MapPin, PackageCheck, Plus, QrCode, Radio, ReceiptText, Settings2, Share2, ShieldCheck, Sparkles, Ticket, Users } from "lucide-react";
@@ -269,7 +270,15 @@ const OfferStudio = () => {
         <div>
           <Badge className="mb-4 bg-orange-500 text-black">Funded Activation Studio</Badge>
           <h1 className="max-w-4xl text-4xl font-black leading-[0.95] tracking-tight md:text-6xl">Put real value behind the action you want.</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-white/55">Build check-in perks, content missions, referral unlocks, and PromoShare cycles from committed inventory, sponsor budget, or campaign revenue.</p>
+          <GuidanceDisclosure
+            id="offer-studio:activation-context"
+            eyebrow="Activation guide"
+            title="What funded offers are for"
+            summary="Build check-in perks, content missions, referral unlocks, and PromoShare cycles from committed value."
+            className="mt-4 max-w-3xl"
+          >
+            <p className="text-base leading-7 text-white/55">Build check-in perks, content missions, referral unlocks, and PromoShare cycles from committed inventory, sponsor budget, or campaign revenue.</p>
+          </GuidanceDisclosure>
         </div>
         {canManage && <div className="grid grid-cols-2 gap-3"><Card><CardContent className="p-4"><p className="text-2xl font-bold">{totals.issued}</p><p className="text-xs text-muted-foreground">Issued</p></CardContent></Card><Card><CardContent className="p-4"><p className="text-2xl font-bold">{totals.redeemed}</p><p className="text-xs text-muted-foreground">Redeemed</p></CardContent></Card></div>}
       </div></section>
@@ -277,11 +286,15 @@ const OfferStudio = () => {
 
       {canManage && (
         <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_0.72fr]">
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /> Market-backed reward rule</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
+          <GuidanceDisclosure
+            id="offer-studio:market-backed-rule"
+            eyebrow="Reward rule"
+            title="How to keep an activation launch-safe"
+            summary="Commit value, require proof, and cap PromoShare from committed backing only."
+            className="mt-0"
+            tone="light"
+          >
+            <div className="grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
               <div className="rounded-lg border border-border bg-background/70 p-4">
                 <p className="font-bold text-foreground">1. Commit value</p>
                 <p className="mt-1">Use inventory, off-peak perks, sponsor budget, campaign revenue, or paid placement revenue.</p>
@@ -294,8 +307,8 @@ const OfferStudio = () => {
                 <p className="font-bold text-foreground">3. Cap PromoShare</p>
                 <p className="mt-1">PromoShare is calculated from committed value only, so upside never becomes an open liability.</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GuidanceDisclosure>
 
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><ReceiptText className="h-5 w-5 text-primary" /> Liability preview</CardTitle></CardHeader>
@@ -325,7 +338,16 @@ const OfferStudio = () => {
                 <div>
                   <Badge variant="outline" className="mb-3">Quick Launch</Badge>
                   <CardTitle className="font-serif text-3xl">What do you want to make happen?</CardTitle>
-                  <p className="mt-2 text-sm text-muted-foreground">Pick the outcome. Promorang fills in the incentive, proof, funding guardrail, and PromoShare cap.</p>
+                  <GuidanceDisclosure
+                    id="offer-studio:quick-launch"
+                    eyebrow="Template guide"
+                    title="How quick launch templates work"
+                    summary="Pick the outcome and Promorang fills in incentive, proof, funding guardrail, and PromoShare cap."
+                    className="mt-3"
+                    tone="light"
+                  >
+                    <p className="text-sm text-muted-foreground">Pick the outcome. Promorang fills in the incentive, proof, funding guardrail, and PromoShare cap.</p>
+                  </GuidanceDisclosure>
                 </div>
                 {selectedTemplateId && <Badge className="w-fit">Ready to tune</Badge>}
               </div>

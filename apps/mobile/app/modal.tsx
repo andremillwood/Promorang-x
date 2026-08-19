@@ -34,7 +34,12 @@ export default function ModalScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.sectionLabel}>YOUR ROLES</Text>
         {roles.map((role) => {
-          const info = roleLabels[role];
+          const info = roleLabels[role as UserRole] || {
+            label: String(role || 'role').toUpperCase(),
+            icon: 'shield-checkmark',
+            color: DesignColors.primary,
+            desc: 'Platform Role'
+          };
           const isActive = activeRole === role;
           return (
             <Pressable
@@ -170,7 +175,7 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   sectionLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
     color: DesignColors.gray[500],
     letterSpacing: 2,

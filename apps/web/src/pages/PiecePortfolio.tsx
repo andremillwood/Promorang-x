@@ -111,20 +111,20 @@ export function PiecePortfolio() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
         <div className="relative mx-auto flex min-h-[350px] max-w-7xl flex-col justify-end gap-6 px-5 pb-10 pt-20 sm:px-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><WalletCards className="h-3.5 w-3.5" /> Earned positions</div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400"><WalletCards className="h-3.5 w-3.5" /> Co-Ownership Collectibles</div>
             <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
               Keep a stake in what you helped move.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/55">
-              Pieces make qualified participation visible across moments, stories, hosts, and places.
+              Pieces give you a real co-ownership stake in viral moments, creator drops, and local venues—unlocking secret perks, ticket draws, and Gem yields as participation grows.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="outline">
-              <Link to="/marketplace">Marketplace</Link>
+              <Link to="/marketplace">Exchange Collectibles</Link>
             </Button>
             <Button asChild>
-              <Link to="/liquidity">Liquidity</Link>
+              <Link to="/liquidity">Growth Pools</Link>
             </Button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
 import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Building2,
     Handshake,
@@ -149,6 +150,8 @@ const ForBrands = () => {
                 </div>
             </section>
 
+            <LeadMagnetGateway audience="brand" />
+
             <MissionRoleValue audience="brand" />
 
             {/* Participation Measurement Section */}
@@ -264,7 +267,7 @@ const ForBrands = () => {
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                         {/* Scene Moment - Entry Level */}
-                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-all">
+                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-4 text-xs font-bold">
                                 START HERE
                             </div>
@@ -296,7 +299,7 @@ const ForBrands = () => {
                         </div>
 
                         {/* Activation */}
-                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-all">
+                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-6 text-primary">
                                 <Target className="w-6 h-6" />
                             </div>
@@ -321,7 +324,7 @@ const ForBrands = () => {
                         </div>
 
                         {/* Bounty */}
-                        <div className="bg-card rounded-xl p-8 border border-primary/20 shadow-soft-xl relative overflow-hidden transition-all">
+                        <div className="bg-card rounded-xl p-8 border border-primary/20 shadow-soft-xl relative overflow-hidden transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
                                 SCALABLE
                             </div>
@@ -349,7 +352,7 @@ const ForBrands = () => {
                         </div>
 
                         {/* Digital */}
-                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-all">
+                        <div className="bg-card rounded-xl p-8 border border-border hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
                             <div className="h-12 w-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6 text-blue-600">
                                 <Users className="w-6 h-6" />
                             </div>
@@ -424,7 +427,7 @@ const ForBrands = () => {
                                 icon: Target,
                             }
                         ].map((category, i) => (
-                            <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white/10 transition-all group">
+                            <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white/10 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group">
                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
                                     <category.icon className="w-5 h-5" />
                                 </div>

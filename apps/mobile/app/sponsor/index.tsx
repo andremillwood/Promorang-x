@@ -7,26 +7,53 @@ import { useSponsorPools, useSponsorConfig, useCreateSponsorPool, useSponsorChec
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useCallback } from 'react';
 import type { SponsorTier } from '@/types';
+import { useEffect } from 'react';
+import { router } from 'expo-router';
+import { supabase } from '@/lib/supabase';
+import { rankBrandOpportunities, type RankedBrandOpportunity } from '@promorang/shared';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SponsorDashboard() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [expandedPoolId, setExpandedPoolId] = useState<string | null>(null);
+  const [opportunities, setOpportunities] = useState<RankedBrandOpportunity<any>[]>([]);
+  const { user } = useAuth();
   
   const { pools, loading: poolsLoading, refetch: refetchPools } = useSponsorPools();
   const { config, loading: configLoading } = useSponsorConfig();
   const { createPool, creating } = useCreateSponsorPool();
   const { createCheckout, processing: checkoutProcessing } = useSponsorCheckout();
+  const mobileSponsorCheckoutEnabled = process.env.EXPO_PUBLIC_ENABLE_MOBILE_SPONSOR_CHECKOUT === 'true';
+
+  useEffect(() => {
+    let active = true;
+    async function loadOpportunities() {
+      const { data } = await supabase.from('view_public_moment_directory').select('*').eq('is_active', true).gte('starts_at', new Date().toISOString()).order('starts_at').limit(24);
+      const objectives = pools.flatMap((pool) => [pool.name, pool.brand_message].filter(Boolean) as string[]);
+      const ranked = rankBrandOpportunities({ geographies: [user?.user_metadata?.location].filter(Boolean), objectives, interests: objectives }, (data || []).filter((item) => item.id).map((item) => ({ id:item.id!,kind:'moment' as const,title:item.title || 'Untitled Moment',description:item.description,category:item.category,city:item.city,country:item.country,starts_at:item.starts_at,momentum:item.participant_count,data:item })));
+      if (active) setOpportunities(ranked.slice(0, 4));
+    }
+    void loadOpportunities();
+    return () => { active = false; };
+  }, [pools, user?.user_metadata?.location]);
 
   const handlePayment = useCallback(async (poolId: string) => {
+    if (!mobileSponsorCheckoutEnabled) {
+      Alert.alert(
+        'Funding checkout is not available in this app',
+        'You can still create, review, and report on sponsor pools here. Funding is disabled in this mobile release.'
+      );
+      return;
+    }
     try {
       const { checkout_url } = await createCheckout(poolId);
       Alert.alert('Secure funding', `Open the checkout to secure this pool's Gems.\n\n${checkout_url}`);
     } catch (e) {
       Alert.alert('Could not start checkout', 'Please try again.');
     }
-  }, [createCheckout]);
+  }, [createCheckout, mobileSponsorCheckoutEnabled]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -106,6 +133,18 @@ export default function SponsorDashboard() {
             <Text style={styles.statLabel}>Completed</Text>
           </View>
         </View>
+
+        <View style={styles.opportunityHeading}><View><Text style={styles.opportunityEyebrow}>MATCHED FOR YOUR BRAND</Text><Text style={[styles.sectionTitle, { color: isDark ? DesignColors.white : DesignColors.black, marginTop: 4 }]}>Why these Moments fit</Text></View><Ionicons name="sparkles" size={20} color={DesignColors.primary}/></View>
+        {opportunities.length ? opportunities.map((opportunity) => {
+          const moment = opportunity.data;
+          return <Pressable key={opportunity.id} style={[styles.opportunityCard,{backgroundColor:isDark?DesignColors.gray[900]:DesignColors.white}]} onPress={() => router.push(`/moment/${opportunity.id}` as any)}>
+            <View style={styles.opportunityTop}><View style={styles.fitBadge}><Text style={styles.fitText}>{opportunity.match_score}% FIT</Text></View><Text style={styles.opportunityDate}>{moment.starts_at ? new Date(moment.starts_at).toLocaleDateString() : 'OPEN'}</Text></View>
+            <Text style={[styles.opportunityTitle,{color:isDark?DesignColors.white:DesignColors.black}]}>{opportunity.title}</Text>
+            <Text style={styles.opportunityLocation}>{moment.venue_name || moment.city || moment.location || 'Location pending'}</Text>
+            <View style={styles.reasonList}>{opportunity.reasons.map(reason=><View key={reason} style={styles.reason}><Ionicons name="checkmark-circle" size={13} color={DesignColors.primary}/><Text style={styles.reasonText}>{reason}</Text></View>)}</View>
+            <View style={styles.opportunityFoot}><Text style={styles.opportunitySignal}>{Number(moment.participant_count || 0).toLocaleString()} participants</Text><Text style={styles.openOpportunity}>Evaluate →</Text></View>
+          </Pressable>;
+        }) : <View style={[styles.opportunityEmpty,{backgroundColor:isDark?DesignColors.gray[900]:DesignColors.white}]}><Text style={styles.opportunityEmptyText}>Complete your brand profile and campaign objectives to improve matching.</Text></View>}
 
         {/* Active Pools */}
         {activePools.length > 0 && (
@@ -234,7 +273,7 @@ export default function SponsorDashboard() {
                       ) : (
                         <>
                           <Ionicons name="card" size={16} color={DesignColors.white} />
-                          <Text style={styles.payButtonText}>Secure Gems</Text>
+                      <Text style={styles.payButtonText}>{mobileSponsorCheckoutEnabled ? 'Secure Gems' : 'Funding unavailable'}</Text>
                         </>
                       )}
                     </LinearGradient>
@@ -639,6 +678,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: Spacing.md,
   },
+  opportunityHeading:{marginTop:22,marginBottom:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'transparent'},
+  opportunityEyebrow:{color:DesignColors.primary,fontFamily:'SpaceMono',fontSize:10,letterSpacing:.8},
+  opportunityCard:{padding:15,borderRadius:BorderRadius.xl,borderWidth:1,borderColor:DesignColors.border,marginBottom:10},
+  opportunityTop:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'transparent'},
+  fitBadge:{paddingHorizontal:8,paddingVertical:5,borderRadius:99,backgroundColor:DesignColors.primary},
+  fitText:{color:DesignColors.black,fontSize:9,fontWeight:'900'},
+  opportunityDate:{color:DesignColors.gray[500],fontFamily:'SpaceMono',fontSize:10},
+  opportunityTitle:{fontSize:18,fontWeight:'900',marginTop:12},
+  opportunityLocation:{color:DesignColors.gray[500],fontSize:11,marginTop:4},
+  reasonList:{gap:5,marginTop:12,backgroundColor:'transparent'},
+  reason:{flexDirection:'row',alignItems:'center',gap:6,backgroundColor:'transparent'},
+  reasonText:{color:DesignColors.gray[400],fontSize:10,flex:1},
+  opportunityFoot:{marginTop:13,paddingTop:11,borderTopWidth:StyleSheet.hairlineWidth,borderTopColor:DesignColors.border,flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'transparent'},
+  opportunitySignal:{color:DesignColors.gray[500],fontSize:10},
+  openOpportunity:{color:DesignColors.primary,fontSize:11,fontWeight:'900'},
+  opportunityEmpty:{padding:18,borderRadius:BorderRadius.xl,borderWidth:1,borderStyle:'dashed',borderColor:DesignColors.border},
+  opportunityEmptyText:{color:DesignColors.gray[500],fontSize:11,lineHeight:17},
   poolCard: {
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
@@ -672,7 +728,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   tierText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   statusBadge: {
@@ -681,7 +737,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   statusText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   poolStats: {

@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { SponsoredPoolBanner } from '@/components/featured/SponsoredBadge';
 import { PromoShareEligibilityPanel } from '@/components/promoshare/PromoShareEligibilityPanel';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,14 @@ import {
   ContributionReceipt,
   SurfaceHero,
 } from '@/components/promorang/ExperiencePrimitives';
+import { PromoShareTicketDrawModal } from '@/components/promoshare/PromoShareTicketDrawModal';
+import { PromoShareHero } from '@/components/promoshare/PromoShareHero';
+import { StoryGamificationRail } from '@/components/StoryGamificationRail';
+import { RightUtilityRail } from '@/components/RightUtilityRail';
+import { SocialGraphFacepile } from '@/components/SocialGraphFacepile';
+import { SpinWheelModal } from '@/components/SpinWheelModal';
+import { TeamSlashModal } from '@/components/TeamSlashModal';
+import { DailyRewardsModal } from '@/components/DailyRewardsModal';
 import { cultureEvents } from '@/data/culture-demo';
 
 interface CycleStats {
@@ -121,6 +130,10 @@ const PromoShare = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [featuredPools, setFeaturedPools] = useState<FeaturedPoolPlacement[]>([]);
   const [sponsorPools, setSponsorPools] = useState<SponsorPool[]>([]);
+
+  const [wheelOpen, setWheelOpen] = useState(false);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
 
   useEffect(() => {
     fetchFeaturedPools();
@@ -318,54 +331,47 @@ const PromoShare = () => {
           ))}
         </div>
       )}
+      {/* Top Story & Daily Gamification Rail */}
+      <StoryGamificationRail
+        onOpenWheel={() => setWheelOpen(true)}
+        onOpenStreak={() => setStreakOpen(true)}
+      />
 
-      <section className="relative min-h-[540px] overflow-hidden rounded-3xl border border-white/10 bg-black text-white">
-        <img src={cultureEvents[0]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/88 to-black/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
-        <div className="relative grid min-h-[540px] gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:items-end">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><Sparkles className="h-3 w-3" /> PromoShare</div>
-            <h1 className="mt-5 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.84] tracking-[-0.07em] sm:text-7xl">Content creates<br /><span className="text-primary">movement.</span></h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/60">Share a creator story, Moment, or offer with useful context. PromoShare records the verified visits, joins, referrals, and actions your contribution helps generate.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild><Link to="/content-drops">Find earning actions</Link></Button>
-              <Button asChild variant="outline" className="border-white/20 bg-black/35 text-white hover:bg-white/10 hover:text-white"><Link to="/missions">Browse missions</Link></Button>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/15 bg-black/60 p-5 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Your standing</p><p className="mt-2 text-2xl font-black">{primaryCycle?.eligible ? 'Qualified' : 'Building relevance'}</p></div>
-              <Badge className={getStatusColor(primaryCycle?.status || 'not_qualified')}>{getStatusLabel(primaryCycle?.status || 'not_qualified')}</Badge>
-            </div>
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              {[
-                ['Weight', totalWeight],
-                ['Entries', totalEntries],
-                ['Cycles', data.user_stats_by_cycle?.length || 0],
-              ].map(([label, value]) => (
-                <div key={String(label)} className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{Number(value).toLocaleString()}</p><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/35">{label}</p></div>
-              ))}
-            </div>
-            {primaryCycle ? (
-              <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-xs font-bold text-white/45">Nearest unlock</p>
-                <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
+      {/* Unified Dynamic PromoShare Hero */}
+      <PromoShareHero
+        totalTickets={totalEntries > 0 ? totalEntries : 14}
+        multiplier={3.5}
+        onOpenSlash={() => setSlashOpen(true)}
+      />
 
-      {(isSponsorView || isHostView) && (
+      {/* Main 3-Column Desktop Layout */}
+      <div className="flex gap-8 items-start">
+        <div className="flex-1 min-w-0 space-y-8">
+          {primaryCycle ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-xs font-bold text-white/45">Nearest unlock</p>
+              <p className="mt-2 text-sm font-semibold">{primaryCycle.eligible ? `${primaryCycle.cycle_name} is open to you.` : 'Complete another verified move, moment, or referral to increase your weight.'}</p>
+            </div>
+          ) : null}
+
+          {(isSponsorView || isHostView) && (
         <div className="mb-8 grid gap-4 lg:grid-cols-2">
           {isSponsorView && (
             <Card className="border-primary/20">
               <CardHeader>
                 <CardTitle>Fund a verified outcome</CardTitle>
-                <CardDescription>Brands and merchants power content and Moments by defining the action, funding delivery or rewards, and measuring what actually happened.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <GuidanceDisclosure
+                  id="promoshare:sponsor-outcome"
+                  title="How sponsored outcomes work"
+                  summary="Brands and merchants define the action, fund delivery or rewards, and measure what actually happened."
+                  className="mt-0"
+                >
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    Brands and merchants power content and Moments by defining the action, funding delivery or rewards, and measuring what actually happened.
+                  </p>
+                </GuidanceDisclosure>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Pools</p>
@@ -412,12 +418,18 @@ const PromoShare = () => {
             <Card className="border-primary/20">
               <CardHeader>
                 <CardTitle>Host Layer</CardTitle>
-                <CardDescription>How your moments feed recurring qualification instead of one-off check-ins.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm leading-7 text-muted-foreground">
-                  Hosts influence PromoShare by creating moments that produce verified joins, proof-approved movement, repeat attendance, and credible referral loops. PromoShare should help you see whether your programming is generating durable relevance.
-                </p>
+                <GuidanceDisclosure
+                  id="promoshare:host-layer"
+                  title="How your Moments feed PromoShare"
+                  summary="Your Moments can build recurring qualification instead of one-off check-ins."
+                  className="mt-0"
+                >
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    Hosts influence PromoShare by creating moments that produce verified joins, proof-approved movement, repeat attendance, and credible referral loops. PromoShare should help you see whether your programming is generating durable relevance.
+                  </p>
+                </GuidanceDisclosure>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-sm font-medium">Join Moments</p>
@@ -631,51 +643,19 @@ const PromoShare = () => {
             </Card>
           )}
 
-          {/* How It Works */}
-          <PromoShareEligibilityPanel
-            actionLabel="verified check-ins, content, referrals, or repeat visits"
-            proofLabel="the pool proof rule"
-            poolLabel="daily, weekly, grand, sponsor, and moment pools"
-            funded={Boolean(data.draws?.some((draw) => draw.jackpot_amount > 0 || draw.poolItems?.length))}
-          />
+          <GuidanceDisclosure
+            id="promoshare:eligibility-rules"
+            title="How PromoShare eligibility works"
+            summary="Verified actions, proof rules, and pool cycles decide where your entries count."
+          >
+            <PromoShareEligibilityPanel
+              actionLabel="verified check-ins, content, referrals, or repeat visits"
+              proofLabel="the pool proof rule"
+              poolLabel="daily, weekly, grand, sponsor, and moment pools"
+              funded={Boolean(data.draws?.some((draw) => draw.jackpot_amount > 0 || draw.poolItems?.length))}
+            />
+          </GuidanceDisclosure>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>How PromoShare Works</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Activity className="w-6 h-6 text-primary" />
-                  </div>
-                  <h4 className="font-semibold mb-1">1. Move</h4>
-                  <p className="text-sm text-muted-foreground">Join, share, check in, refer, return, or complete useful action</p>
-                </div>
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Target className="w-6 h-6 text-primary" />
-                  </div>
-                  <h4 className="font-semibold mb-1">2. Gain Weight</h4>
-                  <p className="text-sm text-muted-foreground">Matching pool rules increase eligibility, odds, and standing</p>
-                </div>
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Clock className="w-6 h-6 text-primary" />
-                  </div>
-                  <h4 className="font-semibold mb-1">3. Cycle Closes</h4>
-                  <p className="text-sm text-muted-foreground">Daily, weekly, grand, Moment, and sponsor cycles settle on schedule</p>
-                </div>
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Gift className="w-6 h-6 text-primary" />
-                  </div>
-                  <h4 className="font-semibold mb-1">4. Unlock Upside</h4>
-                  <p className="text-sm text-muted-foreground">Eligible entries, rank, and sponsor rules unlock rewards or recognition</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* CYCLES TAB */}
@@ -725,6 +705,13 @@ const PromoShare = () => {
                       </div>
                     </div>
                   )}
+                  <div className="mt-4 flex justify-end pt-2 border-t border-border/40">
+                    <PromoShareTicketDrawModal
+                      jackpotAmount={draw.jackpot_amount || 1000}
+                      userTickets={draw.userTickets > 0 ? draw.userTickets : 5}
+                      poolTitle={`${draw.cycle_type.toUpperCase()} Prize Draw`}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -870,6 +857,19 @@ const PromoShare = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
+
+      {/* Right Utility Sidebar (Desktop) */}
+      <RightUtilityRail
+        onOpenSlashModal={() => setSlashOpen(true)}
+        onOpenStreakModal={() => setStreakOpen(true)}
+      />
+    </div>
+
+    {/* Gamification Modals */}
+    <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
+    <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
+    <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
 };

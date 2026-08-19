@@ -1,59 +1,22 @@
 import { API_BASE_URL } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
+import type {
+  FeedAction,
+  FeedContext,
+  FeedIntent,
+  FeedItem,
+  FeedResponse,
+  FeedScoreBreakdown,
+} from "@promorang/shared";
 
-export type FeedIntent = "nearby" | "tonight" | "earn";
+export type { FeedAction, FeedContext, FeedIntent, FeedItem, FeedResponse, FeedScoreBreakdown } from "@promorang/shared";
 
-export interface FeedAction {
-  label: string;
-  action: string;
-  href?: string;
-}
-
-export interface FeedContext {
-  starts_at?: string;
-  ends_at?: string;
-  location_name?: string;
-  city?: string;
-  distance_km?: number;
-  reward_value?: number;
-  reward_label?: string;
-  participants_count?: number;
-  host_name?: string;
-  venue_name?: string;
-  brand_name?: string;
-  sponsored?: boolean;
-  live_now?: boolean;
-  expires_soon?: boolean;
-}
-
-export interface FeedScoreBreakdown {
-  recency: number;
-  intent: number;
-  relevance: number;
-  proximity: number;
-  urgency: number;
-  social: number;
-  value: number;
-  quality: number;
-  behavior?: number;
-  diversity_adjustment: number;
-}
-
-export interface FeedItem {
-  id: string;
-  object_type: "moment" | "drop" | "offer" | "product" | "piece" | "content";
-  entity_id: string;
-  title: string;
-  subtitle?: string;
-  description?: string;
-  image_url?: string;
-  reason_labels: string[];
-  score?: number;
-  score_breakdown?: FeedScoreBreakdown;
-  primary_cta: FeedAction;
-  secondary_cta?: FeedAction;
-  context: FeedContext;
-  raw?: Record<string, unknown>;
-}
+const feedAuthHeaders = async (): Promise<Record<string, string>> => {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token
+    ? { Authorization: `Bearer ${data.session.access_token}` }
+    : {};
+};
 
 interface RawFeedItem extends Record<string, any> {
   id: string;
@@ -61,28 +24,48 @@ interface RawFeedItem extends Record<string, any> {
   object_type?: string;
 }
 
-export interface FeedResponse {
-  feed: FeedItem[];
-  meta: {
-    next_offset: number;
-    has_more: boolean;
-    active_intent: FeedIntent | null;
-    ranking_profile: string;
-    user_interests: string[];
-  };
+export function isItemTonight(item: RawFeedItem): boolean {
+  const dateStr = item.starts_at || item.start_date || item.date;
+  if (!dateStr) return false;
+  const start = new Date(dateStr);
+  if (isNaN(start.getTime())) return false;
+  const now = new Date();
+  const diffHours = (start.getTime() - now.getTime()) / (1000 * 60 * 60);
+  // Live now or starting within next 28 hours (same day/evening)
+  return diffHours >= -4 && diffHours <= 28;
+}
+
+export function isItemEarning(item: RawFeedItem): boolean {
+  // The API can group Discoveries under generic "content". Preserve the
+  // domain type so the UI never presents a place as a creator story.
+  const rawType = item.type === "discovery" ? "discovery" : item.object_type || item.type;
+  if (rawType === "coupon" || rawType === "offer" || rawType === "drop" || rawType === "bounty") {
+    return true;
+  }
+  if (item.reward && String(item.reward).trim().length > 0) {
+    return true;
+  }
+  if (Number(item.gem_reward_base || 0) > 0 || Number(item.payout_amount || 0) > 0 || Number(item.value || 0) > 0) {
+    return true;
+  }
+  return false;
+}
+
+export function isItemNearby(item: RawFeedItem): boolean {
+  const loc = item.location || item.city || item.location_address || item.venue_name;
+  return Boolean(loc && String(loc).trim().length > 0);
 }
 
 const inferReasonLabels = (item: RawFeedItem, intent: FeedIntent | null): string[] => {
   const labels: string[] = [];
 
-  if (intent === "nearby") labels.push("Near you");
-  if (intent === "tonight") labels.push("Tonight");
-  if (intent === "earn") labels.push("Earn now");
+  if (isItemNearby(item)) labels.push("Near you");
+  if (isItemTonight(item)) labels.push("Tonight");
+  if (isItemEarning(item)) labels.push("Earn now");
 
   if (item.score >= 140) labels.push("High match");
-  if (item.type === "coupon") labels.push("Brand-funded");
-  if (item.type === "drop") labels.push("Proof-based");
-  if (item.location_city || item.location) labels.push("Local");
+  if (item.type === "coupon" || item.object_type === "offer") labels.push("Brand-funded");
+  if (item.type === "drop" || item.object_type === "drop") labels.push("Proof-based");
 
   return Array.from(new Set(labels)).slice(0, 3);
 };
@@ -92,6 +75,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
   const objectType: FeedItem["object_type"] =
     rawType === "event" || rawType === "moment"
       ? "moment"
+      : rawType === "discovery"
+        ? "discovery"
       : rawType === "drop"
         ? "drop"
         : rawType === "coupon" || rawType === "offer"
@@ -100,6 +85,10 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
             ? "product"
             : rawType === "piece"
               ? "piece"
+              : rawType === "promoshare_draw"
+                ? "promoshare_draw"
+                : rawType === "promoshare_receipt"
+                  ? "promoshare_receipt"
               : "content";
 
   const entityId = item.entity_id || item.id;
@@ -126,12 +115,15 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
   const rewardValue = item.value || item.gem_reward_base || item.reward_value;
   const rewardLabel =
     item.reward_label ||
+    (item.reward ? String(item.reward) : undefined) ||
     (item.gem_reward_base ? `${item.gem_reward_base} Gems` : undefined) ||
     (item.value && item.value_unit ? `${item.value}${item.value_unit}` : undefined);
 
   const primaryHref =
     objectType === "moment"
       ? `/moments/${entityId}`
+      : objectType === "discovery"
+        ? `/discoveries/${item.slug || entityId}`
       : objectType === "drop"
         ? "/watch-unlock"
         : objectType === "offer"
@@ -140,11 +132,15 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
           ? `/shop/${encodeURIComponent(String(entityId))}`
           : objectType === "piece"
             ? `/pieces/content/${entityId}`
+            : objectType === "promoshare_draw" || objectType === "promoshare_receipt"
+              ? "/promoshare"
           : item.cta_url || "/explore/moments";
 
   const primaryLabel =
     objectType === "moment"
       ? "View Moment"
+      : objectType === "discovery"
+        ? "View Discovery"
       : objectType === "drop"
         ? "Start Proof"
         : objectType === "offer"
@@ -153,6 +149,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
             ? "View product"
             : objectType === "piece"
               ? "View Piece"
+              : objectType === "promoshare_draw" || objectType === "promoshare_receipt"
+                ? "Open PromoShare"
           : "Open";
 
   return {
@@ -193,6 +191,8 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
       sponsored: item.type === "coupon" || item.type === "offer" || Boolean(item.is_sponsored),
       expires_soon: Boolean(item.expires_at),
     },
+    piece: item.piece,
+    promoshare: item.promoshare,
     raw: item,
   };
 };
@@ -200,36 +200,65 @@ const normalizeFeedItem = (item: RawFeedItem, intent: FeedIntent | null): FeedIt
 export const getForYouFeed = async ({
   intent = null,
   offset = 0,
-  limit = 18,
+  limit = 24,
 }: {
   intent?: FeedIntent | null;
   offset?: number;
   limit?: number;
 }): Promise<FeedResponse> => {
-  const params = new URLSearchParams();
-  params.set("offset", String(offset));
-  params.set("limit", String(limit));
-  if (intent) params.set("intent", intent);
+  let rawFeed: RawFeedItem[] = [];
 
-  const response = await fetch(`${API_BASE_URL}/feed/for-you?${params.toString()}`, {
-    credentials: "include",
-  });
+  try {
+    const params = new URLSearchParams();
+    params.set("offset", String(offset));
+    params.set("limit", String(limit));
+    if (intent) params.set("intent", intent);
 
-  if (!response.ok) {
-    throw new Error(`Feed request failed with ${response.status}`);
+    const response = await fetch(`${API_BASE_URL}/feed/for-you?${params.toString()}`, {
+      credentials: "include",
+      headers: await feedAuthHeaders(),
+    });
+
+    if (response.ok) {
+      const payload = await response.json();
+      rawFeed = payload?.data?.feed || [];
+    }
+  } catch (e) {
+    console.warn("Feed API endpoint fallback to Supabase DB:", e);
   }
 
-  const payload = await response.json();
-  const rawFeed: RawFeedItem[] = payload?.data?.feed || [];
+  // Fallback to querying Supabase DB directly for Moments, Discoveries & Missions
+  if (rawFeed.length === 0) {
+    const [{ data: dbMoments }, { data: dbDiscoveries }, { data: dbMissions }] = await Promise.all([
+      supabase.from("moments").select("*").order("starts_at", { ascending: false }).limit(limit),
+      supabase.from("discoveries" as any).select("*").eq("verification_status", "approved").limit(limit),
+      supabase.from("moment_bounties" as any).select("*").order("created_at", { ascending: false }).limit(limit),
+    ]);
+
+    rawFeed = [
+      ...(dbMoments || []).map((m) => ({ ...m, object_type: "moment", type: "event" })),
+      ...(dbDiscoveries || []).map((d) => ({ ...d, object_type: "discovery", type: "discovery" })),
+      ...(dbMissions || []).map((b) => ({ ...b, object_type: "drop", type: "bounty" })),
+    ];
+  }
+
+  // Filter rawFeed according to intent criteria strictly
+  if (intent === "tonight") {
+    rawFeed = rawFeed.filter(isItemTonight);
+  } else if (intent === "earn") {
+    rawFeed = rawFeed.filter(isItemEarning);
+  } else if (intent === "nearby") {
+    rawFeed = rawFeed.filter(isItemNearby);
+  }
 
   return {
     feed: rawFeed.map((item) => normalizeFeedItem(item, intent)),
     meta: {
-      next_offset: payload?.data?.meta?.next_offset ?? offset + rawFeed.length,
-      has_more: payload?.data?.meta?.has_more ?? rawFeed.length === limit,
-      active_intent: (payload?.data?.meta?.active_intent || intent) as FeedIntent | null,
-      ranking_profile: payload?.data?.meta?.ranking_profile || "participant",
-      user_interests: payload?.data?.meta?.user_interests || [],
+      next_offset: offset + rawFeed.length,
+      has_more: false,
+      active_intent: intent,
+      ranking_profile: "participant",
+      user_interests: [],
     },
   };
 };
@@ -259,6 +288,7 @@ export const logFeedInteraction = async ({
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...(await feedAuthHeaders()),
     },
     body: JSON.stringify({
       item_type: normalizedItemType,

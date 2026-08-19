@@ -23,7 +23,7 @@ export function KeyUnlockAnimation({ onComplete }: Props) {
       <div className="relative w-32 h-32">
         {/* The Lock */}
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-700",
+          "absolute inset-0 flex items-center justify-center transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-700",
           phase === "unlock" || phase === "done" ? "scale-110 opacity-0" : "scale-100 opacity-100"
         )}>
           <Lock className="w-24 h-24 text-white/20 stroke-[1]" />
@@ -31,7 +31,7 @@ export function KeyUnlockAnimation({ onComplete }: Props) {
 
         {/* The Unlock Icon */}
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-700",
+          "absolute inset-0 flex items-center justify-center transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-700",
           phase === "unlock" || phase === "done" ? "scale-100 opacity-100" : "scale-50 opacity-0"
         )}>
           <Unlock className="w-24 h-24 text-primary stroke-[1.5] animate-pulse" />
@@ -39,7 +39,7 @@ export function KeyUnlockAnimation({ onComplete }: Props) {
 
         {/* The Key */}
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center transition-all duration-500",
+          "absolute inset-0 flex items-center justify-center transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500",
           phase === "insert" ? "translate-y-12 opacity-0" : "translate-y-0 opacity-100",
           phase === "turn" ? "rotate-90 scale-110" : "rotate-0",
           phase === "unlock" || phase === "done" ? "scale-150 opacity-0" : ""

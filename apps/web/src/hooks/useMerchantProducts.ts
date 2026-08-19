@@ -462,12 +462,18 @@ export function useMerchantInventoryStats() {
       const totalInventory = products.reduce((sum, p) => sum + (p.inventory_quantity || 0), 0);
       const lowStock = products.filter((p) => (p.inventory_quantity || 0) < 10).length;
 
-      // Get pending redemptions count
-      const { count: pendingRedemptions } = await supabase
-        .from("product_redemptions")
-        .select("*", { count: "exact", head: true })
-        .eq("brand_id", user.id)
-        .eq("status", "pending");
+      // Get pending redemptions count safely
+      let pendingRedemptions = 0;
+      try {
+        const { count } = await supabase
+          .from("product_redemptions")
+          .select("*", { count: "exact", head: true })
+          .eq("brand_id", user.id)
+          .eq("status", "pending");
+        pendingRedemptions = count || 0;
+      } catch (err) {
+        console.warn("product_redemptions table count warning:", err);
+      }
 
       return {
         totalProducts,
@@ -475,7 +481,7 @@ export function useMerchantInventoryStats() {
         redeemableProducts,
         totalInventory,
         lowStock,
-        pendingRedemptions: pendingRedemptions || 0,
+        pendingRedemptions,
       };
     },
     enabled: !!user,

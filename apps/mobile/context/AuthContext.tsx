@@ -35,12 +35,15 @@ function extractParamsFromUrl(url: string) {
 
 export type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency" | "admin";
 
+export const ALL_WORKSPACE_ROLES: UserRole[] = ["participant", "creator", "host", "brand", "merchant", "agency", "admin"];
+
 type AuthContextType = {
     session: Session | null
     user: User | null
     roles: UserRole[]
     activeRole: UserRole | null
     setActiveRole: (role: UserRole) => void
+    chooseRole: (role: UserRole) => Promise<{ error: Error | null }>
     organizations: any[]
     agencyClients: Array<{
         id: string
@@ -63,6 +66,7 @@ const AuthContext = createContext<AuthContextType>({
     roles: [],
     activeRole: null,
     setActiveRole: () => { },
+    chooseRole: async () => ({ error: null }),
     organizations: [],
     agencyClients: [],
     activeOrgId: null,
@@ -119,7 +123,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return clients;
     };
 
-    const fetchUserRoles = async (userId: string) => {
+const mapRole = (r: string): UserRole => {
+    const role = r.toLowerCase().trim();
+    if (role === 'master_admin' || role === 'super_admin' || role === 'admin') return 'admin';
+    if (role === 'advertiser' || role === 'sponsor') return 'brand';
+    if (role === 'organizer') return 'host';
+    if (role === 'user' || role === 'consumer') return 'participant';
+    if (ALL_WORKSPACE_ROLES.includes(role as UserRole)) {
+        return role as UserRole;
+    }
+    return 'participant';
+};
+
+    const fetchUserRoles = async (userId: string, sessionUser?: User | null) => {
         const { data, error } = await supabase
             .from("user_roles")
             .select("role")
@@ -127,10 +143,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error("Error fetching roles:", error);
-            return [];
         }
 
-        return data.map((r) => r.role as UserRole);
+        const rawRoles = (data || []).map((r) => String(r.role || '').toLowerCase().trim());
+
+        if (
+            rawRoles.includes("admin") ||
+            rawRoles.includes("master_admin") ||
+            (sessionUser?.app_metadata as any)?.role === "master_admin" ||
+            (sessionUser?.user_metadata as any)?.role === "master_admin" ||
+            sessionUser?.email?.trim().toLowerCase() === "andremillwood@gmail.com"
+        ) {
+            return ALL_WORKSPACE_ROLES;
+        }
+
+        const mappedRoles = Array.from(new Set(rawRoles.map(mapRole)));
+        if (!mappedRoles.includes("participant")) {
+            mappedRoles.unshift("participant");
+        }
+        return mappedRoles;
     };
 
     const fetchUserOrganizations = async (userId: string) => {
@@ -183,6 +214,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await SecureStore.setItemAsync("promorang_active_role", role);
     };
 
+    const chooseRole = async (role: UserRole) => {
+        if (!user) return { error: new Error('Sign in before choosing a role.') };
+        const { error } = await supabase
+            .from('user_roles')
+            .upsert({ user_id: user.id, role }, { onConflict: 'user_id,role' });
+        if (error) return { error };
+        setRoles((current) => current.includes(role) ? current : [...current, role]);
+        await setActiveRole(role);
+        return { error: null };
+    };
+
     const setActiveOrgId = async (id: string | null) => {
         setActiveOrgIdState(id);
         if (id) {
@@ -206,7 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        AppState.addEventListener('change', (state) => {
+        const appStateSubscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') {
                 supabase.auth.startAutoRefresh()
             } else {
@@ -220,7 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session?.user ?? null);
 
             if (session?.user) {
-                const fetchedRoles = await fetchUserRoles(session.user.id);
+                const fetchedRoles = await fetchUserRoles(session.user.id, session.user);
                 setRoles(fetchedRoles);
                 await fetchUserOrganizations(session.user.id);
 
@@ -243,7 +285,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session?.user ?? null)
 
             if (session?.user) {
-                const fetchedRoles = await fetchUserRoles(session.user.id);
+                const fetchedRoles = await fetchUserRoles(session.user.id, session.user);
                 setRoles(fetchedRoles);
                 await fetchUserOrganizations(session.user.id);
 
@@ -263,7 +305,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsLoading(false)
         })
 
-        return () => subscription.unsubscribe()
+        return () => {
+            appStateSubscription.remove()
+            subscription.unsubscribe()
+        }
     }, [])
 
     const signInWithGoogle = async () => {
@@ -421,6 +466,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             roles,
             activeRole,
             setActiveRole,
+            chooseRole,
             organizations,
             activeOrgId,
             setActiveOrgId,

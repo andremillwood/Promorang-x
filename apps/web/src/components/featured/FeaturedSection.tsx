@@ -150,7 +150,7 @@ export default function FeaturedSection() {
             <Link
               key={placement.id}
               to={getEntityUrl(placement)}
-              className="group relative h-48 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all"
+              className="group relative h-48 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
             >
               {/* Background Image */}
               <div 

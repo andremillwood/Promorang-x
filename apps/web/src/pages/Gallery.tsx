@@ -67,7 +67,7 @@ const Gallery = () => {
                     <button
                         key={option.value}
                         onClick={() => setFilter(option.value)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all ${filter === option.value
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${filter === option.value
                                 ? "bg-primary text-primary-foreground shadow-soft"
                                 : "bg-card border border-border hover:bg-muted"
                             }`}
@@ -103,7 +103,7 @@ const Gallery = () => {
                     {filteredMedia.map((item) => (
                         <div
                             key={item.id}
-                            className="group relative rounded-2xl overflow-hidden bg-card border border-border/40 shadow-soft hover:shadow-soft-xl transition-all duration-300 cursor-pointer"
+                            className="group relative rounded-2xl overflow-hidden bg-card border border-border/40 shadow-soft hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 cursor-pointer"
                             onClick={() => setSelectedMedia(item)}
                         >
                             {item.media_type === "video" ? (

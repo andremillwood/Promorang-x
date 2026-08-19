@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
-import { ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
+import { ArrowLeft, ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 
 interface PublicBrandRow {
@@ -19,6 +19,8 @@ interface PublicBrandRow {
   website_url: string | null;
   active_campaigns_count: number | null;
   associated_moments_count: number | null;
+  claim_status: string | null;
+  verification_status: string | null;
 }
 
 interface PublicMomentDirectoryRow {
@@ -156,6 +158,8 @@ export default function BrandProfile() {
                   <Badge variant="outline" className="mb-3 w-fit text-[11px] font-black uppercase tracking-[0.24em]">
                     Brand profile
                   </Badge>
+                  {brand.verification_status === "verified" && <Badge className="mb-3 ml-2 w-fit bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15"><ShieldCheck className="mr-1 h-3.5 w-3.5" />Verified owner</Badge>}
+                  {brand.claim_status === "unclaimed" && <Badge variant="secondary" className="mb-3 ml-2 w-fit">Platform-created · unclaimed</Badge>}
                   <h1 className="font-serif text-4xl font-black text-foreground sm:text-5xl">{brand.name}</h1>
                   <p className="mt-3 max-w-3xl text-base text-muted-foreground">
                     A public page for exploring moments and creator content associated with this brand.

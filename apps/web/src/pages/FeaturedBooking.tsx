@@ -351,7 +351,7 @@ export default function FeaturedBooking() {
                       <button
                         key={type.placement_type}
                         onClick={() => setSelectedPlacement(type.placement_type)}
-                        className={`p-4 rounded-lg border text-left transition-all ${
+                        className={`p-4 rounded-lg border text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                           selectedPlacement === type.placement_type
                             ? 'border-primary bg-primary/5'
                             : 'border-border hover:border-primary/50'

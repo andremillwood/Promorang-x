@@ -2,6 +2,7 @@ import { DollarSign, Users, TrendingUp, PieChart, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useValuePool, formatCents } from '@/hooks/useValuePool';
 
@@ -164,14 +165,20 @@ export function ValuePoolDisplay({ momentId, isHost = false }: ValuePoolDisplayP
           </div>
         )}
 
-        {/* Info */}
-        <div className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-          <p>
-            Value is distributed based on verified participation (Marks), engagement quality, 
-            and tier multipliers. Tier multipliers: Guest 1.0x, Regular 1.5x, Mover 2.0x
-          </p>
-        </div>
+        <GuidanceDisclosure
+          id={`value-pool:${momentId}:distribution`}
+          title="How value distribution works"
+          summary="Value follows verified participation, engagement quality, and tier multipliers."
+          className="mt-0"
+        >
+          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <p>
+              Value is distributed based on verified participation (Marks), engagement quality,
+              and tier multipliers. Tier multipliers: Guest 1.0x, Regular 1.5x, Mover 2.0x
+            </p>
+          </div>
+        </GuidanceDisclosure>
       </CardContent>
     </Card>
   );

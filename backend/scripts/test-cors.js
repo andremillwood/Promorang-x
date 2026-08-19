@@ -71,14 +71,16 @@ async function testHealthEndpoint() {
 }
 
 async function testCORSPreflight() {
-  log('\n📋 Testing CORS Preflight (OPTIONS)...', 'blue');
+  const requestedMethod = 'PATCH';
+
+  log(`\n📋 Testing CORS Preflight (${requestedMethod})...`, 'blue');
   
   try {
-    const response = await makeRequest(`${API_BASE_URL}/api/auth/login`, {
+    const response = await makeRequest(`${API_BASE_URL}/api/moment-economy/moments/cors-smoke-test`, {
       method: 'OPTIONS',
       headers: {
         'Origin': FRONTEND_ORIGIN,
-        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Method': requestedMethod,
         'Access-Control-Request-Headers': 'Content-Type, Authorization'
       }
     });
@@ -94,13 +96,20 @@ async function testCORSPreflight() {
     log(`   Allow-Headers: ${allowHeaders || 'NOT SET'}`, allowHeaders ? 'green' : 'red');
     log(`   Allow-Credentials: ${allowCredentials || 'NOT SET'}`, allowCredentials ? 'green' : 'red');
     
-    if (allowOrigin && (allowOrigin === FRONTEND_ORIGIN || allowOrigin === '*')) {
+    const allowedMethods = (allowMethods || '')
+      .split(',')
+      .map((method) => method.trim().toUpperCase());
+    const originAllowed = allowOrigin && (allowOrigin === FRONTEND_ORIGIN || allowOrigin === '*');
+    const methodAllowed = allowedMethods.includes(requestedMethod);
+
+    if (originAllowed && methodAllowed) {
       log('✅ CORS preflight passed', 'green');
       return true;
-    } else {
-      log('❌ CORS preflight failed - origin not allowed', 'red');
-      return false;
     }
+
+    if (!originAllowed) log('❌ CORS preflight failed - origin not allowed', 'red');
+    if (!methodAllowed) log(`❌ CORS preflight failed - ${requestedMethod} not allowed`, 'red');
+    return false;
   } catch (error) {
     log(`❌ CORS preflight failed: ${error.message}`, 'red');
     return false;

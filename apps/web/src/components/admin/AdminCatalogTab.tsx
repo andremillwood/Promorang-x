@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Megaphone, Package, PauseCircle, Pencil, PlayCircle, Search, Store, Tag } from "lucide-react";
+import { Archive, Building2, CircleX, ExternalLink, Megaphone, Package, PauseCircle, Pencil, PlayCircle, Plus, Search, Store, Tag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
-type CatalogType = "venues" | "products" | "offers" | "campaigns";
+type CatalogType = "brands" | "venues" | "products" | "offers" | "campaigns";
 
 type CatalogItem = Record<string, any> & {
   id: string;
@@ -41,9 +41,15 @@ type EditState = {
   type: CatalogType;
   values: Record<string, string>;
   reason: string;
+  mode: "create" | "edit";
 } | null;
 
 const catalogMeta = {
+  brands: {
+    title: "Brands",
+    description: "Brand workspaces, ownership, verification, and platform standing.",
+    icon: Building2,
+  },
   venues: {
     title: "Venues",
     description: "Public places, business pages, and hosting infrastructure.",
@@ -85,6 +91,7 @@ function titleFor(item: CatalogItem) {
 }
 
 function statusFor(type: CatalogType, item: CatalogItem) {
+  if (type === "brands") return item.status || "active";
   if (type === "offers") return item.status || "draft";
   return item.is_active === false ? "inactive" : "active";
 }
@@ -92,11 +99,12 @@ function statusFor(type: CatalogType, item: CatalogItem) {
 function statusClass(status: string) {
   if (["active", "approved", "joinable"].includes(status)) return "border-emerald-500/25 bg-emerald-500/10 text-emerald-700";
   if (["paused", "inactive", "draft"].includes(status)) return "border-amber-500/25 bg-amber-500/10 text-amber-700";
-  if (["archived", "ended", "rejected"].includes(status)) return "border-destructive/25 bg-destructive/10 text-destructive";
+  if (["archived", "ended", "rejected", "suspended"].includes(status)) return "border-destructive/25 bg-destructive/10 text-destructive";
   return "border-border bg-muted/40 text-muted-foreground";
 }
 
 function itemHref(type: CatalogType, item: CatalogItem) {
+  if (type === "brands") return `/brands/${item.slug || item.id}`;
   if (type === "venues") return `/venues/${item.slug || item.id}`;
   if (type === "products") return item.venue_id ? `/venues/${item.venue_id}` : "/marketplace";
   if (type === "campaigns") return `/dashboard/campaigns/${item.id}`;
@@ -104,6 +112,19 @@ function itemHref(type: CatalogType, item: CatalogItem) {
 }
 
 function editableFields(type: CatalogType) {
+  if (type === "brands") {
+    return [
+      ["name", "Brand name"],
+      ["slug", "URL slug"],
+      ["industry", "Industry"],
+      ["contact_email", "Contact email"],
+      ["billing_email", "Billing email"],
+      ["website", "Website"],
+      ["avatar_url", "Logo URL"],
+      ["owner_id", "Owner user ID"],
+    ];
+  }
+
   if (type === "venues") {
     return [
       ["name", "Name"],
@@ -136,6 +157,7 @@ function editableFields(type: CatalogType) {
       ["title", "Title"],
       ["description", "Description"],
       ["brand_id", "Brand user ID"],
+      ["organization_id", "Brand organization ID"],
       ["budget", "Budget"],
       ["reward_type", "Reward type"],
       ["reward_value", "Reward value"],
@@ -176,12 +198,13 @@ function parseCatalogValue(field: string, value: string) {
 }
 
 export function AdminCatalogTab() {
-  const { session } = useAuth();
+  const { session, roles } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [type, setType] = useState<CatalogType>("venues");
   const [search, setSearch] = useState("");
   const [editState, setEditState] = useState<EditState>(null);
+  const canManage = (roles as string[]).some((role) => ["admin", "administrator", "master_admin"].includes(role));
 
   const query = useQuery({
     queryKey: ["admin-catalog", type, search],
@@ -209,22 +232,72 @@ export function AdminCatalogTab() {
     },
   });
 
+  const createItem = useMutation({
+    mutationFn: async ({ itemType, values, reason }: { itemType: CatalogType; values: Record<string, unknown>; reason: string }) =>
+      adminRequest(`/catalog/${itemType}`, session?.access_token, {
+        method: "POST",
+        body: JSON.stringify({ ...values, reason }),
+      }),
+    onSuccess: () => {
+      toast({ title: "Catalog item created" });
+      queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Catalog creation failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const moderateItem = useMutation({
+    mutationFn: async ({ itemType, id, action, reason }: { itemType: "brands" | "campaigns"; id: string; action: string; reason?: string }) =>
+      adminRequest(`/catalog/${itemType}/${id}/moderate`, session?.access_token, {
+        method: "PATCH",
+        body: JSON.stringify({ action, reason }),
+      }),
+    onSuccess: () => {
+      toast({ title: "Moderation action recorded" });
+      queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Moderation failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const archiveItem = useMutation({
+    mutationFn: async ({ itemType, id, reason }: { itemType: CatalogType; id: string; reason: string }) =>
+      adminRequest(`/catalog/${itemType}/${id}`, session?.access_token, {
+        method: "DELETE",
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: () => {
+      toast({ title: "Item archived", description: "The record remains available for audit and recovery." });
+      queryClient.invalidateQueries({ queryKey: ["admin-catalog"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Archive failed", description: error.message, variant: "destructive" });
+    },
+  });
+
   const rows = useMemo(() => query.data || [], [query.data]);
   const activeCount = rows.filter((item) => ["active"].includes(statusFor(type, item))).length;
   const pausedCount = rows.filter((item) => ["inactive", "paused", "draft"].includes(statusFor(type, item))).length;
 
   const activate = (item: CatalogItem) => {
+    if (type === "brands" || type === "campaigns") {
+      moderateItem.mutate({ itemType: type, id: item.id, action: "approve" });
+      return;
+    }
     const patch = type === "offers" ? { status: "active" } : { is_active: true };
     updateItem.mutate({ itemType: type, id: item.id, patch });
   };
 
   const pause = (item: CatalogItem) => {
+    if (type === "brands" || type === "campaigns") {
+      const reason = window.prompt(`Why are you pausing this ${type === "brands" ? "brand" : "campaign"}?`);
+      if (!reason?.trim()) return;
+      moderateItem.mutate({ itemType: type, id: item.id, action: "pause", reason: reason.trim() });
+      return;
+    }
     const patch = type === "offers" ? { status: "paused" } : { is_active: false };
-    updateItem.mutate({ itemType: type, id: item.id, patch });
-  };
-
-  const archive = (item: CatalogItem) => {
-    const patch = type === "offers" ? { status: "archived" } : { is_active: false };
     updateItem.mutate({ itemType: type, id: item.id, patch });
   };
 
@@ -234,6 +307,17 @@ export function AdminCatalogTab() {
       type: itemType,
       values: buildEditValues(itemType, item),
       reason: "",
+      mode: "edit",
+    });
+  };
+
+  const openCreate = () => {
+    setEditState({
+      item: { id: "" },
+      type,
+      values: buildEditValues(type, { id: "" }),
+      reason: "",
+      mode: "create",
     });
   };
 
@@ -244,6 +328,7 @@ export function AdminCatalogTab() {
       editableFields(editState.type)
         .map(([field]) => [field, parseCatalogValue(field, editState.values[field] || "")])
         .filter(([field, value]) => {
+          if (editState.mode === "create") return value !== null;
           const original = editState.item[field as string];
           const normalizedOriginal = original === null || original === undefined ? null : String(original);
           const normalizedNext = value === null || value === undefined ? null : String(value);
@@ -261,13 +346,29 @@ export function AdminCatalogTab() {
       return;
     }
 
-    updateItem.mutate({
-      itemType: editState.type,
-      id: editState.item.id,
-      patch,
-      reason: editState.reason.trim(),
-    });
+    if (editState.mode === "create") {
+      createItem.mutate({ itemType: editState.type, values: patch, reason: editState.reason.trim() });
+    } else {
+      updateItem.mutate({
+        itemType: editState.type,
+        id: editState.item.id,
+        patch,
+        reason: editState.reason.trim(),
+      });
+    }
     setEditState(null);
+  };
+
+  const requestArchive = (item: CatalogItem) => {
+    const reason = window.prompt(`Why are you archiving “${titleFor(item)}”? This can be restored later.`);
+    if (!reason?.trim()) return;
+    archiveItem.mutate({ itemType: type, id: item.id, reason: reason.trim() });
+  };
+
+  const rejectItem = (itemType: "brands" | "campaigns", item: CatalogItem) => {
+    const reason = window.prompt(`Why are you rejecting “${titleFor(item)}”?`);
+    if (!reason?.trim()) return;
+    moderateItem.mutate({ itemType, id: item.id, action: "reject", reason: reason.trim() });
   };
 
   return (
@@ -277,9 +378,17 @@ export function AdminCatalogTab() {
           <h2 className="text-2xl font-bold">Catalog Control</h2>
           <p className="text-sm text-muted-foreground">Moderate public catalog objects that shape discovery, claims, and commerce.</p>
         </div>
-        <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search catalog..." className="pl-10" />
+        <div className="flex w-full gap-2 sm:max-w-lg">
+          <div className="relative min-w-0 flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search catalog..." className="pl-10" />
+          </div>
+          {canManage && (
+            <Button onClick={openCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create
+            </Button>
+          )}
         </div>
       </div>
 
@@ -366,24 +475,33 @@ export function AdminCatalogTab() {
                               Open
                             </a>
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => openEdit(key, item)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </Button>
-                          {state !== "active" && (
-                            <Button size="sm" onClick={() => activate(item)} disabled={updateItem.isPending}>
-                              <PlayCircle className="mr-2 h-4 w-4" />
-                              Activate
+                          {canManage && (
+                            <Button variant="outline" size="sm" onClick={() => openEdit(key, item)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
                             </Button>
                           )}
-                          {state === "active" && (
+                          {state !== "active" && (canManage || key === "brands" || key === "campaigns") && (
+                            <Button size="sm" onClick={() => activate(item)} disabled={updateItem.isPending}>
+                              <PlayCircle className="mr-2 h-4 w-4" />
+                              {key === "brands" ? "Approve / restore" : "Activate"}
+                            </Button>
+                          )}
+                          {state === "active" && (canManage || key === "brands" || key === "campaigns") && (
                             <Button variant="outline" size="sm" onClick={() => pause(item)} disabled={updateItem.isPending}>
                               <PauseCircle className="mr-2 h-4 w-4" />
                               Pause
                             </Button>
                           )}
-                          {key === "offers" && state !== "archived" && (
-                            <Button variant="ghost" size="sm" onClick={() => archive(item)} disabled={updateItem.isPending}>
+                          {(key === "brands" || key === "campaigns") && state !== "archived" && (
+                            <Button variant="outline" size="sm" onClick={() => rejectItem(key, item)} disabled={moderateItem.isPending}>
+                              <CircleX className="mr-2 h-4 w-4" />
+                              Reject
+                            </Button>
+                          )}
+                          {canManage && state !== "archived" && (
+                            <Button variant="ghost" size="sm" onClick={() => requestArchive(item)} disabled={archiveItem.isPending}>
+                              <Archive className="mr-2 h-4 w-4" />
                               Archive
                             </Button>
                           )}
@@ -401,17 +519,19 @@ export function AdminCatalogTab() {
       <Dialog open={!!editState} onOpenChange={(open) => !open && setEditState(null)}>
         <DialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit catalog item</DialogTitle>
+            <DialogTitle>{editState?.mode === "create" ? `Create ${editState ? catalogMeta[editState.type].title.slice(0, -1) : "item"}` : "Edit catalog item"}</DialogTitle>
             <DialogDescription>
-              Update public details or transfer ownership. Changes are recorded in the admin audit log when available.
+              {editState?.mode === "create"
+                ? "Create a platform-managed record. The action and reason will be recorded."
+                : "Update public details or transfer ownership. Changes are recorded in the admin audit log when available."}
             </DialogDescription>
           </DialogHeader>
 
           {editState ? (
             <div className="space-y-5">
               <div className="rounded-xl border border-border bg-muted/30 p-3">
-                <p className="text-sm font-semibold">{titleFor(editState.item)}</p>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">{editState.item.id}</p>
+                <p className="text-sm font-semibold">{editState.mode === "create" ? `New ${catalogMeta[editState.type].title.toLowerCase().slice(0, -1)}` : titleFor(editState.item)}</p>
+                {editState.item.id && <p className="mt-1 font-mono text-xs text-muted-foreground">{editState.item.id}</p>}
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
@@ -464,8 +584,8 @@ export function AdminCatalogTab() {
             <Button variant="ghost" onClick={() => setEditState(null)}>
               Cancel
             </Button>
-            <Button onClick={submitEdit} disabled={updateItem.isPending}>
-              Save Changes
+            <Button onClick={submitEdit} disabled={updateItem.isPending || createItem.isPending}>
+              {editState?.mode === "create" ? "Create Item" : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

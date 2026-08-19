@@ -25,6 +25,7 @@ import {
   Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { LiquidityProvider } from '@/components/trading/LiquidityProvider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -488,15 +489,13 @@ export function LiquidityDashboard() {
           </TabsContent>
         </Tabs>
 
-        {/* Info Section */}
-        <Card className="mt-8 border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              How Liquidity Works
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <GuidanceDisclosure
+          id="liquidity-dashboard:how-it-works"
+          title="How liquidity works"
+          summary="Add paired value, earn trade fees, and exit with awareness of price movement."
+          className="mt-8"
+        >
+          <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <div className="font-semibold">1. Pair Value</div>
@@ -522,8 +521,8 @@ export function LiquidityDashboard() {
               <strong>Impermanent Loss:</strong> If piece prices change significantly, you may get back different amounts than deposited. 
               Higher trading volume = more fees = less impact from IL.
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GuidanceDisclosure>
       </div>
 
       {/* Liquidity Modal */}

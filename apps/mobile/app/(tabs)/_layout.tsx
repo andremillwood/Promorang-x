@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { AppHeader } from '@/components/AppHeader';
 import { STAKEHOLDER_EXPERIENCES, isStakeholderRole } from '@/constants/StakeholderExperience';
 import { useAuth } from '@/context/AuthContext';
+import { useReduceTransparency } from '@/hooks/useReduceTransparency';
 
 /**
  * Premium Tab Bar Icon using Ionicons
@@ -24,6 +25,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { activeRole } = useAuth();
+  const reduceTransparency = useReduceTransparency();
   const role = isStakeholderRole(activeRole) ? activeRole : 'participant';
   const experience = STAKEHOLDER_EXPERIENCES[role];
 
@@ -56,7 +58,7 @@ export default function TabLayout() {
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: DesignColors.border,
         },
-        tabBarBackground: () => (
+        tabBarBackground: () => reduceTransparency ? null : (
           <BlurView
             intensity={90}
             tint="dark"
@@ -76,8 +78,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="discover"
         options={{
-          title: 'Discover',
-          headerTitle: 'Discover',
+          title: experience.tabs.discover,
+          headerTitle: experience.tabs.discover,
           tabBarAccessibilityLabel: `${experience.tabs.discover}: discover what is worth joining, watching, supporting, or creating`,
           tabBarIcon: ({ color }) => <TabBarIcon name="compass" color={color} />,
         }}
@@ -97,11 +99,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="post"
         options={{
-          title: 'Create',
-          headerTitle: 'Create',
+          title: experience.tabs.create,
+          headerTitle: experience.tabs.create,
           tabBarAccessibilityLabel: `${experience.tabs.create}: create or capture the next useful move`,
           tabBarIcon: () => (
-            <Ionicons name="add-circle" size={34} color={DesignColors.primary} />
+            <Ionicons name="add-circle" size={34} color={experience.color || DesignColors.primary} />
           ),
         }}
       />
@@ -114,14 +116,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          href: null,
+          title: experience.tabs.grow,
+          headerTitle: experience.tabs.grow,
+          href: role === 'participant' || role === 'creator' ? null : undefined,
+          tabBarAccessibilityLabel: `${experience.tabs.grow}: operational console and metrics`,
+          tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
         }}
       />
       <Tabs.Screen
         name="promoshare"
         options={{
-          title: 'Progress',
-          headerTitle: 'Progress',
+          title: experience.tabs.grow,
+          headerTitle: experience.tabs.grow,
+          href: role === 'participant' || role === 'creator' ? undefined : null,
           tabBarAccessibilityLabel: `${experience.tabs.grow}: see what happened because of you`,
           tabBarIcon: ({ color }) => <TabBarIcon name="analytics" color={color} />,
         }}
@@ -129,8 +136,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="vault"
         options={{
-          title: 'Vault',
-          headerTitle: 'Vault',
+          title: experience.tabs.vault,
+          headerTitle: experience.tabs.vault,
           tabBarAccessibilityLabel: `${experience.tabs.vault}: proof, rewards, earnings, access, memories, and assets kept`,
           tabBarIcon: ({ color }) => <TabBarIcon name="archive" color={color} />,
         }}

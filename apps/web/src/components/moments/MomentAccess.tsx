@@ -13,11 +13,54 @@ function requestKey(prefix: string) {
   return `${prefix}:${crypto.randomUUID()}`;
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function MomentAccess({ momentId }: { momentId: string }) {
   const queryClient = useQueryClient();
-  const { data = { tiers: [], passes: [], wallet: null } } = useQuery({ queryKey: ["moment-access", momentId], queryFn: async () => { const user = (await db.auth.getUser()).data.user; const [tiers, passes, wallet] = await Promise.all([db.from("activation_access_tiers").select("*").eq("moment_id", momentId).in("status", ["open", "sold_out", "closed"]).order("created_at"), db.from("activation_access_passes").select("*").eq("moment_id", momentId).order("issued_at", { ascending: false }), user ? db.from("economy_wallets").select("gems").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null, error: null })]); if (tiers.error) throw tiers.error; if (passes.error) throw passes.error; if (wallet.error) throw wallet.error; return { tiers: (tiers.data || []) as Tier[], passes: (passes.data || []) as Pass[], wallet: wallet.data as Wallet | null }; } });
-  const claim = useMutation({ mutationFn: async (tierId: string) => { const { error } = await db.rpc("claim_free_activation_access", { p_tier_id: tierId }); if (error) throw error; }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moment-access", momentId] }); toast.success("Your access is ready"); }, onError: (error: Error) => toast.error(error.message) });
-  const purchase = useMutation({ mutationFn: async (tierId: string) => { const { error } = await db.rpc("purchase_activation_access_with_gems", { p_tier_id: tierId, p_idempotency_key: requestKey("moment-access") }); if (error) throw error; }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moment-access", momentId] }); toast.success("Your Gems secured this access"); }, onError: (error: Error) => toast.error(error.message) });
+  const isValidUuid = Boolean(momentId && UUID_PATTERN.test(momentId));
+  const { data = { tiers: [], passes: [], wallet: null } } = useQuery({
+    queryKey: ["moment-access", momentId],
+    enabled: isValidUuid,
+    queryFn: async () => {
+      if (!isValidUuid) return { tiers: [], passes: [], wallet: null };
+      const user = (await db.auth.getUser()).data.user;
+      const [tiers, passes, wallet] = await Promise.all([
+        db.from("activation_access_tiers").select("*").eq("moment_id", momentId).in("status", ["open", "sold_out", "closed"]).order("created_at"),
+        db.from("activation_access_passes").select("*").eq("moment_id", momentId).order("issued_at", { ascending: false }),
+        user ? db.from("economy_wallets").select("gems").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+      ]);
+      if (tiers.error) throw tiers.error;
+      if (passes.error) throw passes.error;
+      if (wallet.error) throw wallet.error;
+      return {
+        tiers: (tiers.data || []) as Tier[],
+        passes: (passes.data || []) as Pass[],
+        wallet: wallet.data as Wallet | null,
+      };
+    },
+  });
+  const claim = useMutation({
+    mutationFn: async (tierId: string) => {
+      const { error } = await db.rpc("claim_free_activation_access", { p_tier_id: tierId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["moment-access", momentId] });
+      toast.success("Your access is ready");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const purchase = useMutation({
+    mutationFn: async (tierId: string) => {
+      const { error } = await db.rpc("purchase_activation_access_with_gems", { p_tier_id: tierId, p_idempotency_key: requestKey("moment-access") });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["moment-access", momentId] });
+      toast.success("Your Gems secured this access");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
   if (!data.tiers.length) return null;
   return <section className="rounded-[2rem] border border-white/10 bg-[#111110] p-6 sm:p-8"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/12"><Ticket className="h-5 w-5 text-primary" /></div><div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-primary">Choose your way in</p><h2 className="font-serif text-2xl font-bold">Access that matches the Moment</h2><p className="mt-1 text-[9px] text-white/35">{Number(data.wallet?.gems || 0).toLocaleString()} Gems available</p></div></div><div className="mt-6 grid gap-3 sm:grid-cols-2">{data.tiers.map((tier) => { const pass = data.passes.find((item) => item.tier_id === tier.id); const canBuy = Number(data.wallet?.gems || 0) >= Number(tier.price || 0); return <article key={tier.id} className="rounded-2xl border border-white/10 bg-black/25 p-5"><div className="flex justify-between gap-4"><div><p className="text-[8px] font-black uppercase tracking-[0.14em] text-primary">{tier.access_type}</p><h3 className="mt-1 text-lg font-black">{tier.name}</h3></div><p className="text-sm font-black">{tier.price ? `${Number(tier.price).toLocaleString()} Gems` : "Free"}</p></div><p className="mt-3 text-xs leading-5 text-white/45">{tier.description}</p>{tier.price > 0 && <p className="mt-1 text-[8px] text-white/30">US${Number(tier.price).toLocaleString()} platform value</p>}{tier.reward_summary && <p className="mt-3 text-[9px] font-bold text-primary">Can open: {tier.reward_summary}</p>}{pass ? <div className="mt-4 rounded-xl bg-primary p-3 text-black"><p className="flex items-center gap-1 text-[8px] font-black uppercase"><Check className="h-3 w-3" />Your access</p><p className="mt-1 font-mono text-xs">{pass.pass_code}</p></div> : tier.access_type === "free" && tier.status === "open" ? <Button disabled={claim.isPending} onClick={() => claim.mutate(tier.id)} className="mt-4 w-full justify-between bg-primary font-black text-black">Claim access <ArrowRight className="h-4 w-4" /></Button> : tier.access_type === "paid" ? canBuy ? <Button disabled={purchase.isPending || tier.status !== "open"} onClick={() => purchase.mutate(tier.id)} className="mt-4 w-full justify-between bg-primary font-black text-black">Use Gems for access <ArrowRight className="h-4 w-4" /></Button> : <Button asChild className="mt-4 w-full justify-between bg-primary font-black text-black"><Link to="/wallet">Need more Gems <ArrowRight className="h-4 w-4" /></Link></Button> : null}</article>; })}</div></section>;
 }

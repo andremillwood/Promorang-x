@@ -29,7 +29,7 @@ const stripe = process.env.STRIPE_SECRET_KEY
  * @param {object} metadata - Additional metadata (productId, etc.)
  * @returns {Promise<object>} Payment intent with client secret
  */
-async function createPaymentIntent(userId, amount, currency = 'usd', metadata = {}) {
+async function createPaymentIntent(userId, amount, currency = 'usd', metadata = {}, options = {}) {
     if (!stripe) {
         throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY in environment variables.');
     }
@@ -49,7 +49,7 @@ async function createPaymentIntent(userId, amount, currency = 'usd', metadata = 
             automatic_payment_methods: {
                 enabled: true,
             },
-        });
+        }, options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined);
 
         // Store in database for tracking
         await supabase
@@ -148,13 +148,98 @@ async function createRefund({ paymentIntentId, amount = null, reason = 'requeste
             refundPayload.amount = Math.round(Number(amount) * 100);
         }
 
-        const refund = await stripe.refunds.create(refundPayload);
+        const requestOptions = metadata.stripe_connected_account_id
+            ? { stripeAccount: metadata.stripe_connected_account_id }
+            : undefined;
+        const refund = await stripe.refunds.create(refundPayload, requestOptions);
         await updatePaymentIntentStatus(paymentIntentId, refund.status === 'succeeded' ? 'refunded' : `refund_${refund.status}`);
         return refund;
     } catch (error) {
         console.error('Error creating Stripe refund:', error);
         throw new Error(`Failed to create Stripe refund: ${error.message}`);
     }
+}
+
+async function createConnectedCheckoutSession({
+    connectedAccountId,
+    order,
+    items,
+    shippingRates = [],
+    allowedCountries = ['US'],
+    successUrl,
+    cancelUrl,
+}) {
+    if (!stripe) throw new Error('Stripe is not configured.');
+    if (!connectedAccountId) throw new Error('Merchant Stripe account is required.');
+
+    const lineItems = items.map((item) => ({
+        quantity: item.quantity,
+        price_data: {
+            currency: order.currency.toLowerCase(),
+            unit_amount: Math.round(Number(item.unit_price) * 100),
+            product_data: {
+                name: item.product_name,
+                metadata: { product_id: item.product_id },
+                ...(item.tax_code ? { tax_code: item.tax_code } : {}),
+            },
+        },
+    }));
+    const requiresShipping = items.some((item) => item.requires_shipping);
+    const shippingOptions = shippingRates.map((rate) => ({
+        shipping_rate_data: {
+            type: 'fixed_amount',
+            display_name: rate.display_name,
+            fixed_amount: {
+                amount: Math.round(Number(rate.amount) * 100),
+                currency: order.currency.toLowerCase(),
+            },
+            metadata: {
+                promorang_shipping_rate_id: rate.id,
+                fulfillment_type: rate.fulfillment_type,
+            },
+            ...(rate.min_delivery_days != null && rate.max_delivery_days != null ? {
+                delivery_estimate: {
+                    minimum: { unit: 'business_day', value: rate.min_delivery_days },
+                    maximum: { unit: 'business_day', value: rate.max_delivery_days },
+                },
+            } : {}),
+        },
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: lineItems,
+        automatic_tax: { enabled: true },
+        billing_address_collection: 'auto',
+        ...(requiresShipping ? {
+            shipping_address_collection: { allowed_countries: allowedCountries },
+            shipping_options: shippingOptions,
+        } : {}),
+        payment_intent_data: {
+            application_fee_amount: Math.round(Number(order.platform_fee) * 100),
+            metadata: {
+                commerce_flow: 'merchant_direct_order',
+                commerce_order_id: order.id,
+                merchant_id: order.merchant_id,
+                user_id: order.buyer_id,
+            },
+        },
+        metadata: {
+            commerce_flow: 'merchant_direct_order',
+            commerce_order_id: order.id,
+            merchant_id: order.merchant_id,
+            user_id: order.buyer_id,
+            stripe_connected_account_id: connectedAccountId,
+        },
+        customer_creation: 'always',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+    }, {
+        stripeAccount: connectedAccountId,
+        idempotencyKey: `merchant-direct-checkout:${order.id}`,
+    });
+
+    return session;
 }
 
 // ============================================
@@ -304,7 +389,7 @@ async function updateConnectAccountStatus(accountId, accountData) {
  * @param {object} metadata - Additional metadata
  * @returns {Promise<object>} Transfer details
  */
-async function createPayout(accountId, amount, currency = 'usd', metadata = {}) {
+async function createPayout(accountId, amount, currency = 'usd', metadata = {}, options = {}) {
     if (!stripe) {
         throw new Error('Stripe is not configured.');
     }
@@ -319,7 +404,7 @@ async function createPayout(accountId, amount, currency = 'usd', metadata = {}) 
             currency: currency.toLowerCase(),
             destination: accountId,
             metadata,
-        });
+        }, options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined);
 
         return {
             transferId: transfer.id,
@@ -332,6 +417,17 @@ async function createPayout(accountId, amount, currency = 'usd', metadata = {}) 
         console.error('Error creating payout:', error);
         throw new Error(`Failed to create payout: ${error.message}`);
     }
+}
+
+async function reverseTransfer(transferId, amount = null, metadata = {}, options = {}) {
+    if (!stripe) throw new Error('Stripe is not configured.');
+    const payload = { metadata };
+    if (amount !== null && amount !== undefined) payload.amount = Math.round(Number(amount) * 100);
+    return stripe.transfers.createReversal(
+        transferId,
+        payload,
+        options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined,
+    );
 }
 
 // ============================================
@@ -923,6 +1019,7 @@ module.exports = {
     getPaymentIntent,
     updatePaymentIntentStatus,
     createRefund,
+    createConnectedCheckoutSession,
 
     // Stripe Connect
     createConnectAccount,
@@ -930,6 +1027,7 @@ module.exports = {
     getConnectAccount,
     updateConnectAccountStatus,
     createPayout,
+    reverseTransfer,
 
     // Sponsor Payments
     createSponsorCheckoutSession,

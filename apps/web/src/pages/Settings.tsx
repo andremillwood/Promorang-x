@@ -42,11 +42,17 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 import { useUserPreferences, useUpdateUserPreferences } from "@/hooks/useUserPreferences";
+import { GuidanceDensity, useGuidancePreferences } from "@/hooks/useGuidancePreferences";
 import { cultureImages } from "@/data/culture-demo";
 import { Link } from "react-router-dom";
 
 const discoveryCategories = ["Music", "Food", "Nightlife", "Fitness", "Arts", "Fashion", "Wellness", "Community"];
 const preferredTimes = ["Weekday mornings", "Weekday evenings", "Friday nights", "Weekends"];
+const guidanceDensityOptions: Array<{ value: GuidanceDensity; label: string; description: string }> = [
+  { value: "guided", label: "Guided", description: "Open guides the first time you visit a feature." },
+  { value: "compact", label: "Compact", description: "Collapse guides by default, with short context visible." },
+  { value: "minimal", label: "Minimal", description: "Keep guidance behind a small guide button." },
+];
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -63,6 +69,7 @@ const Settings = () => {
   const { uploadImage, uploading } = useImageUpload();
   const { data: preferences } = useUserPreferences();
   const updatePreferences = useUpdateUserPreferences();
+  const { density: guidanceDensity, setDensity: setGuidanceDensity } = useGuidancePreferences();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -241,21 +248,27 @@ const Settings = () => {
 
     const url = await uploadImage(file, "avatars", user.id);
     if (url) {
-      setAvatarUrl(url);
-
-      const { data: existingProfile } = await supabase
+      const { error } = await supabase
         .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .upsert(
+          {
+            user_id: user.id,
+            avatar_url: url,
+            full_name: formData.fullName || user.user_metadata?.full_name || null,
+          },
+          { onConflict: "user_id" }
+        );
 
-      if (existingProfile) {
-        await supabase
-          .from("profiles")
-          .update({ avatar_url: url })
-          .eq("user_id", user.id);
+      if (error) {
+        toast({
+          title: "Photo uploaded, but not saved",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
       }
 
+      setAvatarUrl(url);
       toast({
         title: "Avatar updated! 📸",
         description: "Your profile photo has been saved.",
@@ -384,7 +397,7 @@ const Settings = () => {
           </div>
           <div className="rounded-lg border border-white/10 bg-black/55 p-5 backdrop-blur">
             <div className="flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400">Profile signal</p><p className="mt-2 text-3xl font-black">{completion}%</p></div><span className="text-xs text-white/40">{completionItems.filter(Boolean).length} of 5 complete</span></div>
-            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-orange-500 transition-all" style={{ width: `${completion}%` }} /></div>
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-orange-500 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]" style={{ width: `${completion}%` }} /></div>
             <p className="mt-4 text-xs leading-5 text-white/45">{completion === 100 ? "Your signal is strong. Keep it current as your scene changes." : "Add the missing details to improve recommendations and recognition."}</p>
           </div>
         </div>
@@ -682,6 +695,33 @@ const Settings = () => {
           {/* --- ACCOUNT TAB --- */}
           <TabsContent value="account">
             <div className="max-w-2xl space-y-6">
+              <div className="bg-card border border-border rounded-2xl p-6">
+                <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Guidance Density
+                </h2>
+                <p className="mb-5 text-sm text-muted-foreground">
+                  Choose how much guide content Promorang shows while you work.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {guidanceDensityOptions.map((option) => {
+                    const active = guidanceDensity === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setGuidanceDensity(option.value)}
+                        className={`rounded-xl border p-4 text-left transition ${active ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background text-muted-foreground hover:border-primary/40"}`}
+                        aria-pressed={active}
+                      >
+                        <span className="text-sm font-bold">{option.label}</span>
+                        <span className="mt-2 block text-xs leading-5">{option.description}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-foreground mb-4">Account Security</h2>
                 <div className="grid gap-4">

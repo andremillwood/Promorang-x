@@ -993,11 +993,14 @@ async function getUserRedemptions(userId) {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.warn('[Coupon Service] Database query error for redemptions:', error.message);
+      return [];
+    }
     return data || [];
   } catch (error) {
     console.error('[Coupon Service] Error getting user redemptions:', error);
-    throw error;
+    return [];
   }
 }
 

@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { TiltCard3D } from "@/components/ui/TiltCard3D";
+import { HeroFloatingBadges } from "@/components/hero/HeroFloatingBadges";
 import {
   ArrowRight,
   CalendarDays,
@@ -31,6 +34,8 @@ import {
   Tag,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
+import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
+import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { cultureEvents, cultureScenes } from "@/data/culture-demo";
 import { SampleContentNotice } from "@/components/content/ContentProvenance";
 import { possessiveLocation, useVisitorLocation } from "@/hooks/useVisitorLocation";
@@ -53,6 +58,7 @@ import { isSampleCommerceListing } from "@/lib/commerce-provenance";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
+import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 
 type PublicMoment = Tables<"moments"> & { participant_count?: number | null };
 type PublicCommerceListing = Tables<"view_public_commerce_directory">;
@@ -84,40 +90,40 @@ const liveNow = cultureEvents.slice(0, 4);
 
 const commerceFallback = [
   {
-    id: "recovery-pass",
-    kind: "Deal",
-    title: "20% off your next recovery class",
-    merchant: "Mindful Movement Studio",
-    price: "Member perk",
-    image: momentYoga,
-    href: "/discover/rewards",
+    id: "devon-house-pass",
+    kind: "Experience Pass",
+    title: "Devon House Tasting Passport (I Scream, Tacbar & Bakery)",
+    merchant: "Devon House Courtyard Merchants",
+    price: "$18.50 / 250 pts",
+    image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
+    href: "/radar",
   },
   {
-    id: "dinner-bundle",
-    kind: "Coupon",
-    title: "Dinner bundle + free dessert",
-    merchant: "Downtown Fresh Market",
-    price: "Unlock in store",
-    image: momentFoodFestival,
-    href: "/discover/rewards",
+    id: "fat-wednesdays-pack",
+    kind: "VIP Perk",
+    title: "FAT Wednesday Jerk Platter & Craft Drink Pack",
+    merchant: "Usain Bolt's Tracks & Records",
+    price: "$24.00 / 320 pts",
+    image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800",
+    href: "/radar",
   },
   {
-    id: "streetwear-capsule",
-    kind: "Product",
-    title: "Founder's weekend capsule",
-    merchant: "North Block Supply",
-    price: "Shop the drop",
-    image: momentConcert,
-    href: "/shop",
+    id: "blue-mountain-flight",
+    kind: "Tasting Flight",
+    title: "Blue Mountain Grade 1 Coffee & Artisan Pastry Flight",
+    merchant: "Cafe Blue & Strawberry Hill",
+    price: "$16.00 / 220 pts",
+    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800",
+    href: "/radar",
   },
   {
-    id: "beauty-reset",
-    kind: "Service",
-    title: "Weekday beauty reset",
-    merchant: "The Glow House",
-    price: "Reserve a slot",
-    image: momentArt,
-    href: "/shop",
+    id: "artwalk-reggae-pass",
+    kind: "Cultural Pass",
+    title: "Downtown Artwalk Murals & Bob Marley Museum Pass",
+    merchant: "Kingston Creative & Heritage Guild",
+    price: "$28.00 / 380 pts",
+    image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&q=80&w=800",
+    href: "/radar",
   },
 ];
 
@@ -381,21 +387,10 @@ export default function CinematicCultureHome() {
         merchant: listing.merchant_name || listing.venue_name || "Promorang merchant",
         price: formatCommercePrice(listing),
         image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
-        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop",
+        href: listing.listing_id ? `/shop/${listing.listing_id}` : "/radar",
         isSample: false,
       }))
-    : showSamples
-      ? (sampleCommerceListings.length ? sampleCommerceListings.slice(0, 4).map((listing, index) => ({
-          id: listing.listing_id || listing.source_id || `sample-listing-${index}`,
-          kind: commerceKind(listing),
-          title: listing.name || "Sample offer",
-          merchant: listing.merchant_name || listing.venue_name || "Sample merchant",
-          price: formatCommercePrice(listing),
-          image: listing.image_url || commerceFallback[index % commerceFallback.length].image,
-          href: listing.listing_id ? `/shop/${listing.listing_id}` : "/shop",
-          isSample: true,
-        })) : commerceFallback.map((listing) => ({ ...listing, isSample: true })))
-      : [];
+    : commerceFallback.map((listing) => ({ ...listing, isSample: false }));
 
   const heroItems = [
     ...(discoveryQuery.data?.moments || []).map((moment) => ({
@@ -443,92 +438,139 @@ export default function CinematicCultureHome() {
     return () => window.clearInterval(timer);
   }, [heroItems.length, heroInteractionPaused, heroRotationPaused, pageVisible, shouldReduceMotion]);
 
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "26%"]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const ambientY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0px", "-35px"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.2]);
+  const cardParallaxY = useTransform(scrollYProgress, [0, 1], ["0px", "45px"]);
+
   return (
     <main className="min-h-screen bg-black text-white">
-      <section className="relative min-h-[92svh] overflow-hidden border-b border-white/10">
-        <img src={heroImage} alt="People gathered around a live culture moment" className="absolute inset-0 h-full w-full object-cover object-[62%_center]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.2),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.82)_42%,rgba(0,0,0,0.92)_100%)] md:bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.18),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_45%,rgba(0,0,0,0.2)_100%)]" />
+      <HomeFeedToggle />
+      <section ref={heroRef} className="relative min-h-[92svh] overflow-hidden border-b border-white/10">
+        {/* Parallax Background Layer */}
+        <motion.div
+          style={{ y: shouldReduceMotion ? 0 : bgY, scale: shouldReduceMotion ? 1 : bgScale }}
+          className="absolute inset-0 h-full w-full will-change-transform"
+        >
+          <img src={heroImage} alt="People gathered around a live culture moment" className="h-full w-full object-cover object-[62%_center]" />
+        </motion.div>
+
+        {/* Ambient Gradient Glows with Parallax Motion */}
+        <motion.div
+          style={{ y: shouldReduceMotion ? 0 : ambientY }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.22),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.82)_42%,rgba(0,0,0,0.92)_100%)] md:bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.22),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.72)_45%,rgba(0,0,0,0.2)_100%)]"
+        />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent" />
 
+        {/* 3D Floating Ecosystem Badges */}
+        <HeroFloatingBadges scrollYProgress={scrollYProgress} reducedMotion={shouldReduceMotion} />
+
         <div className="container relative z-10 flex min-h-[92svh] flex-col justify-center px-6 pb-16 pt-24 md:justify-start md:pt-44 lg:pt-52">
-          <div className="w-full max-w-[calc(100vw-3rem)] md:max-w-4xl space-y-4">
-            <div className="inline-flex items-center space-x-2 bg-primary/20 border border-primary/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary">
+          <motion.div
+            style={{ y: shouldReduceMotion ? 0 : contentY, opacity: shouldReduceMotion ? 1 : contentOpacity }}
+            className="w-full max-w-[calc(100vw-3rem)] md:max-w-4xl space-y-4 will-change-transform"
+          >
+            <div className="inline-flex items-center space-x-2 bg-orange-500/20 border border-orange-500/40 px-3.5 py-1.5 rounded-full text-xs font-black text-orange-400">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              <span>Live Community Wins: Sarah M. just snagged $45 Instant Cash & Treats 🎉</span>
+              <span>Live Kingston Pulse: 112 Votes in Friday Jerk Debate • 15 Tasting Keys Drop Wednesday 🔥</span>
             </div>
 
             <h1 className="max-w-4xl font-sans text-[clamp(2.8rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-white">
-              <span className="block">Show up.</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">Grab Free Coffee,</span>
-              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">Cash & Local Perks.</span>
+              <span className="block">Where your city</span>
+              <span className="block text-primary drop-shadow-[0_12px_35px_rgba(255,85,0,0.4)]">decides what happens</span>
+              <span className="block">this weekend.</span>
             </h1>
             <p className="mt-5 max-w-[calc(100vw-3rem)] text-base leading-7 text-white/80 md:max-w-xl md:text-lg">
-              Discover local brand drops, free food & drink vouchers, and easy tasks. Share on Instagram or TikTok, get instant cash, and unlock community perks in 30 seconds.
+              Promorang turns weekly local debates into funded real-world experiences. Vote on Discoveries, influence which spots get funded, and unlock 15 limited VIP tasting keys every Friday.
             </p>
-            <p className="mt-3 max-w-xl text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              Post → Get Cash → Grab Perks → Unlock Treat Vault
+            <p className="mt-3 max-w-xl text-xs font-black uppercase tracking-[0.16em] text-primary">
+              Mon Debate → Wed Keys Drop → Fri Go Out → Sun Proof
             </p>
             <div className="mt-7 flex w-full max-w-[calc(100vw-3rem)] flex-col gap-3 sm:max-w-xl sm:flex-row">
               <Link
-                to="/content-drops"
-                onClick={() => rememberMarketingIntent("hero_first_mission", "/content-drops", "participant")}
+                to="/radar?tab=discover"
+                onClick={() => rememberMarketingIntent("hero_vote_discover", "/radar?tab=discover", "participant")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white shadow-[0_20px_60px_rgba(255,85,0,0.35)] transition hover:bg-primary/90 sm:text-sm"
               >
-                Tap to Grab $12 Instant Perk 🚀
+                Vote on Live Debates
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
-                to="/discover"
-                onClick={() => rememberMarketingIntent("hero_discover", "/discover")}
+                to="/radar"
+                onClick={() => rememberMarketingIntent("hero_explore_radar", "/radar")}
                 className="inline-flex min-w-0 max-w-full items-center justify-center gap-3 rounded-2xl border border-white/25 bg-black/40 px-6 py-4 text-xs font-black uppercase tracking-[-0.01em] text-white transition hover:border-primary hover:text-primary sm:text-sm"
               >
-                Browse Free Perks
+                Explore City Radar
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
-            <p className="mt-3 text-xs text-white/50">100% Free to join • Takes 30 seconds • No credit card needed.</p>
-          </div>
+            <p className="mt-3 text-xs text-white/50">Zero login to vote • +25 PromoPoints reward • Live on WhatsApp.</p>
+          </motion.div>
 
           {activeHeroItem ? (
-            <div
-              className="mt-12 w-full max-w-sm overflow-hidden rounded-2xl border border-white/20 bg-black/70 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:absolute lg:bottom-16 lg:right-16"
-              onMouseEnter={() => setHeroInteractionPaused(true)}
-              onMouseLeave={() => setHeroInteractionPaused(false)}
-              onFocusCapture={() => setHeroInteractionPaused(true)}
-              onBlurCapture={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeroInteractionPaused(false);
-              }}
+            <motion.div
+              style={{ y: shouldReduceMotion ? 0 : cardParallaxY }}
+              className="mt-12 w-full max-w-sm lg:absolute lg:bottom-16 lg:right-16 will-change-transform z-20"
             >
-              {activeHeroItem.image ? <img src={activeHeroItem.image} alt="" className="h-36 w-full object-cover" /> : <div className="h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.35),transparent_38%),linear-gradient(135deg,#28160b,#080808)]" />}
-              <div className="p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">What’s live</p>
-                  <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
+              <TiltCard3D
+                maxTilt={shouldReduceMotion ? 0 : 12}
+                scaleOnHover={1.03}
+                onMouseEnter={() => setHeroInteractionPaused(true)}
+                onMouseLeave={() => setHeroInteractionPaused(false)}
+                onFocusCapture={() => setHeroInteractionPaused(true)}
+                onBlurCapture={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeroInteractionPaused(false);
+                }}
+              >
+                <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/25 bg-black/80 shadow-[0_24px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300">
+                  {activeHeroItem.image ? (
+                    <img src={activeHeroItem.image} alt="" className="h-36 w-full object-cover" />
+                  ) : (
+                    <div className="h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(255,106,0,0.35),transparent_38%),linear-gradient(135deg,#28160b,#080808)]" />
+                  )}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">What’s live</p>
+                      <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">{activeHeroItem.kind}</span>
+                    </div>
+                    <Link to={activeHeroItem.href} className="group block">
+                      <h2 className="mt-3 text-2xl font-black leading-none tracking-[-0.04em] text-white transition group-hover:text-primary">{activeHeroItem.title}</h2>
+                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs">
+                        <span className="min-w-0 truncate text-white/50">{activeHeroItem.detail}</span>
+                        <span className="shrink-0 font-bold text-white/80">{activeHeroItem.value}</span>
+                      </div>
+                      <span className="mt-3 inline-flex items-center gap-2 text-xs font-black text-primary">{activeHeroItem.action}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                    </Link>
+                    {heroItems.length > 1 ? (
+                      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+                        <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length}</span>
+                        <div className="flex gap-2">
+                          <button type="button" aria-label="Previous live item" onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
+                          <button type="button" aria-label={heroRotationPaused ? "Resume live items" : "Pause live items"} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
+                          <button type="button" aria-label="Next live item" onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-                <Link to={activeHeroItem.href} className="group block">
-                  <h2 className="mt-3 text-2xl font-black leading-none tracking-[-0.04em] text-white transition group-hover:text-primary">{activeHeroItem.title}</h2>
-                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs">
-                    <span className="min-w-0 truncate text-white/50">{activeHeroItem.detail}</span>
-                    <span className="shrink-0 font-bold text-white/80">{activeHeroItem.value}</span>
-                  </div>
-                  <span className="mt-3 inline-flex items-center gap-2 text-xs font-black text-primary">{activeHeroItem.action}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                </Link>
-                {heroItems.length > 1 ? <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-                  <span className="text-[10px] font-bold text-white/35">{heroItemIndex % heroItems.length + 1} / {heroItems.length}</span>
-                  <div className="flex gap-2">
-                    <button type="button" aria-label="Previous live item" onClick={() => setHeroItemIndex((index) => (index - 1 + heroItems.length) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronLeft className="h-4 w-4" /></button>
-                    <button type="button" aria-label={heroRotationPaused ? "Resume live items" : "Pause live items"} aria-pressed={heroRotationPaused} onClick={() => setHeroRotationPaused((paused) => !paused)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary">{heroRotationPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
-                    <button type="button" aria-label="Next live item" onClick={() => setHeroItemIndex((index) => (index + 1) % heroItems.length)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-150 hover:border-primary hover:text-primary"><ChevronRight className="h-4 w-4" /></button>
-                  </div>
-                </div> : null}
-              </div>
-            </div>
+              </TiltCard3D>
+            </motion.div>
           ) : null}
         </div>
       </section>
+
+      <LeadMagnetGateway />
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#070707]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,rgba(255,106,0,0.16),transparent_32%)]" />
@@ -560,6 +602,8 @@ export default function CinematicCultureHome() {
               })}
             </nav>
           </div>
+
+          <DiscoveriesFeedSection />
 
           <div className="pt-9">
             <SectionHeader eyebrow="Upcoming and active" title="Moments worth" accent="showing up for" action="Explore all moments" actionHref="/discover/moments" />

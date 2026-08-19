@@ -136,7 +136,7 @@ function OverviewTab({ analytics, highRiskCount }: { analytics: CorporateMomentA
               <div className="h-4 bg-secondary rounded-full overflow-hidden">
                 <div
                   className={cn(
-                    "h-full transition-all",
+                    "h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                     (analytics.industry_benchmark_index || 100) > 100 ? "bg-green-500" :
                     (analytics.industry_benchmark_index || 100) > 80 ? "bg-blue-500" :
                     "bg-amber-500"
@@ -422,7 +422,7 @@ function CohortRow({ label, value }: { label: string; value: number | null }) {
       <div className="h-2 bg-secondary rounded-full overflow-hidden">
         <div
           className={cn(
-            "h-full transition-all",
+            "h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
             percentage > 50 ? "bg-green-500" : percentage > 30 ? "bg-blue-500" : "bg-amber-500"
           )}
           style={{ width: `${percentage}%` }}

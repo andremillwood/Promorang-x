@@ -172,7 +172,7 @@ export function SuggestedMoments({ limit = 3, onDismiss }: SuggestedMomentsProps
                 <Link
                   key={moment.id}
                   to={`/moments/${moment.id}`}
-                  className="group block bg-card rounded-xl overflow-hidden border border-border hover:border-accent/50 hover:shadow-lg transition-all"
+                  className="group block bg-card rounded-xl overflow-hidden border border-border hover:border-accent/50 hover:shadow-lg transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
                 >
                   {/* Image */}
                   <div className="relative h-32 overflow-hidden">

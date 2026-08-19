@@ -78,7 +78,7 @@ export const VaultTeaser = () => {
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                                 className="relative group"
                             >
-                                <div className="p-6 bg-white/[0.07] border border-white/20 rounded-3xl backdrop-blur-xl transition-all duration-500 group-hover:bg-white/[0.12] group-hover:border-white/30">
+                                <div className="p-6 bg-white/[0.07] border border-white/20 rounded-3xl backdrop-blur-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500 group-hover:bg-white/[0.12] group-hover:border-white/30">
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="space-y-1">
                                             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[9px] uppercase font-black px-2">

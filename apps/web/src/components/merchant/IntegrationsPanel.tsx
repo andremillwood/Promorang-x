@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import {
     useIntegrations,
     useShopifyConnect,
@@ -81,7 +82,7 @@ const IntegrationsPanel = () => {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Shopify Card */}
-                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
+                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group">
                         <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-[#96bf48]/10 flex items-center justify-center">
                                 <img
@@ -195,7 +196,7 @@ const IntegrationsPanel = () => {
                     </div>
 
                     {/* Square Card */}
-                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
+                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group">
                         <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-black/5 flex items-center justify-center">
                                 <img
@@ -278,7 +279,7 @@ const IntegrationsPanel = () => {
                     </div>
 
                     {/* WooCommerce Card */}
-                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all group">
+                    <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/40 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] group">
                         <div className="mb-6 flex items-center justify-between gap-3">
                             <div className="w-12 h-12 rounded-xl bg-[#96588a]/10 flex items-center justify-center">
                                 <img
@@ -493,13 +494,13 @@ const IntegrationsPanel = () => {
                     ].map((pos) => (
                         <div
                             key={pos.name}
-                            className="p-4 rounded-xl border border-border hover:shadow-md transition-all flex flex-col justify-between"
+                            className="p-4 rounded-xl border border-border hover:shadow-md transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex flex-col justify-between"
                         >
                             <div className="h-6 mb-3 flex items-center overflow-hidden">
                                 <img
                                     src={pos.logo}
                                     alt={pos.name}
-                                    className="h-full object-contain filter grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100"
+                                    className="h-full object-contain filter grayscale hover:grayscale-0 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] opacity-70 hover:opacity-100"
                                 />
                             </div>
                             {pos.connected ? (
@@ -520,11 +521,14 @@ const IntegrationsPanel = () => {
                     ))}
                 </div>
 
-                <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/10">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Smartphone className="w-4 h-4 text-primary" />
-                        <h4 className="font-bold text-sm">How Attribution Works in Jamaica:</h4>
-                    </div>
+                <GuidanceDisclosure
+                    id="merchant-integrations:attribution"
+                    eyebrow="Attribution guide"
+                    title="How attribution works in Jamaica"
+                    summary="Promorang links check-ins to POS timing so sponsors can see verified ROI."
+                    className="mt-8"
+                    tone="light"
+                >
                     <div className="grid md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <p className="font-bold text-primary text-[10px] uppercase tracking-wider">
@@ -551,7 +555,7 @@ const IntegrationsPanel = () => {
                             </p>
                         </div>
                     </div>
-                </div>
+                </GuidanceDisclosure>
             </div>
         </div>
     );

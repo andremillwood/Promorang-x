@@ -36,6 +36,7 @@ export type MarketingIntent = {
   capturedAt: string;
   referrer?: string;
   campaign?: Record<string, string>;
+  metadata?: Record<string, string | number | boolean>;
 };
 
 function id(prefix: string) {
@@ -233,6 +234,25 @@ export async function claimStoredReferral() {
   });
 }
 
+export async function trackStoredReferralClick() {
+  if (typeof window === "undefined") return;
+  const attribution = captureGrowthAttribution();
+  const referralCode = attribution?.lastTouch.referral_code;
+  if (!referralCode) return;
+  await fetch(`${API_BASE_URL}/growth-ops/referral-click`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      referralCode,
+      sessionId: getGrowthSessionId(),
+      anonymousId: getAnonymousId(),
+      landingPath: `${window.location.pathname}${window.location.search}`,
+      referrerUrl: document.referrer || null,
+      metadata: { first_touch: attribution.firstTouch },
+    }),
+  });
+}
+
 export async function flushGrowthAfterAuth() {
   await stitchGrowthIdentity();
   await claimStoredReferral();
@@ -246,7 +266,7 @@ export async function flushGrowthAfterAuth() {
   }
 }
 
-export function rememberMarketingIntent(action: string, destination: string, audience?: string) {
+export function rememberMarketingIntent(action: string, destination: string, audience?: string, metadata?: Record<string, string | number | boolean>) {
   if (typeof window === "undefined") return;
   const attribution = captureGrowthAttribution();
   const intent: MarketingIntent = {
@@ -255,12 +275,13 @@ export function rememberMarketingIntent(action: string, destination: string, aud
     capturedAt: new Date().toISOString(),
     referrer: document.referrer || undefined,
     campaign: Object.fromEntries(Object.entries(attribution?.lastTouch || {}).filter(([key, value]) => key.startsWith("utm_") && value)) as Record<string, string>,
+    metadata,
   };
   sessionStorage.setItem(INTENT_KEY, JSON.stringify(intent));
   void trackGrowthEvent({
     eventName: "cta_clicked", journey: audience === "brand" || audience === "host" ? "commercial" : "participant",
     stage: "captured", entityType: "marketing_cta", entityId: action,
-    properties: { destination, audience },
+    properties: { destination, audience, ...metadata },
   });
 }
 

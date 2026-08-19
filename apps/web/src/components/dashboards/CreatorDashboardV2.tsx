@@ -9,18 +9,13 @@ import {
   Sparkles, 
   Eye,
   Zap,
-  Award,
   BarChart3,
-  Upload,
-  CheckCircle2,
-  Clock3,
   ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
 import { CreatorO2OSummaryPanel } from "@/components/host/CreatorO2OSummaryPanel";
@@ -29,9 +24,9 @@ import { CreatorMissionPublisher } from "@/components/creator/CreatorMissionPubl
 import { CreatorEarningsTab } from "./host/CreatorEarningsTab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Separator } from "@/components/ui/separator";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
-import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
+import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
 
 // ============================================================================
 // CREATOR DASHBOARD V2
@@ -145,14 +140,19 @@ const CreatorDashboardV2 = () => {
         : "Scale the loop across more stories";
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-8 pb-20 xl:space-y-10">
       <DashboardHero
-        badge="Creator Proof Studio"
+        badge="Creator studio"
         title={isNewCreator ? "Turn your first story into movement" : "Create stories that move people"}
         description="Publish stories that can stand alone, launch a moment, support a scene, or become a mission. Then track whether attention becomes joins, visits, unlocks, rewards, and real-world proof."
         actions={[
-          { label: "Publish", icon: Film, onClick: () => setActiveTab("publish") },
-          { label: "Create mission", icon: Link2, onClick: () => setActiveTab("missions") },
+          !hasPublished
+            ? { label: "Publish your first story", icon: Film, onClick: () => setActiveTab("publish") }
+            : !hasLinkedMission
+              ? { label: "Connect a story to a mission", icon: Link2, onClick: () => setActiveTab("missions") }
+              : { label: "Review supporter movement", icon: BarChart3, onClick: () => setActiveTab("earnings") },
+          { label: "Publish another story", icon: Film, onClick: () => setActiveTab("publish") },
+          { label: "Manage mission links", icon: Link2, onClick: () => setActiveTab("missions") },
           { label: "Missions", icon: Eye, href: "/missions" },
         ]}
         stats={[
@@ -164,7 +164,19 @@ const CreatorDashboardV2 = () => {
         isLoading={statsLoading}
       />
 
-      <StakeholderReturnPanel role="creator" />
+      <DashboardWorkspaceNav
+        eyebrow="Inside your studio"
+        title="Choose the work you came here to do"
+        activeValue={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "studio", label: "Studio", icon: Sparkles },
+          { value: "publish", label: "Publish", icon: Film },
+          { value: "content", label: "My content", icon: PlayCircle },
+          { value: "missions", label: "Missions", icon: Link2 },
+          { value: "earnings", label: "Analytics", icon: BarChart3 },
+        ]}
+      />
 
       {/* =====================================================================
           NEW CREATOR: First Steps Guidance
@@ -200,86 +212,29 @@ const CreatorDashboardV2 = () => {
         </Card>
       )}
 
-      {/* =====================================================================
-          ACTIVE CREATORS: Progress Overview
-          ===================================================================== */}
       {!isNewCreator && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Creator Journey Progress */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-sm">Creator Journey</span>
-                </div>
-                <Badge variant="outline" className="text-[10px]">
-                  {creatorStats?.hasLinkedMission ? "2/3" : creatorStats?.hasPublished ? "1/3" : "0/3"}
-                </Badge>
-              </div>
-              <Progress 
-                value={creatorStats?.hasLinkedMission ? 66 : creatorStats?.hasPublished ? 33 : 0} 
-                className="h-2 mb-3" 
-              />
-              <div className="space-y-2">
-                {[
-                  { label: "Publish first story", done: creatorStats?.hasPublished },
-                  { label: "Link to mission", done: creatorStats?.hasLinkedMission },
-                  { label: "Get first conversion", done: creatorStats?.earnings > 0 },
-                ].map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                      step.done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
-                    }`}>
-                      {step.done ? "✓" : i + 1}
-                    </div>
-                    <span className={step.done ? "text-muted-foreground line-through" : ""}>
-                      {step.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats */}
-          {creatorStats && (
-            <>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Eye className="w-5 h-5 text-accent" />
-                    <span className="text-sm text-muted-foreground">Total Views</span>
-                  </div>
-                  <div className="text-2xl font-bold">
-                    {creatorStats.totalViews.toLocaleString()}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-5 h-5 text-emerald-500" />
-                    <span className="text-sm text-muted-foreground">Earnings</span>
-                  </div>
-                  <div className="text-2xl font-bold">
-                    ${creatorStats.earnings.toLocaleString()}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
+        <StudioJourneyStory
+          guidanceId="creator-dashboard:story-in-motion"
+          eyebrow="Your story in motion"
+          title="See whether attention became something people actually did"
+          introduction="The studio connects a published story to the movement, proof, and value that followed—then makes the next creative decision clear."
+          signalLabel="Audience attention"
+          signalValue={`${creatorStats.totalViews.toLocaleString()} views`}
+          beats={[
+            { label: creatorStats.hasPublished ? "A story entered the world" : "No story is live yet", detail: `${creatorStats.contentCount} published ${creatorStats.contentCount === 1 ? "story" : "stories"} in your studio.`, icon: Film, tone: creatorStats.hasPublished ? "complete" : "quiet" },
+            { label: creatorStats.hasLinkedMission ? "The story has somewhere to lead" : "Give the story a reason to move people", detail: creatorStats.hasLinkedMission ? `${creatorStats.missionCount} connected ${creatorStats.missionCount === 1 ? "mission" : "missions"} can turn attention into action.` : "Connect the strongest story to a Moment or mission.", icon: Link2, tone: creatorStats.hasLinkedMission ? "complete" : "current" },
+            { label: nextRecommendedStep, detail: creatorStats.earnings > 0 ? `$${creatorStats.earnings.toLocaleString()} has returned through measured outcomes.` : "Look for the first verified action before scaling the format.", icon: ArrowRight, tone: "current" },
+          ]}
+        />
       )}
 
       {/* =====================================================================
           MAIN CONTENT: Tabs (Progressive disclosure)
           ===================================================================== */}
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
-        <div className="space-y-6">
+      <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
+        <div className="min-w-0 space-y-6">
           <DashboardNextStepsSection
-            description={`Next best move: ${nextRecommendedStep.toLowerCase()}. The dashboard now exposes the full creator operating loop directly.`}
+            description={`Next best move: ${nextRecommendedStep.toLowerCase()}. Your studio keeps the full creator journey close without putting every tool in front of you at once.`}
             ctaLabel="Browse missions"
             ctaHref="/missions"
             items={[
@@ -304,45 +259,8 @@ const CreatorDashboardV2 = () => {
             ]}
           />
 
-          <Card className="shadow-soft">
-            <CardContent className="p-6">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Workflow</p>
-                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Publish stories, then turn them into movement</h3>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    The creator path is flexible: create a story, let it stand alone, launch a moment from it, connect it to a scene, or turn it into a mission when you want verified action.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <Button onClick={() => setActiveTab("publish")}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Content
-                  </Button>
-                  <Button variant="outline" onClick={() => setActiveTab("missions")}>
-                    <Link2 className="mr-2 h-4 w-4" />
-                    Create Mission
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                {[
-                  { title: "1. Publish Story", detail: "Add the story metadata, URL, and preview image people will see.", icon: Film },
-                  { title: "2. Choose Its Shape", detail: "Keep it standalone, launch a new moment, or link it to an existing one.", icon: Calendar },
-                  { title: "3. Measure Movement", detail: "Track views, joins, unlocks, visits, and creator earnings as the proof layer.", icon: BarChart3 },
-                ].map((step) => (
-                  <div key={step.title} className="rounded-2xl border border-border/60 bg-background/70 p-4">
-                    <step.icon className="h-5 w-5 text-primary" />
-                    <p className="mt-3 font-semibold text-foreground">{step.title}</p>
-                    <p className="mt-2 text-sm text-muted-foreground">{step.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
+          <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28">
+        <TabsList className="sr-only">
           <TabsTrigger value="studio" className="gap-2">
             <Sparkles className="w-4 h-4" />
             Studio
@@ -386,37 +304,37 @@ const CreatorDashboardV2 = () => {
         </TabsContent>
 
         <TabsContent value="content" className="mt-0">
-          <Card className="shadow-soft">
-            <CardContent className="p-6">
+          <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+            <div className="p-6 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">My Stories</p>
-                  <h3 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-foreground">Published story library</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    These are the stories you can reuse in missions, sponsor loops, and creator portfolio reporting.
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Your published work</p>
+                  <h3 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-foreground">Story library</h3>
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                    Return to a story, give it a real-world destination, or see what it moved.
                   </p>
                 </div>
                 <Badge variant="outline" className="rounded-full">{contentCount} stories</Badge>
               </div>
-              <div className="mt-6 space-y-3">
+              <div className="mt-7 border-t border-border/60">
                 {creatorContentQuery.isLoading ? (
                   Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-24 rounded-2xl" />)
                 ) : stories.length > 0 ? (
                   (stories as CreatorStory[]).map((story) => (
-                    <div key={story.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <article key={story.id} className="group border-b border-border/60 py-6 last:border-b-0">
+                      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-semibold text-foreground">{story.title || "Untitled story"}</p>
+                            <p className="font-serif text-2xl font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">{story.title || "Untitled story"}</p>
                             <Badge variant="secondary" className="capitalize">{story.platform || "external"}</Badge>
                           </div>
                           <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                             {story.description || "No description yet."}
                           </p>
-                          <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
-                            <span>{Number(story.views_count || story.impressions || 0).toLocaleString()} views</span>
-                            <span>{Number(story.shares_count || story.shares || 0).toLocaleString()} shares</span>
-                            <span>{Number(story.conversions || 0).toLocaleString()} conversions</span>
+                          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                            <span><strong className="font-serif text-base text-foreground">{Number(story.views_count || story.impressions || 0).toLocaleString()}</strong> views</span>
+                            <span><strong className="font-serif text-base text-foreground">{Number(story.shares_count || story.shares || 0).toLocaleString()}</strong> shares</span>
+                            <span><strong className="font-serif text-base text-foreground">{Number(story.conversions || 0).toLocaleString()}</strong> actions</span>
                           </div>
                         </div>
                         <div className="flex shrink-0 flex-wrap gap-2">
@@ -443,7 +361,7 @@ const CreatorDashboardV2 = () => {
                           ) : null}
                         </div>
                       </div>
-                    </div>
+                    </article>
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
@@ -451,8 +369,8 @@ const CreatorDashboardV2 = () => {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </section>
         </TabsContent>
 
         <TabsContent value="missions" className="mt-0">
@@ -515,41 +433,6 @@ const CreatorDashboardV2 = () => {
             ]}
           />
 
-          <Card className="shadow-soft">
-            <CardContent className="p-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">At a Glance</p>
-              <div className="mt-4 space-y-4">
-                {[
-                  {
-                    icon: hasPublished ? CheckCircle2 : Clock3,
-                    label: "Content status",
-                    value: hasPublished ? `${contentCount} published` : "No stories yet",
-                  },
-                  {
-                    icon: hasLinkedMission ? CheckCircle2 : Clock3,
-                    label: "Mission status",
-                    value: hasLinkedMission ? `${missionCount} linked` : "No linked missions yet",
-                  },
-                  {
-                    icon: BarChart3,
-                    label: "Creator value",
-                    value: `$${totalEarnings.toFixed(2)} tracked`,
-                  },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4 text-primary" />
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                        <p className="text-sm text-muted-foreground">{item.value}</p>
-                      </div>
-                    </div>
-                    <Separator className="mt-4 last:hidden" />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

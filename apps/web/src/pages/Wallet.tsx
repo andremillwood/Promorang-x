@@ -6,6 +6,7 @@ import { useValueReceipts } from "@/hooks/useValueReceipts";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
 import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,9 @@ import {
 import { cultureEvents } from "@/data/culture-demo";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
+import { PersonalValueNav } from "@/components/value/PersonalValueNav";
+import { DigitalWalletPass3D } from "@/components/wallet/DigitalWalletPass3D";
+import { PARTICIPANT_ECONOMY } from "@promorang/shared";
 
 type GemsTransaction = {
   id: string;
@@ -220,7 +224,7 @@ const Wallet = () => {
       setConvertDialogOpen(false);
       toast({
         title: `${convertQuantity} PromoKey${convertQuantity > 1 ? "s" : ""} unlocked`,
-        description: `${(convertQuantity * 500).toLocaleString()} Points moved into access you can use.`,
+        description: `${(convertQuantity * PARTICIPANT_ECONOMY.pointsPerPromoKey).toLocaleString()} Points moved into access you can use.`,
       });
     } catch (error: unknown) {
       toast({ title: "Could not convert Points", description: errorMessage(error), variant: "destructive" });
@@ -234,8 +238,9 @@ const Wallet = () => {
   const pendingWithdrawalGems = gemWithdrawals
     .filter((request) => ["requested", "reviewing", "approved"].includes(request.status))
     .reduce((sum, request) => sum + Number(request.gems_amount || 0), 0);
-  const nextKeyProgress = Math.min(100, (points % 500) / 5);
-  const availableConversions = Math.min(3, Math.floor(points / 500));
+  const pointsPerKey = PARTICIPANT_ECONOMY.pointsPerPromoKey;
+  const availableConversions = Math.min(PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions, Math.floor(points / pointsPerKey));
+  const nextKeyProgress = Math.min(100, ((points % pointsPerKey) / pointsPerKey) * 100);
   const submitGemWithdrawal = async () => {
     try {
       await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
@@ -284,42 +289,56 @@ const Wallet = () => {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/15 bg-black/60 p-5 text-white backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Next usable unlock</p><p className="mt-2 text-5xl font-black">{availableConversions > 0 ? `${availableConversions} Key${availableConversions > 1 ? "s" : ""}` : `${Math.max(0, 500 - (points % 500))} pts`}</p><p className="mt-1 text-sm text-white/45">{availableConversions > 0 ? "Ready to convert from Points" : "until your next PromoKey"}</p></div>
-              <KeyRound className="h-10 w-10 text-primary" />
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <div className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{walletLoading ? "..." : walletBalance?.points?.toLocaleString() || 0}</p><p className="text-[9px] uppercase text-white/35">Points</p></div>
-              <div className="rounded-xl bg-white/[0.06] p-3"><p className="text-xl font-black">{walletLoading ? "..." : walletBalance?.promokeys || 0}</p><p className="text-[9px] uppercase text-white/35">PromoKeys</p></div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <Button className="flex-1" asChild><Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />Earn your next unlock</Link></Button>
-              <Button variant="outline" size="icon" className="border-white/15 bg-black/20 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet}><RefreshCw className="h-4 w-4" /></Button>
+          <div className="flex flex-col items-center gap-4">
+            <DigitalWalletPass3D
+              displayName={user.user_metadata?.full_name || user.user_metadata?.name}
+              userEmail={user.email}
+              userId={user.id}
+              points={walletBalance?.points || 0}
+              promoKeys={walletBalance?.promokeys || 0}
+              gems={gems}
+            />
+            <div className="flex w-full max-w-[420px] gap-2">
+              <Button className="flex-1 rounded-xl shadow-lg" asChild>
+                <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />Earn Next Unlock</Link>
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-xl border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white" onClick={refreshWallet} title="Refresh Balance">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
+      <PersonalValueNav className="relative z-20 -mt-4 px-2" />
+
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6">
         <CouponWalletRail />
         <CommerceReceiptRail />
-        <section className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="grid md:grid-cols-4">
-            {[
-              ["01", "Show up", "Join a Moment or useful action"],
-              ["02", "Verify", "Proof turns activity into standing"],
-              ["03", "Unlock", "500 Points becomes 1 PromoKey"],
-              ["04", "Earn", "Funded work settles as Gems"],
-            ].map(([number, title, text], index) => (
-              <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
-                <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
-                <div className="mt-2 font-semibold">{title}</div>
-                <div className="mt-1 text-xs leading-5 text-muted-foreground">{text}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <GuidanceDisclosure
+          id="wallet:economy-path"
+          eyebrow="Wallet path"
+          title="How participation becomes usable value"
+          summary={`Show up, verify, unlock PromoKeys, and earn Gems through funded work. ${pointsPerKey} Points becomes 1 PromoKey.`}
+          className="mt-0"
+        >
+          <section className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="grid md:grid-cols-4">
+              {[
+                ["01", "Show up", "Join a Moment or useful action"],
+                ["02", "Verify", "Proof turns activity into standing"],
+                ["03", "Unlock", `${pointsPerKey} Points becomes 1 PromoKey`],
+                ["04", "Earn", "Funded work settles as Gems"],
+              ].map(([number, title, text], index) => (
+                <div key={number} className={`relative p-5 ${index < 3 ? "border-b border-border md:border-b-0 md:border-r" : ""}`}>
+                  <div className="text-[10px] font-black tracking-[0.25em] text-primary">{number}</div>
+                  <div className="mt-2 font-semibold">{title}</div>
+                  <div className="mt-1 text-xs leading-5 text-muted-foreground">{text}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </GuidanceDisclosure>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Card>
@@ -338,7 +357,7 @@ const Wallet = () => {
               )}
               <p className="mt-3 text-sm text-muted-foreground">Points are your participation signal for status, access, and reward eligibility.</p>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{ width: `${nextKeyProgress}%` }} /></div>
-              <p className="mt-2 text-xs text-muted-foreground">{Math.max(0, 500 - (points % 500))} Points to the next PromoKey</p>
+              <p className="mt-2 text-xs text-muted-foreground">{Math.max(0, pointsPerKey - (points % pointsPerKey))} Points to the next PromoKey</p>
             </CardContent>
           </Card>
 
@@ -518,9 +537,18 @@ const Wallet = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Proof Receipts</CardTitle>
-                <CardDescription>Backend-issued proof of what was recorded, why, and when it became available.</CardDescription>
               </CardHeader>
               <CardContent>
+                <GuidanceDisclosure
+                  id="wallet:proof-receipts"
+                  title="What proof receipts mean"
+                  summary="Backend-issued proof of what was recorded, why, and when it became available."
+                  className="mb-4 mt-0"
+                >
+                  <p className="text-sm text-muted-foreground">
+                    Proof receipts are the record behind wallet movement: what action was accepted, what value was attached, and whether that value is available, pending, or locked.
+                  </p>
+                </GuidanceDisclosure>
                 {receiptsLoading ? (
                   <div className="space-y-3">
                     {Array.from({ length: 5 }).map((_, index) => (
@@ -560,12 +588,19 @@ const Wallet = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Today’s contribution limits</CardTitle>
-                <CardDescription>
-                  Genuine participation earns value. Daily limits keep automated farming from diluting everyone else.
-                  {resetsAt ? ` Resets ${new Date(resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <GuidanceDisclosure
+                  id="wallet:contribution-limits"
+                  title="Why contribution limits exist"
+                  summary={`Daily limits protect genuine participation from automated farming.${resetsAt ? ` Resets ${new Date(resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}`}
+                  className="mt-0"
+                >
+                  <p className="text-sm text-muted-foreground">
+                    Genuine participation earns value. Daily limits keep automated farming from diluting everyone else.
+                    {resetsAt ? ` Your current limits reset ${new Date(resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.` : ""}
+                  </p>
+                </GuidanceDisclosure>
                 {caps.map((cap) => (
                   <div key={cap.action_type}>
                     <div className="mb-1.5 flex items-center justify-between text-sm">
@@ -574,7 +609,7 @@ const Wallet = () => {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-primary transition-all"
+                        className="h-full rounded-full bg-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]"
                         style={{ width: `${Math.min(100, (cap.used / cap.daily_limit) * 100)}%` }}
                       />
                     </div>
@@ -594,13 +629,13 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>Turn Points into access</DialogTitle>
             <DialogDescription>
-              Convert 500 Points into 1 PromoKey. PromoKeys enter funded drops and gated opportunities. Maximum 3 conversions per day.
+              Convert {pointsPerKey} Points into 1 PromoKey. PromoKeys enter funded drops and gated opportunities once today's Master Key is active. Maximum {PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions} conversions per day.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-5">
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">Available Points</span><strong>{points.toLocaleString()}</strong></div>
-              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">Conversion</span><strong>{(convertQuantity * 500).toLocaleString()} Points → {convertQuantity} Key{convertQuantity > 1 ? "s" : ""}</strong></div>
+              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">Conversion</span><strong>{(convertQuantity * pointsPerKey).toLocaleString()} Points → {convertQuantity} Key{convertQuantity > 1 ? "s" : ""}</strong></div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="promokey-quantity">PromoKeys to unlock</Label>
@@ -624,7 +659,7 @@ const Wallet = () => {
           <DialogHeader>
             <DialogTitle>Buy Gems</DialogTitle>
             <DialogDescription>
-              Gems are purchased in USD and credited after Stripe confirms payment. Use them across Pieces, marketplace, and liquidity. Purchases above $100 require KYC.
+              Gems are purchased by the unit in USD and credited only after Stripe confirms payment. Purchased and promotional Gems remain separately traceable. Purchases above $100 require KYC.
             </DialogDescription>
           </DialogHeader>
 
@@ -670,7 +705,7 @@ const Wallet = () => {
                   onChange={(event) => setPurchaseAmount(Number(event.target.value || 0))}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Minimum $5. Maximum $1,000 per transaction. Current rate: 1 Gem = US$1. Bought Gems are for use inside Promorang; earned Gems can be requested for withdrawal.
+                  Minimum $5. Maximum $1,000 per transaction. Current rate: 1 Gem = US$1. Purchased Gems can fund merchant-specific Gem Cards; they are not cash-redeemable by customers.
                 </p>
               </div>
 

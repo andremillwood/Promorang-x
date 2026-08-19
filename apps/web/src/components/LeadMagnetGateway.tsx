@@ -1,0 +1,31 @@
+import { Link } from "react-router-dom";
+import { ArrowRight, Building2, Compass, Lightbulb, Sparkles, Store, Users } from "lucide-react";
+
+export type GatewayAudience = "all" | "participant" | "host" | "merchant" | "creator" | "brand";
+
+const tools = [
+  { audience:"participant", number:"01", icon:Compass, eyebrow:"I want better plans", title:"Find Your Scene", promise:"Find the rooms, people and Moments most likely to feel like your kind of life.", cta:"Find my Scene", href:"/free/scene", campaign:"/campaigns/kingston-comes-alive", campaignLabel:"See Kingston Comes Alive" },
+  { audience:"host", number:"02", icon:Users, eyebrow:"I bring people together", title:"Score Your Moment", promise:"See what will strengthen attendance, sponsor appeal and the reason people return.", cta:"Score my Moment", href:"/free/moment", campaign:"/campaigns/moment-lab", campaignLabel:"Enter the Moment Lab" },
+  { audience:"merchant", number:"03", icon:Store, eyebrow:"I need more demand", title:"Reveal Nearby Demand", promise:"Turn an underused time window into a visit trigger that protects your brand and margins.", cta:"Reveal my opening", href:"/free/demand", campaign:"/campaigns/quiet-hours", campaignLabel:"Take the Quiet Hours Challenge" },
+  { audience:"creator", number:"04", icon:Sparkles, eyebrow:"My audience trusts my taste", title:"Audit Your Influence", promise:"Discover which actions your recommendations can credibly move and prove.", cta:"Audit my influence", href:"/free/creator", campaign:"/campaigns/creators-who-move", campaignLabel:"Join the creator cohort" },
+  { audience:"brand", number:"05", icon:Building2, eyebrow:"I need measurable return", title:"Build an Activation Brief", promise:"Connect a human outcome to creators, places, participation and commercial evidence.", cta:"Build my brief", href:"/free/sponsor", campaign:"/campaigns/sponsor-kingston", campaignLabel:"Explore the city programme" },
+] as const;
+
+export function LeadMagnetGateway({ audience="all", dark=false }: { audience?:GatewayAudience; dark?:boolean }) {
+  const selected = audience === "all" ? tools : tools.filter(tool=>tool.audience===audience);
+  if (audience !== "all") {
+    const tool=selected[0]; const Icon=tool.icon;
+    return <section className={dark?"border-y border-white/10 bg-[#080808] text-white":"border-y border-border bg-secondary/25"}>
+      <div className="container px-6 py-14 md:py-20"><div className={`grid overflow-hidden rounded-[2rem] border ${dark?"border-white/10 bg-white/[.04]":"border-border bg-card"} lg:grid-cols-[.8fr_1.6fr_.8fr]`}>
+        <div className="flex items-center gap-4 border-b p-6 lg:border-b-0 lg:border-r"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-white"><Icon className="h-6 w-6"/></span><div><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Free field report</p><p className={`mt-1 text-xs ${dark?"text-white/45":"text-muted-foreground"}`}>{tool.number} · 3–5 minutes</p></div></div>
+        <div className="p-6 lg:p-8"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{tool.eyebrow}</p><h2 className="mt-2 font-serif text-3xl font-bold tracking-tight md:text-4xl">{tool.title}</h2><p className={`mt-3 max-w-2xl text-sm leading-6 ${dark?"text-white/55":"text-muted-foreground"}`}>{tool.promise}</p></div>
+        <div className="flex flex-col justify-center gap-3 border-t p-6 lg:border-l lg:border-t-0"><Link to={tool.href} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-black text-white transition hover:-translate-y-0.5">{tool.cta}<ArrowRight className="h-4 w-4"/></Link><Link to={tool.campaign} className={`inline-flex items-center justify-center gap-2 text-xs font-bold ${dark?"text-white/55 hover:text-white":"text-muted-foreground hover:text-foreground"}`}>{tool.campaignLabel}<ArrowRight className="h-3 w-3"/></Link></div>
+      </div></div>
+    </section>;
+  }
+  return <section className="border-b border-white/10 bg-[#0a0a0a] text-white"><div className="container px-6 py-20 md:py-28">
+    <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr] lg:items-end"><div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Five ways into one living system</p><h2 className="mt-4 max-w-xl font-serif text-4xl font-bold leading-[.95] tracking-[-.04em] md:text-6xl">What would you like to make happen?</h2></div><p className="max-w-2xl text-sm leading-7 text-white/52 lg:justify-self-end">People want better places to belong. Businesses have unused capacity. Creators have trusted attention. Hosts have gathering ideas. Brands have budgets. Start with the question Promorang can help you answer now.</p></div>
+    <div className="mt-12 grid border-l border-t border-white/10 md:grid-cols-2 xl:grid-cols-5">{tools.map(tool=>{const Icon=tool.icon;return <Link key={tool.audience} to={tool.href} className="group relative min-h-[290px] border-b border-r border-white/10 p-6 transition hover:bg-primary"><div className="flex items-center justify-between"><span className="text-[10px] font-black tracking-[.2em] text-primary transition group-hover:text-white">{tool.number}</span><Icon className="h-5 w-5 text-white/35 transition group-hover:text-white"/></div><p className="mt-12 text-[10px] font-black uppercase tracking-[.16em] text-white/40 transition group-hover:text-white/70">{tool.eyebrow}</p><h3 className="mt-3 font-serif text-2xl font-bold leading-tight">{tool.title}</h3><p className="mt-3 text-xs leading-6 text-white/46 transition group-hover:text-white/80">{tool.promise}</p><span className="absolute bottom-6 left-6 inline-flex items-center gap-2 text-xs font-black text-primary transition group-hover:text-white">{tool.cta}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1"/></span></Link>})}</div>
+    <div className="mt-8 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.035] p-5"><Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary"/><p className="text-xs leading-6 text-white/45"><b className="text-white">No account is required to see a result.</b> Register only when you want to save recommendations, join a Moment, collaborate or begin an attributed activation.</p></div>
+  </div></section>;
+}

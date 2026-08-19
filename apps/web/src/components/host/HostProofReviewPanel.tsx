@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ProofSubmissionAuditDialog } from "@/components/proof/ProofSubmissionAuditDialog";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -136,23 +137,26 @@ export const HostProofReviewPanel = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-6 border-b border-border/60 pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Trust Operations</p>
-          <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Proof Review</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Review Guest Marks for your moments and mint verified memories from the same flow.
-          </p>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Decide what counts</p>
+          <h3 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-foreground">Was this participation real?</h3>
+          <GuidanceDisclosure
+            id="host-proof-review:decision-context"
+            eyebrow="Review guide"
+            title="What approval changes"
+            summary="Approval recognizes attendance and releases any memory, reward, Piece, payout, or value that follows."
+            className="mt-3 max-w-2xl"
+            tone="light"
+          >
+            <p className="text-sm leading-6 text-muted-foreground">
+              Review what the guest submitted. Approval recognizes their attendance and releases any memory, reward, or value that follows.
+            </p>
+          </GuidanceDisclosure>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Pending</p>
-            <p className="mt-2 text-2xl font-black text-foreground">{pendingQuery.isLoading ? "..." : pending.length}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Reviewed</p>
-            <p className="mt-2 text-2xl font-black text-foreground">{historyQuery.isLoading ? "..." : history.length}</p>
-          </div>
+        <div className="flex items-end gap-7 border-l border-border/60 pl-6">
+          <div><p className="font-serif text-4xl font-semibold">{pendingQuery.isLoading ? "…" : pending.length}</p><p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Waiting now</p></div>
+          <div><p className="font-serif text-4xl font-semibold text-muted-foreground">{historyQuery.isLoading ? "…" : history.length}</p><p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Recently decided</p></div>
         </div>
       </div>
 
@@ -176,7 +180,7 @@ export const HostProofReviewPanel = () => {
               </div>
             ) : (
               pending.map((proof: MomentumProofSubmission) => (
-                <Card key={proof.id} className="overflow-hidden border-border/50 p-5">
+                <Card key={proof.id} className="overflow-hidden rounded-[2rem] border-border/50 p-5 sm:p-7">
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -186,7 +190,7 @@ export const HostProofReviewPanel = () => {
                         {proof.moment?.reward && <Badge variant="outline">Reward: {proof.moment.reward}</Badge>}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-foreground">{proof.moment?.title || "Untitled Moment"}</h4>
+                        <h4 className="font-serif text-2xl font-semibold text-foreground">{proof.moment?.title || "Untitled Moment"}</h4>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {proof.moment?.venue_name || "Venue pending"} • submitted{" "}
                           {proof.proof_bundle?.submitted_at
@@ -200,8 +204,8 @@ export const HostProofReviewPanel = () => {
                           <p className="mt-1"><span className="font-semibold text-foreground">Location:</span> {proof.proof_bundle?.location_verified ? "Verified" : "Not verified"}</p>
                         </div>
                         <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">Outcome</p>
-                          <p className="mt-2 text-xs text-muted-foreground">Approval now verifies attendance, issues reward if configured, queues payout if needed, and records piece awards.</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">What approval changes</p>
+                          <p className="mt-2 text-xs text-muted-foreground">Attendance becomes trusted. Any promised memory, reward, payout, or Piece can then be released.</p>
                         </div>
                       </div>
                       {proof.mission_attribution && (

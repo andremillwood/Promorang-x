@@ -145,7 +145,7 @@ const ExploreVenues = () => {
                   key={venueType.value}
                   type="button"
                   onClick={() => setActiveVenueType(venueType.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     activeVenueType === venueType.value
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary hover:bg-secondary/80"
@@ -185,7 +185,7 @@ const ExploreVenues = () => {
                   <Link
                     key={venue.id}
                     to={venuePath}
-                    className="group rounded-[1.75rem] border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-1 hover:border-primary/30"
+                    className="group rounded-[1.75rem] border border-border bg-card p-5 shadow-soft transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-1 hover:border-primary/30"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">

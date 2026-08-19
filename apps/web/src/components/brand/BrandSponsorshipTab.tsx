@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Search, Filter, MapPin, Calendar, Sparkles, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Filter, MapPin, Calendar, Sparkles, Building2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -34,14 +33,15 @@ export function BrandSponsorshipTab() {
   };
 
   return (
-    <div className="space-y-6">
+    <section className="space-y-8">
+      <div className="max-w-3xl"><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose the culture to support</p><h2 className="mt-3 font-serif text-4xl font-semibold leading-[.98] tracking-[-.04em] sm:text-5xl">Find a Moment where the brand can belong.</h2><p className="mt-4 text-sm leading-7 text-muted-foreground">Start with the people, place, and meaning of the gathering. Sponsorship should strengthen what is already alive there.</p></div>
       <Tabs defaultValue="discover" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="discover" className="gap-2">
+        <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-y border-border/60 bg-transparent p-0">
+          <TabsTrigger value="discover" className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
             <Sparkles className="w-4 h-4" />
             Explore Moments
           </TabsTrigger>
-          <TabsTrigger value="requests" className="gap-2">
+          <TabsTrigger value="requests" className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
             <Building2 className="w-4 h-4" />
             My Requests
           </TabsTrigger>
@@ -50,18 +50,18 @@ export function BrandSponsorshipTab() {
         {/* Explore Moments Tab */}
         <TabsContent value="discover" className="space-y-6 mt-6">
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 rounded-[1.5rem] border border-border/60 bg-card/55 p-4 sm:flex-row">
             <div className="relative flex-1">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by location..."
                 value={locationSearch}
                 onChange={(e) => setLocationSearch(e.target.value)}
-                className="pl-10"
+                className="h-11 rounded-xl pl-10"
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="h-11 w-full rounded-xl sm:w-48">
                 <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
@@ -94,11 +94,11 @@ export function BrandSponsorshipTab() {
               ))}
             </div>
           ) : (
-            <div className="bg-card rounded-xl p-12 border border-border text-center">
+            <div className="rounded-[2rem] border border-dashed border-border bg-card/50 p-12 text-center">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">No moments found</h3>
+              <h3 className="mb-2 font-serif text-2xl font-semibold text-foreground">No Moments found</h3>
               <p className="text-muted-foreground">
-                Try adjusting your filters or check back later for new moments to sponsor.
+                Try another place or category, or return when new Moments enter the Scene.
               </p>
             </div>
           )}
@@ -108,9 +108,9 @@ export function BrandSponsorshipTab() {
         <TabsContent value="requests" className="space-y-6 mt-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-foreground">Your Sponsorship Requests</h3>
+              <h3 className="font-serif text-3xl font-semibold text-foreground">Your offers to support</h3>
               <p className="text-sm text-muted-foreground">
-                Track the status of your sponsorship offers
+                See which conversations are waiting, accepted, or need a response.
               </p>
             </div>
           </div>
@@ -124,6 +124,6 @@ export function BrandSponsorshipTab() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
-    </div>
+    </section>
   );
 }

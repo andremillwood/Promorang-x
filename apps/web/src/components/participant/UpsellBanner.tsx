@@ -30,7 +30,7 @@ export const UpsellBanner = () => {
     if (isPro) return null;
 
     return (
-        <div className="relative group overflow-hidden rounded-[2rem] border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-accent/5 p-8 transition-all duration-500 hover:shadow-soft-xl">
+        <div className="relative group overflow-hidden rounded-[2rem] border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-accent/5 p-8 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500 hover:shadow-soft-xl">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-48 h-48 bg-primary/10 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 bg-accent/10 rounded-full blur-2xl" />

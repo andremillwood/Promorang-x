@@ -173,7 +173,7 @@ function IdentityCard({
 
   return (
     <Card className={cn(
-      "transition-all duration-200",
+      "transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200",
       isSuggested && "border-dashed border-muted"
     )}>
       <CardHeader className="pb-4">
@@ -218,7 +218,7 @@ function IdentityCard({
           <div className="h-2 bg-secondary rounded-full overflow-hidden">
             <div
               className={cn(
-                "h-full transition-all duration-500",
+                "h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500",
                 marker.strength_score > 75 ? "bg-green-500" :
                 marker.strength_score > 50 ? "bg-blue-500" :
                 "bg-amber-500"

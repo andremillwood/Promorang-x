@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     tierLabel: {
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
         color: 'rgba(255,255,255,0.7)',
         letterSpacing: 1,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: DesignColors.black,
         backgroundColor: DesignColors.secondary,
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: '900' as any,
     },
     offerRail: {
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     },
     offerStatus: {
         color: DesignColors.primary,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: '900' as any,
         textTransform: 'uppercase',
     },
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     },
     offerExpiry: {
         marginTop: 4,
-        fontSize: 10,
+        fontSize: 12,
         color: DesignColors.gray[500],
     },
     rewardsList: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
         backgroundColor: DesignColors.secondary,
     },
     priceText: {
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
     },
     emptyLedger: {

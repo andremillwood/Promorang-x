@@ -108,7 +108,7 @@ export function BrandFundingTab() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {proposals.map((proposal) => (
-                        <Card key={proposal.id} className="group hover:shadow-soft-xl transition-all duration-300 border-border/60">
+                        <Card key={proposal.id} className="group hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 border-border/60">
                             <CardHeader className="pb-3">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <Badge variant="outline" className="mb-2 capitalize">

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { 
   ArrowRight,
   MapPin, 
@@ -6,21 +6,20 @@ import {
   Star, 
   Coins, 
   TrendingUp, 
-  ShieldCheck, 
   Store,
   Zap,
   BarChart3,
-  CheckCircle2,
   QrCode,
   Package,
-  Plus
+  Plus,
+  ExternalLink,
+  ShoppingBag
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHero, DashboardNextStepsSection, DashboardQuickRoutesCard } from "@/components/dashboard/DashboardSurface";
 import { useMerchantVenues } from "@/hooks/useVenues";
@@ -32,11 +31,17 @@ import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 import RedemptionValidator from "@/components/merchant/RedemptionValidator";
 import SalesAnalyticsDashboard from "@/components/merchant/SalesAnalyticsDashboard";
 import { CommercialProofLoop } from "@/components/commercial/CommercialProofLoop";
-import { StakeholderReturnPanel } from "@/components/dashboard/StakeholderReturnPanel";
+import { DashboardWorkspaceNav } from "@/components/dashboard/DashboardWorkspaceNav";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import ExperienceAttachmentManager from "@/components/merchant/ExperienceAttachmentManager";
 import { MerchantCommerceConsole } from "@/components/merchant/MerchantCommerceConsole";
+import { StudioJourneyStory } from "@/components/dashboard/StudioJourneyStory";
+import { StoryGamificationRail } from "@/components/StoryGamificationRail";
+import { RightUtilityRail } from "@/components/RightUtilityRail";
+import { SpinWheelModal } from "@/components/SpinWheelModal";
+import { TeamSlashModal } from "@/components/TeamSlashModal";
+import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 
 type PublicMomentRow = Tables<"view_public_moment_directory">;
 
@@ -46,17 +51,21 @@ type PublicMomentRow = Tables<"view_public_moment_directory">;
 // ============================================================================
 
 const MerchantDashboardV2 = () => {
-  useAuth();
+  const { user } = useAuth();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const { data: stats, isLoading: statsLoading } = useMerchantEconomy();
   const { data: economy, isLoading: economyLoading } = useMerchantEconomy();
   const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "commerce";
+  const defaultTab = searchParams.get("tab") || "storefront";
   const [activeTab, setActiveTab] = useState(defaultTab);
+
+  useEffect(() => {
+    const requestedTab = searchParams.get("tab");
+    if (requestedTab) setActiveTab(requestedTab);
+  }, [searchParams]);
 
   // Calculate merchant maturity
   const isNewMerchant = !venues || venues.length === 0;
-  const isActiveMerchant = venues && venues.length > 0 && (stats?.weeklyTraffic || 0) > 0;
   const isEstablishedMerchant = venues && venues.length >= 2 && (stats?.weeklyTraffic || 0) > 50;
 
   // Weekly stats
@@ -79,6 +88,10 @@ const MerchantDashboardV2 = () => {
     },
   });
 
+  const [wheelOpen, setWheelOpen] = useState(false);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
+
   const venueRelatedMoments = useMemo(() => {
     const rows = venueMomentQuery.data || [];
     const matched = rows.filter((moment) =>
@@ -90,27 +103,48 @@ const MerchantDashboardV2 = () => {
   }, [venueMomentQuery.data, ownedVenueIds, ownedVenueCities]);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-8 pb-20 xl:space-y-10">
+      {/* Top Story & Action Rail */}
+      <StoryGamificationRail
+        onOpenWheel={() => setWheelOpen(true)}
+        onOpenStreak={() => setStreakOpen(true)}
+      />
       <DashboardHero
-        badge="Venue Control Room"
+        badge="Venue studio"
         title={isNewMerchant ? "Make your venue a place people want to return to" : "Keep your venue connected to the Scenes around it"}
         description="Welcome Moments, creators, and offers; recognize arrivals and redemptions; then give people a reason to come back through the door."
         actions={[
+          isNewMerchant
+            ? { label: "Add your first venue", href: "/dashboard/venues/add", icon: Store }
+            : { label: "Open orders and arrivals", onClick: () => setActiveTab("commerce"), icon: ShoppingBag },
+          { label: "View storefront", href: user?.id ? `/storefront/${user.id}` : "/shop", icon: ExternalLink },
+          { label: "Add product", onClick: () => setActiveTab("products"), icon: Package },
           { label: "Add venue", href: "/dashboard/venues/add", icon: Store },
-          { label: "Offers", href: "/dashboard/offers", icon: Package },
-          { label: "Commerce console", onClick: () => setActiveTab("commerce"), icon: BarChart3 },
         ]}
         stats={[
           { label: "Venues", value: (venues?.length || 0).toLocaleString(), helper: "Registered locations", icon: Store, accentClass: "text-emerald-300" },
-          { label: "Weekly traffic", value: weeklyTraffic.toLocaleString(), helper: "Validated local activity", icon: Users, accentClass: "text-emerald-300" },
-          { label: "Points earned", value: totalPoints.toLocaleString(), helper: "Returned from activity", icon: Coins, accentClass: "text-emerald-300" },
-          { label: "Yield per visit", value: economy?.yieldPerVisitor?.toFixed(1) || "0", helper: "Average venue performance", icon: TrendingUp, accentClass: "text-emerald-300" },
+          { label: "Verified arrivals", value: weeklyTraffic.toLocaleString(), helper: "Last seven days", icon: Users, accentClass: "text-emerald-300" },
+          { label: "Open orders", value: (stats?.openOrders || 0).toLocaleString(), helper: "Need merchant attention", icon: ShoppingBag, accentClass: "text-amber-300" },
+          { label: "Repeat visitors", value: (stats?.repeatVisitors || 0).toLocaleString(), helper: "People who came back", icon: TrendingUp, accentClass: "text-emerald-300" },
         ]}
         isLoading={statsLoading || economyLoading}
         glowClassName="bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(255,167,38,0.14),_transparent_34%)]"
       />
 
-      <StakeholderReturnPanel role="merchant" />
+      <DashboardWorkspaceNav
+        eyebrow="Inside your venue studio"
+        title="Welcome people well, then understand why they returned"
+        activeValue={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "storefront", label: "Storefront", icon: Store },
+          { value: "products", label: "Products & inventory", icon: Package },
+          { value: "commerce", label: "Orders", icon: ShoppingBag },
+          { value: "redemptions", label: "Redemptions", icon: QrCode },
+          { value: "venues", label: "Venues", icon: Store },
+          { value: "analytics", label: "Analytics", icon: BarChart3 },
+        ]}
+      />
 
       {/* =====================================================================
           NEW MERCHANT: First Venue Guidance
@@ -147,65 +181,24 @@ const MerchantDashboardV2 = () => {
         </Card>
       )}
 
-      {/* =====================================================================
-          MERCHANT JOURNEY: Progress indicator
-          ===================================================================== */}
       {!isNewMerchant && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                <span className="font-medium text-sm">Merchant Journey</span>
-              </div>
-              <Badge variant="outline" className="text-[10px]">
-                {isEstablishedMerchant ? "3/3" : isActiveMerchant ? "2/3" : "1/3"}
-              </Badge>
-            </div>
-            <Progress 
-              value={isEstablishedMerchant ? 100 : isActiveMerchant ? 66 : 33} 
-              className="h-2 mb-3" 
-            />
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { 
-                  label: "Add venue", 
-                  done: venues && venues.length > 0,
-                  icon: Store
-                },
-                { 
-                  label: "Get visitors", 
-                  done: weeklyTraffic > 0,
-                  icon: Users
-                },
-                { 
-                  label: "Recognize arrivals",
-                  done: isEstablishedMerchant,
-                  icon: ShieldCheck
-                },
-              ].map((step, i) => (
-                <div 
-                  key={i} 
-                  className={`flex flex-col items-center p-3 rounded-xl text-center ${
-                    step.done ? "bg-emerald-500/5" : "bg-muted/30"
-                  }`}
-                >
-                  <step.icon className={`w-4 h-4 mb-1 ${step.done ? "text-emerald-500" : "text-muted-foreground"}`} />
-                  <span className={`text-xs ${step.done ? "text-emerald-600 font-medium" : "text-muted-foreground"}`}>
-                    {step.label}
-                  </span>
-                  {step.done && (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-1" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <StudioJourneyStory
+          guidanceId="merchant-dashboard:venue-story"
+          eyebrow="Life around your venue"
+          title="See when a place becomes part of people’s cultural routine"
+          introduction="The venue story begins with arrivals, but the useful signal is whether people engage, return, and connect the place to a living Scene."
+          signalLabel="Arrivals this week"
+          signalValue={weeklyTraffic.toLocaleString()}
+          beats={[
+            { label: `${venues?.length || 0} ${(venues?.length || 0) === 1 ? "place is" : "places are"} visible`, detail: "Your venue presence gives Moments and Scenes somewhere real to gather.", icon: Store, tone: "complete" },
+            { label: weeklyTraffic > 0 ? "People are arriving through Promorang" : "Create the first reason to arrive", detail: weeklyTraffic > 0 ? `${weeklyTraffic.toLocaleString()} visits or customer actions were recorded this week.` : "Connect an offer or Moment to the quieter part of your week.", icon: Users, tone: weeklyTraffic > 0 ? "complete" : "current" },
+            { label: isEstablishedMerchant ? "Invite the next return" : "Recognize the first meaningful arrival", detail: isEstablishedMerchant ? "Use what happened to welcome people back with relevance." : "Make the welcome and proof simple enough for the room.", icon: ArrowRight, tone: "current" },
+          ]}
+        />
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
-        <div className="space-y-6">
+      <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
+        <div className="min-w-0 space-y-6">
           <DashboardNextStepsSection
             description="Keep venue operations clear: register the place, support the offer, then validate what happened there."
             ctaLabel="Open venues"
@@ -418,8 +411,9 @@ const MerchantDashboardV2 = () => {
       {/* =====================================================================
           MAIN TABS: Progressive disclosure
           ===================================================================== */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6 flex-wrap">
+          <Tabs id="role-workspace" value={activeTab} onValueChange={setActiveTab} className="scroll-mt-28">
+        <TabsList className="sr-only">
+          <TabsTrigger value="storefront">Storefront</TabsTrigger>
           <TabsTrigger value="commerce" className="gap-2">
             <BarChart3 className="w-4 h-4" />
             Commerce
@@ -428,25 +422,42 @@ const MerchantDashboardV2 = () => {
             <Store className="w-4 h-4" />
             Venues
           </TabsTrigger>
-          {!isNewMerchant && (
-            <TabsTrigger value="redemptions" className="gap-2">
-              <QrCode className="w-4 h-4" />
-              Check-ins
-            </TabsTrigger>
-          )}
-          {!isNewMerchant && (
-            <TabsTrigger value="products" className="gap-2">
-              <Package className="w-4 h-4" />
-              Products
-            </TabsTrigger>
-          )}
-          {isEstablishedMerchant && (
-            <TabsTrigger value="analytics" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="redemptions" className="gap-2"><QrCode className="w-4 h-4" />Redemptions</TabsTrigger>
+          <TabsTrigger value="products" className="gap-2"><Package className="w-4 h-4" />Products & inventory</TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2"><BarChart3 className="w-4 h-4" />Analytics</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="storefront" className="mt-0">
+          <Card className="overflow-hidden border-emerald-500/20">
+            <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_.8fr] lg:p-8">
+              <div>
+                <Badge className="bg-emerald-600">Your public shop</Badge>
+                <h2 className="mt-4 text-3xl font-black tracking-[-0.04em]">Manage what customers see—and what happens next.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  Your storefront brings products, services, offers, and venue-linked experiences together. You can publish your catalog before adding a physical venue.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                    <Link to={user?.id ? `/storefront/${user.id}` : "/shop"} target="_blank">
+                      <ExternalLink className="mr-2 h-4 w-4" />View public storefront
+                    </Link>
+                  </Button>
+                  <Button variant="outline" onClick={() => setActiveTab("products")}>
+                    <Plus className="mr-2 h-4 w-4" />Add product or service
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-3xl bg-emerald-950 p-5 text-white">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Store checklist</p>
+                <div className="mt-4 space-y-3 text-sm">
+                  <button onClick={() => setActiveTab("products")} className="flex w-full items-center justify-between rounded-xl bg-white/10 p-3 text-left hover:bg-white/15"><span>Products, pricing & stock</span><ArrowRight className="h-4 w-4" /></button>
+                  <button onClick={() => setActiveTab("commerce")} className="flex w-full items-center justify-between rounded-xl bg-white/10 p-3 text-left hover:bg-white/15"><span>Orders & reservations</span><ArrowRight className="h-4 w-4" /></button>
+                  <button onClick={() => setActiveTab("venues")} className="flex w-full items-center justify-between rounded-xl bg-white/10 p-3 text-left hover:bg-white/15"><span>Locations & fulfillment</span><ArrowRight className="h-4 w-4" /></button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="commerce" className="mt-0">
           <MerchantCommerceConsole
@@ -479,51 +490,43 @@ const MerchantDashboardV2 = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+              <div className="flex flex-col gap-4 border-b border-border/60 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+                <div><p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Places you care for</p><h2 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-0.04em]">Your venues</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">Keep each place ready for Moments, arrivals, offers, and the next reason to return.</p></div>
+                <Button asChild className="rounded-full"><Link to="/dashboard/venues/add"><Plus className="mr-2 h-4 w-4" />Add Venue</Link></Button>
+              </div>
+              <div>
               {venues.map((venue) => (
-                <Card key={venue.id} className="hover:shadow-soft transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">{venue.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {venue.address || venue.location}
-                        </p>
-                      </div>
+                <div key={venue.id} className="group flex flex-col gap-4 border-b border-border/60 p-6 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex min-w-0 items-center gap-4"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-background/60 text-primary"><Store className="h-5 w-5" /></span><div>
+                        <h4 className="font-serif text-2xl font-semibold transition-colors group-hover:text-primary">{venue.name}</h4>
+                        <p className="mt-1 text-sm text-muted-foreground"><MapPin className="mr-1.5 inline h-3.5 w-3.5" />{venue.address || venue.location || "Location to be completed"}</p>
+                      </div></div>
                       <Badge variant={venue.is_active ? "default" : "outline"}>
-                        {venue.is_active ? "Active" : "Inactive"}
+                        {venue.is_active ? "Welcoming activity" : "Not currently visible"}
                       </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                </div>
               ))}
-            </div>
+              </div>
+            </section>
           )}
         </TabsContent>
 
-        {!isNewMerchant && (
-          <TabsContent value="redemptions" className="mt-0">
-            <RedemptionValidator />
-          </TabsContent>
-        )}
+        <TabsContent value="redemptions" className="mt-0">
+          <RedemptionValidator />
+        </TabsContent>
 
-        {!isNewMerchant && (
-          <TabsContent value="products" className="mt-0">
-            <ExperienceAttachmentManager />
-            <div className="h-5" />
-            <ProductCatalogManager />
-          </TabsContent>
-        )}
+        <TabsContent value="products" className="mt-0">
+          <ExperienceAttachmentManager />
+          <div className="h-5" />
+          <ProductCatalogManager />
+        </TabsContent>
 
-        {isEstablishedMerchant && (
-          <TabsContent value="analytics" className="mt-0">
-            <SalesAnalyticsDashboard />
-          </TabsContent>
-        )}
+        <TabsContent value="analytics" className="mt-0">
+          <SalesAnalyticsDashboard />
+        </TabsContent>
           </Tabs>
-        </div>
 
-        <div className="space-y-6">
           <RoleActivationPanel
             eyebrow="Merchant Today"
             title={isNewMerchant ? "Make one place ready for real visits" : "Keep the door connected to people who want to return"}
@@ -569,7 +572,18 @@ const MerchantDashboardV2 = () => {
             ]}
           />
         </div>
+
+        {/* Right Utility Sidebar (Desktop) */}
+        <RightUtilityRail
+          onOpenSlashModal={() => setSlashOpen(true)}
+          onOpenStreakModal={() => setStreakOpen(true)}
+        />
       </div>
+
+      {/* Gamification Modals */}
+      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
+      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
+      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
 };

@@ -74,7 +74,7 @@ export function SaveButton({
                 size="icon"
                 className={cn(
                     "rounded-full bg-white/90 backdrop-blur-sm shadow-soft",
-                    "hover:bg-white hover:scale-110 transition-all duration-200",
+                    "hover:bg-white hover:scale-110 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200",
                     isSaved && "bg-primary text-primary-foreground hover:bg-primary/90",
                     showSuccess && "bg-green-500 text-white",
                     sizeClasses[size],
@@ -101,7 +101,7 @@ export function SaveButton({
             variant={isSaved ? "hero" : "outline"}
             size={size === "lg" ? "lg" : "sm"}
             className={cn(
-                "gap-2 transition-all duration-200",
+                "gap-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200",
                 className
             )}
             onClick={handleSave}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin, usePlatformStats } from "@/hooks/useAdmin";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users,
@@ -27,7 +27,11 @@ import {
   Target,
   Store,
   ShoppingBag,
+  ChevronDown,
+  UserPlus,
+  ContactRound,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminMomentsTab } from "@/components/admin/AdminMomentsTab";
 import { AdminAnalyticsTab } from "@/components/admin/AdminAnalyticsTab";
@@ -48,12 +52,16 @@ import { AdminAuditTab } from "@/components/admin/AdminAuditTab";
 import { AdminCatalogTab } from "@/components/admin/AdminCatalogTab";
 import { AdminCommerceTab } from "@/components/admin/AdminCommerceTab";
 import { AdminGrowthTab } from "@/components/admin/AdminGrowthTab";
-import { FlashCampaignCompiler } from "@/components/campaigns/FlashCampaignCompiler";
+import { AdminClaimablePagesTab } from "@/components/admin/AdminClaimablePagesTab";
+import { AdminLeadsCRM } from "@/components/admin/AdminLeadsCRM";
+import { AdminPresentsPanel } from "@/components/admin/AdminPresentsPanel";
+import { PromoPilotCompiler } from "@/components/campaigns/PromoPilotCompiler";
 
 const ADMIN_TABS = new Set([
   "command",
   "overview",
   "growth",
+  "leads",
   "proof-builder",
   "pioneer",
   "operations",
@@ -72,7 +80,63 @@ const ADMIN_TABS = new Set([
   "config",
   "compiler",
   "create-moment",
+  "claimable-pages",
 ]);
+
+type AdminNavItem = {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
+  {
+    label: "Overview",
+    items: [
+      { value: "command", label: "Command Center", icon: Shield },
+      { value: "overview", label: "Analytics", icon: BarChart3 },
+      { value: "growth", label: "Growth", icon: TrendingUp },
+      { value: "leads", label: "Leads & CRM", icon: ContactRound },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { value: "moments", label: "Moments", icon: Calendar },
+      { value: "claimable-pages", label: "Create for Owners", icon: UserPlus },
+      { value: "users", label: "Users", icon: Users },
+      { value: "applications", label: "Host Applications", icon: Sparkles },
+      { value: "pioneer", label: "Pioneer Review", icon: Target },
+      { value: "operations", label: "Platform Operations", icon: Activity },
+    ],
+  },
+  {
+    label: "Trust & finance",
+    items: [
+      { value: "moderation", label: "Moderation", icon: Scale },
+      { value: "payouts", label: "Payouts", icon: DollarSign },
+      { value: "economy", label: "Economy", icon: Coins },
+      { value: "access", label: "Access", icon: KeyRound },
+      { value: "audit", label: "Audit", icon: Shield },
+    ],
+  },
+  {
+    label: "Platform",
+    items: [
+      { value: "promopush", label: "PromoPush", icon: Megaphone },
+      { value: "catalog", label: "Catalog", icon: Store },
+      { value: "commerce", label: "Commerce", icon: ShoppingBag },
+      { value: "support", label: "Support", icon: LifeBuoy },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { value: "proof-builder", label: "Contribution Rules", icon: Target },
+      { value: "config", label: "Configuration", icon: Settings },
+    ],
+  },
+];
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -108,18 +172,38 @@ const AdminDashboard = () => {
       <div className="px-4 pb-12 pt-20 sm:pt-24">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Shield className="w-6 h-6 text-primary" />
+          <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <h1 className="font-serif text-3xl font-bold text-foreground">
+                  Admin Dashboard
+                </h1>
               </div>
-              <h1 className="font-serif text-3xl font-bold text-foreground">
-                Admin Dashboard
-              </h1>
+              <p className="text-muted-foreground">
+                Platform management and moderation tools
+              </p>
             </div>
-            <p className="text-muted-foreground">
-              Platform management and moderation tools
-            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => handleTabChange("compiler")}
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <Zap className="h-4 w-4 text-primary" />
+                Campaign Compiler
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTabChange("claimable-pages")}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground shadow-sm transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Create for Owner
+              </button>
+            </div>
           </div>
 
           {/* Stats Overview */}
@@ -168,96 +252,60 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-            <div className="overflow-x-auto pb-2">
-            <TabsList className="grid h-auto min-w-[1760px] w-full max-w-none grid-cols-[repeat(21,minmax(0,1fr))] rounded-2xl bg-muted/60 p-1">
-              <TabsTrigger value="command" className="flex items-center gap-2 text-primary font-bold">
-                <Shield className="w-4 h-4" />
-                Command
-              </TabsTrigger>
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="growth" className="flex items-center gap-2 text-primary font-bold">
-                <TrendingUp className="w-4 h-4" />
-                Growth
-              </TabsTrigger>
-              <TabsTrigger value="proof-builder" className="flex items-center gap-2 text-primary font-bold">
-                <Target className="w-4 h-4" />
-                Contribution Rules
-              </TabsTrigger>
-              <TabsTrigger value="pioneer" className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Pioneer
-              </TabsTrigger>
-              <TabsTrigger value="operations" className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                Operations
-              </TabsTrigger>
-              <TabsTrigger value="promopush" className="flex items-center gap-2">
-                <Megaphone className="w-4 h-4" />
-                PromoPush
-              </TabsTrigger>
-              <TabsTrigger value="catalog" className="flex items-center gap-2">
-                <Store className="w-4 h-4" />
-                Catalog
-              </TabsTrigger>
-              <TabsTrigger value="commerce" className="flex items-center gap-2">
-                <ShoppingBag className="w-4 h-4" />
-                Commerce
-              </TabsTrigger>
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Users
-              </TabsTrigger>
-              <TabsTrigger value="moments" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Moments
-              </TabsTrigger>
-              <TabsTrigger value="applications" className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Host Apps
-              </TabsTrigger>
-              <TabsTrigger value="payouts" className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Payouts
-              </TabsTrigger>
-              <TabsTrigger value="economy" className="flex items-center gap-2">
-                <Coins className="w-4 h-4" />
-                Economy
-              </TabsTrigger>
-              <TabsTrigger value="access" className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4" />
-                Access
-              </TabsTrigger>
-              <TabsTrigger value="audit" className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Audit
-              </TabsTrigger>
-              <TabsTrigger value="moderation" className="flex items-center gap-2">
-                <Scale className="w-4 h-4" />
-                Moderation
-              </TabsTrigger>
-              <TabsTrigger value="support" className="flex items-center gap-2">
-                <LifeBuoy className="w-4 h-4" />
-                Support
-              </TabsTrigger>
-              <TabsTrigger value="config" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Config
-              </TabsTrigger>
-              <TabsTrigger value="compiler" className="flex items-center gap-2 text-primary font-bold">
-                <Zap className="w-4 h-4 fill-primary" />
-                Compiler
-              </TabsTrigger>
-              <TabsTrigger value="create-moment" className="flex items-center gap-2 text-primary font-bold">
-                <Sparkles className="w-4 h-4" />
-                Create Moment
-              </TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <div className="relative mb-6 lg:hidden">
+              <label htmlFor="admin-section" className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                Admin section
+              </label>
+              <select
+                id="admin-section"
+                value={activeTab}
+                onChange={(event) => handleTabChange(event.target.value)}
+                className="h-12 w-full appearance-none rounded-xl border border-border bg-card px-4 pr-10 text-sm font-semibold text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {ADMIN_NAV_GROUPS.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.items.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                  </optgroup>
+                ))}
+                <optgroup label="Create">
+                  <option value="compiler">Campaign Compiler</option>
+                  <option value="create-moment">Create Moment</option>
+                </optgroup>
+              </select>
+              <ChevronDown className="pointer-events-none absolute bottom-4 right-4 h-4 w-4 text-muted-foreground" />
             </div>
+
+            <div className="grid items-start gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+              <aside aria-label="Admin navigation" className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-sm lg:block">
+                {ADMIN_NAV_GROUPS.map((group, groupIndex) => (
+                  <div key={group.label} className={groupIndex === 0 ? "" : "mt-5"}>
+                    <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                      {group.label}
+                    </p>
+                    <div className="space-y-1">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.value;
+                        return (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => handleTabChange(item.value)}
+                            aria-current={isActive ? "page" : undefined}
+                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                          >
+                            <Icon className="h-4 w-4 shrink-0" />
+                            <span className="font-medium">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </aside>
+
+              <main className="min-w-0">
 
             <TabsContent value="command">
               <AdminCommandCenter />
@@ -269,6 +317,9 @@ const AdminDashboard = () => {
 
             <TabsContent value="growth">
               <AdminGrowthTab />
+            </TabsContent>
+            <TabsContent value="leads">
+              <AdminLeadsCRM />
             </TabsContent>
 
             <TabsContent value="proof-builder">
@@ -316,6 +367,7 @@ const AdminDashboard = () => {
 
             <TabsContent value="access">
               <AdminAccessRulesTab />
+              <AdminPresentsPanel />
             </TabsContent>
 
             <TabsContent value="audit">
@@ -335,12 +387,17 @@ const AdminDashboard = () => {
             </TabsContent>
 
             <TabsContent value="compiler">
-              <FlashCampaignCompiler adminMode={true} />
+              <PromoPilotCompiler adminMode={true} />
             </TabsContent>
 
             <TabsContent value="create-moment">
               <AdminCreateMomentTab />
             </TabsContent>
+            <TabsContent value="claimable-pages">
+              <AdminClaimablePagesTab />
+            </TabsContent>
+              </main>
+            </div>
           </Tabs>
         </div>
       </div>

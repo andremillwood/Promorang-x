@@ -60,12 +60,15 @@ function buildThreads(
   return roots.sort((a, b) => -ascending(a, b));
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function useMomentConversation(momentId: string | null, userId?: string) {
   const queryClient = useQueryClient();
+  const isValidUuid = Boolean(momentId && UUID_PATTERN.test(momentId));
   const queryKey = ["moment-conversation", momentId, userId || "guest"];
 
   useEffect(() => {
-    if (!momentId) return;
+    if (!isValidUuid || !momentId) return;
 
     const channel = operationalSupabase
       .channel(`moment-conversation-${momentId}`)
@@ -79,21 +82,25 @@ export function useMomentConversation(momentId: string | null, userId?: string) 
     return () => {
       operationalSupabase.removeChannel(channel);
     };
-  }, [momentId, queryClient, userId]);
+  }, [isValidUuid, momentId, queryClient, userId]);
 
   const query = useQuery({
     queryKey,
-    enabled: Boolean(momentId),
+    enabled: isValidUuid,
     queryFn: async () => {
-      const { data: commentData, error: commentError } = await operationalSupabase
-        .from("moment_comments")
-        .select("id,moment_id,user_id,parent_id,content,created_at,updated_at")
-        .eq("moment_id", momentId)
-        .order("created_at", { ascending: true });
-      if (commentError) throw commentError;
+      try {
+        const { data: commentData, error: commentError } = await operationalSupabase
+          .from("moment_comments")
+          .select("id,moment_id,user_id,parent_id,content,created_at,updated_at")
+          .eq("moment_id", momentId)
+          .order("created_at", { ascending: true });
+        if (commentError) {
+          console.warn("Moment comments unavailable:", commentError.message);
+          return [];
+        }
 
-      const rows = (commentData || []) as CommentRow[];
-      if (rows.length === 0) return [];
+        const rows = (commentData || []) as CommentRow[];
+        if (rows.length === 0) return [];
 
       const userIds = [...new Set(rows.map((row) => row.user_id))];
       const commentIds = rows.map((row) => row.id);
@@ -121,7 +128,11 @@ export function useMomentConversation(momentId: string | null, userId?: string) 
         if (userId && reaction.user_id === userId) myReactions.set(reaction.entity_id, reaction.reaction_type);
       });
 
-      return buildThreads(rows, profiles, reactionCounts, myReactions);
+        return buildThreads(rows, profiles, reactionCounts, myReactions);
+      } catch (err) {
+        console.warn("Moment conversation error:", err);
+        return [];
+      }
     },
   });
 

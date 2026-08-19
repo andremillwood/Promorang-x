@@ -9,6 +9,7 @@ const supabase = global.supabase || serviceSupabase || null;
 const promoShareService = require('./promoShareService');
 const { sendReferralSignupEmail, sendReferralActivationEmail, sendReferralCommissionEmail } = require('./resendService');
 const growthOperatingService = require('./growthOperatingService');
+const demandEventService = require('./demandEventService');
 
 // Commission rates by earning type (Level 1)
 const COMMISSION_RATES = {
@@ -282,6 +283,21 @@ async function activateReferral(referredUserId) {
         });
       } catch (growthError) {
         console.warn('[Referral Service] growth activation mirror skipped:', growthError.message);
+      }
+      try {
+        const signup = data.signup_metadata || {};
+        await demandEventService.recordEvent({
+          campaignId: signup.campaign_id || null,
+          actorUserId: referredUserId,
+          eventType: 'referral_converted',
+          sourceSystem: 'user_referrals',
+          sourceReference: data.id,
+          channel: 'referral',
+          verified: true,
+          properties: { referrer_id: data.referrer_id, referral_code: data.referral_code },
+        });
+      } catch (demandError) {
+        console.warn('[Referral Service] demand referral mirror skipped:', demandError.message);
       }
     }
 
@@ -582,11 +598,15 @@ async function getReferralStats(userId) {
     // Get recent commissions
     const { data: recentCommissions } = await supabase
       .from('referral_commissions')
-      .select('earning_type, commission_amount, commission_currency, paid_at, created_at')
+      .select('id, referred_user_id, earning_type, earning_amount, earning_currency, commission_rate, commission_amount, commission_currency, status, paid_at, created_at, users!referral_commissions_referred_user_id_fkey(username, display_name, profile_image)')
       .eq('referrer_id', userId)
-      .eq('status', 'paid')
       .order('paid_at', { ascending: false })
-      .limit(10);
+      .limit(50);
+
+    const { count: totalClicks } = await supabase
+      .from('referral_link_clicks')
+      .select('id', { count: 'exact', head: true })
+      .eq('referrer_id', userId);
 
     // Calculate conversion rate
     const conversionRate = user.total_referrals > 0
@@ -596,6 +616,7 @@ async function getReferralStats(userId) {
     return {
       summary: {
         total_referrals: user.total_referrals,
+        total_clicks: totalClicks || 0,
         active_referrals: user.active_referrals,
         pending_referrals: user.total_referrals - user.active_referrals,
         conversion_rate: conversionRate.toFixed(1),

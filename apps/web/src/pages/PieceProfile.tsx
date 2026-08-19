@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Activity, ArrowLeft, Gem, Loader2, PlusCircle, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
+import { Activity, ArrowLeft, BadgeCheck, Gem, Info, Loader2, PlusCircle, ShieldCheck, Sparkles, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { useToast } from '@/components/ui/use-toast';
 import { PieceOrderBook } from '@/components/trading/PieceOrderBook';
+import { TiltCard3D } from '@/components/ui/TiltCard3D';
 
 type PieceType = 'content' | 'moment' | 'host' | 'venue';
 
@@ -156,17 +158,22 @@ export function PieceProfile() {
                 {profile.asset.description || profile.journey?.summary}
               </p>
             </div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Piece Snapshot</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span>{currentPrice.toFixed(2)} Gems</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">24h Volume</span><span>{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Holders</span><span>{Number(profile.stats?.holder_count || 0)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Market Cap</span><span>{Number(profile.stats?.market_cap || 0).toFixed(2)}</span></div>
-              </CardContent>
-            </Card>
+            <TiltCard3D maxTilt={8} scaleOnHover={1.02} className="w-full">
+              <Card className="overflow-hidden border-white/20 bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950/90 shadow-2xl backdrop-blur-xl">
+                <CardHeader className="border-b border-white/10 pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-white">Piece Snapshot</CardTitle>
+                    <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-4 text-white">
+                  <div className="flex justify-between items-baseline"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Price</span><span className="text-xl font-black text-primary">{currentPrice.toFixed(2)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span><span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Holders</span><span className="font-semibold text-white/90">{Number(profile.stats?.holder_count || 0)}</span></div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-2"><span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span><span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 0).toFixed(2)} Gems</span></div>
+                </CardContent>
+              </Card>
+            </TiltCard3D>
           </div>
         </div>
       </div>
@@ -174,6 +181,34 @@ export function PieceProfile() {
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
+            <GuidanceDisclosure
+              id={`piece-profile:${profile.piece_type}`}
+              title="Understand this Piece before acting"
+              summary="Pieces stay attached to their source asset, benefit disclosure, and current liquidity conditions."
+              className="mt-0"
+            >
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <Gem className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Connected asset</p>
+                  <p className="mt-2 text-sm font-semibold capitalize">{profile.piece_type}: {title}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A Piece stays attached to this source; it is not a general Promorang share.</p>
+                </div>
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <BadgeCheck className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Disclosed source</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.journey?.summary || "No benefit source has been disclosed."}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">Holding alone does not promise a financial return.</p>
+                </div>
+                <div className="rounded-xl border bg-muted/20 p-4">
+                  <Users className="h-5 w-5 text-primary" />
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Liquidity now</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
+                </div>
+              </div>
+            </GuidanceDisclosure>
+
             <Alert>
               <ShieldCheck className="h-4 w-4" />
               <AlertTitle>Where this fits</AlertTitle>

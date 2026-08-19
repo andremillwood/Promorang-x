@@ -7,12 +7,11 @@ import type { Tables } from "@/integrations/supabase/types";
 import { getTaxonomyLabel, momentArchetypes, venueCategories, conversionTypes } from "@/lib/moment-taxonomy";
 import { buildMomentPath } from "@/lib/discovery";
 import { MomentValuePath } from "@/components/moments/MomentValuePath";
-import { PromoShareEligibilityPanel } from "@/components/promoshare/PromoShareEligibilityPanel";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
-import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
-import { ValuePreview } from "@/components/value/ValueJourney";
+import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 
 type Moment = Tables<"moments"> & {
+  slug?: string | null;
   participant_count?: number;
   is_saved?: boolean;
   isExample?: boolean;
@@ -161,16 +160,17 @@ export function MomentCard({
   const conversionLabel = getTaxonomyLabel(conversionTypes, moment.conversion_type);
   const originLabel = getOriginLabel(moment);
   const recurrenceLabel = getRecurrenceLabel(moment);
+  const occurrence = resolveMomentOccurrence(moment);
   const isExampleMoment = Boolean(moment.isExample || moment.content_origin === "demo" || moment.content_origin === "platform_seed");
   const actionLabel = conversionLabel || formActionLabel(moment.conversion_type) || "Check-in";
   const unlockLabel = moment.reward ? "Reward available" : recurrenceLabel ? "Build standing" : "Earn a Mark";
 
   return (
     <Link
-      to={buildMomentPath({ id: moment.id, slug: (moment as any).slug })}
+      to={buildMomentPath({ id: moment.id, slug: moment.slug })}
       className={cn(
         "group relative block overflow-hidden rounded-2xl border border-border/50 bg-card touch-manipulation",
-        "transition-all duration-300 ease-out",
+        "transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 ease-out",
         "hover:-translate-y-1 hover:border-primary/30 hover:shadow-elevated active:scale-[0.99]",
         className
       )}
@@ -216,7 +216,7 @@ export function MomentCard({
             variant="secondary"
             size="sm"
             className={cn(
-              "rounded-full bg-background/90 p-0 shadow-soft backdrop-blur-sm transition-all",
+              "rounded-full bg-background/90 p-0 shadow-soft backdrop-blur-sm transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
               "hover:bg-background hover:scale-110",
               isSaved && "bg-primary text-primary-foreground hover:bg-primary"
             )}
@@ -228,6 +228,9 @@ export function MomentCard({
         </div>
 
         <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <span className="w-fit rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-md backdrop-blur-sm">
+            Moment
+          </span>
           {originLabel && (
             <span className={cn("px-2.5 py-1 backdrop-blur-sm text-xs font-semibold rounded-full shadow-md flex items-center gap-1", originLabel.tone)}>
               <originLabel.Icon className="h-3 w-3" />
@@ -328,10 +331,10 @@ export function MomentCard({
         <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-primary" />
-            <span>{formatDate(moment.starts_at)}</span>
+            <span>{formatDate(occurrence.startsAt)}</span>
             <span className="text-muted-foreground/50">•</span>
             <Clock className="h-3.5 w-3.5 text-primary" />
-            <span>{formatTime(moment.starts_at)}</span>
+            <span>{formatTime(occurrence.startsAt)}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -348,43 +351,22 @@ export function MomentCard({
           ]}
         />
 
-        <ValuePreview
-          className="mt-3"
-          humanValue={moment.reward || "Build your visible reputation by showing up"}
-          proof={`${moment.proof_type || actionLabel} verifies participation`}
-          reward={moment.reward ? "Reward after review" : "Mark, Points, and future access"}
-        />
-
-        <OpportunityTerms
-          compact
-          className="mt-3"
-          cost="Free to join"
-          reward={moment.reward || unlockLabel}
-          funding={moment.reward ? "Host / sponsor" : "Progress mode"}
-          proof={moment.proof_type || actionLabel}
-          settlement={moment.reward ? "After proof review" : "Recorded immediately"}
-        />
-
-        <PromoShareEligibilityPanel variant="compact" className="mt-3" />
-
-        {/* Footer - Social Proof + Points */}
+        {/* Footer - only show participation that actually exists. */}
         <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
           <div className="flex items-center gap-2">
-            {/* FOMO Facepile */}
-            <div className="flex -space-x-2">
-              <div className="w-6 h-6 rounded-full border-2 border-card bg-emerald-500 overflow-hidden z-[3]"><img src={`https://i.pravatar.cc/100?u=${moment.id}1`} alt="Attendee" className="w-full h-full object-cover"/></div>
-              <div className="w-6 h-6 rounded-full border-2 border-card bg-blue-500 overflow-hidden z-[2]"><img src={`https://i.pravatar.cc/100?u=${moment.id}2`} alt="Attendee" className="w-full h-full object-cover"/></div>
-              <div className="w-6 h-6 rounded-full border-2 border-card bg-purple-500 overflow-hidden z-[1]"><img src={`https://i.pravatar.cc/100?u=${moment.id}3`} alt="Attendee" className="w-full h-full object-cover"/></div>
-            </div>
-            <div className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-              {Math.max((moment.participant_count || 0), 3)} going
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Users className="h-3.5 w-3.5" />
+            </span>
+            <div className="text-xs font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
+              {(moment.participant_count || 0) > 0
+                ? `${moment.participant_count} ${moment.participant_count === 1 ? "person" : "people"} joining`
+                : "Be the first to join"}
             </div>
           </div>
 
-          {/* Points Preview */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-              Mark path
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+              View details
             </span>
           </div>
         </div>

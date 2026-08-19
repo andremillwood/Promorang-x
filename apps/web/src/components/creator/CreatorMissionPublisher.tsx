@@ -164,35 +164,36 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Publishing</p>
-        <h3 className="mt-2 text-3xl font-black tracking-tight text-foreground">Give people a story worth following somewhere.</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <section className="space-y-8">
+      <div className="max-w-3xl">
+        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Shape the story</p>
+        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">Give people something worth following somewhere.</h3>
+        <p className="mt-4 text-sm leading-7 text-muted-foreground">
           Start with the story itself. It can live on its own, launch a release moment, support an existing gathering, or become a mission that moves people into the world.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-        <div className="rounded-lg border border-border bg-card p-5 sm:p-7">
-          <div className="space-y-4">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(24rem,1.1fr)]">
+        <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+          <div className="space-y-6 p-6 sm:p-8">
             <div className="space-y-2">
-              <Label>Title</Label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sydney Secret: The Hidden Roast Route" />
+              <Label>What is the story called?</Label>
+              <Input className="h-12 rounded-xl" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Sydney Secret: The Hidden Roast Route" />
             </div>
 
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>Why should someone care?</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Tell participants what the mission is, what they should watch for, and what unlocks in the real world."
+                className="rounded-xl"
+                placeholder="Share the point of view, invitation, or feeling at the heart of this story."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Platform</Label>
+              <Label>Where does it live?</Label>
               <div className="flex flex-wrap gap-2">
                 {platformOptions.map((option) => (
                   <button
@@ -212,13 +213,13 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
 
             <div className="space-y-2">
-              <Label>Platform URL</Label>
-              <Input value={platformUrl} onChange={(e) => setPlatformUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
+              <Label>Where can people experience it?</Label>
+              <Input className="h-12 rounded-xl" value={platformUrl} onChange={(e) => setPlatformUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <Label>Preview Image</Label>
+                <Label>The image people meet first</Label>
                 <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                   <Upload className="h-3.5 w-3.5" />
                   Upload Image
@@ -254,7 +255,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
 
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <Label>Mission Banner Image</Label>
+                <Label>A wider image for the invitation</Label>
                 <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                   <Upload className="h-3.5 w-3.5" />
                   Upload Banner
@@ -268,7 +269,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
 
             <div className="space-y-2">
-              <Label>Supporting Images</Label>
+              <Label>More of the story</Label>
               <MediaGalleryUpload
                 value={galleryImages}
                 onChange={setGalleryImages}
@@ -278,7 +279,7 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
             </div>
 
             <Button
-              className="h-12 w-full bg-primary font-black"
+              className="h-12 w-full rounded-full bg-primary font-black"
               onClick={() => createContent.mutate()}
               disabled={!publisherReady || createContent.isPending || uploadingImage}
             >
@@ -288,20 +289,20 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <div className="relative aspect-[4/3] overflow-hidden bg-black">
+        <div className="h-fit overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] text-white shadow-[0_30px_90px_rgba(0,0,0,.28)] xl:sticky xl:top-28">
+          <div className="relative aspect-[4/3] overflow-hidden bg-black sm:aspect-[5/4]">
             <img src={mediaUrl || bannerImageUrl || cultureImages.openMic} alt="" className="h-full w-full object-cover opacity-75" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-5 text-white">
               <Badge className="mb-3 bg-orange-500 text-black">{platform}</Badge>
-              <h4 className="text-2xl font-black leading-tight">{title || "Your story appears here"}</h4>
+              <h4 className="font-serif text-3xl font-semibold leading-tight">{title || "Your story appears here"}</h4>
               <p className="mt-2 line-clamp-2 text-sm text-white/60">{description || "Add the promise, point of view, or invitation that gives people a reason to care."}</p>
             </div>
           </div>
           <div className="p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Participant preview</p><p className="mt-1 text-sm text-muted-foreground">{publisherReady ? "Ready to publish and shape into a mission." : "Add a title and destination URL to continue."}</p></div>
-              <Eye className="h-5 w-5 text-primary" />
+              <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">How people will meet it</p><p className="mt-1 text-sm text-white/50">{publisherReady ? "Ready to publish, then connect to a Moment or mission." : "Add a title and destination to continue."}</p></div>
+              <Eye className="h-5 w-5 text-orange-400" />
             </div>
             <div className="mt-6 grid grid-cols-5 gap-1">
               {[
@@ -317,13 +318,13 @@ export function CreatorMissionPublisher({ onPublished }: CreatorMissionPublisher
                 </div>
               ))}
             </div>
-            <div className="mt-6 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground">
-              <Link2 className="mb-2 h-4 w-4 text-primary" />
-              Publishing saves the story, then opens Mission Builder with this content already selected.
+            <div className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-white/50">
+              <Link2 className="mb-2 h-4 w-4 text-orange-400" />
+              After publishing, the story stays selected while you choose where it should lead.
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

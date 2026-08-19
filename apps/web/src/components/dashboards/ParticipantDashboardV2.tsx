@@ -332,7 +332,7 @@ const ParticipantDashboardV2 = () => {
                       return (
                         <div
                           key={moment.id}
-                          className="group flex flex-col gap-4 rounded-2xl border border-border/50 p-4 transition-all hover:border-primary/30 hover:shadow-soft sm:flex-row sm:items-center"
+                          className="group flex flex-col gap-4 rounded-2xl border border-border/50 p-4 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:border-primary/30 hover:shadow-soft sm:flex-row sm:items-center"
                         >
                           <div className="w-14 shrink-0 text-center">
                             <div className="text-2xl font-bold text-primary">{format(new Date(moment.starts_at), "d")}</div>

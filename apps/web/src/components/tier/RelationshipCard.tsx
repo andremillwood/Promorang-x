@@ -50,7 +50,7 @@ export function VenueRelationshipCard({
   
   return (
     <Card className={cn(
-      "transition-all",
+      "transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
       isRegular && "border-green-500/20 bg-green-50/30"
     )}>
       <CardContent className="p-4">

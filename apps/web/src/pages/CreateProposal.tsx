@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRight, Building2, CalendarDays, Camera, Check, HeartHan
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,7 +100,8 @@ export default function CreateProposal() {
         planner_id: user.id,
         title: form.title || "Untitled activation plan",
         description: form.description || form.outcomeDetail,
-        budget: form.fundingRequest ? Number(form.fundingRequest) : null,
+        budget: null,
+        funding_goal_gems: form.fundingRequest ? Number(form.fundingRequest) : null,
         status,
         metadata: {
           desired_outcome: form.outcome,
@@ -238,7 +240,25 @@ export default function CreateProposal() {
 }
 
 function StepHeading({ eyebrow, title, detail }: { eyebrow: string; title: string; detail: string }) { return <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{eyebrow}</p><h2 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">{detail}</p></div>; }
-function GuidancePanel({ guide }: { guide: (typeof ACTIVATION_CREATION_GUIDANCE)[keyof typeof ACTIVATION_CREATION_GUIDANCE] }) { return <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/10 p-4"><div className="flex gap-3"><Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><div><p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Success lens</p><p className="mt-2 text-sm font-bold leading-5 text-white">{guide.successQuestion}</p><p className="mt-2 text-xs leading-5 text-white/55">{guide.sceneLens}</p><p className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-5 text-white/55"><span className="font-bold text-white/80">Avoid:</span> {guide.avoid}</p></div></div></div>; }
+function GuidancePanel({ guide }: { guide: (typeof ACTIVATION_CREATION_GUIDANCE)[keyof typeof ACTIVATION_CREATION_GUIDANCE] }) {
+  return (
+    <GuidanceDisclosure
+      id={`create-proposal:${guide.stepId}`}
+      eyebrow="Success lens"
+      title={guide.successQuestion}
+      summary={guide.sceneLens}
+    >
+      <div className="flex gap-3">
+        <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+        <div>
+          <p className="text-sm font-bold leading-5 text-white">{guide.successQuestion}</p>
+          <p className="mt-2 text-xs leading-5 text-white/55">{guide.sceneLens}</p>
+          <p className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-5 text-white/55"><span className="font-bold text-white/80">Avoid:</span> {guide.avoid}</p>
+        </div>
+      </div>
+    </GuidanceDisclosure>
+  );
+}
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="mt-5 block space-y-2"><span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">{label}</span>{children}</label>; }
 function ChoiceGroup({ label, children }: { label: string; children: React.ReactNode }) { return <div className="mt-6"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">{label}</p><div className="grid gap-3 sm:grid-cols-2">{children}</div></div>; }
 function Choice({ active, onClick, compact, children }: { active: boolean; onClick: () => void; compact?: boolean; children: React.ReactNode }) { return <button type="button" aria-pressed={active} onClick={onClick} className={`flex text-left ${compact ? "items-center" : "items-start"} gap-3 rounded-2xl border p-4 transition ${active ? "border-primary bg-primary/12 text-primary" : "border-white/10 bg-black/30 text-white hover:border-white/25"}`}>{children}</button>; }
@@ -257,7 +277,7 @@ function ActivationStory({ form }: { form: BuilderForm }) {
       <div className="grid gap-px bg-white/10 sm:grid-cols-3">
         <StoryPanel icon={Camera} label="The story travels" value={form.contentNeeds.map((item) => item.replaceAll("_", " ")).join(" · ")} />
         <StoryPanel icon={UserRoundPlus} label="The room comes alive" value={form.collaborators.map((item) => item.replaceAll("_", " ")).join(" · ")} />
-        <StoryPanel icon={WalletCards} label="Value is secured" value={form.fundingRequest ? `${Number(form.fundingRequest).toLocaleString()} Gems · US$${Number(form.fundingRequest).toLocaleString()} value` : "Gem funding can be added as partners align."} />
+        <StoryPanel icon={WalletCards} label="Gem reserve to secure" value={form.fundingRequest ? `${Number(form.fundingRequest).toLocaleString()} Gems · US$${Number(form.fundingRequest).toLocaleString()} platform value` : "Agree the Gem reserve before funding can open."} />
       </div>
     </div>
     <div className="mt-5 grid gap-3 sm:grid-cols-2"><ReviewCard label="People leave with" value={form.participantReturns.join(" · ")} /><ReviewCard label="Partners help make possible" value={form.funderContribution || "Funding, place, product, access, media, or reach."} /><ReviewCard label="Human return" value={form.socialReturn} /><ReviewCard label="Commercial return" value={form.commercialReturn} /></div>

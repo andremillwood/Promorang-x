@@ -184,42 +184,270 @@ async function processPurchase(userId, productId, method, quantity = 1) {
     }
 }
 
-async function createStripeCommerceIntent({ userId, productId, quantity = 1 }) {
+async function createStripeCommerceIntent({ userId, productId, quantity = 1, items = null, currency = 'USD' }) {
     if (!supabase) throw new Error('Database not available');
     const stripeService = require('./stripeService');
     if (!stripeService.isStripeConfigured()) throw new Error('Stripe is not configured');
 
-    const qty = Math.max(1, Number(quantity || 1));
-    const { data: product, error } = await supabase
-        .from('merchant_products')
-        .select('*')
-        .eq('id', productId)
-        .single();
+    const requestedItems = Array.isArray(items) && items.length
+        ? items
+        : [{ product_id: productId, quantity: Math.max(1, Number(quantity || 1)) }];
+    if (!requestedItems[0]?.product_id) throw new Error('At least one product is required');
 
-    if (error || !product) throw new Error('Product not found');
-    if (!product.is_active) throw new Error('Product is not active');
-
-    const inventoryCount = product.inventory_quantity ?? product.inventory_count;
-    if (inventoryCount !== null && inventoryCount !== undefined && inventoryCount < qty) {
-        throw new Error('Insufficient inventory');
-    }
-
-    const unitPrice = Number(product.price ?? product.price_usd ?? 0);
-    if (unitPrice <= 0) throw new Error('This listing does not have a cash price');
-
-    const amount = Number((unitPrice * qty).toFixed(2));
-    return stripeService.createPaymentIntent(userId, amount, product.currency || 'usd', {
-        commerce_flow: 'merchant_product_purchase',
-        product_id: productId,
-        merchant_id: product.merchant_id,
-        quantity: String(qty),
-        unit_price: String(unitPrice),
+    const { data: order, error: reserveError } = await supabase.rpc('reserve_commerce_order', {
+        p_buyer_id: userId,
+        p_items: requestedItems,
+        p_currency: String(currency || 'USD').toUpperCase(),
+        p_hold_minutes: 30,
     });
+    if (reserveError || !order) throw reserveError || new Error('Could not reserve inventory');
+
+    try {
+        const intent = await stripeService.createPaymentIntent(
+            userId,
+            Number(order.total_amount),
+            order.currency,
+            {
+                commerce_flow: 'merchant_order',
+                commerce_order_id: order.id,
+                merchant_id: order.merchant_id,
+                item_count: String(requestedItems.length),
+                revenue_funnel: 'marketplace',
+                entity_type: 'commerce_order',
+                entity_id: order.id,
+            },
+            { idempotencyKey: `commerce-order:${order.id}` },
+        );
+        await supabase.from('commerce_orders').update({
+            stripe_payment_intent_id: intent.paymentIntentId,
+            payment_status: 'processing',
+            updated_at: new Date().toISOString(),
+        }).eq('id', order.id);
+        return { ...intent, orderId: order.id, reservationExpiresAt: order.reservation_expires_at };
+    } catch (error) {
+        await supabase.rpc('release_commerce_order', {
+            p_order_id: order.id,
+            p_reason: 'payment_intent_creation_failed',
+        }).catch(() => undefined);
+        throw error;
+    }
+}
+
+async function createStripeCommerceCheckout({ userId, productId, quantity = 1, items = null, successUrl, cancelUrl }) {
+    if (!supabase) throw new Error('Database not available');
+    const stripeService = require('./stripeService');
+    if (!stripeService.isStripeConfigured()) throw new Error('Stripe is not configured');
+
+    const requestedItems = Array.isArray(items) && items.length
+        ? items.map((item) => ({ product_id: item.product_id, quantity: Math.max(1, Number(item.quantity || 1)) }))
+        : [{ product_id: productId, quantity: Math.max(1, Number(quantity || 1)) }];
+    if (!requestedItems[0]?.product_id) throw new Error('At least one product is required');
+
+    const { data: order, error: reserveError } = await supabase.rpc('reserve_commerce_order', {
+        p_buyer_id: userId,
+        p_items: requestedItems,
+        p_currency: 'USD',
+        p_hold_minutes: 30,
+    });
+    if (reserveError || !order) throw reserveError || new Error('Could not reserve inventory');
+
+    try {
+        const [{ data: payoutMethod }, { data: orderItems }, { data: products }, { data: profile }, { data: shippingRates }] = await Promise.all([
+            supabase.from('user_payout_methods')
+                .select('stripe_account_id,stripe_account_status,stripe_charges_enabled')
+                .eq('user_id', order.merchant_id)
+                .eq('method_type', 'stripe_connect')
+                .eq('stripe_account_status', 'active')
+                .eq('stripe_charges_enabled', true)
+                .order('is_default', { ascending: false })
+                .limit(1)
+                .maybeSingle(),
+            supabase.from('commerce_order_items').select('*').eq('order_id', order.id),
+            supabase.from('merchant_products')
+                .select('id,requires_shipping,tax_code')
+                .in('id', requestedItems.map((item) => item.product_id)),
+            supabase.from('merchant_commerce_profiles').select('*').eq('merchant_id', order.merchant_id).maybeSingle(),
+            supabase.from('merchant_shipping_rates').select('*')
+                .eq('merchant_id', order.merchant_id).eq('active', true)
+                .order('sort_order', { ascending: true }),
+        ]);
+        if (!payoutMethod?.stripe_account_id) {
+            throw new Error('This merchant must finish Stripe seller onboarding before accepting card payments');
+        }
+
+        const productById = new Map((products || []).map((product) => [product.id, product]));
+        const checkoutItems = (orderItems || []).map((item) => ({
+            ...item,
+            requires_shipping: Boolean(productById.get(item.product_id)?.requires_shipping),
+            tax_code: productById.get(item.product_id)?.tax_code || undefined,
+        }));
+        const requiresShipping = checkoutItems.some((item) => item.requires_shipping);
+        if (requiresShipping && !(shippingRates || []).some((rate) => rate.fulfillment_type === 'shipping')) {
+            throw new Error('This merchant has not configured a shipping rate for this product');
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL || 'https://www.promorang.co';
+        const safeSuccessUrl = successUrl?.startsWith(frontendUrl) ? successUrl : `${frontendUrl}/shop/order/success?session_id={CHECKOUT_SESSION_ID}`;
+        const safeCancelUrl = cancelUrl?.startsWith(frontendUrl) ? cancelUrl : `${frontendUrl}/shop/${productId || requestedItems[0].product_id}?checkout=cancelled`;
+        const session = await stripeService.createConnectedCheckoutSession({
+            connectedAccountId: payoutMethod.stripe_account_id,
+            order,
+            items: checkoutItems,
+            shippingRates: (shippingRates || []).filter((rate) => rate.currency.toUpperCase() === order.currency),
+            allowedCountries: profile?.allowed_countries?.length ? profile.allowed_countries : ['US'],
+            successUrl: safeSuccessUrl,
+            cancelUrl: safeCancelUrl,
+        });
+        await supabase.from('commerce_orders').update({
+            stripe_checkout_session_id: session.id,
+            stripe_connected_account_id: payoutMethod.stripe_account_id,
+            payment_status: 'processing',
+            updated_at: new Date().toISOString(),
+        }).eq('id', order.id);
+        return { checkoutUrl: session.url, sessionId: session.id, orderId: order.id };
+    } catch (error) {
+        await supabase.rpc('release_commerce_order', {
+            p_order_id: order.id,
+            p_reason: 'connected_checkout_creation_failed',
+        }).catch(() => undefined);
+        throw error;
+    }
+}
+
+async function createMerchantPaymentReservation({ userId, productId, quantity = 1, paymentMethodId }) {
+    if (!supabase) throw new Error('Database not available');
+    const { data: product, error: productError } = await supabase
+        .from('merchant_products').select('id,merchant_id,name,currency')
+        .eq('id', productId).eq('is_active', true).single();
+    if (productError || !product) throw new Error('Product is unavailable');
+    const { data: method, error: methodError } = await supabase
+        .from('merchant_direct_payment_methods').select('*')
+        .eq('id', paymentMethodId).eq('merchant_id', product.merchant_id).eq('active', true).single();
+    if (methodError || !method) throw new Error('That merchant payment option is unavailable');
+
+    const { data: order, error } = await supabase.rpc('reserve_commerce_order', {
+        p_buyer_id: userId,
+        p_items: [{ product_id: productId, quantity: Math.max(1, Number(quantity || 1)) }],
+        p_currency: String(product.currency || 'USD').toUpperCase(),
+        p_hold_minutes: 30,
+    });
+    if (error || !order) throw error || new Error('Could not reserve inventory');
+    const { data: updated, error: updateError } = await supabase.from('commerce_orders').update({
+        payment_collection: 'merchant',
+        merchant_payment_method_id: method.id,
+        payment_status: 'requires_payment',
+        metadata: {
+            ...(order.metadata || {}),
+            merchant_payment_method: method.method_type,
+            merchant_payment_display_name: method.display_name,
+            merchant_payment_instructions: method.instructions || null,
+            merchant_payment_link: method.payment_link || null,
+            platform_payment_disclaimer: 'Payment is collected directly by the merchant. Promorang does not receive or guarantee this payment.',
+        },
+        updated_at: new Date().toISOString(),
+    }).eq('id', order.id).select().single();
+    if (updateError) {
+        await supabase.rpc('release_commerce_order', { p_order_id: order.id, p_reason: 'merchant_payment_setup_failed' }).catch(() => undefined);
+        throw updateError;
+    }
+    return { order: updated, payment_method: method };
+}
+
+async function confirmMerchantPayment({ orderId, merchantId, reference }) {
+    if (!supabase) throw new Error('Database not available');
+    const { data: order, error } = await supabase.rpc('confirm_merchant_collected_payment', {
+        p_order_id: orderId, p_merchant_id: merchantId, p_reference: reference,
+    });
+    if (error || !order) throw error || new Error('Could not confirm merchant payment');
+    const { data: existing } = await supabase.from('commerce_receipts').select('id').eq('sale_id', order.id).maybeSingle();
+    if (existing) return { order, receipt_id: existing.id, idempotent: true };
+    const { data: item } = await supabase.from('commerce_order_items').select('product_id,product_name,quantity').eq('order_id', order.id).limit(1).maybeSingle();
+    const { data: receipt, error: receiptError } = await supabase.from('commerce_receipts').insert({
+        user_id: order.buyer_id,
+        merchant_id: order.merchant_id,
+        listing_id: item?.product_id || null,
+        sale_id: order.id,
+        receipt_type: 'purchase',
+        status: 'issued',
+        amount: order.total_amount,
+        currency: order.currency,
+        redemption_code: generateRedemptionCode(),
+        attribution: {
+            source: 'merchant_collected_payment',
+            payment_method: order.metadata?.merchant_payment_method,
+            merchant_payment_reference: order.merchant_payment_reference,
+            payment_confirmed_by_merchant: true,
+            fulfillment_status: 'unfulfilled',
+            rewards_awarded: false,
+            disclaimer: 'Payment is collected directly by the merchant. Promorang does not receive or guarantee this payment.',
+        },
+    }).select().single();
+    if (receiptError) throw receiptError;
+    return { order, receipt_id: receipt.id };
 }
 
 async function finalizeStripePurchase(paymentIntent) {
     if (!supabase) throw new Error('Database not available');
     const metadata = paymentIntent?.metadata || {};
+    if (metadata.commerce_flow === 'merchant_order' && metadata.commerce_order_id) {
+        const { data: order, error: captureError } = await supabase.rpc('capture_commerce_order', {
+            p_order_id: metadata.commerce_order_id,
+            p_payment_intent_id: paymentIntent.id,
+            p_charge_id: paymentIntent.latest_charge || null,
+        });
+        if (captureError) throw captureError;
+
+        const { data: existingReceipt } = await supabase
+            .from('commerce_receipts')
+            .select('id,redemption_code')
+            .eq('sale_id', order.id)
+            .maybeSingle();
+        if (existingReceipt) {
+            return { handled: true, order_id: order.id, receipt_id: existingReceipt.id, idempotent: true };
+        }
+
+        const { data: firstItem } = await supabase
+            .from('commerce_order_items')
+            .select('product_id')
+            .eq('order_id', order.id)
+            .limit(1)
+            .maybeSingle();
+        const redemptionCode = generateRedemptionCode();
+        const { data: receipt, error: receiptError } = await supabase
+            .from('commerce_receipts')
+            .insert({
+                user_id: order.buyer_id,
+                merchant_id: order.merchant_id,
+                listing_id: firstItem?.product_id || null,
+                sale_id: order.id,
+                receipt_type: 'purchase',
+                status: 'issued',
+                amount: order.total_amount,
+                currency: order.currency,
+                redemption_code: redemptionCode,
+                attribution: {
+                    source: 'stripe_commerce_order',
+                    commerce_order_id: order.id,
+                    stripe_payment_intent_id: paymentIntent.id,
+                    stripe_charge_id: paymentIntent.latest_charge || null,
+                    payment_status: 'paid',
+                    fulfillment_status: 'unfulfilled',
+                    platform_fee: order.platform_fee,
+                    merchant_payout: order.merchant_net,
+                    stripe_connected_account_id: paymentIntent.metadata?.stripe_connected_account_id || order.stripe_connected_account_id || null,
+                },
+            })
+            .select()
+            .single();
+        if (receiptError) throw receiptError;
+        return {
+            handled: true,
+            order_id: order.id,
+            receipt_id: receipt.id,
+            redemption_code: redemptionCode,
+        };
+    }
+
     if (metadata.commerce_flow !== 'merchant_product_purchase') {
         return { handled: false, reason: 'not_commerce_purchase' };
     }
@@ -299,21 +527,27 @@ async function finalizeStripePurchase(paymentIntent) {
             listing_id: productId,
             sale_id: transaction.id,
             receipt_type: 'purchase',
-            status: 'fulfilled',
+            status: 'issued',
             amount,
             currency: (paymentIntent.currency || product.currency || 'usd').toUpperCase(),
             redemption_code: redemptionCode,
+            moment_id: product.linked_moment_id || paymentIntent.metadata?.moment_id || null,
             attribution: {
                 source: 'stripe_commerce',
                 quantity,
                 stripe_payment_intent_id: paymentIntent.id,
                 platform_fee: platformFee,
                 merchant_payout: merchantPayout,
+                moment_id: product.linked_moment_id || paymentIntent.metadata?.moment_id || null,
+                content_id: paymentIntent.metadata?.content_id || paymentIntent.metadata?.source_content_id || null,
             },
         })
         .select()
         .single();
     if (receiptError) throw receiptError;
+
+    const commerceOutcomeService = require('./commerceOutcomeService');
+    await commerceOutcomeService.processReceipt(receipt).catch((outcomeError) => console.warn('[Marketplace] Commerce outcomes skipped:', outcomeError.message));
 
     const revenueFunnels = require('./revenueFunnelService');
     await revenueFunnels.record({
@@ -331,6 +565,45 @@ async function finalizeStripePurchase(paymentIntent) {
     });
 
     return { handled: true, transaction_id: transaction.id, receipt_id: receipt.id, redemption_code: redemptionCode };
+}
+
+async function finalizeConnectedCheckout(session, connectedAccountId) {
+    if (!supabase) throw new Error('Database not available');
+    const metadata = session?.metadata || {};
+    if (metadata.commerce_flow !== 'merchant_direct_order' || !metadata.commerce_order_id) {
+        return { handled: false, reason: 'not_connected_commerce' };
+    }
+    if (session.payment_status !== 'paid') return { handled: false, reason: 'not_paid' };
+
+    const shipping = Number(((session.total_details?.amount_shipping || 0) / 100).toFixed(2));
+    const tax = Number(((session.total_details?.amount_tax || 0) / 100).toFixed(2));
+    const shippingAddress = session.shipping_details?.address || session.customer_details?.address || null;
+    const { data: order, error } = await supabase.rpc('capture_direct_commerce_order', {
+        p_order_id: metadata.commerce_order_id,
+        p_payment_intent_id: session.payment_intent,
+        p_charge_id: null,
+        p_checkout_session_id: session.id,
+        p_connected_account_id: connectedAccountId || metadata.stripe_connected_account_id,
+        p_tax_amount: tax,
+        p_shipping_amount: shipping,
+        p_shipping_address: shippingAddress,
+    });
+    if (error) throw error;
+
+    const syntheticIntent = {
+        id: session.payment_intent,
+        latest_charge: null,
+        amount: session.amount_total,
+        amount_received: session.amount_total,
+        currency: session.currency,
+        status: 'succeeded',
+        metadata: {
+            commerce_flow: 'merchant_order',
+            commerce_order_id: order.id,
+            stripe_connected_account_id: connectedAccountId || metadata.stripe_connected_account_id,
+        },
+    };
+    return finalizeStripePurchase(syntheticIntent);
 }
 
 async function refundCommerceReceipt({ receiptId, actorId = null, reason = 'Admin refund', amount = null }) {
@@ -362,6 +635,7 @@ async function refundCommerceReceipt({ receiptId, actorId = null, reason = 'Admi
                 commerce_receipt_id: receiptId,
                 refunded_by: actorId || 'system',
                 refund_reason: String(reason || '').slice(0, 450),
+                stripe_connected_account_id: attribution.stripe_connected_account_id || undefined,
             },
         });
     }
@@ -413,6 +687,20 @@ async function refundCommerceReceipt({ receiptId, actorId = null, reason = 'Admi
             .catch(() => undefined);
     }
 
+    if (attribution.commerce_order_id) {
+        if (!attribution.stripe_connected_account_id) {
+            const settlementService = require('./merchantSettlementService');
+            await settlementService.reverseOrderSettlement(
+                attribution.commerce_order_id,
+                Math.min(refundAmount, Number(attribution.merchant_payout || refundAmount)),
+            );
+        }
+        await supabase.from('commerce_orders').update({
+            payment_status: refundAmount >= Number(receipt.amount || 0) ? 'refunded' : 'partially_refunded',
+            updated_at: new Date().toISOString(),
+        }).eq('id', attribution.commerce_order_id);
+    }
+
     return { receipt: updatedReceipt, stripe_refund: stripeRefund };
 }
 
@@ -435,10 +723,33 @@ async function getPurchaseHistory(userId) {
     return data;
 }
 
+async function releaseExpiredReservations() {
+    if (!supabase) return 0;
+    const { data, error } = await supabase.rpc('release_expired_commerce_reservations');
+    if (error) throw error;
+    return Number(data || 0);
+}
+
+async function cancelStripeOrder(orderId, reason = 'payment_cancelled') {
+    if (!supabase || !orderId) return null;
+    const { data, error } = await supabase.rpc('release_commerce_order', {
+        p_order_id: orderId,
+        p_reason: reason,
+    });
+    if (error) throw error;
+    return data;
+}
+
 module.exports = {
     processPurchase,
     createStripeCommerceIntent,
+    createStripeCommerceCheckout,
+    createMerchantPaymentReservation,
+    confirmMerchantPayment,
     finalizeStripePurchase,
+    finalizeConnectedCheckout,
     refundCommerceReceipt,
+    releaseExpiredReservations,
+    cancelStripeOrder,
     getPurchaseHistory
 };

@@ -270,7 +270,7 @@ export default function CreateDrop() {
   // Step 1: Drop Type Selection
   const renderDropTypeStep = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-pr-text-1">What type of drop do you want to create?</h2>
+      <h2 className="text-xl font-bold text-pr-text-1">What type of mission do you want to create?</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {DROP_TYPES.map((type) => {

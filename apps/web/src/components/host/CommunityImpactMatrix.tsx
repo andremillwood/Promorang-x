@@ -36,7 +36,7 @@ export function CommunityImpactMatrix() {
             </div>
             <div className="space-y-2">
                 <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                    <div className={cn("h-full transition-all duration-1000", metric.color.replace('text', 'bg'))} style={{ width: `${metric.score}%` }} />
+                    <div className={cn("h-full transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-1000", metric.color.replace('text', 'bg'))} style={{ width: `${metric.score}%` }} />
                 </div>
                 <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground">
                     <span>Baseline</span>

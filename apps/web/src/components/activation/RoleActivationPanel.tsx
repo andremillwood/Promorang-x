@@ -43,21 +43,21 @@ export function RoleActivationPanel({
   const progress = items.length ? Math.round((completed / items.length) * 100) : 0;
 
   return (
-    <section className="rounded-lg border border-primary/15 bg-gradient-to-br from-primary/10 via-background to-accent/10 p-5 shadow-soft sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-2xl">
+    <section className="min-w-0 rounded-lg border border-primary/15 bg-gradient-to-br from-primary/10 via-background to-accent/10 p-5 shadow-soft sm:p-6">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
+        <div className="min-w-0 max-w-2xl">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">{eyebrow}</p>
           <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{title}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="min-w-[180px] rounded-lg border border-border/50 bg-background/70 p-4">
+        <div className="w-full rounded-lg border border-border/50 bg-background/70 p-4">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">Progress</p>
           <p className="mt-2 text-3xl font-bold text-foreground">{progress}%</p>
           <p className="mt-1 text-xs text-muted-foreground">{completed} of {items.length} first wins complete</p>
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="mt-5 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))]">
         {items.map((item, index) => {
           const StatusIcon = statusIcon[item.status];
 
@@ -73,8 +73,8 @@ export function RoleActivationPanel({
                   <StatusIcon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                    <p className="break-words font-semibold text-foreground">{index + 1}. {item.title}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 break-words font-semibold leading-snug text-foreground">{index + 1}. {item.title}</p>
                     <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
                       {item.status === "done" ? "Done" : item.status === "current" ? "Now" : "Next"}
                     </span>

@@ -12,6 +12,7 @@ import { PublicContentCard, type PublicContentItem } from "@/components/content/
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
 import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star } from "lucide-react";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
+import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/ValueOutcomes";
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
 
@@ -127,6 +128,11 @@ export default function VenueProfile() {
     { label: "Check in", body: "Use GPS, codes, host confirmation, or proof to mark the visit.", icon: CheckCircle2 },
     { label: "Unlock", body: "Create reward eligibility, Vault memory, status, and future access.", icon: Gem },
   ];
+  const venueOutcomes: ValueOutcome[] = [
+    ...(commerceListings.length > 0 ? [{ kind: "reward" as const, label: `${commerceListings.length} offers or services` }] : []),
+    ...(moments.length > 0 ? [{ kind: "access" as const, label: `${moments.length} active Moments` }] : []),
+    ...(content.length > 0 ? [{ kind: "reputation" as const, label: "Proof-visible place" }] : []),
+  ];
 
   if (!isLoading && !venue) {
     return (
@@ -240,6 +246,11 @@ export default function VenueProfile() {
           </section>
 
           <div className="mt-10 space-y-12">
+            <ValueExchangeSummary
+              action="Visit, attend, buy, book or contribute"
+              proof="Check-in, receipt, redemption or approved contribution"
+              outcomes={venueOutcomes}
+            />
             <section className="grid gap-3 md:grid-cols-3">
               {placeRail.map((item) => (
                 <div key={item.label} className="rounded-2xl border border-border bg-card/80 p-4 shadow-soft">

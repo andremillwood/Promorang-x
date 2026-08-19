@@ -37,7 +37,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
     };
 
     return (
-        <Card className="flex flex-col h-full bg-card hover:shadow-soft-xl transition-all duration-300 border-border/50 group overflow-hidden">
+        <Card className="flex flex-col h-full bg-card hover:shadow-soft-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 border-border/50 group overflow-hidden">
             <CardHeader className="p-5 pb-2">
                 <div className="flex justify-between items-start gap-4">
                     <Badge variant="outline" className={`rounded-full px-3 py-1 text-xs font-semibold ${getOutcomeColor(mechanic.primary_outcome)} border-0`}>
@@ -78,10 +78,10 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
             </CardContent>
 
             <CardFooter className="p-5 pt-0 mt-auto">
-                <Button className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300" variant="secondary" asChild>
+                <Button className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300" variant="secondary" asChild>
                     <Link to={`/strategies/${mechanic.id}`}>
                         <span className="font-bold">See Playbook</span>
-                        <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]" />
                     </Link>
                 </Button>
             </CardFooter>

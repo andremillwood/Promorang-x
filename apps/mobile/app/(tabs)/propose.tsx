@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     stepDesc: {
-        fontSize: 11,
+        fontSize: 13,
         color: DesignColors.gray[500],
         textAlign: 'center',
         lineHeight: 16,

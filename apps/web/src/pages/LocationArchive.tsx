@@ -10,7 +10,11 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, buildVenuePath, deslugifySegment, getSiteUrl } from "@/lib/discovery";
-import { ArrowRight, Building2, MapPin } from "lucide-react";
+import { ArrowRight, Building2, Compass, MapPin, Users } from "lucide-react";
+import { PromorangMap } from "@/components/PromorangMap";
+import { useScenes } from "@/hooks/useScenes";
+import { useDiscoveries } from "@/hooks/useDiscoveries";
+import { generateLocationCollectionSchema } from "@/lib/seo-schemas";
 
 interface PublicMomentDirectoryRow {
   id: string;
@@ -33,6 +37,8 @@ interface PublicMomentDirectoryRow {
   host_id: string | null;
   is_active: boolean;
   participant_count: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface PublicVenueDirectoryRow {
@@ -114,9 +120,19 @@ export default function LocationArchive() {
     enabled: Boolean(countrySlug),
   });
 
+  const scenesQuery = useScenes({ city: cityLabel || undefined, country: countryLabel || undefined, limit: 12 });
+  const discoveriesQuery = useDiscoveries({ city: cityLabel || undefined, country: countryLabel || undefined, limit: 12 });
+
   const moments = momentsQuery.data || [];
   const content = contentQuery.data || [];
   const venues = venuesQuery.data || [];
+  const scenes = scenesQuery.data || [];
+  const discoveries = discoveriesQuery.data || [];
+  const mappedMoments = moments.filter((moment) => Number.isFinite(Number(moment.latitude)) && Number.isFinite(Number(moment.longitude)));
+  const mapCenter = mappedMoments.length ? {
+    lat: mappedMoments.reduce((sum, moment) => sum + Number(moment.latitude), 0) / mappedMoments.length,
+    lng: mappedMoments.reduce((sum, moment) => sum + Number(moment.longitude), 0) / mappedMoments.length,
+  } : null;
 
   const siblingCities = useMemo(() => {
     const unique = new Map<string, { city: string; citySlug: string }>();
@@ -128,20 +144,22 @@ export default function LocationArchive() {
     return Array.from(unique.values()).slice(0, 8);
   }, [moments]);
 
-  const isLoading = momentsQuery.isLoading || contentQuery.isLoading || venuesQuery.isLoading;
+  const isLoading = momentsQuery.isLoading || contentQuery.isLoading || venuesQuery.isLoading || scenesQuery.isLoading || discoveriesQuery.isLoading;
+  const canonicalUrl = getSiteUrl(pagePath);
+  const schemaItems = [
+    ...scenes.map((item) => ({ title: item.title, url: getSiteUrl(`/scenes/${item.slug}`) })),
+    ...moments.map((item) => ({ title: item.title, url: getSiteUrl(`/moments/${item.slug || item.id}`) })),
+    ...discoveries.map((item) => ({ title: item.title, url: getSiteUrl(`/discoveries/${item.slug}`) })),
+    ...venues.map((item) => ({ title: item.name, url: getSiteUrl(buildVenuePath(item)) })),
+  ];
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12">
       <SEO
         title={`Moments in ${pageTitle}`}
         description={`Browse moments, venue activity, and linked creator content in ${pageTitle}.`}
-        url={getSiteUrl(pagePath)}
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": `Moments in ${pageTitle}`,
-          "description": `Public discovery archive for ${pageTitle}.`,
-        }}
+        url={canonicalUrl}
+        schema={generateLocationCollectionSchema(pageTitle, canonicalUrl, schemaItems)}
       />
 
       <section className="rounded-[2rem] border border-border bg-card px-6 py-8 shadow-soft">
@@ -149,10 +167,10 @@ export default function LocationArchive() {
           Location archive
         </Badge>
         <h1 className="font-serif text-4xl font-black text-foreground sm:text-5xl">
-          Moments in {pageTitle}
+          Discover {pageTitle}
         </h1>
         <p className="mt-3 max-w-3xl text-base text-muted-foreground">
-          Browse venue-based experiences and linked content happening around {pageTitle}.
+          Find local Scenes, upcoming Moments, trusted Discoveries, venues, and stories around {pageTitle}.
         </p>
 
         {citySlug && (
@@ -177,6 +195,32 @@ export default function LocationArchive() {
         )}
       </section>
 
+      {/* Interactive City Hub Map */}
+      {mapCenter && mappedMoments.length > 0 && (
+        <section className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-soft space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" /> {pageTitle} Interactive Map
+            </h3>
+            <span className="text-xs text-muted-foreground">{mappedMoments.length} verified locations</span>
+          </div>
+          <PromorangMap
+            center={mapCenter}
+            zoom={12}
+            height="380px"
+            markers={mappedMoments.map((m) => ({
+              id: m.id,
+              lat: Number(m.latitude),
+              lng: Number(m.longitude),
+              title: m.title,
+              subtitle: m.venue_name || m.location || undefined,
+              category: m.category || undefined,
+              reward: m.reward ? `$${m.reward}` : undefined,
+            }))}
+          />
+        </section>
+      )}
+
       {isLoading ? (
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -185,6 +229,15 @@ export default function LocationArchive() {
         </div>
       ) : (
         <div className="mt-8 space-y-12">
+          <section>
+            <div className="mb-5 flex items-center justify-between"><div><h2 className="font-serif text-2xl font-bold text-foreground">Scenes</h2><p className="text-sm text-muted-foreground">Communities and cultural circles rooted in this location.</p></div><Badge variant="secondary">{scenes.length}</Badge></div>
+            {scenes.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{scenes.map((scene) => <Link key={scene.id} to={`/scenes/${scene.slug}`} className="group overflow-hidden rounded-3xl border border-border bg-card"><div className="h-44 bg-muted">{scene.image_url ? <img src={scene.image_url} alt={scene.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Users className="h-8 w-8 text-muted-foreground"/></div>}</div><div className="p-5"><h3 className="font-serif text-xl font-bold group-hover:text-primary">{scene.title}</h3><p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{scene.description}</p></div></Link>)}</div> : <div className="rounded-3xl border border-dashed border-border px-6 py-10 text-center text-muted-foreground">No public Scenes are based here yet.</div>}
+          </section>
+
+          <section>
+            <div className="mb-5 flex items-center justify-between"><div><h2 className="font-serif text-2xl font-bold text-foreground">Local discoveries</h2><p className="text-sm text-muted-foreground">Scout-recommended places and cultural finds.</p></div><Badge variant="secondary">{discoveries.length}</Badge></div>
+            {discoveries.length ? <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{discoveries.map((item) => <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden rounded-3xl border border-border bg-card"><div className="h-44 bg-muted">{item.cover_image ? <img src={item.cover_image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-8 w-8 text-muted-foreground"/></div>}</div><div className="p-5"><h3 className="font-serif text-xl font-bold group-hover:text-primary">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{item.description}</p></div></Link>)}</div> : <div className="rounded-3xl border border-dashed border-border px-6 py-10 text-center text-muted-foreground">No verified Discoveries are tagged here yet.</div>}
+          </section>
           <section>
             <div className="mb-5 flex items-center justify-between">
               <div>
@@ -248,7 +301,7 @@ export default function LocationArchive() {
                   <Link
                     key={venue.id}
                     to={buildVenuePath({ id: venue.id, slug: venue.slug })}
-                    className="group rounded-3xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft"
+                    className="group rounded-3xl border border-border bg-card p-5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft"
                   >
                     <div className="flex items-center gap-3">
                       <div className="rounded-2xl bg-primary/10 p-3 text-primary">
@@ -275,7 +328,7 @@ export default function LocationArchive() {
         </div>
       )}
 
-      {!isLoading && moments.length === 0 && content.length === 0 && venues.length === 0 && (
+      {!isLoading && moments.length === 0 && content.length === 0 && venues.length === 0 && scenes.length === 0 && discoveries.length === 0 && (
         <div className="mt-10 text-center">
           <Button asChild variant="hero">
             <Link to="/explore/moments">

@@ -470,6 +470,7 @@ const normalizeObjectType = (item) => {
     if (item.type === 'event') return 'moment';
     if (item.type === 'drop') return 'drop';
     if (item.type === 'coupon') return 'offer';
+    if (['content', 'product', 'offer', 'piece', 'promoshare_draw', 'promoshare_receipt'].includes(item.type)) return item.type;
     return 'content';
 };
 
@@ -508,10 +509,16 @@ const buildPrimaryAction = (item, objectType) => {
 
     if (objectType === 'offer') {
         return {
-            label: 'Claim Reward',
-            action: 'claim',
-            href: '/dashboard/rewards',
+            label: 'See offer',
+            action: 'view',
+            href: `/offers/${item.entity_id || item.id}`,
         };
+    }
+
+    if (objectType === 'product') return { label: 'Shop', action: 'view', href: `/shop/${item.entity_id || item.id}` };
+    if (objectType === 'piece') return { label: 'View Piece', action: 'view', href: `/pieces/${item.piece_type || 'content'}/${item.entity_id || item.id}` };
+    if (objectType === 'promoshare_draw' || objectType === 'promoshare_receipt') {
+        return { label: 'Open PromoShare', action: 'view', href: '/promoshare' };
     }
 
     return {
@@ -530,7 +537,7 @@ const serializeFeedItem = (item, intent) => {
         entity_id: item.entity_id || item.id,
         title: item.title || item.content_title || 'Recommended for you',
         subtitle: item.creator_name || item.sponsor_name || item.platform || null,
-        image_url: item.image_url || item.media_url || item.image || null,
+        image_url: item.image_url || item.media_url || item.flyer_url || item.banner_url || item.image || null,
         reason_labels: buildReasonLabels(item, intent, item.score_breakdown),
         primary_cta: buildPrimaryAction(item, objectType),
         secondary_cta: {
@@ -538,7 +545,7 @@ const serializeFeedItem = (item, intent) => {
             action: 'save',
         },
         context: {
-            starts_at: item.starts_at || item.start_date || item.date || item.expires_at || null,
+            starts_at: item.starts_at || item.start_date || item.event_date || item.date || item.expires_at || null,
             location_name: item.location || item.location_name || item.location_city || null,
             city: item.location_city || item.city || null,
             reward_value: item.value || item.gem_reward_base || null,
@@ -547,9 +554,24 @@ const serializeFeedItem = (item, intent) => {
             host_name: item.host_name || null,
             venue_name: item.venue_name || null,
             brand_name: item.sponsor_name || null,
+            merchant_name: item.merchant_name || null,
+            moment_id: item.linked_moment_id || item.moment_id || null,
+            content_id: item.content_id || null,
+            venue_id: item.venue_id || null,
+            merchant_id: item.merchant_user_id || item.merchant_id || null,
             sponsored: item.type === 'coupon' || !!item.is_sponsored,
             expires_soon: !!item.expires_at,
+            available_here_now: !!item.available_here_now || !!item.moment_exclusive,
         },
+        piece: item.type === 'piece' ? {
+            piece_type: item.piece_type || 'content',
+            asset_id: String(item.entity_id || item.content_id || item.id),
+            current_price: item.current_price == null ? undefined : Number(item.current_price),
+            change_24h: item.change_24h == null ? undefined : Number(item.change_24h),
+            volume_24h: item.volume_24h == null ? undefined : Number(item.volume_24h),
+            can_buy: item.available_pieces == null ? undefined : Number(item.available_pieces) > 0,
+        } : undefined,
+        promoshare: item.type === 'promoshare_draw' || item.type === 'promoshare_receipt' ? item.promoshare : undefined,
     };
 };
 
@@ -757,23 +779,27 @@ const buildUserContext = async (userId) => {
 
 const fetchFeedCandidates = async (userId) => {
     try {
-        const [events, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks] = await Promise.all([
-            supabaseAdmin.from('events').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-            supabaseAdmin.from('drops').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-            supabaseAdmin.from('content_items').select('*').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
-            supabaseAdmin.from('social_forecasts').select('*, creator:creator_id(display_name, avatar_url)').eq('status', 'active').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
-            supabaseAdmin.from('advertiser_coupon_assignments').select('*, advertiser_coupons(title, description, reward_type, value, value_unit, end_date)').eq('user_id', userId).eq('is_redeemed', false).order('assigned_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
-            supabaseAdmin.from('relays').select('*, relayer:relayer_user_id(username, avatar_url), content:object_id(*)').eq('object_type', 'content').order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
-            supabaseAdmin.from('view_public_commerce_directory').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(24).catch(() => ({ data: [] })),
-            supabaseAdmin.from('content_piece_stats').select('*, content_items:content_id(id,title,description,media_url,creator_id)').gt('available_pieces', 0).order('change_24h', { ascending: false }).limit(16).catch(() => ({ data: [] })),
+        const [moments, eventsTable, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks, promoShareCycles, promoShareTickets] = await Promise.all([
+            supabaseAdmin.from('moments').select('*').eq('is_active', true).neq('content_origin', 'demo').order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            supabaseAdmin.from('events').select('*').neq('status', 'cancelled').order('event_date', { ascending: true }).limit(30).catch(() => ({ data: [] })),
+            Promise.resolve({ data: [] }),
+            supabaseAdmin.from('content_items').select('*').neq('content_origin', 'demo').in('status', ['published', 'ghost']).order('posted_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            Promise.resolve({ data: [] }),
+            Promise.resolve({ data: [] }),
+            Promise.resolve({ data: [] }),
+            supabaseAdmin.from('view_public_commerce_directory').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(30).catch(() => ({ data: [] })),
+            supabaseAdmin.from('content_piece_stats').select('*,content_items:content_id(title,description,media_url,creator_id)').order('updated_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
             supabaseAdmin.from('experience_commerce_links').select('*').order('created_at', { ascending: false }).limit(80).catch(() => ({ data: [] })),
+            supabaseAdmin.from('promoshare_cycles').select('id,cycle_type,status,start_at,end_at,jackpot_amount').eq('status', 'active').order('end_at', { ascending: true }).limit(4).catch(() => ({ data: [] })),
+            supabaseAdmin.from('promoshare_tickets').select('id,cycle_id,ticket_number,source_action,source_id,multiplier,created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20).catch(() => ({ data: [] })),
         ]);
 
-        return { events, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks };
+        return { moments, eventsTable, drops, content, forecasts, coupons, relays, commerce, pieces, authoredLinks, promoShareCycles, promoShareTickets };
     } catch (fetchError) {
         console.error('Error fetching feed candidates:', fetchError);
         return {
-            events: { data: [] },
+            moments: { data: [] },
+            eventsTable: { data: [] },
             drops: { data: [] },
             content: { data: [] },
             forecasts: { data: [] },
@@ -782,6 +808,8 @@ const fetchFeedCandidates = async (userId) => {
             commerce: { data: [] },
             pieces: { data: [] },
             authoredLinks: { data: [] },
+            promoShareCycles: { data: [] },
+            promoShareTickets: { data: [] },
         };
     }
 };
@@ -816,8 +844,18 @@ router.get('/for-you', requireAuth, async (req, res) => {
 
         let feedItems = [];
 
-        if (candidates.events.data) {
-            feedItems.push(...candidates.events.data.map((item) => scoreFeedItem({ ...item, type: 'event' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+        if (candidates.moments?.data) {
+            feedItems.push(...candidates.moments.data.map((item) => scoreFeedItem({ ...item, type: 'event' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+        }
+        if (candidates.eventsTable?.data) {
+            feedItems.push(...candidates.eventsTable.data.map((item) => scoreFeedItem({
+                ...item,
+                type: 'event',
+                starts_at: item.starts_at || item.event_date,
+                ends_at: item.ends_at || item.event_end_date,
+                location: item.location || item.location_name,
+                image_url: item.image_url || item.flyer_url || item.banner_url,
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
         }
         if (candidates.drops.data) {
             feedItems.push(...candidates.drops.data.map((item) => scoreFeedItem({ ...item, type: 'drop' }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
@@ -883,6 +921,34 @@ router.get('/for-you', requireAuth, async (req, res) => {
                 holder_count: item.holder_count,
                 quality_boost: 2,
             }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+        }
+        if (candidates.promoShareCycles.data) {
+            feedItems.push(...candidates.promoShareCycles.data.map((item) => scoreFeedItem({
+                ...item,
+                type: 'promoshare_draw',
+                title: `${item.cycle_type?.[0]?.toUpperCase() || ''}${item.cycle_type?.slice(1) || ''} PromoShare Draw`,
+                description: 'Your verified actions can issue named Tickets into this draw.',
+                reward_value: Number(item.jackpot_amount || 0),
+                reward_label: item.jackpot_amount ? `${Number(item.jackpot_amount).toLocaleString()} Gems` : 'Named rewards',
+                expires_at: item.end_at,
+                quality_boost: 3,
+                promoshare: { cycle_id: item.id, cycle_type: item.cycle_type, ticket_count: 0, draw_at: item.end_at, status: 'closing' },
+            }, rankingProfile, intent, userPrefs, userContext, userInteractions)));
+        }
+        if (candidates.promoShareTickets.data) {
+            const cyclesById = new Map((candidates.promoShareCycles.data || []).map((cycle) => [String(cycle.id), cycle]));
+            feedItems.push(...candidates.promoShareTickets.data.map((item) => {
+                const cycle = cyclesById.get(String(item.cycle_id));
+                return scoreFeedItem({
+                    ...item,
+                    type: 'promoshare_receipt',
+                    title: 'PromoShare Ticket earned',
+                    description: `Your ${String(item.source_action || 'verified action').replaceAll('_', ' ')} counted.`,
+                    expires_at: cycle?.end_at,
+                    quality_boost: 5,
+                    promoshare: { cycle_id: item.cycle_id, cycle_type: cycle?.cycle_type, ticket_count: 1, source_action: item.source_action, source_id: item.source_id, draw_at: cycle?.end_at, status: 'entered' },
+                }, rankingProfile, intent, userPrefs, userContext, userInteractions);
+            }));
         }
 
         const blockedUserIds = new Set((blocksResult.data || []).map((row) => String(row.blocked_user_id)));

@@ -23,7 +23,13 @@ export const isSampleCommerceListing = (listing: CommerceProvenanceFields) => {
     listing.sku,
   ].filter(Boolean).join(" ").toLowerCase();
 
-  return /(^|[\s_./@-])(demo|sample|example|mock|test|preview)([\s_./@-]|$)/i.test(searchable);
+  return /(^|[\s_./@-])(demo|sample|example|mock|test|preview|starter pack|creator hoodie|content template|strategy session|ultimate creator)([\s_./@-]|$)/i.test(searchable) ||
+    searchable.includes("creator starter pack") ||
+    searchable.includes("premium content templates") ||
+    searchable.includes("promorang logo t-shirt") ||
+    searchable.includes("creator hoodie") ||
+    searchable.includes("content strategy session") ||
+    searchable.includes("ultimate creator bundle");
 };
 
 export const commerceCategorySlug = (category?: string | null) =>

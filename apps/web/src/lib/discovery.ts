@@ -1,4 +1,4 @@
-export const DEFAULT_SITE_URL = "https://promorang.com";
+export const DEFAULT_SITE_URL = "https://www.promorang.co";
 
 export function slugifySegment(value: string | null | undefined) {
   return (value || "")

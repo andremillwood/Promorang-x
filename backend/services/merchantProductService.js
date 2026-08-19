@@ -429,7 +429,7 @@ async function createSale(productId, userId, saleData) {
         if (error) throw error;
 
         // Inventory is auto-decremented by trigger
-        await supabase.from('commerce_receipts').insert({
+        const { data: receipt } = await supabase.from('commerce_receipts').insert({
             user_id: userId,
             merchant_id: product.merchant_id,
             listing_id: productId,
@@ -440,7 +440,12 @@ async function createSale(productId, userId, saleData) {
             currency: product.currency || 'USD',
             redemption_code: redemptionCode,
             attribution: metadata,
-        }).catch(() => undefined);
+            moment_id: metadata.moment_id || product.linked_moment_id || null,
+        }).select().maybeSingle().catch(() => ({ data: null }));
+        if (receipt) {
+            const commerceOutcomeService = require('./commerceOutcomeService');
+            await commerceOutcomeService.processReceipt(receipt).catch((outcomeError) => console.warn('[Merchant Product] Commerce outcomes skipped:', outcomeError.message));
+        }
 
         return data;
     } catch (error) {

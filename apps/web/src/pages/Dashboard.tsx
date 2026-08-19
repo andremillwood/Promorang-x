@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import { RoleSuccessProgram } from "@/components/dashboard/RoleSuccessProgram";
 
 const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
@@ -43,6 +44,7 @@ const Dashboard = () => {
 
   return (
     <Suspense fallback={dashboardFallback}>
+      <RoleSuccessProgram role={resolvedRole} />
       <ResolvedDashboard />
     </Suspense>
   );

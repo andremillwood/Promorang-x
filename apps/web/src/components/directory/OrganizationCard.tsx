@@ -60,7 +60,7 @@ export const OrganizationCard = ({
 
     return (
         <Card
-            className={cn("overflow-hidden hover:shadow-lg transition-all duration-300 group", className)}
+            className={cn("overflow-hidden hover:shadow-lg transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-300 group", className)}
             data-tour="directory-card"
         >
             <CardHeader className="p-4 flex flex-row items-start space-x-4">

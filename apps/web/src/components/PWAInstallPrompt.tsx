@@ -1,93 +1,75 @@
-import { useEffect, useState } from "react";
-import { Download, X, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
+import { Download, X } from 'lucide-react';
+import { triggerHaptic } from '@/lib/nativeWebApis';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISS_KEY = "promorang_install_prompt_dismissed";
-
-export default function PWAInstallPrompt() {
-  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+export function PWAInstallPrompt() {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(display-mode: standalone)").matches) return;
-    if (localStorage.getItem(DISMISS_KEY) === "true") return;
-
-    let showTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const handleBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setInstallEvent(event as BeforeInstallPromptEvent);
-      showTimer = setTimeout(() => setIsVisible(true), 12000);
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setShowBanner(true);
     };
 
-    const handleInstalled = () => {
-      setInstallEvent(null);
-      setIsVisible(false);
-      localStorage.setItem(DISMISS_KEY, "true");
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleInstalled);
-
-    return () => {
-      if (showTimer) clearTimeout(showTimer);
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      window.removeEventListener("appinstalled", handleInstalled);
-    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    localStorage.setItem(DISMISS_KEY, "true");
-  };
-
   const handleInstall = async () => {
-    if (!installEvent) return;
+    triggerHaptic('medium');
+    if (!deferredPrompt) return;
 
-    await installEvent.prompt();
-    const result = await installEvent.userChoice;
-
-    if (result.outcome === "accepted") {
-      setIsVisible(false);
-      localStorage.setItem(DISMISS_KEY, "true");
+    await deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowBanner(false);
     }
+    setDeferredPrompt(null);
   };
 
-  if (!isVisible || !installEvent) return null;
+  const handleDismiss = () => {
+    triggerHaptic('light');
+    setShowBanner(false);
+  };
+
+  if (!showBanner) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-4 z-40 px-4 pb-safe sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-sm">
-      <div className="rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-elevated backdrop-blur-xl">
-        <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Smartphone className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground">Install Promorang</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Add it to your home screen for faster launch, app-like navigation, and offline-ready basics.
-            </p>
-          </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleDismiss}>
-            <X className="h-4 w-4" />
-          </Button>
+    <div className="fixed bottom-20 left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-2xl bg-[#141414] border border-[#ff6a00]/30 p-4 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#ff6a00]/10 flex items-center justify-center text-[#ff6a00] flex-shrink-0">
+          <Download className="w-5 h-5" />
         </div>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <Button variant="hero" className="flex-1" onClick={handleInstall}>
-            <Download className="mr-2 h-4 w-4" />
-            Install App
-          </Button>
-          <Button variant="outline" className="flex-1" onClick={handleDismiss}>
-            Maybe Later
-          </Button>
+        <div>
+          <h4 className="text-sm font-bold text-white">Install Promorang App</h4>
+          <p className="text-xs text-gray-400">Add to your Home Screen for native experience</p>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={handleInstall}
+          className="px-3 py-1.5 rounded-lg bg-[#ff6a00] text-black font-bold text-xs hover:bg-[#ff6a00]/90 transition-colors"
+        >
+          Install
+        </button>
+        <button
+          onClick={handleDismiss}
+          className="p-1.5 rounded-lg text-gray-400 hover:text-white transition-colors"
+          aria-label="Dismiss banner"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
 }
+
+export default PWAInstallPrompt;

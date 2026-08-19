@@ -94,19 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return availableRoles[0] ?? null;
   };
 
-  const isMasterAdminAccount = (sessionUser: User, userProfile?: any) => {
-    const metadataRoles = [
-      (sessionUser.app_metadata as any)?.role,
-      (sessionUser.user_metadata as any)?.role,
-      userProfile?.role,
-      userProfile?.user_type,
-    ]
-      .map((role) => String(role || "").toLowerCase().trim());
-
-    return metadataRoles.includes("master_admin") ||
-      sessionUser.email?.trim().toLowerCase() === "andremillwood@gmail.com";
-  };
-
   // Sync activeRole with storage-backed preference whenever the available role
   // set changes.
   useEffect(() => {
@@ -272,7 +259,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("user_id", userId)
         .maybeSingle();
 
       // 2. Fetch from users table (for maturity_state)
@@ -303,13 +290,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserRoles = async (userId: string, sessionUser?: User | null): Promise<UserRole[]> => {
     try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
+      const [{ data, error }, { count: hostedMomentCount, error: hostedMomentError }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId),
+        supabase.from("moments").select("id", { count: "exact", head: true }).eq("host_id", userId),
+      ]);
 
       if (error) {
         console.warn(`[AuthContext] Get user roles failed:`, error.message);
+      }
+      if (hostedMomentError) {
+        console.warn(`[AuthContext] Host role inference failed:`, hostedMomentError.message);
       }
 
       const inferredRole = mapRole(
@@ -340,6 +330,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         uniqueRoles.push(inferredRole);
       }
 
+      // Ownership is authoritative capability evidence. A user who owns a real
+      // Moment must be able to enter the Host workspace even if a legacy role
+      // grant was never written when that Moment was created.
+      if ((hostedMomentCount || 0) > 0 && !uniqueRoles.includes("host")) {
+        uniqueRoles.push("host");
+      }
+
       // CORE RULE: Every user is at least a participant.
       if (!uniqueRoles.includes('participant')) {
         uniqueRoles.push('participant');
@@ -356,19 +353,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // the current session user and explicitly reconciles role + org state.
   useEffect(() => {
     const syncSessionContext = async (sessionUser: User) => {
-      const [fetchedRoles, fetchedProfile] = await Promise.all([
+      const [fetchedRoles] = await Promise.all([
         fetchUserRoles(sessionUser.id, sessionUser),
         fetchUserProfile(sessionUser.id),
       ]);
 
       setRoles(fetchedRoles);
-      // A stale role preference must never make a platform owner land in an
-      // ordinary user workspace after signing in. They can still switch roles
-      // explicitly once the admin workspace has loaded.
-      const masterAdmin = isMasterAdminAccount(sessionUser, fetchedProfile);
-      const preferredRole = masterAdmin && fetchedRoles.includes("admin")
-        ? "admin"
-        : resolvePreferredRole(fetchedRoles);
+      // Restore the last role the user explicitly selected when it is still
+      // available. Master-admin role ordering already makes admin the fallback
+      // when no valid preference exists; it must not override a saved choice
+      // on every refresh.
+      const preferredRole = resolvePreferredRole(fetchedRoles);
       if (preferredRole) {
         setActiveRoleState(preferredRole);
         localStorage.setItem("promorang_active_role", preferredRole);

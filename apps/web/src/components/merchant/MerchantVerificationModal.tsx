@@ -100,7 +100,7 @@ export const MerchantVerificationModal = ({ momentTitle, venueName, onVerified }
                                     <Button 
                                         onClick={handleVerify}
                                         disabled={pin.length < 4 || isVerifying}
-                                        className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/80 transition-all font-black"
+                                        className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/80 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] font-black"
                                     >
                                         {isVerifying ? (
                                             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}><Key className="w-5 h-5" /></motion.div>

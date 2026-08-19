@@ -17,6 +17,7 @@ import type {
   KYCStatus,
   MatrixDashboard,
 } from '@/types';
+import type { MomentLiveContext } from '@promorang/shared';
 
 export const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'https://api.promorang.co';
 export const WEB_BASE = (process.env.EXPO_PUBLIC_WEB_URL || 'https://promorang.co').replace(/\/$/, '');
@@ -48,6 +49,18 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
   return response.json();
 }
+
+export const momentContextApi = {
+  get: (momentId: string) => apiRequest<{ success: boolean; data: MomentLiveContext }>(`/api/commerce/moments/${momentId}/context`),
+};
+
+export const participationApi = {
+  status: (momentId: string) => apiRequest<{ success: boolean; joined: boolean; checked_in: boolean; participation: { status?: string; joined_at?: string; checked_in_at?: string | null } | null }>(`/api/participation/moments/${momentId}/status`),
+  journey: (momentId: string) => apiRequest<{ success: boolean; facts: import('@promorang/shared').MomentJourneyFacts }>(`/api/participation/moments/${momentId}/journey`),
+  join: (momentId: string) => apiRequest<{ success: boolean; participation: unknown; already_joined?: boolean }>(`/api/participation/moments/${momentId}/join`, { method: 'POST', body: JSON.stringify({}) }),
+  leave: (momentId: string) => apiRequest<{ success: boolean }>(`/api/participation/moments/${momentId}/join`, { method: 'DELETE' }),
+  checkIn: (momentId: string) => apiRequest<{ success: boolean; participation?: unknown; memory?: unknown; verification_status?: string }>(`/api/participation/moments/${momentId}/checkin`, { method: 'POST', body: JSON.stringify({}) }),
+};
 
 // ============================================
 // PROMOSHARE API
@@ -128,6 +141,7 @@ export const commerceApi = {
 };
 
 export const merchantApi = {
+  getLiveOps: () => apiRequest<{ generated_at: string; moments: Array<{ id: string; title: string }>; listings: any[]; receipts: any[]; live_moment_ids: string[] }>('/api/merchant/live-ops'),
   getReceipts: () =>
     apiRequest<{ receipts: any[] }>('/api/merchant/receipts'),
   updateReceiptStatus: (receiptId: string, status: 'fulfilled' | 'cancelled' | 'refunded', note?: string) =>
@@ -139,6 +153,25 @@ export const merchantApi = {
     apiRequest<any>(`/api/merchant/sales/${encodeURIComponent(code)}/validate`, {
       method: 'POST',
     }),
+};
+
+export const supportApi = {
+  createCommerceCase: (input: { receipt_id: string; reason: string; message: string; evidence?: unknown[] }) => apiRequest<{ success: boolean; ticket: { id: string } }>('/api/support/commerce-cases', { method: 'POST', body: JSON.stringify(input) }),
+  getMerchantCommerceCases: () => apiRequest<{ cases: any[] }>('/api/support/merchant/commerce-cases'),
+  respondToCommerceCase: (id: string, message: string, proposed_resolution?: string) => apiRequest<{ case: any }>(`/api/support/merchant/commerce-cases/${id}/respond`, { method: 'POST', body: JSON.stringify({ message, proposed_resolution }) }),
+};
+
+export const guestRsvpApi = {
+  create: (input: Record<string, unknown>) => apiRequest<any>('/api/guest-rsvp', { method: 'POST', body: JSON.stringify(input) }),
+  get: (token: string, manageToken?: string) => apiRequest<any>(`/api/guest-rsvp/${encodeURIComponent(token)}${manageToken ? `?manage_token=${encodeURIComponent(manageToken)}` : ''}`),
+  joinGroup: (token: string, input: { full_name: string; mobile: string; email?: string; consent_whatsapp?: boolean; consent_sms?: boolean; consent_email?: boolean }) => apiRequest<any>(`/api/guest-rsvp/${encodeURIComponent(token)}/join`, { method: 'POST', body: JSON.stringify(input) }),
+  cancel: (token: string, manageToken = '') => apiRequest<any>(`/api/guest-rsvp/${encodeURIComponent(token)}/cancel`, { method: 'POST', body: JSON.stringify({ manage_token: manageToken }) }),
+  claim: (token: string, manageToken = '') => apiRequest<any>(`/api/guest-rsvp/${encodeURIComponent(token)}/claim`, { method: 'POST', body: JSON.stringify({ manage_token: manageToken }) }),
+  operations: (momentId: string) => apiRequest<any>(`/api/guest-rsvp/moments/${encodeURIComponent(momentId)}/operations`),
+  checkIn: (momentId: string, code: string, verificationMethod: 'qr' | 'manual') => apiRequest<any>(`/api/guest-rsvp/moments/${encodeURIComponent(momentId)}/check-in`, { method: 'POST', body: JSON.stringify({ code, verification_method: verificationMethod }) }),
+  preferences: (token: string, manageToken: string, preferences: { consent_whatsapp: boolean; consent_sms: boolean; consent_email: boolean }) => apiRequest<any>(`/api/guest-rsvp/${encodeURIComponent(token)}/preferences`, { method: 'PATCH', body: JSON.stringify({ manage_token: manageToken, ...preferences }) }),
+  retryDelivery: (momentId: string, deliveryId: string) => apiRequest<any>(`/api/guest-rsvp/moments/${encodeURIComponent(momentId)}/deliveries/${encodeURIComponent(deliveryId)}/retry`, { method: 'POST', body: JSON.stringify({}) }),
+  attendanceReceipts: () => apiRequest<{ receipts: any[] }>('/api/guest-rsvp/me/attendance-receipts'),
 };
 
 export const feedApi = {

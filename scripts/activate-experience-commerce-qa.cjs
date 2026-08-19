@@ -159,6 +159,12 @@ async function main() {
   const completed = (runs || []).some((run) => run.status === 'completed');
   if (!completed || !(receipts || []).length) throw new Error('Controlled activation did not produce both a completed automation and attributed receipt');
 
+  const closeMissionResult = await db
+    .from('content_missions')
+    .update({ status: 'closed', updated_at: new Date().toISOString() })
+    .eq('id', mission.id);
+  if (closeMissionResult.error) throw closeMissionResult.error;
+
   console.log(JSON.stringify({
     ...plan,
     mission: mission.id.slice(0, 8),

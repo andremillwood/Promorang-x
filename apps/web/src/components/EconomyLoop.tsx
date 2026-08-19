@@ -130,7 +130,7 @@ export function EconomyLoop() {
                     type="button"
                     onClick={() => setActiveStep(index)}
                     className={cn(
-                      "group flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all",
+                      "group flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]",
                       activeStep === index
                         ? "border-primary bg-primary text-primary-foreground shadow-soft"
                         : "border-transparent bg-card hover:border-border hover:bg-secondary"
@@ -157,7 +157,7 @@ export function EconomyLoop() {
               <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-primary/20 blur-[100px]" />
               <div className="relative z-10">
                 <div className="mb-7 h-2 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full rounded-full bg-gradient-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                  <div className="h-full rounded-full bg-gradient-primary transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-500" style={{ width: `${progress}%` }} />
                 </div>
 
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -187,7 +187,7 @@ export function EconomyLoop() {
                     <Link
                       key={item.title}
                       to={item.href}
-                      className="group rounded-2xl border border-white/10 bg-white/[0.06] p-4 transition-all hover:border-primary/40 hover:bg-white/[0.1]"
+                      className="group rounded-2xl border border-white/10 bg-white/[0.06] p-4 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:border-primary/40 hover:bg-white/[0.1]"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/25 text-primary">

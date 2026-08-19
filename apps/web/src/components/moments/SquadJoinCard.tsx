@@ -56,15 +56,15 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600">
             <Link2 className="w-3 h-3" />
-            {inviterId ? "Invitation tracked" : "Shareable Moment"}
+            {inviterId ? "Your invite link" : "Ready to share"}
           </div>
         </div>
 
         <h3 className="text-xl font-bold mb-2">Bring someone with you</h3>
         <p className="text-sm text-muted-foreground mb-6">
           {inviterId
-            ? "Invite friends into this specific Moment. If they join from your link, your contribution to the crowd is recorded."
-            : "Share this Moment with someone you want there. Sign in before sharing if you want Promorang to record your invitation."}
+            ? `Send ${momentTitle} to someone you want beside you. Their completed join will be connected to your invitation.`
+            : `Send ${momentTitle} to someone you want beside you.`}
         </p>
 
         <div className="flex gap-2">
@@ -88,8 +88,11 @@ export function SquadJoinCard({ momentId, momentTitle, inviterId, participantCou
 
         <div className="mt-6 border-t border-primary/10 pt-6">
           <p className="text-xs font-medium text-muted-foreground">
-            <span className="font-bold text-foreground">{participantCount} {participantCount === 1 ? "person is" : "people are"} joined.</span>{" "}
-            Promorang only counts people who actually join the Moment.
+            {participantCount > 0 ? (
+              <><span className="font-bold text-foreground">{participantCount} {participantCount === 1 ? "person is" : "people are"} joining.</span>{" "}Invite someone who would add to the room.</>
+            ) : (
+              "Be the first to bring someone into the room."
+            )}
           </p>
         </div>
       </CardContent>

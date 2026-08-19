@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { useValuePool, formatCents, getEarningCategoryLabel, getEarningCategoryIcon } from '@/hooks/useValuePool';
 import { useMoneyQualification, getQualificationBlockers } from '@/hooks/useMoneyQualification';
 import { useUserTier } from '@/hooks/useUserTier';
@@ -237,16 +238,15 @@ export function EarningsDashboard() {
         </CardContent>
       </Card>
 
-      {/* Distribution Rules Info */}
       {rules && (
-        <Card className="bg-muted/50">
-          <CardHeader>
-            <CardTitle className="text-lg">How Earnings Work</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <GuidanceDisclosure
+          id="earnings-dashboard:rules"
+          title="How earnings work"
+          summary="Open this for the current rates attached to Marks, reviews, media, referrals, and tier multipliers."
+        >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">🎯</div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><CheckCircle2 className="h-4 w-4 text-primary" /></div>
                 <div>
                   <p className="font-medium">Attendance</p>
                   <p className="text-sm text-muted-foreground">
@@ -255,7 +255,7 @@ export function EarningsDashboard() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">⭐</div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><Gift className="h-4 w-4 text-primary" /></div>
                 <div>
                   <p className="font-medium">Reviews</p>
                   <p className="text-sm text-muted-foreground">
@@ -264,7 +264,7 @@ export function EarningsDashboard() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">📸</div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><CreditCard className="h-4 w-4 text-primary" /></div>
                 <div>
                   <p className="font-medium">Media</p>
                   <p className="text-sm text-muted-foreground">
@@ -273,7 +273,7 @@ export function EarningsDashboard() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">👥</div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><ArrowUpRight className="h-4 w-4 text-primary" /></div>
                 <div>
                   <p className="font-medium">Referrals</p>
                   <p className="text-sm text-muted-foreground">
@@ -291,8 +291,7 @@ export function EarningsDashboard() {
                 Tier multipliers: Guest 1.0x • Regular {rules.regular_multiplier}x • Mover {rules.mover_multiplier}x
               </span>
             </div>
-          </CardContent>
-        </Card>
+        </GuidanceDisclosure>
       )}
     </div>
   );

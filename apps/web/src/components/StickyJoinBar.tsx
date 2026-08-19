@@ -20,6 +20,9 @@ interface StickyJoinBarProps {
     isJoining?: boolean;
     accessState?: AccessState;
     className?: string;
+    missionCount?: number;
+    missionPointTotal?: number;
+    onExploreMissions?: () => void;
 }
 
 /**
@@ -40,6 +43,9 @@ export function StickyJoinBar({
     isJoining = false,
     accessState,
     className,
+    missionCount = 0,
+    missionPointTotal = 0,
+    onExploreMissions,
 }: StickyJoinBarProps) {
     const [isVisible, setIsVisible] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -182,7 +188,19 @@ export function StickyJoinBar({
 
                         {/* Right side - CTA */}
                         <div className="flex w-full items-center gap-2 overflow-x-auto touch-pan-x scrollbar-none sm:w-auto">
-                            <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
+                        <SaveButton momentId={momentId} size="md" className="hidden shrink-0 sm:flex" />
+                            {missionCount > 0 && onExploreMissions ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={onExploreMissions}
+                                    className="shrink-0 whitespace-nowrap border-amber-400/40 text-amber-600 dark:text-amber-300"
+                                >
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    {missionCount} Missions · +{missionPointTotal}
+                                </Button>
+                            ) : null}
                             {isJoined && !isPast && !isHost && (
                                 <Button
                                     variant="outline"

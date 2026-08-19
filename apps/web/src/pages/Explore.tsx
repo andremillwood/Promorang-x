@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { ArrowRight, Compass, Film, Gift, MapPin, Sparkles } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 
@@ -115,11 +116,15 @@ const Explore = () => {
           </div>
 
           <div className="mt-8 grid gap-5 lg:grid-cols-[1.3fr,0.7fr]">
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="text-2xl font-black tracking-[-0.03em]">How to choose</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-3">
+            <GuidanceDisclosure
+              id="explore:how-to-choose"
+              eyebrow="Discovery guide"
+              title="How to choose where to browse"
+              summary="For You, Explore, and Rewards each answer a different discovery need."
+              className="mt-0"
+              tone="light"
+            >
+              <div className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-3">
                 <div className="rounded-2xl border border-border/60 bg-card p-4">
                   <p className="font-semibold text-foreground">For You</p>
                   <p className="mt-2">Personalized, ranked, and scroll-first. Best when you want the system to surface what matters now.</p>
@@ -132,8 +137,8 @@ const Explore = () => {
                   <p className="font-semibold text-foreground">Rewards</p>
                   <p className="mt-2">See which actions unlock value and where proof, offers, claims, and Wallet signals fit.</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </GuidanceDisclosure>
 
             <Card className="shadow-soft">
               <CardHeader>

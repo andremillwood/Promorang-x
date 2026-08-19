@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1009668093342",
+    "project_id": "promorang-fe69e",
+    "storage_bucket": "promorang-fe69e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009668093342:android:d0f04ab5ad2862f929d28f",
+        "android_client_info": {
+          "package_name": "com.promorang.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCWs7s4gdjb8VI4h7cQCqo1EEtZZcQ8jk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

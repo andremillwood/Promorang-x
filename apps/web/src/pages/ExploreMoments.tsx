@@ -52,7 +52,7 @@ const ExploreMoments = () => {
         .from("view_public_moment_directory")
         .select("*")
         .eq("is_active", true)
-        .gte("starts_at", new Date().toISOString())
+        .order("starts_at", { ascending: true })
         .limit(72);
 
       if (activeCategory !== "all") {
@@ -204,7 +204,7 @@ const ExploreMoments = () => {
                     key={category.value}
                     type="button"
                     onClick={() => setActiveCategory(category.value)}
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                       activeCategory === category.value
                         ? "bg-primary text-primary-foreground shadow-soft"
                         : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
@@ -220,7 +220,7 @@ const ExploreMoments = () => {
                 <button
                   type="button"
                   onClick={() => setSortBy("soonest")}
-                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-all ${
+                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     sortBy === "soonest" ? "bg-primary text-primary-foreground shadow-soft" : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -230,7 +230,7 @@ const ExploreMoments = () => {
                 <button
                   type="button"
                   onClick={() => setSortBy("popular")}
-                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-all ${
+                  className={`inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     sortBy === "popular" ? "bg-primary text-primary-foreground shadow-soft" : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
                 >

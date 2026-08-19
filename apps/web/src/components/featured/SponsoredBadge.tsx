@@ -113,7 +113,7 @@ export function SponsoredPoolCard({
       <div className={`absolute inset-0 bg-gradient-to-r ${config.className.replace('text-white border-0', '')} opacity-20 group-hover:opacity-30 transition-opacity`} />
       
       {/* Card Content */}
-      <div className="relative p-5 bg-card border-2 border-transparent group-hover:border-primary/50 rounded-xl transition-all">
+      <div className="relative p-5 bg-card border-2 border-transparent group-hover:border-primary/50 rounded-xl transition-[color,background-color,border-color,opacity,box-shadow,transform,filter]">
         {/* Badge */}
         <div className="flex items-center justify-between mb-3">
           <SponsoredBadge tier={tier} sponsorName={pool.sponsor_name} />

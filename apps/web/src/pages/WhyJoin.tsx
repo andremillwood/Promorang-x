@@ -3,6 +3,7 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import {
   ArrowRight,
   CheckCircle2,
@@ -140,9 +141,18 @@ export default function WhyJoin() {
             <h2 className="font-serif text-3xl font-bold md:text-5xl">
               How Promorang works
             </h2>
-            <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              The system is simple on purpose. One real action can start a longer chain of useful outcomes.
-            </p>
+            <GuidanceDisclosure
+              id="why-join:participant-loop"
+              eyebrow="Participant guide"
+              title="How the participant loop works"
+              summary="One real action can start a longer chain of useful outcomes."
+              className="mt-4"
+              tone="light"
+            >
+              <p className="text-lg leading-8 text-muted-foreground">
+                The system is simple on purpose. One real action can start a longer chain of useful outcomes.
+              </p>
+            </GuidanceDisclosure>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {journeySteps.map((step) => (
