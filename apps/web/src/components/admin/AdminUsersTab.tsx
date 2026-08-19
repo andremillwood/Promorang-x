@@ -257,16 +257,16 @@ export function AdminUsersTab() {
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="hidden overflow-x-auto lg:block">
-          <table className="w-full">
+          <table className="w-full min-w-[1020px]">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">User</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">State</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">Roles</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">Activity</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">Trust</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground">Joined</th>
-                <th className="p-4 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[220px]">User</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">State</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Roles</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Activity</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[160px]">Trust</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[130px]">Joined</th>
+                <th className="p-4 text-right text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[170px]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -280,23 +280,23 @@ export function AdminUsersTab() {
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                    <td className="p-4 align-top">
+                    <td className="p-4 align-top min-w-[220px]">
                       <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-10 w-10 shrink-0">
                           <AvatarImage src={user.profile?.avatar_url || undefined} />
                           <AvatarFallback>{user.profile?.full_name?.charAt(0) || user.email?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
                           <p className="font-medium text-foreground">{user.profile?.full_name || user.profile?.display_name || "Anonymous User"}</p>
                           <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                            <Mail className="h-3.5 w-3.5" />
+                            <Mail className="h-3.5 w-3.5 shrink-0" />
                             <span className="truncate">{user.email || "No email on file"}</span>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">{user.id.slice(0, 8)}...</p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 align-top">
+                    <td className="p-4 align-top min-w-[120px]">
                       <div className="space-y-2">
                         {getStateBadge(user)}
                         {user.moderation_flags.length > 0 && (
@@ -310,7 +310,7 @@ export function AdminUsersTab() {
                         )}
                       </div>
                     </td>
-                    <td className="p-4 align-top">
+                    <td className="p-4 align-top min-w-[140px]">
                       <div className="flex flex-wrap gap-1">
                         {user.roles.length === 0 ? (
                           <span className="text-sm text-muted-foreground">No roles</span>
@@ -323,12 +323,12 @@ export function AdminUsersTab() {
                         )}
                       </div>
                     </td>
-                    <td className="p-4 align-top text-sm text-muted-foreground">
+                    <td className="p-4 align-top text-sm text-muted-foreground whitespace-nowrap min-w-[140px]">
                       <div>{user.activity.hosted_count} hosted</div>
                       <div>{user.activity.joined_count} joined</div>
                       <div>{user.activity.total_content} content items</div>
                     </td>
-                    <td className="p-4 align-top text-sm text-muted-foreground">
+                    <td className="p-4 align-top text-sm text-muted-foreground min-w-[160px]">
                       <div>{user.kyc_status ? `KYC: ${user.kyc_status}` : "KYC: —"}</div>
                       <div>
                         Money: {user.qualification?.is_qualified_for_money ? "Qualified" : "Limited"}
@@ -339,19 +339,19 @@ export function AdminUsersTab() {
                         </p>
                       )}
                     </td>
-                    <td className="p-4 align-top text-sm text-muted-foreground">
+                    <td className="p-4 align-top text-sm text-muted-foreground whitespace-nowrap min-w-[130px]">
                       <div>{formatDate(user.created_at)}</div>
                       <div className="mt-1 text-xs">
                         Last active: {formatDate(user.activity.latest_activity_at)}
                       </div>
                     </td>
-                    <td className="p-4 align-top text-right">
-                      <div className="flex justify-end gap-2">
+                    <td className="p-4 align-top text-right whitespace-nowrap min-w-[170px]">
+                      <div className="flex items-center justify-end gap-2">
                         {!user.roles.includes("host") && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 border-primary/20 text-[10px] font-bold uppercase tracking-wider hover:bg-primary/10 hover:text-primary"
+                            className="h-8 shrink-0 border-primary/20 text-[10px] font-bold uppercase tracking-wider hover:bg-primary/10 hover:text-primary"
                             onClick={() => handleAddRole(user.id, "host")}
                             disabled={addRole.isPending}
                           >
@@ -361,7 +361,7 @@ export function AdminUsersTab() {
                         )}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
