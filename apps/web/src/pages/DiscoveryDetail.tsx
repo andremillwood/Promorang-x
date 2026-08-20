@@ -109,6 +109,19 @@ export default function DiscoveryDetail() {
     const leadingOption = [...poll.options].sort((a, b) => b.votes - a.votes)[0];
     const otherPolls = getAllDiscoveryPolls().filter((p) => p.id !== poll.id).slice(0, 2);
 
+    // Referral / Squad mechanics
+    const userReferralCode = user?.id ? user.id.slice(0, 8) : "scout-ja";
+    const [squadInvites, setSquadInvites] = useState(0);
+    const targetSquadInvites = poll.squadGoal?.targetInvites || 2;
+    const isSquadUnlocked = squadInvites >= targetSquadInvites;
+
+    const shareUrl = `${window.location.origin}/discoveries/${poll.slug}?ref=${userReferralCode}${userVotedOptionId ? `&pick=${userVotedOptionId}` : ""}`;
+    const selectedOptionObj = poll.options.find(o => o.id === userVotedOptionId);
+    
+    const whatsappShareText = userVotedOptionId 
+      ? `🔥 I just backed "${selectedOptionObj?.text}" on Promorang's ${poll.category}! Vote with our squad to unlock the ${poll.targetUnlockPerk} for everyone 👉 ${shareUrl}`
+      : `Vote on Promorang: "${poll.question}" - Which option is your pick? Join the demand signal 👉 ${shareUrl}`;
+
     const handleVoteOnPoll = (optionId: string) => {
       if (userVotedOptionId) return;
 
@@ -129,7 +142,19 @@ export default function DiscoveryDetail() {
         setSelectedOptionForComment(selectedOpt.text);
       }
 
-      toast.success(`Vote counted! +${poll.pointsReward} PromoPoints awarded to your account.`);
+      toast.success(`Vote counted! +${poll.pointsReward} PromoPoints awarded to your account.`, {
+        description: "Taste preferences updated & personalized spot recommendations unlocked below!",
+      });
+    };
+
+    const handleSimulateInvite = () => {
+      const newCount = squadInvites + 1;
+      setSquadInvites(newCount);
+      if (newCount >= targetSquadInvites) {
+        toast.success(`🎉 SQUAD GOAL ACHIEVED! You unlocked early access to: ${poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass'}`);
+      } else {
+        toast.info(`Squad invite counted! ${targetSquadInvites - newCount} more needed for instant early unlock.`);
+      }
     };
 
     const handleAddOption = (e: React.FormEvent) => {
@@ -184,27 +209,29 @@ export default function DiscoveryDetail() {
       });
     };
 
-    const shareUrl = window.location.href;
-    const whatsappShareText = `Vote on Promorang: "${poll.question}" - Which option is your pick? ${shareUrl}`;
+    // Matched recommendations for the voted option (or fallback to top option)
+    const activeRecommendations = userVotedOptionId && poll.optionRecommendations
+      ? poll.optionRecommendations[userVotedOptionId] || []
+      : [];
 
     return (
-      <main className="min-h-screen bg-[#07090e] pb-24 text-white selection:bg-orange-500 selection:text-white">
+      <main className="min-h-screen bg-[#07090e] pb-28 text-white selection:bg-orange-500 selection:text-white">
         <SEO
           title={`${poll.question} — Promorang Demand Signal`}
           description={poll.description}
           url={getSiteUrl(`/discoveries/${poll.slug}`)}
         />
 
-        {/* Ambient Glows */}
+        {/* Ambient Atmospheric Glows */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-          <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-orange-600/10 blur-[120px]" />
-          <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-purple-600/10 blur-[140px]" />
-          <div className="absolute left-1/3 top-1/2 h-[500px] w-[500px] rounded-full bg-amber-500/5 blur-[160px]" />
+          <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-orange-600/15 blur-[130px]" />
+          <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-purple-600/15 blur-[150px]" />
+          <div className="absolute left-1/3 top-1/2 h-[500px] w-[500px] rounded-full bg-amber-500/10 blur-[170px]" />
         </div>
 
         <div className="relative z-10">
           {/* Top Bar / Navigation */}
-          <section className="border-b border-white/10 bg-black/40 backdrop-blur-xl pt-20">
+          <section className="border-b border-white/10 bg-black/60 backdrop-blur-xl pt-20">
             <div className="container mx-auto px-4 py-4 sm:px-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -229,22 +256,22 @@ export default function DiscoveryDetail() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(shareUrl);
-                      toast.success("Poll link copied to clipboard!");
+                      toast.success("Tracked referral link copied to clipboard! 📋");
                     }}
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 transition"
                   >
                     <Copy className="h-3.5 w-3.5 text-purple-400" />
-                    <span className="hidden sm:inline">Copy Link</span>
+                    <span className="hidden sm:inline">Copy Ref Link</span>
                   </button>
 
                   <button
                     onClick={() => {
                       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition shadow-sm"
                   >
                     <Share2 className="h-3.5 w-3.5" />
-                    WhatsApp
+                    <span>WhatsApp</span>
                   </button>
 
                   <button
@@ -268,50 +295,55 @@ export default function DiscoveryDetail() {
 
           {/* Main Hero Header */}
           <section className="container mx-auto px-4 py-8 sm:px-6">
-            <div className="max-w-4xl mx-auto space-y-6">
-              {/* Category & Status Strip */}
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="max-w-5xl mx-auto space-y-6">
+              {/* Category, Status & Social Proof Strip */}
+              <div className="flex flex-wrap items-center gap-2.5">
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40 text-xs font-black uppercase tracking-wider shadow-sm">
                   <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
                   {poll.category}
                 </span>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                  Live Community Quest
+                  Live Community Demand Signal
                 </span>
 
                 <span className="text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
                   <Gift className="w-3.5 h-3.5 text-amber-400" />
-                  +{poll.pointsReward} PromoPoints Loot
+                  +{poll.pointsReward} PromoPoints Reward
+                </span>
+
+                <span className="hidden md:inline-flex items-center gap-1 text-xs text-white/50 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                  <Users className="w-3 h-3 text-orange-400" />
+                  {totalVotes} Kingston scouts voted
                 </span>
               </div>
 
               {/* Grand Editorial Title */}
-              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight">
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight">
                 {poll.question}
               </h1>
 
-              {/* Scout Attribution Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md">
-                <div className="flex items-center gap-3">
+              {/* Scout Attribution & Connected Scene Card */}
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-white/[0.05] via-white/[0.02] to-transparent border border-white/10 backdrop-blur-md">
+                <div className="flex items-center gap-3.5">
                   {poll.authorAvatar ? (
                     <img
                       src={poll.authorAvatar}
                       alt={poll.authorName}
-                      className="h-12 w-12 rounded-full border-2 border-orange-500/60 object-cover shadow-lg"
+                      className="h-12 w-12 rounded-full border-2 border-orange-500/70 object-cover shadow-lg shrink-0"
                     />
                   ) : (
-                    <div className="grid h-12 w-12 place-items-center rounded-full bg-orange-500/20 text-orange-400 font-bold text-lg border border-orange-500/40">
+                    <div className="grid h-12 w-12 place-items-center rounded-full bg-orange-500/20 text-orange-400 font-bold text-lg border border-orange-500/40 shrink-0">
                       {poll.authorName[0]}
                     </div>
                   )}
                   <div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-white">{poll.authorName}</span>
-                      <CheckCircle2 className="h-4 w-4 text-orange-400" />
+                      <CheckCircle2 className="h-4 w-4 text-orange-400 shrink-0" />
                       {poll.authorHandle && (
-                        <span className="text-xs text-white/40">{poll.authorHandle}</span>
+                        <span className="text-xs text-white/40 hidden sm:inline">{poll.authorHandle}</span>
                       )}
                     </div>
                     <p className="text-xs text-white/60">{poll.authorRole}</p>
@@ -321,9 +353,9 @@ export default function DiscoveryDetail() {
                 {poll.connectedScene && (
                   <Link
                     to={`/scenes/${poll.connectedScene.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/20 px-3.5 py-1.5 rounded-xl transition"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/25 px-4 py-2 rounded-xl transition hover:bg-orange-500/20 shadow-sm"
                   >
-                    <span>Connected Scene: {poll.connectedScene.title}</span>
+                    <span>Scene: {poll.connectedScene.title}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 )}
@@ -333,18 +365,18 @@ export default function DiscoveryDetail() {
 
           {/* 2-Column Content Grid */}
           <section className="container mx-auto px-4 sm:px-6">
-            <div className="max-w-4xl mx-auto grid gap-8 lg:grid-cols-[1fr_340px] items-start">
+            <div className="max-w-5xl mx-auto grid gap-8 lg:grid-cols-[1fr_360px] items-start">
               
-              {/* Left Column: Interactive Ballot & Debate Content */}
+              {/* Left Column: Interactive Ballot & Dynamic Hub */}
               <div className="space-y-8">
                 
                 {/* Community Unlock Battery Card */}
-                <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-gray-900/90 via-gray-950 to-gray-900 p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+                <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-gray-900/95 via-gray-950 to-gray-900 p-6 sm:p-7 shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
+                      <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" />
                         COMMUNITY UNLOCK BATTERY
                       </span>
@@ -356,7 +388,7 @@ export default function DiscoveryDetail() {
                       <span className="text-2xl font-black text-orange-400">
                         {totalVotes} <span className="text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Power Units</span>
                       </span>
-                      <p className="text-[11px] text-white/50 font-medium">{progressPercentage}% charged</p>
+                      <p className="text-[11px] text-white/50 font-medium">{progressPercentage}% charged toward bulk drop</p>
                     </div>
                   </div>
 
@@ -369,7 +401,7 @@ export default function DiscoveryDetail() {
                   </div>
 
                   {/* Milestone Target Explanation */}
-                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-950/40 to-black/60 border border-orange-500/30 flex items-start gap-3.5">
+                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-950/50 to-black/70 border border-orange-500/30 flex items-start gap-3.5">
                     <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0 mt-0.5">
                       <Gift className="w-5 h-5" />
                     </div>
@@ -378,12 +410,12 @@ export default function DiscoveryDetail() {
                       <p className="text-sm font-bold text-white mt-0.5">{poll.targetUnlockPerk}</p>
                       {isThresholdMet ? (
                         <p className="text-xs text-emerald-400 font-bold mt-1.5 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5" /> 🎉 TARGET UNLOCKED! Tasting Pass codes are dropping to all voters!
+                          <Sparkles className="h-3.5 w-3.5" /> 🎉 TARGET UNLOCKED! Tasting Pass codes are dropping to all verified voters!
                         </p>
                       ) : (
                         <p className="text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
-                          <Flame className="w-3.5 h-3.5 text-orange-400" />
-                          <span>Only {votesRemaining} more votes needed to unlock this perk for everyone!</span>
+                          <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                          <span>Only {votesRemaining} more votes needed to unlock this perk for everyone in Kingston!</span>
                         </p>
                       )}
                     </div>
@@ -399,11 +431,13 @@ export default function DiscoveryDetail() {
                         <span>Cast Your Vote</span>
                       </h2>
                       <p className="text-xs text-white/60 mt-0.5">
-                        {userVotedOptionId ? "🎯 Choice locked in! Your reward has been credited." : "Select your pick below to back your candidate and charge the meter."}
+                        {userVotedOptionId 
+                          ? "🎯 Choice locked in! Personalized spots & referral rewards unlocked below." 
+                          : "Select your benchmark pick below to back your tier and earn instant reward points."}
                       </p>
                     </div>
 
-                    <span className="text-xs font-black text-orange-400/80 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                    <span className="text-xs font-black text-orange-400/90 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
                       {poll.options.length} Contenders
                     </span>
                   </div>
@@ -413,7 +447,7 @@ export default function DiscoveryDetail() {
                     {poll.options.map((option) => {
                       const votePercentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
                       const isSelected = userVotedOptionId === option.id;
-                      const isLeading = leadingOption?.id === option.id && totalVotes > 10;
+                      const isLeading = leadingOption?.id === option.id && totalVotes > 5;
 
                       return (
                         <button
@@ -423,7 +457,9 @@ export default function DiscoveryDetail() {
                           className={`w-full relative overflow-hidden p-4 rounded-2xl text-left border transition-all duration-200 group ${
                             isSelected
                               ? "border-orange-500 bg-orange-500/20 text-white font-bold ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/10"
-                              : "border-white/10 bg-white/[0.02] text-white hover:border-white/25 hover:bg-white/[0.06] active:scale-[0.99]"
+                              : userVotedOptionId
+                              ? "border-white/5 bg-white/[0.02] text-white/70"
+                              : "border-white/10 bg-white/[0.02] text-white hover:border-orange-500/50 hover:bg-white/[0.06] active:scale-[0.99]"
                           }`}
                         >
                           {/* Animated vote percentage background bar */}
@@ -437,7 +473,7 @@ export default function DiscoveryDetail() {
                           )}
 
                           <div className="relative z-10 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex items-center gap-3.5 min-w-0">
                               <div
                                 className={`h-6 w-6 rounded-full flex items-center justify-center border shrink-0 transition ${
                                   isSelected
@@ -452,13 +488,13 @@ export default function DiscoveryDetail() {
                                 )}
                               </div>
                               
-                              <div className="text-left">
+                              <div className="text-left min-w-0">
                                 <span className="text-sm font-bold text-white block">
                                   {option.text}
                                 </span>
                                 {isLeading && (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-400 mt-0.5">
-                                    <Sparkles className="w-2.5 h-2.5" /> Leading Contender ({votePercentage}%)
+                                    <Sparkles className="w-2.5 h-2.5" /> Leading Choice ({votePercentage}%)
                                   </span>
                                 )}
                               </div>
@@ -466,7 +502,7 @@ export default function DiscoveryDetail() {
 
                             {userVotedOptionId && (
                               <div className="text-right shrink-0">
-                                <span className="text-base font-black text-white block">
+                                <span className="text-base font-black text-white block font-mono">
                                   {votePercentage}%
                                 </span>
                                 <span className="text-[11px] text-white/50">
@@ -480,51 +516,6 @@ export default function DiscoveryDetail() {
                     })}
                   </div>
 
-                  {/* Post-Vote Micro-Conversion & Reward Banner */}
-                  {userVotedOptionId && (
-                    <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-300">
-                      <div className="flex items-start gap-3.5">
-                        <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0">
-                          <Gift className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-black text-white">Loot Bag Claimed! 🎯</h4>
-                            <span className="px-2 py-0.5 rounded-md bg-orange-500 text-black text-[10px] font-black uppercase">
-                              +{poll.pointsReward} Pts
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/80 mt-1 leading-relaxed">
-                            You're registered on the voter ledger! When this hits {poll.thresholdForMoment} votes, your exclusive tasting pass code will drop directly into your Vault.
-                          </p>
-
-                          <div className="mt-4 flex flex-wrap items-center gap-3">
-                            <button
-                              onClick={() => {
-                                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
-                              }}
-                              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
-                            >
-                              <Share2 className="w-4 h-4" />
-                              <span>Rally WhatsApp Squad (Unlock 2x Faster)</span>
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(shareUrl);
-                                toast.success("Share link copied to clipboard!");
-                              }}
-                              className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Link</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Add Custom Candidate Nomination */}
                   {!userVotedOptionId && !showAddOption && (
                     <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
@@ -533,7 +524,7 @@ export default function DiscoveryDetail() {
                         className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1.5 transition"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>Put your local spot on the map 📍</span>
+                        <span>Nominate another choice or spot 📍</span>
                       </button>
                     </div>
                   )}
@@ -546,7 +537,7 @@ export default function DiscoveryDetail() {
                           type="text"
                           value={newOptionText}
                           onChange={(e) => setNewOptionText(e.target.value)}
-                          placeholder="Type your candidate spot or choice name..."
+                          placeholder="Type your candidate choice or price point..."
                           className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-orange-500"
                         />
                         <Button
@@ -561,12 +552,190 @@ export default function DiscoveryDetail() {
                   )}
                 </div>
 
+                {/* ------------------------------------------------------------- */}
+                {/* DYNAMIC POST-VOTE ENGINE: RECOMMENDATIONS & MISSIONS */}
+                {/* ------------------------------------------------------------- */}
+                {userVotedOptionId && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    
+                    {/* 1. Choice Recommendations Card */}
+                    <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-950/30 to-black/60 p-6 sm:p-8 backdrop-blur-md space-y-5 shadow-2xl">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 flex items-center gap-1">
+                            <Target className="w-3.5 h-3.5" />
+                            DYNAMIC RECOMMENDATIONS
+                          </span>
+                          <h3 className="text-xl font-bold text-white mt-1">
+                            Curated Drops Matched to Your Choice
+                          </h3>
+                        </div>
+                        <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 text-xs w-fit">
+                          🎯 Pick: {selectedOptionObj?.text.split('(')[0].trim()}
+                        </Badge>
+                      </div>
+
+                      {activeRecommendations.length > 0 ? (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          {activeRecommendations.map((rec) => (
+                            <div
+                              key={rec.id}
+                              className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
+                            >
+                              <div>
+                                {rec.image && (
+                                  <div className="relative h-32 w-full rounded-xl overflow-hidden mb-3">
+                                    <img
+                                      src={rec.image}
+                                      alt={rec.title}
+                                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-orange-400 border border-white/10">
+                                      {rec.badge || rec.category}
+                                    </span>
+                                  </div>
+                                )}
+                                <h4 className="text-sm font-bold text-white group-hover:text-orange-300 transition">
+                                  {rec.title}
+                                </h4>
+                                <p className="text-xs text-white/50 mt-0.5">{rec.subtitle}</p>
+                                
+                                <div className="mt-3 p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                                  <p className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                                    <Gift className="w-3 h-3 text-orange-400 shrink-0" />
+                                    {rec.dealOrPerk}
+                                  </p>
+                                  <p className="text-[10px] text-white/60 mt-1">
+                                    💡 {rec.matchReason}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                                <span className="text-[10px] text-white/40">{rec.location}</span>
+                                <Link
+                                  to={rec.actionUrl}
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 group-hover:translate-x-0.5 transition"
+                                >
+                                  <span>{rec.actionText}</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </Link>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/70">
+                          Your taste signal has been added to our Opportunity Radar. Matching food & shopping partner drops in Kingston will appear in your feed.
+                        </div>
+                      )}
+
+                      {/* Companion Missions Bar */}
+                      {poll.recommendedMissions && poll.recommendedMissions.length > 0 && (
+                        <div className="mt-5 pt-4 border-t border-white/10 space-y-3">
+                          <p className="text-xs font-black uppercase tracking-wider text-white/50">
+                            UNLOCKED COMPANION MISSIONS
+                          </p>
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {poll.recommendedMissions.map((ms) => (
+                              <Link
+                                key={ms.id}
+                                to={ms.url}
+                                className="flex items-center justify-between p-3 rounded-xl border border-purple-500/30 bg-purple-950/20 hover:bg-purple-950/40 transition group"
+                              >
+                                <div>
+                                  <span className="text-[10px] font-bold text-purple-400 uppercase">{ms.type}</span>
+                                  <p className="text-xs font-bold text-white group-hover:text-purple-300">{ms.title}</p>
+                                </div>
+                                <span className="text-xs font-mono font-bold text-amber-400 shrink-0 ml-2">
+                                  {ms.reward}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. Viral Squad Referral Accelerator Widget */}
+                    <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 via-gray-900 to-gray-950 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 shrink-0">
+                          <Users className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 justify-between">
+                            <h4 className="text-base font-black text-white">
+                              Squad Unlock Accelerator 🚀
+                            </h4>
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
+                              +{poll.squadGoal?.bonusPointsPerInvite || 25} Pts Per Friend
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-white/80 mt-1.5 leading-relaxed">
+                            Don't want to wait for the 160 community votes? Invite <strong>{targetSquadInvites} friends</strong> to vote and unlock your <strong>{poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass Key'}</strong> instantly!
+                          </p>
+
+                          {/* Live Squad Progress Indicator */}
+                          <div className="mt-4 p-3.5 rounded-2xl bg-black/50 border border-white/10">
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span className="text-white/70">Squad Invitations Verified</span>
+                              <span className={isSquadUnlocked ? "text-emerald-400" : "text-amber-400"}>
+                                {squadInvites} / {targetSquadInvites} Friends Joined
+                              </span>
+                            </div>
+                            <div className="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-emerald-400 to-teal-300 transition-all duration-500"
+                                style={{ width: `${Math.min(100, (squadInvites / targetSquadInvites) * 100)}%` }}
+                              />
+                            </div>
+                            {isSquadUnlocked && (
+                              <p className="text-xs text-emerald-400 font-bold mt-2 flex items-center gap-1">
+                                <CheckCircle2 className="w-4 h-4" /> VIP Early Access Key has been added to your Vault!
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Action Sharing Buttons */}
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <button
+                              onClick={() => {
+                                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
+                                handleSimulateInvite();
+                              }}
+                              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+                            >
+                              <Share2 className="w-4 h-4" />
+                              <span>Challenge WhatsApp Squad</span>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(shareUrl);
+                                toast.success("Tracked referral link copied to clipboard!");
+                                handleSimulateInvite();
+                              }}
+                              className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Squad Link</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                )}
+
                 {/* Scout Context & Deep Dive */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 THE STORY & WHY IT MATTERS</span>
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-white">Behind The Quest</h3>
+                  <h3 className="font-serif text-2xl font-bold text-white">Behind The Demand Signal</h3>
                   <p className="text-sm sm:text-base leading-relaxed text-white/80">
                     {poll.description}
                   </p>
@@ -603,22 +772,22 @@ export default function DiscoveryDetail() {
                         <Flame className="h-5 w-5 text-orange-400" />
                         <span>🥊 Live Arena & Hot Takes</span>
                       </h3>
-                      <p className="text-xs text-white/50">{comments.length} takes from the community</p>
+                      <p className="text-xs text-white/50">{comments.length} community takes logged</p>
                     </div>
                   </div>
 
                   {/* Add Argument Form */}
                   <form onSubmit={handleAddComment} className="space-y-3 border-b border-white/10 pb-6">
-                    <p className="text-xs font-bold text-white/90">Drop your hot take: Why does your pick deserve the crown?</p>
+                    <p className="text-xs font-bold text-white/90">Drop your hot take: Why does your choice make sense?</p>
                     <textarea
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Back your candidate with real notes, flavor comparisons, or memories..."
+                      placeholder="Back your choice with real notes, kitchen tests, or flavor notes..."
                       rows={3}
                       className="w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-xs text-white placeholder:text-white/40 focus:border-orange-500 focus:outline-none leading-relaxed"
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-white/40">Real talk only. Keep it authentic.</span>
+                      <span className="text-[11px] text-white/40">Real scout notes only. Keep it authentic.</span>
                       <Button
                         type="submit"
                         disabled={!commentText.trim()}
@@ -626,7 +795,7 @@ export default function DiscoveryDetail() {
                         className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Post Hot Take</span>
+                        <span>Post Take</span>
                       </Button>
                     </div>
                   </form>
@@ -682,7 +851,7 @@ export default function DiscoveryDetail() {
               <aside className="sticky top-24 space-y-6">
                 
                 {/* Demand-to-Supply Engine Card */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl space-y-4">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl space-y-4 shadow-xl">
                   <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-orange-400" />
                     THE PEOPLE'S GREENLIGHT
@@ -697,21 +866,21 @@ export default function DiscoveryDetail() {
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         1
                       </div>
-                      <p className="text-white/80"><strong>Vote & Back Your Spot:</strong> Select your favorite candidate.</p>
+                      <p className="text-white/80"><strong>Vote Your Tier:</strong> Cast your benchmark vote.</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         2
                       </div>
-                      <p className="text-white/80"><strong>Charge The Battery:</strong> At {poll.thresholdForMoment} votes, Promorang locks in the sponsor contract.</p>
+                      <p className="text-white/80"><strong>Unlock Matched Deals:</strong> Instantly get partner recommendations.</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         3
                       </div>
-                      <p className="text-white/80"><strong>Exclusive Drop:</strong> Voters get priority passes and discount keys in their Vault.</p>
+                      <p className="text-white/80"><strong>Rally Your Squad:</strong> Get friends to vote for instant VIP early unlock.</p>
                     </div>
                   </div>
 
@@ -730,7 +899,7 @@ export default function DiscoveryDetail() {
 
                 {/* Related Debates */}
                 {otherPolls.length > 0 && (
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl space-y-4">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl space-y-4 shadow-xl">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
                       MORE ACTIVE DEBATES
                     </span>
@@ -764,6 +933,34 @@ export default function DiscoveryDetail() {
 
             </div>
           </section>
+
+          {/* Floating Mobile Action Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 p-3 bg-black/80 backdrop-blur-xl border-t border-white/10 sm:hidden">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] text-white/60 font-bold uppercase truncate">
+                  {userVotedOptionId ? "Loot Bag Claimed 🎯" : "Active Demand Signal"}
+                </p>
+                <p className="text-xs font-bold text-orange-400 truncate">
+                  {totalVotes}/{poll.thresholdForMoment} Power Units
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  if (userVotedOptionId) {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
+                  } else {
+                    window.scrollTo({ top: 350, behavior: 'smooth' });
+                  }
+                }}
+                size="sm"
+                className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 shrink-0 shadow-lg shadow-orange-500/20"
+              >
+                {userVotedOptionId ? "Rally Squad 🚀" : "Cast Vote 🗳️"}
+              </Button>
+            </div>
+          </div>
+
         </div>
       </main>
     );

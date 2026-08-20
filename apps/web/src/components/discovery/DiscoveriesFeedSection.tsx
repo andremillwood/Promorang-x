@@ -308,25 +308,31 @@ export function DiscoveriesFeedSection() {
                           onClick={() => handleVote(poll.id, opt.id, poll.pointsReward)}
                           className={`relative w-full overflow-hidden rounded-xl border p-2.5 text-left transition ${
                             isUserPick
-                              ? "border-primary bg-primary/15 text-white ring-1 ring-primary"
+                              ? "border-primary bg-primary/15 text-white ring-1 ring-primary shadow-sm"
                               : hasVoted
                               ? "border-white/5 bg-white/[0.02] text-white/70"
-                              : "border-white/10 bg-white/[0.03] text-white/80 hover:border-primary/50 hover:bg-white/[0.08]"
+                              : "border-white/10 bg-white/[0.03] text-white/80 hover:border-primary/50 hover:bg-white/[0.08] active:scale-[0.99]"
                           }`}
                         >
                           {/* Percentage fill background when voted */}
                           {hasVoted && (
                             <div
-                              className="absolute inset-y-0 left-0 bg-primary/10 transition-all duration-700"
+                              className={`absolute inset-y-0 left-0 transition-all duration-700 ${
+                                isUserPick ? "bg-primary/20" : "bg-white/[0.04]"
+                              }`}
                               style={{ width: `${optPercent}%` }}
                             />
                           )}
 
                           <div className="relative flex items-center justify-between gap-2 text-xs">
-                            <span className="flex items-center gap-2 font-medium">
-                              {isUserPick && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
-                              <span className="line-clamp-1">{opt.text}</span>
-                            </span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              {isUserPick ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                              ) : (
+                                <span className="h-1.5 w-1.5 rounded-full bg-white/30 shrink-0" />
+                              )}
+                              <span className="font-semibold text-white truncate">{opt.text}</span>
+                            </div>
                             {hasVoted && (
                               <span className="font-mono text-[11px] font-bold text-primary shrink-0">
                                 {optPercent}%
@@ -337,6 +343,21 @@ export function DiscoveriesFeedSection() {
                       );
                     })}
                   </div>
+
+                  {/* Post-Vote Micro-Teaser */}
+                  {hasVoted && (
+                    <div className="mt-3 p-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 flex items-center justify-between gap-2 text-[11px]">
+                      <span className="text-primary font-bold flex items-center gap-1 truncate">
+                        <Sparkles className="w-3 h-3 shrink-0" /> Matched deals & squad link ready
+                      </span>
+                      <Link
+                        to={`/discoveries/${poll.slug}`}
+                        className="text-white font-bold hover:text-primary transition shrink-0 underline decoration-primary/50"
+                      >
+                        Explore →
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {/* Card Bottom Meta */}
@@ -350,7 +371,7 @@ export function DiscoveriesFeedSection() {
                     to={`/discoveries/${poll.slug}`}
                     className="flex items-center gap-1 font-bold text-primary hover:underline"
                   >
-                    <span>View Discussion</span>
+                    <span>{hasVoted ? "View Hub & Squad" : "View Discussion"}</span>
                     {poll.comments?.length > 0 && (
                       <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[9px] text-white">
                         {poll.comments.length}

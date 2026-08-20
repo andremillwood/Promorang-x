@@ -1,18 +1,22 @@
-export interface DiscoveryOption {
+export interface OptionRecommendation {
   id: string;
-  text: string;
-  votes: number;
+  title: string;
+  subtitle: string;
+  category: string;
+  badge?: string;
+  image?: string;
+  location?: string;
+  dealOrPerk: string;
+  actionText: string;
+  actionUrl: string;
+  matchReason: string;
 }
 
-export interface DiscoveryComment {
-  id: string;
-  author: string;
-  avatarUrl?: string;
-  badge?: string;
-  optionSupported?: string;
-  text: string;
-  likes: number;
-  timeAgo: string;
+export interface SquadRewardGoal {
+  targetInvites: number;
+  bonusPointsPerInvite: number;
+  instantPerkUnlockTitle: string;
+  squadRewardBadge: string;
 }
 
 export interface DiscoveryPoll {
@@ -40,6 +44,15 @@ export interface DiscoveryPoll {
   };
   comments: DiscoveryComment[];
   tags: string[];
+  squadGoal?: SquadRewardGoal;
+  optionRecommendations?: Record<string, OptionRecommendation[]>;
+  recommendedMissions?: Array<{
+    id: string;
+    title: string;
+    reward: string;
+    type: string;
+    url: string;
+  }>;
 }
 
 export const DISCOVERY_POLLS: DiscoveryPoll[] = [
@@ -59,12 +72,150 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     thresholdForMoment: 160,
     targetUnlockPerk: '🎁 J$500 Off 1L Tasting Voucher at Select Kingston Grocers',
     pointsReward: 35,
+    squadGoal: {
+      targetInvites: 2,
+      bonusPointsPerInvite: 25,
+      instantPerkUnlockTitle: 'Instant VIP Tasting Pass Key',
+      squadRewardBadge: 'Taste Catalyst Badge'
+    },
     options: [
       { id: 'opt-p1', text: 'Under J$1,000 (Bargain Level)', votes: 14 },
       { id: 'opt-p2', text: 'J$1,000 – J$1,499 (PriceSmart Roadshow Tier ~J$1,200)', votes: 48 },
       { id: 'opt-p3', text: 'J$1,500 – J$1,999 (Premium Quality Match)', votes: 52 },
       { id: 'opt-p4', text: 'J$2,000 – J$2,499 (Imported Gourmet Standard)', votes: 28 },
       { id: 'opt-p5', text: 'J$2,500+ (Stated Regular Retail ~J$2,700)', votes: 16 }
+    ],
+    optionRecommendations: {
+      'opt-p1': [
+        {
+          id: 'rec-ps-redhills',
+          title: 'PriceSmart Kingston Roadshow',
+          subtitle: 'Red Hills Road • Wholesale Club',
+          category: 'Bulk Value Drop',
+          badge: 'Wholesale Match',
+          image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop&q=80',
+          location: 'Red Hills Rd, Kingston',
+          dealOrPerk: 'Special J$1,199 1L Trial Carton with Free Demo Tasting Cup',
+          actionText: 'Get Roadshow Pass',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Matched to your bargain-hunting tier. Best per-litre rate available in Kingston.'
+        },
+        {
+          id: 'rec-mega-baking',
+          title: 'MegaMart Kingston Bakery Section',
+          subtitle: 'Upper Waterloo Rd • Everyday Grocer',
+          category: 'Baking Essentials',
+          badge: '10% Back in Points',
+          image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&auto=format&fit=crop&q=80',
+          location: '29 Upper Waterloo Rd, Kingston',
+          dealOrPerk: '100 Bonus PromoPoints with any dairy purchase receipt upload',
+          actionText: 'View Grocer Deal',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Budget-friendly staple partner with active receipt scan bounties.'
+        }
+      ],
+      'opt-p2': [
+        {
+          id: 'rec-ps-redhills',
+          title: 'PriceSmart Kingston Live Tasting Booth',
+          subtitle: 'Red Hills Road • Live Roadshow Station',
+          category: 'Live Activation',
+          badge: 'Active Roadshow',
+          image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&auto=format&fit=crop&q=80',
+          location: 'Red Hills Rd, Kingston',
+          dealOrPerk: 'Sample hot Rasta Pasta & chilled Mousse at the booth this Friday!',
+          actionText: 'RSVP for Roadshow',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Direct match for your J$1,200 tier pick. Live demo & discount voucher booth.'
+        },
+        {
+          id: 'rec-sovereign-super',
+          title: 'Sovereign Supermarket Liguanea',
+          subtitle: 'Liguanea Plaza • Gourmet Dairy Aisle',
+          category: 'Local Convenience',
+          badge: 'Express Pickup',
+          image: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=500&auto=format&fit=crop&q=80',
+          location: '106 Hope Rd, Kingston 6',
+          dealOrPerk: 'J$300 Voucher on 2× Arla Pro 1L Cartons',
+          actionText: 'Claim Voucher Key',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Central Kingston spot stocking fresh chilled cartons at promotional pricing.'
+        }
+      ],
+      'opt-p3': [
+        {
+          id: 'rec-uncorked-cheese',
+          title: 'Uncorked Cheese & Gourmet Market',
+          subtitle: 'Barbican & Sovereign North',
+          category: 'Artisan Gourmet',
+          badge: 'Chef Recommended',
+          image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&auto=format&fit=crop&q=80',
+          location: 'Sovereign North, Barbican, Kingston',
+          dealOrPerk: '15% Off Artisan Pasta Kits with Dairy Pairing',
+          actionText: 'View Gourmet Perks',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Matches your premium quality benchmark for high-end culinary prep.'
+        },
+        {
+          id: 'rec-cpj-market',
+          title: 'CPJ Market Kingston',
+          subtitle: 'Lady Musgrave Rd • Foodservice Hub',
+          category: 'Pro Culinary',
+          badge: 'Pro Tier Match',
+          image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80',
+          location: '71 Lady Musgrave Rd, Kingston',
+          dealOrPerk: 'Wholesale Case Pricing Access with PromoKey',
+          actionText: 'Unlock Case Key',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Preferred pro-grade supplier for restaurant-quality European dairy.'
+        }
+      ],
+      'opt-p4': [
+        {
+          id: 'rec-cpj-market',
+          title: 'CPJ Market Premium Cellar & Dairy',
+          subtitle: 'Lady Musgrave Rd • Imported Delicacies',
+          category: 'Gourmet Standard',
+          badge: 'Import Grade',
+          image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80',
+          location: '71 Lady Musgrave Rd, Kingston',
+          dealOrPerk: 'Free Chef Recipe Booklet & J$600 Tasting Credit',
+          actionText: 'Claim Chef Pass',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'For cooks who prioritize zero curdling over lowest price point.'
+        }
+      ],
+      'opt-p5': [
+        {
+          id: 'rec-uncorked-cheese',
+          title: 'Uncorked Specialty Market',
+          subtitle: 'Barbican • Boutique Provisions',
+          category: 'Luxury Pantry',
+          badge: 'Top Shelf',
+          image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&auto=format&fit=crop&q=80',
+          location: 'Sovereign North, Barbican',
+          dealOrPerk: 'Exclusive Chef Demo Table Access',
+          actionText: 'Explore Collection',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Recognizes regular supermarket pricing and unlocks VIP culinary tasting perks.'
+        }
+      ]
+    },
+    recommendedMissions: [
+      {
+        id: 'ms-pasta-challenge',
+        title: 'Cook & Snap: 30-Min Savory Rasta Pasta',
+        reward: '+120 PromoPoints',
+        type: 'Creator Quest',
+        url: '/missions'
+      },
+      {
+        id: 'ms-dessert-whip',
+        title: 'Baking Challenge: 3.5× Stable Mousse Peak',
+        reward: '+150 PromoPoints',
+        type: 'Taste Trial',
+        url: '/missions'
+      }
     ],
     connectedScene: {
       title: 'Food & Taste Culture',
@@ -199,11 +350,88 @@ export const DISCOVERY_POLLS: DiscoveryPoll[] = [
     thresholdForMoment: 120,
     targetUnlockPerk: '🍗 25% Off Jerk Platter & Craft Beer Tasting Pass (Winning Spot)',
     pointsReward: 35,
+    squadGoal: {
+      targetInvites: 2,
+      bonusPointsPerInvite: 25,
+      instantPerkUnlockTitle: 'Instant Friday Jerk Fast-Pass',
+      squadRewardBadge: 'Jerk Connoisseur Badge'
+    },
     options: [
       { id: 'opt-j1', text: '🔥 Sweetwood Jerk Joint (Liguanea)', votes: 48 },
       { id: 'opt-j2', text: '🌿 Scotchies Jerk Center (Chelsea Ave)', votes: 39 },
       { id: 'opt-j3', text: '🌊 Boston Jerk Table (Downtown Waterfront)', votes: 16 },
       { id: 'opt-j4', text: '🍖 Pepperwood Jerk Center (New Kingston)', votes: 9 }
+    ],
+    optionRecommendations: {
+      'opt-j1': [
+        {
+          id: 'rec-sweetwood',
+          title: 'Sweetwood Jerk Joint',
+          subtitle: 'Liguanea • Pimento Wood Fire Pit',
+          category: 'Kingston Classic',
+          badge: 'Friday Peak Lyme',
+          image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=80',
+          location: 'Liguanea (opp Emancipation Park side), Kingston',
+          dealOrPerk: 'Complimentary Festival & Roast Breadfruit with 1lb Jerk Order',
+          actionText: 'View Spot Card',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Your selected champion. Unlocks local crowd radar & Friday specials.'
+        }
+      ],
+      'opt-j2': [
+        {
+          id: 'rec-scotchies',
+          title: 'Scotchies Jerk Center',
+          subtitle: 'Chelsea Ave, New Kingston',
+          category: 'Garden Lyme',
+          badge: 'Signature Sauce',
+          image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&auto=format&fit=crop&q=80',
+          location: 'Chelsea Ave, Kingston 5',
+          dealOrPerk: '10% Off Platter & Secret Sauce Tasting Key',
+          actionText: 'Claim Scotchies Key',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Classic open-air thatched roof experience with legendary pepper blend.'
+        }
+      ],
+      'opt-j3': [
+        {
+          id: 'rec-boston-downtown',
+          title: 'Boston Jerk Table Downtown',
+          subtitle: 'Kingston Waterfront',
+          category: 'Waterfront Street Food',
+          badge: 'Authentic Portland Style',
+          image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=80',
+          location: 'Ocean Blvd Waterfront, Downtown Kingston',
+          dealOrPerk: 'BOGO Coconut Water with any 1/2lb Pork or Chicken',
+          actionText: 'Explore Downtown Spot',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Waterfront ocean breeze matched with authentic Portland pimento pit flavors.'
+        }
+      ],
+      'opt-j4': [
+        {
+          id: 'rec-pepperwood',
+          title: 'Pepperwood Jerk Center',
+          subtitle: 'Chelsea Ave / New Kingston',
+          category: 'After-Work Lyme',
+          badge: 'Live Sports & Grill',
+          image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=500&auto=format&fit=crop&q=80',
+          location: 'New Kingston Business District',
+          dealOrPerk: 'Double Points on Friday Happy Hour orders',
+          actionText: 'View Happy Hour Deal',
+          actionUrl: '/scenes/food-taste',
+          matchReason: 'Prime Friday spot for business district professionals and post-work lymes.'
+        }
+      ]
+    },
+    recommendedMissions: [
+      {
+        id: 'ms-jerk-crawl',
+        title: 'Kingston Jerk Crawl: Review 2 Pit Spots',
+        reward: '+200 PromoPoints',
+        type: 'Foodie Trail',
+        url: '/missions'
+      }
     ],
     connectedScene: {
       title: 'Food & Taste Culture',
