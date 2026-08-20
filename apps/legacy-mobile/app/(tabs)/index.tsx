@@ -37,6 +37,8 @@ import { useMaturityStore, UserMaturityState } from '@/store/maturityStore';
 import TodayLayout from '@/components/TodayLayout';
 import OnboardingNudgeModal, { isNudgeDismissed } from '@/components/today/OnboardingNudgeModal';
 import UnlockProgressBar from '@/components/today/UnlockProgressBar';
+import { CreatorSpotlight, CreatorItem } from '@/components/feed/CreatorSpotlight';
+import TipCreatorModal from '@/components/TipCreatorModal';
 
 const ECONOMY_STEPS = [
   { id: 'monetize' as EconomyStep, label: 'Monetize', icon: Sparkles, color: '#F97316' },
@@ -64,6 +66,12 @@ export default function DashboardScreen() {
   const [activeEconomyModal, setActiveEconomyModal] = useState<EconomyStep | null>(null);
   const [showInstagramModal, setShowInstagramModal] = useState(false);
   const [showOnboardingNudge, setShowOnboardingNudge] = useState(false);
+  const [selectedCreatorForTip, setSelectedCreatorForTip] = useState<{
+    id: string;
+    username: string;
+    name: string;
+    avatar?: string;
+  } | null>(null);
 
   const isLoading = isFeedLoading || isTasksLoading || isEventsLoading || isCouponsLoading || isForecastsLoading || isProductsLoading;
 
@@ -285,6 +293,22 @@ export default function DashboardScreen() {
         />
       )}
 
+      {/* Creator Spotlight - Elevating Content Creators in the Product Mix */}
+      {activeTab === 'for-you' && (
+        <CreatorSpotlight
+          title="Featured Creators"
+          subtitle="Support breakout talent & original voices"
+          onTipCreator={(creator) => {
+            setSelectedCreatorForTip({
+              id: creator.id,
+              username: creator.username,
+              name: creator.name,
+              avatar: creator.avatar,
+            });
+          }}
+        />
+      )}
+
       {activeTab === 'events' && (
         <Card style={styles.eventsDiscoveryCard} variant="elevated">
           <View style={styles.eventsDiscoveryContent}>
@@ -367,6 +391,16 @@ export default function DashboardScreen() {
         onBack={handlePostBack}
         onUserPress={handleUserPress}
         onPostPress={handlePostPress}
+        onTip={(post) => {
+          if (post.creator) {
+            setSelectedCreatorForTip({
+              id: post.creator.id,
+              username: post.creator.username || 'creator',
+              name: post.creator.name || 'Creator',
+              avatar: post.creator.avatar,
+            });
+          }
+        }}
       />
     );
   };
@@ -463,6 +497,18 @@ export default function DashboardScreen() {
         visible={showOnboardingNudge}
         onClose={() => setShowOnboardingNudge(false)}
       />
+
+      {/* Tip Creator Modal */}
+      {selectedCreatorForTip && (
+        <TipCreatorModal
+          visible={true}
+          onClose={() => setSelectedCreatorForTip(null)}
+          creatorId={selectedCreatorForTip.id}
+          creatorUsername={selectedCreatorForTip.username}
+          creatorDisplayName={selectedCreatorForTip.name}
+          creatorImage={selectedCreatorForTip.avatar}
+        />
+      )}
     </View>
   );
 

@@ -79,12 +79,12 @@ export const HeaderSearchPreview: React.FC = () => {
       <button
         onClick={() => setIsOpen(true)}
         type="button"
-        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs text-white/60 hover:border-primary/40 hover:bg-white/[0.1] hover:text-white transition group"
+        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/70 hover:border-primary/40 hover:bg-white/[0.08] hover:text-white transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
       >
-        <Search className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-        <span className="hidden sm:inline">Search moments, places...</span>
+        <Search className="h-3.5 w-3.5 text-primary/80 group-hover:text-primary group-hover:scale-110 transition-transform" />
+        <span className="hidden sm:inline">Search moments...</span>
         <span className="inline sm:hidden">Search</span>
-        <kbd className="hidden md:inline-flex h-5 items-center gap-0.5 rounded border border-white/20 bg-white/10 px-1.5 font-mono text-[10px] font-medium text-white/50">
+        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50">
           ⌘K
         </kbd>
       </button>

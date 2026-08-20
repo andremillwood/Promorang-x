@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/promorang-logo.png";
+import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
 import {
   Home,
   Compass,
@@ -42,6 +43,9 @@ import {
   Gift,
   PanelLeftClose,
   PanelLeftOpen,
+  Coins,
+  ArrowUpRight,
+  Gem,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -821,6 +825,177 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <div className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", roleInfo.color)} />
             </div>
           </div> : null}
+        </div>
+
+        {/* Desktop In-App Top Command Bar */}
+        <div className="sticky top-0 z-30 hidden lg:flex items-center justify-between h-16 px-6 xl:px-8 border-b border-border/60 bg-background/80 backdrop-blur-xl transition-colors">
+          {/* Left: Breadcrumb / Active Context */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold shrink-0">
+              <roleInfo.icon className="h-3.5 w-3.5" />
+              <span>{roleInfo.label}</span>
+            </div>
+            <span className="text-border text-sm">/</span>
+            <h2 className="text-sm font-black text-foreground uppercase tracking-wide truncate">
+              {pageMeta.label}
+            </h2>
+          </div>
+
+          {/* Right: Search Palette, Quick Create, Wallet Balance, Notifications, Theme, Profile */}
+          <div className="flex items-center gap-2.5">
+            {/* Global Search Palette */}
+            <HeaderSearchPreview />
+
+            {/* Quick + Create Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>Create</span>
+                  <ChevronDown className="w-3 h-3 opacity-70" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground">
+                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Quick Actions
+                </div>
+                <DropdownMenuItem asChild>
+                  <Link to="/create/moment" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <div className="h-7 w-7 rounded-lg bg-orange-500/15 text-orange-500 flex items-center justify-center shrink-0">
+                      <Ticket className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold">New Moment</p>
+                      <p className="text-[10px] text-muted-foreground">Host an event or drop</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/create/campaign" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <div className="h-7 w-7 rounded-lg bg-purple-500/15 text-purple-500 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold">New Activation</p>
+                      <p className="text-[10px] text-muted-foreground">Fund a brand campaign</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/content-drops" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <div className="h-7 w-7 rounded-lg bg-sky-500/15 text-sky-500 flex items-center justify-center shrink-0">
+                      <PlayCircle className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold">Content Drop</p>
+                      <p className="text-[10px] text-muted-foreground">Distribute media & stories</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Wallet Balance Pill */}
+            <Link
+              to="/wallet"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/80 bg-card/80 hover:bg-muted/60 text-xs font-bold transition group"
+            >
+              <Coins className="w-3.5 h-3.5 text-primary group-hover:rotate-12 transition-transform" />
+              <span className="text-foreground">{profile?.points ? `${profile.points.toLocaleString()} pts` : "0 pts"}</span>
+            </Link>
+
+            {/* Notifications Bell */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="relative p-2 rounded-full hover:bg-muted/60 transition-colors outline-none cursor-pointer">
+                <Bell className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-background animate-pulse" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground">
+                <div className="p-2 pb-2 border-b border-border/40 flex items-center justify-between">
+                  <p className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Notifications</p>
+                  <span className="text-[10px] bg-rose-500/20 text-rose-500 px-1.5 py-0.5 rounded font-mono">Live</span>
+                </div>
+                <div className="flex flex-col gap-1 py-1">
+                  <div className="flex items-start gap-2.5 p-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition cursor-pointer">
+                    <div className="w-7 h-7 rounded-full bg-gradient-brand flex items-center justify-center shrink-0">
+                      <span className="text-white text-[10px] font-bold">S</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs leading-tight text-foreground">
+                        <span className="font-bold">Sarah Drop</span> hyped your moment 🔥
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">2m ago</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-border/40">
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate("/activity")}
+                    className="w-full text-xs text-muted-foreground hover:text-foreground h-7 rounded-lg"
+                  >
+                    View All Activity →
+                  </Button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* User Profile Avatar Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 p-1 rounded-full hover:bg-muted/60 transition-all outline-none cursor-pointer group">
+                <div className="relative h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xs font-bold shadow-sm overflow-hidden ring-1 ring-border">
+                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                    <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (user?.email || "?").charAt(0).toUpperCase()
+                  )}
+                  <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-background bg-emerald-500" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground space-y-1">
+                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/40 flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-black shrink-0 overflow-hidden">
+                    {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                      <img src={profile?.avatar_url || user?.user_metadata?.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      (user?.email || "?").charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold truncate text-foreground">{profile?.full_name || user?.user_metadata?.full_name || "Member"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium">Public Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/wallet" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <WalletCards className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium">Wallet & Rewards</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard/settings" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
+                    <Settings className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium">Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 p-2 rounded-xl text-rose-500 hover:bg-rose-500/10 cursor-pointer">
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-xs font-medium">Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Page Content */}

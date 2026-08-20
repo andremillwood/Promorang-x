@@ -329,8 +329,8 @@ export default function MidasCommercialProposal() {
                   <div className="flex items-start gap-3">
                     <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">✓</span>
                     <div>
-                      <strong className="text-white block font-bold">Permanent CSV Contact Directory</strong>
-                      <span>Midas exports an owned list of verified attendee phone numbers for direct WhatsApp marketing forever.</span>
+                      <strong className="text-white block font-bold">100% Owned Contact Directory & Broadcast Hub</strong>
+                      <span>Midas exports verified Jamaican attendee records and re-engages fans directly via targeted in-app dashboard alerts and email announcements.</span>
                     </div>
                   </div>
                 </div>
@@ -455,27 +455,34 @@ export default function MidasCommercialProposal() {
                     2. Fan Status & Loyalty Rank
                   </strong>
                   <p className="text-stone-400 text-xs leading-relaxed">
-                    Holding Midas Moment Pieces levels up partygoers' culture rank on Promorang, unlocking VIP perks for your upcoming December and Easter events.
+                    Holding Midas Moment Pieces levels up partygoers into <strong>Tier 3 Culture Insiders</strong>, automatically token-gating 20% early-bird discounts and VIP deck perks for your December and Easter festivals.
                   </p>
                 </div>
 
                 <div className="p-4 bg-black/50 border border-[#ffffff15] rounded-sm space-y-2">
                   <strong className="text-white font-bold block flex items-center gap-1.5 text-sm">
-                    <LockKeyhole className="w-4 h-4 text-emerald-400" />
-                    3. The Midas Memory Vault
+                    <Mail className="w-4 h-4 text-emerald-400" />
+                    3. Direct In-App & Email Hub
                   </strong>
                   <p className="text-stone-400 text-xs leading-relaxed">
-                    Fans return to Promorang week after week to revisit the vibe, keeping your audience warm and engaged without spending a dollar on retargeting ads.
+                    Broadcast holiday presales, soundcheck pass drops, or sponsored perks straight to attendees via in-app dashboard alerts and direct emails—without paying Meta ad fees.
                   </p>
                 </div>
               </div>
 
               <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex items-center justify-between text-xs font-mono text-stone-300">
                 <span className="text-purple-300">✓ Keeps your audience active 365 days a year between major calendar events</span>
-                <Link to="/vault" className="text-[#ffcf38] hover:underline flex items-center gap-1">
-                  <span>Explore Vault Hub</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link to="/vault" className="text-[#ffcf38] hover:underline flex items-center gap-1">
+                    <span>Live Vault Ladder</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
+                  <span className="text-white/20">·</span>
+                  <Link to="/hosts/midas" className="text-emerald-400 hover:underline flex items-center gap-1">
+                    <span>Host Broadcast Center</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -980,7 +987,7 @@ export default function MidasCommercialProposal() {
                 { step: 3, title: '3. Sophisticated', desc: 'Vanessa Bling + Aitix', path: '/moments/sophisticated?demo=midas&step=2', color: 'border-orange-500/40 text-orange-400' },
                 { step: 4, title: '4. Capleton Live', desc: 'Concert + Aitix', path: '/moments/encore-live-featuring-capleton?demo=midas&step=3', color: 'border-purple-500/40 text-purple-400' },
                 { step: 5, title: '5. Venue Hub', desc: 'Plantation Cove Profile', path: '/venues/plantation-cove?demo=midas&step=4', color: 'border-emerald-500/40 text-emerald-400' },
-                { step: 6, title: '6. Host Center', desc: 'Phone CRM & Gate Ops', path: '/hosts/midas?demo=midas&step=5', color: 'border-amber-500/40 text-amber-400' }
+                { step: 6, title: '6. Host Center', desc: 'Loyalty Scanner & Broadcast', path: '/hosts/midas?demo=midas&step=5', color: 'border-amber-500/40 text-amber-400' }
               ].map((s) => (
                 <button
                   key={s.step}
@@ -1069,11 +1076,11 @@ export default function MidasCommercialProposal() {
                 <div className="space-y-3 text-xs text-stone-300">
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>100% Owned Contact Database:</strong> Downloadable CSV of verified Jamaican attendee phone numbers for direct WhatsApp marketing.</span>
+                    <span><strong>100% Owned Contact Database:</strong> Downloadable CSV directory and direct in-app / email re-engagement hub to broadcast December & Easter presales.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>1.8x WhatsApp Referral Engine:</strong> Native pass forwarding driving direct ticket sales on Aitix.</span>
+                    <span><strong>1.8x Viral Referral Engine:</strong> Native pass forwarding driving direct ticket sales on Aitix.</span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -1081,7 +1088,7 @@ export default function MidasCommercialProposal() {
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Dedicated Midas Host Operations Center:</strong> Real-time gate scanner and attendance telemetry at `/hosts/midas`.</span>
+                    <span><strong>Dedicated Midas Host Operations & Broadcast Hub:</strong> Real-time gate scanner with Fan Loyalty Rank detection and direct in-app alerts at `/hosts/midas`.</span>
                   </div>
                 </div>
               </div>

@@ -103,7 +103,7 @@ const Vault = () => {
           </div>
 
           {/* Stat Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
               <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
               <p className="text-2xl font-black text-amber-400">{activePerks.length}</p>
@@ -112,9 +112,86 @@ const Vault = () => {
               <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Events Attended</span>
               <p className="text-2xl font-black text-white">{memories.length}</p>
             </div>
+            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Culture Score</span>
+              <p className="text-2xl font-black text-[#a855f7]">
+                {vaultData?.summary?.total_legacy_score || (memories.length * 75 || 150)} pts
+              </p>
+            </div>
             <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1 col-span-2 sm:col-span-1">
-              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Status</span>
-              <p className="text-2xl font-black text-[#ff5500]">Verified Guest</p>
+              <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Culture Rank</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#ff5500] animate-pulse" />
+                <p className="text-xl font-black text-[#ff5500]">
+                  {(vaultData?.summary?.total_legacy_score || 150) >= 700
+                    ? "Tier 4: VIP Icon"
+                    : (vaultData?.summary?.total_legacy_score || 150) >= 300
+                    ? "Tier 3: Culture Insider"
+                    : (vaultData?.summary?.total_legacy_score || 150) >= 100
+                    ? "Tier 2: Scene Regular"
+                    : "Tier 1: Scout"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Culture Rank Ladder & Privilege Card */}
+          <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-[#141218] to-[#121214] p-6 space-y-5 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs uppercase">
+                    ⭐ Prestige Loyalty Status
+                  </Badge>
+                  <span className="text-xs font-mono text-white/40">Verified On-Chain & In-App</span>
+                </div>
+                <h2 className="text-2xl font-extrabold text-white">
+                  Tier 2: Scene Regular — Unlocking VIP Doors
+                </h2>
+                <p className="text-xs text-white/70 max-w-2xl leading-relaxed">
+                  Every verified event check-in and Moment Piece in your Vault increases your status across all Promorang hosts, unlocking presales, free drinks, and backstage upgrades.
+                </p>
+              </div>
+              <div className="text-left sm:text-right shrink-0 bg-black/40 p-3 rounded-2xl border border-white/10">
+                <span className="text-[10px] font-mono text-stone-400 block uppercase">Next Rank Progression</span>
+                <strong className="text-sm font-mono text-purple-300">150 / 300 Pts to Tier 3</strong>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-0.5">
+                <div className="bg-gradient-to-r from-[#ff5500] to-purple-500 h-full rounded-full w-[50%] transition-all duration-500 shadow-[0_0_12px_#a855f7]" />
+              </div>
+              <div className="flex justify-between text-[10px] font-mono text-white/50">
+                <span>Tier 1: Scout (0 pts)</span>
+                <span className="text-amber-400 font-bold">Tier 2: Regular (100 pts) ✓ Current</span>
+                <span>Tier 3: Insider (300 pts)</span>
+                <span>Tier 4: VIP Icon (700+ pts)</span>
+              </div>
+            </div>
+
+            {/* Cross-Event Token-Gated Perks Teaser */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/10">
+              <div className="p-3.5 rounded-2xl bg-black/40 border border-emerald-500/30 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="space-y-1 text-xs">
+                  <strong className="text-white font-bold block">Unlocked: Midas Summer Piece Perks</strong>
+                  <p className="text-stone-300">
+                    Holding your verified attendance piece gives you <span className="text-emerald-400 font-bold">20% Early-Bird Presale & Express Gate Line</span> for Midas December 2026.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-black/40 border border-amber-500/30 flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1 text-xs">
+                  <strong className="text-white font-bold block">Next Unlock at Tier 3 (150 pts away)</strong>
+                  <p className="text-stone-300">
+                    Complimentary VIP Lounge Access & Backstage Soundcheck Double Passes for Easter Weekend Festival.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

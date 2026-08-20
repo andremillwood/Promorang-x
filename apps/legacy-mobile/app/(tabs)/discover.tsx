@@ -38,6 +38,8 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { BalancesBar } from '@/components/ui/BalancesBar';
 import { useAuthStore } from '@/store/authStore';
 import { Stack } from 'expo-router';
+import { CreatorSpotlight, CreatorItem } from '@/components/feed/CreatorSpotlight';
+import TipCreatorModal from '@/components/TipCreatorModal';
 
 const { width } = Dimensions.get('window');
 const API_URL = 'https://promorang-api.vercel.app';
@@ -61,8 +63,9 @@ interface FeaturedItem {
 }
 
 const CATEGORIES: Category[] = [
-    { id: 'events', name: 'Events', icon: Calendar, color: '#EC4899', route: '/events', description: 'Upcoming experiences' },
+    { id: 'creators', name: 'Creators', icon: Users, color: '#EC4899', route: '/profile/user2', description: 'Talent & voices' },
     { id: 'scout', name: 'Scout', icon: TrendingUp, color: '#F97316', route: '/bounty', description: 'Find viral content' },
+    { id: 'events', name: 'Events', icon: Calendar, color: '#8B5CF6', route: '/events', description: 'Upcoming experiences' },
     { id: 'market', name: 'Market', icon: BarChart3, color: '#14B8A6', route: '/market', description: 'Trade content shares' },
     { id: 'shop', name: 'Shop', icon: ShoppingBag, color: '#F59E0B', route: '/store', description: 'Products & merch' },
     { id: 'deals', name: 'Deals', icon: Gift, color: '#10B981', route: '/deals', description: 'Rewards & coupons' },
@@ -91,6 +94,12 @@ export default function DiscoverScreen() {
     const [featuredEvents, setFeaturedEvents] = useState<FeaturedItem[]>([]);
     const [trendingContent, setTrendingContent] = useState<FeaturedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedCreatorForTip, setSelectedCreatorForTip] = useState<{
+        id: string;
+        username: string;
+        name: string;
+        avatar?: string;
+    } | null>(null);
 
     useEffect(() => {
         fetchDiscoverData();
@@ -293,6 +302,20 @@ export default function DiscoverScreen() {
                     </View>
                 </View>
 
+                {/* Creator Spotlight */}
+                <CreatorSpotlight
+                    title="Trending Creators"
+                    subtitle="Connect with original voices shaping culture"
+                    onTipCreator={(creator) => {
+                        setSelectedCreatorForTip({
+                            id: creator.id,
+                            username: creator.username,
+                            name: creator.name,
+                            avatar: creator.avatar,
+                        });
+                    }}
+                />
+
                 {/* Featured Events */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -387,6 +410,17 @@ export default function DiscoverScreen() {
 
                 <View style={{ height: 40 }} />
             </ScrollView>
+
+            {selectedCreatorForTip && (
+                <TipCreatorModal
+                    visible={true}
+                    onClose={() => setSelectedCreatorForTip(null)}
+                    creatorId={selectedCreatorForTip.id}
+                    creatorUsername={selectedCreatorForTip.username}
+                    creatorDisplayName={selectedCreatorForTip.name}
+                    creatorImage={selectedCreatorForTip.avatar}
+                />
+            )}
         </View>
     );
 

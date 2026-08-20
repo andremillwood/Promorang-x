@@ -32,6 +32,8 @@ import {
   Store,
   ShoppingBag,
   Tag,
+  Compass,
+  Flame,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { HomeFeedToggle } from "@/components/feed/HomeFeedToggle";
@@ -589,6 +591,8 @@ export default function CinematicCultureHome() {
             <nav aria-label="Homepage discovery shortcuts" className="flex flex-wrap gap-2">
               {[
                 [CalendarDays, "Moments", "/discover/moments"],
+                [Flame, "Demand Polls", "/discover"],
+                [Compass, "Scout Spots", "/discover"],
                 [Tag, "Coupons & deals", "/discover/rewards"],
                 [Store, "Merchants", "/merchants"],
                 [ShoppingBag, "Products", "/shop"],

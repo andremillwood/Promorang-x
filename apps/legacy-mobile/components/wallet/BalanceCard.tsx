@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   balanceDivider: {
     width: 1,
     height: 30,
-    backgroundColor: theme.border,
+    backgroundColor: colors.lightGray,
     marginHorizontal: 12,
   },
   pendingContainer: {

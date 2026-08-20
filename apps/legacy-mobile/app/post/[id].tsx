@@ -512,65 +512,71 @@ export default function PostDetailScreen() {
     if (!relatedShare) {
       return (
         <Card style={styles.statsCard}>
-          <Text style={styles.infoTitle}>Content Shares</Text>
-          <Text style={styles.description}>No shares available for this content.</Text>
+          <Text style={styles.infoTitle}>Creator Backing Pool</Text>
+          <Text style={styles.description}>No active backing pool for this post yet.</Text>
         </Card>
       );
     }
 
-    const priceChangeColor = relatedShare.priceChange >= 0 ? colors.success : colors.error;
-    const PriceIcon = relatedShare.priceChange >= 0 ? TrendingUp : TrendingDown;
-
     return (
       <Card style={styles.statsCard}>
         <View style={styles.shareHeader}>
-          <Text style={styles.infoTitle}>Content Shares</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Sparkles size={18} color={colors.primary} />
+            <Text style={styles.infoTitle}>Back This Project</Text>
+          </View>
           <Badge
-            text={`${relatedShare.availableShares}/${relatedShare.totalShares} available`}
-            variant="info"
+            text="Milestone Rewards Active"
+            variant="primary"
           />
         </View>
 
+        <Text style={[styles.description, { marginTop: 4, marginBottom: 12 }]}>
+          Back this creator's vision early. When this post hits view milestones or lands brand sponsors, all backers receive automatic Gem rewards!
+        </Text>
+
         <View style={styles.shareStats}>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Current Price</Text>
+            <Text style={styles.statLabel}>Current Backing Value</Text>
             <View style={styles.priceContainer}>
-              <Text style={styles.statValue}>{relatedShare.currentPrice.toFixed(2)} PG</Text>
-              <View style={[styles.priceChange, { backgroundColor: priceChangeColor }]}>
-                <PriceIcon size={12} color={colors.white} />
-                <Text style={styles.priceChangeText}>
-                  {relatedShare.priceChangePercent.toFixed(1)}%
-                </Text>
-              </View>
+              <Text style={styles.statValue}>${relatedShare.currentPrice.toFixed(2)} Gems</Text>
             </View>
           </View>
 
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Dividend Pool</Text>
-            <Text style={styles.statValue}>{relatedShare.dividendPool.toFixed(2)} PG</Text>
+            <Text style={styles.statLabel}>Backers Pool</Text>
+            <Text style={styles.statValue}>${(relatedShare.totalShares - relatedShare.availableShares) * relatedShare.currentPrice} Gems</Text>
           </View>
         </View>
 
         <View style={styles.buySharesContainer}>
-          <Text style={styles.inputLabel}>Buy Shares</Text>
+          <Text style={styles.inputLabel}>Choose Number of Backer Shares</Text>
           <View style={styles.shareInputContainer}>
             <TextInput
               style={styles.shareInput}
               value={shareAmount}
               onChangeText={setShareAmount}
               keyboardType="numeric"
-              placeholder="# of shares"
+              placeholder="e.g. 1"
             />
-            <Text style={styles.shareInputSuffix}>× {relatedShare.currentPrice.toFixed(2)} PG</Text>
+            <Text style={styles.shareInputSuffix}>× ${relatedShare.currentPrice.toFixed(2)} Gems</Text>
           </View>
           <Button
-            title="Purchase Shares"
+            title="Back Project with Gems"
             onPress={handleBuyShares}
             variant="primary"
             size="lg"
             isLoading={isSubmitting}
             style={styles.submitButton}
           />
+          <TouchableOpacity
+            style={{ marginTop: 10, alignItems: 'center' }}
+            onPress={() => router.push(`/content-share/${relatedShare.id}` as any)}
+          >
+            <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700' }}>
+              View Full Creator Roadmap & Milestones →
+            </Text>
+          </TouchableOpacity>
         </View>
       </Card>
     );

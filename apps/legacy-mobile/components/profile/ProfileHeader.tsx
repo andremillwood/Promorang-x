@@ -21,6 +21,7 @@ interface ProfileHeaderProps {
   isCurrentUser: boolean;
   onEditProfile?: () => void;
   onFollow?: () => void;
+  onTipPress?: () => void;
   isFollowing?: boolean;
   leaderboardPosition?: number | null;
   store?: any;
@@ -31,6 +32,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   isCurrentUser,
   onEditProfile,
   onFollow,
+  onTipPress,
   isFollowing = false,
   leaderboardPosition,
   store,
@@ -371,12 +373,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 size="md"
                 style={[styles.primaryButton, isFollowing && { borderColor: theme.border }]}
               />
+              {onTipPress && (
+                <Button
+                  title="Tip"
+                  onPress={onTipPress}
+                  variant="primary"
+                  size="md"
+                  style={[styles.secondaryButton, { backgroundColor: '#F97316' }]}
+                  leftIcon={<Heart size={16} color="#FFF" fill="#FFF" />}
+                />
+              )}
               <Button
-                title="Message"
-                onPress={() => console.log('Message user')}
+                title="Share"
+                onPress={handleShareProfile}
                 variant="outline"
                 size="md"
                 style={[styles.secondaryButton, { borderColor: theme.border }]}
+                leftIcon={<Share2 size={16} color={colors.primary} />}
               />
             </View>
           )}

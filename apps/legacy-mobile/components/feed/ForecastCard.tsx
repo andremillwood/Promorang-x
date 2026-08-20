@@ -39,9 +39,16 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast, onPress })
             <Card style={StyleSheet.flatten([styles.card, { backgroundColor: theme.card }])}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <View style={styles.typeTag}>
-                        <TrendingUp size={14} color={colors.primary} />
-                        <Text style={styles.typeText}>FORECAST</Text>
+                    <View style={styles.tagGroup}>
+                        <View style={styles.typeTag}>
+                            <TrendingUp size={14} color={colors.primary} />
+                            <Text style={styles.typeText}>FORECAST</Text>
+                        </View>
+                        {forecast.isCreatorHosted && (
+                            <View style={[styles.creatorBadge, { backgroundColor: '#EC489918' }]}>
+                                <Text style={[styles.creatorBadgeText, { color: '#EC4899' }]}>Creator Challenge</Text>
+                            </View>
+                        )}
                     </View>
                     <View style={[styles.platformBadge, { backgroundColor: getPlatformColor(forecast.target.platform) }]}>
                         <Text style={styles.platformText}>{forecast.target.platform}</Text>
@@ -60,9 +67,23 @@ export const ForecastCard: React.FC<ForecastCardProps> = ({ forecast, onPress })
                         size="sm"
                         name={forecast.creator.name}
                     />
-                    <Text style={[styles.creatorName, { color: theme.textSecondary }]}>
-                        by {forecast.creator.name}
-                    </Text>
+                    <View style={styles.creatorInfo}>
+                        <View style={styles.creatorNameRow}>
+                            <Text style={[styles.creatorName, { color: theme.text }]}>
+                                {forecast.creator.name}
+                            </Text>
+                            {forecast.creator.tier && (
+                                <View style={[styles.miniTierBadge, { backgroundColor: colors.primary + '15' }]}>
+                                    <Text style={[styles.miniTierText, { color: colors.primary }]}>{forecast.creator.tier}</Text>
+                                </View>
+                            )}
+                        </View>
+                        {forecast.creator.username && (
+                            <Text style={[styles.creatorHandle, { color: theme.textSecondary }]}>
+                                @{forecast.creator.username}
+                            </Text>
+                        )}
+                    </View>
                 </View>
 
                 {/* Progress */}
@@ -116,6 +137,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 12,
     },
+    tagGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
     typeTag: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -124,6 +150,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 12,
+    },
+    creatorBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    creatorBadgeText: {
+        fontSize: 10,
+        fontWeight: '700',
     },
     typeText: {
         fontSize: 11,
@@ -150,11 +185,32 @@ const styles = StyleSheet.create({
     creatorRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
         marginBottom: 14,
+    },
+    creatorInfo: {
+        flex: 1,
+    },
+    creatorNameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
     },
     creatorName: {
         fontSize: 13,
+        fontWeight: '700',
+    },
+    miniTierBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 8,
+    },
+    miniTierText: {
+        fontSize: 9,
+        fontWeight: '700',
+    },
+    creatorHandle: {
+        fontSize: 11,
     },
     progressSection: {
         marginBottom: 14,

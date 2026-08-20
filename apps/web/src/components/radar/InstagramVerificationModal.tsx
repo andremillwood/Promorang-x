@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Instagram, CheckCircle, Copy, Check, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Instagram, CheckCircle, Copy, Check, TrendingUp, ExternalLink, Loader2 } from 'lucide-react';
 import { UserType } from '@/shared/types';
 
 interface InstagramVerificationModalProps {
@@ -15,6 +15,43 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
+  const [verifiedFollowers, setVerifiedFollowers] = useState<number | null>(null);
+  const [pointsAwarded, setPointsAwarded] = useState<number | null>(null);
+
+  // Poll for verification status when in Step 2
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isOpen && step === 2) {
+      setIsPolling(true);
+      interval = setInterval(async () => {
+        try {
+          const response = await fetch('/api/users/instagram-status', {
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.verified) {
+              setVerifiedFollowers(data.follower_count || 0);
+              setPointsAwarded(data.points_awarded || 500);
+              setStep(3); // Move to success step
+              if (interval) clearInterval(interval);
+              setIsPolling(false);
+            }
+          }
+        } catch (err) {
+          console.warn('Instagram verification polling check:', err);
+        }
+      }, 4000);
+    } else {
+      setIsPolling(false);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isOpen, step]);
 
   if (!isOpen || !user) return null;
 
@@ -62,14 +99,12 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
       });
 
       if (response.ok) {
-        await response.json();
-        onSuccess();
-        onClose();
-        setStep(1);
-        setInstagramUsername('');
+        const data = await response.json();
+        setPointsAwarded(data.points_awarded || 500);
+        setStep(3);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to claim points');
+        setError(errorData.error || 'Followers not synced yet. Please send the DM first!');
       }
     } catch (error) {
       console.error('Point claiming failed:', error);
@@ -80,9 +115,13 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
   };
 
   const copyToClipboard = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Clipboard copy failed:', err);
+    }
   };
 
   const getTierPoints = (tier: string) => {
@@ -94,112 +133,89 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
     }
   };
 
-  const tierPoints = getTierPoints(user.user_tier);
+  const tierPoints = getTierPoints(user.user_tier || 'free');
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-900 border border-slate-800 text-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Instagram className="w-6 h-6 text-pink-600" />
-            <h2 className="text-xl font-bold text-gray-900">Instagram Verification</h2>
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-xl">
+              <Instagram className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight">Instagram Verification</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-400 hover:text-slate-200 transition-colors p-1"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {step === 1 && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Instagram className="w-8 h-8 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-pink-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Instagram className="w-7 h-7 text-pink-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Connect Your Instagram</h3>
-              <p className="text-gray-600 text-sm">
-                Verify your Instagram account to earn {tierPoints} PromoPoints monthly
+              <h3 className="text-lg font-semibold mb-1">Connect Your Instagram</h3>
+              <p className="text-slate-400 text-sm">
+                Verify your account to automatically earn influence points and unlock campaigns.
               </p>
             </div>
 
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
-              <h4 className="font-medium text-pink-900 mb-2">Monthly Benefits</h4>
-              <div className="space-y-2 text-sm text-pink-700">
+            <div className="bg-gradient-to-r from-pink-950/40 to-purple-950/40 border border-pink-500/20 rounded-xl p-4">
+              <h4 className="font-medium text-pink-300 text-sm mb-2">Monthly Rewards Benefit</h4>
+              <div className="space-y-1.5 text-xs text-slate-300">
                 <div className="flex items-center justify-between">
-                  <span>Your Tier:</span>
-                  <span className="font-semibold capitalize">{user.user_tier}</span>
+                  <span className="text-slate-400">Account Tier:</span>
+                  <span className="font-semibold capitalize text-white">{user.user_tier || 'Creator'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Monthly Points:</span>
-                  <span className="font-bold text-pink-600">{tierPoints} points</span>
+                  <span className="text-slate-400">Base Reward:</span>
+                  <span className="font-bold text-pink-400">{tierPoints} Points / mo</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Key Equivalent:</span>
-                  <span className="font-medium">{Math.floor(tierPoints / 500)} keys</span>
+                  <span className="text-slate-400">Follower Multiplier:</span>
+                  <span className="text-emerald-400 font-medium">+10 pts per verified follower</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                 Instagram Username
               </label>
-              <input
-                type="text"
-                value={instagramUsername}
-                onChange={(e) => setInstagramUsername(e.target.value)}
-                placeholder="@yourusername"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-              />
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">@</span>
+                <input
+                  type="text"
+                  value={instagramUsername}
+                  onChange={(e) => setInstagramUsername(e.target.value.replace(/^@/, ''))}
+                  placeholder="yourusername"
+                  className="w-full pl-8 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm"
+                />
+              </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="bg-red-950/40 border border-red-500/40 rounded-xl p-3">
+                <p className="text-xs text-red-300">{error}</p>
               </div>
             )}
 
-            {/* Influence Rewards Promotion */}
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-4 mt-6">
-              <h4 className="font-medium text-blue-900 mb-2 flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Want Even More Rewards?</span>
-              </h4>
-              <p className="text-sm text-blue-700 mb-4">
-                Try our new <strong>Influence Rewards</strong> program! Earn dynamic monthly points based on your actual follower count (followers × 0.01).
-              </p>
-              <div className="flex items-center justify-between text-sm">
-                <div className="space-y-1">
-                  <div className="text-blue-600">• 5,000 followers = 50 points/month</div>
-                  <div className="text-blue-600">• 10,000 followers = 100 points/month</div>
-                  <div className="text-blue-600">• 50,000 followers = 500 points/month</div>
-                </div>
-                <button
-                  onClick={() => {
-                    onClose(); // Close the current modal
-                    // Navigate to profile with query param to open Influence Rewards
-                    window.location.href = '/profile?openInfluenceRewards=true';
-                  }}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                >
-                  Learn More
-                </button>
-              </div>
-            </div>
-
-            <div className="flex space-x-3">
+            <div className="flex space-x-3 pt-2">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-slate-700 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRegisterInstagram}
                 disabled={loading || !instagramUsername.trim()}
-                className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-pink-500/25 text-sm"
               >
                 {loading ? 'Registering...' : 'Continue'}
               </button>
@@ -208,92 +224,124 @@ export default function InstagramVerificationModal({ user, isOpen, onClose, onSu
         )}
 
         {step === 2 && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+              <div className="w-14 h-14 bg-emerald-500/20 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Instagram className="w-7 h-7 text-emerald-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Send Verification DM</h3>
-              <p className="text-gray-600 text-sm">
-                Send a DM to @promorangco on Instagram with the word below
+              <h3 className="text-lg font-semibold mb-1">Send Verification DM</h3>
+              <p className="text-slate-400 text-sm">
+                Send a DM to <span className="text-pink-400 font-semibold">@promorangco</span> with the keyword below:
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-gray-900">Message to send:</h4>
-                  <code className="text-lg font-mono bg-white px-3 py-2 rounded border mt-2 block">
-                    promopoints
-                  </code>
-                </div>
-                <button
-                  onClick={() => copyToClipboard('promopoints')}
-                  className="p-2 bg-gray-200 hover:bg-gray-300 rounded transition-colors"
-                  title="Copy message"
-                >
-                  {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                </button>
+            {/* Keyword block */}
+            <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <span className="text-xs text-slate-400 block mb-1">Trigger keyword:</span>
+                <code className="text-lg font-mono font-bold text-pink-400 tracking-wider">
+                  promopoints
+                </code>
+              </div>
+              <button
+                onClick={() => copyToClipboard('promopoints')}
+                className="p-2.5 bg-slate-700 hover:bg-slate-600 active:scale-95 rounded-xl transition-all flex items-center gap-1.5 text-xs text-slate-200"
+                title="Copy message"
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                <span>{copied ? 'Copied!' : 'Copy'}</span>
+              </button>
+            </div>
+
+            {/* Direct Link to IG DM */}
+            <a
+              href="https://ig.me/m/promorangco"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gradient-to-r from-pink-500/20 to-purple-600/20 hover:from-pink-500/30 hover:to-purple-600/30 border border-pink-500/30 rounded-xl text-pink-300 font-medium text-sm transition-all"
+            >
+              <span>Open Instagram DM with @promorangco</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+
+            {/* Live Waiting Poller Status */}
+            <div className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3.5 flex items-center gap-3">
+              {isPolling ? (
+                <Loader2 className="w-5 h-5 text-pink-400 animate-spin flex-shrink-0" />
+              ) : (
+                <CheckCircle className="w-5 h-5 text-slate-500 flex-shrink-0" />
+              )}
+              <div className="text-xs text-slate-300">
+                <span className="font-semibold text-white block">Listening for DM webhook...</span>
+                Once you send the DM, this window will automatically detect the follower sync.
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 mb-2">Next Steps:</h4>
-              <ol className="text-sm text-blue-700 space-y-1">
-                <li>1. Open Instagram and go to @promorangco</li>
-                <li>2. Send a DM with exactly: <strong>promopoints</strong></li>
-                <li>3. Wait for verification (usually within 24 hours)</li>
-                <li>4. Return here to claim your monthly points</li>
-              </ol>
-            </div>
+            {error && (
+              <div className="bg-red-950/40 border border-red-500/40 rounded-xl p-3">
+                <p className="text-xs text-red-300">{error}</p>
+              </div>
+            )}
 
-            <div className="space-y-3">
+            <div className="space-y-2.5 pt-1">
               <button
                 onClick={handleClaimPoints}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20 text-sm"
               >
-                {loading ? 'Checking...' : 'Claim Points (if verified)'}
+                {loading ? 'Verifying...' : 'I Sent the DM — Check Status'}
               </button>
-              
+
               <button
                 onClick={() => {
                   setStep(1);
                   setInstagramUsername('');
                   setError(null);
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className="w-full px-4 py-2 border border-slate-700 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-xs"
               >
-                Try Different Username
+                Change Username
               </button>
             </div>
+          </div>
+        )}
 
-            {/* Influence Rewards Promotion for Step 2 */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mt-6">
-              <h4 className="font-medium text-purple-900 mb-2 flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Maximize Your Instagram Earning Potential!</span>
-              </h4>
-              <p className="text-sm text-purple-700 mb-4">
-                While you wait for verification, explore our <strong>Influence Rewards</strong> program for dynamic monthly points based on your follower count.
+        {step === 3 && (
+          <div className="space-y-5 text-center py-2">
+            <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">Instagram Connected!</h3>
+              <p className="text-slate-400 text-sm">
+                Your profile is now verified and synced with Promorang.
               </p>
-              <button
-                onClick={() => {
-                  onClose(); // Close the current modal
-                  // Navigate to profile with query param to open Influence Rewards
-                  window.location.href = '/profile?openInfluenceRewards=true';
-                }}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200"
-              >
-                Discover Influence Rewards
-              </button>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
+            <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-4 text-sm text-slate-300 space-y-2">
+              {verifiedFollowers !== null && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Verified Followers:</span>
+                  <span className="font-semibold text-white">{verifiedFollowers.toLocaleString()}</span>
+                </div>
+              )}
+              {pointsAwarded !== null && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Points Awarded:</span>
+                  <span className="font-bold text-emerald-400">+{pointsAwarded.toLocaleString()} pts</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                onSuccess();
+                onClose();
+              }}
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-4 py-2.5 rounded-xl font-medium transition-all text-sm shadow-lg shadow-emerald-500/20"
+            >
+              Done
+            </button>
           </div>
         )}
       </div>

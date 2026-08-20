@@ -6,10 +6,13 @@ export interface Forecast {
     title: string;
     description: string;
     contentId?: string;
+    isCreatorHosted?: boolean;
     creator: {
         id: string;
         name: string;
         avatar: string;
+        username?: string;
+        tier?: string;
     };
     target: {
         platform: string;
@@ -40,13 +43,16 @@ function generateDemoForecasts(): Forecast[] {
     return [
         {
             id: 'demo-forecast-1',
-            title: 'Will @creator_mike hit 10K views?',
-            description: 'Predict if this viral TikTok video will reach 10,000 views before the deadline.',
+            title: 'Will @sarahm hit 10K views on Bali vlog?',
+            description: 'Creator Challenge: Predict if this viral vlog will reach 10,000 views before Sunday.',
             contentId: 'content-1',
+            isCreatorHosted: true,
             creator: {
-                id: 'demo-creator-1',
-                name: 'Sarah Chen',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
+                id: 'user2',
+                name: 'Sarah Miller',
+                username: 'sarahm',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1887&q=80',
+                tier: 'Top Creator',
             },
             target: {
                 platform: 'tiktok',

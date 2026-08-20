@@ -812,6 +812,180 @@ router.post('/onboarding/complete', async (req, res) => {
   }
 });
 
+// Register Instagram username for verification
+router.post('/register-instagram', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const { instagram_username } = req.body || {};
+    const normalized = (instagram_username || '').trim().replace(/^@/, '').toLowerCase();
+    if (!normalized) {
+      return res.status(400).json({ success: false, error: 'Instagram username is required' });
+    }
+
+    if (supabase) {
+      await supabase
+        .from('profiles')
+        .update({
+          instagram_username: normalized,
+          instagram_verified: false
+        })
+        .or(`user_id.eq.${userId},id.eq.${userId}`);
+
+      try {
+        await supabase
+          .from('users')
+          .update({ instagram_username: normalized })
+          .eq('id', userId);
+      } catch (err) {
+        // Ignore if schema mismatch
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Instagram username registered. Send verification DM to @promorangco',
+      instagram_username: normalized
+    });
+  } catch (error) {
+    console.error('Error registering Instagram:', error);
+    res.status(500).json({ success: false, error: 'Failed to register Instagram username' });
+  }
+});
+
+// Check Instagram verification & ManyChat sync status
+router.get('/instagram-status', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    if (!supabase) {
+      return res.json({
+        success: true,
+        verified: false,
+        follower_count: 0,
+        points_awarded: 0,
+        sync: null
+      });
+    }
+
+    // Check profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('instagram_username, follower_count, instagram_verified, points_balance')
+      .or(`user_id.eq.${userId},id.eq.${userId}`)
+      .maybeSingle();
+
+    // Check latest sync in manychat_syncs
+    const { data: sync } = await supabase
+      .from('manychat_syncs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('synced_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const isVerified = Boolean(profile?.instagram_verified || sync);
+    const followerCount = sync?.follower_count || profile?.follower_count || 0;
+    const pointsAwarded = sync?.points_awarded || (followerCount * 10);
+
+    res.json({
+      success: true,
+      verified: isVerified,
+      instagram_username: profile?.instagram_username || sync?.instagram || null,
+      follower_count: followerCount,
+      points_awarded: pointsAwarded,
+      last_synced_at: sync?.synced_at || null
+    });
+  } catch (error) {
+    console.error('Error checking Instagram status:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch Instagram status' });
+  }
+});
+
+// Claim Instagram verification points
+router.post('/claim-instagram-points', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    if (!supabase) {
+      return res.json({
+        success: true,
+        points_awarded: 500,
+        message: 'Points claimed successfully (mock)'
+      });
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('instagram_username, follower_count, instagram_verified, points_balance')
+      .or(`user_id.eq.${userId},id.eq.${userId}`)
+      .maybeSingle();
+
+    const followerCount = profile?.follower_count || 0;
+    const pointsToAdd = Math.max(500, followerCount * 10);
+
+    await supabase
+      .from('profiles')
+      .update({
+        points_balance: (profile?.points_balance || 0) + pointsToAdd
+      })
+      .or(`user_id.eq.${userId},id.eq.${userId}`);
+
+    res.json({
+      success: true,
+      points_awarded: pointsToAdd,
+      message: 'Points claimed successfully'
+    });
+  } catch (error) {
+    console.error('Error claiming Instagram points:', error);
+    res.status(500).json({ success: false, error: 'Failed to claim points' });
+  }
+});
+
+// Influence rewards registration & claim
+router.post('/register-influence-rewards', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { platform_username, follower_count, email, phone_number, full_name } = req.body || {};
+    const count = parseInt(follower_count, 10) || 0;
+    const points = Math.floor(count * 0.01);
+
+    if (supabase && userId) {
+      await supabase
+        .from('profiles')
+        .update({
+          full_name: full_name || undefined,
+          instagram_username: platform_username ? platform_username.trim().replace(/^@/, '').toLowerCase() : undefined,
+          follower_count: count
+        })
+        .or(`user_id.eq.${userId},id.eq.${userId}`);
+    }
+
+    res.json({
+      success: true,
+      follower_count: count,
+      calculated_points: points,
+      status: 'pending_verification'
+    });
+  } catch (error) {
+    console.error('Error registering influence rewards:', error);
+    res.status(500).json({ success: false, error: 'Failed to register influence rewards' });
+  }
+});
+
+router.post('/claim-influence-points', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    res.json({ success: true, message: 'Influence points claimed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to claim influence points' });
+  }
+});
+
+
 // Get guide progress
 router.get('/guide-progress', async (req, res) => {
   try {

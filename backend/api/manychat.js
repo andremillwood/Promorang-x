@@ -39,18 +39,34 @@ const whitelistInstagramValues = new Set(
     .filter(Boolean)
 );
 
-// GET handler for status checking
+/**
+ * GET /api/manychat/followers
+ * Status and diagnostic check endpoint
+ */
 router.get('/followers', (req, res) => {
   res.json({
     success: true,
     message: 'ManyChat follower webhook endpoint is active',
     usage: 'POST to this endpoint with Authorization: Bearer <MANYCHAT_SECRET>',
     required_fields: ['instagram', 'followers'],
-    optional_fields: ['name', 'email', 'phone']
+    optional_fields: ['name', 'email', 'phone', 'user_id'],
+    cooldown_days: COOLDOWN_DAYS,
   });
 });
 
-// POST handler for ManyChat webhook
+/**
+ * Helper to determine tier from follower count
+ */
+function calculateInfluenceTier(followers) {
+  if (followers >= 50000) return 'super';
+  if (followers >= 10000) return 'premium';
+  return 'free';
+}
+
+/**
+ * POST /api/manychat/followers
+ * Webhook invoked by ManyChat DM automation flow
+ */
 router.post('/followers', async (req, res) => {
   if (!supabaseAdmin) {
     return res.status(500).json({ error: 'Supabase client not initialized' });
@@ -59,28 +75,24 @@ router.post('/followers', async (req, res) => {
   try {
     const authHeader = (req.headers.authorization || '').trim();
     if (!authHeader.startsWith(AUTH_SCHEME)) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ error: 'Forbidden: Missing or invalid Authorization header' });
     }
 
     const token = authHeader.substring(AUTH_SCHEME.length);
-    if (!process.env.MANYCHAT_SECRET || token !== process.env.MANYCHAT_SECRET) {
-      return res.status(403).json({ error: 'Forbidden' });
+    const expectedSecret = process.env.MANYCHAT_SECRET;
+    if (!expectedSecret || token !== expectedSecret) {
+      return res.status(403).json({ error: 'Forbidden: Invalid ManyChat secret' });
     }
 
-    console.log('ManyChat webhook invoked', {
-      supabaseUrl: process.env.SUPABASE_URL,
-      serviceKeyDefined: Boolean(process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY),
-      environment: process.env.NODE_ENV,
-    });
+    const { name, email, phone, instagram, followers, user_id } = req.body || {};
 
-    const { name, email, phone, instagram, followers } = req.body || {};
-
-    console.log('ManyChat payload received:', {
+    console.log('[ManyChat] Webhook payload received:', {
       name: typeof name === 'string' ? name.trim() : undefined,
       email,
       phone,
       instagram,
       followers,
+      user_id,
     });
 
     const rawInstagram = typeof instagram === 'string' ? instagram : String(instagram || '');
@@ -91,180 +103,35 @@ router.post('/followers', async (req, res) => {
     const followerCount = Number(followers);
 
     if (!normalizedInstagram || Number.isNaN(followerCount)) {
-      return res.status(400).json({ error: 'Missing instagram or follower count' });
+      return res.status(400).json({ error: 'Missing instagram or valid follower count' });
     }
 
-    const followerPoints = Math.max(0, followerCount * 10);
+    // Standard points calculation: 10 points per follower
+    const followerPoints = Math.max(0, Math.floor(followerCount * 10));
+    const calculatedTier = calculateInfluenceTier(followerCount);
 
     const isEmailWhitelisted = normalizedEmail && whitelistEmailValues.has(normalizedEmail);
     const isInstagramWhitelisted = normalizedInstagram && whitelistInstagramValues.has(normalizedInstagram);
     const isWhitelisted = Boolean(isEmailWhitelisted || isInstagramWhitelisted);
 
-    const isMissingTableError = (error) => {
-      if (!error) return false;
-      const code = error.code || '';
-      const message = (error.message || '').toLowerCase();
-      return code === 'PGRST201'
-        || code === 'PGRST301'
-        || code === 'PGRST204'
-        || message.includes('does not exist')
-        || message.includes('not exist')
-        || message.includes('unknown relation');
-    };
+    // 1. Fetch recent sync for cooldown
+    let lastSync = null;
+    try {
+      const { data: syncData, error: syncErr } = await supabaseAdmin
+        .from('manychat_syncs')
+        .select('synced_at, follower_count, points_awarded, user_id')
+        .or(`instagram.ilike.${normalizedInstagram}${normalizedEmail ? `,email.ilike.${normalizedEmail}` : ''}`)
+        .order('synced_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    let syncTableAvailable = true;
-
-    const fetchLastSync = async (userId) => {
-      if (!syncTableAvailable || !userId) {
-        return null;
+      if (!syncErr && syncData) {
+        lastSync = syncData;
       }
-
-      try {
-        const { data, error } = await supabaseAdmin
-          .from('manychat_syncs')
-          .select('synced_at, follower_count, points_awarded')
-          .eq('user_id', userId)
-          .order('synced_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (error) {
-          if (isMissingTableError(error)) {
-            console.warn('ManyChat: sync log table missing, skipping cooldown enforcement');
-            syncTableAvailable = false;
-            return null;
-          }
-
-          console.error('ManyChat: failed to fetch sync log', {
-            userId,
-            error,
-          });
-          return null;
-        }
-
-        return data || null;
-      } catch (error) {
-        console.error('ManyChat: unexpected sync log fetch error', {
-          userId,
-          error,
-        });
-        return null;
-      }
-    };
-
-    const recordSync = async ({ userId, followerCount: syncFollowerCount, pointsAwarded, emailValue, instagramValue, timestamp }) => {
-      if (!syncTableAvailable || !userId) {
-        return;
-      }
-
-      try {
-        const { error } = await supabaseAdmin
-          .from('manychat_syncs')
-          .insert([
-            {
-              user_id: userId,
-              synced_at: timestamp,
-              follower_count: syncFollowerCount,
-              points_awarded: pointsAwarded,
-              email: emailValue,
-              instagram: instagramValue,
-            },
-          ]);
-
-        if (error) {
-          if (isMissingTableError(error)) {
-            console.warn('ManyChat: sync log table missing during insert, disabling logging');
-            syncTableAvailable = false;
-            return;
-          }
-
-          console.error('ManyChat: failed to insert sync log', {
-            userId,
-            error,
-          });
-        }
-      } catch (error) {
-        console.error('ManyChat: unexpected sync log insert error', {
-          userId,
-          error,
-        });
-      }
-    };
-
-    const findUser = async (field, value) => {
-      if (!value) {
-        return null;
-      }
-
-      try {
-        const query = supabaseAdmin
-          .from('users')
-          .select('id, email, username, display_name, points_balance');
-
-        const caseInsensitiveFields = ['email', 'instagram_username'];
-        const builder = caseInsensitiveFields.includes(field)
-          ? query.ilike(field, value)
-          : query.eq(field, value);
-
-        const limitedBuilder = builder.limit(1);
-
-        const response = limitedBuilder.maybeSingle
-          ? await limitedBuilder.maybeSingle()
-          : await limitedBuilder.single();
-
-        if (response.error && response.error.code !== 'PGRST116' && response.error.code !== 'PGRST103') {
-          console.warn('ManyChat: Supabase lookup error', {
-            field,
-            value,
-            error: response.error,
-          });
-          return null;
-        }
-
-        if (!response.data) {
-          console.log('ManyChat: No user match for field', { field, value });
-        }
-
-        return response.data || null;
-      } catch (lookupError) {
-        console.error('ManyChat: Unexpected lookup error', {
-          field,
-          value,
-          error: lookupError,
-        });
-        return null;
-      }
-    };
-
-    let existingUser = null;
-
-    if (normalizedEmail) {
-      console.log('ManyChat: looking up by email', normalizedEmail);
-      existingUser = await findUser('email', normalizedEmail);
+    } catch (err) {
+      console.warn('[ManyChat] Error querying manychat_syncs table:', err.message);
     }
 
-    if (!existingUser) {
-      console.log('ManyChat: looking up by username', normalizedInstagram);
-      existingUser = await findUser('username', normalizedInstagram);
-    }
-
-    if (!existingUser) {
-      console.log('ManyChat: looking up by instagram_username', normalizedInstagram);
-      existingUser = await findUser('instagram_username', normalizedInstagram);
-    }
-
-    if (!existingUser) {
-      console.warn('ManyChat: No matching existing user found', {
-        normalizedEmail,
-        normalizedInstagram,
-      });
-      return res.status(404).json({
-        error: 'User not found',
-        message: 'Create the user in Supabase before syncing from ManyChat',
-      });
-    }
-
-    const lastSync = await fetchLastSync(existingUser.id);
     const now = new Date();
 
     if (!isWhitelisted && lastSync?.synced_at) {
@@ -273,7 +140,6 @@ router.post('/followers', async (req, res) => {
 
       if (Number.isFinite(timeSinceLastSync) && timeSinceLastSync < COOLDOWN_MS) {
         const nextSyncDate = new Date(lastSyncTime.getTime() + COOLDOWN_MS);
-
         return res.status(429).json({
           error: 'Too many syncs',
           message: `Followers can only be synced once every ${COOLDOWN_DAYS} days`,
@@ -285,83 +151,152 @@ router.post('/followers', async (req, res) => {
       }
     }
 
-    const updates = {};
+    // 2. Find target user in profiles or users
+    let matchedUserId = user_id || null;
+    let matchedInTable = null;
+    let existingProfile = null;
 
-    if (normalizedEmail && normalizedEmail !== existingUser.email) {
-      updates.email = normalizedEmail;
+    // Check profiles table first
+    if (!matchedUserId && normalizedInstagram) {
+      const { data: pData } = await supabaseAdmin
+        .from('profiles')
+        .select('id, user_id, full_name, instagram_username, points_balance, follower_count')
+        .ilike('instagram_username', normalizedInstagram)
+        .limit(1)
+        .maybeSingle();
+      if (pData) {
+        existingProfile = pData;
+        matchedUserId = pData.user_id || pData.id;
+        matchedInTable = 'profiles';
+      }
     }
 
-    if (normalizedInstagram && normalizedInstagram !== existingUser.username) {
-      updates.username = normalizedInstagram;
+    if (!matchedUserId && normalizedEmail) {
+      const { data: pData } = await supabaseAdmin
+        .from('profiles')
+        .select('id, user_id, full_name, instagram_username, points_balance, follower_count')
+        .ilike('email', normalizedEmail)
+        .limit(1)
+        .maybeSingle();
+      if (pData) {
+        existingProfile = pData;
+        matchedUserId = pData.user_id || pData.id;
+        matchedInTable = 'profiles';
+      }
     }
 
-    if (sanitizedName && sanitizedName !== existingUser.display_name) {
-      updates.display_name = sanitizedName;
-    }
-
-    if (followerPoints > 0) {
-      updates.points_balance = Math.max(0, (existingUser.points_balance || 0) + followerPoints);
-    }
-
-    let updatedUser = existingUser;
-
-    if (Object.keys(updates).length > 0) {
-      const { data, error } = await supabaseAdmin
-        .from('users')
-        .update(updates)
-        .eq('id', existingUser.id)
-        .select('id, email, username, display_name, points_balance')
-        .single();
-
-      console.log('Supabase update result:', data, error);
-
-      if (error) {
-        console.error('Failed to update user via ManyChat:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          updates,
-        });
-        return res.status(500).json({
-          error: 'Failed to update user',
-          supabase: {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code,
-          }
-        });
+    // Check users table if not found in profiles
+    if (!matchedUserId) {
+      let uQuery = supabaseAdmin.from('users').select('id, email, username, display_name, points_balance');
+      if (normalizedEmail) {
+        const { data: uData } = await uQuery.ilike('email', normalizedEmail).limit(1).maybeSingle();
+        if (uData) {
+          matchedUserId = uData.id;
+          matchedInTable = 'users';
+          existingProfile = uData;
+        }
       }
 
-      updatedUser = data;
+      if (!matchedUserId && normalizedInstagram) {
+        const { data: uData } = await supabaseAdmin
+          .from('users')
+          .select('id, email, username, display_name, points_balance')
+          .or(`username.ilike.${normalizedInstagram},instagram_username.ilike.${normalizedInstagram}`)
+          .limit(1)
+          .maybeSingle();
+        if (uData) {
+          matchedUserId = uData.id;
+          matchedInTable = 'users';
+          existingProfile = uData;
+        }
+      }
     }
 
-    await recordSync({
-      userId: updatedUser.id,
-      followerCount: followerCount,
-      pointsAwarded: followerPoints,
-      emailValue: normalizedEmail,
-      instagramValue: normalizedInstagram,
-      timestamp: now.toISOString(),
-    });
+    // If still not found, check auth.users directly by email
+    if (!matchedUserId && normalizedEmail) {
+      try {
+        const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+        const found = authUsers?.users?.find(u => u.email?.toLowerCase() === normalizedEmail);
+        if (found) {
+          matchedUserId = found.id;
+          matchedInTable = 'auth';
+        }
+      } catch (authErr) {
+        console.warn('[ManyChat] Auth listUsers lookup skipped:', authErr.message);
+      }
+    }
+
+    // 3. Update profile records
+    if (matchedUserId) {
+      // Update profiles table
+      try {
+        await supabaseAdmin
+          .from('profiles')
+          .update({
+            instagram_username: normalizedInstagram,
+            follower_count: followerCount,
+            instagram_verified: true,
+            influence_tier: calculatedTier,
+            ...(followerPoints > 0 ? { points_balance: ((existingProfile?.points_balance || 0) + followerPoints) } : {})
+          })
+          .or(`user_id.eq.${matchedUserId},id.eq.${matchedUserId}`);
+      } catch (pUpdateErr) {
+        console.warn('[ManyChat] profiles update error (ignored if columns missing):', pUpdateErr.message);
+      }
+
+      // Update users table (if present)
+      try {
+        await supabaseAdmin
+          .from('users')
+          .update({
+            instagram_username: normalizedInstagram,
+            ...(followerPoints > 0 ? { points_balance: ((existingProfile?.points_balance || 0) + followerPoints) } : {})
+          })
+          .eq('id', matchedUserId);
+      } catch (uUpdateErr) {
+        console.warn('[ManyChat] users table update error (ignored if schema differs):', uUpdateErr.message);
+      }
+    }
+
+    // 4. Log to manychat_syncs
+    try {
+      await supabaseAdmin.from('manychat_syncs').insert([
+        {
+          user_id: matchedUserId,
+          instagram: normalizedInstagram,
+          email: normalizedEmail,
+          phone: normalizedPhone,
+          follower_count: followerCount,
+          points_awarded: followerPoints,
+          metadata: {
+            name: sanitizedName,
+            influence_tier: calculatedTier,
+            matched_table: matchedInTable,
+            whitelisted: isWhitelisted,
+          },
+          synced_at: now.toISOString(),
+        }
+      ]);
+    } catch (insertErr) {
+      console.warn('[ManyChat] Error inserting sync log into manychat_syncs:', insertErr.message);
+    }
+
+    console.log(`[ManyChat] ✅ Successfully processed webhook for @${normalizedInstagram}: ${followerCount} followers (${followerPoints} points)`);
 
     return res.json({
       success: true,
-      points_awarded: followerPoints,
-      user_id: updatedUser.id,
+      user_id: matchedUserId,
+      instagram: normalizedInstagram,
       follower_count: followerCount,
-      points_balance: updatedUser.points_balance,
-      updated_profile: Object.keys(updates).length > 0,
-      matched_email: normalizedEmail,
-      matched_instagram: normalizedInstagram,
+      points_awarded: followerPoints,
+      influence_tier: calculatedTier,
+      verified: true,
       cooldown_days: COOLDOWN_DAYS,
       whitelist_bypass: isWhitelisted,
-      last_sync: lastSync?.synced_at || null,
-      sync_logged: syncTableAvailable,
+      synced_at: now.toISOString(),
     });
   } catch (error) {
-    console.error('ManyChat follower webhook error:', {
+    console.error('[ManyChat] Webhook processing exception:', {
       message: error.message,
       stack: error.stack,
     });

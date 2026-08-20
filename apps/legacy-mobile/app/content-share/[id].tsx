@@ -1,40 +1,107 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Users, Gem, DollarSign, Clock, BarChart3 } from 'lucide-react-native';
+import { Image } from 'expo-image';
+import {
+  ArrowLeft,
+  Users,
+  Gem,
+  DollarSign,
+  Clock,
+  Sparkles,
+  TrendingUp,
+  Award,
+  CheckCircle2,
+  Target,
+  Flame,
+  Heart,
+  Share2,
+  Lock,
+  Zap,
+} from 'lucide-react-native';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { PostCard } from '@/components/feed/PostCard';
-import { LineChart } from '@/components/ui/LineChart';
+import { Avatar } from '@/components/ui/Avatar';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { useContentShareStore } from '@/store/contentShareStore';
 import { useBountyStore, BountyItem } from '@/store/bountyStore';
 import { useFeedStore } from '@/store/feedStore';
 import { useWalletStore } from '@/store/walletStore';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import colors from '@/constants/colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const BACKING_PRESETS = [5, 10, 25, 50, 100];
+
+const MILESTONES = [
+  {
+    id: 'm1',
+    title: '10K Viral Views',
+    reward: '15% Bonus Gem Reward to all early backers',
+    target: 10000,
+    current: 7420,
+    status: 'in_progress',
+  },
+  {
+    id: 'm2',
+    title: 'Brand Sponsorship Deal',
+    reward: 'Creator Royalty Pool distribution (Gems)',
+    target: 1,
+    current: 0,
+    status: 'locked',
+  },
+  {
+    id: 'm3',
+    title: '50K Views & Trend Page',
+    reward: 'Exclusive VIP Creator Drop + Community Pass',
+    target: 50000,
+    current: 7420,
+    status: 'locked',
+  },
+];
+
+const RECENT_BACKERS = [
+  { id: 'b1', name: 'Jordan Hayes', username: 'jordan_h', amount: 25, time: '3m ago', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' },
+  { id: 'b2', name: 'Elena Chen', username: 'elena_c', amount: 50, time: '18m ago', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+  { id: 'b3', name: 'Devon Miles', username: 'devon_m', amount: 10, time: '1h ago', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
+];
 
 export default function ContentShareDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [buyAmount, setBuyAmount] = useState('');
-  const [sellAmount, setSellAmount] = useState('');
-  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const theme = useThemeColors();
 
-  const { contentShares, myOwnerships, buyShares, sellShares, fetchContentShares, fetchMyOwnerships, fetchContentShareById, isLoading: isStoreLoading } = useContentShareStore();
+  const [backingAmount, setBackingAmount] = useState<number>(10);
+  const [cashoutShares, setCashoutShares] = useState<string>('1');
+  const [activeTab, setActiveTab] = useState<'back' | 'cashout'>('back');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const {
+    contentShares,
+    myOwnerships,
+    buyShares,
+    sellShares,
+    fetchContentShares,
+    fetchMyOwnerships,
+    fetchContentShareById,
+    isLoading: isStoreLoading,
+  } = useContentShareStore();
+
   const { trendingItems, claimBounty } = useBountyStore();
-  const { likePost, sharePost } = useFeedStore();
   const { promoGems } = useWalletStore();
 
   const [bountyItem, setBountyItem] = useState<BountyItem | null>(null);
 
-  const contentShare = contentShares.find(share => share.id === id);
-  const ownership = myOwnerships.find(own => own.contentShareId === id);
+  const contentShare = contentShares.find((share) => share.id === id);
+  const ownership = myOwnerships.find((own) => own.contentShareId === id);
 
   useEffect(() => {
     if (id) {
       if (id.startsWith('trend-')) {
-        const item = trendingItems.find(i => i.id === id);
+        const item = trendingItems.find((i) => i.id === id);
         if (item) setBountyItem(item);
       } else if (!contentShare) {
         fetchContentShareById(id);
@@ -46,13 +113,42 @@ export default function ContentShareDetailScreen() {
     fetchMyOwnerships();
   }, [fetchMyOwnerships]);
 
-  if (!contentShare && !bountyItem) {
+  const displayShare =
+    contentShare ||
+    (bountyItem
+      ? {
+          id: bountyItem.id,
+          content: {
+            id: bountyItem.id,
+            creator: { id: 'viral_1', name: 'Sarah Miller', username: 'sarahm', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150' },
+            content: { type: 'image', media: [bountyItem.thumbnail], text: bountyItem.title },
+            likes: 1240,
+            comments: 88,
+            shares: 240,
+            createdAt: new Date().toISOString(),
+            isLiked: false,
+            isShared: false,
+            isBacked: false,
+          },
+          currentPrice: 10,
+          totalShares: 100,
+          availableShares: 45,
+          holders: 28,
+          dividendPool: 340,
+          totalDividendsPaid: 120,
+          priceChange: 1.25,
+          priceChangePercent: 14.2,
+          timeLeft: '5d',
+        }
+      : null);
+
+  if (!displayShare && !bountyItem) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
         <Stack.Screen options={{ headerShown: false }} />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>
-            {isStoreLoading ? 'Loading detail...' : 'Content not found'}
+          <Text style={[styles.errorText, { color: theme.text }]}>
+            {isStoreLoading ? 'Loading creator project...' : 'Project not found'}
           </Text>
           <Button title="Go Back" onPress={() => router.back()} />
         </View>
@@ -60,362 +156,344 @@ export default function ContentShareDetailScreen() {
     );
   }
 
-  // Map bounty item to a pseudo content share for display if needed
-  const displayShare = contentShare || (bountyItem ? {
-    id: bountyItem.id,
-    content: {
-      id: bountyItem.id,
-      creator: { id: 'viral_1', name: 'Viral Content', username: 'scout_target', avatar: '' },
-      content: { type: 'image', media: [bountyItem.thumbnail], text: bountyItem.title },
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      createdAt: new Date().toISOString(),
-      isLiked: false,
-      isShared: false,
-      isBacked: false
-    },
-    currentPrice: 10,
-    totalShares: 100,
-    availableShares: 0,
-    holders: 0,
-    dividendPool: 0,
-    totalDividendsPaid: 0,
-    priceChange: 0,
-    priceChangePercent: 0,
-    timeLeft: '7d'
-  } : null);
-
-  const handleBuyShares = async () => {
-    const amount = Number(buyAmount);
-    if (!amount || amount <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+  const handleBackCreator = async () => {
+    if (!backingAmount || backingAmount <= 0) {
+      Alert.alert('Invalid Amount', 'Please select or enter an amount of Gems to back.');
       return;
     }
 
-    if (amount > contentShare.availableShares) {
-      Alert.alert('Error', 'Not enough shares available');
+    if (backingAmount > promoGems) {
+      Alert.alert(
+        'Insufficient Gems',
+        `You have ${promoGems} Gems. You need ${backingAmount} Gems to back this creator.`
+      );
       return;
     }
 
-    const totalCost = amount * contentShare.currentPrice;
-    if (totalCost > promoGems) {
-      Alert.alert('Error', 'Insufficient PromoGems balance');
-      return;
-    }
-
+    setIsSubmitting(true);
     try {
-      await buyShares(id!, amount, contentShare.currentPrice);
-      Alert.alert('Success', `Successfully purchased ${amount} shares!`);
-      setBuyAmount('');
+      const sharesToBuy = Math.max(1, Math.floor(backingAmount / (displayShare?.currentPrice || 10)));
+      await buyShares(id || displayShare?.id || 'demo', sharesToBuy, displayShare?.currentPrice || 10);
+      Alert.alert(
+        '🎉 Successfully Backed!',
+        `You backed ${displayShare?.content?.creator?.name || 'this creator'} with ${backingAmount} Gems! You will receive automatic bonus rewards as milestones are hit.`
+      );
+      setBackingAmount(10);
     } catch {
-      Alert.alert('Error', 'Failed to purchase shares');
+      Alert.alert('Error', 'Failed to complete backing.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleSellShares = async () => {
-    const amount = Number(sellAmount);
-    if (!amount || amount <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+  const handleCashout = async () => {
+    const sharesNum = Number(cashoutShares);
+    if (!sharesNum || sharesNum <= 0) {
+      Alert.alert('Invalid Amount', 'Please enter a valid number of shares to cash out.');
       return;
     }
 
-    if (!ownership || amount > ownership.sharesOwned) {
-      Alert.alert('Error', 'Not enough shares to sell');
+    if (!ownership || sharesNum > ownership.sharesOwned) {
+      Alert.alert('Error', 'You do not own that many shares.');
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      await sellShares(id!, amount);
-      Alert.alert('Success', `Successfully sold ${amount} shares!`);
-      setSellAmount('');
+      await sellShares(id || displayShare?.id || 'demo', sharesNum);
+      const cashValue = sharesNum * (displayShare?.currentPrice || 10);
+      Alert.alert(
+        '💰 Cash Out Complete',
+        `Successfully cashed out ${sharesNum} shares for ${cashValue.toFixed(2)} Gems instantly.`
+      );
+      setCashoutShares('1');
     } catch {
-      Alert.alert('Error', 'Failed to sell shares');
+      Alert.alert('Error', 'Failed to cash out shares.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handlePostLike = (postId: string) => {
-    likePost(postId);
+  const creator = displayShare?.content?.creator || {
+    name: 'Featured Creator',
+    username: 'creator',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
   };
 
-  const handlePostComment = (postId: string) => {
-    router.push(`/post/${postId}`);
-  };
-
-  const handlePostShare = (postId: string) => {
-    sharePost(postId);
-  };
-
-  const handlePostBack = (postId: string) => {
-    router.push(`/post/${postId}?action=back`);
-  };
-
-  const handleUserPress = (userId: string) => {
-    router.push(`/profile/${userId}`);
-  };
-
-  if (!displayShare) return null;
-
-  const handleClaim = async () => {
-    if (!bountyItem) return;
-    try {
-      await claimBounty(bountyItem);
-      Alert.alert('Success', 'Bounty claimed! You now own equity in this content.');
-      router.back();
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to claim bounty');
-    }
-  };
-
-  // Mock price history data
-  const priceHistory = [
-    { date: '6/10', price: 2.25 },
-    { date: '6/11', price: 3.15 },
-    { date: '6/12', price: 4.80 },
-    { date: '6/13', price: 6.20 },
-    { date: '6/14', price: 7.80 },
-    { date: '6/15', price: displayShare.currentPrice },
-  ];
+  const currentPoolRaised = (displayShare?.totalShares || 100) - (displayShare?.availableShares || 0);
+  const poolGoal = displayShare?.totalShares || 100;
+  const poolProgress = Math.min(1, currentPoolRaised / poolGoal);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View style={styles.header}>
+      {/* Navigation Header */}
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color={colors.black} />
+          <ArrowLeft size={22} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{bountyItem ? 'Scouting Detail' : 'Content Shares'}</Text>
-        <View style={styles.placeholder} />
+        <View style={styles.headerTitleContainer}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>Creator Backing Pool</Text>
+          <Text style={[styles.headerSub, { color: theme.textSecondary }]}>Co-grow with @{creator.username}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.shareButton}
+          onPress={() => router.push(`/profile/${creator.id}` as any)}
+        >
+          <Avatar source={creator.avatar} size="sm" name={creator.name} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Price Overview */}
-        <Card style={styles.priceCard}>
-          <View style={styles.priceHeader}>
-            <View>
-              <Text style={styles.currentPrice}>${displayShare.currentPrice.toFixed(2)}</Text>
-              <Text style={styles.priceSubtext}>per share</Text>
-            </View>
-            <View style={styles.priceChange}>
-              <Text style={[
-                styles.priceChangeText,
-                displayShare.priceChange >= 0 ? styles.positiveChange : styles.negativeChange
-              ]}>
-                {displayShare.priceChange >= 0 ? '+' : ''}{displayShare.priceChangePercent.toFixed(1)}%
+        {/* Creator Hero Card */}
+        <Card style={[styles.heroCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.creatorHeaderRow}>
+            <Avatar source={creator.avatar} size="lg" name={creator.name} />
+            <View style={styles.creatorHeroInfo}>
+              <View style={styles.nameBadgeRow}>
+                <Text style={[styles.creatorHeroName, { color: theme.text }]}>{creator.name}</Text>
+                <View style={[styles.tierPill, { backgroundColor: colors.primary + '18' }]}>
+                  <Sparkles size={11} color={colors.primary} />
+                  <Text style={[styles.tierPillText, { color: colors.primary }]}>Top Creator</Text>
+                </View>
+              </View>
+              <Text style={[styles.creatorHeroHandle, { color: theme.textSecondary }]}>
+                @{creator.username} • {displayShare?.category || 'Original Creation'}
               </Text>
-              <Text style={styles.priceChangeSubtext}>24h change</Text>
             </View>
           </View>
 
-          <View style={styles.shareStats}>
-            <View style={styles.statItem}>
-              <Users size={16} color={colors.darkGray} />
-              <Text style={styles.statText}>{displayShare.holders} holders</Text>
+          {/* Media / Content Preview */}
+          {displayShare?.content?.content?.media && displayShare.content.content.media[0] && (
+            <Image
+              source={{ uri: displayShare.content.content.media[0] }}
+              style={styles.contentMedia}
+              contentFit="cover"
+            />
+          )}
+
+          {displayShare?.content?.content?.text && (
+            <Text style={[styles.contentCaption, { color: theme.text }]}>
+              "{displayShare.content.content.text}"
+            </Text>
+          )}
+
+          {/* Pool Goal Progress */}
+          <View style={styles.poolProgressSection}>
+            <View style={styles.poolLabelsRow}>
+              <View>
+                <Text style={[styles.poolValueText, { color: theme.text }]}>
+                  ${(currentPoolRaised * (displayShare?.currentPrice || 10)).toLocaleString()} Gems
+                </Text>
+                <Text style={[styles.poolSubText, { color: theme.textSecondary }]}>
+                  Backed by {displayShare?.holders || 28} Fans
+                </Text>
+              </View>
+              <View style={styles.goalRight}>
+                <Text style={[styles.goalTargetText, { color: colors.primary }]}>
+                  Goal: ${(poolGoal * (displayShare?.currentPrice || 10)).toLocaleString()}
+                </Text>
+                <Text style={[styles.goalPercentText, { color: theme.textSecondary }]}>
+                  {Math.round(poolProgress * 100)}% funded
+                </Text>
+              </View>
             </View>
-            <View style={styles.statItem}>
-              <Gem size={16} color={colors.primary} />
-              <Text style={styles.statText}>{displayShare.availableShares} available</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Clock size={16} color={colors.warning} />
-              <Text style={styles.statText}>{displayShare.timeLeft || '7d'} left</Text>
-            </View>
+            <ProgressBar progress={poolProgress} height={8} />
           </View>
         </Card>
 
-        {/* Price Chart */}
-        {!bountyItem && (
-          <Card style={styles.chartCard}>
-            <View style={styles.chartHeader}>
-              <BarChart3 size={20} color={colors.primary} />
-              <Text style={styles.chartTitle}>Price History</Text>
-            </View>
-            <LineChart data={priceHistory} />
-          </Card>
-        )}
+        {/* Milestone Rewards Roadmap */}
+        <Card style={[styles.milestonesCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.sectionHeaderRow}>
+            <Target size={18} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Milestone Rewards</Text>
+          </View>
+          <Text style={[styles.sectionSub, { color: theme.textSecondary }]}>
+            When this project hits milestones, all early backers automatically earn Gem rewards & perks.
+          </Text>
 
-        {/* Content Preview */}
-        <PostCard
-          post={displayShare.content}
-          onLike={handlePostLike}
-          onComment={handlePostComment}
-          onShare={handlePostShare}
-          onBack={handlePostBack}
-          onUserPress={handleUserPress}
-          showActions={false}
-        />
+          <View style={styles.milestoneList}>
+            {MILESTONES.map((m, idx) => (
+              <View
+                key={m.id}
+                style={[
+                  styles.milestoneItem,
+                  { backgroundColor: theme.surface, borderColor: m.status === 'in_progress' ? colors.primary : theme.border },
+                ]}
+              >
+                <View style={styles.milestoneHeader}>
+                  <View style={styles.milestoneTitleGroup}>
+                    {m.status === 'in_progress' ? (
+                      <Flame size={16} color="#F97316" />
+                    ) : (
+                      <Lock size={15} color={theme.textSecondary} />
+                    )}
+                    <Text style={[styles.milestoneTitle, { color: theme.text }]}>{m.title}</Text>
+                  </View>
+                  <Text style={[styles.milestoneStatusTag, { color: m.status === 'in_progress' ? '#F97316' : theme.textSecondary }]}>
+                    {m.status === 'in_progress' ? '74% Reached' : 'Upcoming'}
+                  </Text>
+                </View>
+                <Text style={[styles.milestoneRewardText, { color: colors.primary }]}>
+                  🎁 {m.reward}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </Card>
 
-        {/* Bounty Claim Button */}
-        {bountyItem && (
-          <Card style={styles.tradingCard}>
-            <Text style={styles.headerTitle}>Potential Found!</Text>
-            <Text style={styles.cardSubtitle}>
-              This content is trending fast. Claim the bounty to earn 5% finders fee and permanent equity.
-            </Text>
-            <View style={{ marginTop: 16 }}>
+        {/* Backer Interactive Control (AMM engine under the hood) */}
+        <Card style={[styles.actionCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.actionTabs}>
+            <TouchableOpacity
+              style={[styles.actionTab, activeTab === 'back' && { backgroundColor: colors.primary }]}
+              onPress={() => setActiveTab('back')}
+            >
+              <Heart size={15} color={activeTab === 'back' ? '#FFF' : theme.textSecondary} fill={activeTab === 'back' ? '#FFF' : 'transparent'} />
+              <Text style={[styles.actionTabText, { color: activeTab === 'back' ? '#FFF' : theme.textSecondary }]}>
+                Back Creator
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionTab, activeTab === 'cashout' && { backgroundColor: '#10B981' }]}
+              onPress={() => setActiveTab('cashout')}
+            >
+              <Zap size={15} color={activeTab === 'cashout' ? '#FFF' : theme.textSecondary} />
+              <Text style={[styles.actionTabText, { color: activeTab === 'cashout' ? '#FFF' : theme.textSecondary }]}>
+                1-Tap Cash Out
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {activeTab === 'back' ? (
+            <View style={styles.formContainer}>
+              <Text style={[styles.inputLabel, { color: theme.text }]}>Choose Backing Amount (Gems)</Text>
+              <View style={styles.presetsRow}>
+                {BACKING_PRESETS.map((preset) => (
+                  <TouchableOpacity
+                    key={preset}
+                    style={[
+                      styles.presetButton,
+                      backingAmount === preset && { backgroundColor: colors.primary, borderColor: colors.primary },
+                      { borderColor: theme.border },
+                    ]}
+                    onPress={() => setBackingAmount(preset)}
+                  >
+                    <Text
+                      style={[
+                        styles.presetText,
+                        backingAmount === preset ? { color: '#FFF', fontWeight: '800' } : { color: theme.text },
+                      ]}
+                    >
+                      {preset} 💎
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={[styles.summaryBox, { backgroundColor: theme.surface }]}>
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>Your Balance:</Text>
+                  <Text style={[styles.summaryVal, { color: theme.text }]}>{promoGems} Gems</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>Backer Shares Acquired:</Text>
+                  <Text style={[styles.summaryVal, { color: colors.primary, fontWeight: '700' }]}>
+                    {Math.max(1, Math.floor(backingAmount / (displayShare?.currentPrice || 10)))} Shares
+                  </Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>Milestone Reward Eligibility:</Text>
+                  <Text style={[styles.summaryVal, { color: '#10B981', fontWeight: '700' }]}>Active (100%)</Text>
+                </View>
+              </View>
+
               <Button
-                title={bountyItem.claimed ? "Already Claimed" : "Claim Bounty"}
-                onPress={handleClaim}
+                title={isSubmitting ? 'Securing Backing...' : `Back with ${backingAmount} Gems`}
+                onPress={handleBackCreator}
                 variant="primary"
                 size="lg"
-                disabled={bountyItem.claimed}
+                disabled={isSubmitting}
+                style={styles.submitBtn}
               />
             </View>
-          </Card>
-        )}
+          ) : (
+            <View style={styles.formContainer}>
+              <Text style={[styles.inputLabel, { color: theme.text }]}>Instant Liquidity Cash Out</Text>
+              <Text style={[styles.cashoutSub, { color: theme.textSecondary }]}>
+                You can withdraw your backing value anytime at the current automated market price.
+              </Text>
 
-        {/* Dividend Information */}
-        {!bountyItem && (
-          <Card style={styles.dividendCard}>
-            <Text style={styles.dividendTitle}>Dividend Pool</Text>
-            <View style={styles.dividendStats}>
-              <View style={styles.dividendItem}>
-                <Text style={styles.dividendLabel}>Current Pool</Text>
-                <Text style={styles.dividendValue}>${displayShare.dividendPool.toFixed(2)}</Text>
-              </View>
-              <View style={styles.dividendItem}>
-                <Text style={styles.dividendLabel}>Total Paid</Text>
-                <Text style={styles.dividendValue}>${displayShare.totalDividendsPaid.toFixed(2)}</Text>
-              </View>
-              <View style={styles.dividendItem}>
-                <Text style={styles.dividendLabel}>Your Share</Text>
-                <Text style={styles.dividendValue}>
-                  {ownership ? `${((ownership.sharesOwned / (displayShare.totalShares - displayShare.availableShares)) * 100).toFixed(1)}%` : '0%'}
-                </Text>
-              </View>
-            </View>
-          </Card>
-        )}
-
-        {/* Your Position */}
-        {!bountyItem && ownership && (
-          <Card style={styles.positionCard}>
-            <Text style={styles.positionTitle}>Your Position</Text>
-            <View style={styles.positionStats}>
-              <View style={styles.positionItem}>
-                <Text style={styles.positionLabel}>Shares Owned</Text>
-                <Text style={styles.positionValue}>{ownership.sharesOwned}</Text>
-              </View>
-              <View style={styles.positionItem}>
-                <Text style={styles.positionLabel}>Avg. Buy Price</Text>
-                <Text style={styles.positionValue}>${ownership.avgBuyPrice.toFixed(2)}</Text>
-              </View>
-              <View style={styles.positionItem}>
-                <Text style={styles.positionLabel}>Total Invested</Text>
-                <Text style={styles.positionValue}>${ownership.totalInvested.toFixed(2)}</Text>
-              </View>
-              <View style={styles.positionItem}>
-                <Text style={styles.positionLabel}>Current Value</Text>
-                <Text style={styles.positionValue}>
-                  ${(ownership.sharesOwned * displayShare.currentPrice).toFixed(2)}
-                </Text>
-              </View>
-              <View style={styles.positionItem}>
-                <Text style={styles.positionLabel}>Dividends Earned</Text>
-                <Text style={[styles.positionValue, { color: colors.success }]}>
-                  ${ownership.dividendsEarned.toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          </Card>
-        )}
-
-        {/* Trading Section */}
-        {!bountyItem && (
-          <Card style={styles.tradingCard}>
-            <View style={styles.tradingTabs}>
-              <TouchableOpacity
-                style={[styles.tradingTab, activeTab === 'buy' && styles.activeTab]}
-                onPress={() => setActiveTab('buy')}
-              >
-                <Text style={[styles.tabText, activeTab === 'buy' && styles.activeTabText]}>Buy</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tradingTab, activeTab === 'sell' && styles.activeTab]}
-                onPress={() => setActiveTab('sell')}
-              >
-                <Text style={[styles.tabText, activeTab === 'sell' && styles.activeTabText]}>Sell</Text>
-              </TouchableOpacity>
-            </View>
-
-            {activeTab === 'buy' ? (
-              <View style={styles.tradingForm}>
-                <Input
-                  label="Number of Shares"
-                  placeholder="Enter amount"
-                  value={buyAmount}
-                  onChangeText={setBuyAmount}
-                  keyboardType="numeric"
-                  leftIcon={<Gem size={20} color={colors.darkGray} />}
-                />
-
-                <View style={styles.tradingInfo}>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Price per share:</Text>
-                    <Text style={styles.infoValue}>${displayShare.currentPrice.toFixed(2)}</Text>
+              {ownership && ownership.sharesOwned > 0 ? (
+                <>
+                  <View style={[styles.summaryBox, { backgroundColor: theme.surface }]}>
+                    <View style={styles.summaryRow}>
+                      <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>You Own:</Text>
+                      <Text style={[styles.summaryVal, { color: theme.text }]}>{ownership.sharesOwned} Shares</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                      <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>Current Value per Share:</Text>
+                      <Text style={[styles.summaryVal, { color: theme.text }]}>${displayShare?.currentPrice || 10} Gems</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                      <Text style={[styles.summaryLabel, { color: theme.textSecondary }]}>Total Portfolio Value:</Text>
+                      <Text style={[styles.summaryVal, { color: '#10B981', fontWeight: '700' }]}>
+                        ${(ownership.sharesOwned * (displayShare?.currentPrice || 10)).toFixed(2)} Gems
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Total cost:</Text>
-                    <Text style={styles.infoValue}>
-                      ${((Number(buyAmount) || 0) * displayShare.currentPrice).toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Your balance:</Text>
-                    <Text style={styles.infoValue}>{promoGems} PromoGems</Text>
-                  </View>
+
+                  <Input
+                    label="Shares to Cash Out"
+                    placeholder="e.g. 1"
+                    value={cashoutShares}
+                    onChangeText={setCashoutShares}
+                    keyboardType="numeric"
+                  />
+
+                  <Button
+                    title={isSubmitting ? 'Processing...' : 'Cash Out to Gem Wallet'}
+                    onPress={handleCashout}
+                    variant="outline"
+                    size="lg"
+                    disabled={isSubmitting}
+                    style={[styles.submitBtn, { borderColor: '#10B981' }]}
+                  />
+                </>
+              ) : (
+                <View style={styles.noSharesBox}>
+                  <Text style={[styles.noSharesText, { color: theme.textSecondary }]}>
+                    You haven't backed this creator project yet. Back now to participate in milestone payouts!
+                  </Text>
                 </View>
+              )}
+            </View>
+          )}
+        </Card>
 
-                <Button
-                  title="Buy Shares"
-                  onPress={handleBuyShares}
-                  variant="primary"
-                  size="lg"
-                  disabled={!buyAmount || Number(buyAmount) <= 0}
-                />
+        {/* Live Backers Ticker */}
+        <Card style={[styles.backersFeedCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.sectionHeaderRow}>
+            <Users size={16} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Backers</Text>
+          </View>
+          {RECENT_BACKERS.map((b) => (
+            <View key={b.id} style={[styles.backerRow, { borderBottomColor: theme.border }]}>
+              <Avatar source={b.avatar} size="sm" name={b.name} />
+              <View style={styles.backerInfo}>
+                <Text style={[styles.backerName, { color: theme.text }]}>{b.name}</Text>
+                <Text style={[styles.backerTime, { color: theme.textSecondary }]}>{b.time}</Text>
               </View>
-            ) : (
-              <View style={styles.tradingForm}>
-                <Input
-                  label="Number of Shares"
-                  placeholder="Enter amount"
-                  value={sellAmount}
-                  onChangeText={setSellAmount}
-                  keyboardType="numeric"
-                  leftIcon={<DollarSign size={20} color={colors.darkGray} />}
-                />
-
-                <View style={styles.tradingInfo}>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Price per share:</Text>
-                    <Text style={styles.infoValue}>${displayShare.currentPrice.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Total value:</Text>
-                    <Text style={styles.infoValue}>
-                      ${((Number(sellAmount) || 0) * displayShare.currentPrice).toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>You own:</Text>
-                    <Text style={styles.infoValue}>{ownership?.sharesOwned || 0} shares</Text>
-                  </View>
-                </View>
-
-                <Button
-                  title="Sell Shares"
-                  onPress={handleSellShares}
-                  variant="secondary"
-                  size="lg"
-                  disabled={!sellAmount || Number(sellAmount) <= 0 || !ownership}
-                />
+              <View style={[styles.backerAmountPill, { backgroundColor: colors.primary + '15' }]}>
+                <Text style={[styles.backerAmountText, { color: colors.primary }]}>+{b.amount} Gems</Text>
               </View>
-            )}
-          </Card>
-        )}
+            </View>
+          ))}
+        </Card>
 
-        <View style={styles.bottomPadding} />
+        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -424,7 +502,6 @@ export default function ContentShareDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.gray,
   },
   header: {
     flexDirection: 'row',
@@ -432,20 +509,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
   },
   backButton: {
-    padding: 8,
+    padding: 6,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.black,
+    fontSize: 16,
+    fontWeight: '700',
   },
-  placeholder: {
-    width: 40,
+  headerSub: {
+    fontSize: 11,
+  },
+  shareButton: {
+    padding: 4,
   },
   content: {
     flex: 1,
@@ -453,189 +534,256 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'center',
+    padding: 24,
   },
   errorText: {
-    fontSize: 16,
-    color: colors.darkGray,
-    marginBottom: 20,
-  },
-  priceCard: {
+    fontSize: 15,
     marginBottom: 16,
   },
-  priceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
+  heroCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 14,
   },
-  currentPrice: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.black,
-  },
-  priceSubtext: {
-    fontSize: 14,
-    color: colors.darkGray,
-  },
-  priceChange: {
-    alignItems: 'flex-end',
-  },
-  priceChangeText: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  positiveChange: {
-    color: colors.success,
-  },
-  negativeChange: {
-    color: colors.error,
-  },
-  priceChangeSubtext: {
-    fontSize: 12,
-    color: colors.darkGray,
-  },
-  shareStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statItem: {
+  creatorHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  statText: {
-    fontSize: 14,
-    color: colors.darkGray,
-    marginLeft: 4,
-  },
-  chartCard: {
-    marginBottom: 16,
-  },
-  chartHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.black,
-    marginLeft: 8,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    color: colors.darkGray,
-    marginTop: 4,
-  },
-  dividendCard: {
-    marginBottom: 16,
-  },
-  dividendTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.black,
-    marginBottom: 16,
-  },
-  dividendStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dividendItem: {
-    alignItems: 'center',
-  },
-  dividendLabel: {
-    fontSize: 12,
-    color: colors.darkGray,
-    marginBottom: 4,
-  },
-  dividendValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.black,
-  },
-  positionCard: {
-    marginBottom: 16,
-    backgroundColor: `${colors.primary}05`,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  positionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.black,
-    marginBottom: 16,
-  },
-  positionStats: {
     gap: 12,
+    marginBottom: 12,
   },
-  positionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  positionLabel: {
-    fontSize: 14,
-    color: colors.darkGray,
-  },
-  positionValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.black,
-  },
-  tradingCard: {
-    marginBottom: 16,
-  },
-  tradingTabs: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    backgroundColor: colors.lightGray,
-    borderRadius: 8,
-    padding: 4,
-  },
-  tradingTab: {
+  creatorHeroInfo: {
     flex: 1,
-    paddingVertical: 8,
+  },
+  nameBadgeRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 6,
-  },
-  activeTab: {
-    backgroundColor: colors.white,
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.darkGray,
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  tradingForm: {
-    gap: 16,
-  },
-  tradingInfo: {
-    backgroundColor: colors.lightGray,
-    borderRadius: 8,
-    padding: 12,
     gap: 8,
   },
-  infoRow: {
+  creatorHeroName: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  tierPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  tierPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  creatorHeroHandle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  contentMedia: {
+    width: '100%',
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  contentCaption: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  poolProgressSection: {
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0,0,0,0.08)',
+  },
+  poolLabelsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  poolValueText: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  poolSubText: {
+    fontSize: 11,
+  },
+  goalRight: {
+    alignItems: 'flex-end',
+  },
+  goalTargetText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  goalPercentText: {
+    fontSize: 11,
+  },
+  milestonesCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  sectionSub: {
+    fontSize: 12,
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  milestoneList: {
+    gap: 8,
+  },
+  milestoneItem: {
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  milestoneHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  milestoneTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  milestoneTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  milestoneStatusTag: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  milestoneRewardText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  actionCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  actionTabs: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 16,
+    gap: 4,
+  },
+  actionTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  actionTabText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  formContainer: {
+    gap: 12,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  presetsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 6,
+  },
+  presetButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  presetText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  summaryBox: {
+    padding: 12,
+    borderRadius: 12,
+    gap: 6,
+  },
+  summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  infoLabel: {
-    fontSize: 14,
-    color: colors.darkGray,
+  summaryLabel: {
+    fontSize: 12,
   },
-  infoValue: {
-    fontSize: 14,
+  summaryVal: {
+    fontSize: 12,
+  },
+  submitBtn: {
+    marginTop: 4,
+  },
+  cashoutSub: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  noSharesBox: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  noSharesText: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  backersFeedCard: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  backerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 10,
+  },
+  backerInfo: {
+    flex: 1,
+  },
+  backerName: {
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.black,
   },
-  bottomPadding: {
-    height: 20,
+  backerTime: {
+    fontSize: 11,
+  },
+  backerAmountPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  backerAmountText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

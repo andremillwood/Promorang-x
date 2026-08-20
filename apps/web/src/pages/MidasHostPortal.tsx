@@ -31,7 +31,14 @@ import {
   Lock,
   Flame,
   Check,
-  Inbox
+  Inbox,
+  Mail,
+  Send,
+  Bell,
+  QrCode,
+  ScanLine,
+  Star,
+  CheckCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +56,18 @@ interface AttendeeRecord {
   joinedAt: string;
   pointsEarned: number;
   isDemoSample?: boolean;
+}
+
+interface BroadcastCampaign {
+  id: string;
+  subject: string;
+  segment: string;
+  channels: string[];
+  sentAt: string;
+  recipientsCount: number;
+  openRate: string;
+  clickRate: string;
+  status: 'Delivered' | 'Queued';
 }
 
 // Sample attendee simulation for preview purposes
@@ -142,7 +161,7 @@ const SAMPLE_DEMO_ATTENDEES: AttendeeRecord[] = [
 export default function MidasHostPortal() {
   const [filterMoment, setFilterMoment] = useState<'all' | 'sophisticated' | 'capleton'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'attendees' | 'polls' | 'squads' | 'gate'>('attendees');
+  const [activeTab, setActiveTab] = useState<'attendees' | 'polls' | 'squads' | 'gate' | 'broadcast'>('attendees');
   
   // Environment Mode: 'production' (clean 0 real state) vs 'demo' (simulated sample)
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
@@ -154,6 +173,103 @@ export default function MidasHostPortal() {
     const saved = localStorage.getItem('promorang_midas_host_mode');
     return saved === 'demo' ? SAMPLE_DEMO_ATTENDEES : [];
   });
+
+  // Broadcast & Re-engagement State
+  const [broadcastSegment, setBroadcastSegment] = useState<'all' | 'vip' | 'squad_leaders' | 'unclaimed_perks'>('all');
+  const [broadcastChannel, setBroadcastChannel] = useState<'both' | 'in_app' | 'email'>('both');
+  const [broadcastSubject, setBroadcastSubject] = useState('🔥 Exclusive December 2026 Presale & VIP Allocation Unlocked');
+  const [broadcastBody, setBroadcastBody] = useState(
+    'Thanks for joining us at Midas Summer Finale! Because you hold a verified Midas Attendance Moment Piece in your Promorang Vault, your VIP presale access code for December 2026 is now live.'
+  );
+  const [broadcastHistory, setBroadcastHistory] = useState<BroadcastCampaign[]>([
+    {
+      id: 'cmp-001',
+      subject: '✨ Midas Summer Finale — Express Gate Pass & Free Tequila Reminder',
+      segment: 'All Verified Attendees (418 Fans)',
+      channels: ['In-App Push', 'Direct Email'],
+      sentAt: 'Yesterday at 4:30 PM',
+      recipientsCount: 418,
+      openRate: '78.4%',
+      clickRate: '52.1%',
+      status: 'Delivered'
+    },
+    {
+      id: 'cmp-002',
+      subject: '🏆 VIP Deck Upgrades Allocated for Top Squad Referrers',
+      segment: 'Top Referrers (24 Squad Leaders)',
+      channels: ['In-App Push', 'Direct Email'],
+      sentAt: '2 days ago',
+      recipientsCount: 24,
+      openRate: '95.8%',
+      clickRate: '87.5%',
+      status: 'Delivered'
+    }
+  ]);
+
+  // Gate Scanner Simulation State
+  const [scanInput, setScanInput] = useState('');
+  const [scannedAttendee, setScannedAttendee] = useState<AttendeeRecord | null>(SAMPLE_DEMO_ATTENDEES[1]); // Shanice by default
+  const [scanStatus, setScanStatus] = useState<'idle' | 'success' | 'not_found'>('idle');
+
+  const handleRunGateScan = (query: string) => {
+    const match = attendeesList.find(
+      a => a.phone.includes(query) || a.name.toLowerCase().includes(query.toLowerCase()) || a.id.toLowerCase().includes(query.toLowerCase())
+    ) || SAMPLE_DEMO_ATTENDEES.find(
+      a => a.phone.includes(query) || a.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (match) {
+      setScannedAttendee(match);
+      setScanStatus('success');
+      toast.success(`🎉 Verified: ${match.name} (${match.status})`);
+    } else {
+      setScanStatus('not_found');
+      toast.error('Pass token or phone not found in Midas attendee database.');
+    }
+  };
+
+  const handleSendBroadcast = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastSubject.trim() || !broadcastBody.trim()) {
+      toast.error('Please enter a campaign subject and message body.');
+      return;
+    }
+
+    const count = isDemoMode ? (broadcastSegment === 'vip' ? 42 : broadcastSegment === 'squad_leaders' ? 24 : 418) : attendeesList.length;
+    
+    const newCampaign: BroadcastCampaign = {
+      id: `cmp-${Date.now()}`,
+      subject: broadcastSubject,
+      segment: broadcastSegment === 'vip' ? 'VIP Superfans (Tier 3+)' : broadcastSegment === 'squad_leaders' ? 'Top Squad Leaders' : 'All Attendees',
+      channels: broadcastChannel === 'both' ? ['In-App Push', 'Direct Email'] : broadcastChannel === 'in_app' ? ['In-App Push'] : ['Direct Email'],
+      sentAt: 'Just now',
+      recipientsCount: count || 1,
+      openRate: 'Queued',
+      clickRate: 'Queued',
+      status: 'Delivered'
+    };
+
+    setBroadcastHistory([newCampaign, ...broadcastHistory]);
+    toast.success(`🚀 Audience Broadcast dispatched to ${count} attendees via ${broadcastChannel === 'both' ? 'In-App Alert & Email' : broadcastChannel.toUpperCase()}!`, {
+      duration: 5000
+    });
+  };
+
+  const handleSelectTemplate = (type: 'dec_presale' | 'easter_vip' | 'sponsor_perk') => {
+    if (type === 'dec_presale') {
+      setBroadcastSubject('🎄 Midas December 2026 Festival Presale: 20% Loyalty Tier Discount');
+      setBroadcastBody('Exclusive to Midas Summer Piece holders: Your loyalty status unlocks 24-hour priority ticket access before public release. Open your Promorang Vault to claim your pass.');
+      setBroadcastSegment('all');
+    } else if (type === 'easter_vip') {
+      setBroadcastSubject('🐰 Easter 2027 Beach Festival — VIP Deck Soundcheck Pass Drop');
+      setBroadcastBody('As a Tier 3 Culture Insider & Top Referrer, Midas has allocated a complimentary Soundcheck Double Pass directly to your Promorang Vault.');
+      setBroadcastSegment('vip');
+    } else {
+      setBroadcastSubject('🍹 Sponsor Perk Gift: Free Tequila Cocktail on Us at Fiction');
+      setBroadcastBody('Midas & Red Bull / Campari have loaded a free drink voucher directly into your Promorang Vault. Show your QR voucher at the door to redeem.');
+      setBroadcastSegment('all');
+    }
+  };
 
   // Purge Demo Data Handler
   const handlePurgeDemoData = () => {
@@ -417,8 +533,9 @@ export default function MidasHostPortal() {
             {[
               { id: 'attendees', label: '1. Captured Attendees & Phone Numbers', icon: Users, count: isDemoMode ? '418 (Sample)' : '0 (Live)' },
               { id: 'polls', label: '2. Live Discovery Poll Breakdown', icon: Vote, count: isDemoMode ? '240 (Sample)' : '0 (Live)' },
-              { id: 'squads', label: '3. WhatsApp Referral Squad Depth', icon: Share2, count: isDemoMode ? '1.8x' : '0x' },
-              { id: 'gate', label: '4. Gate Passes & Access Drop Status', icon: Ticket, count: isDemoMode ? '62 / 92' : '0 / 92' }
+              { id: 'squads', label: '3. Referral Squad Leaderboard', icon: Share2, count: isDemoMode ? '1.8x' : '0x' },
+              { id: 'gate', label: '4. Gate Passes & Live QR Scanner', icon: Ticket, count: isDemoMode ? '62 / 92' : '0 / 92' },
+              { id: 'broadcast', label: '5. Audience Broadcast (In-App & Email)', icon: Send, count: `${broadcastHistory.length} Sent` }
             ].map(tab => {
               const TabIcon = tab.icon;
               return (
@@ -930,9 +1047,9 @@ export default function MidasHostPortal() {
           </div>
         )}
 
-        {/* TAB 4: GATE PASSES & ACCESS DROP STATUS */}
+        {/* TAB 4: GATE PASSES, ACCESS DROPS & LIVE SCANNER */}
         {activeTab === 'gate' && (
-          <div className="space-y-8 animate-in fade-in duration-200">
+          <div className="space-y-10 animate-in fade-in duration-200">
             <div className="max-w-3xl space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono font-bold text-[#10b981] uppercase tracking-widest">
@@ -940,16 +1057,151 @@ export default function MidasHostPortal() {
                 </span>
                 {isDemoMode && (
                   <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-sm border border-amber-500/30">
-                    SAMPLE PROJECTION
+                    LIVE GATE DEMO
                   </span>
                 )}
               </div>
-              <h3 className="font-serif text-3xl font-bold text-white">Midas Access Drop Inventory Status</h3>
+              <h3 className="font-serif text-3xl font-bold text-white">Gate Operations & Loyalty Scanner</h3>
               <p className="text-stone-300 text-sm">
-                Real-time tracking of perks allocated vs claimed by verified partygoers at Plantation Cove.
+                Door staff QR lookup: instantly verify tickets, detect Partygoer Loyalty Rank, and view exact staff fulfillment directives.
               </p>
             </div>
 
+            {/* Live Interactive Gate Scanner Terminal */}
+            <div className="p-6 rounded-sm bg-[#141210] border-2 border-emerald-500/40 shadow-2xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ffffff15] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-sm bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                    <ScanLine className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="font-serif text-lg font-bold text-white">Live Gate Access Terminal</h4>
+                    <span className="text-[11px] font-mono text-emerald-300">Station #1 · Main Entry & VIP Lane</span>
+                  </div>
+                </div>
+
+                {/* Quick Attendee Switcher for Demo */}
+                <div className="flex items-center gap-2 flex-wrap text-xs font-mono">
+                  <span className="text-stone-400 text-[10px] uppercase">Quick Scan Test:</span>
+                  <button
+                    onClick={() => handleRunGateScan('Shanice')}
+                    className="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-sm hover:bg-purple-500/30"
+                  >
+                    Shanice (Tier 3 VIP)
+                  </button>
+                  <button
+                    onClick={() => handleRunGateScan('Jhenelle')}
+                    className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-sm hover:bg-amber-500/30"
+                  >
+                    Jhenelle (Soundcheck Leader)
+                  </button>
+                  <button
+                    onClick={() => handleRunGateScan('Kadeem')}
+                    className="px-2.5 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/40 rounded-sm hover:bg-orange-500/30"
+                  >
+                    Kadeem (Fast Track)
+                  </button>
+                </div>
+              </div>
+
+              {/* Search / Scan Input */}
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-stone-400" />
+                  <input
+                    type="text"
+                    value={scanInput}
+                    onChange={(e) => setScanInput(e.target.value)}
+                    placeholder="Scan QR token or type attendee phone number / name..."
+                    className="w-full bg-black/60 border border-[#ffffff20] text-white pl-10 pr-4 py-3 rounded-sm text-sm font-mono focus:border-emerald-500 outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleRunGateScan(scanInput);
+                    }}
+                  />
+                </div>
+                <Button
+                  onClick={() => handleRunGateScan(scanInput || 'Shanice')}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold font-mono text-xs px-6 rounded-sm"
+                >
+                  <QrCode className="w-4 h-4 mr-2" /> Validate Ticket
+                </Button>
+              </div>
+
+              {/* Scanned Attendee Telemetry & Staff Directives */}
+              {scannedAttendee && (
+                <div className="p-5 rounded-sm bg-black/60 border border-emerald-500/30 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in">
+                  <div className="space-y-2 border-b lg:border-b-0 lg:border-r border-[#ffffff15] pb-4 lg:pb-0 lg:pr-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                        Ticket Validated · Access Granted
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-serif font-bold text-white">{scannedAttendee.name}</h4>
+                    <p className="text-xs font-mono text-stone-400">{scannedAttendee.phone}</p>
+                    <div className="pt-2">
+                      <span className="text-[10px] font-mono text-stone-400 block uppercase">Event Moment</span>
+                      <strong className="text-xs text-white block">{scannedAttendee.preferredMoment}</strong>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-b lg:border-b-0 lg:border-r border-[#ffffff15] pb-4 lg:pb-0 lg:pr-4">
+                    <span className="text-[10px] font-mono uppercase text-purple-300 font-bold block">
+                      Partygoer Loyalty Rank
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Award className="w-5 h-5 text-[#ffcf38]" />
+                      <strong className="text-sm font-bold text-white">
+                        {scannedAttendee.pointsEarned >= 350
+                          ? '⭐ Tier 3: Culture Insider (Midas Superfan)'
+                          : scannedAttendee.pointsEarned >= 200
+                          ? 'Tier 2: Scene Regular'
+                          : 'Tier 1: Scout'}
+                      </strong>
+                    </div>
+                    <div className="p-2.5 bg-[#141210] rounded-sm text-xs font-mono text-stone-300 space-y-1">
+                      <div className="flex justify-between">
+                        <span>Vault Legacy Points:</span>
+                        <strong className="text-[#ffcf38]">{scannedAttendee.pointsEarned} pts</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Squad Crew Size:</span>
+                        <strong className="text-emerald-400">{scannedAttendee.squadInvitesSent} Referred</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* High-Visibility Door Staff Directives */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-mono uppercase text-[#ff5a1f] font-bold block">
+                      Door Staff Fulfillment Directive
+                    </span>
+                    <div className="p-3 bg-emerald-950/40 border border-emerald-500/50 rounded-sm space-y-1.5 text-xs">
+                      <strong className="text-emerald-300 font-bold block flex items-center gap-1.5">
+                        <CheckCheck className="w-4 h-4 text-emerald-400" />
+                        {scannedAttendee.perkUnlocked.includes('VIP')
+                          ? 'GIVE GOLD VIP WRISTBAND'
+                          : scannedAttendee.perkUnlocked.includes('Soundcheck')
+                          ? 'GIVE BACKSTAGE ALL-ACCESS PASS'
+                          : 'GIVE EXPRESS ACCESS WRISTBAND'}
+                      </strong>
+                      <p className="text-stone-300 text-[11px] leading-snug">
+                        {scannedAttendee.perkUnlocked.includes('VIP')
+                          ? 'Attendee earned VIP Deck Upgrade through 5 squad invites. Direct to Upper Lounge.'
+                          : scannedAttendee.perkUnlocked.includes('Soundcheck')
+                          ? 'Top Referrer (7 crew joined). Escort to VIP hospitality for Capleton soundcheck.'
+                          : 'Valid before 6:00 PM. Hand 1 complimentary Tequila token.'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono text-stone-400 block pt-1">
+                      Moment Memory Piece automatically minted to user Vault upon entry.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Inventory Status Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
@@ -1006,6 +1258,186 @@ export default function MidasHostPortal() {
                 <span className="text-[11px] font-mono text-emerald-400 block">
                   {isDemoMode ? '6 Tokens Remaining' : '30 Tokens Available at Launch'}
                 </span>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: AUDIENCE BROADCAST & RE-ENGAGEMENT */}
+        {activeTab === 'broadcast' && (
+          <div className="space-y-10 animate-in fade-in duration-200">
+            <div className="max-w-3xl space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#ff5a1f] uppercase tracking-widest">
+                  Direct Audience Re-Engagement Engine
+                </span>
+                <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-sm border border-purple-500/30">
+                  IN-APP & EMAIL CHANNELS
+                </span>
+              </div>
+              <h3 className="font-serif text-3xl font-bold text-white">Audience Broadcast & Loyalty Drops</h3>
+              <p className="text-stone-300 text-sm">
+                Re-engage past attendees, broadcast holiday presales (December & Easter), or drop sponsored perks directly into fans' Promorang Vaults without paying for social ads.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Campaign Composer Form */}
+              <div className="lg:col-span-2 p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-6">
+                <div className="flex items-center justify-between border-b border-[#ffffff15] pb-4">
+                  <h4 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                    <Send className="w-4 h-4 text-[#ff5a1f]" /> Compose Audience Broadcast
+                  </h4>
+                  <span className="text-[11px] font-mono text-emerald-400">Zero Spam · Guaranteed Delivery</span>
+                </div>
+
+                {/* Pre-built Templates */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono text-stone-400 block uppercase">1-Click Campaign Templates</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTemplate('dec_presale')}
+                      className="p-3 text-left bg-black/50 border border-white/10 hover:border-amber-500/50 rounded-sm space-y-1 transition"
+                    >
+                      <strong className="text-xs text-white block">🎄 Dec 2026 Presale</strong>
+                      <span className="text-[10px] text-stone-400 block leading-tight">20% off for Summer piece holders</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTemplate('easter_vip')}
+                      className="p-3 text-left bg-black/50 border border-white/10 hover:border-purple-500/50 rounded-sm space-y-1 transition"
+                    >
+                      <strong className="text-xs text-white block">🐰 Easter VIP Drop</strong>
+                      <span className="text-[10px] text-stone-400 block leading-tight">Tier 3 Superfans Soundcheck pass</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTemplate('sponsor_perk')}
+                      className="p-3 text-left bg-black/50 border border-white/10 hover:border-emerald-500/50 rounded-sm space-y-1 transition"
+                    >
+                      <strong className="text-xs text-white block">🍹 Sponsored Drink Gift</strong>
+                      <span className="text-[10px] text-stone-400 block leading-tight">Tequila token drop to all fans</span>
+                    </button>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSendBroadcast} className="space-y-5">
+                  {/* Target Audience Segment */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono text-stone-400 block uppercase">Target Audience Segment</label>
+                      <select
+                        value={broadcastSegment}
+                        onChange={(e) => setBroadcastSegment(e.target.value as any)}
+                        className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
+                      >
+                        <option value="all">All Verified Attendees ({isDemoMode ? '418 Fans' : attendeesList.length})</option>
+                        <option value="vip">VIP Superfans / Tier 3+ ({isDemoMode ? '42 Fans' : '0'})</option>
+                        <option value="squad_leaders">Top Squad Leaders ({isDemoMode ? '24 Leaders' : '0'})</option>
+                        <option value="unclaimed_perks">Unclaimed Perk Holders ({isDemoMode ? '86 Fans' : '0'})</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono text-stone-400 block uppercase">Broadcast Channel</label>
+                      <select
+                        value={broadcastChannel}
+                        onChange={(e) => setBroadcastChannel(e.target.value as any)}
+                        className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
+                      >
+                        <option value="both">In-App Push & Direct Email (Recommended)</option>
+                        <option value="in_app">In-App Notification Banner Only</option>
+                        <option value="email">Direct Email Announcement Only</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Subject Line */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-mono text-stone-400 block uppercase">Campaign Subject / Notification Header</label>
+                    <input
+                      type="text"
+                      value={broadcastSubject}
+                      onChange={(e) => setBroadcastSubject(e.target.value)}
+                      placeholder="e.g. Exclusive Presale Live for Midas VIPs..."
+                      className="w-full bg-black/60 border border-[#ffffff20] text-white px-3.5 py-2.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
+                    />
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-mono text-stone-400 block uppercase">Broadcast Message Body & Call-to-Action</label>
+                    <textarea
+                      rows={4}
+                      value={broadcastBody}
+                      onChange={(e) => setBroadcastBody(e.target.value)}
+                      placeholder="Write announcement details..."
+                      className="w-full bg-black/60 border border-[#ffffff20] text-white p-3.5 rounded-sm text-xs font-mono focus:border-[#ff5a1f] outline-none"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-stone-400">
+                      Recipients: <strong className="text-white">{isDemoMode ? (broadcastSegment === 'vip' ? '42 Fans' : broadcastSegment === 'squad_leaders' ? '24 Leaders' : '418 Fans') : attendeesList.length}</strong>
+                    </span>
+                    <Button
+                      type="submit"
+                      className="bg-[#ff5a1f] hover:bg-[#e04b00] text-white font-bold font-mono text-xs px-8 py-3 rounded-sm"
+                    >
+                      <Send className="w-3.5 h-3.5 mr-2" /> Dispatch Audience Broadcast
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Broadcast Performance & Campaign History */}
+              <div className="space-y-6">
+                <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                  <span className="text-xs font-mono font-bold text-emerald-400 uppercase block">
+                    Re-Engagement Performance
+                  </span>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                    <div className="p-3 bg-black/40 rounded-sm border border-white/10">
+                      <span className="text-stone-400 text-[10px] block uppercase">Avg Open Rate</span>
+                      <strong className="text-xl text-emerald-400 block mt-1">87.1%</strong>
+                    </div>
+                    <div className="p-3 bg-black/40 rounded-sm border border-white/10">
+                      <span className="text-stone-400 text-[10px] block uppercase">Ticket Click-Through</span>
+                      <strong className="text-xl text-[#ffcf38] block mt-1">69.8%</strong>
+                    </div>
+                  </div>
+                  <p className="text-xs text-stone-400 leading-relaxed">
+                    Because attendees have real value stored in their Promorang Vault, in-app alerts achieve 5x the conversion of cold social media posts.
+                  </p>
+                </div>
+
+                {/* Campaign History Log */}
+                <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-4">
+                  <span className="text-xs font-mono font-bold text-stone-300 uppercase block">
+                    Broadcast Dispatch History
+                  </span>
+                  <div className="space-y-3">
+                    {broadcastHistory.map((cmp) => (
+                      <div key={cmp.id} className="p-3 bg-black/40 rounded-sm border border-white/10 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <strong className="text-white text-xs truncate max-w-[200px]">{cmp.subject}</strong>
+                          <span className="text-[10px] font-mono text-emerald-400 font-bold">{cmp.status}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] font-mono text-stone-400">
+                          <span>{cmp.segment}</span>
+                          <span>{cmp.sentAt}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] font-mono pt-1 border-t border-white/10 text-stone-300">
+                          <span>Opens: <strong className="text-emerald-400">{cmp.openRate}</strong></span>
+                          <span>Clicks: <strong className="text-[#ffcf38]">{cmp.clickRate}</strong></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
             </div>

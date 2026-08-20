@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Discovery } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { CURATED_DISCOVERIES, getCuratedDiscoveryBySlug } from "@/data/discoveriesData";
 
 const db = supabase as any;
 
@@ -9,31 +10,56 @@ export function useDiscoveries(filters?: { category?: string; city?: string; cou
   return useQuery({
     queryKey: ["discoveries", filters],
     queryFn: async () => {
-      let query = db
-        .from("discoveries")
-        .select("*")
-        .eq("verification_status", "approved")
-        .order("created_at", { ascending: false });
+      let dbDiscoveries: Discovery[] = [];
+      try {
+        let query = db
+          .from("discoveries")
+          .select("*")
+          .eq("verification_status", "approved")
+          .order("created_at", { ascending: false });
 
+        if (filters?.category && filters.category !== "all") {
+          query = query.eq("category", filters.category);
+        }
+        if (filters?.city) {
+          query = query.ilike("city", filters.city);
+        }
+        if (filters?.country) {
+          query = query.ilike("country", filters.country);
+        }
+        if (filters?.limit) {
+          query = query.limit(filters.limit);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+          dbDiscoveries = data as Discovery[];
+        }
+      } catch (err) {
+        console.warn("Error fetching discoveries from db:", err);
+      }
+
+      // Filter curated discoveries by matching filters
+      let curated = [...CURATED_DISCOVERIES];
       if (filters?.category && filters.category !== "all") {
-        query = query.eq("category", filters.category);
+        curated = curated.filter(d => d.category === filters.category);
       }
       if (filters?.city) {
-        query = query.ilike("city", filters.city);
+        curated = curated.filter(d => d.city?.toLowerCase().includes(filters.city!.toLowerCase()));
       }
       if (filters?.country) {
-        query = query.ilike("country", filters.country);
-      }
-      if (filters?.limit) {
-        query = query.limit(filters.limit);
+        curated = curated.filter(d => d.country?.toLowerCase().includes(filters.country!.toLowerCase()));
       }
 
-      const { data, error } = await query;
-      if (error) {
-        console.warn("Error fetching discoveries:", error);
-        return [];
+      // Combine DB records with curated records, avoiding duplicates
+      const seenSlugs = new Set(dbDiscoveries.map(d => d.slug.toLowerCase()));
+      const filteredCurated = curated.filter(c => !seenSlugs.has(c.slug.toLowerCase()));
+      const combined = [...dbDiscoveries, ...filteredCurated];
+
+      if (filters?.limit) {
+        return combined.slice(0, filters.limit);
       }
-      return (data || []) as Discovery[];
+      return combined;
     },
   });
 }
@@ -44,14 +70,26 @@ export function useDiscovery(slug?: string) {
     queryKey: ["discovery", slug, user?.id],
     enabled: Boolean(slug),
     queryFn: async () => {
+      // First check curated discoveries for instant resolution
+      if (slug) {
+        const curatedMatch = getCuratedDiscoveryBySlug(slug);
+        if (curatedMatch) {
+          return curatedMatch;
+        }
+      }
+
       const { data: discovery, error } = await db
         .from("discoveries")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
 
-      if (error) throw error;
-      if (!discovery) return null;
+      if (error) {
+        console.warn("useDiscovery DB error:", error);
+      }
+      if (!discovery) {
+        return getCuratedDiscoveryBySlug(slug || "") || null;
+      }
 
       // Fetch related scene if present
       let scene = null;

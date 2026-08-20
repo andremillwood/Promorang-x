@@ -422,3 +422,238 @@ export function getDiscoveryPollByIdOrSlug(idOrSlug: string): DiscoveryPoll | un
 export function getAllDiscoveryPolls(): DiscoveryPoll[] {
   return DISCOVERY_POLLS;
 }
+
+import type { Discovery } from "@promorang/shared";
+
+export const CURATED_DISCOVERIES: Discovery[] = [
+  {
+    id: "disc-strawberry-hill-01",
+    slug: "strawberry-hill-panoramic-deck",
+    title: "Strawberry Hill Panoramic Deck & High Tea",
+    category: "hidden_gem",
+    description: "Perched 3,100 feet above the Caribbean in the Blue Mountains. World-renowned 360-degree city views, signature Blue Mountain coffee tastings, and sunset cocktails.",
+    cover_image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "Irish Town, Blue Mountains",
+    latitude: 18.0674,
+    longitude: -76.7329,
+    city: "Kingston",
+    country: "Jamaica",
+    venue_id: "venue-strawberry-hill",
+    creator_id: "creator-editorial",
+    verification_status: "approved",
+    checkin_count: 248,
+    save_count: 512,
+    average_rating: 4.9,
+    metadata: {
+      vibe: ["Scenic", "Sunset", "Romantic", "Luxury Lyme"],
+      best_time: "Friday – Sunday 4:00 PM – 7:30 PM",
+      price_range: "$$$",
+      highlights: ["Panoramic Sunset Views", "Single-Estate Coffee", "Infinity Edge Pool"],
+      tips: ["Arrive 30 minutes before golden hour for the best veranda seating."]
+    },
+    creator_profile: {
+      id: "scout-jules",
+      display_name: "Food Scout Jules",
+      username: "KingstonFoodies",
+      avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Master Cultural Scout"
+    }
+  },
+  {
+    id: "disc-dub-club-02",
+    slug: "dub-club-skyline-ritual",
+    title: "Kingston Dub Club & Skyline Reggae Ritual",
+    category: "music",
+    description: "The Sunday night cultural epicenter on Jack's Hill overlooking the shimmering lights of Kingston. Vinyl-only roots, heavy dub plates, ital vegetarian stew, and organic vibes.",
+    cover_image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "7b Skyline Drive, Jack's Hill",
+    latitude: 18.0465,
+    longitude: -76.7582,
+    city: "Kingston",
+    country: "Jamaica",
+    venue_id: "venue-dub-club",
+    creator_id: "creator-jahson",
+    verification_status: "approved",
+    checkin_count: 412,
+    save_count: 689,
+    average_rating: 4.95,
+    metadata: {
+      vibe: ["Roots Reggae", "Conscious", "City Lights", "Vinyl Only"],
+      best_time: "Sunday 8:00 PM – 2:00 AM",
+      price_range: "$$",
+      highlights: ["Rockers Sound System", "Ital Food", "Unrivalled Night Skyline"],
+      tips: ["Take a trusted ride share up Skyline Drive; parking fills quickly after 10 PM."]
+    },
+    creator_profile: {
+      id: "scout-jahson",
+      display_name: "Jahson K.",
+      username: "SoundCollector",
+      avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Sound Heritage Scout"
+    }
+  },
+  {
+    id: "disc-tacbar-devon-03",
+    slug: "tacbar-devon-house-courtyard",
+    title: "Tacbar Courtyard Margaritas & Taco Stand",
+    category: "restaurant",
+    description: "Nestled in the historic Devon House courtyard. Handcrafted gourmet tacos with jerk chicken, blackened mahi, fresh lime margaritas, and open-air courtyard energy.",
+    cover_image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "26 Hope Road, Devon House Courtyard",
+    latitude: 18.0163,
+    longitude: -76.7909,
+    city: "Kingston",
+    country: "Jamaica",
+    venue_id: "venue-tacbar",
+    creator_id: "creator-maya",
+    verification_status: "approved",
+    checkin_count: 318,
+    save_count: 420,
+    average_rating: 4.85,
+    metadata: {
+      vibe: ["Casual Gourmet", "Outdoor Courtyard", "Cocktails", "Date Spot"],
+      best_time: "Wednesday – Saturday 5:30 PM – 10:00 PM",
+      price_range: "$$",
+      highlights: ["Jerk Pork Tacos", "Smoked Mezcal Margaritas", "Courtyard Patio"],
+      tips: ["Pair with an I Scream scoop right next door after your meal."]
+    },
+    creator_profile: {
+      id: "scout-maya",
+      display_name: "Maya Chen",
+      username: "MayaEats",
+      avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Culinary Scout"
+    }
+  },
+  {
+    id: "disc-boston-jerk-04",
+    slug: "boston-jerk-waterfront-station",
+    title: "Boston Jerk Table & Waterfront Lyme",
+    category: "restaurant",
+    description: "Authentic Portland-style pimento wood pit jerk set against the Kingston Harbour breeze. Smoky jerk chicken, roast breadfruit, and cold Red Stripe.",
+    cover_image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "Ocean Boulevard, Downtown Waterfront",
+    latitude: 17.9678,
+    longitude: -76.7915,
+    city: "Kingston",
+    country: "Jamaica",
+    venue_id: "venue-boston-jerk-waterfront",
+    creator_id: "creator-dwayne",
+    verification_status: "approved",
+    checkin_count: 195,
+    save_count: 310,
+    average_rating: 4.8,
+    metadata: {
+      vibe: ["Authentic Pit Jerk", "Harbour Breeze", "Friday Lyme", "Street Food"],
+      best_time: "Friday & Saturday 12:00 PM – 9:00 PM",
+      price_range: "$",
+      highlights: ["Pimento Wood Smoke", "Festival & Roast Breadfruit", "Ocean Walkway"],
+      tips: ["Ask for the homemade scotch bonnet pepper sauce on the side."]
+    },
+    creator_profile: {
+      id: "scout-dwayne",
+      display_name: "Dwayne R.",
+      username: "DowntownScout",
+      avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Downtown Insider"
+    }
+  },
+  {
+    id: "disc-holywell-peak-05",
+    slug: "holywell-peak-mist-trail",
+    title: "Holywell Peak Forest & Mist Trail",
+    category: "trail",
+    description: "A cool, high-elevation rainforest retreat inside the Blue and John Crow Mountains National Park. Fern-lined trails, bird sanctuaries, and picnic gazebos surrounded by mountain mist.",
+    cover_image: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "Holywell Recreational Park, Blue Mountains",
+    latitude: 18.0892,
+    longitude: -76.7261,
+    city: "St. Andrew",
+    country: "Jamaica",
+    venue_id: "venue-holywell",
+    creator_id: "creator-trailhead",
+    verification_status: "approved",
+    checkin_count: 142,
+    save_count: 278,
+    average_rating: 4.9,
+    metadata: {
+      vibe: ["Cool Climate", "Hiking", "Ecosystem", "Mountain Mist"],
+      best_time: "Saturday & Sunday 8:00 AM – 3:00 PM",
+      price_range: "$",
+      highlights: ["Blue Mountain Peak View", "Orchid Trail", "Cold Mountain Springs"],
+      tips: ["Bring a light windbreaker jacket as temperatures hover around 18°C (64°F)."]
+    },
+    creator_profile: {
+      id: "scout-trail",
+      display_name: "Alana Miller",
+      username: "JamaicaTrailblazers",
+      avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Nature & Trail Guide"
+    }
+  },
+  {
+    id: "disc-blue-ridge-06",
+    slug: "blue-ridge-mountain-lounge",
+    title: "Blue Ridge Restaurant & Cottages",
+    category: "hidden_gem",
+    description: "Rustic alpine cottage dining suspended over the misty valleys of Salt Hill. Farm-to-table Jamaican fusion cuisine, roaring fireplace, and crisp mountain serenity.",
+    cover_image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80"
+    ],
+    location_address: "Salt Hill, Blue Mountains",
+    latitude: 18.0721,
+    longitude: -76.7118,
+    city: "St. Andrew",
+    country: "Jamaica",
+    venue_id: "venue-blue-ridge",
+    creator_id: "creator-maya",
+    verification_status: "approved",
+    checkin_count: 176,
+    save_count: 360,
+    average_rating: 4.88,
+    metadata: {
+      vibe: ["Alpine Escape", "Farm-to-Table", "Fireplace", "Peaceful"],
+      best_time: "Friday – Sunday 12:00 PM – 8:00 PM",
+      price_range: "$$$",
+      highlights: ["Roasted Pumpkin Soup", "Valley Overlook Deck", "Artisan Cocktails"],
+      tips: ["Advance reservations strongly recommended for weekend sunset dining."]
+    },
+    creator_profile: {
+      id: "scout-maya",
+      display_name: "Maya Chen",
+      username: "MayaEats",
+      avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      reputation_title: "Culinary Scout"
+    }
+  }
+];
+
+export function getAllCuratedDiscoveries(): Discovery[] {
+  return CURATED_DISCOVERIES;
+}
+
+export function getCuratedDiscoveryBySlug(slug: string): Discovery | undefined {
+  const clean = (slug || '').toLowerCase().trim();
+  return CURATED_DISCOVERIES.find(d => 
+    d.slug.toLowerCase() === clean || 
+    d.id.toString().toLowerCase() === clean ||
+    clean.includes(d.slug.toLowerCase())
+  );
+}

@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Heart, MessageCircle, Share, TrendingUp, ExternalLink, DollarSign, Bookmark, Share2 } from 'lucide-react-native';
+import { Heart, MessageCircle, Share, TrendingUp, ExternalLink, DollarSign, Bookmark, Share2, Sparkles } from 'lucide-react-native';
 import { Post } from '@/types';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -19,6 +19,7 @@ interface PostCardProps {
   onUserPress: (userId: string) => void;
   onPostPress?: (postId: string) => void;
   onSave?: (postId: string) => void;
+  onTip?: (post: Post) => void;
   showActions?: boolean;
   enableSwipe?: boolean;
 }
@@ -32,6 +33,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onUserPress,
   onPostPress,
   onSave,
+  onTip,
   showActions = true,
   enableSwipe = true,
 }) => {
@@ -156,7 +158,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             onPress={() => onLike(post.id)}
           >
             <Heart
-              size={20}
+              size={18}
               color={post.isLiked ? colors.error : theme.textSecondary}
               fill={post.isLiked ? colors.error : 'transparent'}
             />
@@ -167,7 +169,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             style={styles.actionButton}
             onPress={() => onComment(post.id)}
           >
-            <MessageCircle size={20} color={theme.textSecondary} />
+            <MessageCircle size={18} color={theme.textSecondary} />
             <Text style={[styles.actionText, { color: theme.textSecondary }]}>{post.comments}</Text>
           </TouchableOpacity>
 
@@ -176,24 +178,34 @@ export const PostCard: React.FC<PostCardProps> = ({
             onPress={() => onShare(post.id)}
           >
             <Share
-              size={20}
+              size={18}
               color={post.isShared ? colors.primary : theme.textSecondary}
             />
             <Text style={[styles.actionText, { color: theme.textSecondary }]}>{post.shares}</Text>
           </TouchableOpacity>
 
+          {onTip && (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.tipActionButton, { backgroundColor: colors.primary + '10' }]}
+              onPress={() => onTip(post)}
+            >
+              <Sparkles size={16} color={colors.primary} />
+              <Text style={[styles.actionText, { color: colors.primary, fontWeight: '700' }]}>Tip</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
-            style={[styles.actionButton, styles.backButton, { backgroundColor: colors.primary + '08' }]}
+            style={[styles.actionButton, styles.backButton, { backgroundColor: colors.success + '10' }]}
             onPress={() => onBack(post.id)}
           >
-            <TrendingUp size={20} color={post.isBacked ? colors.success : theme.textSecondary} />
+            <TrendingUp size={18} color={post.isBacked ? colors.success : theme.textSecondary} />
             <Text
               style={[
                 styles.actionText,
-                { color: post.isBacked ? colors.success : theme.textSecondary },
+                { color: post.isBacked ? colors.success : theme.textSecondary, fontWeight: '600' },
               ]}
             >
-              {post.isBacked ? 'Invested' : 'Invest'}
+              {post.isBacked ? 'Backed' : 'Back'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -354,9 +366,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 8,
   },
-  backButton: {
-    backgroundColor: colors.primary + '08',
+  tipActionButton: {
     borderRadius: 8,
+    marginHorizontal: 2,
+  },
+  backButton: {
+    borderRadius: 8,
+    marginHorizontal: 2,
   },
   actionText: {
     fontSize: 12,
