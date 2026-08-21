@@ -73,36 +73,37 @@ export function DiscoveriesFeedSection() {
   const votedCount = Object.keys(userVotes).length;
 
   return (
-    <section className="my-10 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-6 backdrop-blur-md md:p-8 shadow-2xl relative overflow-hidden">
+    <section className="my-6 sm:my-10 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-black/40 p-4 sm:p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
       {/* Background glow effects */}
-      <div className="pointer-events-none absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/10 blur-[100px]" />
-      <div className="pointer-events-none absolute -right-32 -bottom-32 h-72 w-72 rounded-full bg-amber-500/10 blur-[100px]" />
+      <div className="pointer-events-none absolute -left-32 -top-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-primary/10 blur-[80px] sm:blur-[100px]" />
+      <div className="pointer-events-none absolute -right-32 -bottom-32 h-60 w-60 sm:h-72 sm:w-72 rounded-full bg-amber-500/10 blur-[80px] sm:blur-[100px]" />
 
       {/* Header section with Scout Network identity */}
-      <div className="flex flex-col gap-6 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 sm:gap-6 border-b border-white/10 pb-5 sm:pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-primary">
-            <Compass className="h-4 w-4" /> Scout Network & Demand Signals
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary">
+            <Compass className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Scout Network & Demand Signals
           </div>
-          <h2 className="mt-1 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">
+          <h2 className="mt-1 font-serif text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
             Community Polls & Fresh Discoveries
           </h2>
-          <p className="mt-1.5 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
+          <p className="mt-1 max-w-2xl text-xs sm:text-sm text-white/60 leading-relaxed">
             Vote on real-time demand signals to unlock vouchers and pop-up experiences, or explore curated hidden gems logged by local scouts.
           </p>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
           <AskQuestionModal
             trigger={
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 rounded-full border-white/20 bg-white/5 text-xs font-bold text-white hover:border-primary/50 hover:bg-primary/10"
+                className="gap-1.5 rounded-full border-white/20 bg-white/5 text-[11px] sm:text-xs font-bold text-white hover:border-primary/50 hover:bg-primary/10 h-9 px-3.5"
               >
                 <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                Propose Ballot (+50 Pts)
+                <span>Propose Ballot</span>
+                <span className="text-amber-400 font-mono text-[10px]">(+50)</span>
               </Button>
             }
           />
@@ -110,10 +111,11 @@ export function DiscoveriesFeedSection() {
             trigger={
               <Button
                 size="sm"
-                className="gap-1.5 rounded-full bg-primary px-4 font-bold text-black hover:bg-orange-400 transition-transform active:scale-95 shadow-lg shadow-primary/20"
+                className="gap-1.5 rounded-full bg-primary px-3.5 sm:px-4 font-bold text-black hover:bg-orange-400 transition-transform active:scale-95 shadow-lg shadow-primary/20 h-9 text-[11px] sm:text-xs"
               >
-                <Plus className="h-4 w-4" />
-                Submit Discovery (+100 Pts)
+                <Plus className="h-3.5 w-3.5" />
+                <span>Submit Find</span>
+                <span className="font-mono text-[10px]">(+100)</span>
               </Button>
             }
           />
@@ -122,78 +124,78 @@ export function DiscoveriesFeedSection() {
 
       {/* Signed-in Scout Recognition Banner */}
       {user ? (
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 backdrop-blur-md">
-          <div className="flex items-center gap-3.5">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-amber-300 text-sm font-black text-black ring-2 ring-primary/40">
+        <div className="mt-4 sm:mt-5 flex flex-col gap-3.5 rounded-2xl border border-primary/20 bg-primary/5 p-3.5 sm:p-4 backdrop-blur-md md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-amber-300 text-xs sm:text-sm font-black text-black ring-2 ring-primary/40">
               {firstName[0].toUpperCase()}
-              <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-black">
-                <CheckCircle2 className="h-2.5 w-2.5 text-black stroke-[3]" />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 sm:h-3.5 sm:w-3.5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-black">
+                <CheckCircle2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-black stroke-[3]" />
               </span>
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-white">Scout {firstName}</span>
-                <Badge className="border-amber-400/30 bg-amber-500/20 text-[10px] font-black uppercase tracking-wider text-amber-300">
-                  Pioneer Scout Tier
+                <span className="text-xs sm:text-sm font-bold text-white truncate">Scout {firstName}</span>
+                <Badge className="border-amber-400/30 bg-amber-500/20 text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-amber-300 shrink-0">
+                  Pioneer Tier
                 </Badge>
               </div>
-              <p className="text-xs text-white/50">
-                You've cast <span className="font-bold text-primary">{votedCount} ballots</span> • Earned <span className="font-bold text-amber-300">+{votedCount * 35} pts</span> in signal rewards
+              <p className="text-[11px] sm:text-xs text-white/50 truncate">
+                <span className="font-bold text-primary">{votedCount} ballots</span> • <span className="font-bold text-amber-300">+{votedCount * 35} pts</span> rewards
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
-            <div className="rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 text-center">
-              <span className="text-[10px] uppercase tracking-wider text-white/40 block">Available Points</span>
-              <span className="font-mono font-bold text-amber-400">{userPoints} PTS</span>
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 text-xs">
+            <div className="flex-1 sm:flex-initial rounded-xl border border-white/10 bg-black/40 px-2.5 sm:px-3 py-1.5 text-center">
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">Points</span>
+              <span className="font-mono font-bold text-amber-400 text-xs sm:text-sm">{userPoints} PTS</span>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 text-center">
-              <span className="text-[10px] uppercase tracking-wider text-white/40 block">Access Keys</span>
-              <span className="font-mono font-bold text-cyan-400">{userKeys} KEYS</span>
+            <div className="flex-1 sm:flex-initial rounded-xl border border-white/10 bg-black/40 px-2.5 sm:px-3 py-1.5 text-center">
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/40 block">Keys</span>
+              <span className="font-mono font-bold text-cyan-400 text-xs sm:text-sm">{userKeys} KEYS</span>
             </div>
             <Link
               to="/growth"
-              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-bold text-white/80 hover:border-primary/40 hover:text-white transition"
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-2.5 sm:px-3 py-2 font-bold text-white/80 hover:border-primary/40 hover:text-white transition text-xs shrink-0"
             >
-              Scout Rank <ArrowRight className="h-3 w-3 text-primary" />
+              <span>Rank</span> <ArrowRight className="h-3 w-3 text-primary" />
             </Link>
           </div>
         </div>
       ) : (
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+        <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3.5 sm:p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
-              <Zap className="h-5 w-5" />
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div>
               <p className="text-xs font-bold text-white">Join the Community Demand Engine</p>
-              <p className="text-[11px] text-white/60">Cast votes on active radar polls to unlock partner perks and earn instant PromoPoints.</p>
+              <p className="text-[10px] sm:text-[11px] text-white/60">Cast votes on active radar polls to unlock partner perks and earn instant PromoPoints.</p>
             </div>
           </div>
           <Link
             to="/auth"
-            className="rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-white hover:bg-primary hover:text-black transition"
+            className="w-full sm:w-auto text-center rounded-full bg-white/10 px-4 py-2 sm:py-1.5 text-xs font-bold text-white hover:bg-primary hover:text-black transition shrink-0"
           >
             Sign In to Vote & Earn
           </Link>
         </div>
       )}
 
-      {/* Navigation Tabs */}
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
-        <div className="flex gap-2">
+      {/* Navigation Tabs - Horizontal scrolling with no scrollbar */}
+      <div className="mt-5 sm:mt-6 flex items-center justify-between gap-3 border-b border-white/5 pb-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
           <button
             onClick={() => setActiveTab("polls")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
               activeTab === "polls"
                 ? "bg-primary text-black shadow-lg shadow-primary/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
             <Flame className="h-3.5 w-3.5" />
-            Demand Signals & Polls
-            <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+            <span>Demand Signals</span>
+            <span className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[9px] font-black ${
               activeTab === "polls" ? "bg-black text-primary" : "bg-white/10 text-white/60"
             }`}>
               {totalPollsCount}
@@ -202,15 +204,15 @@ export function DiscoveriesFeedSection() {
 
           <button
             onClick={() => setActiveTab("discoveries")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
               activeTab === "discoveries"
                 ? "bg-primary text-black shadow-lg shadow-primary/20"
                 : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
             <Compass className="h-3.5 w-3.5" />
-            Scout Discoveries
-            <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+            <span>Scout Finds</span>
+            <span className={`ml-0.5 rounded-full px-1.5 py-0.2 text-[9px] font-black ${
               activeTab === "discoveries" ? "bg-black text-primary" : "bg-white/10 text-white/60"
             }`}>
               {discoveries?.length || 6}
@@ -220,23 +222,23 @@ export function DiscoveriesFeedSection() {
           {user && (
             <button
               onClick={() => setActiveTab("my_scout")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 text-xs font-bold transition shrink-0 ${
                 activeTab === "my_scout"
                   ? "bg-primary text-black shadow-lg shadow-primary/20"
                   : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
               }`}
             >
               <Award className="h-3.5 w-3.5" />
-              My Scout Log
+              <span>My Scout Log</span>
             </button>
           )}
         </div>
 
         <Link
           to="/discover"
-          className="text-xs font-bold text-white/50 hover:text-primary transition flex items-center gap-1"
+          className="hidden md:inline-flex text-xs font-bold text-white/50 hover:text-primary transition items-center gap-1 shrink-0"
         >
-          View Full Discovery Radar <ChevronRight className="h-3.5 w-3.5" />
+          View Full Radar <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
@@ -244,7 +246,7 @@ export function DiscoveriesFeedSection() {
       {/* TAB 1: DEMAND SIGNALS & ACTIVE POLLS */}
       {/* ------------------------------------------------------------- */}
       {activeTab === "polls" && (
-        <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-5 sm:mt-6 grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {polls.slice(0, 6).map((poll) => {
             const hasVoted = Boolean(userVotes[poll.id]);
             const selectedOptionId = userVotes[poll.id];

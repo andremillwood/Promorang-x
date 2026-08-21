@@ -135,38 +135,38 @@ const Discover = () => {
       <div className="mx-auto max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 space-y-10">
 
         {/* Header Title & Search Row */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6 sm:pb-8">
           <div className="space-y-2">
-            <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none">
+            <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-[10px] sm:text-xs px-3.5 py-1 uppercase tracking-wider border-none">
               Explore Culture & Events
             </Badge>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
               Discover What's Happening
             </h1>
-            <p className="text-white/60 text-base max-w-xl font-normal">
+            <p className="text-white/60 text-sm sm:text-base max-w-xl font-normal">
               Find upcoming moments, reserve your spot, and unlock exclusive attendee perks.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             {/* Search Bar */}
-            <div className="relative min-w-[280px]">
+            <div className="relative w-full sm:min-w-[280px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <input
                 type="text"
                 placeholder="Search events or venues..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-2xl bg-white/5 border border-white/10 pl-11 pr-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ff5500] transition"
+                className="w-full rounded-2xl bg-white/5 border border-white/10 pl-11 pr-4 py-2.5 sm:py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#ff5500] transition"
               />
             </div>
 
             {/* View Mode Toggle Pill */}
-            <div className="flex items-center rounded-2xl border border-white/10 bg-white/5 p-1 shrink-0">
+            <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
                   viewMode === "grid" ? "bg-[#ff5500] text-white shadow-lg" : "text-white/60 hover:text-white"
                 }`}
               >
@@ -175,7 +175,7 @@ const Discover = () => {
               <button
                 type="button"
                 onClick={() => setViewMode("map")}
-                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
                   viewMode === "map" ? "bg-[#ff5500] text-white shadow-lg" : "text-white/60 hover:text-white"
                 }`}
               >
@@ -187,13 +187,13 @@ const Discover = () => {
           </div>
         </div>
 
-        <div className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-4 sm:grid-cols-2 sm:p-5">
-          <div className="rounded-2xl border border-[#ff5500]/25 bg-[#ff5500]/[0.07] p-4">
+        <div className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.035] p-3.5 sm:p-5 sm:grid-cols-2">
+          <div className="rounded-2xl border border-[#ff5500]/25 bg-[#ff5500]/[0.07] p-3.5 sm:p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff8a50]">Moment</p>
             <p className="mt-1 text-sm font-bold text-white">Something happening at a set time.</p>
             <p className="mt-1 text-xs text-white/50">Reserve a spot, attend, complete missions, and unlock perks.</p>
           </div>
-          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-4">
+          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] p-3.5 sm:p-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Discovery</p>
             <p className="mt-1 text-sm font-bold text-white">A place or cultural find worth knowing.</p>
             <p className="mt-1 text-xs text-white/50">Save it, visit it, log your check-in—or submit a find of your own.</p>
@@ -214,7 +214,7 @@ const Discover = () => {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all shrink-0 ${
+                className={`inline-flex items-center gap-2 rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
                   isActive
                     ? "bg-[#ff5500] text-white shadow-lg shadow-[#ff5500]/20"
                     : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5"
@@ -229,10 +229,10 @@ const Discover = () => {
 
         {/* Main Content Layout with 3-Column Desktop Right Rail */}
         <div className="flex gap-8 items-start">
-          <div className="flex-1 space-y-10 min-w-0">
+          <div className="flex-1 space-y-8 sm:space-y-10 min-w-0">
             {/* Featured Hero Event Card */}
             {featuredMoment && !searchQuery && activeCategory === "all" && (
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[440px] flex items-end p-6 sm:p-10 lg:p-12">
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[380px] sm:min-h-[440px] flex items-end p-5 sm:p-10 lg:p-12">
                 {featuredMoment.image_url || featuredMoment.banner_image_url ? (
                   <img
                     src={featuredMoment.banner_image_url || featuredMoment.image_url}
@@ -244,30 +244,30 @@ const Discover = () => {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/60 to-transparent" />
 
-                <div className="relative z-10 space-y-4 max-w-3xl">
+                <div className="relative z-10 space-y-3 sm:space-y-4 max-w-3xl">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="bg-[#ff5500] text-white font-bold text-xs px-3 py-1">Featured Event</Badge>
-                    <Badge variant="outline" className="border-white/20 text-white/80 bg-black/40">
+                    <Badge className="bg-[#ff5500] text-white font-bold text-[10px] sm:text-xs px-3 py-1">Featured Event</Badge>
+                    <Badge variant="outline" className="border-white/20 text-white/80 bg-black/40 text-[10px] sm:text-xs">
                       {formatMomentDate(featuredMoment.starts_at)}
                     </Badge>
                   </div>
 
-                  <h2 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl leading-tight">
+                  <h2 className="text-2xl font-extrabold text-white sm:text-4xl md:text-5xl leading-tight">
                     {featuredMoment.title}
                   </h2>
 
-                  <p className="text-white/80 text-sm sm:text-base line-clamp-2 max-w-2xl font-medium">
+                  <p className="text-white/80 text-xs sm:text-base line-clamp-2 max-w-2xl font-medium">
                     {featuredMoment.description}
                   </p>
 
-                  <div className="pt-2 flex flex-wrap items-center gap-4">
-                    <Button asChild className="rounded-2xl bg-[#ff5500] hover:bg-[#e04b00] text-white font-bold px-7 py-3 shadow-lg shadow-[#ff5500]/25">
+                  <div className="pt-1 sm:pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
+                    <Button asChild className="rounded-2xl bg-[#ff5500] hover:bg-[#e04b00] text-white font-bold px-5 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm shadow-lg shadow-[#ff5500]/25">
                       <Link to={`/moments/${featuredMoment.id}`}>
                         RSVP & Reserve Spot <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
-                    <span className="text-xs text-white/60 flex items-center gap-1.5 font-semibold">
-                      <MapPin className="h-3.5 w-3.5 text-[#ff5500]" /> {featuredMoment.venue_name || featuredMoment.location}
+                    <span className="text-xs text-white/60 flex items-center gap-1.5 font-semibold truncate">
+                      <MapPin className="h-3.5 w-3.5 text-[#ff5500] shrink-0" /> {featuredMoment.venue_name || featuredMoment.location}
                     </span>
                   </div>
                 </div>

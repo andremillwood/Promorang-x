@@ -215,7 +215,7 @@ export default function DiscoveryDetail() {
       : [];
 
     return (
-      <main className="min-h-screen bg-[#07090e] pb-28 text-white selection:bg-orange-500 selection:text-white">
+      <main className="min-h-screen bg-[#07090e] pb-32 sm:pb-28 text-white selection:bg-orange-500 selection:text-white">
         <SEO
           title={`${poll.question} — Promorang Demand Signal`}
           description={poll.description}
@@ -224,54 +224,56 @@ export default function DiscoveryDetail() {
 
         {/* Ambient Atmospheric Glows */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-          <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-orange-600/15 blur-[130px]" />
-          <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-purple-600/15 blur-[150px]" />
-          <div className="absolute left-1/3 top-1/2 h-[500px] w-[500px] rounded-full bg-amber-500/10 blur-[170px]" />
+          <div className="absolute -left-40 top-20 h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-orange-600/15 blur-[100px] sm:blur-[130px]" />
+          <div className="absolute -right-40 top-40 h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-purple-600/15 blur-[120px] sm:blur-[150px]" />
+          <div className="absolute left-1/3 top-1/2 h-80 w-80 sm:h-[500px] sm:w-[500px] rounded-full bg-amber-500/10 blur-[130px] sm:blur-[170px]" />
         </div>
 
         <div className="relative z-10">
           {/* Top Bar / Navigation */}
-          <section className="border-b border-white/10 bg-black/60 backdrop-blur-xl pt-20">
-            <div className="container mx-auto px-4 py-4 sm:px-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+          <section className="border-b border-white/10 bg-black/70 backdrop-blur-xl pt-16 sm:pt-20">
+            <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <Link
                     to="/discover"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 transition hover:border-white/30 hover:bg-white/10 hover:text-white shrink-0"
                   >
                     <ArrowLeft className="h-3.5 w-3.5 text-orange-400" />
-                    Back to Discoveries
+                    <span className="hidden xs:inline">Back</span>
+                    <span className="hidden sm:inline">to Discoveries</span>
                   </Link>
 
                   <Link
                     to="/radar?tab=discover"
-                    className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-orange-400 transition"
+                    className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-orange-400 transition truncate"
                   >
                     <Compass className="h-3.5 w-3.5" />
                     Opportunity Radar
                   </Link>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(shareUrl);
                       toast.success("Tracked referral link copied to clipboard! 📋");
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 transition"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 transition"
+                    title="Copy Referral Link"
                   >
                     <Copy className="h-3.5 w-3.5 text-purple-400" />
-                    <span className="hidden sm:inline">Copy Ref Link</span>
+                    <span className="hidden sm:inline">Copy Link</span>
                   </button>
 
                   <button
                     onClick={() => {
                       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition shadow-sm"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition shadow-sm"
                   >
                     <Share2 className="h-3.5 w-3.5" />
-                    <span>WhatsApp</span>
+                    <span className="hidden xs:inline">WhatsApp</span>
                   </button>
 
                   <button
@@ -279,7 +281,7 @@ export default function DiscoveryDetail() {
                       setIsSavedPoll(!isSavedPoll);
                       toast.success(isSavedPoll ? "Removed from Saved" : "Saved to your Vault! 🌟");
                     }}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
                       isSavedPoll
                         ? "border-orange-500/50 bg-orange-500/20 text-orange-400"
                         : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
@@ -294,69 +296,69 @@ export default function DiscoveryDetail() {
           </section>
 
           {/* Main Hero Header */}
-          <section className="container mx-auto px-4 py-8 sm:px-6">
-            <div className="max-w-5xl mx-auto space-y-6">
+          <section className="container mx-auto px-3 sm:px-6 py-6 sm:py-8">
+            <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
               {/* Category, Status & Social Proof Strip */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40 text-xs font-black uppercase tracking-wider shadow-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm">
                   <Flame className="w-3.5 h-3.5 text-orange-400 animate-pulse" />
                   {poll.category}
                 </span>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                  Live Community Demand Signal
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] sm:text-xs font-bold">
+                  <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 animate-ping" />
+                  Live Demand Signal
                 </span>
 
-                <span className="text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                <span className="text-[11px] sm:text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
                   <Gift className="w-3.5 h-3.5 text-amber-400" />
-                  +{poll.pointsReward} PromoPoints Reward
+                  +{poll.pointsReward} Pts Loot
                 </span>
 
-                <span className="hidden md:inline-flex items-center gap-1 text-xs text-white/50 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                <span className="hidden sm:inline-flex items-center gap-1 text-xs text-white/50 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                   <Users className="w-3 h-3 text-orange-400" />
-                  {totalVotes} Kingston scouts voted
+                  {totalVotes} Kingston votes
                 </span>
               </div>
 
               {/* Grand Editorial Title */}
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight">
+              <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.18] sm:leading-[1.12] tracking-tight">
                 {poll.question}
               </h1>
 
               {/* Scout Attribution & Connected Scene Card */}
-              <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-white/[0.05] via-white/[0.02] to-transparent border border-white/10 backdrop-blur-md">
-                <div className="flex items-center gap-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-white/[0.05] via-white/[0.02] to-transparent border border-white/10 backdrop-blur-md">
+                <div className="flex items-center gap-3">
                   {poll.authorAvatar ? (
                     <img
                       src={poll.authorAvatar}
                       alt={poll.authorName}
-                      className="h-12 w-12 rounded-full border-2 border-orange-500/70 object-cover shadow-lg shrink-0"
+                      className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-orange-500/70 object-cover shadow-lg shrink-0"
                     />
                   ) : (
-                    <div className="grid h-12 w-12 place-items-center rounded-full bg-orange-500/20 text-orange-400 font-bold text-lg border border-orange-500/40 shrink-0">
+                    <div className="grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full bg-orange-500/20 text-orange-400 font-bold text-base sm:text-lg border border-orange-500/40 shrink-0">
                       {poll.authorName[0]}
                     </div>
                   )}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{poll.authorName}</span>
-                      <CheckCircle2 className="h-4 w-4 text-orange-400 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs sm:text-sm font-bold text-white truncate">{poll.authorName}</span>
+                      <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-400 shrink-0" />
                       {poll.authorHandle && (
-                        <span className="text-xs text-white/40 hidden sm:inline">{poll.authorHandle}</span>
+                        <span className="text-[11px] sm:text-xs text-white/40 hidden xs:inline truncate">{poll.authorHandle}</span>
                       )}
                     </div>
-                    <p className="text-xs text-white/60">{poll.authorRole}</p>
+                    <p className="text-[11px] sm:text-xs text-white/60 truncate">{poll.authorRole}</p>
                   </div>
                 </div>
 
                 {poll.connectedScene && (
                   <Link
                     to={`/scenes/${poll.connectedScene.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/25 px-4 py-2 rounded-xl transition hover:bg-orange-500/20 shadow-sm"
+                    className="inline-flex items-center justify-between sm:justify-start gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/25 px-3.5 py-1.5 sm:py-2 rounded-xl transition hover:bg-orange-500/20 shadow-sm w-fit"
                   >
                     <span>Scene: {poll.connectedScene.title}</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                   </Link>
                 )}
               </div>
@@ -364,36 +366,36 @@ export default function DiscoveryDetail() {
           </section>
 
           {/* 2-Column Content Grid */}
-          <section className="container mx-auto px-4 sm:px-6">
-            <div className="max-w-5xl mx-auto grid gap-8 lg:grid-cols-[1fr_360px] items-start">
+          <section className="container mx-auto px-3 sm:px-6">
+            <div className="max-w-5xl mx-auto grid gap-6 sm:gap-8 lg:grid-cols-[1fr_360px] items-start">
               
               {/* Left Column: Interactive Ballot & Dynamic Hub */}
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 
                 {/* Community Unlock Battery Card */}
-                <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-gray-900/95 via-gray-950 to-gray-900 p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+                <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-br from-gray-900/95 via-gray-950 to-gray-900 p-4 sm:p-7 shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" />
                         COMMUNITY UNLOCK BATTERY
                       </span>
-                      <h3 className="text-xl font-bold text-white flex items-center gap-2 mt-0.5">
+                      <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mt-0.5">
                         <span>City Hype Meter</span>
                       </h3>
                     </div>
                     <div className="text-left sm:text-right">
-                      <span className="text-2xl font-black text-orange-400">
-                        {totalVotes} <span className="text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Power Units</span>
+                      <span className="text-xl sm:text-2xl font-black text-orange-400">
+                        {totalVotes} <span className="text-xs sm:text-sm font-normal text-white/50">/ {poll.thresholdForMoment} Units</span>
                       </span>
-                      <p className="text-[11px] text-white/50 font-medium">{progressPercentage}% charged toward bulk drop</p>
+                      <p className="text-[10px] sm:text-[11px] text-white/50 font-medium">{progressPercentage}% charged toward drop</p>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-gray-800/90 h-3.5 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
+                  <div className="w-full bg-gray-800/90 h-3 sm:h-3.5 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
                     <div
                       className="bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-700 shadow-lg shadow-orange-500/30"
                       style={{ width: `${progressPercentage}%` }}
@@ -401,21 +403,21 @@ export default function DiscoveryDetail() {
                   </div>
 
                   {/* Milestone Target Explanation */}
-                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-950/50 to-black/70 border border-orange-500/30 flex items-start gap-3.5">
-                    <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0 mt-0.5">
-                      <Gift className="w-5 h-5" />
+                  <div className="mt-3.5 sm:mt-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-orange-950/50 to-black/70 border border-orange-500/30 flex items-start gap-3">
+                    <div className="p-2 sm:p-2.5 rounded-xl bg-orange-500/20 text-orange-400 shrink-0 mt-0.5">
+                      <Gift className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wider text-amber-400">THE BOUNTY TO UNLOCK</p>
-                      <p className="text-sm font-bold text-white mt-0.5">{poll.targetUnlockPerk}</p>
+                    <div className="min-w-0">
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-400">THE BOUNTY TO UNLOCK</p>
+                      <p className="text-xs sm:text-sm font-bold text-white mt-0.5 break-words">{poll.targetUnlockPerk}</p>
                       {isThresholdMet ? (
-                        <p className="text-xs text-emerald-400 font-bold mt-1.5 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5" /> 🎉 TARGET UNLOCKED! Tasting Pass codes are dropping to all verified voters!
+                        <p className="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1 flex items-center gap-1">
+                          <Sparkles className="h-3.5 w-3.5 shrink-0" /> 🎉 UNLOCKED! Tasting Pass codes dropping to voters!
                         </p>
                       ) : (
-                        <p className="text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
+                        <p className="text-[11px] sm:text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
                           <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-                          <span>Only {votesRemaining} more votes needed to unlock this perk for everyone in Kingston!</span>
+                          <span>Only {votesRemaining} more votes needed to unlock for everyone!</span>
                         </p>
                       )}
                     </div>
@@ -423,27 +425,27 @@ export default function DiscoveryDetail() {
                 </div>
 
                 {/* Interactive Voting Ballot */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                <div id="ballot-section" className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-8 backdrop-blur-md shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4 mb-4 sm:mb-6">
                     <div>
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Vote className="h-5 w-5 text-orange-400" />
+                      <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <Vote className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
                         <span>Cast Your Vote</span>
                       </h2>
-                      <p className="text-xs text-white/60 mt-0.5">
+                      <p className="text-[11px] sm:text-xs text-white/60 mt-0.5">
                         {userVotedOptionId 
-                          ? "🎯 Choice locked in! Personalized spots & referral rewards unlocked below." 
-                          : "Select your benchmark pick below to back your tier and earn instant reward points."}
+                          ? "🎯 Choice locked in! Spot matches & referral perks unlocked below." 
+                          : "Select your pick below to back your candidate and earn reward points."}
                       </p>
                     </div>
 
-                    <span className="text-xs font-black text-orange-400/90 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
-                      {poll.options.length} Contenders
+                    <span className="text-[11px] sm:text-xs font-black text-orange-400/90 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 shrink-0">
+                      {poll.options.length} Choices
                     </span>
                   </div>
 
                   {/* Options List */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 sm:space-y-3">
                     {poll.options.map((option) => {
                       const votePercentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
                       const isSelected = userVotedOptionId === option.id;
@@ -454,7 +456,7 @@ export default function DiscoveryDetail() {
                           key={option.id}
                           onClick={() => handleVoteOnPoll(option.id)}
                           disabled={!!userVotedOptionId}
-                          className={`w-full relative overflow-hidden p-4 rounded-2xl text-left border transition-all duration-200 group ${
+                          className={`w-full relative overflow-hidden p-3.5 sm:p-4 rounded-2xl text-left border transition-all duration-200 group ${
                             isSelected
                               ? "border-orange-500 bg-orange-500/20 text-white font-bold ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/10"
                               : userVotedOptionId
@@ -472,28 +474,28 @@ export default function DiscoveryDetail() {
                             />
                           )}
 
-                          <div className="relative z-10 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="relative z-10 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                               <div
-                                className={`h-6 w-6 rounded-full flex items-center justify-center border shrink-0 transition ${
+                                className={`h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center border shrink-0 transition ${
                                   isSelected
                                     ? "border-orange-400 bg-orange-500 text-black font-black"
                                     : "border-white/30 group-hover:border-orange-400"
                                 }`}
                               >
                                 {isSelected ? (
-                                  <CheckCircle2 className="h-4 w-4" />
+                                  <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 ) : (
-                                  <span className="h-2 w-2 rounded-full bg-white/20 group-hover:bg-orange-400" />
+                                  <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white/20 group-hover:bg-orange-400" />
                                 )}
                               </div>
                               
-                              <div className="text-left min-w-0">
-                                <span className="text-sm font-bold text-white block">
+                              <div className="text-left min-w-0 flex-1">
+                                <span className="text-xs sm:text-sm font-bold text-white block leading-snug break-words">
                                   {option.text}
                                 </span>
                                 {isLeading && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-400 mt-0.5">
+                                  <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black text-amber-400 mt-0.5">
                                     <Sparkles className="w-2.5 h-2.5" /> Leading Choice ({votePercentage}%)
                                   </span>
                                 )}
@@ -502,10 +504,10 @@ export default function DiscoveryDetail() {
 
                             {userVotedOptionId && (
                               <div className="text-right shrink-0">
-                                <span className="text-base font-black text-white block font-mono">
+                                <span className="text-sm sm:text-base font-black text-white block font-mono">
                                   {votePercentage}%
                                 </span>
-                                <span className="text-[11px] text-white/50">
+                                <span className="text-[10px] sm:text-[11px] text-white/50">
                                   {option.votes} {option.votes === 1 ? "vote" : "votes"}
                                 </span>
                               </div>
@@ -518,7 +520,7 @@ export default function DiscoveryDetail() {
 
                   {/* Add Custom Candidate Nomination */}
                   {!userVotedOptionId && !showAddOption && (
-                    <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                    <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10 flex items-center justify-between">
                       <button
                         onClick={() => setShowAddOption(true)}
                         className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1.5 transition"
@@ -530,9 +532,9 @@ export default function DiscoveryDetail() {
                   )}
 
                   {showAddOption && (
-                    <form onSubmit={handleAddOption} className="mt-6 pt-4 border-t border-white/10 space-y-3">
+                    <form onSubmit={handleAddOption} className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10 space-y-3">
                       <p className="text-xs font-bold text-white">Nominate Your Choice</p>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={newOptionText}
@@ -543,7 +545,7 @@ export default function DiscoveryDetail() {
                         <Button
                           type="submit"
                           size="sm"
-                          className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4"
+                          className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 h-10 sm:h-auto"
                         >
                           Nominate & Vote
                         </Button>
@@ -559,32 +561,32 @@ export default function DiscoveryDetail() {
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     
                     {/* 1. Choice Recommendations Card */}
-                    <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-950/30 to-black/60 p-6 sm:p-8 backdrop-blur-md space-y-5 shadow-2xl">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+                    <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-b from-orange-950/30 to-black/60 p-4 sm:p-8 backdrop-blur-md space-y-4 sm:space-y-5 shadow-2xl">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3 sm:pb-4">
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 flex items-center gap-1">
                             <Target className="w-3.5 h-3.5" />
                             DYNAMIC RECOMMENDATIONS
                           </span>
-                          <h3 className="text-xl font-bold text-white mt-1">
+                          <h3 className="text-lg sm:text-xl font-bold text-white mt-0.5">
                             Curated Drops Matched to Your Choice
                           </h3>
                         </div>
-                        <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 text-xs w-fit">
+                        <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 text-[11px] sm:text-xs w-fit max-w-full truncate">
                           🎯 Pick: {selectedOptionObj?.text.split('(')[0].trim()}
                         </Badge>
                       </div>
 
                       {activeRecommendations.length > 0 ? (
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid gap-3.5 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                           {activeRecommendations.map((rec) => (
                             <div
                               key={rec.id}
-                              className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
+                              className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 sm:p-4 flex flex-col justify-between hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
                             >
                               <div>
                                 {rec.image && (
-                                  <div className="relative h-32 w-full rounded-xl overflow-hidden mb-3">
+                                  <div className="relative h-28 sm:h-32 w-full rounded-xl overflow-hidden mb-3">
                                     <img
                                       src={rec.image}
                                       alt={rec.title}
@@ -595,27 +597,27 @@ export default function DiscoveryDetail() {
                                     </span>
                                   </div>
                                 )}
-                                <h4 className="text-sm font-bold text-white group-hover:text-orange-300 transition">
+                                <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-orange-300 transition line-clamp-1">
                                   {rec.title}
                                 </h4>
-                                <p className="text-xs text-white/50 mt-0.5">{rec.subtitle}</p>
+                                <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 line-clamp-1">{rec.subtitle}</p>
                                 
-                                <div className="mt-3 p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20">
-                                  <p className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
-                                    <Gift className="w-3 h-3 text-orange-400 shrink-0" />
-                                    {rec.dealOrPerk}
+                                <div className="mt-2.5 sm:mt-3 p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                                  <p className="text-[11px] font-bold text-amber-300 flex items-start gap-1">
+                                    <Gift className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                                    <span className="line-clamp-2">{rec.dealOrPerk}</span>
                                   </p>
-                                  <p className="text-[10px] text-white/60 mt-1">
+                                  <p className="text-[10px] text-white/60 mt-1 line-clamp-2">
                                     💡 {rec.matchReason}
                                   </p>
                                 </div>
                               </div>
 
-                              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                                <span className="text-[10px] text-white/40">{rec.location}</span>
+                              <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+                                <span className="text-[10px] text-white/40 truncate">{rec.location}</span>
                                 <Link
                                   to={rec.actionUrl}
-                                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 group-hover:translate-x-0.5 transition"
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 group-hover:translate-x-0.5 transition shrink-0"
                                 >
                                   <span>{rec.actionText}</span>
                                   <ArrowRight className="w-3 h-3" />
@@ -632,20 +634,20 @@ export default function DiscoveryDetail() {
 
                       {/* Companion Missions Bar */}
                       {poll.recommendedMissions && poll.recommendedMissions.length > 0 && (
-                        <div className="mt-5 pt-4 border-t border-white/10 space-y-3">
-                          <p className="text-xs font-black uppercase tracking-wider text-white/50">
+                        <div className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-white/10 space-y-2.5 sm:space-y-3">
+                          <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white/50">
                             UNLOCKED COMPANION MISSIONS
                           </p>
-                          <div className="grid gap-2 sm:grid-cols-2">
+                          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                             {poll.recommendedMissions.map((ms) => (
                               <Link
                                 key={ms.id}
                                 to={ms.url}
                                 className="flex items-center justify-between p-3 rounded-xl border border-purple-500/30 bg-purple-950/20 hover:bg-purple-950/40 transition group"
                               >
-                                <div>
-                                  <span className="text-[10px] font-bold text-purple-400 uppercase">{ms.type}</span>
-                                  <p className="text-xs font-bold text-white group-hover:text-purple-300">{ms.title}</p>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-[9px] sm:text-[10px] font-bold text-purple-400 uppercase">{ms.type}</span>
+                                  <p className="text-xs font-bold text-white group-hover:text-purple-300 truncate">{ms.title}</p>
                                 </div>
                                 <span className="text-xs font-mono font-bold text-amber-400 shrink-0 ml-2">
                                   {ms.reward}
@@ -658,31 +660,31 @@ export default function DiscoveryDetail() {
                     </div>
 
                     {/* 2. Viral Squad Referral Accelerator Widget */}
-                    <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 via-gray-900 to-gray-950 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 shrink-0">
-                          <Users className="w-6 h-6" />
+                    <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 via-gray-900 to-gray-950 p-4 sm:p-8 shadow-2xl relative overflow-hidden">
+                      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                        <div className="p-2.5 sm:p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 shrink-0">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full min-w-0">
                           <div className="flex flex-wrap items-center gap-2 justify-between">
-                            <h4 className="text-base font-black text-white">
+                            <h4 className="text-sm sm:text-base font-black text-white">
                               Squad Unlock Accelerator 🚀
                             </h4>
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
-                              +{poll.squadGoal?.bonusPointsPerInvite || 25} Pts Per Friend
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-bold border border-emerald-500/40">
+                              +{poll.squadGoal?.bonusPointsPerInvite || 25} Pts / Friend
                             </span>
                           </div>
 
                           <p className="text-xs text-white/80 mt-1.5 leading-relaxed">
-                            Don't want to wait for the 160 community votes? Invite <strong>{targetSquadInvites} friends</strong> to vote and unlock your <strong>{poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass Key'}</strong> instantly!
+                            Don't want to wait for the {poll.thresholdForMoment} votes? Invite <strong>{targetSquadInvites} friends</strong> to vote and unlock your <strong>{poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass Key'}</strong> instantly!
                           </p>
 
                           {/* Live Squad Progress Indicator */}
-                          <div className="mt-4 p-3.5 rounded-2xl bg-black/50 border border-white/10">
+                          <div className="mt-3.5 sm:mt-4 p-3 sm:p-3.5 rounded-2xl bg-black/50 border border-white/10">
                             <div className="flex items-center justify-between text-xs font-bold">
                               <span className="text-white/70">Squad Invitations Verified</span>
                               <span className={isSquadUnlocked ? "text-emerald-400" : "text-amber-400"}>
-                                {squadInvites} / {targetSquadInvites} Friends Joined
+                                {squadInvites} / {targetSquadInvites} Joined
                               </span>
                             </div>
                             <div className="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
@@ -693,19 +695,19 @@ export default function DiscoveryDetail() {
                             </div>
                             {isSquadUnlocked && (
                               <p className="text-xs text-emerald-400 font-bold mt-2 flex items-center gap-1">
-                                <CheckCircle2 className="w-4 h-4" /> VIP Early Access Key has been added to your Vault!
+                                <CheckCircle2 className="w-4 h-4" /> VIP Early Access Key added to your Vault!
                               </p>
                             )}
                           </div>
 
-                          {/* Action Sharing Buttons */}
-                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                          {/* Action Sharing Buttons - Full width stacked on mobile */}
+                          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                             <button
                               onClick={() => {
                                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                                 handleSimulateInvite();
                               }}
-                              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+                              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
                             >
                               <Share2 className="w-4 h-4" />
                               <span>Challenge WhatsApp Squad</span>
@@ -717,7 +719,7 @@ export default function DiscoveryDetail() {
                                 toast.success("Tracked referral link copied to clipboard!");
                                 handleSimulateInvite();
                               }}
-                              className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition"
+                              className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
                             >
                               <Copy className="w-3.5 h-3.5" />
                               <span>Copy Squad Link</span>
@@ -731,17 +733,17 @@ export default function DiscoveryDetail() {
                 )}
 
                 {/* Scout Context & Deep Dive */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md space-y-4">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-8 backdrop-blur-md space-y-3 sm:space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 THE STORY & WHY IT MATTERS</span>
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-white">Behind The Demand Signal</h3>
-                  <p className="text-sm sm:text-base leading-relaxed text-white/80">
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Behind The Demand Signal</h3>
+                  <p className="text-xs sm:text-base leading-relaxed text-white/80">
                     {poll.description}
                   </p>
                   
                   {poll.contextNotes && (
-                    <div className="mt-4 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20">
+                    <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20">
                       <p className="text-xs font-bold text-orange-300 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" /> What Unlocks Next
                       </p>
@@ -752,11 +754,11 @@ export default function DiscoveryDetail() {
                   )}
 
                   {/* Tag Pills */}
-                  <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-3 sm:pt-4 border-t border-white/10">
                     {poll.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70"
+                        className="rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold text-white/70"
                       >
                         #{tag}
                       </span>
@@ -765,34 +767,34 @@ export default function DiscoveryDetail() {
                 </div>
 
                 {/* Community Debate & Discussion Feed */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md space-y-6">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-8 backdrop-blur-md space-y-4 sm:space-y-6">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
                     <div>
-                      <h3 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
-                        <Flame className="h-5 w-5 text-orange-400" />
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                        <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
                         <span>🥊 Live Arena & Hot Takes</span>
                       </h3>
-                      <p className="text-xs text-white/50">{comments.length} community takes logged</p>
+                      <p className="text-[11px] sm:text-xs text-white/50">{comments.length} community takes logged</p>
                     </div>
                   </div>
 
                   {/* Add Argument Form */}
-                  <form onSubmit={handleAddComment} className="space-y-3 border-b border-white/10 pb-6">
+                  <form onSubmit={handleAddComment} className="space-y-3 border-b border-white/10 pb-4 sm:pb-6">
                     <p className="text-xs font-bold text-white/90">Drop your hot take: Why does your choice make sense?</p>
                     <textarea
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       placeholder="Back your choice with real notes, kitchen tests, or flavor notes..."
                       rows={3}
-                      className="w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-xs text-white placeholder:text-white/40 focus:border-orange-500 focus:outline-none leading-relaxed"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-3.5 text-xs text-white placeholder:text-white/40 focus:border-orange-500 focus:outline-none leading-relaxed"
                     />
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-white/40">Real scout notes only. Keep it authentic.</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] sm:text-[11px] text-white/40 truncate">Real scout notes only.</span>
                       <Button
                         type="submit"
                         disabled={!commentText.trim()}
                         size="sm"
-                        className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5"
+                        className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5 px-3.5 shrink-0"
                       >
                         <Send className="w-3.5 h-3.5" />
                         <span>Post Take</span>
@@ -801,32 +803,32 @@ export default function DiscoveryDetail() {
                   </form>
 
                   {/* Comments List */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {comments.map((c) => {
                       const hasLiked = (commentLikes[c.id] || 0) === 1;
                       const displayLikes = c.likes + (hasLiked ? 1 : 0);
 
                       return (
-                        <div key={c.id} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-white">{c.author}</span>
+                        <div key={c.id} className="rounded-2xl border border-white/5 bg-white/[0.02] p-3.5 sm:p-4 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-xs font-bold text-white truncate">{c.author}</span>
                               {c.badge && (
-                                <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-white/70">
+                                <span className="px-2 py-0.5 rounded-full bg-white/10 text-[9px] sm:text-[10px] font-bold text-white/70 shrink-0">
                                   {c.badge}
                                 </span>
                               )}
                             </div>
-                            <span className="text-[10px] text-white/40">{c.timeAgo}</span>
+                            <span className="text-[10px] text-white/40 shrink-0">{c.timeAgo}</span>
                           </div>
 
                           {c.optionSupported && (
-                            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-400">
-                              <span>🔥 Backing: {c.optionSupported}</span>
+                            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-400 max-w-full truncate">
+                              <span className="truncate">🔥 Backing: {c.optionSupported}</span>
                             </div>
                           )}
 
-                          <p className="text-xs leading-relaxed text-white/80">{c.text}</p>
+                          <p className="text-xs leading-relaxed text-white/80 break-words">{c.text}</p>
 
                           <div className="flex items-center gap-4 pt-1">
                             <button
@@ -848,20 +850,20 @@ export default function DiscoveryDetail() {
               </div>
 
               {/* Right Sticky Sidebar: Demand Engine & Related Polls */}
-              <aside className="sticky top-24 space-y-6">
+              <aside className="sticky top-24 space-y-4 sm:space-y-6">
                 
                 {/* Demand-to-Supply Engine Card */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl space-y-4 shadow-xl">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 backdrop-blur-xl space-y-3 sm:space-y-4 shadow-xl">
                   <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-orange-400" />
                     THE PEOPLE'S GREENLIGHT
                   </span>
-                  <h3 className="font-serif text-xl font-bold text-white">How We Unlock The City</h3>
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white">How We Unlock The City</h3>
                   <p className="text-xs text-white/70 leading-relaxed">
                     Instead of waiting for sponsors to guess what you want, our community votes together to force venues and brands to drop subsidized perks and secret moments.
                   </p>
 
-                  <div className="space-y-3 pt-2 border-t border-white/10 text-xs">
+                  <div className="space-y-2.5 sm:space-y-3 pt-2 border-t border-white/10 text-xs">
                     <div className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         1
@@ -884,7 +886,7 @@ export default function DiscoveryDetail() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-3 sm:pt-4 border-t border-white/10">
                     <Button
                       onClick={() => {
                         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
@@ -899,17 +901,17 @@ export default function DiscoveryDetail() {
 
                 {/* Related Debates */}
                 {otherPolls.length > 0 && (
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl space-y-4 shadow-xl">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 backdrop-blur-xl space-y-3 sm:space-y-4 shadow-xl">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
                       MORE ACTIVE DEBATES
                     </span>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2.5 sm:space-y-3">
                       {otherPolls.map((op) => (
                         <Link
                           key={op.id}
                           to={`/discoveries/${op.slug}`}
-                          className="block p-3.5 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-orange-500/40 hover:bg-white/[0.05] transition group"
+                          className="block p-3 sm:p-3.5 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-orange-500/40 hover:bg-white/[0.05] transition group"
                         >
                           <span className="text-[10px] font-bold text-orange-400 uppercase">
                             {op.category}
@@ -934,15 +936,15 @@ export default function DiscoveryDetail() {
             </div>
           </section>
 
-          {/* Floating Mobile Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 p-3 bg-black/80 backdrop-blur-xl border-t border-white/10 sm:hidden">
+          {/* Floating Mobile Action Bar with safe-area spacing */}
+          <div className="fixed bottom-0 left-0 right-0 z-50 p-3 pb-5 bg-black/90 backdrop-blur-2xl border-t border-white/10 sm:hidden shadow-2xl">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] text-white/60 font-bold uppercase truncate">
-                  {userVotedOptionId ? "Loot Bag Claimed 🎯" : "Active Demand Signal"}
+                  {userVotedOptionId ? "Loot Claimed 🎯" : "Demand Signal"}
                 </p>
                 <p className="text-xs font-bold text-orange-400 truncate">
-                  {totalVotes}/{poll.thresholdForMoment} Power Units
+                  {totalVotes}/{poll.thresholdForMoment} Power Units ({progressPercentage}%)
                 </p>
               </div>
               <Button
@@ -950,11 +952,14 @@ export default function DiscoveryDetail() {
                   if (userVotedOptionId) {
                     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`, "_blank");
                   } else {
-                    window.scrollTo({ top: 350, behavior: 'smooth' });
+                    const ballot = document.getElementById('ballot-section');
+                    if (ballot) {
+                      ballot.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }
                 }}
                 size="sm"
-                className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 shrink-0 shadow-lg shadow-orange-500/20"
+                className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 h-10 shrink-0 shadow-lg shadow-orange-500/20"
               >
                 {userVotedOptionId ? "Rally Squad 🚀" : "Cast Vote 🗳️"}
               </Button>

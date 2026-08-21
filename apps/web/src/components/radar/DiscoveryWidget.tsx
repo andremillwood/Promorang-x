@@ -207,13 +207,13 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                   />
                 )}
 
-                <div className="relative z-10 flex items-center justify-between text-xs">
-                  <span className="flex items-center">
+                <div className="relative z-10 flex items-center justify-between gap-2.5 text-xs">
+                  <span className="flex items-center min-w-0 flex-1">
                     {isSelected && <CheckCircle2 className="w-4 h-4 text-orange-400 mr-2 flex-shrink-0" />}
-                    {option.text}
+                    <span className="truncate">{option.text}</span>
                   </span>
                   {votedOptionId && (
-                    <span className="font-black text-white ml-2 shrink-0">
+                    <span className="font-black text-white ml-2 shrink-0 font-mono text-[11px]">
                       {votePercentage}% ({option.votes})
                     </span>
                   )}
@@ -225,33 +225,33 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
 
         {/* Post-Vote Micro-Conversion & Reward Banner */}
         {votedOptionId && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="mb-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/70 via-gray-900 to-orange-950/70 border border-purple-500/40 shadow-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start space-x-3">
-                <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 mt-0.5">
-                  <Gift className="w-5 h-5" />
+              <div className="flex items-start space-x-2.5 sm:space-x-3 min-w-0">
+                <div className="p-1.5 sm:p-2 rounded-xl bg-orange-500/20 text-orange-400 mt-0.5 shrink-0">
+                  <Gift className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-black text-white flex items-center gap-1.5">
                     <span>Loot Claimed!</span>
-                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[10px] font-black uppercase">
+                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[9px] sm:text-[10px] font-black uppercase">
                       +25 Pts
                     </span>
                   </p>
-                  <p className="text-[11px] text-white/70 mt-1 leading-relaxed">
-                    You're locked in! When this reaches {thresholdForMoment} votes, your secret tasting pass unlocks in your Vault.
+                  <p className="text-[10px] sm:text-[11px] text-white/70 mt-1 leading-relaxed">
+                    You're locked in! When this reaches {thresholdForMoment} votes, your tasting pass unlocks in your Vault.
                   </p>
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex items-center justify-between pt-2.5 border-t border-white/10">
+            <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2.5 border-t border-white/10">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   const text = `Help unlock this drop on Promorang! "${question}" - Vote here: ${window.location.origin}${detailUrl}`;
                   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
                 }}
-                className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition"
+                className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 px-3 py-2 sm:py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition w-full sm:w-auto"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 <span>Rally on WhatsApp</span>
@@ -262,7 +262,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
                   e.stopPropagation();
                   navigate(detailUrl);
                 }}
-                className="text-xs font-bold text-black bg-orange-500 hover:bg-orange-400 px-3.5 py-1.5 rounded-xl flex items-center space-x-1 transition-colors shadow-md shadow-orange-500/20"
+                className="text-xs font-bold text-black bg-orange-500 hover:bg-orange-400 px-3.5 py-2 sm:py-1.5 rounded-xl flex items-center justify-center space-x-1 transition-colors shadow-md shadow-orange-500/20 w-full sm:w-auto"
               >
                 <span>Arena & Takes</span>
                 <ArrowRight className="w-3 h-3" />
